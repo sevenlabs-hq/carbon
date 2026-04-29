@@ -248,11 +248,10 @@ async fn recover_watch_list() -> Result<(), Box<dyn std::error::Error + Send + S
             .surveillance_targets
             .and_then(|t| t.name)
             .unwrap_or_else(|| "Target".into());
-        // Track id → wallet so post-startup DELETE events resolve.
-        state::ID_TO_WALLET.insert(r.id.clone(), r.wallet_address.clone());
         state::add(
             r.wallet_address.clone(),
             WatchedWallet {
+                id: r.id,
                 user_id: r.user_id,
                 target_id: r.target_id,
                 target_name,
@@ -262,7 +261,11 @@ async fn recover_watch_list() -> Result<(), Box<dyn std::error::Error + Send + S
         .await;
         count += 1;
     }
-    log::info!("recovered {} watched wallets", count);
+    log::info!(
+        "recovered {} watcher rows ({} distinct wallets)",
+        count,
+        state::watch_count()
+    );
     Ok(())
 }
 
@@ -371,6 +374,15 @@ struct WalletReq {
     label: Option<String>,
 }
 
+/// Synthetic row id for HTTP-driven legacy add/remove. The HTTP API
+/// doesn't carry the `surveillance_wallet_sessions.id` PK — derive a
+/// stable id from (user, target, wallet) so add+remove via this path
+/// resolve to the same watcher entry. Realtime-driven adds use the
+/// real Supabase row id; the two ID spaces are disjoint by prefix.
+fn synthetic_row_id(user_id: &str, target_id: &str, wallet: &str) -> String {
+    format!("legacy:{}:{}:{}", user_id, target_id, wallet)
+}
+
 async fn handle_wallet(headers: HeaderMap, Json(req): Json<WalletReq>) -> StatusCode {
     if !check_bearer(&headers) {
         return StatusCode::UNAUTHORIZED;
@@ -379,9 +391,11 @@ async fn handle_wallet(headers: HeaderMap, Json(req): Json<WalletReq>) -> Status
     match req.action.as_str() {
         "add" => {
             let target_name = lookup_target_name(&req.target_id).await;
+            let id = synthetic_row_id(&req.user_id, &req.target_id, &req.address);
             state::add(
                 req.address.clone(),
                 WatchedWallet {
+                    id,
                     user_id: req.user_id,
                     target_id: req.target_id,
                     target_name,
@@ -392,7 +406,8 @@ async fn handle_wallet(headers: HeaderMap, Json(req): Json<WalletReq>) -> Status
             StatusCode::OK
         }
         "remove" => {
-            state::remove(&req.address).await;
+            let id = synthetic_row_id(&req.user_id, &req.target_id, &req.address);
+            state::remove_by_id(&id).await;
             StatusCode::OK
         }
         _ => StatusCode::BAD_REQUEST,
@@ -428,9 +443,11 @@ async fn handle_start(headers: HeaderMap, Json(req): Json<StartReq>) -> StatusCo
         let label = w
             .label
             .unwrap_or_else(|| w.address.chars().take(8).collect());
+        let id = synthetic_row_id(&req.user_id, &req.target_id, &w.address);
         state::add(
             w.address,
             WatchedWallet {
+                id,
                 user_id: req.user_id.clone(),
                 target_id: req.target_id.clone(),
                 target_name: target_name.clone(),

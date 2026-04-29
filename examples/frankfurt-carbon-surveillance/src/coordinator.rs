@@ -126,13 +126,17 @@ async fn sweep_once() {
 /// only emitted if no other family emitted for that wallet, suppressing
 /// "used program X" rows when we already have richer activity.
 fn classify(candidates: Vec<ActivityCandidate>) -> Vec<SurveillanceEventOut> {
-    // wallet → family → best candidate so far
-    let mut best: HashMap<String, HashMap<ActivityFamily, ActivityCandidate>> = HashMap::new();
+    // (user_id, wallet) → family → best candidate so far. The user_id
+    // is part of the key so two users watching the same wallet each get
+    // their own row — collapsing only happens within a single user's
+    // view of one wallet.
+    let mut best: HashMap<(String, String), HashMap<ActivityFamily, ActivityCandidate>> =
+        HashMap::new();
 
     for c in candidates {
-        let wallet = c.event.wallet_address.clone();
+        let key = (c.event.user_id.clone(), c.event.wallet_address.clone());
         let family = c.activity.family();
-        let entry = best.entry(wallet).or_default().entry(family);
+        let entry = best.entry(key).or_default().entry(family);
         match entry {
             std::collections::hash_map::Entry::Vacant(v) => {
                 v.insert(c);
@@ -146,7 +150,7 @@ fn classify(candidates: Vec<ActivityCandidate>) -> Vec<SurveillanceEventOut> {
     }
 
     let mut out = Vec::new();
-    for (_wallet, families) in best {
+    for (_key, families) in best {
         // Cross-family suppression rules:
         //
         // - `Fallback` (ProgramActivity) is the coarse "wallet used program X"
@@ -206,16 +210,27 @@ mod tests {
     use crate::state::WatchedWallet;
 
     fn cand(activity: Activity, wallet: &str, program: &'static str, sol: f64) -> ActivityCandidate {
+        cand_with_user(activity, wallet, program, sol, "u")
+    }
+
+    fn cand_with_user(
+        activity: Activity,
+        wallet: &str,
+        program: &'static str,
+        sol: f64,
+        user_id: &str,
+    ) -> ActivityCandidate {
         ActivityCandidate {
             activity,
             watched: WatchedWallet {
-                user_id: "u".into(),
+                id: format!("{}:{}", user_id, wallet),
+                user_id: user_id.into(),
                 target_id: "t".into(),
                 target_name: "n".into(),
                 wallet_label: "".into(),
             },
             event: SurveillanceEventOut {
-                user_id: "u".into(),
+                user_id: user_id.into(),
                 target_id: "t".into(),
                 target_name: "n".into(),
                 wallet_address: wallet.into(),
@@ -318,6 +333,35 @@ mod tests {
             types(&out),
             vec![("swap_buy", "pumpfun"), ("transfer_out", "system_program")]
         );
+    }
+
+    #[test]
+    fn two_users_watching_same_wallet_each_get_a_row() {
+        // Multi-user: user A and user B both watch wallet "W". A swap
+        // by W must produce TWO rows (one per user), not one.
+        let out = classify(vec![
+            cand_with_user(Activity::SwapBuy, "W", "pumpfun", 0.5, "userA"),
+            cand_with_user(Activity::SwapBuy, "W", "pumpfun", 0.5, "userB"),
+        ]);
+        assert_eq!(out.len(), 2);
+        let user_ids: Vec<&str> = out.iter().map(|e| e.user_id.as_str()).collect();
+        assert!(user_ids.contains(&"userA"));
+        assert!(user_ids.contains(&"userB"));
+    }
+
+    #[test]
+    fn same_user_same_wallet_same_family_collapses_to_one() {
+        // Single user, wallet had multi-program swap legs (e.g. pumpfun
+        // + AggWatch fallback both fired). Within a user's view we
+        // collapse to one row per family.
+        let out = classify(vec![
+            cand_with_user(Activity::SwapBuy, "W", "pumpfun", 0.5, "userA"),
+            cand_with_user(Activity::ProgramActivity, "W", "raydium_clmm", 0.0, "userA"),
+        ]);
+        // ProgramActivity (Fallback) suppressed by concrete Swap.
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].user_id, "userA");
+        assert_eq!(out[0].event_type, "swap_buy");
     }
 
     #[test]

@@ -51,32 +51,17 @@ impl Processor for PumpfunWatch {
         if let PumpfunInstruction::CpiEvent(ref boxed) = decoded.data {
             if let CpiEvent::TradeEvent(ev) = (**boxed).clone() {
                 let user_str = ev.user.to_string();
-                let watched = match state::lookup(&user_str) {
-                    Some(w) => w,
-                    None => return Ok(()),
-                };
-                let meta = &metadata.transaction_metadata.meta;
-                let decimals =
-                    extract_decimals(meta, &ev.user, &ev.mint).unwrap_or(6); // pump.fun default
-                let signature = metadata.transaction_metadata.signature.to_string();
-                let event = SurveillanceEventOut {
-                    user_id: watched.user_id.clone(),
-                    target_id: watched.target_id.clone(),
-                    target_name: watched.target_name.clone(),
-                    wallet_address: user_str.clone(),
-                    wallet_label: watched.wallet_label.clone(),
-                    signature: signature.clone(),
-                    event_type: if ev.is_buy { "swap_buy" } else { "swap_sell" },
-                    token_address: Some(ev.mint.to_string()),
-                    token_symbol: None,
-                    sol_amount: ev.sol_amount as f64 / 1e9,
-                    token_amount: fmt_decimal(ev.token_amount, decimals),
-                    price_sol: safe_price_sol(ev.sol_amount, ev.token_amount, decimals),
-                    program: "pumpfun",
-                    counterparty: String::new(),
-                    block_time: iso8601_block_time(metadata.transaction_metadata.block_time),
-                    slot: metadata.transaction_metadata.slot,
-                    raw_data: serde_json::json!({
+                let watchers = state::watchers_for(&user_str);
+                if !watchers.is_empty() {
+                    let meta = &metadata.transaction_metadata.meta;
+                    let decimals =
+                        extract_decimals(meta, &ev.user, &ev.mint).unwrap_or(6);
+                    let signature = metadata.transaction_metadata.signature.to_string();
+                    let block_time = iso8601_block_time(metadata.transaction_metadata.block_time);
+                    let slot = metadata.transaction_metadata.slot;
+                    let activity = if ev.is_buy { Activity::SwapBuy } else { Activity::SwapSell };
+                    let event_type = if ev.is_buy { "swap_buy" } else { "swap_sell" };
+                    let raw = serde_json::json!({
                         "source": "frankfurt-carbon-surveillance",
                         "carbon_program": "pumpfun_decoder",
                         "ix_variant": "CpiEvent::TradeEvent",
@@ -97,10 +82,36 @@ impl Processor for PumpfunWatch {
                         "decimals": decimals,
                         "raw_token_amount": ev.token_amount,
                         "raw_sol_amount": ev.sol_amount,
-                    }),
-                };
-                let activity = if ev.is_buy { Activity::SwapBuy } else { Activity::SwapSell };
-                coordinator::submit(ActivityCandidate { activity, watched: watched.clone(), event }).await;
+                    });
+                    // One event per watcher (each user gets their own row).
+                    for watched in watchers {
+                        let event = SurveillanceEventOut {
+                            user_id: watched.user_id.clone(),
+                            target_id: watched.target_id.clone(),
+                            target_name: watched.target_name.clone(),
+                            wallet_address: user_str.clone(),
+                            wallet_label: watched.wallet_label.clone(),
+                            signature: signature.clone(),
+                            event_type,
+                            token_address: Some(ev.mint.to_string()),
+                            token_symbol: None,
+                            sol_amount: ev.sol_amount as f64 / 1e9,
+                            token_amount: fmt_decimal(ev.token_amount, decimals),
+                            price_sol: safe_price_sol(ev.sol_amount, ev.token_amount, decimals),
+                            program: "pumpfun",
+                            counterparty: String::new(),
+                            block_time: block_time.clone(),
+                            slot,
+                            raw_data: raw.clone(),
+                        };
+                        coordinator::submit(ActivityCandidate {
+                            activity,
+                            watched: watched.clone(),
+                            event,
+                        })
+                        .await;
+                    }
+                }
             }
         }
 
@@ -133,7 +144,8 @@ impl Processor for PumpfunWatch {
             _ => None,
         };
         if let Some((creator_str, ix_variant, mut create_raw)) = create_info {
-            if let Some(watched) = state::lookup(&creator_str) {
+            let watchers = state::watchers_for(&creator_str);
+            if !watchers.is_empty() {
                 let mint = match decoded.accounts.first() {
                     Some(a) => a.pubkey.to_string(),
                     None => return Ok(()),
@@ -145,31 +157,35 @@ impl Processor for PumpfunWatch {
                     obj.insert("fee_payer".into(), serde_json::json!(metadata.transaction_metadata.fee_payer.to_string()));
                 }
                 let signature = metadata.transaction_metadata.signature.to_string();
-                let event = SurveillanceEventOut {
-                    user_id: watched.user_id.clone(),
-                    target_id: watched.target_id.clone(),
-                    target_name: watched.target_name.clone(),
-                    wallet_address: creator_str.clone(),
-                    wallet_label: watched.wallet_label.clone(),
-                    signature,
-                    event_type: Activity::MintCreate.as_event_type(),
-                    token_address: Some(mint),
-                    token_symbol: None,
-                    sol_amount: 0.0,
-                    token_amount: 0.0,
-                    price_sol: 0.0,
-                    program: "pumpfun",
-                    counterparty: String::new(),
-                    block_time: iso8601_block_time(metadata.transaction_metadata.block_time),
-                    slot: metadata.transaction_metadata.slot,
-                    raw_data: create_raw,
-                };
-                coordinator::submit(ActivityCandidate {
-                    activity: Activity::MintCreate,
-                    watched: watched.clone(),
-                    event,
-                })
-                .await;
+                let block_time = iso8601_block_time(metadata.transaction_metadata.block_time);
+                let slot = metadata.transaction_metadata.slot;
+                for watched in watchers {
+                    let event = SurveillanceEventOut {
+                        user_id: watched.user_id.clone(),
+                        target_id: watched.target_id.clone(),
+                        target_name: watched.target_name.clone(),
+                        wallet_address: creator_str.clone(),
+                        wallet_label: watched.wallet_label.clone(),
+                        signature: signature.clone(),
+                        event_type: Activity::MintCreate.as_event_type(),
+                        token_address: Some(mint.clone()),
+                        token_symbol: None,
+                        sol_amount: 0.0,
+                        token_amount: 0.0,
+                        price_sol: 0.0,
+                        program: "pumpfun",
+                        counterparty: String::new(),
+                        block_time: block_time.clone(),
+                        slot,
+                        raw_data: create_raw.clone(),
+                    };
+                    coordinator::submit(ActivityCandidate {
+                        activity: Activity::MintCreate,
+                        watched: watched.clone(),
+                        event,
+                    })
+                    .await;
+                }
             }
         }
 
@@ -214,10 +230,10 @@ impl Processor for PumpSwapWatch {
             None => return Ok(()),
         };
         let user_str = user_pk.to_string();
-        let watched = match state::lookup(&user_str) {
-            Some(w) => w,
-            None => return Ok(()),
-        };
+        let watchers = state::watchers_for(&user_str);
+        if watchers.is_empty() {
+            return Ok(());
+        }
         let base_mint = match attribution::pumpswap_base_mint(&decoded.accounts) {
             Some(pk) => pk,
             None => return Ok(()),
@@ -246,33 +262,43 @@ impl Processor for PumpSwapWatch {
         let sol_amount_lamports = sol_delta_lamports.unsigned_abs() as u64;
 
         let signature = metadata.transaction_metadata.signature.to_string();
-        let event = SurveillanceEventOut {
-            user_id: watched.user_id.clone(),
-            target_id: watched.target_id.clone(),
-            target_name: watched.target_name.clone(),
-            wallet_address: user_str.clone(),
-            wallet_label: watched.wallet_label.clone(),
-            signature: signature.clone(),
-            event_type,
-            token_address: Some(base_mint.to_string()),
-            token_symbol: None,
-            sol_amount: sol_amount_lamports as f64 / 1e9,
-            token_amount: fmt_decimal(token_amount_raw, decimals),
-            price_sol: safe_price_sol(sol_amount_lamports, token_amount_raw, decimals),
-            program: "pumpswap",
-            counterparty: String::new(),
-            block_time: iso8601_block_time(metadata.transaction_metadata.block_time),
-            slot: metadata.transaction_metadata.slot,
-            raw_data: serde_json::json!({
-                "source": "frankfurt-carbon-surveillance",
-                "carbon_program": "pump_swap_decoder",
-                "ix_variant": ix_variant,
-                "decimals": decimals,
-                "raw_token_amount": token_amount_raw,
-                "raw_sol_amount_lamports": sol_amount_lamports,
-            }),
-        };
-        coordinator::submit(ActivityCandidate { activity, watched: watched.clone(), event }).await;
+        let block_time = iso8601_block_time(metadata.transaction_metadata.block_time);
+        let slot = metadata.transaction_metadata.slot;
+        let raw = serde_json::json!({
+            "source": "frankfurt-carbon-surveillance",
+            "carbon_program": "pump_swap_decoder",
+            "ix_variant": ix_variant,
+            "decimals": decimals,
+            "raw_token_amount": token_amount_raw,
+            "raw_sol_amount_lamports": sol_amount_lamports,
+        });
+        for watched in watchers {
+            let event = SurveillanceEventOut {
+                user_id: watched.user_id.clone(),
+                target_id: watched.target_id.clone(),
+                target_name: watched.target_name.clone(),
+                wallet_address: user_str.clone(),
+                wallet_label: watched.wallet_label.clone(),
+                signature: signature.clone(),
+                event_type,
+                token_address: Some(base_mint.to_string()),
+                token_symbol: None,
+                sol_amount: sol_amount_lamports as f64 / 1e9,
+                token_amount: fmt_decimal(token_amount_raw, decimals),
+                price_sol: safe_price_sol(sol_amount_lamports, token_amount_raw, decimals),
+                program: "pumpswap",
+                counterparty: String::new(),
+                block_time: block_time.clone(),
+                slot,
+                raw_data: raw.clone(),
+            };
+            coordinator::submit(ActivityCandidate {
+                activity,
+                watched: watched.clone(),
+                event,
+            })
+            .await;
+        }
         Ok(())
     }
 }
@@ -339,11 +365,11 @@ impl Processor for TransferSolWatch {
         let slot = metadata.transaction_metadata.slot;
 
         let mut sides: Vec<(&'static str, String, String, WatchedWallet)> = Vec::new();
-        if let Some(w) = state::lookup(&source_str) {
+        for w in state::watchers_for(&source_str) {
             sides.push(("transfer_out", source_str.clone(), dest_str.clone(), w));
         }
         if source_str != dest_str {
-            if let Some(w) = state::lookup(&dest_str) {
+            for w in state::watchers_for(&dest_str) {
                 sides.push(("transfer_in", dest_str.clone(), source_str.clone(), w));
             }
         }
@@ -442,14 +468,14 @@ async fn emit_spl_transfer_event(
 
     let mut sides: Vec<(&'static str, String, String, WatchedWallet)> = Vec::new();
     if let Some(o) = src_owner.as_ref() {
-        if let Some(w) = state::lookup(o) {
+        for w in state::watchers_for(o) {
             let cp = dst_owner.clone().unwrap_or_default();
             sides.push(("transfer_out", o.clone(), cp, w));
         }
     }
     if let Some(o) = dst_owner.as_ref() {
         if Some(o) != src_owner.as_ref() {
-            if let Some(w) = state::lookup(o) {
+            for w in state::watchers_for(o) {
                 let cp = src_owner.clone().unwrap_or_default();
                 sides.push(("transfer_in", o.clone(), cp, w));
             }
@@ -725,24 +751,17 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
         let block_time = iso8601_block_time(metadata.transaction_metadata.block_time);
         let slot = metadata.transaction_metadata.slot;
         let signer_str = metadata.transaction_metadata.fee_payer.to_string();
-        let matched =
-            attribution::aggwatch_matched_wallets(&decoded.accounts, |s| {
-                state::lookup(s).is_some()
-            });
+        let matched = attribution::aggwatch_matched_wallets(&decoded.accounts, |s| {
+            state::is_watched(s)
+        });
         let meta = &metadata.transaction_metadata.meta;
         let static_keys = metadata.transaction_metadata.message.static_account_keys();
         let fee_payer_pk = metadata.transaction_metadata.fee_payer;
         for matched_pk in matched {
             let pk_str = matched_pk.to_string();
-            let watched = match state::lookup(&pk_str) {
-                Some(w) => w,
-                None => continue, // race: removed between scan and emit
-            };
-            // Net-delta filter: routing-intermediary wallets (e.g.
-            // ARu4n5mF as a proxy in OKX/Onchain Labs DEX V2 routed
-            // swaps) appear in many account slots but have ~zero net
-            // balance change. Only emit a ProgramActivity row when the
-            // wallet actually moved tokens or SOL by more than dust.
+            // Net-delta filter is per-wallet (one check per wallet,
+            // independent of how many users watch it). Routing-
+            // intermediary wallets short-circuit here.
             if !attribution::watched_has_meaningful_delta(
                 meta,
                 static_keys,
@@ -751,36 +770,46 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
             ) {
                 continue;
             }
-            let event = SurveillanceEventOut {
-                user_id: watched.user_id.clone(),
-                target_id: watched.target_id.clone(),
-                target_name: watched.target_name.clone(),
-                wallet_address: pk_str.clone(),
-                wallet_label: watched.wallet_label.clone(),
-                signature: signature.clone(),
-                event_type: Activity::ProgramActivity.as_event_type(),
-                token_address: None,
-                token_symbol: None,
-                sol_amount: 0.0,
-                token_amount: 0.0,
-                price_sol: 0.0,
-                program: self.program,
-                counterparty: String::new(),
-                block_time: block_time.clone(),
-                slot,
-                raw_data: serde_json::json!({
-                    "source": "frankfurt-carbon-surveillance",
-                    "carbon_program": format!("{}_decoder", self.program),
-                    "fee_payer": signer_str,
-                    "note": "generic AggWatch — coordinator may suppress if richer candidate also fired",
-                }),
-            };
-            coordinator::submit(ActivityCandidate {
-                activity: Activity::ProgramActivity,
-                watched,
-                event,
-            })
-            .await;
+            let watchers = state::watchers_for(&pk_str);
+            if watchers.is_empty() {
+                // Race: all watchers removed between scan and emit.
+                continue;
+            }
+            let raw = serde_json::json!({
+                "source": "frankfurt-carbon-surveillance",
+                "carbon_program": format!("{}_decoder", self.program),
+                "fee_payer": signer_str,
+                "note": "generic AggWatch — coordinator may suppress if richer candidate also fired",
+            });
+            // One row per (wallet, watcher) — multiple users watching
+            // the same wallet each get their own ProgramActivity.
+            for watched in watchers {
+                let event = SurveillanceEventOut {
+                    user_id: watched.user_id.clone(),
+                    target_id: watched.target_id.clone(),
+                    target_name: watched.target_name.clone(),
+                    wallet_address: pk_str.clone(),
+                    wallet_label: watched.wallet_label.clone(),
+                    signature: signature.clone(),
+                    event_type: Activity::ProgramActivity.as_event_type(),
+                    token_address: None,
+                    token_symbol: None,
+                    sol_amount: 0.0,
+                    token_amount: 0.0,
+                    price_sol: 0.0,
+                    program: self.program,
+                    counterparty: String::new(),
+                    block_time: block_time.clone(),
+                    slot,
+                    raw_data: raw.clone(),
+                };
+                coordinator::submit(ActivityCandidate {
+                    activity: Activity::ProgramActivity,
+                    watched,
+                    event,
+                })
+                .await;
+            }
         }
         Ok(())
     }

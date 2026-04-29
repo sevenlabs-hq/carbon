@@ -241,24 +241,23 @@ async fn handle_message(
         }
         "DELETE" => {
             // Realtime's DELETE old_record contains only the PK (`id`).
-            // Look up the wallet from the in-memory id→wallet map we
-            // populated on the row's last INSERT/UPDATE.
+            // Resolve the wallet through state::remove_by_id which
+            // looks up id→wallet, removes that watcher, and (if last
+            // watcher for the wallet) drops the wallet from
+            // ATLAS_WS_ACCOUNTS / fires Helius re-sub.
             let id = data
                 .pointer("/old_record/id")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
-            if let Some(wallet) = state::ID_TO_WALLET.remove(id).map(|(_, w)| w) {
-                state::remove(&wallet).await;
-                log::info!(
-                    "watch_list_sync: removed wallet {} via id lookup (now watching {} wallets)",
-                    wallet,
-                    state::watch_count()
-                );
-            } else {
-                log::warn!(
+            match state::remove_by_id(id).await {
+                Some(wallet) => log::info!(
+                    "watch_list_sync: removed watcher id={} from wallet {} (now watching {} wallets)",
+                    id, wallet, state::watch_count()
+                ),
+                None => log::warn!(
                     "watch_list_sync: DELETE for id={} — no wallet mapped (untracked or already removed)",
                     id
-                );
+                ),
             }
         }
         other => log::debug!("watch_list_sync: unhandled change type '{}'", other),
@@ -288,12 +287,12 @@ async fn fetch_and_add(
             .and_then(|t| t.name)
             .unwrap_or_else(|| "Target".into());
         let wallet = r.wallet_address.clone();
-        // Track id → wallet so DELETE events (which only carry the PK)
-        // can resolve back to the wallet.
-        state::ID_TO_WALLET.insert(r.id.clone(), wallet.clone());
+        // state::add internally maintains state::ID_TO_WALLET so DELETE
+        // events (which carry only the PK) can resolve back.
         state::add(
             wallet.clone(),
             WatchedWallet {
+                id: r.id,
                 user_id: r.user_id,
                 target_id: r.target_id,
                 target_name,
