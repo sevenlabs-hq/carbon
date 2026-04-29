@@ -34,6 +34,7 @@ struct EmbeddedTarget {
 
 #[derive(Deserialize)]
 struct WalletRow {
+    id: String,
     user_id: String,
     target_id: String,
     wallet_address: String,
@@ -196,10 +197,6 @@ async fn handle_message(
         return;
     }
     // TEMP DEBUG: log change_type + record presence so we can see what's coming
-    let dt = parsed.pointer("/payload/data/type").and_then(|v| v.as_str()).unwrap_or("?");
-    if dt == "DELETE" {
-        log::info!("watch_list_sync DELETE PAYLOAD: {}", text);
-    }
 
     let data = parsed
         .pointer("/payload/data")
@@ -237,15 +234,24 @@ async fn handle_message(
             }
         }
         "DELETE" => {
-            let wallet = data
-                .pointer("/old_record/wallet_address")
-                .and_then(|v| v.as_str());
-            if let Some(w) = wallet {
-                state::remove(w).await;
+            // Realtime's DELETE old_record contains only the PK (`id`).
+            // Look up the wallet from the in-memory id→wallet map we
+            // populated on the row's last INSERT/UPDATE.
+            let id = data
+                .pointer("/old_record/id")
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
+            if let Some(wallet) = state::ID_TO_WALLET.remove(id).map(|(_, w)| w) {
+                state::remove(&wallet).await;
                 log::info!(
-                    "watch_list_sync: removed wallet {} (now watching {} wallets)",
-                    w,
+                    "watch_list_sync: removed wallet {} via id lookup (now watching {} wallets)",
+                    wallet,
                     state::watch_count()
+                );
+            } else {
+                log::warn!(
+                    "watch_list_sync: DELETE for id={} — no wallet mapped (untracked or already removed)",
+                    id
                 );
             }
         }
@@ -259,7 +265,7 @@ async fn fetch_and_add(
     api_key: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let url = format!(
-        "{}/rest/v1/surveillance_wallet_sessions?id=eq.{}&select=user_id,target_id,wallet_address,wallet_label,surveillance_targets(name)",
+        "{}/rest/v1/surveillance_wallet_sessions?id=eq.{}&select=id,user_id,target_id,wallet_address,wallet_label,surveillance_targets(name)",
         supabase_url, id
     );
     let rows: Vec<WalletRow> = reqwest::Client::new()
@@ -276,6 +282,9 @@ async fn fetch_and_add(
             .and_then(|t| t.name)
             .unwrap_or_else(|| "Target".into());
         let wallet = r.wallet_address.clone();
+        // Track id → wallet so DELETE events (which only carry the PK)
+        // can resolve back to the wallet.
+        state::ID_TO_WALLET.insert(r.id.clone(), wallet.clone());
         state::add(
             wallet.clone(),
             WatchedWallet {

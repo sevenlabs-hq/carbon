@@ -231,7 +231,7 @@ async fn recover_watch_list() -> Result<(), Box<dyn std::error::Error + Send + S
         .unwrap_or_else(|_| "frankfurt-prod".into());
 
     let url = format!(
-        "{}/rest/v1/surveillance_wallet_sessions?server_id=eq.{}&status=eq.running&select=user_id,target_id,wallet_address,wallet_label,surveillance_targets(name)",
+        "{}/rest/v1/surveillance_wallet_sessions?server_id=eq.{}&status=eq.running&select=id,user_id,target_id,wallet_address,wallet_label,surveillance_targets(name)",
         supabase_url, recovery_source
     );
     let rows: Vec<SessionRow> = reqwest::Client::new()
@@ -248,6 +248,8 @@ async fn recover_watch_list() -> Result<(), Box<dyn std::error::Error + Send + S
             .surveillance_targets
             .and_then(|t| t.name)
             .unwrap_or_else(|| "Target".into());
+        // Track id → wallet so post-startup DELETE events resolve.
+        state::ID_TO_WALLET.insert(r.id.clone(), r.wallet_address.clone());
         state::add(
             r.wallet_address.clone(),
             WatchedWallet {
@@ -266,6 +268,7 @@ async fn recover_watch_list() -> Result<(), Box<dyn std::error::Error + Send + S
 
 #[derive(Deserialize)]
 struct SessionRow {
+    id: String,
     user_id: String,
     target_id: String,
     wallet_address: String,

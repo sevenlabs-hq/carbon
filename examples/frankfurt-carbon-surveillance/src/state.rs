@@ -21,6 +21,13 @@ pub struct WatchedWallet {
 /// Keyed by wallet pubkey (base58). Value = attribution metadata.
 pub static WATCH: Lazy<DashMap<String, WatchedWallet>> = Lazy::new(DashMap::new);
 
+/// Reverse lookup `surveillance_wallet_sessions.id` → `wallet_address`.
+/// Populated on INSERT/UPDATE in watch_list_sync; consulted on DELETE
+/// because Supabase Realtime's DELETE payload's `old_record` only
+/// includes the primary key, not the full row (REPLICA IDENTITY FULL
+/// notwithstanding — Realtime strips non-PK columns).
+pub static ID_TO_WALLET: Lazy<DashMap<String, String>> = Lazy::new(DashMap::new);
+
 /// Mirrored to the atlas-ws datasource's `account_include` set. Carbon's
 /// HeliusWebsocket re-subscribes when `ATLAS_WS_NOTIFY` is fired.
 pub static ATLAS_WS_ACCOUNTS: Lazy<Arc<RwLock<HashSet<Pubkey>>>> =
