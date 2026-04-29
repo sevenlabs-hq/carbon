@@ -141,10 +141,32 @@ fn classify(candidates: Vec<ActivityCandidate>) -> Vec<SurveillanceEventOut> {
 
     let mut out = Vec::new();
     for (_wallet, families) in best {
-        let has_non_fallback = families.keys().any(|f| *f != ActivityFamily::Fallback);
+        // Cross-family suppression rules:
+        //
+        // - `Fallback` (ProgramActivity) is the coarse "wallet used program X"
+        //   row. Any concrete family (Swap, Mint, Liquidity, Transfer, …)
+        //   already implies that, so drop Fallback when anything else fired.
+        //
+        // - `Transfer` is ancillary to anything richer: a swap-tx's outer
+        //   SOL transfer (Jito tip / Photon platform fee / WSOL wrap) is
+        //   not a user transfer, it's part of the swap. Drop Transfer when
+        //   any non-Transfer, non-Fallback family also fired for the
+        //   wallet. Standalone transfers (where no swap/mint/etc.
+        //   happened) still emit.
+        //
+        // - Other families (Swap + Mint on a create-and-buy, Liquidity +
+        //   Swap, etc.) co-emit — they describe distinct user actions.
+        let richer_present = families
+            .keys()
+            .any(|f| !matches!(f, ActivityFamily::Fallback | ActivityFamily::Transfer));
+        let any_concrete_present = families
+            .keys()
+            .any(|f| !matches!(f, ActivityFamily::Fallback));
         for (family, cand) in families {
-            if family == ActivityFamily::Fallback && has_non_fallback {
-                continue;
+            match family {
+                ActivityFamily::Fallback if any_concrete_present => continue,
+                ActivityFamily::Transfer if richer_present => continue,
+                _ => {}
             }
             out.push(cand.event);
         }
@@ -170,4 +192,137 @@ fn beats(new: &ActivityCandidate, current: &ActivityCandidate) -> bool {
     }
     // Equal — keep current to avoid churn.
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::state::WatchedWallet;
+
+    fn cand(activity: Activity, wallet: &str, program: &'static str, sol: f64) -> ActivityCandidate {
+        ActivityCandidate {
+            activity,
+            watched: WatchedWallet {
+                user_id: "u".into(),
+                target_id: "t".into(),
+                target_name: "n".into(),
+                wallet_label: "".into(),
+            },
+            event: SurveillanceEventOut {
+                user_id: "u".into(),
+                target_id: "t".into(),
+                target_name: "n".into(),
+                wallet_address: wallet.into(),
+                wallet_label: "".into(),
+                signature: "sig".into(),
+                event_type: activity.as_event_type(),
+                token_address: None,
+                token_symbol: None,
+                sol_amount: sol,
+                token_amount: 0.0,
+                price_sol: 0.0,
+                program,
+                counterparty: "".into(),
+                block_time: "2026-04-29T00:00:00Z".into(),
+                slot: 0,
+                raw_data: serde_json::json!({}),
+            },
+        }
+    }
+
+    fn types(events: &[SurveillanceEventOut]) -> Vec<(&str, &str)> {
+        let mut v: Vec<_> = events
+            .iter()
+            .map(|e| (e.event_type, e.program))
+            .collect();
+        v.sort();
+        v
+    }
+
+    #[test]
+    fn lone_swap_emits_one() {
+        let out = classify(vec![cand(Activity::SwapBuy, "A", "pumpfun", 0.5)]);
+        assert_eq!(types(&out), vec![("swap_buy", "pumpfun")]);
+    }
+
+    #[test]
+    fn lone_transfer_emits_one() {
+        let out = classify(vec![cand(Activity::TransferOut, "A", "system_program", 0.001)]);
+        assert_eq!(types(&out), vec![("transfer_out", "system_program")]);
+    }
+
+    #[test]
+    fn swap_plus_tip_transfer_same_wallet_suppresses_transfer() {
+        // The exact pattern blocking parity: PumpFun swap with an outer
+        // SystemProgram tip ix on the same tx, same wallet.
+        let out = classify(vec![
+            cand(Activity::SwapBuy, "A", "pumpfun", 0.5),
+            cand(Activity::TransferOut, "A", "system_program", 0.001),
+        ]);
+        assert_eq!(types(&out), vec![("swap_buy", "pumpfun")]);
+    }
+
+    #[test]
+    fn mint_plus_swap_co_emit() {
+        // pump.fun create_and_buy: distinct user actions, both surface.
+        let out = classify(vec![
+            cand(Activity::MintCreate, "A", "pumpfun", 0.0),
+            cand(Activity::SwapBuy, "A", "pumpfun", 0.5),
+        ]);
+        assert_eq!(
+            types(&out),
+            vec![("mint_create", "pumpfun"), ("swap_buy", "pumpfun")]
+        );
+    }
+
+    #[test]
+    fn fallback_alone_emits() {
+        let out = classify(vec![cand(Activity::ProgramActivity, "A", "dflow", 0.0)]);
+        assert_eq!(types(&out), vec![("program_activity", "dflow")]);
+    }
+
+    #[test]
+    fn fallback_suppressed_by_concrete_family() {
+        let out = classify(vec![
+            cand(Activity::ProgramActivity, "A", "raydium_clmm", 0.0),
+            cand(Activity::SwapBuy, "A", "pumpfun", 0.5),
+        ]);
+        assert_eq!(types(&out), vec![("swap_buy", "pumpfun")]);
+    }
+
+    #[test]
+    fn fallback_suppressed_by_transfer_too() {
+        // Even Transfer is "concrete enough" to imply the program was used.
+        let out = classify(vec![
+            cand(Activity::ProgramActivity, "A", "memo", 0.0),
+            cand(Activity::TransferOut, "A", "system_program", 0.001),
+        ]);
+        assert_eq!(types(&out), vec![("transfer_out", "system_program")]);
+    }
+
+    #[test]
+    fn different_wallets_independent() {
+        // Swap by wallet A + transfer by wallet B on the same tx → both emit.
+        // The cross-family suppression is per-wallet, not per-tx.
+        let out = classify(vec![
+            cand(Activity::SwapBuy, "A", "pumpfun", 0.5),
+            cand(Activity::TransferOut, "B", "system_program", 0.01),
+        ]);
+        assert_eq!(
+            types(&out),
+            vec![("swap_buy", "pumpfun"), ("transfer_out", "system_program")]
+        );
+    }
+
+    #[test]
+    fn duplicate_swap_collapses_picking_richer() {
+        // AggWatch fallback fired alongside concrete decoder for the same
+        // family — coordinator picks richer (non-zero amounts) within the
+        // family, then cross-family suppression doesn't trigger.
+        let mut a = cand(Activity::SwapBuy, "A", "raydium_launchpad", 0.0);
+        a.event.token_amount = 0.0;
+        let b = cand(Activity::SwapBuy, "A", "pumpfun", 0.5);
+        let out = classify(vec![a, b]);
+        assert_eq!(types(&out), vec![("swap_buy", "pumpfun")]);
+    }
 }
