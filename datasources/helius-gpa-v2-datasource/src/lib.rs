@@ -193,24 +193,23 @@ impl HeliusGpaV2Datasource {
 
         let Some(HeliusGpaV2Result {
             context: Some(context),
-            accounts: Some(accounts),
-            pagination_key_flat,
-            ..
+            value: Some(value),
         }) = response.result
         else {
             return Err(carbon_core::error::Error::FailedToConsumeDatasource(
-                "Response missing context or accounts field".to_string(),
+                "Response missing context or value field".to_string(),
             ));
         };
 
-        let accounts = accounts
+        let accounts = value
+            .accounts
             .into_iter()
             .filter_map(|account| {
                 let pubkey = Pubkey::from_str(&account.pubkey).ok()?;
                 let account_data = account
                     .account
                     .data
-                    .get(1)
+                    .first()
                     .and_then(|data| STANDARD.decode(data).ok())?;
                 let account = Account {
                     lamports: account.account.lamports,
@@ -226,7 +225,7 @@ impl HeliusGpaV2Datasource {
         Ok(FetchHeliusGpaV2AccountsPageResult {
             accounts,
             slot: context.slot,
-            pagination_key: pagination_key_flat,
+            pagination_key: value.pagination_key,
         })
     }
 }

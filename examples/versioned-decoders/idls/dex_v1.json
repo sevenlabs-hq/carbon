@@ -1,0 +1,32 @@
+{
+  "address": "Dex1111111111111111111111111111111111111111",
+  "metadata": {
+    "name": "simple_dex",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Simple DEX v1 - swap with amount_in and min_amount_out"
+  },
+  "instructions": [
+    {
+      "name": "swap",
+      "discriminator": [248, 198, 158, 145, 225, 117, 135, 200],
+      "accounts": [],
+      "args": [
+        { "name": "amountIn", "type": "u64" },
+        { "name": "minAmountOut", "type": "u64" }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "SwapResult",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "amountOut", "type": "u64" },
+          { "name": "fee", "type": "u64" }
+        ]
+      }
+    }
+  ]
+}
