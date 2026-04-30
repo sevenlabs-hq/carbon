@@ -20,13 +20,13 @@ If you're not sure which one fits, find your use case below:
 
 ## Variants
 
-A few examples ship with interchangeable upstream sources, defined side-by-side in `src/variants.rs`. The processor and pipeline wiring stay identical across variants — to swap, edit the single line in `main.rs` that constructs the datasource.
+A few examples ship with interchangeable upstream sources, defined side-by-side in `src/variants.rs`. The processor and pipeline wiring stay identical across variants — to swap, set the source selector in the example's `.env`.
 
-| Crate                                                | Default                       | Alternatives                                                                                                                        |
-| ---------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| [`yellowstone-grpc`](yellowstone-grpc)               | Yellowstone Geyser gRPC       | Helius LaserStream gRPC (`replay_enabled` for missed-slot replay); Jito Shredstream gRPC (pre-confirmation, no source-side filters) |
-| [`transaction-crawler-rpc`](transaction-crawler-rpc) | RPC `getSignaturesForAddress` | Helius GTFA (hosted, with built-in slot/time/status filters)                                                                        |
-| [`gpa-rpc`](gpa-rpc)                                 | RPC `getProgramAccounts`      | Helius gPA v2 (paginated, `changed_since_slot` for incremental syncs)                                                               |
+| Crate                                                | Selector             | Default                       | Alternatives                                                                                                                        |
+| ---------------------------------------------------- | -------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| [`yellowstone-grpc`](yellowstone-grpc)               | `REALTIME_SOURCE`    | `yellowstone`                 | `laserstream`; `jito-shredstream`                                                                                                   |
+| [`transaction-crawler-rpc`](transaction-crawler-rpc) | `TRANSACTION_SOURCE` | `rpc`                         | `helius-gtfa`                                                                                                                       |
+| [`gpa-rpc`](gpa-rpc)                                 | `GPA_SOURCE`         | `rpc`                         | `helius-gpa-v2`                                                                                                                     |
 
 ## Running
 

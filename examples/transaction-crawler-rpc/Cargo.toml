@@ -16,4 +16,6 @@ solana-signature = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }
+async-trait = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }

@@ -6,15 +6,10 @@ This example demonstrates how to backfill Meteora DLMM activity by polling a pro
 
 This crate ships two interchangeable variants in [`src/variants.rs`](src/variants.rs):
 
-- `variants::rpc(...)` — plain Solana RPC. Uses `getSignaturesForAddress` + `getTransaction`. Default in `main.rs`.
-- `variants::helius_gtfa(...)` — Helius GTFA, the hosted equivalent. Adds built-in slot/time/status filters that aren't available on plain RPC.
+- `TRANSACTION_SOURCE=rpc` — plain Solana RPC. Uses `getSignaturesForAddress` + `getTransaction`. Default.
+- `TRANSACTION_SOURCE=helius-gtfa` — Helius GTFA, the hosted equivalent. Adds built-in slot/time/status filters that aren't available on plain RPC.
 
-Swap by editing the line in `main.rs`:
-
-```rust
-let datasource = variants::rpc(METEORA_PROGRAM_ID);
-// let datasource = variants::helius_gtfa(METEORA_PROGRAM_ID);
-```
+Swap by setting `TRANSACTION_SOURCE=rpc` or `TRANSACTION_SOURCE=helius-gtfa` in `.env`.
 
 ## Setup Instructions
 
@@ -32,18 +27,22 @@ cd carbon/examples/transaction-crawler-rpc
 Create a `.env` file in the root of the example. Set the variables for whichever variant you're running:
 
 ```env
-# RPC variant (default)
+# Source: rpc (default) or helius-gtfa
+TRANSACTION_SOURCE=rpc
+
+# RPC source
 RPC_URL=https://api.mainnet-beta.solana.com
 # Optional: stop the backfill once this signature is reached.
 # UNTIL_SIGNATURE=4xK9j8Cxi...c9Pq
 
-# GTFA variant
+# Helius GTFA source
 # HELIUS_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
 
 RUST_LOG=info
 ```
 
 - `RPC_URL`: Solana RPC HTTP endpoint that supports `getSignaturesForAddress` and `getTransaction`. Required for the RPC variant. Public mainnet works but rate-limits hard against active programs — use a dedicated provider.
+- `TRANSACTION_SOURCE`: `rpc` or `helius-gtfa`. Defaults to `rpc`.
 - `UNTIL_SIGNATURE`: signature to bound the backfill at. Optional. Without it the RPC variant runs until ctrl-C.
 - `HELIUS_RPC_URL`: Helius RPC URL with API key embedded. Required for the GTFA variant.
 - `RUST_LOG`: log level. `info` shows decoded Meteora DLMM instructions.
