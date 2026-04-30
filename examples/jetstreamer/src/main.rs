@@ -37,6 +37,7 @@ pub async fn main() -> CarbonResult<()> {
 
     let datasource = JetstreamerDatasource::new_with_old_faithful_mainnet(
         JetstreamerRange::Slot(start_slot, end_slot),
+    //  JetstreamerRange::Epoch(epoch) for epoch-based backfill
         JetstreamerFilter {
             include_transactions: true,
             include_blocks: false,
