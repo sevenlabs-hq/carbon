@@ -10,7 +10,7 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_token_2022_decoder::{instructions::Token2022Instruction, Token2022Decoder},
-    std::{collections::HashSet, sync::Arc},
+    std::{collections::HashSet, env, sync::Arc},
 };
 
 #[tokio::main]
@@ -18,9 +18,13 @@ pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
     env_logger::init();
 
+    let start_slot = env_u64("START_SLOT", 415_500_000);
+    let end_slot = env_u64("END_SLOT", 415_931_999);
+    let worker_count = env_u64("WORKER_COUNT", 4);
+    let page_size = env_u64("PAGE_SIZE", 100);
+
     let datasource = JetstreamerDatasource::new_with_old_faithful_mainnet(
-        JetstreamerRange::Slot(415_500_000, 415_931_999),
-        // alt: JetstreamerRange::Epoch(962),
+        JetstreamerRange::Slot(start_slot, end_slot),
         JetstreamerFilter {
             include_transactions: true,
             include_blocks: false,
@@ -32,8 +36,8 @@ pub async fn main() -> CarbonResult<()> {
                 account_required: HashSet::new(),
             }],
         },
-        4,
-        Some(100),
+        worker_count,
+        Some(page_size),
     );
 
     Pipeline::builder()
@@ -47,6 +51,13 @@ pub async fn main() -> CarbonResult<()> {
 
     log::info!("backfill complete");
     Ok(())
+}
+
+fn env_u64(name: &str, default: u64) -> u64 {
+    env::var(name)
+        .ok()
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(default)
 }
 
 pub struct Token2022InstructionProcessor;

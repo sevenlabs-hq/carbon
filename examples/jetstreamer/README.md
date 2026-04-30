@@ -15,15 +15,23 @@ cd carbon/examples/jetstreamer
 
 ### Step 2: Set Environment Variables
 
-No environment variables are required — the default constructor uses the Solana Foundation's public Old Faithful endpoint. Optionally:
+No environment variables are required — the default constructor uses the Solana Foundation's public Old Faithful endpoint. Override the backfill window and fetch concurrency with:
 
 ```env
+START_SLOT=415500000
+END_SLOT=415931999
+WORKER_COUNT=4
+PAGE_SIZE=100
 RUST_LOG=info
 ```
 
+- `START_SLOT`: first slot to backfill. Defaults to `415500000`.
+- `END_SLOT`: last slot to backfill. Defaults to `415931999`.
+- `WORKER_COUNT`: parallel fetch workers. Defaults to `4`.
+- `PAGE_SIZE`: page size passed to Jetstreamer. Defaults to `100`.
 - `RUST_LOG`: log level. `info` shows decoded Token-2022 instructions and the final `backfill complete` message.
 
-The slot range, transaction filter, and worker count are configured directly in [`src/main.rs`](src/main.rs). Edit `JetstreamerRange::Slot(start, end)` to change the window — default is roughly one epoch's worth of data (~432k slots).
+The transaction filter is still configured directly in [`src/main.rs`](src/main.rs). The default slot window is roughly one epoch's worth of data (~432k slots).
 
 ### Step 3: Build the Project
 
@@ -41,4 +49,4 @@ After building, run the pipeline using:
 cargo run --release -p jetstreamer-carbon-example
 ```
 
-The pipeline processes the configured slot range and exits via `ProcessPending`. Throughput depends on Jetstream's rate limits and the worker count — for a full epoch expect tens of minutes wall time. Narrow the range in `main.rs` for a quick smoke test.
+The pipeline processes the configured slot range and exits via `ProcessPending`. Throughput depends on Jetstream's rate limits and `WORKER_COUNT` — for a full epoch expect tens of minutes wall time. Narrow `START_SLOT` / `END_SLOT` for a quick smoke test.
