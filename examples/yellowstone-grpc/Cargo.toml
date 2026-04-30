@@ -14,9 +14,7 @@ carbon-yellowstone-grpc-datasource = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }
-async-trait = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
-tokio-util = { workspace = true }
 yellowstone-grpc-proto = { workspace = true }
 
 [dependencies.rustls]
