@@ -14,7 +14,6 @@ pub struct FeeConfigRow {
     pub admin: Pubkey,
     pub flat_fees: sqlx::types::Json<Fees>,
     pub fee_tiers: sqlx::types::Json<Vec<FeeTier>>,
-    pub stable_fee_tiers: sqlx::types::Json<Vec<FeeTier>>,
 }
 
 impl FeeConfigRow {
@@ -25,7 +24,6 @@ impl FeeConfigRow {
             admin: source.admin.into(),
             flat_fees: sqlx::types::Json(source.flat_fees.into()),
             fee_tiers: sqlx::types::Json(source.fee_tiers.into_iter().map(|element| element.into()).collect()),
-            stable_fee_tiers: sqlx::types::Json(source.stable_fee_tiers.into_iter().map(|element| element.into()).collect()),
         }
     }
 }
@@ -38,7 +36,6 @@ impl TryFrom<FeeConfigRow> for crate::accounts::fee_config::FeeConfig {
             admin: *source.admin,
             flat_fees: source.flat_fees.0,
             fee_tiers: source.fee_tiers.0,
-            stable_fee_tiers: source.stable_fee_tiers.0,
         })
     }
 }
@@ -56,7 +53,6 @@ impl carbon_core::postgres::operations::Table for crate::accounts::fee_config::F
             "admin",
             "flat_fees",
             "fee_tiers",
-            "stable_fee_tiers",
         ]
     }
 }
@@ -70,16 +66,14 @@ impl carbon_core::postgres::operations::Insert for FeeConfigRow {
                 "admin",
                 "flat_fees",
                 "fee_tiers",
-                "stable_fee_tiers",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6
             )"#)
         .bind(self.bump.clone())
         .bind(self.admin.clone())
         .bind(self.flat_fees.clone())
         .bind(self.fee_tiers.clone())
-        .bind(self.stable_fee_tiers.clone())
         .bind(self.account_metadata.pubkey.clone())
         .bind(self.account_metadata.slot.clone())
         .execute(pool).await
@@ -96,10 +90,9 @@ impl carbon_core::postgres::operations::Upsert for FeeConfigRow {
                 "admin",
                 "flat_fees",
                 "fee_tiers",
-                "stable_fee_tiers",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -107,14 +100,12 @@ impl carbon_core::postgres::operations::Upsert for FeeConfigRow {
                 "admin" = EXCLUDED."admin",
                 "flat_fees" = EXCLUDED."flat_fees",
                 "fee_tiers" = EXCLUDED."fee_tiers",
-                "stable_fee_tiers" = EXCLUDED."stable_fee_tiers",
                 __slot = EXCLUDED.__slot
             "#)
         .bind(self.bump.clone())
         .bind(self.admin.clone())
         .bind(self.flat_fees.clone())
         .bind(self.fee_tiers.clone())
-        .bind(self.stable_fee_tiers.clone())
         .bind(self.account_metadata.pubkey)
         .bind(self.account_metadata.slot.clone())
         .execute(pool).await
@@ -164,7 +155,6 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeConfigMigrationOperation {
                 "admin" BYTEA NOT NULL,
                 "flat_fees" JSONB NOT NULL,
                 "fee_tiers" JSONB NOT NULL,
-                "stable_fee_tiers" JSONB NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

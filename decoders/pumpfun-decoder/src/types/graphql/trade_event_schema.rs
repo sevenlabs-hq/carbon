@@ -2,7 +2,6 @@
 use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::Pubkey;
 use carbon_core::graphql::primitives::U64;
-use crate::types::graphql::ShareholderGraphQL;
 use juniper::GraphQLObject;
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "TradeEvent")]
@@ -34,11 +33,6 @@ pub struct TradeEventGraphQL {
     pub cashback: U64,
     pub buyback_fee_basis_points: U64,
     pub buyback_fee: U64,
-    pub shareholders: Vec<ShareholderGraphQL>,
-    pub quote_mint: Pubkey,
-    pub quote_amount: U64,
-    pub virtual_quote_reserves: U64,
-    pub real_quote_reserves: U64,
 }
 
 impl From<crate::types::TradeEvent> for TradeEventGraphQL {
@@ -71,11 +65,6 @@ impl From<crate::types::TradeEvent> for TradeEventGraphQL {
             cashback: carbon_core::graphql::primitives::U64(original.cashback),
             buyback_fee_basis_points: carbon_core::graphql::primitives::U64(original.buyback_fee_basis_points),
             buyback_fee: carbon_core::graphql::primitives::U64(original.buyback_fee),
-            shareholders: original.shareholders.into_iter().map(|item| item.into()).collect(),
-            quote_mint: carbon_core::graphql::primitives::Pubkey(original.quote_mint),
-            quote_amount: carbon_core::graphql::primitives::U64(original.quote_amount),
-            virtual_quote_reserves: carbon_core::graphql::primitives::U64(original.virtual_quote_reserves),
-            real_quote_reserves: carbon_core::graphql::primitives::U64(original.real_quote_reserves),
         }
     }
 }

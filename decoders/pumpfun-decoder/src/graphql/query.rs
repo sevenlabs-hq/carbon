@@ -176,38 +176,6 @@ impl QueryRoot {
     }
 
     // Instructions (per-instruction list and lookup by signature+index)
-    async fn add_quote_mint(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::AddQuoteMintGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::AddQuoteMintRow> = sqlx::query_as(
-            r#"SELECT * FROM add_quote_mint_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
-    async fn list_add_quote_mint(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::AddQuoteMintGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::AddQuoteMintRow> = sqlx::query_as(
-            r#"SELECT * FROM add_quote_mint_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
     async fn admin_set_creator(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -336,38 +304,6 @@ impl QueryRoot {
         Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
-    async fn buy_exact_quote_in_v2(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::BuyExactQuoteInV2GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::BuyExactQuoteInV2Row> = sqlx::query_as(
-            r#"SELECT * FROM buy_exact_quote_in_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
-    async fn list_buy_exact_quote_in_v2(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::BuyExactQuoteInV2GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::BuyExactQuoteInV2Row> = sqlx::query_as(
-            r#"SELECT * FROM buy_exact_quote_in_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
     async fn buy_exact_sol_in(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -391,38 +327,6 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::BuyExactSolInGraphQL>> {
         let rows: Vec<crate::instructions::postgres::BuyExactSolInRow> = sqlx::query_as(
             r#"SELECT * FROM buy_exact_sol_in_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
-    async fn buy_v2(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::BuyV2GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::BuyV2Row> = sqlx::query_as(
-            r#"SELECT * FROM buy_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
-    async fn list_buy_v2(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::BuyV2GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::BuyV2Row> = sqlx::query_as(
-            r#"SELECT * FROM buy_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -496,38 +400,6 @@ impl QueryRoot {
         Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
-    async fn remove_quote_mint(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RemoveQuoteMintGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RemoveQuoteMintRow> = sqlx::query_as(
-            r#"SELECT * FROM remove_quote_mint_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
-    async fn list_remove_quote_mint(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RemoveQuoteMintGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RemoveQuoteMintRow> = sqlx::query_as(
-            r#"SELECT * FROM remove_quote_mint_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
     async fn sell(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -551,38 +423,6 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::SellGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SellRow> = sqlx::query_as(
             r#"SELECT * FROM sell_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
-    async fn sell_v2(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::SellV2GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::SellV2Row> = sqlx::query_as(
-            r#"SELECT * FROM sell_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
-    async fn list_sell_v2(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::SellV2GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::SellV2Row> = sqlx::query_as(
-            r#"SELECT * FROM sell_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -679,38 +519,6 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::SetReservedFeeRecipientsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetReservedFeeRecipientsRow> = sqlx::query_as(
             r#"SELECT * FROM set_reserved_fee_recipients_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
-    async fn set_virtual_quote_reserves(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::SetVirtualQuoteReservesGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::SetVirtualQuoteReservesRow> = sqlx::query_as(
-            r#"SELECT * FROM set_virtual_quote_reserves_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
-    }
-
-    async fn list_set_virtual_quote_reserves(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::SetVirtualQuoteReservesGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::SetVirtualQuoteReservesRow> = sqlx::query_as(
-            r#"SELECT * FROM set_virtual_quote_reserves_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

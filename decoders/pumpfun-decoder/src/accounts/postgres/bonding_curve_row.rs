@@ -9,15 +9,14 @@ pub struct BondingCurveRow {
     #[sqlx(flatten)]
     pub account_metadata: AccountRowMetadata,
     pub virtual_token_reserves: U64,
-    pub virtual_quote_reserves: U64,
+    pub virtual_sol_reserves: U64,
     pub real_token_reserves: U64,
-    pub real_quote_reserves: U64,
+    pub real_sol_reserves: U64,
     pub token_total_supply: U64,
     pub complete: bool,
     pub creator: Pubkey,
     pub is_mayhem_mode: bool,
     pub is_cashback_coin: bool,
-    pub quote_mint: Pubkey,
 }
 
 impl BondingCurveRow {
@@ -25,15 +24,14 @@ impl BondingCurveRow {
         Self {
             account_metadata: metadata.into(),
             virtual_token_reserves: source.virtual_token_reserves.into(),
-            virtual_quote_reserves: source.virtual_quote_reserves.into(),
+            virtual_sol_reserves: source.virtual_sol_reserves.into(),
             real_token_reserves: source.real_token_reserves.into(),
-            real_quote_reserves: source.real_quote_reserves.into(),
+            real_sol_reserves: source.real_sol_reserves.into(),
             token_total_supply: source.token_total_supply.into(),
             complete: source.complete.into(),
             creator: source.creator.into(),
             is_mayhem_mode: source.is_mayhem_mode.into(),
             is_cashback_coin: source.is_cashback_coin.into(),
-            quote_mint: source.quote_mint.into(),
         }
     }
 }
@@ -43,15 +41,14 @@ impl TryFrom<BondingCurveRow> for crate::accounts::bonding_curve::BondingCurve {
     fn try_from(source: BondingCurveRow) -> Result<Self, Self::Error> {
         Ok(Self {
             virtual_token_reserves: *source.virtual_token_reserves,
-            virtual_quote_reserves: *source.virtual_quote_reserves,
+            virtual_sol_reserves: *source.virtual_sol_reserves,
             real_token_reserves: *source.real_token_reserves,
-            real_quote_reserves: *source.real_quote_reserves,
+            real_sol_reserves: *source.real_sol_reserves,
             token_total_supply: *source.token_total_supply,
             complete: source.complete.into(),
             creator: *source.creator,
             is_mayhem_mode: source.is_mayhem_mode.into(),
             is_cashback_coin: source.is_cashback_coin.into(),
-            quote_mint: *source.quote_mint,
         })
     }
 }
@@ -66,15 +63,14 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bonding_curve
             "__pubkey",
             "__slot",
             "virtual_token_reserves",
-            "virtual_quote_reserves",
+            "virtual_sol_reserves",
             "real_token_reserves",
-            "real_quote_reserves",
+            "real_sol_reserves",
             "token_total_supply",
             "complete",
             "creator",
             "is_mayhem_mode",
             "is_cashback_coin",
-            "quote_mint",
         ]
     }
 }
@@ -85,29 +81,27 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
         sqlx::query(r#"
             INSERT INTO bonding_curve_account (
                 "virtual_token_reserves",
-                "virtual_quote_reserves",
+                "virtual_sol_reserves",
                 "real_token_reserves",
-                "real_quote_reserves",
+                "real_sol_reserves",
                 "token_total_supply",
                 "complete",
                 "creator",
                 "is_mayhem_mode",
                 "is_cashback_coin",
-                "quote_mint",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             )"#)
         .bind(self.virtual_token_reserves.clone())
-        .bind(self.virtual_quote_reserves.clone())
+        .bind(self.virtual_sol_reserves.clone())
         .bind(self.real_token_reserves.clone())
-        .bind(self.real_quote_reserves.clone())
+        .bind(self.real_sol_reserves.clone())
         .bind(self.token_total_supply.clone())
         .bind(self.complete.clone())
         .bind(self.creator.clone())
         .bind(self.is_mayhem_mode.clone())
         .bind(self.is_cashback_coin.clone())
-        .bind(self.quote_mint.clone())
         .bind(self.account_metadata.pubkey.clone())
         .bind(self.account_metadata.slot.clone())
         .execute(pool).await
@@ -121,43 +115,40 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"INSERT INTO bonding_curve_account (
                 "virtual_token_reserves",
-                "virtual_quote_reserves",
+                "virtual_sol_reserves",
                 "real_token_reserves",
-                "real_quote_reserves",
+                "real_sol_reserves",
                 "token_total_supply",
                 "complete",
                 "creator",
                 "is_mayhem_mode",
                 "is_cashback_coin",
-                "quote_mint",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
                 "virtual_token_reserves" = EXCLUDED."virtual_token_reserves",
-                "virtual_quote_reserves" = EXCLUDED."virtual_quote_reserves",
+                "virtual_sol_reserves" = EXCLUDED."virtual_sol_reserves",
                 "real_token_reserves" = EXCLUDED."real_token_reserves",
-                "real_quote_reserves" = EXCLUDED."real_quote_reserves",
+                "real_sol_reserves" = EXCLUDED."real_sol_reserves",
                 "token_total_supply" = EXCLUDED."token_total_supply",
                 "complete" = EXCLUDED."complete",
                 "creator" = EXCLUDED."creator",
                 "is_mayhem_mode" = EXCLUDED."is_mayhem_mode",
                 "is_cashback_coin" = EXCLUDED."is_cashback_coin",
-                "quote_mint" = EXCLUDED."quote_mint",
                 __slot = EXCLUDED.__slot
             "#)
         .bind(self.virtual_token_reserves.clone())
-        .bind(self.virtual_quote_reserves.clone())
+        .bind(self.virtual_sol_reserves.clone())
         .bind(self.real_token_reserves.clone())
-        .bind(self.real_quote_reserves.clone())
+        .bind(self.real_sol_reserves.clone())
         .bind(self.token_total_supply.clone())
         .bind(self.complete.clone())
         .bind(self.creator.clone())
         .bind(self.is_mayhem_mode.clone())
         .bind(self.is_cashback_coin.clone())
-        .bind(self.quote_mint.clone())
         .bind(self.account_metadata.pubkey)
         .bind(self.account_metadata.slot.clone())
         .execute(pool).await
@@ -204,15 +195,14 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation
         sqlx::query(r#"CREATE TABLE IF NOT EXISTS bonding_curve_account (
                 -- Account data
                 "virtual_token_reserves" NUMERIC(20) NOT NULL,
-                "virtual_quote_reserves" NUMERIC(20) NOT NULL,
+                "virtual_sol_reserves" NUMERIC(20) NOT NULL,
                 "real_token_reserves" NUMERIC(20) NOT NULL,
-                "real_quote_reserves" NUMERIC(20) NOT NULL,
+                "real_sol_reserves" NUMERIC(20) NOT NULL,
                 "token_total_supply" NUMERIC(20) NOT NULL,
                 "complete" BOOLEAN NOT NULL,
                 "creator" BYTEA NOT NULL,
                 "is_mayhem_mode" BOOLEAN NOT NULL,
                 "is_cashback_coin" BOOLEAN NOT NULL,
-                "quote_mint" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

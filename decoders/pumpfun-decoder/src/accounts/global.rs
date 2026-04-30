@@ -32,8 +32,6 @@ pub struct Global {
     pub is_cashback_enabled: bool,
     pub buyback_fee_recipients: [Pubkey; 8],
     pub buyback_basis_points: u64,
-    pub initial_virtual_quote_reserves: u64,
-    pub whitelisted_quote_mints: [Pubkey; 1],
 }
 
 impl Global {

@@ -20,4 +20,4 @@ tokio-util = { workspace = true }
 futures-util = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-transaction-status-client-types = { workspace = true }
-jetstreamer-firehose = "0.2.0"
+jetstreamer-firehose = "=0.6.0"

@@ -7,16 +7,12 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
-pub mod add_quote_mint;
 pub mod admin_set_creator;
 pub mod admin_set_idl_authority;
 pub mod admin_update_token_incentives;
 pub mod buy;
-pub mod buy_exact_quote_in_v2;
 pub mod buy_exact_sol_in;
-pub mod buy_v2;
 pub mod claim_cashback;
-pub mod claim_cashback_v2;
 pub mod claim_token_incentives;
 pub mod close_user_volume_accumulator;
 pub mod collect_creator_fee;
@@ -29,16 +25,12 @@ pub mod initialize;
 pub mod init_user_volume_accumulator;
 pub mod migrate;
 pub mod migrate_bonding_curve_creator;
-pub mod migrate_v2;
-pub mod remove_quote_mint;
 pub mod sell;
-pub mod sell_v2;
 pub mod set_creator;
 pub mod set_mayhem_virtual_params;
 pub mod set_metaplex_creator;
 pub mod set_params;
 pub mod set_reserved_fee_recipients;
-pub mod set_virtual_quote_reserves;
 pub mod sync_user_volume_accumulator;
 pub mod toggle_cashback_enabled;
 pub mod toggle_create_v2;
@@ -47,16 +39,12 @@ pub mod update_buyback_config;
 pub mod update_global_authority;
 pub mod cpi_event;
 
-pub use self::add_quote_mint::*;
 pub use self::admin_set_creator::*;
 pub use self::admin_set_idl_authority::*;
 pub use self::admin_update_token_incentives::*;
 pub use self::buy::*;
-pub use self::buy_exact_quote_in_v2::*;
 pub use self::buy_exact_sol_in::*;
-pub use self::buy_v2::*;
 pub use self::claim_cashback::*;
-pub use self::claim_cashback_v2::*;
 pub use self::claim_token_incentives::*;
 pub use self::close_user_volume_accumulator::*;
 pub use self::collect_creator_fee::*;
@@ -69,16 +57,12 @@ pub use self::initialize::*;
 pub use self::init_user_volume_accumulator::*;
 pub use self::migrate::*;
 pub use self::migrate_bonding_curve_creator::*;
-pub use self::migrate_v2::*;
-pub use self::remove_quote_mint::*;
 pub use self::sell::*;
-pub use self::sell_v2::*;
 pub use self::set_creator::*;
 pub use self::set_mayhem_virtual_params::*;
 pub use self::set_metaplex_creator::*;
 pub use self::set_params::*;
 pub use self::set_reserved_fee_recipients::*;
-pub use self::set_virtual_quote_reserves::*;
 pub use self::sync_user_volume_accumulator::*;
 pub use self::toggle_cashback_enabled::*;
 pub use self::toggle_create_v2::*;
@@ -91,16 +75,12 @@ pub use self::cpi_event::*;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum PumpInstruction {
-    AddQuoteMint(AddQuoteMint),
     AdminSetCreator(AdminSetCreator),
     AdminSetIdlAuthority(AdminSetIdlAuthority),
     AdminUpdateTokenIncentives(AdminUpdateTokenIncentives),
     Buy(Buy),
-    BuyExactQuoteInV2(BuyExactQuoteInV2),
     BuyExactSolIn(BuyExactSolIn),
-    BuyV2(BuyV2),
     ClaimCashback(ClaimCashback),
-    ClaimCashbackV2(ClaimCashbackV2),
     ClaimTokenIncentives(ClaimTokenIncentives),
     CloseUserVolumeAccumulator(CloseUserVolumeAccumulator),
     CollectCreatorFee(CollectCreatorFee),
@@ -113,16 +93,12 @@ pub enum PumpInstruction {
     InitUserVolumeAccumulator(InitUserVolumeAccumulator),
     Migrate(Migrate),
     MigrateBondingCurveCreator(MigrateBondingCurveCreator),
-    MigrateV2(MigrateV2),
-    RemoveQuoteMint(RemoveQuoteMint),
     Sell(Sell),
-    SellV2(SellV2),
     SetCreator(SetCreator),
     SetMayhemVirtualParams(SetMayhemVirtualParams),
     SetMetaplexCreator(SetMetaplexCreator),
     SetParams(SetParams),
     SetReservedFeeRecipients(SetReservedFeeRecipients),
-    SetVirtualQuoteReserves(SetVirtualQuoteReserves),
     SyncUserVolumeAccumulator(SyncUserVolumeAccumulator),
     ToggleCashbackEnabled(ToggleCashbackEnabled),
     ToggleCreateV2(ToggleCreateV2),
@@ -146,15 +122,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpDecoder {
 
         let data = instruction.data.as_slice();
 
-        {
-            if let Some(decoded) = add_quote_mint::AddQuoteMint::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpInstruction::AddQuoteMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
         {
             if let Some(decoded) = admin_set_creator::AdminSetCreator::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -192,15 +159,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpDecoder {
             }
         }
         {
-            if let Some(decoded) = buy_exact_quote_in_v2::BuyExactQuoteInV2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpInstruction::BuyExactQuoteInV2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
             if let Some(decoded) = buy_exact_sol_in::BuyExactSolIn::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
@@ -210,28 +168,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpDecoder {
             }
         }
         {
-            if let Some(decoded) = buy_v2::BuyV2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpInstruction::BuyV2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
             if let Some(decoded) = claim_cashback::ClaimCashback::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: PumpInstruction::ClaimCashback(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = claim_cashback_v2::ClaimCashbackV2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpInstruction::ClaimCashbackV2(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
@@ -345,37 +285,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpDecoder {
             }
         }
         {
-            if let Some(decoded) = migrate_v2::MigrateV2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpInstruction::MigrateV2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = remove_quote_mint::RemoveQuoteMint::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpInstruction::RemoveQuoteMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
             if let Some(decoded) = sell::Sell::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: PumpInstruction::Sell(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = sell_v2::SellV2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpInstruction::SellV2(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
@@ -421,15 +334,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpDecoder {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: PumpInstruction::SetReservedFeeRecipients(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = set_virtual_quote_reserves::SetVirtualQuoteReserves::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpInstruction::SetVirtualQuoteReserves(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
