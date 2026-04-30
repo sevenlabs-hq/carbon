@@ -1,5 +1,6 @@
 use {
     carbon_core::{
+        error::{CarbonResult, Error},
         graphql::server::{build_schema, graphql_router},
         pipeline::Pipeline,
         postgres::processors::PostgresJsonAccountProcessor,
@@ -11,7 +12,7 @@ use {
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
-    juniper::{graphql_object, GraphQLObject},
+    juniper::{graphql_object, FieldError, FieldResult, GraphQLObject, Value},
     sqlx::{postgres::PgPoolOptions, PgPool, Row},
     std::{
         collections::{HashMap, HashSet},
@@ -40,7 +41,7 @@ pub struct Query;
 
 #[graphql_object(context = AppContext)]
 impl Query {
-    async fn mints(context: &AppContext, limit: Option<i32>) -> Vec<MintInfo> {
+    async fn mints(context: &AppContext, limit: Option<i32>) -> FieldResult<Vec<MintInfo>> {
         let limit = limit.unwrap_or(20).max(0) as i64;
         let rows = sqlx::query(
             "SELECT __pubkey, __slot, \
@@ -54,13 +55,18 @@ impl Query {
         .bind(limit)
         .fetch_all(&context.pool)
         .await
-        .unwrap_or_default();
+        .map_err(|e| {
+            log::error!("failed to fetch mints from Postgres: {e}");
+            FieldError::new("failed to fetch mints", Value::null())
+        })?;
 
-        rows.into_iter().map(row_to_mint).collect()
+        Ok(rows.into_iter().map(row_to_mint).collect())
     }
 
-    async fn mint(context: &AppContext, pubkey: String) -> Option<MintInfo> {
-        let bytes = bs58::decode(&pubkey).into_vec().ok()?;
+    async fn mint(context: &AppContext, pubkey: String) -> FieldResult<Option<MintInfo>> {
+        let bytes = bs58::decode(&pubkey)
+            .into_vec()
+            .map_err(|_| FieldError::new("invalid mint pubkey", Value::null()))?;
         let row = sqlx::query(
             "SELECT __pubkey, __slot, \
                     data->'data'->>'decimals' AS decimals, \
@@ -71,9 +77,12 @@ impl Query {
         .bind(bytes)
         .fetch_optional(&context.pool)
         .await
-        .ok()??;
+        .map_err(|e| {
+            log::error!("failed to fetch mint from Postgres: {e}");
+            FieldError::new("failed to fetch mint", Value::null())
+        })?;
 
-        Some(row_to_mint(row))
+        Ok(row.map(row_to_mint))
     }
 }
 
@@ -91,30 +100,40 @@ fn row_to_mint(row: sqlx::postgres::PgRow) -> MintInfo {
 }
 
 #[tokio::main]
-pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
     env_logger::init();
 
     // https://github.com/rustls/rustls/issues/1877
     rustls::crypto::aws_lc_rs::default_provider()
         .install_default()
-        .expect("failed to install rustls default provider");
+        .map_err(|e| Error::Custom(format!("failed to install rustls default provider: {e:?}")))?;
 
+    let database_url = env::var("DATABASE_URL")
+        .map_err(|_| Error::Custom("DATABASE_URL must be set".to_string()))?;
     let pool = PgPoolOptions::new()
         .max_connections(10)
-        .connect(&env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
-        .await?;
+        .connect(&database_url)
+        .await
+        .map_err(|e| Error::Custom(format!("failed to connect to Postgres: {e}")))?;
 
-    sqlx::migrate!("./migrations").run(&pool).await?;
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .map_err(|e| Error::Custom(format!("failed to run migrations: {e}")))?;
 
     let context = AppContext { pool: pool.clone() };
     let schema = build_schema(Query);
     let router = graphql_router(schema, context);
     let bind_addr = env::var("BIND_ADDR").unwrap_or_else(|_| "0.0.0.0:8080".to_string());
-    let listener = tokio::net::TcpListener::bind(&bind_addr).await?;
+    let listener = tokio::net::TcpListener::bind(&bind_addr)
+        .await
+        .map_err(|e| Error::Custom(format!("failed to bind GraphQL server: {e}")))?;
     log::info!("graphiql at http://{bind_addr}/graphiql");
     tokio::spawn(async move {
-        axum::serve(listener, router).await.unwrap();
+        if let Err(e) = axum::serve(listener, router).await {
+            log::error!("GraphQL server exited with error: {e}");
+        }
     });
 
     let mut account_filters = HashMap::new();
@@ -128,8 +147,10 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
     );
 
+    let geyser_url =
+        env::var("GEYSER_URL").map_err(|_| Error::Custom("GEYSER_URL must be set".to_string()))?;
     let datasource = YellowstoneGrpcGeyserClient::new(
-        env::var("GEYSER_URL").expect("GEYSER_URL must be set"),
+        geyser_url,
         env::var("X_TOKEN").ok(),
         Some(CommitmentLevel::Confirmed),
         account_filters,
