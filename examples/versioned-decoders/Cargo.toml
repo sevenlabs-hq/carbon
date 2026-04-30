@@ -1,0 +1,22 @@
+[package]
+name = "versioned-decoders-carbon-example"
+version = "0.12.0"
+edition = { workspace = true }
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-simple-dex-decoder-v1 = { path = "decoder-v1" }
+carbon-simple-dex-decoder-v2 = { path = "decoder-v2" }
+
+async-trait = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+solana-hash = { workspace = true }
+solana-message = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-signature = { workspace = true }
+solana-transaction = { workspace = true }
+solana-transaction-status = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }

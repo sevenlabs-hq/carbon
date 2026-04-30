@@ -1117,11 +1117,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "block-finality-alerts-carbon-example"
-version = "0.1.0"
+name = "block-subscribe-rpc-carbon-example"
+version = "0.12.0"
 dependencies = [
  "carbon-core",
  "carbon-log-metrics",
+ "carbon-raydium-clmm-decoder",
  "carbon-rpc-block-subscribe-datasource",
  "dotenv",
  "env_logger",
@@ -1368,21 +1369,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-block-crawler-example"
-version = "0.2.1"
-dependencies = [
- "carbon-core",
- "carbon-pumpfun-decoder",
- "carbon-rpc-block-crawler-datasource",
- "clap 4.5.53",
- "dotenv",
- "env_logger",
- "log",
- "solana-transaction-status",
- "tokio",
-]
-
-[[package]]
 name = "carbon-bonkswap-decoder"
 version = "0.12.0"
 dependencies = [
@@ -1548,20 +1534,6 @@ dependencies = [
  "solana-pubkey 3.0.0",
  "sqlx",
  "sqlx_migrator",
-]
-
-[[package]]
-name = "carbon-fetch-ix"
-version = "0.12.0"
-dependencies = [
- "bs58",
- "hex",
- "serde",
- "serde_json",
- "solana-client",
- "solana-commitment-config",
- "solana-signature",
- "solana-transaction-status",
 ]
 
 [[package]]
@@ -2580,6 +2552,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-simple-dex-decoder-v1"
+version = "0.12.0"
+dependencies = [
+ "borsh",
+ "carbon-core",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey 3.0.0",
+]
+
+[[package]]
+name = "carbon-simple-dex-decoder-v2"
+version = "0.12.0"
+dependencies = [
+ "borsh",
+ "carbon-core",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey 3.0.0",
+]
+
+[[package]]
 name = "carbon-solayer-restaking-program-decoder"
 version = "0.12.0"
 dependencies = [
@@ -2776,21 +2772,6 @@ dependencies = [
  "solana-runtime",
  "tokio",
  "tokio-util 0.7.17",
-]
-
-[[package]]
-name = "carbon-validator-snapshot-example"
-version = "0.2.1"
-dependencies = [
- "carbon-core",
- "carbon-log-metrics",
- "carbon-validator-snapshot-datasource",
- "dotenv",
- "env_logger",
- "log",
- "solana-account",
- "solana-pubkey 3.0.0",
- "tokio",
 ]
 
 [[package]]
@@ -3378,6 +3359,26 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.112",
+]
+
+[[package]]
+name = "custom-datasource-carbon-example"
+version = "0.12.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-jupiter-swap-decoder",
+ "carbon-log-metrics",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-client",
+ "solana-commitment-config",
+ "solana-pubkey 3.0.0",
+ "solana-signature",
+ "solana-transaction-status",
+ "tokio",
+ "tokio-util 0.7.17",
 ]
 
 [[package]]
@@ -4001,27 +4002,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "filtering-carbon-example"
-version = "0.2.1"
-dependencies = [
- "async-trait",
- "carbon-core",
- "carbon-kamino-lending-decoder",
- "carbon-log-metrics",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "env_logger",
- "log",
- "rustls 0.23.35",
- "solana-account",
- "solana-client",
- "solana-pubkey 3.0.0",
- "tokio",
- "tokio-util 0.7.17",
- "yellowstone-grpc-proto",
-]
-
-[[package]]
 name = "find-msvc-tools"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4391,6 +4371,22 @@ dependencies = [
  "rand 0.8.5",
  "smallvec",
  "spinning_top",
+]
+
+[[package]]
+name = "gpa-rpc-carbon-example"
+version = "0.12.0"
+dependencies = [
+ "carbon-core",
+ "carbon-helius-gpa-v2-datasource",
+ "carbon-log-metrics",
+ "carbon-marginfi-v2-decoder",
+ "carbon-rpc-gpa-datasource",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-pubkey 3.0.0",
+ "tokio",
 ]
 
 [[package]]
@@ -5231,12 +5227,13 @@ checksum = "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2"
 
 [[package]]
 name = "jetstreamer-carbon-example"
-version = "0.2.1"
+version = "0.12.0"
 dependencies = [
  "carbon-core",
  "carbon-jetstreamer-datasource",
  "carbon-log-metrics",
  "carbon-token-2022-decoder",
+ "dotenv",
  "env_logger",
  "log",
  "tokio",
@@ -5532,22 +5529,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "jupiter-swap-alerts-carbon-example"
-version = "0.2.1"
-dependencies = [
- "carbon-core",
- "carbon-jupiter-swap-decoder",
- "carbon-log-metrics",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "env_logger",
- "log",
- "rustls 0.23.35",
- "tokio",
- "yellowstone-grpc-proto",
-]
-
-[[package]]
 name = "k256"
 version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5559,21 +5540,6 @@ dependencies = [
  "once_cell",
  "sha2 0.10.9",
  "signature 2.2.0",
-]
-
-[[package]]
-name = "kamino-alerts-carbon-example"
-version = "0.2.1"
-dependencies = [
- "carbon-core",
- "carbon-kamino-lending-decoder",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "env_logger",
- "log",
- "rustls 0.23.35",
- "tokio",
- "yellowstone-grpc-proto",
 ]
 
 [[package]]
@@ -5787,22 +5753,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
-name = "log-events-example"
-version = "0.12.0"
-dependencies = [
- "carbon-core",
- "carbon-log-metrics",
- "carbon-raydium-cpmm-decoder",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "env_logger",
- "log",
- "rustls 0.23.35",
- "tokio",
- "yellowstone-grpc-proto",
-]
-
-[[package]]
 name = "lru"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5921,20 +5871,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "meteora-activities-carbon-example"
-version = "0.2.1"
-dependencies = [
- "carbon-core",
- "carbon-log-metrics",
- "carbon-meteora-dlmm-decoder",
- "carbon-rpc-transaction-crawler-datasource",
- "dotenv",
- "env_logger",
- "solana-commitment-config",
- "tokio",
-]
-
-[[package]]
 name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6013,21 +5949,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.112",
-]
-
-[[package]]
-name = "moonshot-alerts-carbon-example"
-version = "0.1.0"
-dependencies = [
- "carbon-core",
- "carbon-log-metrics",
- "carbon-moonshot-decoder",
- "carbon-rpc-block-subscribe-datasource",
- "dotenv",
- "env_logger",
- "log",
- "solana-client",
- "tokio",
 ]
 
 [[package]]
@@ -6317,21 +6238,6 @@ name = "opaque-debug"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
-
-[[package]]
-name = "openbook-v2-alerts-carbon-example"
-version = "0.1.0"
-dependencies = [
- "carbon-core",
- "carbon-log-metrics",
- "carbon-openbook-v2-decoder",
- "carbon-rpc-block-subscribe-datasource",
- "dotenv",
- "env_logger",
- "log",
- "solana-client",
- "tokio",
-]
 
 [[package]]
 name = "openssl"
@@ -6713,6 +6619,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "postgres-graphql-carbon-example"
+version = "0.12.0"
+dependencies = [
+ "axum 0.8.8",
+ "bs58",
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-token-program-decoder",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger",
+ "juniper",
+ "log",
+ "rustls 0.23.35",
+ "sqlx",
+ "tokio",
+ "yellowstone-grpc-proto",
+]
+
+[[package]]
 name = "potential_utf"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7050,56 +6976,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pumpfun-alerts-carbon-example"
-version = "0.2.1"
-dependencies = [
- "carbon-core",
- "carbon-helius-atlas-ws-datasource",
- "carbon-log-metrics",
- "carbon-pumpfun-decoder",
- "dotenv",
- "env_logger",
- "helius",
- "log",
- "solana-native-token",
- "tokio",
-]
-
-[[package]]
-name = "pumpfun-program-subscriber-carbon-example"
-version = "0.2.1"
-dependencies = [
- "anyhow",
- "carbon-core",
- "carbon-log-metrics",
- "carbon-pumpfun-decoder",
- "carbon-rpc-program-subscribe-datasource",
- "dotenv",
- "env_logger",
- "log",
- "solana-account-decoder",
- "solana-client",
- "tokio",
-]
-
-[[package]]
-name = "pumpswap-alerts-carbon-example"
-version = "0.2.1"
-dependencies = [
- "carbon-core",
- "carbon-helius-laserstream-datasource",
- "carbon-log-metrics",
- "carbon-pump-swap-decoder",
- "dotenv",
- "env_logger",
- "log",
- "rustls 0.23.35",
- "solana-native-token",
- "tokio",
- "yellowstone-grpc-proto",
-]
-
-[[package]]
 name = "qstring"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7337,52 +7213,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "498cd0dc59d73224351ee52a95fee0f1a617a2eae0e7d9d720cc622c73a54186"
 dependencies = [
  "bitflags 2.10.0",
-]
-
-[[package]]
-name = "raydium-alerts-carbon-example"
-version = "0.2.1"
-dependencies = [
- "carbon-core",
- "carbon-log-metrics",
- "carbon-raydium-amm-v4-decoder",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "env_logger",
- "log",
- "rustls 0.23.35",
- "tokio",
- "yellowstone-grpc-proto",
-]
-
-[[package]]
-name = "raydium-clmm-alerts-carbon-example"
-version = "0.1.0"
-dependencies = [
- "carbon-core",
- "carbon-log-metrics",
- "carbon-raydium-clmm-decoder",
- "carbon-rpc-block-subscribe-datasource",
- "dotenv",
- "env_logger",
- "log",
- "solana-client",
- "tokio",
-]
-
-[[package]]
-name = "raydium-cpmm-alerts-carbon-example"
-version = "0.1.0"
-dependencies = [
- "carbon-core",
- "carbon-log-metrics",
- "carbon-raydium-cpmm-decoder",
- "carbon-rpc-block-subscribe-datasource",
- "dotenv",
- "env_logger",
- "log",
- "solana-client",
- "tokio",
 ]
 
 [[package]]
@@ -8411,6 +8241,21 @@ dependencies = [
  "serde_json",
  "simpl",
  "time",
+]
+
+[[package]]
+name = "snapshot-validator-carbon-example"
+version = "0.12.0"
+dependencies = [
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-validator-snapshot-datasource",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-account",
+ "solana-pubkey 3.0.0",
+ "tokio",
 ]
 
 [[package]]
@@ -12298,6 +12143,7 @@ dependencies = [
  "indexmap 2.12.1",
  "log",
  "memchr",
+ "native-tls",
  "once_cell",
  "percent-encoding 2.3.2",
  "rust_decimal",
@@ -13278,6 +13124,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "transaction-crawler-rpc-carbon-example"
+version = "0.12.0"
+dependencies = [
+ "carbon-core",
+ "carbon-helius-gtfa-datasource",
+ "carbon-log-metrics",
+ "carbon-meteora-dlmm-decoder",
+ "carbon-rpc-transaction-crawler-datasource",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-commitment-config",
+ "solana-pubkey 3.0.0",
+ "solana-signature",
+ "tokio",
+]
+
+[[package]]
 name = "trees"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -13502,6 +13366,27 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "versioned-decoders-carbon-example"
+version = "0.12.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-simple-dex-decoder-v1",
+ "carbon-simple-dex-decoder-v2",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-hash 3.1.0",
+ "solana-message",
+ "solana-pubkey 3.0.0",
+ "solana-signature",
+ "solana-transaction",
+ "solana-transaction-status",
+ "tokio",
+ "tokio-util 0.7.17",
+]
 
 [[package]]
 name = "void"
@@ -14209,6 +14094,24 @@ name = "xxhash-rust"
 version = "0.8.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fdd20c5420375476fbd4394763288da7eb0cc0b8c11deed431a91562af7335d3"
+
+[[package]]
+name = "yellowstone-grpc-carbon-example"
+version = "0.12.0"
+dependencies = [
+ "carbon-core",
+ "carbon-helius-laserstream-datasource",
+ "carbon-jito-shredstream-grpc-datasource",
+ "carbon-jupiter-swap-decoder",
+ "carbon-log-metrics",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger",
+ "log",
+ "rustls 0.23.35",
+ "tokio",
+ "yellowstone-grpc-proto",
+]
 
 [[package]]
 name = "yellowstone-grpc-client"
