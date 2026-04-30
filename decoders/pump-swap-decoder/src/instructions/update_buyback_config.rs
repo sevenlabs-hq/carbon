@@ -7,37 +7,27 @@ use carbon_core::deserialize::CarbonDeserialize;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
-pub struct AdminUpdateTokenIncentives {
-    pub start_time: i64,
-    pub end_time: i64,
-    pub seconds_in_a_day: i64,
-    pub day_number: u64,
-    pub token_supply_per_day: u64,
+pub struct UpdateBuybackConfig {
+    pub buyback_basis_points: Option<u64>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AdminUpdateTokenIncentivesInstructionAccounts {
+pub struct UpdateBuybackConfigInstructionAccounts {
     pub admin: solana_pubkey::Pubkey,
     pub global_config: solana_pubkey::Pubkey,
-    pub global_volume_accumulator: solana_pubkey::Pubkey,
-    pub mint: solana_pubkey::Pubkey,
-    pub global_incentive_token_account: solana_pubkey::Pubkey,
-    pub associated_token_program: solana_pubkey::Pubkey,
-    pub system_program: solana_pubkey::Pubkey,
-    pub token_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
     pub program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
-impl AdminUpdateTokenIncentives {
+impl UpdateBuybackConfig {
     pub fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[209, 11, 115, 87, 213, 23, 124, 204] {
+        if discriminator != &[251, 224, 171, 146, 160, 26, 113, 233] {
             return None;
         }
 
@@ -49,8 +39,8 @@ impl AdminUpdateTokenIncentives {
     }
 }
 
-impl ArrangeAccounts for AdminUpdateTokenIncentives {
-    type ArrangedAccounts = AdminUpdateTokenIncentivesInstructionAccounts;
+impl ArrangeAccounts for UpdateBuybackConfig {
+    type ArrangedAccounts = UpdateBuybackConfigInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
@@ -59,26 +49,14 @@ impl ArrangeAccounts for AdminUpdateTokenIncentives {
 
         let admin = next_account(&mut iter)?;
         let global_config = next_account(&mut iter)?;
-        let global_volume_accumulator = next_account(&mut iter)?;
-        let mint = next_account(&mut iter)?;
-        let global_incentive_token_account = next_account(&mut iter)?;
-        let associated_token_program = next_account(&mut iter)?;
-        let system_program = next_account(&mut iter)?;
-        let token_program = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
         let program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
-        Some(AdminUpdateTokenIncentivesInstructionAccounts {
+        Some(UpdateBuybackConfigInstructionAccounts {
             admin,
             global_config,
-            global_volume_accumulator,
-            mint,
-            global_incentive_token_account,
-            associated_token_program,
-            system_program,
-            token_program,
             event_authority,
             program,
             remaining: remaining.to_vec(),

@@ -6,19 +6,12 @@ use carbon_core::postgres::metadata::InstructionRowMetadata;
 pub struct ExtendAccountRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl ExtendAccountRow {
-    pub fn from_parts(
-        _source: crate::instructions::extend_account::ExtendAccount,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(_source: crate::instructions::extend_account::ExtendAccount, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            accounts: sqlx::types::Json(accounts),
         }
     }
 }
@@ -26,13 +19,12 @@ impl ExtendAccountRow {
 impl TryFrom<ExtendAccountRow> for crate::instructions::extend_account::ExtendAccount {
     type Error = carbon_core::error::Error;
     fn try_from(_source: ExtendAccountRow) -> Result<Self, Self::Error> {
-        Ok(Self {})
+        Ok(Self {
+        })
     }
 }
 
-impl carbon_core::postgres::operations::Table
-    for crate::instructions::extend_account::ExtendAccount
-{
+impl carbon_core::postgres::operations::Table for crate::instructions::extend_account::ExtendAccount {
     fn table() -> &'static str {
         "extend_account_instruction"
     }
@@ -43,7 +35,6 @@ impl carbon_core::postgres::operations::Table
             "__instruction_index",
             "__stack_height",
             "__slot",
-            "__accounts",
         ]
     }
 }
@@ -51,21 +42,17 @@ impl carbon_core::postgres::operations::Table
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for ExtendAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO extend_account_instruction (
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5
-            )"#,
-        )
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4
+            )"#)
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -74,27 +61,22 @@ impl carbon_core::postgres::operations::Insert for ExtendAccountRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ExtendAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO extend_account_instruction (
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+        sqlx::query(r#"INSERT INTO extend_account_instruction (
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5
+                $1, $2, $3, $4
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -102,23 +84,16 @@ impl carbon_core::postgres::operations::Upsert for ExtendAccountRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for ExtendAccountRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM extend_account_instruction WHERE
+        sqlx::query(r#"DELETE FROM extend_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -126,26 +101,16 @@ impl carbon_core::postgres::operations::Delete for ExtendAccountRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for ExtendAccountRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM extend_account_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM extend_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -155,34 +120,21 @@ pub struct ExtendAccountMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for ExtendAccountMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS extend_account_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS extend_account_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS extend_account_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS extend_account_instruction"#).execute(connection).await?;
         Ok(())
     }
 }
