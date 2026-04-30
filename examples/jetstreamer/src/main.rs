@@ -25,7 +25,7 @@ pub async fn main() -> CarbonResult<()> {
     let end_slot = env::var("END_SLOT")
         .ok()
         .and_then(|value| value.parse().ok())
-        .unwrap_or(415_500_1000);
+        .unwrap_or(415_931_999);
     let worker_count = env::var("WORKER_COUNT")
         .ok()
         .and_then(|value| value.parse().ok())
