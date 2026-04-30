@@ -16,8 +16,7 @@ pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
     env_logger::init();
 
-    let datasource = variants::rpc(METEORA_PROGRAM_ID);
-    // alt: let datasource = variants::helius_gtfa(METEORA_PROGRAM_ID);
+    let datasource = variants::from_env(METEORA_PROGRAM_ID);
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(datasource)
