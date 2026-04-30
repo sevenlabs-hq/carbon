@@ -7,6 +7,7 @@ use {
         metrics::{Counter, MetricsRegistry},
         pipeline::Pipeline,
         processor::Processor,
+        transformers::transaction_metadata_from_original_meta,
     },
     carbon_jupiter_swap_decoder::{
         instructions::JupiterSwapInstruction, JupiterSwapDecoder,
@@ -19,7 +20,7 @@ use {
     solana_commitment_config::CommitmentConfig,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
-    solana_transaction_status::{TransactionStatusMeta, UiTransactionEncoding},
+    solana_transaction_status::UiTransactionEncoding,
     std::{env, sync::Arc, time::Duration},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
@@ -129,12 +130,23 @@ impl Datasource for HttpPollDatasource {
                 };
 
                 let Some(decoded) = tx.transaction.transaction.decode() else {
+                    log::warn!("failed to decode transaction {signature}");
                     continue;
                 };
 
-                let meta = TransactionStatusMeta {
-                    status: Ok(()),
-                    ..Default::default()
+                let Some(meta_original) = tx.transaction.meta else {
+                    log::warn!("missing transaction metadata for {signature}");
+                    continue;
+                };
+
+                if meta_original.status.is_err() {
+                    log::debug!("skipping failed transaction {signature}");
+                    continue;
+                }
+
+                let Ok(meta) = transaction_metadata_from_original_meta(meta_original) else {
+                    log::warn!("failed to convert transaction metadata for {signature}");
+                    continue;
                 };
 
                 let update = Update::Transaction(Box::new(TransactionUpdate {
