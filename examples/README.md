@@ -1,6 +1,6 @@
 # Carbon Examples
 
-This directory contains 9 standalone Carbon pipelines, each demonstrating a distinct capability of the framework — real-time streaming, historical backfill, account snapshotting, multi-version decoding, persistence with a query layer, and custom datasource implementation. Pick the example closest to your use case, copy the directory, and adapt it to your own program.
+This directory contains standlone Carbon pipelines, each demonstrating a distinct capability of the framework: real-time streaming, historical backfill, account snapshotting, multi-version decoding, persistence with a query layer, and custom datasource implementation. Pick the example closest to your use case, copy the directory, and adapt it to your own program.
 
 ## Where to Start
 
