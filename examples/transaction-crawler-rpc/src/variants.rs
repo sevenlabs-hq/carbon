@@ -1,9 +1,6 @@
+#![allow(dead_code)]
+
 use {
-    async_trait::async_trait,
-    carbon_core::{
-        datasource::{Datasource, DatasourceId, Update, UpdateType},
-        error::CarbonResult,
-    },
     carbon_helius_gtfa_datasource::{
         HeliusGtfaConfig, HeliusGtfaDatasource, HeliusGtfaFilters, SlotFilter, SortOrder,
         TransactionStatusFilter,
@@ -15,27 +12,9 @@ use {
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     std::{env, str::FromStr, time::Duration},
-    tokio::sync::mpsc::Sender,
-    tokio_util::sync::CancellationToken,
 };
 
-pub enum TransactionCrawlerVariant {
-    Rpc(RpcTransactionCrawler),
-    HeliusGtfa(HeliusGtfaDatasource),
-}
-
-pub fn from_env(program: Pubkey) -> TransactionCrawlerVariant {
-    match env::var("TRANSACTION_SOURCE")
-        .unwrap_or_else(|_| "rpc".to_string())
-        .as_str()
-    {
-        "helius-gtfa" => TransactionCrawlerVariant::HeliusGtfa(helius_gtfa(program)),
-        "rpc" => TransactionCrawlerVariant::Rpc(rpc(program)),
-        other => panic!("unsupported TRANSACTION_SOURCE={other}; use rpc or helius-gtfa"),
-    }
-}
-
-fn rpc(program: Pubkey) -> RpcTransactionCrawler {
+pub fn rpc(program: Pubkey) -> RpcTransactionCrawler {
     let connection_config = ConnectionConfig::new(
         100,
         Duration::from_secs(5),
@@ -61,7 +40,7 @@ fn rpc(program: Pubkey) -> RpcTransactionCrawler {
     )
 }
 
-fn helius_gtfa(program: Pubkey) -> HeliusGtfaDatasource {
+pub fn helius_gtfa(program: Pubkey) -> HeliusGtfaDatasource {
     let filters = HeliusGtfaFilters {
         slot: Some(SlotFilter {
             gte: Some(416_009_000),
@@ -87,28 +66,4 @@ fn helius_gtfa(program: Pubkey) -> HeliusGtfaDatasource {
         program,
         config,
     )
-}
-
-#[async_trait]
-impl Datasource for TransactionCrawlerVariant {
-    async fn consume(
-        &self,
-        id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
-        cancellation_token: CancellationToken,
-    ) -> CarbonResult<()> {
-        match self {
-            Self::Rpc(datasource) => datasource.consume(id, sender, cancellation_token).await,
-            Self::HeliusGtfa(datasource) => {
-                datasource.consume(id, sender, cancellation_token).await
-            }
-        }
-    }
-
-    fn update_types(&self) -> Vec<UpdateType> {
-        match self {
-            Self::Rpc(datasource) => datasource.update_types(),
-            Self::HeliusGtfa(datasource) => datasource.update_types(),
-        }
-    }
 }

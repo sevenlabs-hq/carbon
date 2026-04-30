@@ -36,7 +36,9 @@ pub async fn main() -> CarbonResult<()> {
         },
     );
 
-    let datasource = variants::from_env(transaction_filters);
+    let datasource = variants::yellowstone(transaction_filters);
+    // alt: let datasource = variants::laserstream(transaction_filters);
+    // alt: let datasource = variants::jito_shredstream(); // ignores transaction_filters; decoder filters down to JUPITER_SWAP_PROGRAM_ID
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(datasource)

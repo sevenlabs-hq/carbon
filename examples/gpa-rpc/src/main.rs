@@ -17,7 +17,8 @@ pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
     env_logger::init();
 
-    let datasource = variants::from_env(MARGINFI_PROGRAM_ID);
+    let datasource = variants::rpc(MARGINFI_PROGRAM_ID);
+    // alt: let datasource = variants::helius_gpa_v2(MARGINFI_PROGRAM_ID);
 
     Pipeline::builder()
         .datasource(datasource)
