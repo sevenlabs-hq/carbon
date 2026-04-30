@@ -4377,7 +4377,6 @@ dependencies = [
 name = "gpa-rpc-carbon-example"
 version = "0.12.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-helius-gpa-v2-datasource",
  "carbon-log-metrics",
@@ -4388,7 +4387,6 @@ dependencies = [
  "log",
  "solana-pubkey 3.0.0",
  "tokio",
- "tokio-util 0.7.17",
 ]
 
 [[package]]
@@ -13129,7 +13127,6 @@ dependencies = [
 name = "transaction-crawler-rpc-carbon-example"
 version = "0.12.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-helius-gtfa-datasource",
  "carbon-log-metrics",
@@ -13142,7 +13139,6 @@ dependencies = [
  "solana-pubkey 3.0.0",
  "solana-signature",
  "tokio",
- "tokio-util 0.7.17",
 ]
 
 [[package]]
@@ -14103,7 +14099,6 @@ checksum = "fdd20c5420375476fbd4394763288da7eb0cc0b8c11deed431a91562af7335d3"
 name = "yellowstone-grpc-carbon-example"
 version = "0.12.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-helius-laserstream-datasource",
  "carbon-jito-shredstream-grpc-datasource",
@@ -14115,7 +14110,6 @@ dependencies = [
  "log",
  "rustls 0.23.35",
  "tokio",
- "tokio-util 0.7.17",
  "yellowstone-grpc-proto",
 ]
 
