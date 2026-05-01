@@ -456,7 +456,7 @@ impl PipelineBuilder {
         self.account_pipes.push(Box::new(AccountPipe::new(
             Box::new(decoder),
             processor,
-            vec![],
+            Vec::new(),
         )));
         self
     }
@@ -484,7 +484,7 @@ impl PipelineBuilder {
         P: Processor<AccountDeletion> + Send + Sync + 'static,
     {
         self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe::new(processor, vec![])));
+            .push(Box::new(AccountDeletionPipe::new(processor, Vec::new())));
         self
     }
 
@@ -506,7 +506,7 @@ impl PipelineBuilder {
         P: Processor<BlockDetails> + Send + Sync + 'static,
     {
         self.block_details_pipes
-            .push(Box::new(BlockDetailsPipe::new(processor, vec![])));
+            .push(Box::new(BlockDetailsPipe::new(processor, Vec::new())));
         self
     }
 
@@ -535,7 +535,7 @@ impl PipelineBuilder {
         self.instruction_pipes.push(Box::new(InstructionPipe::new(
             Box::new(decoder),
             processor,
-            vec![],
+            Vec::new(),
         )));
         self
     }
@@ -564,7 +564,7 @@ impl PipelineBuilder {
         P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, P>::new(processor, vec![])));
+            .push(Box::new(TransactionPipe::<T, P>::new(processor, Vec::new())));
         self
     }
 
