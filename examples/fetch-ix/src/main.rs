@@ -1,12 +1,14 @@
-use serde::Serialize;
-use solana_client::{rpc_client::RpcClient, rpc_config::RpcTransactionConfig};
-use solana_commitment_config::CommitmentConfig;
-use solana_signature::Signature;
-use solana_transaction_status::{
-    EncodedConfirmedTransactionWithStatusMeta, EncodedTransaction, UiInstruction, UiMessage,
-    UiParsedInstruction, UiParsedMessage, UiTransactionEncoding,
+use {
+    serde::Serialize,
+    solana_client::{rpc_client::RpcClient, rpc_config::RpcTransactionConfig},
+    solana_commitment_config::CommitmentConfig,
+    solana_signature::Signature,
+    solana_transaction_status::{
+        EncodedConfirmedTransactionWithStatusMeta, EncodedTransaction, UiInstruction, UiMessage,
+        UiParsedInstruction, UiParsedMessage, UiTransactionEncoding,
+    },
+    std::{env, process},
 };
-use std::{env, process};
 
 #[derive(Serialize, Clone)]
 struct AccountInfo {

@@ -1,10 +1,7 @@
 mod types;
 
-use std::str::FromStr;
-
-use crate::types::HeliusGpaV2Result;
-
 use {
+    crate::types::HeliusGpaV2Result,
     async_trait::async_trait,
     base64::{engine::general_purpose::STANDARD, Engine},
     carbon_core::{
@@ -15,12 +12,11 @@ use {
     solana_account::Account,
     solana_client::rpc_config::RpcProgramAccountsConfig,
     solana_pubkey::Pubkey,
-    std::sync::LazyLock,
+    std::{str::FromStr, sync::LazyLock},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
+    types::{FetchHeliusGpaV2AccountsPageResult, HeliusGpaV2Request, HeliusGpaV2Response},
 };
-
-use types::{FetchHeliusGpaV2AccountsPageResult, HeliusGpaV2Request, HeliusGpaV2Response};
 
 const DEFAULT_LIMIT: u32 = 1000;
 

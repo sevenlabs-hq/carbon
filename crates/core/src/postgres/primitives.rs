@@ -1,11 +1,14 @@
-use bigdecimal::BigDecimal;
-use borsh::BorshDeserialize;
-use num_traits::cast::{FromPrimitive, ToPrimitive};
-use sqlx::postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef};
-use sqlx::types::Decimal;
-use sqlx::{Decode, Encode, Postgres, Type};
-use std::str::FromStr;
-use std::{convert::TryFrom, ops::Deref};
+use {
+    bigdecimal::BigDecimal,
+    borsh::BorshDeserialize,
+    num_traits::cast::{FromPrimitive, ToPrimitive},
+    sqlx::{
+        postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef},
+        types::Decimal,
+        Decode, Encode, Postgres, Type,
+    },
+    std::{convert::TryFrom, ops::Deref, str::FromStr},
+};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(transparent)]
@@ -24,7 +27,8 @@ impl From<solana_pubkey::Pubkey> for Pubkey {
     }
 }
 
-// Ergonomic conversions from raw bytes (DEFAULT on invalid length/format) for debugging paths
+// Ergonomic conversions from raw bytes (DEFAULT on invalid length/format) for
+// debugging paths
 impl From<Vec<u8>> for Pubkey {
     fn from(bytes: Vec<u8>) -> Self {
         Self(solana_pubkey::Pubkey::try_from_slice(&bytes).unwrap_or_default())

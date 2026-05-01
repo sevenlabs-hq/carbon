@@ -1,6 +1,7 @@
-use serde::{de, Deserializer};
-
-use super::*;
+use {
+    super::*,
+    serde::{de, Deserializer},
+};
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
 where

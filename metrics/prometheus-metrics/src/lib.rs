@@ -187,15 +187,17 @@ pub async fn run_default_metrics_server() -> Result<(), Box<dyn std::error::Erro
 pub async fn run_metrics_server_with_config(
     config: PrometheusServerConfig,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    use axum::{
-        body::Body,
-        http::{Response, StatusCode},
-        routing::get,
-        Router,
+    use {
+        axum::{
+            body::Body,
+            http::{Response, StatusCode},
+            routing::get,
+            Router,
+        },
+        tokio::net::TcpListener,
+        tower::ServiceBuilder,
+        tower_http::{cors::CorsLayer, timeout::TimeoutLayer},
     };
-    use tokio::net::TcpListener;
-    use tower::ServiceBuilder;
-    use tower_http::{cors::CorsLayer, timeout::TimeoutLayer};
 
     async fn metrics_handler() -> Result<Response<Body>, StatusCode> {
         let text = PrometheusMetrics::prometheus_text();

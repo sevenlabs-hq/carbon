@@ -1,15 +1,17 @@
-use crate::{
-    account::{AccountMetadata, AccountProcessorInputType},
-    error::CarbonResult,
-    instruction::{InstructionMetadata, InstructionProcessorInputType},
-    metrics::{Counter, Histogram, MetricsRegistry},
-    postgres::{
-        operations::Upsert,
-        rows::{AccountRow, InstructionRow},
+use {
+    crate::{
+        account::{AccountMetadata, AccountProcessorInputType},
+        error::CarbonResult,
+        instruction::{InstructionMetadata, InstructionProcessorInputType},
+        metrics::{Counter, Histogram, MetricsRegistry},
+        postgres::{
+            operations::Upsert,
+            rows::{AccountRow, InstructionRow},
+        },
     },
+    solana_instruction::AccountMeta,
+    std::sync::LazyLock,
 };
-use solana_instruction::AccountMeta;
-use std::sync::LazyLock;
 
 static POSTGRES_ACCOUNTS_UPSERTED: Counter = Counter::new(
     "postgres_accounts_upsert_upserted",
