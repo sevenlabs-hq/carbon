@@ -3851,6 +3851,58 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28dd6caf6059519a65843af8fe2a3ae298b14b80179855aeb4adc2c1934ee619"
 
 [[package]]
+name = "frankfurt-carbon-shreds"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "axum 0.8.8",
+ "carbon-address-lookup-table-decoder",
+ "carbon-associated-token-account-decoder",
+ "carbon-bonkswap-decoder",
+ "carbon-boop-decoder",
+ "carbon-core",
+ "carbon-dflow-aggregator-v4-decoder",
+ "carbon-fluxbeam-decoder",
+ "carbon-gavel-decoder",
+ "carbon-heaven-decoder",
+ "carbon-jito-shredstream-grpc-datasource",
+ "carbon-jupiter-swap-decoder",
+ "carbon-lifinity-amm-v2-decoder",
+ "carbon-meteora-damm-v2-decoder",
+ "carbon-meteora-dbc-decoder",
+ "carbon-meteora-dlmm-decoder",
+ "carbon-meteora-pools-decoder",
+ "carbon-meteora-vault-decoder",
+ "carbon-moonshot-decoder",
+ "carbon-okx-dex-decoder",
+ "carbon-onchain-labs-dex-v1-decoder",
+ "carbon-onchain-labs-dex-v2-decoder",
+ "carbon-openbook-v2-decoder",
+ "carbon-orca-whirlpool-decoder",
+ "carbon-pancake-swap-decoder",
+ "carbon-phoenix-v1-decoder",
+ "carbon-pump-swap-decoder",
+ "carbon-pumpfun-decoder",
+ "carbon-raydium-amm-v4-decoder",
+ "carbon-raydium-clmm-decoder",
+ "carbon-raydium-cpmm-decoder",
+ "carbon-raydium-launchpad-decoder",
+ "carbon-raydium-stable-swap-decoder",
+ "dashmap 6.1.0",
+ "log",
+ "once_cell",
+ "redis 0.29.5",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "solana-instruction",
+ "solana-pubkey 3.0.0",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "frankfurt-carbon-surveillance"
 version = "0.1.0"
 dependencies = [
@@ -3928,7 +3980,7 @@ dependencies = [
  "helius",
  "log",
  "once_cell",
- "redis",
+ "redis 0.27.6",
  "reqwest 0.12.28",
  "serde",
  "serde_json",
@@ -7381,6 +7433,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "redis"
+version = "0.29.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1bc42f3a12fd4408ce64d8efef67048a924e543bd35c6591c0447fda9054695f"
+dependencies = [
+ "arc-swap",
+ "bytes",
+ "combine 4.6.7",
+ "futures-util",
+ "itoa",
+ "num-bigint 0.4.6",
+ "percent-encoding 2.3.2",
+ "pin-project-lite",
+ "ryu",
+ "sha1_smol",
+ "socket2 0.5.10",
+ "tokio",
+ "tokio-util 0.7.17",
+ "url 2.5.7",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8249,6 +8323,12 @@ dependencies = [
  "cpufeatures",
  "digest 0.10.7",
 ]
+
+[[package]]
+name = "sha1_smol"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbfa15b3dddfee50a0fff136974b3e1bde555604ba463834a7eb7deb6417705d"
 
 [[package]]
 name = "sha2"

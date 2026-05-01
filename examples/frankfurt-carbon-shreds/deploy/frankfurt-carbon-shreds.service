@@ -1,0 +1,25 @@
+[Unit]
+Description=Frankfurt Carbon Shreds (observation-only, no execution)
+Documentation=Carbon-decoded shred-side trigger observation pipeline.
+After=network.target shredstream-proxy.service
+# Intentionally NOT a Wants/Requires of frankfurt-rust — independent restart fate.
+
+[Service]
+Type=simple
+EnvironmentFile=/opt/frankfurt/env/frankfurt-carbon-shreds.env
+WorkingDirectory=/opt/frankfurt-carbon-shreds/carbon
+ExecStart=/opt/frankfurt-carbon-shreds/carbon/target/release/frankfurt-carbon-shreds
+Restart=on-failure
+RestartSec=5
+
+# Hard caps so a runaway in this service can never starve frankfurt-rust.
+MemoryMax=2G
+CPUQuota=400%
+
+# Logging — journald only, JSON-structured (the binary writes JSON to stdout).
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=frankfurt-carbon-shreds
+
+[Install]
+WantedBy=multi-user.target
