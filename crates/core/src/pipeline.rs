@@ -132,16 +132,6 @@ pub struct Pipeline {
     pub channel_buffer_size: usize,
 }
 
-fn flatten_nested_instructions<'a>(
-    nested_instructions: &'a NestedInstructions,
-    flat: &mut Vec<&'a crate::instruction::NestedInstruction>,
-) {
-    for nested_instruction in nested_instructions.iter() {
-        flat.push(nested_instruction);
-        flatten_nested_instructions(&nested_instruction.inner_instructions, flat);
-    }
-}
-
 impl Pipeline {
     fn export_metrics(&self) -> CarbonResult<()> {
         let snapshot = MetricsRegistry::global().snapshot();
@@ -310,7 +300,7 @@ impl Pipeline {
                 let nested_instructions: NestedInstructions =
                     instructions_with_metadata.clone().into();
                 let mut all_instructions = Vec::new();
-                flatten_nested_instructions(&nested_instructions, &mut all_instructions);
+                Self::flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
                 let context = FilterContext {
                     datasource_id: &datasource_id,
@@ -386,6 +376,16 @@ impl Pipeline {
         };
 
         Ok(())
+    }
+
+    fn flatten_nested_instructions<'a>(
+        nested_instructions: &'a NestedInstructions,
+        flat: &mut Vec<&'a crate::instruction::NestedInstruction>,
+    ) {
+        for nested_instruction in nested_instructions.iter() {
+            flat.push(nested_instruction);
+            Self::flatten_nested_instructions(&nested_instruction.inner_instructions, flat);
+        }
     }
 }
 
