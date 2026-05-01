@@ -1498,7 +1498,6 @@ dependencies = [
  "solana-hash 3.1.0",
  "solana-instruction",
  "solana-message",
- "solana-program",
  "solana-pubkey 3.0.0",
  "solana-signature",
  "solana-transaction",
