@@ -54,12 +54,12 @@ pub struct TransactionProcessorInputType<'a, T> {
 
 pub struct TransactionPipe<T: InstructionDecoderCollection, P> {
     processor: P,
-    filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    filters: Vec<Box<dyn Filter + 'static>>,
     _phantom: std::marker::PhantomData<T>,
 }
 
 impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
-    pub fn new(processor: P, filters: Vec<Box<dyn Filter + Send + Sync + 'static>>) -> Self {
+    pub fn new(processor: P, filters: Vec<Box<dyn Filter + 'static>>) -> Self {
         Self {
             processor,
             filters,
@@ -87,7 +87,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
         instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()>;
 
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>];
+    fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
@@ -113,7 +113,7 @@ where
         Ok(())
     }
 
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>] {
+    fn filters(&self) -> &[Box<dyn Filter + 'static>] {
         &self.filters
     }
 }

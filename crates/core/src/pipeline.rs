@@ -465,7 +465,7 @@ impl PipelineBuilder {
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         T: Send + Sync + 'static,
@@ -491,7 +491,7 @@ impl PipelineBuilder {
     pub fn account_deletions_with_filters<P>(
         mut self,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         P: Processor<AccountDeletion> + Send + Sync + 'static,
@@ -513,7 +513,7 @@ impl PipelineBuilder {
     pub fn block_details_with_filters<P>(
         mut self,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         P: Processor<BlockDetails> + Send + Sync + 'static,
@@ -544,7 +544,7 @@ impl PipelineBuilder {
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         T: Send + Sync + 'static,
@@ -571,7 +571,7 @@ impl PipelineBuilder {
     pub fn transaction_with_filters<T, P>(
         mut self,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,

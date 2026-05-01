@@ -177,7 +177,7 @@ pub struct InstructionProcessorInputType<'a, T> {
 pub struct InstructionPipe<T: Send, P> {
     decoder: Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
     processor: P,
-    filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    filters: Vec<Box<dyn Filter + 'static>>,
 }
 
 impl<T: Send, P> InstructionPipe<T, P> {
@@ -186,7 +186,7 @@ impl<T: Send, P> InstructionPipe<T, P> {
             dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
         >,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self {
         Self {
             decoder,
@@ -199,7 +199,7 @@ impl<T: Send, P> InstructionPipe<T, P> {
 #[async_trait]
 pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>];
+    fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
@@ -226,7 +226,7 @@ where
         Ok(())
     }
 
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>] {
+    fn filters(&self) -> &[Box<dyn Filter + 'static>] {
         &self.filters
     }
 }
