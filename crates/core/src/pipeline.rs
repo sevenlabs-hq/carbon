@@ -453,11 +453,11 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        self.account_pipes.push(Box::new(AccountPipe {
-            decoder: Box::new(decoder),
+        self.account_pipes.push(Box::new(AccountPipe::new(
+            Box::new(decoder),
             processor,
-            filters: vec![],
-        }));
+            vec![],
+        )));
         self
     }
 
@@ -471,11 +471,11 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        self.account_pipes.push(Box::new(AccountPipe {
-            decoder: Box::new(decoder),
+        self.account_pipes.push(Box::new(AccountPipe::new(
+            Box::new(decoder),
             processor,
             filters,
-        }));
+        )));
         self
     }
 
@@ -484,10 +484,7 @@ impl PipelineBuilder {
         P: Processor<AccountDeletion> + Send + Sync + 'static,
     {
         self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe {
-                processor,
-                filters: vec![],
-            }));
+            .push(Box::new(AccountDeletionPipe::new(processor, vec![])));
         self
     }
 
@@ -500,7 +497,7 @@ impl PipelineBuilder {
         P: Processor<AccountDeletion> + Send + Sync + 'static,
     {
         self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe { processor, filters }));
+            .push(Box::new(AccountDeletionPipe::new(processor, filters)));
         self
     }
 
@@ -508,10 +505,8 @@ impl PipelineBuilder {
     where
         P: Processor<BlockDetails> + Send + Sync + 'static,
     {
-        self.block_details_pipes.push(Box::new(BlockDetailsPipe {
-            processor,
-            filters: vec![],
-        }));
+        self.block_details_pipes
+            .push(Box::new(BlockDetailsPipe::new(processor, vec![])));
         self
     }
 
@@ -524,7 +519,7 @@ impl PipelineBuilder {
         P: Processor<BlockDetails> + Send + Sync + 'static,
     {
         self.block_details_pipes
-            .push(Box::new(BlockDetailsPipe { processor, filters }));
+            .push(Box::new(BlockDetailsPipe::new(processor, filters)));
         self
     }
 
@@ -537,11 +532,11 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        self.instruction_pipes.push(Box::new(InstructionPipe {
-            decoder: Box::new(decoder),
+        self.instruction_pipes.push(Box::new(InstructionPipe::new(
+            Box::new(decoder),
             processor,
-            filters: vec![],
-        }));
+            vec![],
+        )));
         self
     }
 
@@ -555,11 +550,11 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        self.instruction_pipes.push(Box::new(InstructionPipe {
-            decoder: Box::new(decoder),
+        self.instruction_pipes.push(Box::new(InstructionPipe::new(
+            Box::new(decoder),
             processor,
             filters,
-        }));
+        )));
         self
     }
 
