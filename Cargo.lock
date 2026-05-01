@@ -3895,10 +3895,7 @@ dependencies = [
  "reqwest 0.12.28",
  "serde",
  "serde_json",
- "solana-instruction",
- "solana-pubkey 3.0.0",
  "tokio",
- "tracing",
  "tracing-subscriber",
 ]
 

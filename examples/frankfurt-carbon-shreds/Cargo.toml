@@ -64,18 +64,13 @@ dashmap = "6"
 once_cell = "1"
 tokio = { version = "1", features = ["full"] }
 
-# Solana
-solana-pubkey = "3"
-solana-instruction = "3"
-
 # HTTP
 axum = { workspace = true }
-reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
 redis = { version = "0.29", features = ["tokio-comp"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
 
 # Serde + logging
+log = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-log = "0.4"
-tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
