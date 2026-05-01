@@ -314,14 +314,14 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
                 transaction_metadata: transaction_metadata.clone(),
                 stack_height,
                 index: ix_idx as u32 + 1,
-                absolute_path: vec![],
+                absolute_path: parsed_instruction.absolute_path.clone(),
             },
             parsed_instruction.instruction,
         ));
         result.extend(unnest_parsed_instructions(
             transaction_metadata.clone(),
             parsed_instruction.inner_instructions,
-            stack_height + 1,
+            stack_height + 1
         ));
     }
 
@@ -567,7 +567,7 @@ mod tests {
                                     6,
                                     3
                                 ],
-                                data: base58_deserialize::ix_data("hDDqy4KAEGx3J") 
+                                data: base58_deserialize::ix_data("hDDqy4KAEGx3J")
                             },
                             stack_height: Some(2),
                         },
@@ -578,7 +578,7 @@ mod tests {
                                     0,
                                     3
                                 ],
-                                data: base58_deserialize::ix_data("3Bxs4ezjpW22kuoV") 
+                                data: base58_deserialize::ix_data("3Bxs4ezjpW22kuoV")
                             },
                             stack_height: Some(2),
                         },
@@ -589,7 +589,7 @@ mod tests {
                                     0,
                                     2
                                 ],
-                                data: base58_deserialize::ix_data("3Bxs4KSwSHEiNiN3") 
+                                data: base58_deserialize::ix_data("3Bxs4KSwSHEiNiN3")
                             },
                             stack_height: Some(2),
                         },
@@ -600,7 +600,7 @@ mod tests {
                                     0,
                                     4
                                 ],
-                                data: base58_deserialize::ix_data("3Bxs4TdopiUbobUj") 
+                                data: base58_deserialize::ix_data("3Bxs4TdopiUbobUj")
                             },
                             stack_height: Some(2),
                         },
@@ -846,7 +846,7 @@ mod tests {
                                     10,
                                     12,
                                 ],
-                                data: base58_deserialize::ix_data("PgQWtn8oziwqoZL8sWNwT7LtzLzAUp8MM") 
+                                data: base58_deserialize::ix_data("PgQWtn8oziwqoZL8sWNwT7LtzLzAUp8MM")
                             },
                             stack_height: Some(2),
                         },
@@ -859,7 +859,7 @@ mod tests {
                                     15,
                                     0,
                                 ],
-                                data: base58_deserialize::ix_data("gD28Qcm8qkpHv") 
+                                data: base58_deserialize::ix_data("gD28Qcm8qkpHv")
                             },
                             stack_height: Some(3),
                         },
@@ -872,7 +872,7 @@ mod tests {
                                     2,
                                     13,
                                 ],
-                                data: base58_deserialize::ix_data("hLZYKissEeFUU") 
+                                data: base58_deserialize::ix_data("hLZYKissEeFUU")
                             },
                             stack_height: Some(3),
                         },
@@ -882,7 +882,7 @@ mod tests {
                                 accounts: vec![
                                     19,
                                 ],
-                                data: base58_deserialize::ix_data("yCGxBopjnVNQkNP5usq1PonMQAFjN4WpP7MXQHZjf7XRFvuZeLCkVHy966UtS1VyTsN9u6oGPC5aaYqLj5UXxLj8FaCJccaibatRPgkX95PDrzwLBhZE43gcsTwwccBuEd67YuWJsM1j7tXo5ntSaTWRsfuaqkkoaCDDeidPunPSTBRUY68Hw5oFnYhUcG5CUEPWmM") 
+                                data: base58_deserialize::ix_data("yCGxBopjnVNQkNP5usq1PonMQAFjN4WpP7MXQHZjf7XRFvuZeLCkVHy966UtS1VyTsN9u6oGPC5aaYqLj5UXxLj8FaCJccaibatRPgkX95PDrzwLBhZE43gcsTwwccBuEd67YuWJsM1j7tXo5ntSaTWRsfuaqkkoaCDDeidPunPSTBRUY68Hw5oFnYhUcG5CUEPWmM")
                             },
                             stack_height: Some(3),
                         },
@@ -895,7 +895,7 @@ mod tests {
                                     4,
                                     0,
                                 ],
-                                data: base58_deserialize::ix_data("heASn5ozzjZrp") 
+                                data: base58_deserialize::ix_data("heASn5ozzjZrp")
                             },
                             stack_height: Some(2),
                         },
