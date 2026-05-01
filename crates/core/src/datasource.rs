@@ -84,14 +84,15 @@ pub struct AccountUpdate {
 }
 
 #[derive(Debug, Clone)]
-pub struct BlockDetails {
+pub struct TransactionUpdate {
+    pub signature: Signature,
+    pub transaction: VersionedTransaction,
+    pub meta: TransactionStatusMeta,
+    pub is_vote: bool,
     pub slot: u64,
-    pub block_hash: Option<Hash>,
-    pub previous_block_hash: Option<Hash>,
-    pub rewards: Option<Rewards>,
-    pub num_reward_partitions: Option<u64>,
+    pub index: Option<u64>,
     pub block_time: Option<i64>,
-    pub block_height: Option<u64>,
+    pub block_hash: Option<Hash>,
 }
 
 #[derive(Debug, Clone)]
@@ -102,13 +103,12 @@ pub struct AccountDeletion {
 }
 
 #[derive(Debug, Clone)]
-pub struct TransactionUpdate {
-    pub signature: Signature,
-    pub transaction: VersionedTransaction,
-    pub meta: TransactionStatusMeta,
-    pub is_vote: bool,
+pub struct BlockDetails {
     pub slot: u64,
-    pub index: Option<u64>,
-    pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub previous_block_hash: Option<Hash>,
+    pub rewards: Option<Rewards>,
+    pub num_reward_partitions: Option<u64>,
+    pub block_time: Option<i64>,
+    pub block_height: Option<u64>,
 }
