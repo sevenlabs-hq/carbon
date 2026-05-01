@@ -1,3 +1,23 @@
+//! Instruction decoding, CPI nesting, and instruction-shaped pipe wiring.
+//!
+//! # Components
+//!
+//! - [`InstructionMetadata`] — slot/tx-context surrounding a single instruction
+//!   (`stack_height`, `index`, `absolute_path` for CPI tree position).
+//! - [`InstructionDecoder`] — user trait mapping raw `Instruction` → typed
+//!   `Self::InstructionType`.
+//! - [`InstructionProcessorInputType<'a, T>`] — borrowed bundle delivered to
+//!   processors (metadata + decoded body + nested children + raw).
+//! - [`InstructionPipe`] / [`InstructionPipes`] — internal pipe wrapping
+//!   decoder + processor + filters; constructed by `PipelineBuilder`.
+//! - [`NestedInstruction`] / [`NestedInstructions`] — recursive CPI tree
+//!   rebuilt from the flat `(InstructionMetadata, Instruction)` list.
+//! - [`UnsafeNestedBuilder`] — internal builder that turns a flat list into a
+//!   nested tree without reallocating mid-build (uses raw pointers under the
+//!   hood; safety invariants documented inline).
+//! - [`MAX_INSTRUCTION_STACK_DEPTH`] — Solana's per-transaction CPI depth
+//!   ceiling (5).
+
 use {
     crate::{
         deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter, processor::Processor,
@@ -10,6 +30,8 @@ use {
     },
 };
 
+/// Per-instruction context: which transaction it belongs to, where in
+/// the CPI tree it sits, and what its position is among siblings.
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
     pub transaction_metadata: Arc<TransactionMetadata>,
@@ -31,6 +53,9 @@ const PRECOMPILE_PROGRAMS: &[&str] = &[
     "KeccakSecp256k11111111111111111111111111111",
     "Secp256r1SigVerify1111111111111111111111111",
 ];
+
+// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
+pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
 
 impl InstructionMetadata {
     pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
@@ -157,6 +182,9 @@ impl InstructionMetadata {
 
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
+/// User-implemented decoder mapping a raw `solana_instruction::Instruction`
+/// to a typed `Self::InstructionType`. Returning `None` skips the
+/// instruction for this pipe.
 pub trait InstructionDecoder<'a> {
     type InstructionType;
 
@@ -166,6 +194,9 @@ pub trait InstructionDecoder<'a> {
     ) -> Option<Self::InstructionType>;
 }
 
+/// Borrowed bundle delivered to a
+/// `Processor<InstructionProcessorInputType<T>>`: metadata, decoded body, child
+/// CPIs, and the raw instruction.
 #[derive(Debug)]
 pub struct InstructionProcessorInputType<'a, T> {
     pub metadata: &'a InstructionMetadata,
@@ -175,16 +206,32 @@ pub struct InstructionProcessorInputType<'a, T> {
 }
 
 pub struct InstructionPipe<T: Send, P> {
-    pub decoder:
-        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
-    pub processor: P,
-    pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    decoder: Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
+    processor: P,
+    filters: Vec<Box<dyn Filter + 'static>>,
+}
+
+impl<T: Send, P> InstructionPipe<T, P> {
+    pub fn new(
+        decoder: Box<
+            dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
+        >,
+        processor: P,
+        filters: Vec<Box<dyn Filter + 'static>>,
+    ) -> Self {
+        Self {
+            decoder,
+            processor,
+            filters,
+        }
+    }
 }
 
 #[async_trait]
 pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>];
+
+    fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
@@ -211,11 +258,13 @@ where
         Ok(())
     }
 
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>] {
+    fn filters(&self) -> &[Box<dyn Filter + 'static>] {
         &self.filters
     }
 }
 
+/// A node in the CPI tree: one instruction plus the inner instructions
+/// it invoked.
 #[derive(Debug, Clone)]
 pub struct NestedInstruction {
     pub metadata: InstructionMetadata,
@@ -223,6 +272,9 @@ pub struct NestedInstruction {
     pub inner_instructions: NestedInstructions,
 }
 
+/// Ordered collection of `NestedInstruction`s — typically the
+/// instructions of one transaction or one CPI subtree. Derefs to
+/// `&[NestedInstruction]`.
 #[derive(Debug, Default)]
 pub struct NestedInstructions(pub Vec<NestedInstruction>);
 
@@ -281,9 +333,6 @@ impl From<InstructionsWithMetadata> for NestedInstructions {
         UnsafeNestedBuilder::new(estimated_capacity).build(instructions)
     }
 }
-
-// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
-pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
 
 pub struct UnsafeNestedBuilder {
     nested_ixs: Vec<NestedInstruction>,
@@ -600,7 +649,8 @@ mod tests {
         //
         // Log positions (ignoring precompiles):
         // Position [0] = ComputeBudget
-        // Position [1] = target_program (message index 2, but log position 1 due to 1 precompile)
+        // Position [1] = target_program (message index 2, but log position 1 due to 1
+        // precompile)
 
         let compute_budget = Pubkey::new_unique();
         let ed25519 = Pubkey::from_str("Ed25519SigVerify111111111111111111111111111").unwrap();
@@ -660,8 +710,8 @@ mod tests {
         //
         // Log positions (ignoring precompiles):
         // Position [0] = ComputeBudget
-        // Position [1] = router_program (message index 2, but log position 1 due to 1 precompile)
-        // Position [1, 0] = target_program CPI
+        // Position [1] = router_program (message index 2, but log position 1 due to 1
+        // precompile) Position [1, 0] = target_program CPI
 
         let compute_budget = Pubkey::new_unique();
         let ed25519 = Pubkey::from_str("Ed25519SigVerify111111111111111111111111111").unwrap();
@@ -735,8 +785,8 @@ mod tests {
         //
         // Log positions (ignoring precompiles):
         // Position [0] = ComputeBudget
-        // Position [1] = Router (message index 3, but log position 1 due to 2 precompiles)
-        // Position [1, 0] = first swap CPI
+        // Position [1] = Router (message index 3, but log position 1 due to 2
+        // precompiles) Position [1, 0] = first swap CPI
         // Position [1, 0, 0] = token CPI inside first swap
         // Position [1, 1] = second swap CPI
 

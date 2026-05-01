@@ -1,5 +1,7 @@
-use serde::{Deserialize, Serialize};
-use solana_transaction_status::{EncodedTransaction, UiTransactionStatusMeta};
+use {
+    serde::{Deserialize, Serialize},
+    solana_transaction_status::{EncodedTransaction, UiTransactionStatusMeta},
+};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

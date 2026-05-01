@@ -1,6 +1,8 @@
-use serde::{Deserialize, Serialize};
-use solana_account::Account;
-use solana_pubkey::Pubkey;
+use {
+    serde::{Deserialize, Serialize},
+    solana_account::Account,
+    solana_pubkey::Pubkey,
+};
 
 #[derive(Debug, Serialize)]
 pub struct HeliusGpaV2Request {

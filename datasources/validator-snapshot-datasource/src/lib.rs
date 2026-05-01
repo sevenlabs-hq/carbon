@@ -1,7 +1,5 @@
 mod downloader;
 
-use downloader::download_and_setup_ledger;
-
 use {
     agave_snapshots::snapshot_config::{SnapshotConfig, SnapshotUsage},
     async_trait::async_trait,
@@ -10,6 +8,7 @@ use {
         error::{CarbonResult, Error},
         metrics::{Counter, Histogram, MetricsRegistry},
     },
+    downloader::download_and_setup_ledger,
     solana_account::ReadableAccount,
     solana_accounts_db::{
         accounts_db::AccountsDbConfig,
@@ -24,8 +23,7 @@ use {
         blockstore_options::{AccessType, BlockstoreOptions},
         blockstore_processor::ProcessOptions,
     },
-    solana_pubkey::Pubkey as SolanaPubkey,
-    solana_pubkey::Pubkey,
+    solana_pubkey::{Pubkey as SolanaPubkey, Pubkey},
     solana_runtime::bank::Bank,
     std::{
         collections::HashSet,

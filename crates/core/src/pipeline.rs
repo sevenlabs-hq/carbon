@@ -1,15 +1,39 @@
-use crate::block_details::{BlockDetailsPipe, BlockDetailsPipes};
-use crate::datasource::{BlockDetails, DatasourceId};
-use crate::filter::{Filter, FilterContext, FilterResult};
+//! Pipeline orchestrator — central runtime that wires datasources,
+//! pipes, filters, and metrics into a single `run()` loop.
+//!
+//! # Components
+//!
+//! - [`Pipeline`] — built type that owns all datasources, pipes, and exporters.
+//!   Driven by [`Pipeline::run`].
+//! - [`PipelineBuilder`] — fluent constructor returning `Pipeline` via
+//!   `.build()`. Every framework user starts here.
+//! - [`ShutdownStrategy`] — `Immediate` (drop in-flight on ctrl-C) vs
+//!   `ProcessPending` (drain the channel before exit).
+//!
+//! # Flow
+//!
+//! 1. `run()` spawns one tokio task per datasource and collects updates on an
+//!    MPSC channel.
+//! 2. For each `(Update, DatasourceId)` it calls every registered pipe whose
+//!    update type matches and whose filters return `Accept`.
+//! 3. Each pipe decodes the payload (where applicable) and invokes its
+//!    `Processor`.
+//! 4. Crate-wide metrics (received / processed / successful / failed / queued /
+//!    processing-time histograms) are updated per iteration.
+//! 5. Shutdown via the supplied `CancellationToken` or ctrl-C; behaviour
+//!    governed by [`ShutdownStrategy`].
+
 use {
     crate::{
         account::{
             AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, AccountProcessorInputType,
         },
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
+        block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
-        datasource::{AccountDeletion, Datasource, Update},
+        datasource::{AccountDeletion, BlockDetails, Datasource, DatasourceId, Update},
         error::CarbonResult,
+        filter::{Filter, FilterContext, FilterResult},
         instruction::{
             InstructionDecoder, InstructionPipe, InstructionPipes, InstructionProcessorInputType,
             InstructionsWithMetadata, NestedInstructions,
@@ -110,6 +134,12 @@ fn register_pipeline_metrics() {
     registry.register_counter(&BLOCK_DETAILS_PROCESSED);
 }
 
+/// Shutdown semantics on ctrl-C or external cancellation.
+///
+/// - `Immediate` — cancel datasources, flush metrics, exit; in-flight updates
+///   may be dropped.
+/// - `ProcessPending` — cancel datasources, then drain the channel through the
+///   registered pipes before exiting. Default.
 #[derive(Default, PartialEq, Debug)]
 pub enum ShutdownStrategy {
     Immediate,
@@ -117,10 +147,17 @@ pub enum ShutdownStrategy {
     ProcessPending,
 }
 
+/// Default capacity of the MPSC channel between datasources and the
+/// pipeline loop. Override with [`PipelineBuilder::channel_buffer_size`].
 pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 
+/// Built pipeline ready to execute. Construct via [`Pipeline::builder`].
+///
+/// Owns every datasource, pipe, and exporter for the lifetime of
+/// [`run`](Self::run). Fields are public for advanced introspection but
+/// the standard construction path is the builder.
 pub struct Pipeline {
-    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource + Send + Sync>)>,
+    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
@@ -132,32 +169,7 @@ pub struct Pipeline {
     pub channel_buffer_size: usize,
 }
 
-fn flatten_nested_instructions<'a>(
-    nested_instructions: &'a NestedInstructions,
-    flat: &mut Vec<&'a crate::instruction::NestedInstruction>,
-) {
-    for nested_instruction in nested_instructions.iter() {
-        flat.push(nested_instruction);
-        flatten_nested_instructions(&nested_instruction.inner_instructions, flat);
-    }
-}
-
 impl Pipeline {
-    fn export_metrics(&self) -> CarbonResult<()> {
-        let snapshot = MetricsRegistry::global().snapshot();
-        for exporter in &self.exporters {
-            exporter.export(&snapshot)?;
-        }
-        Ok(())
-    }
-
-    fn shutdown_exporters(&self) -> CarbonResult<()> {
-        for exporter in &self.exporters {
-            exporter.shutdown()?;
-        }
-        Ok(())
-    }
-
     pub fn builder() -> PipelineBuilder {
         PipelineBuilder::default()
     }
@@ -267,6 +279,21 @@ impl Pipeline {
         Ok(())
     }
 
+    fn export_metrics(&self) -> CarbonResult<()> {
+        let snapshot = MetricsRegistry::global().snapshot();
+        for exporter in &self.exporters {
+            exporter.export(&snapshot)?;
+        }
+        Ok(())
+    }
+
+    fn shutdown_exporters(&self) -> CarbonResult<()> {
+        for exporter in &self.exporters {
+            exporter.shutdown()?;
+        }
+        Ok(())
+    }
+
     async fn process(&mut self, update: Update, datasource_id: DatasourceId) -> CarbonResult<()> {
         match update {
             Update::Account(account_update) => {
@@ -310,7 +337,7 @@ impl Pipeline {
                 let nested_instructions: NestedInstructions =
                     instructions_with_metadata.clone().into();
                 let mut all_instructions = Vec::new();
-                flatten_nested_instructions(&nested_instructions, &mut all_instructions);
+                Self::flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
                 let context = FilterContext {
                     datasource_id: &datasource_id,
@@ -387,10 +414,20 @@ impl Pipeline {
 
         Ok(())
     }
+
+    fn flatten_nested_instructions<'a>(
+        nested_instructions: &'a NestedInstructions,
+        flat: &mut Vec<&'a crate::instruction::NestedInstruction>,
+    ) {
+        for nested_instruction in nested_instructions.iter() {
+            flat.push(nested_instruction);
+            Self::flatten_nested_instructions(&nested_instruction.inner_instructions, flat);
+        }
+    }
 }
 
 pub struct PipelineBuilder {
-    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource + Send + Sync>)>,
+    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
@@ -404,7 +441,7 @@ pub struct PipelineBuilder {
 
 impl Default for PipelineBuilder {
     fn default() -> Self {
-        PipelineBuilder {
+        Self {
             datasources: Vec::new(),
             account_pipes: Vec::new(),
             account_deletion_pipes: Vec::new(),
@@ -453,11 +490,11 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        self.account_pipes.push(Box::new(AccountPipe {
-            decoder: Box::new(decoder),
+        self.account_pipes.push(Box::new(AccountPipe::new(
+            Box::new(decoder),
             processor,
-            filters: vec![],
-        }));
+            Vec::new(),
+        )));
         self
     }
 
@@ -465,17 +502,17 @@ impl PipelineBuilder {
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         T: Send + Sync + 'static,
         P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        self.account_pipes.push(Box::new(AccountPipe {
-            decoder: Box::new(decoder),
+        self.account_pipes.push(Box::new(AccountPipe::new(
+            Box::new(decoder),
             processor,
             filters,
-        }));
+        )));
         self
     }
 
@@ -484,23 +521,20 @@ impl PipelineBuilder {
         P: Processor<AccountDeletion> + Send + Sync + 'static,
     {
         self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe {
-                processor,
-                filters: vec![],
-            }));
+            .push(Box::new(AccountDeletionPipe::new(processor, Vec::new())));
         self
     }
 
     pub fn account_deletions_with_filters<P>(
         mut self,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         P: Processor<AccountDeletion> + Send + Sync + 'static,
     {
         self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe { processor, filters }));
+            .push(Box::new(AccountDeletionPipe::new(processor, filters)));
         self
     }
 
@@ -508,23 +542,21 @@ impl PipelineBuilder {
     where
         P: Processor<BlockDetails> + Send + Sync + 'static,
     {
-        self.block_details_pipes.push(Box::new(BlockDetailsPipe {
-            processor,
-            filters: vec![],
-        }));
+        self.block_details_pipes
+            .push(Box::new(BlockDetailsPipe::new(processor, Vec::new())));
         self
     }
 
     pub fn block_details_with_filters<P>(
         mut self,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         P: Processor<BlockDetails> + Send + Sync + 'static,
     {
         self.block_details_pipes
-            .push(Box::new(BlockDetailsPipe { processor, filters }));
+            .push(Box::new(BlockDetailsPipe::new(processor, filters)));
         self
     }
 
@@ -537,11 +569,11 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        self.instruction_pipes.push(Box::new(InstructionPipe {
-            decoder: Box::new(decoder),
+        self.instruction_pipes.push(Box::new(InstructionPipe::new(
+            Box::new(decoder),
             processor,
-            filters: vec![],
-        }));
+            Vec::new(),
+        )));
         self
     }
 
@@ -549,17 +581,17 @@ impl PipelineBuilder {
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         T: Send + Sync + 'static,
         P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        self.instruction_pipes.push(Box::new(InstructionPipe {
-            decoder: Box::new(decoder),
+        self.instruction_pipes.push(Box::new(InstructionPipe::new(
+            Box::new(decoder),
             processor,
             filters,
-        }));
+        )));
         self
     }
 
@@ -569,14 +601,17 @@ impl PipelineBuilder {
         P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, P>::new(processor, vec![])));
+            .push(Box::new(TransactionPipe::<T, P>::new(
+                processor,
+                Vec::new(),
+            )));
         self
     }
 
     pub fn transaction_with_filters<T, P>(
         mut self,
         processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+        filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,

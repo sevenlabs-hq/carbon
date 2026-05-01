@@ -1,18 +1,34 @@
-use crate::filter::Filter;
-use solana_program::hash::Hash;
+//! Transaction-shaped pipe wiring + per-transaction metadata.
+//!
+//! # Components
+//!
+//! - [`TransactionMetadata`] — context shared across every instruction in one
+//!   transaction (signature, fee payer, slot, full message and meta).
+//! - [`TransactionProcessorInputType<'a, T>`] — borrowed bundle handed to
+//!   processors registered via `Pipeline::transaction(...)`.
+//! - [`TransactionPipe`] / [`TransactionPipes`] — internal pipe that parses
+//!   each instruction through an `InstructionDecoderCollection` and routes the
+//!   whole transaction to one processor.
+//! - [`parse_instructions_flat`] — helper that maps a flat list of instructions
+//!   through a collection.
 
 use {
     crate::{
-        collection::InstructionDecoderCollection, error::CarbonResult,
+        collection::InstructionDecoderCollection, error::CarbonResult, filter::Filter,
         instruction::InstructionMetadata, processor::Processor,
     },
     async_trait::async_trait,
     core::convert::TryFrom,
+    solana_hash::Hash,
     solana_instruction::Instruction,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     std::sync::Arc,
 };
+/// Per-transaction context shared across all of its instructions.
+///
+/// Built from a `TransactionUpdate` via `TryFrom`. Wrapped in `Arc`
+/// inside the pipeline so child instructions cheaply reference it.
 #[derive(Debug, Clone, Default)]
 pub struct TransactionMetadata {
     pub slot: u64,
@@ -46,6 +62,9 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
     }
 }
 
+/// Borrowed bundle delivered to processors registered via
+/// `Pipeline::transaction(...)`: shared transaction metadata plus the
+/// flat list of decoded instructions.
 #[derive(Debug)]
 pub struct TransactionProcessorInputType<'a, T> {
     pub metadata: &'a Arc<TransactionMetadata>,
@@ -54,29 +73,18 @@ pub struct TransactionProcessorInputType<'a, T> {
 
 pub struct TransactionPipe<T: InstructionDecoderCollection, P> {
     processor: P,
-    filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    filters: Vec<Box<dyn Filter + 'static>>,
     _phantom: std::marker::PhantomData<T>,
 }
 
 impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
-    pub fn new(processor: P, filters: Vec<Box<dyn Filter + Send + Sync + 'static>>) -> Self {
+    pub fn new(processor: P, filters: Vec<Box<dyn Filter + 'static>>) -> Self {
         Self {
             processor,
             filters,
             _phantom: std::marker::PhantomData,
         }
     }
-}
-
-pub fn parse_instructions_flat<T: InstructionDecoderCollection>(
-    instructions: &[(InstructionMetadata, Instruction)],
-) -> Vec<(InstructionMetadata, T)> {
-    instructions
-        .iter()
-        .filter_map(|(metadata, instruction)| {
-            T::parse_instruction(instruction).map(|parsed| (metadata.clone(), parsed))
-        })
-        .collect()
 }
 
 #[async_trait]
@@ -87,7 +95,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
         instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()>;
 
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>];
+    fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
@@ -113,7 +121,18 @@ where
         Ok(())
     }
 
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>] {
+    fn filters(&self) -> &[Box<dyn Filter + 'static>] {
         &self.filters
     }
+}
+
+pub fn parse_instructions_flat<T: InstructionDecoderCollection>(
+    instructions: &[(InstructionMetadata, Instruction)],
+) -> Vec<(InstructionMetadata, T)> {
+    instructions
+        .iter()
+        .filter_map(|(metadata, instruction)| {
+            T::parse_instruction(instruction).map(|parsed| (metadata.clone(), parsed))
+        })
+        .collect()
 }

@@ -1,3 +1,18 @@
+//! Lock-free metrics primitives + global registry + exporter trait.
+//!
+//! # Components
+//!
+//! - [`Counter`], [`Gauge`], [`Histogram`] — atomic primitives. Cheap enough to
+//!   use on the hot path (single relaxed atomic op per `inc` / `set` /
+//!   `record`).
+//! - [`Metric`] — common name/help interface.
+//! - [`MetricsRegistry`] — process-wide singleton (`MetricsRegistry::global()`)
+//!   that owns references to every registered metric and produces
+//!   [`MetricsSnapshot`]s on demand.
+//! - [`MetricsExporter`] — trait implemented by metric backends
+//!   (`carbon-log-metrics`, `carbon-prometheus-metrics`). The pipeline calls
+//!   `export(snapshot)` after each processed update.
+
 use {
     crate::error::CarbonResult,
     std::sync::{
@@ -6,6 +21,13 @@ use {
     },
 };
 
+static REGISTRY: LazyLock<MetricsRegistry> = LazyLock::new(|| MetricsRegistry {
+    counters: RwLock::new(Vec::new()),
+    gauges: RwLock::new(Vec::new()),
+    histograms: RwLock::new(Vec::new()),
+});
+
+/// Common interface across `Counter` / `Gauge` / `Histogram`.
 pub trait Metric: Send + Sync {
     fn name(&self) -> &'static str;
     fn help(&self) -> &'static str {
@@ -13,6 +35,8 @@ pub trait Metric: Send + Sync {
     }
 }
 
+/// Monotonically increasing u64 counter. `inc` is a single relaxed
+/// `fetch_add`; safe to use in hot paths.
 pub struct Counter {
     name: &'static str,
     help: &'static str,
@@ -54,6 +78,8 @@ impl Metric for Counter {
     }
 }
 
+/// Set/get/add f64 gauge backed by an `AtomicU64` of bit-cast bits.
+/// Use for instantaneous values (queue depth, current slot, etc.).
 pub struct Gauge {
     name: &'static str,
     help: &'static str,
@@ -99,6 +125,9 @@ impl Metric for Gauge {
     }
 }
 
+/// Bucketed f64 histogram with explicit upper boundaries supplied at
+/// construction. `record(v)` increments the matching bucket and the
+/// running sum.
 pub struct Histogram {
     name: &'static str,
     help: &'static str,
@@ -186,17 +215,14 @@ pub struct MetricsSnapshot {
     pub histograms: Vec<(&'static str, &'static str, HistogramSnapshot)>,
 }
 
+/// Process-wide registry that owns `&'static` references to every
+/// metric registered by datasources, decoders, and the pipeline. Access
+/// the singleton via [`MetricsRegistry::global`].
 pub struct MetricsRegistry {
     counters: RwLock<Vec<&'static Counter>>,
     gauges: RwLock<Vec<&'static Gauge>>,
     histograms: RwLock<Vec<&'static Histogram>>,
 }
-
-static REGISTRY: LazyLock<MetricsRegistry> = LazyLock::new(|| MetricsRegistry {
-    counters: RwLock::new(Vec::new()),
-    gauges: RwLock::new(Vec::new()),
-    histograms: RwLock::new(Vec::new()),
-});
 
 impl MetricsRegistry {
     pub fn global() -> &'static MetricsRegistry {
@@ -204,24 +230,36 @@ impl MetricsRegistry {
     }
 
     pub fn register_counter(&self, counter: &'static Counter) {
-        let mut counters = self.counters.write().unwrap();
+        let mut counters = self
+            .counters
+            .write()
+            .expect("metrics counters lock poisoned");
         counters.push(counter);
     }
 
     pub fn register_gauge(&self, gauge: &'static Gauge) {
-        let mut gauges = self.gauges.write().unwrap();
+        let mut gauges = self.gauges.write().expect("metrics gauges lock poisoned");
         gauges.push(gauge);
     }
 
     pub fn register_histogram(&self, histogram: &'static Histogram) {
-        let mut histograms = self.histograms.write().unwrap();
+        let mut histograms = self
+            .histograms
+            .write()
+            .expect("metrics histograms lock poisoned");
         histograms.push(histogram);
     }
 
     pub fn snapshot(&self) -> MetricsSnapshot {
-        let counters = self.counters.read().unwrap();
-        let gauges = self.gauges.read().unwrap();
-        let histograms = self.histograms.read().unwrap();
+        let counters = self
+            .counters
+            .read()
+            .expect("metrics counters lock poisoned");
+        let gauges = self.gauges.read().expect("metrics gauges lock poisoned");
+        let histograms = self
+            .histograms
+            .read()
+            .expect("metrics histograms lock poisoned");
 
         let counter_data: Vec<(&'static str, &'static str, u64)> = counters
             .iter()
@@ -246,6 +284,9 @@ impl MetricsRegistry {
     }
 }
 
+/// Sink for `MetricsSnapshot`s. Implemented by `carbon-log-metrics`
+/// (stdout) and `carbon-prometheus-metrics` (HTTP scrape endpoint).
+/// Register via `PipelineBuilder::metrics(Arc::new(MyExporter))`.
 pub trait MetricsExporter: Send + Sync {
     fn initialize(self: Arc<Self>) -> CarbonResult<()> {
         let _ = self;
