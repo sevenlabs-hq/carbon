@@ -204,24 +204,36 @@ impl MetricsRegistry {
     }
 
     pub fn register_counter(&self, counter: &'static Counter) {
-        let mut counters = self.counters.write().unwrap();
+        let mut counters = self
+            .counters
+            .write()
+            .expect("metrics counters lock poisoned");
         counters.push(counter);
     }
 
     pub fn register_gauge(&self, gauge: &'static Gauge) {
-        let mut gauges = self.gauges.write().unwrap();
+        let mut gauges = self.gauges.write().expect("metrics gauges lock poisoned");
         gauges.push(gauge);
     }
 
     pub fn register_histogram(&self, histogram: &'static Histogram) {
-        let mut histograms = self.histograms.write().unwrap();
+        let mut histograms = self
+            .histograms
+            .write()
+            .expect("metrics histograms lock poisoned");
         histograms.push(histogram);
     }
 
     pub fn snapshot(&self) -> MetricsSnapshot {
-        let counters = self.counters.read().unwrap();
-        let gauges = self.gauges.read().unwrap();
-        let histograms = self.histograms.read().unwrap();
+        let counters = self
+            .counters
+            .read()
+            .expect("metrics counters lock poisoned");
+        let gauges = self.gauges.read().expect("metrics gauges lock poisoned");
+        let histograms = self
+            .histograms
+            .read()
+            .expect("metrics histograms lock poisoned");
 
         let counter_data: Vec<(&'static str, &'static str, u64)> = counters
             .iter()
