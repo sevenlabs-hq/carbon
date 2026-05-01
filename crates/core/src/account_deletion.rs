@@ -7,11 +7,11 @@ use {
 
 pub struct AccountDeletionPipe<P> {
     processor: P,
-    filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    filters: Vec<Box<dyn Filter + 'static>>,
 }
 
 impl<P> AccountDeletionPipe<P> {
-    pub fn new(processor: P, filters: Vec<Box<dyn Filter + Send + Sync + 'static>>) -> Self {
+    pub fn new(processor: P, filters: Vec<Box<dyn Filter + 'static>>) -> Self {
         Self { processor, filters }
     }
 }
@@ -20,7 +20,7 @@ impl<P> AccountDeletionPipe<P> {
 pub trait AccountDeletionPipes: Send + Sync {
     async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()>;
 
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>];
+    fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
@@ -34,7 +34,7 @@ where
         Ok(())
     }
 
-    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>] {
+    fn filters(&self) -> &[Box<dyn Filter + 'static>] {
         &self.filters
     }
 }
