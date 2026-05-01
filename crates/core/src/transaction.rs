@@ -1,5 +1,5 @@
 use crate::filter::Filter;
-use solana_program::hash::Hash;
+use solana_hash::Hash;
 
 use {
     crate::{

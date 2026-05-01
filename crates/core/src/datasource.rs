@@ -1,5 +1,5 @@
 use solana_clock::Slot;
-use solana_program::hash::Hash;
+use solana_hash::Hash;
 use solana_transaction_status::Rewards;
 use {
     crate::error::CarbonResult,
