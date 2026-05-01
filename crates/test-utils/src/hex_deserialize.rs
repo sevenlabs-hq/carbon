@@ -1,3 +1,6 @@
+//! `#[serde(with = "hex_deserialize")]` adapter that decodes a JSON string
+//! field into `Vec<u8>` via hex.
+
 use {
     super::*,
     serde::{de, Deserializer},

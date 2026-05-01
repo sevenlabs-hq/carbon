@@ -1,3 +1,28 @@
+//! Pipeline orchestrator — central runtime that wires datasources,
+//! pipes, filters, and metrics into a single `run()` loop.
+//!
+//! # Components
+//!
+//! - [`Pipeline`] — built type that owns all datasources, pipes, and exporters.
+//!   Driven by [`Pipeline::run`].
+//! - [`PipelineBuilder`] — fluent constructor returning `Pipeline` via
+//!   `.build()`. Every framework user starts here.
+//! - [`ShutdownStrategy`] — `Immediate` (drop in-flight on ctrl-C) vs
+//!   `ProcessPending` (drain the channel before exit).
+//!
+//! # Flow
+//!
+//! 1. `run()` spawns one tokio task per datasource and collects updates on an
+//!    MPSC channel.
+//! 2. For each `(Update, DatasourceId)` it calls every registered pipe whose
+//!    update type matches and whose filters return `Accept`.
+//! 3. Each pipe decodes the payload (where applicable) and invokes its
+//!    `Processor`.
+//! 4. Crate-wide metrics (received / processed / successful / failed / queued /
+//!    processing-time histograms) are updated per iteration.
+//! 5. Shutdown via the supplied `CancellationToken` or ctrl-C; behaviour
+//!    governed by [`ShutdownStrategy`].
+
 use {
     crate::{
         account::{
@@ -109,6 +134,12 @@ fn register_pipeline_metrics() {
     registry.register_counter(&BLOCK_DETAILS_PROCESSED);
 }
 
+/// Shutdown semantics on ctrl-C or external cancellation.
+///
+/// - `Immediate` — cancel datasources, flush metrics, exit; in-flight updates
+///   may be dropped.
+/// - `ProcessPending` — cancel datasources, then drain the channel through the
+///   registered pipes before exiting. Default.
 #[derive(Default, PartialEq, Debug)]
 pub enum ShutdownStrategy {
     Immediate,
@@ -116,8 +147,15 @@ pub enum ShutdownStrategy {
     ProcessPending,
 }
 
+/// Default capacity of the MPSC channel between datasources and the
+/// pipeline loop. Override with [`PipelineBuilder::channel_buffer_size`].
 pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 
+/// Built pipeline ready to execute. Construct via [`Pipeline::builder`].
+///
+/// Owns every datasource, pipe, and exporter for the lifetime of
+/// [`run`](Self::run). Fields are public for advanced introspection but
+/// the standard construction path is the builder.
 pub struct Pipeline {
     pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,

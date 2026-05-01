@@ -1,3 +1,21 @@
+//! Ingestion layer of the pipeline: defines upstream data sources and the
+//! normalized update types they emit.
+//!
+//! # Components
+//!
+//! - [`Datasource`] — async producer that streams `(Update, DatasourceId)` into
+//!   the pipeline.
+//! - [`DatasourceId`] — identity used for routing, filtering, and metrics.
+//! - [`Update`] — unified payload consumed by downstream pipeline stages.
+//! - [`UpdateType`] — declared set of update variants a datasource may emit.
+//!
+//! # Flow
+//!
+//! Each datasource runs in a dedicated Tokio task spawned by `Pipeline::run`.
+//! It emits `(Update, DatasourceId)` pairs through an MPSC channel and
+//! terminates when the `CancellationToken` is triggered or the channel is
+//! closed.
+
 use {
     crate::error::CarbonResult,
     async_trait::async_trait,
@@ -12,16 +30,25 @@ use {
     tokio_util::sync::CancellationToken,
 };
 
+/// Metadata describing a datasource disconnection event.
+///
+/// Used for observability and gap detection in streaming sources.
 #[derive(Debug, Clone)]
 pub struct DatasourceDisconnection {
     pub source: String,
     pub disconnect_time: DateTime<Utc>,
     pub last_slot_before_disconnect: Slot,
     pub first_slot_after_reconnect: Slot,
-    /// Number of slots missed during disconnection
+    /// Number of slots missed during downtime.
     pub missed_slots: u64,
 }
 
+/// Async producer trait implemented by all upstream data sources.
+///
+/// Runs as a dedicated task and streams `(Update, DatasourceId)` into the
+/// pipeline. Implementations must respect the provided `CancellationToken` and
+/// exit on shutdown. `update_types` declares which `Update` variants may be
+/// emitted.
 #[async_trait]
 pub trait Datasource: Send + Sync {
     async fn consume(
@@ -34,6 +61,9 @@ pub trait Datasource: Send + Sync {
     fn update_types(&self) -> Vec<UpdateType>;
 }
 
+/// Unique identifier for a datasource instance.
+///
+/// Used for filtering, routing, and per-source metrics aggregation.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct DatasourceId(String);
 
@@ -47,6 +77,7 @@ impl DatasourceId {
     }
 }
 
+/// Unified payload emitted by datasources into the pipeline.
 #[derive(Debug, Clone)]
 pub enum Update {
     Account(AccountUpdate),
@@ -55,6 +86,9 @@ pub enum Update {
     BlockDetails(BlockDetails),
 }
 
+/// Declared set of update variants a datasource may emit.
+///
+/// Used by the pipeline to validate that emitted updates match expectations.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UpdateType {
     AccountUpdate,
@@ -74,6 +108,7 @@ impl Update {
     }
 }
 
+/// Account state update emitted by streaming or snapshot sources.
 #[derive(Debug, Clone)]
 pub struct AccountUpdate {
     pub pubkey: Pubkey,
@@ -82,6 +117,7 @@ pub struct AccountUpdate {
     pub transaction_signature: Option<Signature>,
 }
 
+/// Full transaction payload with execution metadata.
 #[derive(Debug, Clone)]
 pub struct TransactionUpdate {
     pub signature: Signature,
@@ -94,6 +130,7 @@ pub struct TransactionUpdate {
     pub block_hash: Option<Hash>,
 }
 
+/// Account closure event (lamports drained to zero).
 #[derive(Debug, Clone)]
 pub struct AccountDeletion {
     pub pubkey: Pubkey,
@@ -101,6 +138,7 @@ pub struct AccountDeletion {
     pub transaction_signature: Option<Signature>,
 }
 
+/// Block-level metadata emitted by block-aware datasources.
 #[derive(Debug, Clone)]
 pub struct BlockDetails {
     pub slot: u64,

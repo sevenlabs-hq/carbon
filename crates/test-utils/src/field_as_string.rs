@@ -1,3 +1,7 @@
+//! `#[serde(with = "field_as_string")]` adapter that parses a JSON string
+//! field via `FromStr`. Used for `Pubkey` and other types whose canonical wire
+//! form is a string.
+
 use {
     serde::{de, Deserialize, Deserializer},
     std::str::FromStr,

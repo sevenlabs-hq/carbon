@@ -1,3 +1,18 @@
+//! Lock-free metrics primitives + global registry + exporter trait.
+//!
+//! # Components
+//!
+//! - [`Counter`], [`Gauge`], [`Histogram`] — atomic primitives. Cheap enough to
+//!   use on the hot path (single relaxed atomic op per `inc` / `set` /
+//!   `record`).
+//! - [`Metric`] — common name/help interface.
+//! - [`MetricsRegistry`] — process-wide singleton (`MetricsRegistry::global()`)
+//!   that owns references to every registered metric and produces
+//!   [`MetricsSnapshot`]s on demand.
+//! - [`MetricsExporter`] — trait implemented by metric backends
+//!   (`carbon-log-metrics`, `carbon-prometheus-metrics`). The pipeline calls
+//!   `export(snapshot)` after each processed update.
+
 use {
     crate::error::CarbonResult,
     std::sync::{
@@ -12,6 +27,7 @@ static REGISTRY: LazyLock<MetricsRegistry> = LazyLock::new(|| MetricsRegistry {
     histograms: RwLock::new(Vec::new()),
 });
 
+/// Common interface across `Counter` / `Gauge` / `Histogram`.
 pub trait Metric: Send + Sync {
     fn name(&self) -> &'static str;
     fn help(&self) -> &'static str {
@@ -19,6 +35,8 @@ pub trait Metric: Send + Sync {
     }
 }
 
+/// Monotonically increasing u64 counter. `inc` is a single relaxed
+/// `fetch_add`; safe to use in hot paths.
 pub struct Counter {
     name: &'static str,
     help: &'static str,
@@ -60,6 +78,8 @@ impl Metric for Counter {
     }
 }
 
+/// Set/get/add f64 gauge backed by an `AtomicU64` of bit-cast bits.
+/// Use for instantaneous values (queue depth, current slot, etc.).
 pub struct Gauge {
     name: &'static str,
     help: &'static str,
@@ -105,6 +125,9 @@ impl Metric for Gauge {
     }
 }
 
+/// Bucketed f64 histogram with explicit upper boundaries supplied at
+/// construction. `record(v)` increments the matching bucket and the
+/// running sum.
 pub struct Histogram {
     name: &'static str,
     help: &'static str,
@@ -192,6 +215,9 @@ pub struct MetricsSnapshot {
     pub histograms: Vec<(&'static str, &'static str, HistogramSnapshot)>,
 }
 
+/// Process-wide registry that owns `&'static` references to every
+/// metric registered by datasources, decoders, and the pipeline. Access
+/// the singleton via [`MetricsRegistry::global`].
 pub struct MetricsRegistry {
     counters: RwLock<Vec<&'static Counter>>,
     gauges: RwLock<Vec<&'static Gauge>>,
@@ -258,6 +284,9 @@ impl MetricsRegistry {
     }
 }
 
+/// Sink for `MetricsSnapshot`s. Implemented by `carbon-log-metrics`
+/// (stdout) and `carbon-prometheus-metrics` (HTTP scrape endpoint).
+/// Register via `PipelineBuilder::metrics(Arc::new(MyExporter))`.
 pub trait MetricsExporter: Send + Sync {
     fn initialize(self: Arc<Self>) -> CarbonResult<()> {
         let _ = self;

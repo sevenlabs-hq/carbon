@@ -1,3 +1,8 @@
+//! Pre-wired Juniper + Axum integration. Build a schema with
+//! [`build_schema`], turn it into a [`graphql_router`] mounted on
+//! `/graphql` (GET + POST) and `/graphiql` (playground), then merge
+//! into your Axum app.
+
 use {
     axum::{
         routing::{get, on, MethodFilter},

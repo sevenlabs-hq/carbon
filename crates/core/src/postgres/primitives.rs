@@ -1,3 +1,13 @@
+//! sqlx `Encode`/`Decode` newtypes that map Solana / Carbon types onto
+//! Postgres columns.
+//!
+//! - [`Pubkey`] — wraps `solana_pubkey::Pubkey` as `BYTEA`.
+//! - `U8` / `U16` / `U32` — wider signed-int columns (`INT2`/`INT4`/`INT8`)
+//!   that round-trip through Rust's unsigned types.
+//! - `U64` / `U128` — `NUMERIC` columns bridged via `BigDecimal` for full
+//!   unsigned range.
+//! - `I128` — same `NUMERIC` bridge for signed 128-bit values.
+
 use {
     bigdecimal::BigDecimal,
     borsh::BorshDeserialize,

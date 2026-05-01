@@ -1,7 +1,25 @@
+//! Borsh helpers shared by Codama-generated decoder crates.
+//!
+//! # Components
+//!
+//! - [`CarbonDeserialize`] — discriminator-prefixed borsh deserialization
+//!   contract used by every generated instruction/account decoder.
+//! - [`extract_discriminator`] — splits raw bytes into `(discriminator,
+//!   payload)`.
+//! - [`ArrangeAccounts`] — turns the positional `&[AccountMeta]` of an
+//!   instruction into a typed accounts struct.
+//! - [`PrefixString`] / [`U64PrefixString`] — newtypes for `String`s serialized
+//!   with a length prefix wider than borsh's default.
+
 use std::{
     io::{Error, ErrorKind, Read, Result},
     ops::Deref,
 };
+/// Discriminator-prefixed borsh deserialization contract.
+///
+/// Implementors define a static `DISCRIMINATOR` byte slice (typically
+/// 8 bytes for Anchor-style programs) and `deserialize` is expected to
+/// peel that prefix off before delegating to `BorshDeserialize`.
 pub trait CarbonDeserialize
 where
     Self: Sized + crate::borsh::BorshDeserialize,
@@ -19,6 +37,9 @@ pub fn extract_discriminator(length: usize, data: &[u8]) -> Option<(&[u8], &[u8]
     Some((&data[..length], &data[length..]))
 }
 
+/// Turns the positional `&[AccountMeta]` of an instruction into a typed
+/// accounts struct. Generated alongside instruction decoders; rarely
+/// implemented by hand.
 pub trait ArrangeAccounts {
     type ArrangedAccounts: Clone + Send + Sync + std::fmt::Debug;
 
@@ -27,6 +48,9 @@ pub trait ArrangeAccounts {
     ) -> Option<Self::ArrangedAccounts>;
 }
 
+/// `String` newtype with a 32-bit borsh length prefix (matches the
+/// default `String` layout but exposed as a distinct type so generated
+/// decoders can opt in explicitly).
 #[derive(serde::Serialize, serde::Deserialize, Default, PartialEq, Eq, Clone)]
 pub struct PrefixString(pub String);
 
@@ -66,6 +90,8 @@ impl crate::borsh::BorshDeserialize for PrefixString {
     }
 }
 
+/// `String` newtype with a 64-bit borsh length prefix. Used by programs
+/// that serialise long strings outside `String`'s 4-byte default.
 #[derive(serde::Serialize, Default, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct U64PrefixString(pub String);
 

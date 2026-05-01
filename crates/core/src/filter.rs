@@ -1,3 +1,22 @@
+//! Per-pipe filtering layer applied to updates before processing.
+//!
+//! # Components
+//!
+//! - [`Filter`] — trait with per-`Update` hooks. Defaults to `Accept`;
+//!   implementations override only relevant variants.
+//! - [`FilterContext`] — read-only context passed to each hook (includes the
+//!   originating [`DatasourceId`]).
+//! - [`FilterResult`] — `Accept` / `Reject` decision returned by hooks.
+//!
+//! # Built-in implementations
+//!
+//! - [`DatasourceFilter`] — restricts processing to a fixed set of
+//!   [`DatasourceId`]s.
+//! - [`SlotRangeFilter`] — filters updates within a half-open `[from, to)`
+//!   slot/transaction-index range.
+//! - [`DeduplicationFilter`] — drops duplicate `(signature, path)` or
+//!   `(signature, pubkey)` entries within a TTL window.
+
 use {
     crate::{
         account::AccountMetadata,
@@ -17,17 +36,25 @@ use {
     },
 };
 
+/// Read-only context passed to each `Filter` hook.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FilterContext<'a> {
     pub datasource_id: &'a DatasourceId,
 }
 
+/// Decision returned by a `Filter` hook.
+///
+/// `Reject` skips the update for the current pipe only.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FilterResult {
     Accept,
     Reject,
 }
 
+/// Pipe-level gate evaluated for every incoming update.
+///
+/// Each hook returns `Accept` (forward) or `Reject` (skip). All hooks
+/// default to `Accept`.
 pub trait Filter: Send + Sync {
     fn filter_account(
         &self,
@@ -77,6 +104,10 @@ const DEDUP_CLEANUP_INTERVAL_SECS: u64 = 60;
 type SeenInstructionsMap = HashMap<(Signature, Vec<u8>), Instant>;
 type SeenAccountsMap = HashMap<(Signature, Pubkey), Instant>;
 
+/// Drops duplicate instructions/accounts within a TTL window.
+///
+/// Keys instructions by `(signature, absolute_path)` and accounts by
+/// `(signature, pubkey)`. Periodically purges expired entries to bound memory.
 pub struct DeduplicationFilter {
     seen_instructions: Arc<RwLock<SeenInstructionsMap>>,
     seen_accounts: Arc<RwLock<SeenAccountsMap>>,
@@ -99,12 +130,15 @@ impl DeduplicationFilter {
 
     pub fn cleanup_expired(&self) {
         let cutoff = Instant::now() - self.ttl;
+
         if let Ok(mut seen) = self.seen_instructions.write() {
             seen.retain(|_, t| *t > cutoff);
         }
+
         if let Ok(mut seen) = self.seen_accounts.write() {
             seen.retain(|_, t| *t > cutoff);
         }
+
         self.last_cleanup_secs
             .store(self.creation.elapsed().as_secs(), Ordering::Relaxed);
     }
@@ -113,6 +147,7 @@ impl DeduplicationFilter {
     fn cleanup_if_needed(&self) {
         let elapsed_secs = self.creation.elapsed().as_secs();
         let last = self.last_cleanup_secs.load(Ordering::Relaxed);
+
         if elapsed_secs.saturating_sub(last) >= DEDUP_CLEANUP_INTERVAL_SECS {
             self.cleanup_expired();
         }
@@ -127,12 +162,15 @@ impl Filter for DeduplicationFilter {
         nested_instruction: &NestedInstruction,
     ) -> FilterResult {
         self.cleanup_if_needed();
+
         let sig = nested_instruction.metadata.transaction_metadata.signature;
         let path = nested_instruction.metadata.absolute_path.clone();
         let key = (sig, path);
+
         let Ok(mut seen) = self.seen_instructions.write() else {
             return FilterResult::Accept;
         };
+
         if seen.insert(key, Instant::now()).is_none() {
             FilterResult::Accept
         } else {
@@ -148,13 +186,17 @@ impl Filter for DeduplicationFilter {
         _account: &solana_account::Account,
     ) -> FilterResult {
         self.cleanup_if_needed();
+
         let Some(tx_sig) = account_metadata.transaction_signature else {
             return FilterResult::Accept;
         };
+
         let key = (tx_sig, account_metadata.pubkey);
+
         let Ok(mut seen) = self.seen_accounts.write() else {
             return FilterResult::Accept;
         };
+
         if seen.insert(key, Instant::now()).is_none() {
             FilterResult::Accept
         } else {
@@ -163,6 +205,7 @@ impl Filter for DeduplicationFilter {
     }
 }
 
+/// Accepts only updates from a predefined set of [`DatasourceId`]s.
 pub struct DatasourceFilter {
     pub allowed_datasources: Vec<DatasourceId>,
 }
@@ -249,6 +292,8 @@ impl Filter for DatasourceFilter {
     }
 }
 
+/// Half-open `[from, to)` slot range filter with optional transaction-index
+/// precision.
 #[derive(Debug, Clone)]
 pub struct SlotRangeFilter {
     from_slot: Option<u64>,

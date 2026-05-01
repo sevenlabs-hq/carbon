@@ -1,3 +1,17 @@
+//! Crate-wide error type and `Result` alias used across the pipeline.
+//!
+//! # Categories
+//!
+//! - Structural data errors — missing transaction fields required for
+//!   processing: `MissingFeePayer`, `MissingInnerInstructions`,
+//!   `MissingAccountInTransaction`, `MissingInstructionData`.
+//! - Datasource contract violations —
+//!   `MissingUpdateTypeInDatasource(UpdateType)`.
+//! - Runtime failures — channel or datasource execution issues:
+//!   `FailedToReceiveUpdates(String)`, `FailedToConsumeDatasource(String)`.
+//! - `Custom(String)` — catch-all for external or feature-specific errors (e.g.
+//!   `postgres` / `sqlx` wrapping).
+
 use {crate::datasource::UpdateType, thiserror::Error};
 
 #[derive(Error, Debug)]

@@ -1,3 +1,13 @@
+//! Test fixtures and JSON loaders for decoder tests.
+//!
+//! Provides `serde`-deserializable mirrors of `Instruction`, `AccountMeta`, and
+//! `Account` (with appropriate base58 / base64 / hex / `FromStr` field
+//! adapters), plus `read_*` helpers that load them from JSON fixtures on disk.
+//!
+//! Decoder crates use these types in their `tests/` directories to capture
+//! real on-chain instructions and accounts as JSON and replay them through the
+//! decoder under test.
+
 use {
     serde::Deserialize,
     solana_account::Account,

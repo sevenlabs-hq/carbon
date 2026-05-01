@@ -1,3 +1,23 @@
+//! Instruction decoding, CPI nesting, and instruction-shaped pipe wiring.
+//!
+//! # Components
+//!
+//! - [`InstructionMetadata`] — slot/tx-context surrounding a single instruction
+//!   (`stack_height`, `index`, `absolute_path` for CPI tree position).
+//! - [`InstructionDecoder`] — user trait mapping raw `Instruction` → typed
+//!   `Self::InstructionType`.
+//! - [`InstructionProcessorInputType<'a, T>`] — borrowed bundle delivered to
+//!   processors (metadata + decoded body + nested children + raw).
+//! - [`InstructionPipe`] / [`InstructionPipes`] — internal pipe wrapping
+//!   decoder + processor + filters; constructed by `PipelineBuilder`.
+//! - [`NestedInstruction`] / [`NestedInstructions`] — recursive CPI tree
+//!   rebuilt from the flat `(InstructionMetadata, Instruction)` list.
+//! - [`UnsafeNestedBuilder`] — internal builder that turns a flat list into a
+//!   nested tree without reallocating mid-build (uses raw pointers under the
+//!   hood; safety invariants documented inline).
+//! - [`MAX_INSTRUCTION_STACK_DEPTH`] — Solana's per-transaction CPI depth
+//!   ceiling (5).
+
 use {
     crate::{
         deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter, processor::Processor,
@@ -10,6 +30,8 @@ use {
     },
 };
 
+/// Per-instruction context: which transaction it belongs to, where in
+/// the CPI tree it sits, and what its position is among siblings.
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
     pub transaction_metadata: Arc<TransactionMetadata>,
@@ -160,6 +182,9 @@ impl InstructionMetadata {
 
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
+/// User-implemented decoder mapping a raw `solana_instruction::Instruction`
+/// to a typed `Self::InstructionType`. Returning `None` skips the
+/// instruction for this pipe.
 pub trait InstructionDecoder<'a> {
     type InstructionType;
 
@@ -169,6 +194,9 @@ pub trait InstructionDecoder<'a> {
     ) -> Option<Self::InstructionType>;
 }
 
+/// Borrowed bundle delivered to a
+/// `Processor<InstructionProcessorInputType<T>>`: metadata, decoded body, child
+/// CPIs, and the raw instruction.
 #[derive(Debug)]
 pub struct InstructionProcessorInputType<'a, T> {
     pub metadata: &'a InstructionMetadata,
@@ -202,6 +230,7 @@ impl<T: Send, P> InstructionPipe<T, P> {
 #[async_trait]
 pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
+
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
@@ -234,6 +263,8 @@ where
     }
 }
 
+/// A node in the CPI tree: one instruction plus the inner instructions
+/// it invoked.
 #[derive(Debug, Clone)]
 pub struct NestedInstruction {
     pub metadata: InstructionMetadata,
@@ -241,6 +272,9 @@ pub struct NestedInstruction {
     pub inner_instructions: NestedInstructions,
 }
 
+/// Ordered collection of `NestedInstruction`s — typically the
+/// instructions of one transaction or one CPI subtree. Derefs to
+/// `&[NestedInstruction]`.
 #[derive(Debug, Default)]
 pub struct NestedInstructions(pub Vec<NestedInstruction>);
 

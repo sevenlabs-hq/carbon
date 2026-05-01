@@ -1,3 +1,10 @@
+//! GraphQL-shaped scalars for Solana primitives.
+//!
+//! Wide integers (`I64`, `I128`, `U64`, `U128`) are serialised as
+//! strings to preserve full precision for JavaScript clients (which
+//! truncate beyond 2^53). [`Pubkey`] serialises as base58. [`Json`]
+//! carries arbitrary `serde_json::Value` payloads.
+
 use {
     juniper::{GraphQLScalar, InputValue, ScalarValue, Value},
     serde::{Deserialize, Serialize},
