@@ -32,6 +32,9 @@ const PRECOMPILE_PROGRAMS: &[&str] = &[
     "Secp256r1SigVerify1111111111111111111111111",
 ];
 
+// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
+pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
+
 impl InstructionMetadata {
     pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
         self.extract_event_log_data()
@@ -296,9 +299,6 @@ impl From<InstructionsWithMetadata> for NestedInstructions {
         UnsafeNestedBuilder::new(estimated_capacity).build(instructions)
     }
 }
-
-// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
-pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
 
 pub struct UnsafeNestedBuilder {
     nested_ixs: Vec<NestedInstruction>,

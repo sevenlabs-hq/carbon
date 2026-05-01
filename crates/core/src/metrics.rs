@@ -6,6 +6,12 @@ use {
     },
 };
 
+static REGISTRY: LazyLock<MetricsRegistry> = LazyLock::new(|| MetricsRegistry {
+    counters: RwLock::new(Vec::new()),
+    gauges: RwLock::new(Vec::new()),
+    histograms: RwLock::new(Vec::new()),
+});
+
 pub trait Metric: Send + Sync {
     fn name(&self) -> &'static str;
     fn help(&self) -> &'static str {
@@ -191,12 +197,6 @@ pub struct MetricsRegistry {
     gauges: RwLock<Vec<&'static Gauge>>,
     histograms: RwLock<Vec<&'static Histogram>>,
 }
-
-static REGISTRY: LazyLock<MetricsRegistry> = LazyLock::new(|| MetricsRegistry {
-    counters: RwLock::new(Vec::new()),
-    gauges: RwLock::new(Vec::new()),
-    histograms: RwLock::new(Vec::new()),
-});
 
 impl MetricsRegistry {
     pub fn global() -> &'static MetricsRegistry {
