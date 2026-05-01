@@ -133,21 +133,6 @@ pub struct Pipeline {
 }
 
 impl Pipeline {
-    fn export_metrics(&self) -> CarbonResult<()> {
-        let snapshot = MetricsRegistry::global().snapshot();
-        for exporter in &self.exporters {
-            exporter.export(&snapshot)?;
-        }
-        Ok(())
-    }
-
-    fn shutdown_exporters(&self) -> CarbonResult<()> {
-        for exporter in &self.exporters {
-            exporter.shutdown()?;
-        }
-        Ok(())
-    }
-
     pub fn builder() -> PipelineBuilder {
         PipelineBuilder::default()
     }
@@ -254,6 +239,21 @@ impl Pipeline {
 
         log::info!("pipeline shutdown complete.");
 
+        Ok(())
+    }
+
+    fn export_metrics(&self) -> CarbonResult<()> {
+        let snapshot = MetricsRegistry::global().snapshot();
+        for exporter in &self.exporters {
+            exporter.export(&snapshot)?;
+        }
+        Ok(())
+    }
+
+    fn shutdown_exporters(&self) -> CarbonResult<()> {
+        for exporter in &self.exporters {
+            exporter.shutdown()?;
+        }
         Ok(())
     }
 
