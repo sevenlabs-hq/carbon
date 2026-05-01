@@ -1,3 +1,14 @@
+//! Block-details pipe wiring.
+//!
+//! # Components
+//!
+//! - [`BlockDetailsPipe`] — internal pipe wrapping the user processor and
+//!   filters for `Update::BlockDetails`. Constructed by
+//!   `PipelineBuilder::block_details(...)` and
+//!   `block_details_with_filters(...)`.
+//! - [`BlockDetailsPipes`] — dyn-dispatch trait the pipeline holds as `Box<dyn
+//!   BlockDetailsPipes>`.
+
 use {
     crate::{datasource::BlockDetails, error::CarbonResult, filter::Filter, processor::Processor},
     async_trait::async_trait,

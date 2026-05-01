@@ -1,3 +1,17 @@
+//! Transaction-shaped pipe wiring + per-transaction metadata.
+//!
+//! # Components
+//!
+//! - [`TransactionMetadata`] — context shared across every instruction in one
+//!   transaction (signature, fee payer, slot, full message and meta).
+//! - [`TransactionProcessorInputType<'a, T>`] — borrowed bundle handed to
+//!   processors registered via `Pipeline::transaction(...)`.
+//! - [`TransactionPipe`] / [`TransactionPipes`] — internal pipe that parses
+//!   each instruction through an `InstructionDecoderCollection` and routes the
+//!   whole transaction to one processor.
+//! - [`parse_instructions_flat`] — helper that maps a flat list of instructions
+//!   through a collection.
+
 use {
     crate::{
         collection::InstructionDecoderCollection, error::CarbonResult, filter::Filter,
@@ -11,6 +25,10 @@ use {
     solana_signature::Signature,
     std::sync::Arc,
 };
+/// Per-transaction context shared across all of its instructions.
+///
+/// Built from a `TransactionUpdate` via `TryFrom`. Wrapped in `Arc`
+/// inside the pipeline so child instructions cheaply reference it.
 #[derive(Debug, Clone, Default)]
 pub struct TransactionMetadata {
     pub slot: u64,
@@ -44,6 +62,9 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
     }
 }
 
+/// Borrowed bundle delivered to processors registered via
+/// `Pipeline::transaction(...)`: shared transaction metadata plus the
+/// flat list of decoded instructions.
 #[derive(Debug)]
 pub struct TransactionProcessorInputType<'a, T> {
     pub metadata: &'a Arc<TransactionMetadata>,

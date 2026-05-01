@@ -1,3 +1,17 @@
+//! Internal helpers that turn datasource payloads into pipeline-ready
+//! shapes.
+//!
+//! # Components
+//!
+//! - [`extract_instructions_with_metadata`] — flattens the top-level
+//!   instructions and inner-instructions of a `TransactionUpdate` into a single
+//!   ordered list paired with `InstructionMetadata`.
+//! - [`extract_account_metas`] — builds the typed `AccountMeta` list for one
+//!   compiled instruction from the surrounding `VersionedMessage`.
+//! - [`transaction_metadata_from_original_meta`] — converts the string-typed
+//!   `UiTransactionStatusMeta` (RPC representation) into the binary
+//!   `TransactionStatusMeta` that the pipeline expects.
+
 use {
     crate::{
         datasource::TransactionUpdate,

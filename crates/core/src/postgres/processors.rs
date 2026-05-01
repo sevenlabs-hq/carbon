@@ -1,3 +1,17 @@
+//! `Processor` adapters that persist decoded updates into Postgres.
+//!
+//! # Components
+//!
+//! - [`PostgresAccountProcessor`] / [`PostgresInstructionProcessor`] — typed
+//!   wrappers: the user supplies a `From<(T, Metadata)>` impl on their wrapper
+//!   type `W`, which then `Upsert`s. Use when you have a per-program schema.
+//! - [`PostgresJsonAccountProcessor`] / [`PostgresJsonInstructionProcessor`] —
+//!   schema-less wrappers that store the decoded body as JSONB. Use when
+//!   persisting many programs into one generic table.
+//!
+//! All four record per-upsert metrics (`postgres_*_upserted` counters
+//! and `postgres_*_upsert_duration_milliseconds` histograms).
+
 use {
     crate::{
         account::{AccountMetadata, AccountProcessorInputType},

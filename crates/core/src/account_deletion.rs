@@ -1,3 +1,14 @@
+//! Account-deletion pipe wiring.
+//!
+//! # Components
+//!
+//! - [`AccountDeletionPipe`] — internal pipe wrapping the user processor and
+//!   filters for `Update::AccountDeletion`. Constructed by
+//!   `PipelineBuilder::account_deletions(...)` and
+//!   `account_deletions_with_filters(...)`.
+//! - [`AccountDeletionPipes`] — dyn-dispatch trait the pipeline holds as
+//!   `Box<dyn AccountDeletionPipes>`.
+
 use {
     crate::{
         datasource::AccountDeletion, error::CarbonResult, filter::Filter, processor::Processor,

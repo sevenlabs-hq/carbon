@@ -1,3 +1,10 @@
+//! Row types + CRUD impls for the bundled `accounts` and `instructions`
+//! Postgres tables.
+//!
+//! `AccountRow<T>` and `InstructionRow<T>` store the decoded body as
+//! `Json<T>`. The accompanying `*Migration` types apply
+//! `CREATE TABLE IF NOT EXISTS` via `sqlx_migrator`.
+
 use crate::{
     account::AccountMetadata,
     error::CarbonResult,

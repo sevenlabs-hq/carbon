@@ -1,3 +1,6 @@
+//! `#[serde(with = "base64_deserialize")]` adapter that decodes a JSON string
+//! field into `Vec<u8>` via standard base64.
+
 use {
     base64::{engine::general_purpose::STANDARD, Engine},
     serde::{de, Deserialize, Deserializer},
