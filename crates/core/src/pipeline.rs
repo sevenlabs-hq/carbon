@@ -404,7 +404,7 @@ pub struct PipelineBuilder {
 
 impl Default for PipelineBuilder {
     fn default() -> Self {
-        PipelineBuilder {
+        Self {
             datasources: Vec::new(),
             account_pipes: Vec::new(),
             account_deletion_pipes: Vec::new(),
