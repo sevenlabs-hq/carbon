@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: carbon
+      POSTGRES_PASSWORD: carbon
+      POSTGRES_DB: carbon_example
+    ports:
+      - "5433:5432"
+    volumes:
+      - carbon_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carbon -d carbon_example"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+volumes:
+  carbon_postgres_data:

@@ -1,13 +1,15 @@
 [package]
-name = "jetstreamer-carbon-example"
+name = "gpa-rpc-carbon-example"
 version = "0.12.0"
 edition = { workspace = true }
 
 [dependencies]
 carbon-core = { workspace = true }
-carbon-jetstreamer-datasource = { workspace = true }
+carbon-helius-gpa-v2-datasource = { workspace = true }
 carbon-log-metrics = { workspace = true }
-carbon-token-2022-decoder = { workspace = true }
+carbon-marginfi-v2-decoder = { workspace = true }
+carbon-rpc-gpa-datasource = { workspace = true }
+solana-pubkey = { workspace = true }
 
 dotenv = { workspace = true }
 env_logger = { workspace = true }

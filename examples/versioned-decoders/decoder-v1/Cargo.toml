@@ -1,0 +1,20 @@
+[package]
+name = "carbon-simple-dex-decoder-v1"
+version = "0.12.0"
+edition = { workspace = true }
+publish = false
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = []
+serde = ["dep:serde"]
+
+[dependencies]
+carbon-core = { workspace = true, features = ["macros"] }
+borsh = { workspace = true, features = ["derive"] }
+solana-pubkey = { workspace = true, features = ["borsh"] }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true }
+serde = { workspace = true, features = ["derive"], optional = true }
