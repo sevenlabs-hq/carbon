@@ -68,17 +68,6 @@ impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
     }
 }
 
-pub fn parse_instructions_flat<T: InstructionDecoderCollection>(
-    instructions: &[(InstructionMetadata, Instruction)],
-) -> Vec<(InstructionMetadata, T)> {
-    instructions
-        .iter()
-        .filter_map(|(metadata, instruction)| {
-            T::parse_instruction(instruction).map(|parsed| (metadata.clone(), parsed))
-        })
-        .collect()
-}
-
 #[async_trait]
 pub trait TransactionPipes<'a>: Send + Sync {
     async fn run(
@@ -116,4 +105,15 @@ where
     fn filters(&self) -> &[Box<dyn Filter + 'static>] {
         &self.filters
     }
+}
+
+pub fn parse_instructions_flat<T: InstructionDecoderCollection>(
+    instructions: &[(InstructionMetadata, Instruction)],
+) -> Vec<(InstructionMetadata, T)> {
+    instructions
+        .iter()
+        .filter_map(|(metadata, instruction)| {
+            T::parse_instruction(instruction).map(|parsed| (metadata.clone(), parsed))
+        })
+        .collect()
 }
