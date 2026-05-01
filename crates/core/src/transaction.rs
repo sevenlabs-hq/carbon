@@ -244,22 +244,31 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
 /// A `Box<Vec<ParsedInstruction<T>>>` containing the parsed instructions.
 pub fn parse_instructions<T: InstructionDecoderCollection>(
     nested_ixs: &[NestedInstruction],
+    parent_path: Vec<u8>,
 ) -> Vec<ParsedInstruction<T>> {
     log::trace!("parse_instructions(nested_ixs: {nested_ixs:?})");
 
     let mut parsed_instructions: Vec<ParsedInstruction<T>> = Vec::new();
 
-    for nested_ix in nested_ixs {
+    for (index, nested_ix) in nested_ixs.iter().enumerate() {
+        let mut absolute_path = parent_path.clone();
+        absolute_path.push(index as u8);
+
         if let Some(instruction) = T::parse_instruction(&nested_ix.instruction) {
             parsed_instructions.push(ParsedInstruction {
+                absolute_path: absolute_path.clone(),
                 program_id: nested_ix.instruction.program_id,
                 instruction,
-                inner_instructions: parse_instructions(&nested_ix.inner_instructions),
+                inner_instructions: parse_instructions(
+                    &nested_ix.inner_instructions,
+                    absolute_path.clone(),
+                ),
             });
         } else {
-            for inner_ix in nested_ix.inner_instructions.iter() {
-                parsed_instructions.extend(parse_instructions(std::slice::from_ref(inner_ix)));
-            }
+            parsed_instructions.extend(parse_instructions(
+                &nested_ix.inner_instructions,
+                absolute_path.clone(),
+            ));
         }
     }
 
@@ -302,7 +311,7 @@ where
     ) -> CarbonResult<()> {
         log::trace!("TransactionPipe::run(instructions: {instructions:?}, metrics)",);
 
-        let parsed_instructions = parse_instructions(instructions);
+        let parsed_instructions = parse_instructions(instructions, vec![]);
 
         let matched_data = self.matches_schema(&parsed_instructions);
 

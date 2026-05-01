@@ -78,6 +78,8 @@ pub struct ParsedInstruction<T: InstructionDecoderCollection> {
     pub instruction: DecodedInstruction<T>,
     /// A vector of parsed nested instructions.
     pub inner_instructions: Vec<ParsedInstruction<T>>,
+    /// The real instruction path before flatten
+    pub absolute_path: Vec<u8>,
 }
 
 /// Represents the schema for a transaction, defining the structure and expected
