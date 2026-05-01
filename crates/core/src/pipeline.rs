@@ -120,7 +120,7 @@ pub enum ShutdownStrategy {
 pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 
 pub struct Pipeline {
-    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource + Send + Sync>)>,
+    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
@@ -390,7 +390,7 @@ impl Pipeline {
 }
 
 pub struct PipelineBuilder {
-    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource + Send + Sync>)>,
+    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
