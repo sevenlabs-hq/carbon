@@ -1,8 +1,7 @@
-use crate::datasource::BlockDetails;
-use crate::error::CarbonResult;
-use crate::filter::Filter;
-use crate::processor::Processor;
-use async_trait::async_trait;
+use {
+    crate::{datasource::BlockDetails, error::CarbonResult, filter::Filter, processor::Processor},
+    async_trait::async_trait,
+};
 
 pub struct BlockDetailsPipe<P> {
     processor: P,

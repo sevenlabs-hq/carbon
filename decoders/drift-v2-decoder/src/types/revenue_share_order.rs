@@ -25,8 +25,10 @@ pub struct RevenueShareOrder {
     /// [`RevenueShareOrderBitFlag::Open`]: this order slot is occupied, `order_id` is the `sub_account_id`'s active order.
     /// [`RevenueShareOrderBitFlag::Completed`]: this order has been filled or canceled, and is waiting to be settled into.
     /// the builder's account order_id and sub_account_id are no longer
-    /// relevant, it may be merged with other orders. [`RevenueShareOrderBitFlag::Referral`]: this order stores referral rewards waiting to be settled for this market.
-    /// If it is set, no other bitflag should be set.
+    /// relevant, it may be merged with other orders.
+    /// [`RevenueShareOrderBitFlag::Referral`]: this order stores referral
+    /// rewards waiting to be settled for this market. If it is set, no
+    /// other bitflag should be set.
     pub bit_flags: u8,
     /// the index into the User's orders list when this RevenueShareOrder was
     /// created, make sure to verify that order_id matches.

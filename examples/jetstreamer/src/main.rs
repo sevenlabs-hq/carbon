@@ -1,16 +1,17 @@
-use std::{collections::HashSet, sync::Arc};
-
-use carbon_core::{
-    error::CarbonResult, instruction::InstructionProcessorInputType, pipeline::Pipeline,
-    processor::Processor,
+use {
+    carbon_core::{
+        error::CarbonResult, instruction::InstructionProcessorInputType, pipeline::Pipeline,
+        processor::Processor,
+    },
+    carbon_jetstreamer_datasource::{
+        filter::{JetstreamerFilter, TransactionFilter},
+        range::JetstreamerRange,
+        JetstreamerDatasource,
+    },
+    carbon_log_metrics::LogMetrics,
+    carbon_token_2022_decoder::{instructions::Token2022Instruction, Token2022Decoder},
+    std::{collections::HashSet, sync::Arc},
 };
-use carbon_jetstreamer_datasource::{
-    filter::{JetstreamerFilter, TransactionFilter},
-    range::JetstreamerRange,
-    JetstreamerDatasource,
-};
-use carbon_log_metrics::LogMetrics;
-use carbon_token_2022_decoder::{instructions::Token2022Instruction, Token2022Decoder};
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
@@ -25,7 +26,7 @@ pub async fn main() -> CarbonResult<()> {
             transaction_filters: vec![TransactionFilter {
                 vote: Some(false),   // Exclude vote transactions
                 failed: Some(false), // Exclude failed transactions
-                account_include: HashSet::from([carbon_token_2022_decoder::PROGRAM_ID]), // Include only Token 2022 program transactions
+                account_include: HashSet::from([carbon_token_2022_decoder::PROGRAM_ID]), /* Include only Token 2022 program transactions */
                 account_exclude: HashSet::new(),
                 account_required: HashSet::new(),
             }],

@@ -1,7 +1,3 @@
-use std::env;
-
-use solana_transaction_status::UiTransactionEncoding;
-
 use {
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
@@ -9,6 +5,8 @@ use {
     carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder},
     carbon_rpc_block_crawler_datasource::{RpcBlockConfig, RpcBlockCrawler},
     clap::Parser,
+    solana_transaction_status::UiTransactionEncoding,
+    std::env,
 };
 
 #[derive(Parser, Debug)]

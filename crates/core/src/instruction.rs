@@ -615,7 +615,8 @@ mod tests {
         //
         // Log positions (ignoring precompiles):
         // Position [0] = ComputeBudget
-        // Position [1] = target_program (message index 2, but log position 1 due to 1 precompile)
+        // Position [1] = target_program (message index 2, but log position 1 due to 1
+        // precompile)
 
         let compute_budget = Pubkey::new_unique();
         let ed25519 = Pubkey::from_str("Ed25519SigVerify111111111111111111111111111").unwrap();
@@ -675,8 +676,8 @@ mod tests {
         //
         // Log positions (ignoring precompiles):
         // Position [0] = ComputeBudget
-        // Position [1] = router_program (message index 2, but log position 1 due to 1 precompile)
-        // Position [1, 0] = target_program CPI
+        // Position [1] = router_program (message index 2, but log position 1 due to 1
+        // precompile) Position [1, 0] = target_program CPI
 
         let compute_budget = Pubkey::new_unique();
         let ed25519 = Pubkey::from_str("Ed25519SigVerify111111111111111111111111111").unwrap();
@@ -750,8 +751,8 @@ mod tests {
         //
         // Log positions (ignoring precompiles):
         // Position [0] = ComputeBudget
-        // Position [1] = Router (message index 3, but log position 1 due to 2 precompiles)
-        // Position [1, 0] = first swap CPI
+        // Position [1] = Router (message index 3, but log position 1 due to 2
+        // precompiles) Position [1, 0] = first swap CPI
         // Position [1, 0, 0] = token CPI inside first swap
         // Position [1, 1] = second swap CPI
 

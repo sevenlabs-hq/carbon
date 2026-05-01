@@ -19,16 +19,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Stable Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - name: Install nightly toolchain with rustfmt
+        run: rustup toolchain install nightly --component rustfmt --profile minimal --no-self-update
 
-      - name: Install `rustfmt`
-        run: rustup component add  rustfmt --toolchain 1.88.0
-
-      - name: cargo fmt --check
-        run: cargo fmt --check
+      - name: cargo +nightly fmt --check
+        run: cargo +nightly fmt --all -- --check
 
   clippy:
     runs-on: ubuntu-latest

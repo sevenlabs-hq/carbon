@@ -35,8 +35,9 @@ impl Parse for InstructionMacroInput {
             let program_variant: Ident = input.parse()?;
             input.parse::<Token![=>]>()?;
 
-            // Attempt to parse 4-part syntax: variant => PROGRAM_ID_PATH => DECODER => INSTRUCTION
-            // Use a forked parser to decide without consuming on failure.
+            // Attempt to parse 4-part syntax: variant => PROGRAM_ID_PATH => DECODER =>
+            // INSTRUCTION Use a forked parser to decide without consuming on
+            // failure.
             let mut use_four_part = false;
             let fork = input.fork();
             let program_id_path_candidate: syn::Path = match fork.parse() {

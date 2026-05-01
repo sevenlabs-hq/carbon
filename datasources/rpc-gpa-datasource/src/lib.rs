@@ -14,8 +14,7 @@ use {
     },
     solana_commitment_config::CommitmentConfig,
     solana_pubkey::Pubkey,
-    std::str::FromStr,
-    std::sync::LazyLock,
+    std::{str::FromStr, sync::LazyLock},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };

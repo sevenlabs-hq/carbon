@@ -1,15 +1,14 @@
-use crate::block_details::{BlockDetailsPipe, BlockDetailsPipes};
-use crate::datasource::{BlockDetails, DatasourceId};
-use crate::filter::{Filter, FilterContext, FilterResult};
 use {
     crate::{
         account::{
             AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, AccountProcessorInputType,
         },
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
+        block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
-        datasource::{AccountDeletion, Datasource, Update},
+        datasource::{AccountDeletion, BlockDetails, Datasource, DatasourceId, Update},
         error::CarbonResult,
+        filter::{Filter, FilterContext, FilterResult},
         instruction::{
             InstructionDecoder, InstructionPipe, InstructionPipes, InstructionProcessorInputType,
             InstructionsWithMetadata, NestedInstructions,
@@ -564,7 +563,10 @@ impl PipelineBuilder {
         P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, P>::new(processor, Vec::new())));
+            .push(Box::new(TransactionPipe::<T, P>::new(
+                processor,
+                Vec::new(),
+            )));
         self
     }
 
