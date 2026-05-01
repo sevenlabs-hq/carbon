@@ -38,9 +38,23 @@ pub struct AccountProcessorInputType<'a, T> {
 }
 
 pub struct AccountPipe<T, P> {
-    pub decoder: Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
-    pub processor: P,
-    pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    decoder: Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
+    processor: P,
+    filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+}
+
+impl<T, P> AccountPipe<T, P> {
+    pub fn new(
+        decoder: Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
+        processor: P,
+        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    ) -> Self {
+        Self {
+            decoder,
+            processor,
+            filters,
+        }
+    }
 }
 
 #[async_trait]

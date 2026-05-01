@@ -175,10 +175,25 @@ pub struct InstructionProcessorInputType<'a, T> {
 }
 
 pub struct InstructionPipe<T: Send, P> {
-    pub decoder:
-        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
-    pub processor: P,
-    pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    decoder: Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
+    processor: P,
+    filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+}
+
+impl<T: Send, P> InstructionPipe<T, P> {
+    pub fn new(
+        decoder: Box<
+            dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
+        >,
+        processor: P,
+        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    ) -> Self {
+        Self {
+            decoder,
+            processor,
+            filters,
+        }
+    }
 }
 
 #[async_trait]

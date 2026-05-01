@@ -5,8 +5,14 @@ use crate::processor::Processor;
 use async_trait::async_trait;
 
 pub struct BlockDetailsPipe<P> {
-    pub processor: P,
-    pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    processor: P,
+    filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+}
+
+impl<P> BlockDetailsPipe<P> {
+    pub fn new(processor: P, filters: Vec<Box<dyn Filter + Send + Sync + 'static>>) -> Self {
+        Self { processor, filters }
+    }
 }
 
 #[async_trait]
