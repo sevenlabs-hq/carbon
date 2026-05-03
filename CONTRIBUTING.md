@@ -161,13 +161,13 @@ The project uses a strict clippy configuration defined in `clippy.toml`:
 
 Every PR runs the workflow in [`.github/workflows/check.yml`](.github/workflows/check.yml):
 
-| Check    | Command                                                      |
-| -------- | ------------------------------------------------------------ |
-| Format   | `cargo fmt --check`                                          |
-| Lint     | `cargo clippy --all-targets --all-features -- -D warnings`   |
-| Sort     | `cargo sort -c -g`                                           |
-| Unused   | `cargo machete`                                              |
-| Tests    | `cargo test --all-targets --all-features`                    |
+| Check  | Command                                                    |
+| ------ | ---------------------------------------------------------- |
+| Format | `cargo fmt --check`                                        |
+| Lint   | `cargo clippy --all-targets --all-features -- -D warnings` |
+| Sort   | `cargo sort -c -g`                                         |
+| Unused | `cargo machete`                                            |
+| Tests  | `cargo test --all-targets --all-features`                  |
 
 All five must pass before a PR is mergeable. Run the same locally via `./.pre-commit.sh` plus `cargo test --workspace`.
 
