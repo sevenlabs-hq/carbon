@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Delete for LockEscrowRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LockEscrowRow {
+impl carbon_core::postgres::operations::Lookup for LockEscrowRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

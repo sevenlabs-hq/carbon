@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for InitializeCombinedInsuranceVa
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeCombinedInsuranceVaultRow {
+impl carbon_core::postgres::operations::Lookup for InitializeCombinedInsuranceVaultRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -127,7 +127,7 @@ impl carbon_core::postgres::operations::Delete for NameRecordHeaderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for NameRecordHeaderRow {
+impl carbon_core::postgres::operations::Lookup for NameRecordHeaderRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

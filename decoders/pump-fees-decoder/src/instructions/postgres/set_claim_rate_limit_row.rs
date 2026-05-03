@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SetClaimRateLimitRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetClaimRateLimitRow {
+impl carbon_core::postgres::operations::Lookup for SetClaimRateLimitRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

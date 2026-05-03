@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Delete for IncreaseLiquidityByTokenAmoun
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for IncreaseLiquidityByTokenAmountsV2Row {
+impl carbon_core::postgres::operations::Lookup for IncreaseLiquidityByTokenAmountsV2Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for PlaceLimitOrderWithFreeFundsR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PlaceLimitOrderWithFreeFundsRow {
+impl carbon_core::postgres::operations::Lookup for PlaceLimitOrderWithFreeFundsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

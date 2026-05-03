@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for SwapRouterBaseInRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapRouterBaseInRow {
+impl carbon_core::postgres::operations::Lookup for SwapRouterBaseInRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

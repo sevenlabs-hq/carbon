@@ -203,7 +203,7 @@ impl carbon_core::postgres::operations::Delete for TransferPoolsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TransferPoolsRow {
+impl carbon_core::postgres::operations::Lookup for TransferPoolsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

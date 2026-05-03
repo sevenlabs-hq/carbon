@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for InitializeInsuranceFundStakeR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeInsuranceFundStakeRow {
+impl carbon_core::postgres::operations::Lookup for InitializeInsuranceFundStakeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

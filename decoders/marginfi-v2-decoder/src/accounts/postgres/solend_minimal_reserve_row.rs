@@ -444,7 +444,7 @@ impl carbon_core::postgres::operations::Delete for SolendMinimalReserveRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SolendMinimalReserveRow {
+impl carbon_core::postgres::operations::Lookup for SolendMinimalReserveRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

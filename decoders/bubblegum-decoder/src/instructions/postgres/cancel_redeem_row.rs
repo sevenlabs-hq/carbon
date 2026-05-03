@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for CancelRedeemRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CancelRedeemRow {
+impl carbon_core::postgres::operations::Lookup for CancelRedeemRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

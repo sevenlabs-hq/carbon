@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for DeactivateProtocolLookupTable
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DeactivateProtocolLookupTableRow {
+impl carbon_core::postgres::operations::Lookup for DeactivateProtocolLookupTableRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

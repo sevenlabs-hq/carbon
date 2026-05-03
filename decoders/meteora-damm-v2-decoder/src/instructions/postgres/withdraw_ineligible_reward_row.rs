@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawIneligibleRewardRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawIneligibleRewardRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawIneligibleRewardRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

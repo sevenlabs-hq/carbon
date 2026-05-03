@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ReservedTokenARow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReservedTokenARow {
+impl carbon_core::postgres::operations::Lookup for ReservedTokenARow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

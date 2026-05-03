@@ -258,7 +258,7 @@ impl carbon_core::postgres::operations::Delete for CreatePresaleRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreatePresaleRow {
+impl carbon_core::postgres::operations::Lookup for CreatePresaleRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

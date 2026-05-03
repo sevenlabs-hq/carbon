@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Delete for ReferralAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReferralAccountRow {
+impl carbon_core::postgres::operations::Lookup for ReferralAccountRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

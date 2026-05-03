@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for PreFlashFillOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PreFlashFillOrderRow {
+impl carbon_core::postgres::operations::Lookup for PreFlashFillOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFeatureBitFlagsBuilderC
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateFeatureBitFlagsBuilderCodesRow {
+impl carbon_core::postgres::operations::Lookup for UpdateFeatureBitFlagsBuilderCodesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

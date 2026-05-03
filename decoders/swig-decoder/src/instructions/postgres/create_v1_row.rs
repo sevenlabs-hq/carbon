@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for CreateV1Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateV1Row {
+impl carbon_core::postgres::operations::Lookup for CreateV1Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

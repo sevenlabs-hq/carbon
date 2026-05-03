@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for UnverifyCollectionRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UnverifyCollectionRow {
+impl carbon_core::postgres::operations::Lookup for UnverifyCollectionRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

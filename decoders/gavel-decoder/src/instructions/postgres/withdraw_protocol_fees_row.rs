@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawProtocolFeesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawProtocolFeesRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawProtocolFeesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for UpdateLiquidationDurationRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateLiquidationDurationRow {
+impl carbon_core::postgres::operations::Lookup for UpdateLiquidationDurationRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

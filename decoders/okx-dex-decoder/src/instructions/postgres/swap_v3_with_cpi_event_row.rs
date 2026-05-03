@@ -180,7 +180,7 @@ impl carbon_core::postgres::operations::Delete for SwapV3WithCpiEventRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapV3WithCpiEventRow {
+impl carbon_core::postgres::operations::Lookup for SwapV3WithCpiEventRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -334,7 +334,7 @@ impl carbon_core::postgres::operations::Delete for PositionV2Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PositionV2Row {
+impl carbon_core::postgres::operations::Lookup for PositionV2Row {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

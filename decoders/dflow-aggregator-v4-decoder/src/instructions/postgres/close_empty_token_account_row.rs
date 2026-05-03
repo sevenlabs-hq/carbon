@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CloseEmptyTokenAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CloseEmptyTokenAccountRow {
+impl carbon_core::postgres::operations::Lookup for CloseEmptyTokenAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

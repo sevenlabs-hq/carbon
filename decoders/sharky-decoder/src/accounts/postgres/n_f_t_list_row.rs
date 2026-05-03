@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Delete for NFTListRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for NFTListRow {
+impl carbon_core::postgres::operations::Lookup for NFTListRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for InitializePrelaunchOracleRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializePrelaunchOracleRow {
+impl carbon_core::postgres::operations::Lookup for InitializePrelaunchOracleRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

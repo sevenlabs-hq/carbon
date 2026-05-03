@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for TokenLedgerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TokenLedgerRow {
+impl carbon_core::postgres::operations::Lookup for TokenLedgerRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for LockRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LockRow {
+impl carbon_core::postgres::operations::Lookup for LockRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

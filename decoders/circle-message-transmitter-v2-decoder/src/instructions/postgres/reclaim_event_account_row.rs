@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for ReclaimEventAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReclaimEventAccountRow {
+impl carbon_core::postgres::operations::Lookup for ReclaimEventAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

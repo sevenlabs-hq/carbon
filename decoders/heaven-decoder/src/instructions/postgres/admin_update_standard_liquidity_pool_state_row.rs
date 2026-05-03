@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for AdminUpdateStandardLiquidityP
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdminUpdateStandardLiquidityPoolStateRow {
+impl carbon_core::postgres::operations::Lookup for AdminUpdateStandardLiquidityPoolStateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

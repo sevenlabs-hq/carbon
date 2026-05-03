@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for PauseRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PauseRow {
+impl carbon_core::postgres::operations::Lookup for PauseRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

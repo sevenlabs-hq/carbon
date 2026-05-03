@@ -434,7 +434,7 @@ impl carbon_core::postgres::operations::Delete for MinimalSpotMarketRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MinimalSpotMarketRow {
+impl carbon_core::postgres::operations::Lookup for MinimalSpotMarketRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

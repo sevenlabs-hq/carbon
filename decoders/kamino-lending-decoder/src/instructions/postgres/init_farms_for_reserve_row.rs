@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for InitFarmsForReserveRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitFarmsForReserveRow {
+impl carbon_core::postgres::operations::Lookup for InitFarmsForReserveRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

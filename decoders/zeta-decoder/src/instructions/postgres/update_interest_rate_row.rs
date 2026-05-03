@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateInterestRateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateInterestRateRow {
+impl carbon_core::postgres::operations::Lookup for UpdateInterestRateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

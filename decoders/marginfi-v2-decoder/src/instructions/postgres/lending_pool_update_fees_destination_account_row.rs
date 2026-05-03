@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Delete for LendingPoolUpdateFeesDestinat
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LendingPoolUpdateFeesDestinationAccountRow {
+impl carbon_core::postgres::operations::Lookup for LendingPoolUpdateFeesDestinationAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

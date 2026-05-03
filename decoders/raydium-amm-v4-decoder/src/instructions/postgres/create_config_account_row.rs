@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CreateConfigAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateConfigAccountRow {
+impl carbon_core::postgres::operations::Lookup for CreateConfigAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

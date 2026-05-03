@@ -106,7 +106,7 @@ impl carbon_core::postgres::operations::Delete for UsedNonceRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UsedNonceRow {
+impl carbon_core::postgres::operations::Lookup for UsedNonceRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

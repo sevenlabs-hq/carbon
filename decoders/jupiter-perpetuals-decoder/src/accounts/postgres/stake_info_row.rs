@@ -183,7 +183,7 @@ impl carbon_core::postgres::operations::Delete for StakeInfoRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for StakeInfoRow {
+impl carbon_core::postgres::operations::Lookup for StakeInfoRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

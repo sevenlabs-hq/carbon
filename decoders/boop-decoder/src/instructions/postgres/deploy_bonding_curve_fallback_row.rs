@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Delete for DeployBondingCurveFallbackRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DeployBondingCurveFallbackRow {
+impl carbon_core::postgres::operations::Lookup for DeployBondingCurveFallbackRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Delete for StubOracleSetRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for StubOracleSetRow {
+impl carbon_core::postgres::operations::Lookup for StubOracleSetRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

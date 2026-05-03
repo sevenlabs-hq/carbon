@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for CreatePlatformConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreatePlatformConfigRow {
+impl carbon_core::postgres::operations::Lookup for CreatePlatformConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

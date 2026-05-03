@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Delete for PerpetualsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PerpetualsRow {
+impl carbon_core::postgres::operations::Lookup for PerpetualsRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

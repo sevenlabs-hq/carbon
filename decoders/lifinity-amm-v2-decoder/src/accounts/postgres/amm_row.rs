@@ -382,7 +382,7 @@ impl carbon_core::postgres::operations::Delete for AmmRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AmmRow {
+impl carbon_core::postgres::operations::Lookup for AmmRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

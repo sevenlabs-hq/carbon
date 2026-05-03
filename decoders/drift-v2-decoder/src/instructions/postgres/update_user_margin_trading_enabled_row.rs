@@ -152,7 +152,7 @@ impl carbon_core::postgres::operations::Delete for UpdateUserMarginTradingEnable
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateUserMarginTradingEnabledRow {
+impl carbon_core::postgres::operations::Lookup for UpdateUserMarginTradingEnabledRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

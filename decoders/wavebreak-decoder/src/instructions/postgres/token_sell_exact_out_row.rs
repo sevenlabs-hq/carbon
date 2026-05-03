@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for TokenSellExactOutRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TokenSellExactOutRow {
+impl carbon_core::postgres::operations::Lookup for TokenSellExactOutRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

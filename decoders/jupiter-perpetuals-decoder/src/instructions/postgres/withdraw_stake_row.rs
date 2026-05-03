@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawStakeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawStakeRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawStakeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

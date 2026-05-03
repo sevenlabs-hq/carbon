@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateTransferHookRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateTransferHookRow {
+impl carbon_core::postgres::operations::Lookup for UpdateTransferHookRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

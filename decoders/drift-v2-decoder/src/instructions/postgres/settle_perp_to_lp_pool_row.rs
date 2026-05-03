@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for SettlePerpToLpPoolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SettlePerpToLpPoolRow {
+impl carbon_core::postgres::operations::Lookup for SettlePerpToLpPoolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

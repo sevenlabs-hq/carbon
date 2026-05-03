@@ -287,7 +287,7 @@ impl carbon_core::postgres::operations::Delete for InitializeAdaptiveFeeTierRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeAdaptiveFeeTierRow {
+impl carbon_core::postgres::operations::Lookup for InitializeAdaptiveFeeTierRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

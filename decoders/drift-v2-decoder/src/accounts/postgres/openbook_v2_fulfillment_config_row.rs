@@ -240,7 +240,7 @@ impl carbon_core::postgres::operations::Delete for OpenbookV2FulfillmentConfigRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for OpenbookV2FulfillmentConfigRow {
+impl carbon_core::postgres::operations::Lookup for OpenbookV2FulfillmentConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

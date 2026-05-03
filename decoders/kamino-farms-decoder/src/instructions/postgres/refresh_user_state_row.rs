@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for RefreshUserStateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RefreshUserStateRow {
+impl carbon_core::postgres::operations::Lookup for RefreshUserStateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

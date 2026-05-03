@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Delete for DeleteOpenbookV2FulfillmentCo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DeleteOpenbookV2FulfillmentConfigRow {
+impl carbon_core::postgres::operations::Lookup for DeleteOpenbookV2FulfillmentConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -159,7 +159,7 @@ impl carbon_core::postgres::operations::Delete for PermissionConsumeCpiRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PermissionConsumeCpiRow {
+impl carbon_core::postgres::operations::Lookup for PermissionConsumeCpiRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

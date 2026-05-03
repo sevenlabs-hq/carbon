@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateZetaGroupMarginParamete
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateZetaGroupMarginParametersRow {
+impl carbon_core::postgres::operations::Lookup for UpdateZetaGroupMarginParametersRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

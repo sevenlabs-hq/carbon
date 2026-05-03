@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for RevokeFeeSharingAuthorityRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RevokeFeeSharingAuthorityRow {
+impl carbon_core::postgres::operations::Lookup for RevokeFeeSharingAuthorityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

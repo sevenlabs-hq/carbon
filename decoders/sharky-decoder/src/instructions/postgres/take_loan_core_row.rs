@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for TakeLoanCoreRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TakeLoanCoreRow {
+impl carbon_core::postgres::operations::Lookup for TakeLoanCoreRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

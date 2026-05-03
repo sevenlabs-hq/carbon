@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for RepayTokenLoanRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RepayTokenLoanRow {
+impl carbon_core::postgres::operations::Lookup for RepayTokenLoanRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

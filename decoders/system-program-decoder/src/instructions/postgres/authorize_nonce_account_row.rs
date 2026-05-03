@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for AuthorizeNonceAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AuthorizeNonceAccountRow {
+impl carbon_core::postgres::operations::Lookup for AuthorizeNonceAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

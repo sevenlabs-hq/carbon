@@ -229,7 +229,7 @@ impl carbon_core::postgres::operations::Delete for EditGlobalFeeStateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for EditGlobalFeeStateRow {
+impl carbon_core::postgres::operations::Lookup for EditGlobalFeeStateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for ReallocPoolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReallocPoolRow {
+impl carbon_core::postgres::operations::Lookup for ReallocPoolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

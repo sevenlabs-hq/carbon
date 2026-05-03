@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Delete for InitializePermissionlessPoolW
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializePermissionlessPoolWithFeeTierRow {
+impl carbon_core::postgres::operations::Lookup for InitializePermissionlessPoolWithFeeTierRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

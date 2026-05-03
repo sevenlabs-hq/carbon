@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Delete for RemoveOperatorsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RemoveOperatorsRow {
+impl carbon_core::postgres::operations::Lookup for RemoveOperatorsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

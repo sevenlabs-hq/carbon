@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ReservedCreateZRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReservedCreateZRow {
+impl carbon_core::postgres::operations::Lookup for ReservedCreateZRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

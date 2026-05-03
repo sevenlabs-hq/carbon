@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for InitializeGroupPointerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeGroupPointerRow {
+impl carbon_core::postgres::operations::Lookup for InitializeGroupPointerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

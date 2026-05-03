@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for AllocateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AllocateRow {
+impl carbon_core::postgres::operations::Lookup for AllocateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

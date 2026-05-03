@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for RemainingAccountsStubRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RemainingAccountsStubRow {
+impl carbon_core::postgres::operations::Lookup for RemainingAccountsStubRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

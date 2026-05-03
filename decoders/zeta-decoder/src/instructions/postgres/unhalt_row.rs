@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for UnhaltRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UnhaltRow {
+impl carbon_core::postgres::operations::Lookup for UnhaltRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

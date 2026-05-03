@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Delete for CreateDualFarmRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateDualFarmRow {
+impl carbon_core::postgres::operations::Lookup for CreateDualFarmRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Delete for MergeStakesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MergeStakesRow {
+impl carbon_core::postgres::operations::Lookup for MergeStakesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

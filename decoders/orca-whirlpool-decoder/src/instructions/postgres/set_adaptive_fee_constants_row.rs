@@ -261,7 +261,7 @@ impl carbon_core::postgres::operations::Delete for SetAdaptiveFeeConstantsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetAdaptiveFeeConstantsRow {
+impl carbon_core::postgres::operations::Lookup for SetAdaptiveFeeConstantsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

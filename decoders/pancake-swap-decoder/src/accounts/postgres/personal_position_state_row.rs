@@ -265,7 +265,7 @@ impl carbon_core::postgres::operations::Delete for PersonalPositionStateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PersonalPositionStateRow {
+impl carbon_core::postgres::operations::Lookup for PersonalPositionStateRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for LockRaydiumLiquidityRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LockRaydiumLiquidityRow {
+impl carbon_core::postgres::operations::Lookup for LockRaydiumLiquidityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

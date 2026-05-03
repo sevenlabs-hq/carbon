@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for InitializeStrategyRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeStrategyRow {
+impl carbon_core::postgres::operations::Lookup for InitializeStrategyRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

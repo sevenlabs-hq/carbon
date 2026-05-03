@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Delete for CreateNftListRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateNftListRow {
+impl carbon_core::postgres::operations::Lookup for CreateNftListRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

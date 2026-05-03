@@ -175,7 +175,7 @@ impl carbon_core::postgres::operations::Delete for AdminUpdateTokenIncentivesRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdminUpdateTokenIncentivesRow {
+impl carbon_core::postgres::operations::Lookup for AdminUpdateTokenIncentivesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for DepositStrategyRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DepositStrategyRow {
+impl carbon_core::postgres::operations::Lookup for DepositStrategyRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

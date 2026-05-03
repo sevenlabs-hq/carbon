@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for UpdateStateSettlementDuration
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateStateSettlementDurationRow {
+impl carbon_core::postgres::operations::Lookup for UpdateStateSettlementDurationRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

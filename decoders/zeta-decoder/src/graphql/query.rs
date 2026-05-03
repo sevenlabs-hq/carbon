@@ -13,7 +13,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::PricingGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -47,7 +47,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::GreeksGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -81,7 +81,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::MarketIndexesGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -115,7 +115,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::OpenOrdersMapGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -149,7 +149,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::CrossOpenOrdersMapGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -183,7 +183,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::StateGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -217,7 +217,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::UnderlyingGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -251,7 +251,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::SettlementAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -285,7 +285,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::PerpSyncQueueGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -319,7 +319,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::ZetaGroupGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -353,7 +353,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::MarketNodeGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -387,7 +387,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::SpreadAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -421,7 +421,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::CrossMarginAccountManagerGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -456,7 +456,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::CrossMarginAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -490,7 +490,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::MarginAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -524,7 +524,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::SocializedLossAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -558,7 +558,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::WhitelistDepositAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -592,7 +592,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::WhitelistInsuranceAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -627,7 +627,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::InsuranceDepositAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -661,7 +661,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::WhitelistTradingFeesAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -696,7 +696,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::ReferrerAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -730,7 +730,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::ReferralAccountGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -764,7 +764,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::ReferrerAliasGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,

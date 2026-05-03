@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SetConfigFeatureFlagRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetConfigFeatureFlagRow {
+impl carbon_core::postgres::operations::Lookup for SetConfigFeatureFlagRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

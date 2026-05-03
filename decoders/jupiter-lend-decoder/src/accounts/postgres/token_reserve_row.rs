@@ -276,7 +276,7 @@ impl carbon_core::postgres::operations::Delete for TokenReserveRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TokenReserveRow {
+impl carbon_core::postgres::operations::Lookup for TokenReserveRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ClaimCashbackPumpswapRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ClaimCashbackPumpswapRow {
+impl carbon_core::postgres::operations::Lookup for ClaimCashbackPumpswapRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

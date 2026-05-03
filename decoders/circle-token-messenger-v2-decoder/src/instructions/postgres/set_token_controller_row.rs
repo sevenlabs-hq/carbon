@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SetTokenControllerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetTokenControllerRow {
+impl carbon_core::postgres::operations::Lookup for SetTokenControllerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

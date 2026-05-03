@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePythPullOracleRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePythPullOracleRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePythPullOracleRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

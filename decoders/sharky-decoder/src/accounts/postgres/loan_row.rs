@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Delete for LoanRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LoanRow {
+impl carbon_core::postgres::operations::Lookup for LoanRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -183,7 +183,7 @@ impl carbon_core::postgres::operations::Delete for CreateTripleFarmRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateTripleFarmRow {
+impl carbon_core::postgres::operations::Lookup for CreateTripleFarmRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

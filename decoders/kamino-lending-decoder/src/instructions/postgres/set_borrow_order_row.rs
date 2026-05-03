@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Delete for SetBorrowOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetBorrowOrderRow {
+impl carbon_core::postgres::operations::Lookup for SetBorrowOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

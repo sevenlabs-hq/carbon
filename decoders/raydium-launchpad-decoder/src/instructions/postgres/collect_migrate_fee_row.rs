@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for CollectMigrateFeeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CollectMigrateFeeRow {
+impl carbon_core::postgres::operations::Lookup for CollectMigrateFeeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

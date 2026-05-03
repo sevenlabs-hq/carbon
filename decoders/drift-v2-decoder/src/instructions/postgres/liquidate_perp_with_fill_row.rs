@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for LiquidatePerpWithFillRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LiquidatePerpWithFillRow {
+impl carbon_core::postgres::operations::Lookup for LiquidatePerpWithFillRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

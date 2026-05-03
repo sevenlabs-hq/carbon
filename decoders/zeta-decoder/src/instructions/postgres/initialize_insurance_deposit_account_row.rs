@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for InitializeInsuranceDepositAcc
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeInsuranceDepositAccountRow {
+impl carbon_core::postgres::operations::Lookup for InitializeInsuranceDepositAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

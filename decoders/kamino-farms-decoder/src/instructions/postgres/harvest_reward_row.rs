@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for HarvestRewardRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for HarvestRewardRow {
+impl carbon_core::postgres::operations::Lookup for HarvestRewardRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for HaltRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for HaltRow {
+impl carbon_core::postgres::operations::Lookup for HaltRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

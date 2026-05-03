@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketMinOrderSizeR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSpotMarketMinOrderSizeRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketMinOrderSizeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

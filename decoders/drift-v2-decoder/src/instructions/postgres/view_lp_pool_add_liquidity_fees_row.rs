@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for ViewLpPoolAddLiquidityFeesRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ViewLpPoolAddLiquidityFeesRow {
+impl carbon_core::postgres::operations::Lookup for ViewLpPoolAddLiquidityFeesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

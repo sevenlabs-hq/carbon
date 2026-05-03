@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for FulfillDlmmFillRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FulfillDlmmFillRow {
+impl carbon_core::postgres::operations::Lookup for FulfillDlmmFillRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

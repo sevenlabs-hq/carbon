@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for PurgeDeleverageBalanceRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PurgeDeleverageBalanceRow {
+impl carbon_core::postgres::operations::Lookup for PurgeDeleverageBalanceRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

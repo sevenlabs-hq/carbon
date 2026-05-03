@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for CreateProgramVersionRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateProgramVersionRow {
+impl carbon_core::postgres::operations::Lookup for CreateProgramVersionRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

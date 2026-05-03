@@ -152,7 +152,7 @@ impl carbon_core::postgres::operations::Delete for TransferPerpPositionRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TransferPerpPositionRow {
+impl carbon_core::postgres::operations::Lookup for TransferPerpPositionRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

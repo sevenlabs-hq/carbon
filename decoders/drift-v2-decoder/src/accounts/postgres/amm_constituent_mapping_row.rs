@@ -154,7 +154,7 @@ impl carbon_core::postgres::operations::Delete for AmmConstituentMappingRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AmmConstituentMappingRow {
+impl carbon_core::postgres::operations::Lookup for AmmConstituentMappingRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

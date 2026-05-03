@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for BinArrayRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BinArrayRow {
+impl carbon_core::postgres::operations::Lookup for BinArrayRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

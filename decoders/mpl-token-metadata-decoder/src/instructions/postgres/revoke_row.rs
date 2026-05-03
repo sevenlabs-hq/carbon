@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for RevokeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RevokeRow {
+impl carbon_core::postgres::operations::Lookup for RevokeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

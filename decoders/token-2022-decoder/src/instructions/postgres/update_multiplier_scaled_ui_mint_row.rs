@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Delete for UpdateMultiplierScaledUiMintR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateMultiplierScaledUiMintRow {
+impl carbon_core::postgres::operations::Lookup for UpdateMultiplierScaledUiMintRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

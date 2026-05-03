@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Delete for BuyTokenRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BuyTokenRow {
+impl carbon_core::postgres::operations::Lookup for BuyTokenRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

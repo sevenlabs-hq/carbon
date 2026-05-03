@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Delete for IncreaseLiquidityV2Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for IncreaseLiquidityV2Row {
+impl carbon_core::postgres::operations::Lookup for IncreaseLiquidityV2Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

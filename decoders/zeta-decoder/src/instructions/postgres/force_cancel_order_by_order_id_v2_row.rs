@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Delete for ForceCancelOrderByOrderIdV2Ro
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ForceCancelOrderByOrderIdV2Row {
+impl carbon_core::postgres::operations::Lookup for ForceCancelOrderByOrderIdV2Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

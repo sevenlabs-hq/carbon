@@ -450,7 +450,7 @@ impl carbon_core::postgres::operations::Delete for ConstituentRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ConstituentRow {
+impl carbon_core::postgres::operations::Lookup for ConstituentRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

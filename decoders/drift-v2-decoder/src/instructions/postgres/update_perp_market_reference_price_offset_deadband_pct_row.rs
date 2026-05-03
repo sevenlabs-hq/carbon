@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp
+impl carbon_core::postgres::operations::Lookup
     for UpdatePerpMarketReferencePriceOffsetDeadbandPctRow
 {
     type Key = (

@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for MintConfigCloseRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MintConfigCloseRow {
+impl carbon_core::postgres::operations::Lookup for MintConfigCloseRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

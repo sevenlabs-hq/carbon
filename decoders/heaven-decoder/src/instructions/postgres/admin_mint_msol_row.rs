@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Delete for AdminMintMsolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdminMintMsolRow {
+impl carbon_core::postgres::operations::Lookup for AdminMintMsolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

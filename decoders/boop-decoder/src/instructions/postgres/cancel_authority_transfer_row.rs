@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CancelAuthorityTransferRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CancelAuthorityTransferRow {
+impl carbon_core::postgres::operations::Lookup for CancelAuthorityTransferRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

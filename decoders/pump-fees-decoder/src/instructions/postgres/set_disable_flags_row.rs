@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for SetDisableFlagsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetDisableFlagsRow {
+impl carbon_core::postgres::operations::Lookup for SetDisableFlagsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

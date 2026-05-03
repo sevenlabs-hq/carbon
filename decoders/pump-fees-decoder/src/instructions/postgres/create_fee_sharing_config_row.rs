@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CreateFeeSharingConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateFeeSharingConfigRow {
+impl carbon_core::postgres::operations::Lookup for CreateFeeSharingConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

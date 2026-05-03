@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for WrapUnwrapV3WithReceiverRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WrapUnwrapV3WithReceiverRow {
+impl carbon_core::postgres::operations::Lookup for WrapUnwrapV3WithReceiverRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

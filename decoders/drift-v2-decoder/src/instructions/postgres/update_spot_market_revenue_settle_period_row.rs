@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketRevenueSettle
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSpotMarketRevenueSettlePeriodRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketRevenueSettlePeriodRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

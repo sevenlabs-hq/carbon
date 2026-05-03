@@ -207,7 +207,7 @@ impl carbon_core::postgres::operations::Delete for RateModelRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RateModelRow {
+impl carbon_core::postgres::operations::Lookup for RateModelRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

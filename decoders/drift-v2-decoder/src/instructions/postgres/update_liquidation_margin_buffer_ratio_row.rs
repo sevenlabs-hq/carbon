@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for UpdateLiquidationMarginBuffer
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateLiquidationMarginBufferRatioRow {
+impl carbon_core::postgres::operations::Lookup for UpdateLiquidationMarginBufferRatioRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

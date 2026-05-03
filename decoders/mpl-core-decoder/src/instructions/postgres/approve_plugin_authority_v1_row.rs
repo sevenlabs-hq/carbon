@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for ApprovePluginAuthorityV1Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ApprovePluginAuthorityV1Row {
+impl carbon_core::postgres::operations::Lookup for ApprovePluginAuthorityV1Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

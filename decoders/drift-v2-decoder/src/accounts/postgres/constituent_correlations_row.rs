@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Delete for ConstituentCorrelationsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ConstituentCorrelationsRow {
+impl carbon_core::postgres::operations::Lookup for ConstituentCorrelationsRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

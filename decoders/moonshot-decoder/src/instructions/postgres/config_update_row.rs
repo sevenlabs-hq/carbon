@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for ConfigUpdateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ConfigUpdateRow {
+impl carbon_core::postgres::operations::Lookup for ConfigUpdateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

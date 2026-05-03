@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for PlaceSignedMsgTakerOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PlaceSignedMsgTakerOrderRow {
+impl carbon_core::postgres::operations::Lookup for PlaceSignedMsgTakerOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

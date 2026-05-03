@@ -277,7 +277,7 @@ impl carbon_core::postgres::operations::Delete for FarmRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FarmRow {
+impl carbon_core::postgres::operations::Lookup for FarmRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

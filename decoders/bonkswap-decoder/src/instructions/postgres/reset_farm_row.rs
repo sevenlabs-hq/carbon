@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for ResetFarmRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ResetFarmRow {
+impl carbon_core::postgres::operations::Lookup for ResetFarmRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

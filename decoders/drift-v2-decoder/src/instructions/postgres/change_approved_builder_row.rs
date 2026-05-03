@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Delete for ChangeApprovedBuilderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ChangeApprovedBuilderRow {
+impl carbon_core::postgres::operations::Lookup for ChangeApprovedBuilderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

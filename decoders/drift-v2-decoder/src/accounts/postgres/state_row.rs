@@ -424,7 +424,7 @@ impl carbon_core::postgres::operations::Delete for StateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for StateRow {
+impl carbon_core::postgres::operations::Lookup for StateRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

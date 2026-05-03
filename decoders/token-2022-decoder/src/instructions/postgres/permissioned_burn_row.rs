@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for PermissionedBurnRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PermissionedBurnRow {
+impl carbon_core::postgres::operations::Lookup for PermissionedBurnRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Delete for BuyExactOutRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BuyExactOutRow {
+impl carbon_core::postgres::operations::Lookup for BuyExactOutRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

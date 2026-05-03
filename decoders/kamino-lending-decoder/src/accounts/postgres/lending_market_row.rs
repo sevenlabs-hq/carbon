@@ -753,7 +753,7 @@ impl carbon_core::postgres::operations::Delete for LendingMarketRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LendingMarketRow {
+impl carbon_core::postgres::operations::Lookup for LendingMarketRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

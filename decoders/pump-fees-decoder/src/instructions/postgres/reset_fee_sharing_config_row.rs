@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ResetFeeSharingConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ResetFeeSharingConfigRow {
+impl carbon_core::postgres::operations::Lookup for ResetFeeSharingConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

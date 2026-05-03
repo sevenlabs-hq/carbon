@@ -125,7 +125,7 @@ impl carbon_core::postgres::operations::Delete for PermissionlessFarmSwitchRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PermissionlessFarmSwitchRow {
+impl carbon_core::postgres::operations::Lookup for PermissionlessFarmSwitchRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

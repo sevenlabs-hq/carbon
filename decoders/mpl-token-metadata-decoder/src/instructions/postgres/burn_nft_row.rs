@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for BurnNftRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BurnNftRow {
+impl carbon_core::postgres::operations::Lookup for BurnNftRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

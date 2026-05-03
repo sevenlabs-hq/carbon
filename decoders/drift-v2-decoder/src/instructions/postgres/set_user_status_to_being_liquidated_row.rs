@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for SetUserStatusToBeingLiquidate
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetUserStatusToBeingLiquidatedRow {
+impl carbon_core::postgres::operations::Lookup for SetUserStatusToBeingLiquidatedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

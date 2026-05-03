@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for RequestSeatRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RequestSeatRow {
+impl carbon_core::postgres::operations::Lookup for RequestSeatRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Delete for CollectionV1Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CollectionV1Row {
+impl carbon_core::postgres::operations::Lookup for CollectionV1Row {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

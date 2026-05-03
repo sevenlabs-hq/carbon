@@ -229,7 +229,7 @@ impl carbon_core::postgres::operations::Delete for MetadataRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MetadataRow {
+impl carbon_core::postgres::operations::Lookup for MetadataRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

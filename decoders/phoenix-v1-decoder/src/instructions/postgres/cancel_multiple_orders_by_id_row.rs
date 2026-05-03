@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for CancelMultipleOrdersByIdRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CancelMultipleOrdersByIdRow {
+impl carbon_core::postgres::operations::Lookup for CancelMultipleOrdersByIdRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

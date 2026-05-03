@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ClosePresetParameterRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ClosePresetParameterRow {
+impl carbon_core::postgres::operations::Lookup for ClosePresetParameterRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

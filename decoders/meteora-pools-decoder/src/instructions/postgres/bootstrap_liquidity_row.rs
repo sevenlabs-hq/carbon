@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for BootstrapLiquidityRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BootstrapLiquidityRow {
+impl carbon_core::postgres::operations::Lookup for BootstrapLiquidityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

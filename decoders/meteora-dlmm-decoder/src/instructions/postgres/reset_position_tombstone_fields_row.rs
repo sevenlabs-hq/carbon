@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ResetPositionTombstoneFieldsR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ResetPositionTombstoneFieldsRow {
+impl carbon_core::postgres::operations::Lookup for ResetPositionTombstoneFieldsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

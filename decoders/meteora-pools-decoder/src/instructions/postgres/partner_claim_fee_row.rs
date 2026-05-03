@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for PartnerClaimFeeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PartnerClaimFeeRow {
+impl carbon_core::postgres::operations::Lookup for PartnerClaimFeeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

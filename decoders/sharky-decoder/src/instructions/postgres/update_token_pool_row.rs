@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for UpdateTokenPoolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateTokenPoolRow {
+impl carbon_core::postgres::operations::Lookup for UpdateTokenPoolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

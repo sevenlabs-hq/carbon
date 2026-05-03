@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for WrapUnwrapRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WrapUnwrapRow {
+impl carbon_core::postgres::operations::Lookup for WrapUnwrapRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

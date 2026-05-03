@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Delete for TwoHopSwapRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TwoHopSwapRow {
+impl carbon_core::postgres::operations::Lookup for TwoHopSwapRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

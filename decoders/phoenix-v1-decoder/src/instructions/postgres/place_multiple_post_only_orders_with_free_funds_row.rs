@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for PlaceMultiplePostOnlyOrdersWi
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PlaceMultiplePostOnlyOrdersWithFreeFundsRow {
+impl carbon_core::postgres::operations::Lookup for PlaceMultiplePostOnlyOrdersWithFreeFundsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

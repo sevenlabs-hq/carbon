@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawFromFarmVaultRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawFromFarmVaultRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawFromFarmVaultRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

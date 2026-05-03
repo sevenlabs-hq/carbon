@@ -428,7 +428,7 @@ impl carbon_core::postgres::operations::Delete for MintConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MintConfigRow {
+impl carbon_core::postgres::operations::Lookup for MintConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

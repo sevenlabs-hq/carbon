@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for DepositCollateralForBorrowsRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DepositCollateralForBorrowsRow {
+impl carbon_core::postgres::operations::Lookup for DepositCollateralForBorrowsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

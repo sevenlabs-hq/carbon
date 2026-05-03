@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ReservedMintConfigCRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReservedMintConfigCRow {
+impl carbon_core::postgres::operations::Lookup for ReservedMintConfigCRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

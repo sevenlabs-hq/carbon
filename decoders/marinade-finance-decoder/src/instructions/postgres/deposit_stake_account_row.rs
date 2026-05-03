@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for DepositStakeAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DepositStakeAccountRow {
+impl carbon_core::postgres::operations::Lookup for DepositStakeAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

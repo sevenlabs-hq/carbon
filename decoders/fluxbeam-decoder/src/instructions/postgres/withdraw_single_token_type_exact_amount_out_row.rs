@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawSingleTokenTypeExactA
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawSingleTokenTypeExactAmountOutRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawSingleTokenTypeExactAmountOutRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

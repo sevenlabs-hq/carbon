@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for SyncUserVolumeAccumulatorRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SyncUserVolumeAccumulatorRow {
+impl carbon_core::postgres::operations::Lookup for SyncUserVolumeAccumulatorRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

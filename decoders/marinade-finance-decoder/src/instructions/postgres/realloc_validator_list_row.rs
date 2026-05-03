@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for ReallocValidatorListRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReallocValidatorListRow {
+impl carbon_core::postgres::operations::Lookup for ReallocValidatorListRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CloseOperatorAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CloseOperatorAccountRow {
+impl carbon_core::postgres::operations::Lookup for CloseOperatorAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

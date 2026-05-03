@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ResetFuelSeasonRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ResetFuelSeasonRow {
+impl carbon_core::postgres::operations::Lookup for ResetFuelSeasonRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

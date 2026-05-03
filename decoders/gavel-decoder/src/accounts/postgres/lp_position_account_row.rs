@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for LpPositionAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LpPositionAccountRow {
+impl carbon_core::postgres::operations::Lookup for LpPositionAccountRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

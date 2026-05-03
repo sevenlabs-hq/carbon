@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawMercantiFeeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawMercantiFeeRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawMercantiFeeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for IncreasePositionLength2Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for IncreasePositionLength2Row {
+impl carbon_core::postgres::operations::Lookup for IncreasePositionLength2Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

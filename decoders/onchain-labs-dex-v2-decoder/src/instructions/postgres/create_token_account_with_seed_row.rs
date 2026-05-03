@@ -159,7 +159,7 @@ impl carbon_core::postgres::operations::Delete for CreateTokenAccountWithSeedRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateTokenAccountWithSeedRow {
+impl carbon_core::postgres::operations::Lookup for CreateTokenAccountWithSeedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

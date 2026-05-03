@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for RequestElevationGroupRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RequestElevationGroupRow {
+impl carbon_core::postgres::operations::Lookup for RequestElevationGroupRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

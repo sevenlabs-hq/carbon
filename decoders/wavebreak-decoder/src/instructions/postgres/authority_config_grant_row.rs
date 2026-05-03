@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Delete for AuthorityConfigGrantRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AuthorityConfigGrantRow {
+impl carbon_core::postgres::operations::Lookup for AuthorityConfigGrantRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

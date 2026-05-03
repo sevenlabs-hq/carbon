@@ -191,7 +191,7 @@ impl carbon_core::postgres::operations::Delete for TokenMessengerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TokenMessengerRow {
+impl carbon_core::postgres::operations::Lookup for TokenMessengerRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

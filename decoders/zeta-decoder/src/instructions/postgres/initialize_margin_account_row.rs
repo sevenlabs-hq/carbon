@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for InitializeMarginAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeMarginAccountRow {
+impl carbon_core::postgres::operations::Lookup for InitializeMarginAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

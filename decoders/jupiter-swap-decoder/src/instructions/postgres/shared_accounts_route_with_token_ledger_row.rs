@@ -177,7 +177,7 @@ impl carbon_core::postgres::operations::Delete for SharedAccountsRouteWithTokenL
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SharedAccountsRouteWithTokenLedgerRow {
+impl carbon_core::postgres::operations::Lookup for SharedAccountsRouteWithTokenLedgerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

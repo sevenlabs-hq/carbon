@@ -198,7 +198,7 @@ impl carbon_core::postgres::operations::Delete for ExecuteOrderRecordRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ExecuteOrderRecordRow {
+impl carbon_core::postgres::operations::Lookup for ExecuteOrderRecordRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -193,7 +193,7 @@ impl carbon_core::postgres::operations::Delete for HighLeverageModeConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for HighLeverageModeConfigRow {
+impl carbon_core::postgres::operations::Lookup for HighLeverageModeConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

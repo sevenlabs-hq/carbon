@@ -222,7 +222,7 @@ impl carbon_core::postgres::operations::Delete for ProviderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ProviderRow {
+impl carbon_core::postgres::operations::Lookup for ProviderRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

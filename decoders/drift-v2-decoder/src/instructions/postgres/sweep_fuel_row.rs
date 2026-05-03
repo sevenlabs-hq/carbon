@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for SweepFuelRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SweepFuelRow {
+impl carbon_core::postgres::operations::Lookup for SweepFuelRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

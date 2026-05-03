@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Delete for InitializeCrossMarginAccountM
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeCrossMarginAccountManagerRow {
+impl carbon_core::postgres::operations::Lookup for InitializeCrossMarginAccountManagerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

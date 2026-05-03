@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawQueuedLiquidityRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawQueuedLiquidityRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawQueuedLiquidityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

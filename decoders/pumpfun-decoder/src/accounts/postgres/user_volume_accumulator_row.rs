@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Delete for UserVolumeAccumulatorRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UserVolumeAccumulatorRow {
+impl carbon_core::postgres::operations::Lookup for UserVolumeAccumulatorRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

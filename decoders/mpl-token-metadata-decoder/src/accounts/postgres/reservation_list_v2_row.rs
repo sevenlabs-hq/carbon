@@ -166,7 +166,7 @@ impl carbon_core::postgres::operations::Delete for ReservationListV2Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReservationListV2Row {
+impl carbon_core::postgres::operations::Lookup for ReservationListV2Row {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

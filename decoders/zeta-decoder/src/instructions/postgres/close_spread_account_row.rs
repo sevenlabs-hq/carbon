@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CloseSpreadAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CloseSpreadAccountRow {
+impl carbon_core::postgres::operations::Lookup for CloseSpreadAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

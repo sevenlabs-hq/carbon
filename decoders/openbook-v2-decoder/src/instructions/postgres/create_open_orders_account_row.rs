@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Delete for CreateOpenOrdersAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateOpenOrdersAccountRow {
+impl carbon_core::postgres::operations::Lookup for CreateOpenOrdersAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

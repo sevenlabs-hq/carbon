@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for DeleteSignedMsgUserOrdersRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DeleteSignedMsgUserOrdersRow {
+impl carbon_core::postgres::operations::Lookup for DeleteSignedMsgUserOrdersRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

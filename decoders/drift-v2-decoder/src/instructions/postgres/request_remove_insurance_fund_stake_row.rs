@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for RequestRemoveInsuranceFundSta
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RequestRemoveInsuranceFundStakeRow {
+impl carbon_core::postgres::operations::Lookup for RequestRemoveInsuranceFundStakeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SuperAdminWithdrawRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SuperAdminWithdrawRow {
+impl carbon_core::postgres::operations::Lookup for SuperAdminWithdrawRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

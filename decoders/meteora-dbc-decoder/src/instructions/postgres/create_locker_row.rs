@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for CreateLockerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateLockerRow {
+impl carbon_core::postgres::operations::Lookup for CreateLockerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

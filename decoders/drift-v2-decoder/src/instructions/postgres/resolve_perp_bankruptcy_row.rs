@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Delete for ResolvePerpBankruptcyRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ResolvePerpBankruptcyRow {
+impl carbon_core::postgres::operations::Lookup for ResolvePerpBankruptcyRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

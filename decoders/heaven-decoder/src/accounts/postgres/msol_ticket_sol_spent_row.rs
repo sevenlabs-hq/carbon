@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Delete for MsolTicketSolSpentRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MsolTicketSolSpentRow {
+impl carbon_core::postgres::operations::Lookup for MsolTicketSolSpentRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

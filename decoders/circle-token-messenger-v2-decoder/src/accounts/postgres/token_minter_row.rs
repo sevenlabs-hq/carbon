@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Delete for TokenMinterRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TokenMinterRow {
+impl carbon_core::postgres::operations::Lookup for TokenMinterRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -31,7 +31,7 @@ pub trait Delete {
 
 /// Selects the row matching `Key`, returning `Ok(None)` when absent.
 #[async_trait::async_trait]
-pub trait LookUp: Sized {
+pub trait Lookup: Sized {
     type Key;
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> CarbonResult<Option<Self>>;

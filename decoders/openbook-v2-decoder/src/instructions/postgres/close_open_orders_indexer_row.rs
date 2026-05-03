@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CloseOpenOrdersIndexerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CloseOpenOrdersIndexerRow {
+impl carbon_core::postgres::operations::Lookup for CloseOpenOrdersIndexerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

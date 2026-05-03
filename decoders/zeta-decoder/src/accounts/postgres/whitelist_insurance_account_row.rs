@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for WhitelistInsuranceAccountRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WhitelistInsuranceAccountRow {
+impl carbon_core::postgres::operations::Lookup for WhitelistInsuranceAccountRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

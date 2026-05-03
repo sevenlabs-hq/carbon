@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Delete for OpenPositionWithMetadataRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for OpenPositionWithMetadataRow {
+impl carbon_core::postgres::operations::Lookup for OpenPositionWithMetadataRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

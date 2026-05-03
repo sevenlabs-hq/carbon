@@ -170,7 +170,7 @@ impl carbon_core::postgres::operations::Delete for UpdateHighLeverageModeConfigR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateHighLeverageModeConfigRow {
+impl carbon_core::postgres::operations::Lookup for UpdateHighLeverageModeConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

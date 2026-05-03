@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for CloseConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CloseConfigRow {
+impl carbon_core::postgres::operations::Lookup for CloseConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

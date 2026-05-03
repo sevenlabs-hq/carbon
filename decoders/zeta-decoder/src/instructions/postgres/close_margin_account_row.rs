@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CloseMarginAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CloseMarginAccountRow {
+impl carbon_core::postgres::operations::Lookup for CloseMarginAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

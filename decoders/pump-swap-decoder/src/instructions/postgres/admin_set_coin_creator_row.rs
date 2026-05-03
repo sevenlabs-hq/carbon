@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for AdminSetCoinCreatorRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdminSetCoinCreatorRow {
+impl carbon_core::postgres::operations::Lookup for AdminSetCoinCreatorRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for SolendDepositRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SolendDepositRow {
+impl carbon_core::postgres::operations::Lookup for SolendDepositRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

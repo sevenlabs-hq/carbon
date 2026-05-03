@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for ConfigureBankRateLimitsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ConfigureBankRateLimitsRow {
+impl carbon_core::postgres::operations::Lookup for ConfigureBankRateLimitsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

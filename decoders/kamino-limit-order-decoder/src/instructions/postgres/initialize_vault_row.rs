@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for InitializeVaultRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeVaultRow {
+impl carbon_core::postgres::operations::Lookup for InitializeVaultRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

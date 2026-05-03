@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for DisableUserHighLeverageModeRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DisableUserHighLeverageModeRow {
+impl carbon_core::postgres::operations::Lookup for DisableUserHighLeverageModeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

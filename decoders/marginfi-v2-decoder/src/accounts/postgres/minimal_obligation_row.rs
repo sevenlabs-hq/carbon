@@ -321,7 +321,7 @@ impl carbon_core::postgres::operations::Delete for MinimalObligationRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MinimalObligationRow {
+impl carbon_core::postgres::operations::Lookup for MinimalObligationRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

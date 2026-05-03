@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for SetConfigExtensionAuthorityRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetConfigExtensionAuthorityRow {
+impl carbon_core::postgres::operations::Lookup for SetConfigExtensionAuthorityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for DisableNonConfidentialCredits
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DisableNonConfidentialCreditsRow {
+impl carbon_core::postgres::operations::Lookup for DisableNonConfidentialCreditsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

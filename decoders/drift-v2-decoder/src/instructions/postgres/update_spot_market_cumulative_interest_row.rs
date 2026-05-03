@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketCumulativeInt
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSpotMarketCumulativeInterestRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketCumulativeInterestRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

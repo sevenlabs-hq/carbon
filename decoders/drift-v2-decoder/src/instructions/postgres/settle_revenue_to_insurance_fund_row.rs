@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for SettleRevenueToInsuranceFundR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SettleRevenueToInsuranceFundRow {
+impl carbon_core::postgres::operations::Lookup for SettleRevenueToInsuranceFundRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

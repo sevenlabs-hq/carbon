@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for RefreshObligationRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RefreshObligationRow {
+impl carbon_core::postgres::operations::Lookup for RefreshObligationRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for FulfillFlashFillRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FulfillFlashFillRow {
+impl carbon_core::postgres::operations::Lookup for FulfillFlashFillRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

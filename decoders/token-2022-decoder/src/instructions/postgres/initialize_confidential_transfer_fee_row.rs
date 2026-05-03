@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Delete for InitializeConfidentialTransfe
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeConfidentialTransferFeeRow {
+impl carbon_core::postgres::operations::Lookup for InitializeConfidentialTransferFeeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

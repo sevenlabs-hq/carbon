@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SettlePnlRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SettlePnlRow {
+impl carbon_core::postgres::operations::Lookup for SettlePnlRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

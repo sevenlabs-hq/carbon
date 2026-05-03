@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for LendingPoolAccrueBankInterest
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LendingPoolAccrueBankInterestRow {
+impl carbon_core::postgres::operations::Lookup for LendingPoolAccrueBankInterestRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

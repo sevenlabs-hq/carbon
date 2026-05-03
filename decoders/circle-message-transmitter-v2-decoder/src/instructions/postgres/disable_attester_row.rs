@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for DisableAttesterRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DisableAttesterRow {
+impl carbon_core::postgres::operations::Lookup for DisableAttesterRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

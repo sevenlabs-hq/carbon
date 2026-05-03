@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawFromIsolatedPerpPosit
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawFromIsolatedPerpPositionRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawFromIsolatedPerpPositionRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

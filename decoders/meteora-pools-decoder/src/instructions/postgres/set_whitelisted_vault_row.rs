@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SetWhitelistedVaultRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetWhitelistedVaultRow {
+impl carbon_core::postgres::operations::Lookup for SetWhitelistedVaultRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

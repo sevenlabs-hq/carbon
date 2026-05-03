@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for TransferAssetsV1Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TransferAssetsV1Row {
+impl carbon_core::postgres::operations::Lookup for TransferAssetsV1Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

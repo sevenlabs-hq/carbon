@@ -194,7 +194,7 @@ impl carbon_core::postgres::operations::Delete for ProtocolIfSharesTransferConfi
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ProtocolIfSharesTransferConfigRow {
+impl carbon_core::postgres::operations::Lookup for ProtocolIfSharesTransferConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

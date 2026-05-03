@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for SetLockupCheckedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetLockupCheckedRow {
+impl carbon_core::postgres::operations::Lookup for SetLockupCheckedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

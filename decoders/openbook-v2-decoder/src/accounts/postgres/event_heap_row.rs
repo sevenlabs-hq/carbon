@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for EventHeapRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for EventHeapRow {
+impl carbon_core::postgres::operations::Lookup for EventHeapRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

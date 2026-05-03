@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Delete for ConfidentialTransferRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ConfidentialTransferRow {
+impl carbon_core::postgres::operations::Lookup for ConfidentialTransferRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

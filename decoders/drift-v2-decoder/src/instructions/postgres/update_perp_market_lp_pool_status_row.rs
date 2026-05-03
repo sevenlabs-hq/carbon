@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketLpPoolStatusR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketLpPoolStatusRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketLpPoolStatusRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

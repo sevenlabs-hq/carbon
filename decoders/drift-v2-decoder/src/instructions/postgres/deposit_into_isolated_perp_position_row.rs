@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for DepositIntoIsolatedPerpPositi
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DepositIntoIsolatedPerpPositionRow {
+impl carbon_core::postgres::operations::Lookup for DepositIntoIsolatedPerpPositionRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

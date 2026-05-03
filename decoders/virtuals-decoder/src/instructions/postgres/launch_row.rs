@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Delete for LaunchRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LaunchRow {
+impl carbon_core::postgres::operations::Lookup for LaunchRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

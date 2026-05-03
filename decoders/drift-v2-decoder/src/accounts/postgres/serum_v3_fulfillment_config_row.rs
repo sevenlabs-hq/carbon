@@ -258,7 +258,7 @@ impl carbon_core::postgres::operations::Delete for SerumV3FulfillmentConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SerumV3FulfillmentConfigRow {
+impl carbon_core::postgres::operations::Lookup for SerumV3FulfillmentConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

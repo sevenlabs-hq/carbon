@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketOracleRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSpotMarketOracleRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketOracleRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

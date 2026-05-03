@@ -179,7 +179,7 @@ impl carbon_core::postgres::operations::Delete for InitializeWithToken2022Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeWithToken2022Row {
+impl carbon_core::postgres::operations::Lookup for InitializeWithToken2022Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

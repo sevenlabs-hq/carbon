@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for EnableMemoTransfersRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for EnableMemoTransfersRow {
+impl carbon_core::postgres::operations::Lookup for EnableMemoTransfersRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

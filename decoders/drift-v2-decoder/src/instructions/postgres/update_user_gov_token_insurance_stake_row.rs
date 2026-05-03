@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for UpdateUserGovTokenInsuranceSt
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateUserGovTokenInsuranceStakeRow {
+impl carbon_core::postgres::operations::Lookup for UpdateUserGovTokenInsuranceStakeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

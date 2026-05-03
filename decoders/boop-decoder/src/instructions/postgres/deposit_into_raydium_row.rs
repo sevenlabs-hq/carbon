@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Delete for DepositIntoRaydiumRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DepositIntoRaydiumRow {
+impl carbon_core::postgres::operations::Lookup for DepositIntoRaydiumRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

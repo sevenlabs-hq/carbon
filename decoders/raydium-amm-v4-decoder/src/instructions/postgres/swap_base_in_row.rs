@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Delete for SwapBaseInRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapBaseInRow {
+impl carbon_core::postgres::operations::Lookup for SwapBaseInRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

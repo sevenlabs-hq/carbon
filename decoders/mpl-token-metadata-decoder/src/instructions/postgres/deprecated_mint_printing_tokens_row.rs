@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for DeprecatedMintPrintingTokensR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DeprecatedMintPrintingTokensRow {
+impl carbon_core::postgres::operations::Lookup for DeprecatedMintPrintingTokensRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ReservedCreateBRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReservedCreateBRow {
+impl carbon_core::postgres::operations::Lookup for ReservedCreateBRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

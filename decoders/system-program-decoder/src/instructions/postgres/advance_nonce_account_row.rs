@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for AdvanceNonceAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdvanceNonceAccountRow {
+impl carbon_core::postgres::operations::Lookup for AdvanceNonceAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

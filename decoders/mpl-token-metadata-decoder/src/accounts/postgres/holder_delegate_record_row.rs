@@ -163,7 +163,7 @@ impl carbon_core::postgres::operations::Delete for HolderDelegateRecordRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for HolderDelegateRecordRow {
+impl carbon_core::postgres::operations::Lookup for HolderDelegateRecordRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for ReclaimRentRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReclaimRentRow {
+impl carbon_core::postgres::operations::Lookup for ReclaimRentRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

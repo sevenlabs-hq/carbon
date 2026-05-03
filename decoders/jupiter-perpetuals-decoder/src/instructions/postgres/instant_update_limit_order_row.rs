@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for InstantUpdateLimitOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InstantUpdateLimitOrderRow {
+impl carbon_core::postgres::operations::Lookup for InstantUpdateLimitOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

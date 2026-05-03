@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for SettleExpiredMarketRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SettleExpiredMarketRow {
+impl carbon_core::postgres::operations::Lookup for SettleExpiredMarketRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

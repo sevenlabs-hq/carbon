@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for SettleFundingPaymentRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SettleFundingPaymentRow {
+impl carbon_core::postgres::operations::Lookup for SettleFundingPaymentRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

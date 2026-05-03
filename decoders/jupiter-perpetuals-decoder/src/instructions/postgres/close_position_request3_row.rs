@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ClosePositionRequest3Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ClosePositionRequest3Row {
+impl carbon_core::postgres::operations::Lookup for ClosePositionRequest3Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

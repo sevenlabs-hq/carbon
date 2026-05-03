@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for ForIdlTypeGenerationDoNotCall
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ForIdlTypeGenerationDoNotCallRow {
+impl carbon_core::postgres::operations::Lookup for ForIdlTypeGenerationDoNotCallRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

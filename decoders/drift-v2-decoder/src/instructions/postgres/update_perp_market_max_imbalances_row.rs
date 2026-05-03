@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketMaxImbalances
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketMaxImbalancesRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketMaxImbalancesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

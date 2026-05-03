@@ -6,7 +6,7 @@
 //!   `PostgresJsonAccountProcessor`, and instruction analogues) that upsert
 //!   into `accounts` / `instructions` tables.
 //! - [`rows`] — `AccountRow<T>` / `InstructionRow<T>` with `Insert`, `Upsert`,
-//!   `Delete`, `LookUp` impls.
+//!   `Delete`, `Lookup` impls.
 //! - [`operations`] — CRUD trait family used by the row types.
 //! - [`metadata`] — `AccountRowMetadata` / `InstructionRowMetadata` conversions
 //!   from the pipeline's metadata types into row prefixes.

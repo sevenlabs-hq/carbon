@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for UpdateRewardFunderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateRewardFunderRow {
+impl carbon_core::postgres::operations::Lookup for UpdateRewardFunderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

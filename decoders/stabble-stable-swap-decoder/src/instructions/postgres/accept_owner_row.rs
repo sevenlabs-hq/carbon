@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for AcceptOwnerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AcceptOwnerRow {
+impl carbon_core::postgres::operations::Lookup for AcceptOwnerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

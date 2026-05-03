@@ -340,7 +340,7 @@ impl carbon_core::postgres::operations::Delete for ReserveRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReserveRow {
+impl carbon_core::postgres::operations::Lookup for ReserveRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

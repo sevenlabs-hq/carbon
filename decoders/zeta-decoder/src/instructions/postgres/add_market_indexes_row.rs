@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for AddMarketIndexesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AddMarketIndexesRow {
+impl carbon_core::postgres::operations::Lookup for AddMarketIndexesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

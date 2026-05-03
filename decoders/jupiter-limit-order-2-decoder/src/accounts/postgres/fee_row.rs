@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for FeeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FeeRow {
+impl carbon_core::postgres::operations::Lookup for FeeRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

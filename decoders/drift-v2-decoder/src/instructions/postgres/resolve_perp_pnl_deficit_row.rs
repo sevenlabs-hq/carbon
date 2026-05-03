@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Delete for ResolvePerpPnlDeficitRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ResolvePerpPnlDeficitRow {
+impl carbon_core::postgres::operations::Lookup for ResolvePerpPnlDeficitRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

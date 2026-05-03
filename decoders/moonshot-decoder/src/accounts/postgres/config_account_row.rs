@@ -282,7 +282,7 @@ impl carbon_core::postgres::operations::Delete for ConfigAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ConfigAccountRow {
+impl carbon_core::postgres::operations::Lookup for ConfigAccountRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

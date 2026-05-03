@@ -210,7 +210,7 @@ impl carbon_core::postgres::operations::Delete for ExtendLoanV3CompressedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ExtendLoanV3CompressedRow {
+impl carbon_core::postgres::operations::Lookup for ExtendLoanV3CompressedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

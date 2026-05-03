@@ -229,7 +229,7 @@ impl carbon_core::postgres::operations::Delete for LockedCpLiquidityStateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LockedCpLiquidityStateRow {
+impl carbon_core::postgres::operations::Lookup for LockedCpLiquidityStateRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

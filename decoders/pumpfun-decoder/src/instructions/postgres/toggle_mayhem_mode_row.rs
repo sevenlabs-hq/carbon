@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Delete for ToggleMayhemModeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ToggleMayhemModeRow {
+impl carbon_core::postgres::operations::Lookup for ToggleMayhemModeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

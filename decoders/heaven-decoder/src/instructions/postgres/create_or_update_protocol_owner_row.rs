@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CreateOrUpdateProtocolOwnerRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateOrUpdateProtocolOwnerRow {
+impl carbon_core::postgres::operations::Lookup for CreateOrUpdateProtocolOwnerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

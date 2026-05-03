@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for UnlinkTokenPairRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UnlinkTokenPairRow {
+impl carbon_core::postgres::operations::Lookup for UnlinkTokenPairRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

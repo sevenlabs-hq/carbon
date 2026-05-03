@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Delete for InitializeZetaReferralsReward
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeZetaReferralsRewardsWalletRow {
+impl carbon_core::postgres::operations::Lookup for InitializeZetaReferralsRewardsWalletRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for SetOperatorRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetOperatorRow {
+impl carbon_core::postgres::operations::Lookup for SetOperatorRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

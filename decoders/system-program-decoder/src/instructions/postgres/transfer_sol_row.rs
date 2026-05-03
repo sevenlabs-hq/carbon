@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for TransferSolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TransferSolRow {
+impl carbon_core::postgres::operations::Lookup for TransferSolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFeatureBitFlagsSwapLpPo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateFeatureBitFlagsSwapLpPoolRow {
+impl carbon_core::postgres::operations::Lookup for UpdateFeatureBitFlagsSwapLpPoolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

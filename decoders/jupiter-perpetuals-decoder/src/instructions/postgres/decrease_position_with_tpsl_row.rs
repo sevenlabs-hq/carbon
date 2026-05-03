@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for DecreasePositionWithTpslRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DecreasePositionWithTpslRow {
+impl carbon_core::postgres::operations::Lookup for DecreasePositionWithTpslRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

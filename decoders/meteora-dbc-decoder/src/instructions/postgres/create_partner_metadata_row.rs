@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for CreatePartnerMetadataRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreatePartnerMetadataRow {
+impl carbon_core::postgres::operations::Lookup for CreatePartnerMetadataRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

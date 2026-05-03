@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Delete for InitializeFeeProgramGlobalRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeFeeProgramGlobalRow {
+impl carbon_core::postgres::operations::Lookup for InitializeFeeProgramGlobalRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

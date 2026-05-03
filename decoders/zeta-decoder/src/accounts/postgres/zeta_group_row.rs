@@ -418,7 +418,7 @@ impl carbon_core::postgres::operations::Delete for ZetaGroupRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ZetaGroupRow {
+impl carbon_core::postgres::operations::Lookup for ZetaGroupRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

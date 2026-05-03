@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for ReallocStakeListRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReallocStakeListRow {
+impl carbon_core::postgres::operations::Lookup for ReallocStakeListRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

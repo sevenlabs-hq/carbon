@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketAmmSpreadAdju
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketAmmSpreadAdjustmentRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketAmmSpreadAdjustmentRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

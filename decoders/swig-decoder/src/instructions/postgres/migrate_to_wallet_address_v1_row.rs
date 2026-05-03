@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for MigrateToWalletAddressV1Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MigrateToWalletAddressV1Row {
+impl carbon_core::postgres::operations::Lookup for MigrateToWalletAddressV1Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

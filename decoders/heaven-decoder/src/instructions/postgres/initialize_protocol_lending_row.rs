@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for InitializeProtocolLendingRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeProtocolLendingRow {
+impl carbon_core::postgres::operations::Lookup for InitializeProtocolLendingRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for AdminClaimStakingRewardsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdminClaimStakingRewardsRow {
+impl carbon_core::postgres::operations::Lookup for AdminClaimStakingRewardsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

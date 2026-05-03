@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Delete for TakeOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TakeOrderRow {
+impl carbon_core::postgres::operations::Lookup for TakeOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

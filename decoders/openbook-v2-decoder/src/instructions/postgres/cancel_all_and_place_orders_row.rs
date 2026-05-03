@@ -173,7 +173,7 @@ impl carbon_core::postgres::operations::Delete for CancelAllAndPlaceOrdersRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CancelAllAndPlaceOrdersRow {
+impl carbon_core::postgres::operations::Lookup for CancelAllAndPlaceOrdersRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

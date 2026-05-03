@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Delete for OpenPositionRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for OpenPositionRow {
+impl carbon_core::postgres::operations::Lookup for OpenPositionRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

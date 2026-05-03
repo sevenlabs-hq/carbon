@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Delete for DynamicTickArrayRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DynamicTickArrayRow {
+impl carbon_core::postgres::operations::Lookup for DynamicTickArrayRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

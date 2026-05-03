@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ExtendAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ExtendAccountRow {
+impl carbon_core::postgres::operations::Lookup for ExtendAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

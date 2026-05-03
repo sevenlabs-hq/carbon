@@ -207,7 +207,7 @@ impl carbon_core::postgres::operations::Delete for VerifyCreatorRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for VerifyCreatorRow {
+impl carbon_core::postgres::operations::Lookup for VerifyCreatorRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

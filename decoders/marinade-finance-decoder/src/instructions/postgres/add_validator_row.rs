@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for AddValidatorRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AddValidatorRow {
+impl carbon_core::postgres::operations::Lookup for AddValidatorRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

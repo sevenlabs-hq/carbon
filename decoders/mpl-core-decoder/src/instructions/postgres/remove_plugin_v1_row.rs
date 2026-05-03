@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for RemovePluginV1Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RemovePluginV1Row {
+impl carbon_core::postgres::operations::Lookup for RemovePluginV1Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

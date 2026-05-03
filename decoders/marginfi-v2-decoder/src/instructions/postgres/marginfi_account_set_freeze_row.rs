@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for MarginfiAccountSetFreezeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MarginfiAccountSetFreezeRow {
+impl carbon_core::postgres::operations::Lookup for MarginfiAccountSetFreezeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

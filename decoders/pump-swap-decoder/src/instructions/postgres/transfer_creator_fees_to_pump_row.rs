@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for TransferCreatorFeesToPumpRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TransferCreatorFeesToPumpRow {
+impl carbon_core::postgres::operations::Lookup for TransferCreatorFeesToPumpRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotAuctionDurationRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSpotAuctionDurationRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSpotAuctionDurationRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

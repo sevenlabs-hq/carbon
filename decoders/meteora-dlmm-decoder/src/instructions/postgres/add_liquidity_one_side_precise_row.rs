@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for AddLiquidityOneSidePreciseRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AddLiquidityOneSidePreciseRow {
+impl carbon_core::postgres::operations::Lookup for AddLiquidityOneSidePreciseRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

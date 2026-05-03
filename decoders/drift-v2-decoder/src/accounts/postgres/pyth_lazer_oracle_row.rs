@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Delete for PythLazerOracleRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PythLazerOracleRow {
+impl carbon_core::postgres::operations::Lookup for PythLazerOracleRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

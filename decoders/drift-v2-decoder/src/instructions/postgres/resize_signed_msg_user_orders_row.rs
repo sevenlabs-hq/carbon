@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for ResizeSignedMsgUserOrdersRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ResizeSignedMsgUserOrdersRow {
+impl carbon_core::postgres::operations::Lookup for ResizeSignedMsgUserOrdersRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

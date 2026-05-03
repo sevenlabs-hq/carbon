@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for QuoteBuyRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for QuoteBuyRow {
+impl carbon_core::postgres::operations::Lookup for QuoteBuyRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,
