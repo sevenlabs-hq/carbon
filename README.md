@@ -1,300 +1,348 @@
 # Carbon
 
-Carbon is a lightweight indexing framework on Solana. It provides a modular pipeline for sourcing data, decoding updates and processing them in order to build end-to-end indexers.
+Carbon is a lightweight indexing framework for Solana.
+
+It provides a modular pipeline for building end-to-end indexers by streaming on-chain data, decoding updates, and processing them through composable handlers.
+
+---
 
 ## Components
 
 ### Pipeline
 
-The core of the framework. It orchestrates data flow from data sources through indexing pipes.
+The core orchestration layer. It connects datasources, pipes, and processors into a single execution flow.
 
 ### Datasources
 
-A consumable datasource that will provide updates to the pipeline. These can either be `AccountUpdate`, `TransactionUpdate` or `AccountDeletion`.
+Async producers that feed updates into the pipeline.
+
+Each update is one of:
+
+- `AccountUpdate`
+- `TransactionUpdate`
+- `AccountDeletion`
+- `BlockDetails`
 
 ### Pipes
 
-Process specific updates:
+Type-specific routing layers between datasources and processors.
 
-- **Account Pipes** handle account updates. Each contains an `AccountDecoder` and a `Processor`.
-- **Account Deletion Pipes** handle account deletions. Each contains a `Processor`.
-- **Instruction Pipes** handle transaction updates, instruction by instruction. Each contains an `InstructionDecoder` and a `Processor`.
-- **Transaction Pipes** handle transaction updates, after schema-matching the whole transaction. Each contains a `Schema` and a `Processor`.
+- **Account Pipes** — decode and process account updates.
+- **Account Deletion Pipes** — handle account deletion events.
+- **Instruction Pipes** — decode transaction instructions one by one.
+- **Transaction Pipes** — decode full transactions via an `InstructionDecoderCollection` and process them as a unit.
+- **Block Details Pipes** — process block-level metadata.
 
-### Metrics
+---
 
-Collect and report on pipeline performance and operational data.
+## Metrics
 
-Our premade metrics crates assist with common use cases:
+Pipeline metrics are collected via a global `MetricsRegistry`.
 
-| Crate Name                  | Description                                                                   | Ease of Setup |
-| --------------------------- | ----------------------------------------------------------------------------- | ------------- |
-| `carbon-log-metrics`        | Logs useful program info to the terminal                                      | Easy          |
-| `carbon-prometheus-metrics` | Provides a way of exporting default and custom metrics to a Prometheus server | Medium        |
+Two official sinks are available:
+
+| Crate                       | Description                                          | Setup  |
+| --------------------------- | ---------------------------------------------------- | ------ |
+| `carbon-log-metrics`        | Logs metrics to stdout for debugging and development | Easy   |
+| `carbon-prometheus-metrics` | Exposes `/metrics` endpoint for Prometheus scraping  | Medium |
+
+---
 
 ## Usage
 
 ### Basic Setup
 
-```rs
-use carbon_core::pipeline::Pipeline;
-use carbon_rpc_block_subscribe_datasource::{RpcBlockSubscribe, Filters};
-use solana_client::{
-    rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
-};
-use crate::{
-    MyAccountDecoder, MyAccountProcessor,
-    MyInstructionDecoder, MyInstructionProcessor,
+```rust
+use {
+    carbon_core::{
+        error::CarbonResult,
+        pipeline::Pipeline,
+    },
+    carbon_log_metrics::LogMetrics,
+    carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
+    carbon_token_program_decoder::{TokenProgramDecoder, PROGRAM_ID},
+    solana_client::rpc_config::RpcBlockSubscribeFilter,
+    std::{env, sync::Arc},
 };
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let pipeline = Pipeline::builder()
-        .datasource(
-            RpcBlockSubscribe::new(
-                env::var("RPC_URL")?,
-                Filters::new(RpcBlockSubscribeFilter::MentionsAccountOrProgram(env::var("MY_PROGRAM_ID")?), None)
-            )
-        )
-        .instruction(MyInstructionDecoder::new(), MyInstructionProcessor)
+async fn main() -> CarbonResult<()> {
+    let datasource = RpcBlockSubscribe::new(
+        env::var("RPC_WS_URL").expect("RPC_WS_URL"),
+        Filters::new(
+            RpcBlockSubscribeFilter::MentionsAccountOrProgram(
+                PROGRAM_ID.to_string(),
+            ),
+            None,
+        ),
+    );
+
+    Pipeline::builder()
+        .datasource(datasource)
         .metrics(Arc::new(LogMetrics::new()))
-        .build()?;
-
-    pipeline.run().await?;
-
-    Ok(())
+        .instruction(TokenProgramDecoder, MyProcessor)
+        .build()?
+        .run()
+        .await
 }
 ```
 
-### Generating Decoders from IDL
+For real-world usage patterns, see [`examples/`](examples/) — each example is a complete working pipeline.
 
-Decoders implementations allow the pipeline to input raw account or instruction data and to receive deserialized account or instruction data. They are the backbone of indexing with Carbon.
+---
 
-Carbon provides a CLI tool to generate decoders based on IDL files (Anchor, Codama) or from a provided program address with a network specified to fetch an on-chain PDA IDL. This can significantly speed up the process of creating custom decoders for your Solana programs.
+## Generating Decoders from IDL
 
-#### CLI Installation
+Decoders convert raw Solana account or instruction data into strongly typed Rust structures.
 
-Install the Carbon CLI via npm:
+Carbon includes a CLI that generates decoders from:
+
+- Anchor IDLs
+- Codama IDLs
+- On-chain program addresses
+
+### CLI Installation
 
 ```sh
-# Install globally
 npm install -g @sevenlabs-hq/carbon-cli
+```
 
-# Or use npx (no installation required)
+Or run directly:
+
+```sh
 npx @sevenlabs-hq/carbon-cli
 ```
 
-#### CLI Usage
+### CLI Usage
 
 ```sh
 carbon-cli parse [OPTIONS]
 carbon-cli scaffold [OPTIONS]
 ```
 
-#### Parse Options
-
-- `-i, --idl <fileOrAddress>`: Path to an IDL json file or a Solana program address
-- `-o, --out-dir <dir>`: Output directory for generated code
-- `-c, --as-crate`: Generate as a Cargo crate layout
-- `-s, --standard <anchor|codama>`: Specify the IDL standard to parse (default: anchor)
-- `--event-hints <csv>`: Comma-separated names of defined types to parse as CPI Events (Codama only)
-- `-u, --url <rpcUrl>`: RPC URL for fetching IDL when using a program address
-- `--no-clean`: Do not delete output directory before rendering
-
-#### Scaffold Options
-
-- `-n, --name <string>`: Name of your project
-- `-o, --out-dir <dir>`: Output directory
-- `-d, --decoder <name>`: Decoder name (auto-detected from IDL)
-- `--idl <fileOrAddress>`: IDL file or program address
-- `--idl-standard <anchor|codama>`: IDL standard
-- `--idl-url <rpcUrl>`: RPC URL for fetching IDL (when using program address)
-- `--event-hints <csv>`: Event hints for Codama IDL
-- `-s, --data-source <name>`: Name of data source
-- `-m, --metrics <log|prometheus>`: Metrics to use (default: log)
-- `--with-postgres <boolean>`: Include Postgres wiring and deps (default: true)
-- `--with-graphql <boolean>`: Include GraphQL wiring and deps (default: true)
-- `--with-serde <boolean>`: Include serde feature for decoder (default: false)
-- `--force`: Overwrite output directory if it exists
-
-#### Examples
-
-**Generate decoder from Anchor IDL:**
+### Example: Generate Decoder from Program
 
 ```sh
-carbon-cli parse --idl my_program.json --out-dir ./src/decoders
+carbon-cli parse \
+  --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo \
+  --url mainnet-beta \
+  --out-dir ./decoders
 ```
 
-**Generate decoder from program address:**
+### Example: Scaffold Project
 
 ```sh
-carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo -u mainnet-beta --out-dir ./desired-folder
+carbon-cli scaffold \
+  --name my-indexer \
+  --idl ./idl.json \
+  --data-source yellowstone-grpc
 ```
 
-**Scaffold project using IDL file:**
+---
 
-```sh
-carbon-cli scaffold --name my-project --out-dir ./desired-folder --idl ./idl.json --data-source yellowstone-grpc
-```
+## Implementing Processors
 
-For more detailed usage information and examples, check out the [npm package documentation](https://www.npmjs.com/package/@sevenlabs-hq/carbon-cli).
+Processors are async handlers that receive typed data from the pipeline.
 
-### Implementing Processors
+```rust
+use carbon_core::{
+    account::AccountProcessorInputType,
+    error::CarbonResult,
+    processor::Processor,
+};
 
-```rs
-use carbon_core::account::{AccountDecoder, AccountMetadata, AccountProcessorInputType, DecodedAccount};
-use crate::MyCustomAccountData;
+pub struct MyAccountProcessor;
 
-struct MyAccountProcessor;
-
-#[async_trait]
-impl Processor for MyAccountProcessor {
-    type InputType = AccountProcessorInputType<MyCustomAccountData>;
-
+impl Processor<AccountProcessorInputType<'_, MyCustomAccountData>>
+    for MyAccountProcessor
+{
     async fn process(
         &mut self,
-        input: Self::InputType,
-        metrics: Arc<MetricsCollection>,
+        data: &AccountProcessorInputType<'_, MyCustomAccountData>,
     ) -> CarbonResult<()> {
-        // Implement processing logic
+        // user logic here
+
+        Ok(())
     }
 }
 ```
 
-### Implementing a Datasource
+---
 
-For most use cases, we recommend choosing from one of our datasource crates:
+## Datasources
 
-| Crate Name                             | Description                                                                                                              | Affordability               | Ease of Setup |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------- | ------------- |
-| `carbon-block-subscribe`               | Uses `blockSubscribe` with Solana WS JSON RPC to listen to real-time on-chain transactions                               | Cheap (just RPC)            | Easy          |
-| `carbon-program-subscribe`             | Uses `programSubscribe` with Solana WS JSON RPC to listen to real-time on-chain account updates                          | Cheap (just RPC)            | Easy          |
-| `carbon-transaction-crawler`           | Crawls historical successful transactions for a specific address in reverse chronological order using Solana JSON RPC    | Cheap (just RPC)            | Easy          |
-| `carbon-validator-snapshot-datasource` | Loads and processes accounts from Solana validator snapshots, supporting filtering by program owners and account pubkeys | Cheap (snapshot storage)    | Medium        |
-| `carbon-jito-shredstream-grpc`         | Listen to JITO's shredstream                                                                                             | Medium (Shredstream proxy)  | Medium        |
-| `carbon-helius-atlas-ws`               | Utilizes Helius Geyser-enhanced WebSocket for streaming account and transaction updates                                  | Medium (Helius Plan)        | Medium        |
-| `carbon-yellowstone-grpc`              | Subscribes to a Yellowstone gRPC Geyser plugin enhanced full node to stream account and transaction updates              | Expensive (Geyser Fullnode) | Complex       |
+Carbon supports multiple datasource types depending on performance and infrastructure needs.
 
-You can still implement custom datasources in the following manner:
+### Solana RPC
 
-```rs
-use carbon_core::datasource::{Datasource, Update, UpdateType};
+Simple and low-cost sources using standard RPC:
 
-struct MyDataSource;
+- `carbon-rpc-block-subscribe-datasource`
+- `carbon-rpc-program-subscribe-datasource`
+- `carbon-rpc-transaction-crawler-datasource`
+- `carbon-rpc-block-crawler-datasource`
+- `carbon-rpc-gpa-datasource`
+
+Example: [`block-subscribe-rpc`](examples/block-subscribe-rpc), [`gpa-rpc`](examples/gpa-rpc), [`transaction-crawler-rpc`](examples/transaction-crawler-rpc)
+
+### Helius
+
+Streaming APIs powered by Helius infrastructure.
+
+- `carbon-helius-atlas-ws-datasource`
+- `carbon-helius-laserstream-datasource`
+- `carbon-helius-gpa-v2-datasource`
+- `carbon-helius-gtfa-datasource`
+
+Example: Helius variants live alongside the RPC examples — see [`yellowstone-grpc`](examples/yellowstone-grpc) (LaserStream), [`gpa-rpc`](examples/gpa-rpc) (gPA v2), and [`transaction-crawler-rpc`](examples/transaction-crawler-rpc) (GTFA).
+
+### Geyser gRPC
+
+Direct streaming from Geyser-enabled nodes.
+
+- `carbon-yellowstone-grpc-datasource`
+- `carbon-jito-shredstream-grpc-datasource`
+
+Example: [`yellowstone-grpc`](examples/yellowstone-grpc)
+
+### Historical / Archive
+
+Snapshot-based or backfill sources:
+
+- `carbon-validator-snapshot-datasource`
+- `carbon-jetstreamer-datasource`
+
+Example: [`snapshot-validator`](examples/snapshot-validator), [`jetstreamer`](examples/jetstreamer)
+
+### Adapter
+
+Bring your own stream:
+
+- `carbon-stream-message-datasource`
+
+Example: [`custom-datasource`](examples/custom-datasource)
+
+---
+
+### Custom Datasource
+
+```rust
+use {
+    async_trait::async_trait,
+    carbon_core::{
+        datasource::{Datasource, DatasourceId, Update, UpdateType},
+        error::CarbonResult,
+    },
+    tokio_util::sync::CancellationToken,
+};
+
+pub struct MyDatasource;
 
 #[async_trait]
-impl Datasource for MyDataSource {
+impl Datasource for MyDatasource {
     async fn consume(
         &self,
-        sender: &tokio::sync::mpsc::UnboundedSender<Update>,
+        id: DatasourceId,
+        sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
-        // Implement data fetching and sending logic
+        // stream updates here
+        Ok(())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![UpdateType::AccountUpdate, UpdateType::Transaction]
+        vec![
+            UpdateType::AccountUpdate,
+            UpdateType::Transaction,
+        ]
     }
 }
 ```
 
-### Available Program Decoders
+A full working example is available in
+[`examples/custom-datasource`](examples/custom-datasource).
 
-Decoders for most popular Solana programs are published and maintained:
+---
 
-| Crate Name                                     | Description                                | Program ID                                   |
-| ---------------------------------------------- | ------------------------------------------ | -------------------------------------------- |
-| `carbon-address-lookup-table-decoder`          | Address Lookup Table Decoder               | AddressLookupTab1e1111111111111111111111111  |
-| `carbon-associated-token-account-decoder`      | Associated Token Account Decoder           | ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL |
-| `carbon-bonkswap-decoder`                      | Bonkswap Program Decoder                   | BSwp6bEBihVLdqJRKGgzjcGLHkcTuzmSo1TQkHepzH8p |
-| `carbon-boop-decoder`                          | Boop Decoder                               | boop8hVGQGqehUK2iVEMEnMrL5RbjywRzHKBmBE7ry4  |
-| `carbon-bubblegum-decoder`                     | Bubblegum Decoder                          | BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY |
-| `carbon-circle-message-transmitter-v2-decoder` | Circle CCTP Message Transmitter V2 Decoder | CCTPV2Sm4AdWt5296sk4P66VBZ7bEhcARwFaaS9YPbeC |
-| `carbon-circle-token-messenger-v2-decoder`     | Circle CCTP Token Messenger V2 Decoder     | CCTPV2vPZJS2u2BBsUoscuikbYjnpFmbFsvVuJdgUMQe |
-| `carbon-dflow-aggregator-v4-decoder`           | Dflow Aggregator V4 Decoder                | DF1ow4tspfHX9JwWJsAb9epbkA8hmpSEAtxXy1V27QBH |
-| `carbon-drift-v2-decoder`                      | Drift V2 Program Decoder                   | dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH  |
-| `carbon-fluxbeam-decoder`                      | Fluxbeam Program Decoder                   | FLUXubRmkEi2q6K3Y9kBPg9248ggaZVsoSFhtJHSrm1X |
-| `carbon-gavel-decoder`                         | Gavel Pool Decoder                         | srAMMzfVHVAtgSJc8iH6CfKzuWuUTzLHVCE81QU1rgi  |
-| `carbon-heaven-decoder`                        | Heaven Program Decoder                     | HEAVENoP2qxoeuF8Dj2oT1GHEnu49U5mJYkdeC8BAX2o |
-| `carbon-jupiter-dca-decoder`                   | Jupiter DCA Program Decoder                | DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M |
-| `carbon-jupiter-limit-order-decoder`           | Jupiter Limit Order Program Decoder        | jupoNjAxXgZ4rjzxzPMP4oxduvQsQtZzyknqvzYNrNu  |
-| `carbon-jupiter-limit-order-2-decoder`         | Jupiter Limit Order 2 Program Decoder      | j1o2qRpjcyUwEvwtcfhEQefh773ZgjxcVRry7LDqg5X  |
-| `carbon-jupiter-perpetuals-decoder`            | Jupiter Perpetuals Program Decoder         | PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu  |
-| `carbon-jupiter-swap-decoder`                  | Jupiter Swap Program Decoder               | JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4  |
-| `carbon-kamino-farms-decoder`                  | Kamino Farms Program Decoder               | FarmsPZpWu9i7Kky8tPN37rs2TpmMrAZrC7S7vJa91Hr |
-| `carbon-kamino-lending-decoder`                | Kamino Lend Decoder                        | KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD  |
-| `carbon-kamino-limit-order-decoder`            | Kamino Limit Order Program Decoder         | LiMoM9rMhrdYrfzUCxQppvxCSG1FcrUK9G8uLq4A1GF  |
-| `carbon-kamino-vault-decoder`                  | Kamino Vault Decoder                       | kvauTFR8qm1dhniz6pYuBZkuene3Hfrs1VQhVRgCNrr  |
-| `carbon-lifinity-amm-v2-decoder`               | Lifinity AMM V2 Program Decoder            | 2wT8Yq49kHgDzXuPxZSaeLaH1qbmGXtEyPy64bL7aD3c |
-| `carbon-marginfi-v2-decoder`                   | Marginfi V2 Program Decoder                | MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA  |
-| `carbon-marinade-finance-decoder`              | Marinade Finance Program Decoder           | MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD  |
-| `carbon-memo-program-decoder`                  | SPL Memo Program Decoder                   | Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo  |
-| `carbon-meteora-damm-v2-decoder`               | Meteora DAMM V2 Program Decoder            | cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG  |
-| `carbon-meteora-dbc-decoder`                   | Meteora DBC Program Decoder                | dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN  |
-| `carbon-meteora-dlmm-decoder`                  | Meteora DLMM Program Decoder               | LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo  |
-| `carbon-meteora-pools-decoder`                 | Meteora Pools Program Decoder              | Eo7WjKq67rjJQSZxS6z3YkapzY3eMj6Xy8X5EQVn5UaB |
-| `carbon-meteora-vault-decoder`                 | Meteora Vault Program Decoder              | 24Uqj9JCLxUeoC3hGfh5W3s9FM9uCHDS2SG3LYwBpyTi |
-| `carbon-moonshot-decoder`                      | Moonshot Program Decoder                   | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG  |
-| `carbon-mpl-core-decoder`                      | MPL Core Program Decoder                   | CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d |
-| `carbon-mpl-token-metadata-decoder`            | MPL Token Metadata Program Decoder         | metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s  |
-| `carbon-name-service-decoder`                  | SPL Name Service Program Decoder           | namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX  |
-| `carbon-okx-dex-decoder`                       | OKX DEX Decoder                            | 6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma |
-| `carbon-onchain-labs-dex-v2-decoder`           | OnChain Labs DEX V2 Decoder                | proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u  |
-| `carbon-openbook-v2-decoder`                   | Openbook V2 Program Decoder                | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb  |
-| `carbon-orca-whirlpool-decoder`                | Orca Whirlpool Program Decoder             | whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc  |
-| `carbon-pancake-swap-decoder`                  | Pancake Swap Program Decoder               | HpNfyc2Saw7RKkQd8nEL4khUcuPhQ7WwY1B2qjx8jxFq |
-| `carbon-phoenix-v1-decoder`                    | Phoenix V1 Program Decoder                 | PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY  |
-| `carbon-pumpfun-decoder`                       | Pumpfun Program Decoder                    | 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P  |
-| `carbon-pump-swap-decoder`                     | PumpSwap Program Decoder                   | pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA  |
-| `carbon-pump-fees-decoder`                     | Pump Fees Program Decoder                  | pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ  |
-| `carbon-raydium-amm-v4-decoder`                | Raydium AMM V4 Program Decoder             | 675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8 |
-| `carbon-raydium-clmm-decoder`                  | Raydium CLMM Program Decoder               | CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK |
-| `carbon-raydium-cpmm-decoder`                  | Raydium CPMM Program Decoder               | CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C |
-| `carbon-raydium-launchpad-decoder`             | Raydium Launchpad Program Decoder          | LanMV9sAd7wArD4vJFi2qDdfnVhFxYSUg6eADduJ3uj  |
-| `carbon-raydium-liquidity-locking-decoder`     | Raydium Liquidity Locking Program Decoder  | LockrWmn6K5twhz3y9w1dQERbmgSaRkfnTeTKbpofwE  |
-| `carbon-raydium-stable-swap-decoder`           | Raydium Stable Swap Program Decoder        | 5quBtoiQqxF9Jv6KYKctB59NT3gtJD2Y65kdnB1Uev3h |
-| `carbon-sharky-decoder`                        | SharkyFi Decoder                           | SHARKobtfF1bHhxD2eqftjHBdVSCbKo9JtgK71FhELP  |
-| `carbon-solayer-restaking-program-decoder`     | Solayer Restaking Program Decoder          | sSo1iU21jBrU9VaJ8PJib1MtorefUV4fzC9GURa2KNn  |
-| `carbon-stabble-stable-swap-decoder`           | Stabble Stable Swap Decoder                | swapNyd8XiQwJ6ianp9snpu4brUqFxadzvHebnAXjJZ  |
-| `carbon-stabble-weighted-swap-decoder`         | Stabble Weighted Swap Decoder              | swapFpHZwjELNnjvThjajtiVmkz3yPQEHjLtka2fwHW  |
-| `carbon-stake-program-decoder`                 | Stake Program Decoder                      | Stake11111111111111111111111111111111111111  |
-| `carbon-swig-decoder`                          | Swig Decoder                               | swigypWHEksbC64pWKwah1WTeh9JXwx8H1rJHLdbQMB  |
-| `carbon-system-program-decoder`                | System Program Decoder                     | 11111111111111111111111111111111             |
-| `carbon-token-2022-decoder`                    | Token 2022 Program Decoder                 | TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb  |
-| `carbon-token-program-decoder`                 | Token Program Decoder                      | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA  |
-| `carbon-vertigo-decoder`                       | Vertigo Program Decoder                    | vrTGoBuy5rYSxAfV3jaRJWHH6nN9WK4NRExGxsk1bCJ  |
-| `carbon-virtuals-decoder`                      | Virtuals Program Decoder                   | 5U3EU2ubXtK84QcRjWVmYt9RaDyA8gKxdUrPFXmZyaki |
-| `carbon-wavebreak-decoder`                     | Wavebreak Program Decoder                  | waveQX2yP3H1pVU8djGvEHmYg8uamQ84AuyGtpsrXTF  |
-| `carbon-zeta-decoder`                          | Zeta Program Decoder                       | ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD  |
+## Program Decoders
 
-## Scripts
+Carbon ships with pre-generated decoders for widely used Solana programs.
 
-The `scripts/` directory contains utility scripts for development and publishing:
+| Crate                                     | Program                  | Program ID                                     |
+| ----------------------------------------- | ------------------------ | ---------------------------------------------- |
+| `carbon-token-program-decoder`            | Token Program            | `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`  |
+| `carbon-token-2022-decoder`               | Token 2022               | `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`  |
+| `carbon-associated-token-account-decoder` | Associated Token Account | `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL` |
+| `carbon-system-program-decoder`           | System Program           | `11111111111111111111111111111111`             |
+| `carbon-stake-program-decoder`            | Stake Program            | `Stake11111111111111111111111111111111111111`  |
+| `carbon-address-lookup-table-decoder`     | Address Lookup Table     | `AddressLookupTab1e1111111111111111111111111`  |
+| `carbon-jupiter-swap-decoder`             | Jupiter Swap             | `JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4`  |
+| `carbon-raydium-amm-v4-decoder`           | Raydium AMM V4           | `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8` |
+| `carbon-raydium-clmm-decoder`             | Raydium CLMM             | `CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK` |
+| `carbon-raydium-cpmm-decoder`             | Raydium CPMM             | `CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C` |
+| `carbon-orca-whirlpool-decoder`           | Orca Whirlpool           | `whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc`  |
+| `carbon-meteora-dlmm-decoder`             | Meteora DLMM             | `LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo`  |
+| `carbon-pumpfun-decoder`                  | Pumpfun                  | `6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P`  |
+| `carbon-pump-swap-decoder`                | PumpSwap                 | `pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA`  |
+| `carbon-moonshot-decoder`                 | Moonshot                 | `MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG`  |
+| `carbon-mpl-token-metadata-decoder`       | MPL Token Metadata       | `metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s`  |
+| `carbon-mpl-core-decoder`                 | MPL Core                 | `CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d` |
 
-- `bump-cli-version.sh`: Bumps the version of CLI packages
-- `cargo-clippy.sh`: Runs clippy checks on the codebase
-- `cargo-fmt.sh`: Formats code using cargo fmt
-- `publish-cli-packages.sh`: Publishes CLI packages to npm
-- `publish-crate.sh`: Publishes Rust crates to crates.io
-- `yank-crates.sh`: Yanks published crates from crates.io
+<details>
+<summary><strong>Show 46 more decoders</strong></summary>
 
-## Pre-commit hooks
+| Crate                                          | Program                            | Program ID                                        |
+| ---------------------------------------------- | ---------------------------------- | ------------------------------------------------- |
+| `carbon-bonkswap-decoder`                      | Bonkswap                           | `BSwp6bEBihVLdqJRKGgzjcGLHkcTuzmSo1TQkHepzH8p`    |
+| `carbon-boop-decoder`                          | Boop                               | `boop8hVGQGqehUK2iVEMEnMrL5RbjywRzHKBmBE7ry4`     |
+| `carbon-bubblegum-decoder`                     | Bubblegum                          | `BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY`    |
+| `carbon-circle-message-transmitter-v2-decoder` | Circle CCTP Message Transmitter V2 | `CCTPV2Sm4AdWt5296sk4P66VBZ7bEhcARwFaaS9YPbeC`    |
+| `carbon-circle-token-messenger-v2-decoder`     | Circle CCTP Token Messenger V2     | `CCTPV2vPZJS2u2BBsUoscuikbYjnpFmbFsvVuJdgUMQe`    |
+| `carbon-dflow-aggregator-v4-decoder`           | Dflow Aggregator V4                | `DF1ow4tspfHX9JwWJsAb9epbkA8hmpSEAtxXy1V27QBH`    |
+| `carbon-drift-v2-decoder`                      | Drift V2                           | `dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH`     |
+| `carbon-fluxbeam-decoder`                      | Fluxbeam                           | `FLUXubRmkEi2q6K3Y9kBPg9248ggaZVsoSFhtJHSrm1X`    |
+| `carbon-gavel-decoder`                         | Gavel                              | `srAMMzfVHVAtgSJc8iH6CfKzuWuUTzLHVCE81QU1rgi`     |
+| `carbon-heaven-decoder`                        | Heaven                             | `HEAVENoP2qxoeuF8Dj2oT1GHEnu49U5mJYkdeC8BAX2o`    |
+| `carbon-jupiter-dca-decoder`                   | Jupiter DCA                        | `DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M`    |
+| `carbon-jupiter-lend-decoder`                  | Jupiter Lend                       | `jup3YeL8QhtSx1e253b2FDvsMNC87fDrgcZa9KfAB5Fkkkk` |
+| `carbon-jupiter-limit-order-decoder`           | Jupiter Limit Order                | `jupoNjAxXgZ4rjzxzPMP4oxduvQsQtZzyknqvzYNrNu`     |
+| `carbon-jupiter-limit-order-2-decoder`         | Jupiter Limit Order 2              | `j1o2qRpjcyUwEvwtcfhEQefh773ZgjxcVRry7LDqg5X`     |
+| `carbon-jupiter-perpetuals-decoder`            | Jupiter Perpetuals                 | `PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu`     |
+| `carbon-kamino-farms-decoder`                  | Kamino Farms                       | `FarmsPZpWu9i7Kky8tPN37rs2TpmMrAZrC7S7vJa91Hr`    |
+| `carbon-kamino-lending-decoder`                | Kamino Lending                     | `KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD`     |
+| `carbon-kamino-limit-order-decoder`            | Kamino Limit Order                 | `LiMoM9rMhrdYrfzUCxQppvxCSG1FcrUK9G8uLq4A1GF`     |
+| `carbon-kamino-vault-decoder`                  | Kamino Vault                       | `kvauTFR8qm1dhniz6pYuBZkuene3Hfrs1VQhVRgCNrr`     |
+| `carbon-lifinity-amm-v2-decoder`               | Lifinity AMM V2                    | `2wT8Yq49kHgDzXuPxZSaeLaH1qbmGXtEyPy64bL7aD3c`    |
+| `carbon-marginfi-v2-decoder`                   | Marginfi V2                        | `MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA`     |
+| `carbon-marinade-finance-decoder`              | Marinade Finance                   | `MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD`     |
+| `carbon-memo-program-decoder`                  | SPL Memo                           | `Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo`     |
+| `carbon-meteora-damm-v2-decoder`               | Meteora DAMM V2                    | `cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG`     |
+| `carbon-meteora-dbc-decoder`                   | Meteora DBC                        | `dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN`     |
+| `carbon-meteora-pools-decoder`                 | Meteora Pools                      | `Eo7WjKq67rjJQSZxS6z3YkapzY3eMj6Xy8X5EQVn5UaB`    |
+| `carbon-meteora-vault-decoder`                 | Meteora Vault                      | `24Uqj9JCLxUeoC3hGfh5W3s9FM9uCHDS2SG3LYwBpyTi`    |
+| `carbon-name-service-decoder`                  | SPL Name Service                   | `namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX`     |
+| `carbon-okx-dex-decoder`                       | OKX DEX                            | `6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma`    |
+| `carbon-onchain-labs-dex-v2-decoder`           | OnChain Labs DEX V2                | `proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u`     |
+| `carbon-openbook-v2-decoder`                   | Openbook V2                        | `opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb`     |
+| `carbon-pancake-swap-decoder`                  | Pancake Swap                       | `HpNfyc2Saw7RKkQd8nEL4khUcuPhQ7WwY1B2qjx8jxFq`    |
+| `carbon-phoenix-v1-decoder`                    | Phoenix V1                         | `PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY`     |
+| `carbon-pump-fees-decoder`                     | Pump Fees                          | `pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ`     |
+| `carbon-raydium-launchpad-decoder`             | Raydium Launchpad                  | `LanMV9sAd7wArD4vJFi2qDdfnVhFxYSUg6eADduJ3uj`     |
+| `carbon-raydium-liquidity-locking-decoder`     | Raydium Liquidity Locking          | `LockrWmn6K5twhz3y9w1dQERbmgSaRkfnTeTKbpofwE`     |
+| `carbon-raydium-stable-swap-decoder`           | Raydium Stable Swap                | `5quBtoiQqxF9Jv6KYKctB59NT3gtJD2Y65kdnB1Uev3h`    |
+| `carbon-sharky-decoder`                        | SharkyFi                           | `SHARKobtfF1bHhxD2eqftjHBdVSCbKo9JtgK71FhELP`     |
+| `carbon-solayer-restaking-program-decoder`     | Solayer Restaking                  | `sSo1iU21jBrU9VaJ8PJib1MtorefUV4fzC9GURa2KNn`     |
+| `carbon-stabble-stable-swap-decoder`           | Stabble Stable Swap                | `swapNyd8XiQwJ6ianp9snpu4brUqFxadzvHebnAXjJZ`     |
+| `carbon-stabble-weighted-swap-decoder`         | Stabble Weighted Swap              | `swapFpHZwjELNnjvThjajtiVmkz3yPQEHjLtka2fwHW`     |
+| `carbon-swig-decoder`                          | Swig                               | `swigypWHEksbC64pWKwah1WTeh9JXwx8H1rJHLdbQMB`     |
+| `carbon-vertigo-decoder`                       | Vertigo                            | `vrTGoBuy5rYSxAfV3jaRJWHH6nN9WK4NRExGxsk1bCJ`     |
+| `carbon-virtuals-decoder`                      | Virtuals                           | `5U3EU2ubXtK84QcRjWVmYt9RaDyA8gKxdUrPFXmZyaki`    |
+| `carbon-wavebreak-decoder`                     | Wavebreak                          | `waveQX2yP3H1pVU8djGvEHmYg8uamQ84AuyGtpsrXTF`     |
+| `carbon-zeta-decoder`                          | Zeta                               | `ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD`     |
 
-To activate the pre-commit hook, run `./.pre-commit.sh` once.
-This will cause the following rules to be registered and called at the next `git commit`.
+</details>
 
-The following checks will be performed:
-
-- fmt: Checks code formatting using `cargo fmt --check`.
-- clippy: Runs `clippy` on the codebase to catch potential issues.
-- cargo_sort: Utilizes `cargo-sort` to ensure Cargo.toml files are sorted correctly.
-- machete: Checks for unused Cargo dependencies using `cargo-machete`.
-
-## Test
-
-```sh
-cargo test
-```
+---
 
 ## License
 
