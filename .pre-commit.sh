@@ -19,11 +19,11 @@ cargo clippy --version &>/dev/null || rustup component add clippy
 cargo machete --version &>/dev/null || cargo install --locked cargo-machete
 cargo sort --version &>/dev/null || cargo install --locked cargo-sort
 
-cargo +nightly fmt --version &>/dev/null || rustup toolchain install nightly --component rustfmt --profile minimal --no-self-update
+cargo fmt --version &>/dev/null || rustup component add rustfmt
 
 # Checks
 cargo machete
-cargo +nightly fmt --all -- --check
+cargo fmt -- --check
 cargo sort -c -g
 cargo test --all-targets --all-features
 cargo clippy --all-targets --all-features -- -D warnings
