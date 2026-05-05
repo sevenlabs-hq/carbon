@@ -27,11 +27,7 @@ impl TryFrom<crate::accounts::postgres::SocialFeePdaRow> for SocialFeePdaGraphQL
             platform: carbon_core::graphql::primitives::U8((*row.platform) as u8),
             total_claimed: carbon_core::graphql::primitives::U64(*row.total_claimed),
             last_claimed: carbon_core::graphql::primitives::U64(*row.last_claimed),
-            reserved: row
-                .reserved
-                .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U8((*item) as u8))
-                .collect(),
+            reserved: row.reserved.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect(),
         })
     }
 }

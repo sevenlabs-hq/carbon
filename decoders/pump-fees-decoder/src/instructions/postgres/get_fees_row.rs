@@ -11,22 +11,15 @@ pub struct GetFeesRow {
     pub is_pump_pool: bool,
     pub market_cap_lamports: U128,
     pub trade_size_lamports: U64,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl GetFeesRow {
-    pub fn from_parts(
-        source: crate::instructions::get_fees::GetFees,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(source: crate::instructions::get_fees::GetFees, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            is_pump_pool: source.is_pump_pool,
+            is_pump_pool: source.is_pump_pool.into(),
             market_cap_lamports: source.market_cap_lamports.into(),
             trade_size_lamports: source.trade_size_lamports.into(),
-            accounts: sqlx::types::Json(accounts),
         }
     }
 }
@@ -35,7 +28,7 @@ impl TryFrom<GetFeesRow> for crate::instructions::get_fees::GetFees {
     type Error = carbon_core::error::Error;
     fn try_from(source: GetFeesRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            is_pump_pool: source.is_pump_pool,
+            is_pump_pool: source.is_pump_pool.into(),
             market_cap_lamports: *source.market_cap_lamports,
             trade_size_lamports: *source.trade_size_lamports,
         })
@@ -56,7 +49,6 @@ impl carbon_core::postgres::operations::Table for crate::instructions::get_fees:
             "is_pump_pool",
             "market_cap_lamports",
             "trade_size_lamports",
-            "__accounts",
         ]
     }
 }
@@ -64,27 +56,23 @@ impl carbon_core::postgres::operations::Table for crate::instructions::get_fees:
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for GetFeesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO get_fees_instruction (
                 "is_pump_pool",
                 "market_cap_lamports",
                 "trade_size_lamports",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
-            )"#,
-        )
-        .bind(self.is_pump_pool)
-        .bind(&self.market_cap_lamports)
-        .bind(&self.trade_size_lamports)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4, $5, $6, $7
+            )"#)
+        .bind(self.is_pump_pool.clone())
+        .bind(self.market_cap_lamports.clone())
+        .bind(self.trade_size_lamports.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -93,14 +81,13 @@ impl carbon_core::postgres::operations::Insert for GetFeesRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for GetFeesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO get_fees_instruction (
+        sqlx::query(r#"INSERT INTO get_fees_instruction (
                 "is_pump_pool",
                 "market_cap_lamports",
                 "trade_size_lamports",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -109,20 +96,16 @@ impl carbon_core::postgres::operations::Upsert for GetFeesRow {
                 "trade_size_lamports" = EXCLUDED."trade_size_lamports",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(self.is_pump_pool)
-        .bind(&self.market_cap_lamports)
-        .bind(&self.trade_size_lamports)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.is_pump_pool.clone())
+        .bind(self.market_cap_lamports.clone())
+        .bind(self.trade_size_lamports.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -130,23 +113,16 @@ impl carbon_core::postgres::operations::Upsert for GetFeesRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for GetFeesRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM get_fees_instruction WHERE
+        sqlx::query(r#"DELETE FROM get_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -154,26 +130,16 @@ impl carbon_core::postgres::operations::Delete for GetFeesRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for GetFeesRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM get_fees_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM get_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -183,12 +149,8 @@ pub struct GetFeesMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for GetFeesMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS get_fees_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS get_fees_instruction (
                 -- Instruction data
                 "is_pump_pool" BOOLEAN NOT NULL,
                 "market_cap_lamports" NUMERIC(39) NOT NULL,
@@ -198,22 +160,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GetFeesMigrationOperation {
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS get_fees_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS get_fees_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

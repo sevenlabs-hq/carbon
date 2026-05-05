@@ -5,8 +5,8 @@ use {
         metrics::MetricsCollection, processor::Processor,
     },
     carbon_pumpfun_decoder::{
-        instructions::{CpiEvent, PumpfunInstruction},
-        PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
+        instructions::{CpiEvent, PumpInstruction},
+        PumpDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
     },
     helius::types::{
         Cluster, RpcTransactionsConfig, TransactionCommitment, TransactionDetails,
@@ -66,7 +66,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(helius_websocket)
-        .instruction(PumpfunDecoder, PumpfunInstructionProcessor)
+        .instruction(PumpDecoder, PumpInstructionProcessor)
         .build()?
         .run()
         .await?;
@@ -74,21 +74,21 @@ pub async fn main() -> CarbonResult<()> {
     Ok(())
 }
 
-pub struct PumpfunInstructionProcessor;
+pub struct PumpInstructionProcessor;
 
 #[async_trait]
-impl Processor for PumpfunInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpfunInstruction>;
+impl Processor for PumpInstructionProcessor {
+    type InputType = InstructionProcessorInputType<PumpInstruction>;
 
     async fn process(
         &mut self,
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let pumpfun_instruction: PumpfunInstruction = data.1.data;
+        let pumpfun_instruction: PumpInstruction = data.1.data;
 
-        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction {
-            match *cpi_event {
+        if let PumpInstruction::CpiEvent(cpi_event) = pumpfun_instruction {
+            match cpi_event {
                 CpiEvent::CreateEvent(create_event) => {
                     log::info!("New token created: {create_event:#?}");
                 }

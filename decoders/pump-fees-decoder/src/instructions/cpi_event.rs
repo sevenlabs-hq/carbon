@@ -2,42 +2,22 @@
 
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
-
 pub use super::super::events;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(
-    Debug,
-    Clone,
-    carbon_core::borsh::BorshSerialize,
-    carbon_core::borsh::BorshDeserialize,
-    PartialEq,
-)]
+#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
 pub enum CpiEvent {
-    CreateFeeSharingConfigEvent(
-        events::create_fee_sharing_config_event::CreateFeeSharingConfigEventEvent,
-    ),
+    CreateFeeSharingConfigEvent(events::create_fee_sharing_config_event::CreateFeeSharingConfigEventEvent),
     InitializeFeeConfigEvent(events::initialize_fee_config_event::InitializeFeeConfigEventEvent),
-    InitializeFeeProgramGlobalEvent(
-        events::initialize_fee_program_global_event::InitializeFeeProgramGlobalEventEvent,
-    ),
-    ResetFeeSharingConfigEvent(
-        events::reset_fee_sharing_config_event::ResetFeeSharingConfigEventEvent,
-    ),
-    RevokeFeeSharingAuthorityEvent(
-        events::revoke_fee_sharing_authority_event::RevokeFeeSharingAuthorityEventEvent,
-    ),
+    InitializeFeeProgramGlobalEvent(events::initialize_fee_program_global_event::InitializeFeeProgramGlobalEventEvent),
+    ResetFeeSharingConfigEvent(events::reset_fee_sharing_config_event::ResetFeeSharingConfigEventEvent),
     SetAuthorityEvent(events::set_authority_event::SetAuthorityEventEvent),
     SetClaimRateLimitEvent(events::set_claim_rate_limit_event::SetClaimRateLimitEventEvent),
     SetDisableFlagsEvent(events::set_disable_flags_event::SetDisableFlagsEventEvent),
-    SetSocialClaimAuthorityEvent(
-        events::set_social_claim_authority_event::SetSocialClaimAuthorityEventEvent,
-    ),
+    SetSocialClaimAuthorityEvent(events::set_social_claim_authority_event::SetSocialClaimAuthorityEventEvent),
     SocialFeePdaClaimed(events::social_fee_pda_claimed::SocialFeePdaClaimedEvent),
     SocialFeePdaCreated(events::social_fee_pda_created::SocialFeePdaCreatedEvent),
-    TransferFeeSharingAuthorityEvent(
-        events::transfer_fee_sharing_authority_event::TransferFeeSharingAuthorityEventEvent,
-    ),
+    SweepBuybackEvent(events::sweep_buyback_event::SweepBuybackEventEvent),
     UpdateAdminEvent(events::update_admin_event::UpdateAdminEventEvent),
     UpdateFeeConfigEvent(events::update_fee_config_event::UpdateFeeConfigEventEvent),
     UpdateFeeSharesEvent(events::update_fee_shares_event::UpdateFeeSharesEventEvent),
@@ -58,96 +38,58 @@ impl CpiEvent {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [228, 69, 165, 46, 81, 203, 154, 29] {
+        if discriminator != &[228, 69, 165, 46, 81, 203, 154, 29] {
             return None;
         }
 
         let event_data = &data[8..];
 
-        if let Some(decoded) =
-            events::create_fee_sharing_config_event::CreateFeeSharingConfigEventEvent::decode(
-                event_data,
-            )
-        {
+                if let Some(decoded) = events::create_fee_sharing_config_event::CreateFeeSharingConfigEventEvent::decode(event_data) {
             return Some(CpiEvent::CreateFeeSharingConfigEvent(decoded));
         }
-        if let Some(decoded) =
-            events::initialize_fee_config_event::InitializeFeeConfigEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::initialize_fee_config_event::InitializeFeeConfigEventEvent::decode(event_data) {
             return Some(CpiEvent::InitializeFeeConfigEvent(decoded));
         }
-        if let Some(decoded) = events::initialize_fee_program_global_event::InitializeFeeProgramGlobalEventEvent::decode(event_data) {
+                if let Some(decoded) = events::initialize_fee_program_global_event::InitializeFeeProgramGlobalEventEvent::decode(event_data) {
             return Some(CpiEvent::InitializeFeeProgramGlobalEvent(decoded));
         }
-        if let Some(decoded) =
-            events::reset_fee_sharing_config_event::ResetFeeSharingConfigEventEvent::decode(
-                event_data,
-            )
-        {
+                if let Some(decoded) = events::reset_fee_sharing_config_event::ResetFeeSharingConfigEventEvent::decode(event_data) {
             return Some(CpiEvent::ResetFeeSharingConfigEvent(decoded));
         }
-        if let Some(decoded) =
-            events::revoke_fee_sharing_authority_event::RevokeFeeSharingAuthorityEventEvent::decode(
-                event_data,
-            )
-        {
-            return Some(CpiEvent::RevokeFeeSharingAuthorityEvent(decoded));
-        }
-        if let Some(decoded) =
-            events::set_authority_event::SetAuthorityEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::set_authority_event::SetAuthorityEventEvent::decode(event_data) {
             return Some(CpiEvent::SetAuthorityEvent(decoded));
         }
-        if let Some(decoded) =
-            events::set_claim_rate_limit_event::SetClaimRateLimitEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::set_claim_rate_limit_event::SetClaimRateLimitEventEvent::decode(event_data) {
             return Some(CpiEvent::SetClaimRateLimitEvent(decoded));
         }
-        if let Some(decoded) =
-            events::set_disable_flags_event::SetDisableFlagsEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::set_disable_flags_event::SetDisableFlagsEventEvent::decode(event_data) {
             return Some(CpiEvent::SetDisableFlagsEvent(decoded));
         }
-        if let Some(decoded) =
-            events::set_social_claim_authority_event::SetSocialClaimAuthorityEventEvent::decode(
-                event_data,
-            )
-        {
+                if let Some(decoded) = events::set_social_claim_authority_event::SetSocialClaimAuthorityEventEvent::decode(event_data) {
             return Some(CpiEvent::SetSocialClaimAuthorityEvent(decoded));
         }
-        if let Some(decoded) =
-            events::social_fee_pda_claimed::SocialFeePdaClaimedEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::social_fee_pda_claimed::SocialFeePdaClaimedEvent::decode(event_data) {
             return Some(CpiEvent::SocialFeePdaClaimed(decoded));
         }
-        if let Some(decoded) =
-            events::social_fee_pda_created::SocialFeePdaCreatedEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::social_fee_pda_created::SocialFeePdaCreatedEvent::decode(event_data) {
             return Some(CpiEvent::SocialFeePdaCreated(decoded));
         }
-        if let Some(decoded) = events::transfer_fee_sharing_authority_event::TransferFeeSharingAuthorityEventEvent::decode(event_data) {
-            return Some(CpiEvent::TransferFeeSharingAuthorityEvent(decoded));
+                if let Some(decoded) = events::sweep_buyback_event::SweepBuybackEventEvent::decode(event_data) {
+            return Some(CpiEvent::SweepBuybackEvent(decoded));
         }
-        if let Some(decoded) = events::update_admin_event::UpdateAdminEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::update_admin_event::UpdateAdminEventEvent::decode(event_data) {
             return Some(CpiEvent::UpdateAdminEvent(decoded));
         }
-        if let Some(decoded) =
-            events::update_fee_config_event::UpdateFeeConfigEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::update_fee_config_event::UpdateFeeConfigEventEvent::decode(event_data) {
             return Some(CpiEvent::UpdateFeeConfigEvent(decoded));
         }
-        if let Some(decoded) =
-            events::update_fee_shares_event::UpdateFeeSharesEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::update_fee_shares_event::UpdateFeeSharesEventEvent::decode(event_data) {
             return Some(CpiEvent::UpdateFeeSharesEvent(decoded));
         }
-        if let Some(decoded) =
-            events::upsert_fee_tiers_event::UpsertFeeTiersEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::upsert_fee_tiers_event::UpsertFeeTiersEventEvent::decode(event_data) {
             return Some(CpiEvent::UpsertFeeTiersEvent(decoded));
         }
-        None
+                None
     }
 }
 
@@ -168,3 +110,4 @@ impl ArrangeAccounts for CpiEvent {
         })
     }
 }
+

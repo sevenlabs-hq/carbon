@@ -2,7 +2,6 @@
 use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::U8;
 use juniper::GraphQLObject;
-
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "SetDisableFlagsEvent")]
 pub struct SetDisableFlagsEventGraphQL {

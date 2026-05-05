@@ -22,3 +22,4 @@ pub mod sync_user_volume_accumulator_event;
 pub mod update_admin_event;
 pub mod update_fee_config_event;
 pub mod withdraw_event;
+

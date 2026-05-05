@@ -10,22 +10,15 @@ pub struct WithdrawRow {
     pub lp_token_amount_in: U64,
     pub min_base_amount_out: U64,
     pub min_quote_amount_out: U64,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl WithdrawRow {
-    pub fn from_parts(
-        source: crate::instructions::withdraw::Withdraw,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(source: crate::instructions::withdraw::Withdraw, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             lp_token_amount_in: source.lp_token_amount_in.into(),
             min_base_amount_out: source.min_base_amount_out.into(),
             min_quote_amount_out: source.min_quote_amount_out.into(),
-            accounts: sqlx::types::Json(accounts),
         }
     }
 }
@@ -55,7 +48,6 @@ impl carbon_core::postgres::operations::Table for crate::instructions::withdraw:
             "lp_token_amount_in",
             "min_base_amount_out",
             "min_quote_amount_out",
-            "__accounts",
         ]
     }
 }
@@ -63,27 +55,23 @@ impl carbon_core::postgres::operations::Table for crate::instructions::withdraw:
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for WithdrawRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO withdraw_instruction (
                 "lp_token_amount_in",
                 "min_base_amount_out",
                 "min_quote_amount_out",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
-            )"#,
-        )
-        .bind(&self.lp_token_amount_in)
-        .bind(&self.min_base_amount_out)
-        .bind(&self.min_quote_amount_out)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4, $5, $6, $7
+            )"#)
+        .bind(self.lp_token_amount_in.clone())
+        .bind(self.min_base_amount_out.clone())
+        .bind(self.min_quote_amount_out.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -92,14 +80,13 @@ impl carbon_core::postgres::operations::Insert for WithdrawRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for WithdrawRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO withdraw_instruction (
+        sqlx::query(r#"INSERT INTO withdraw_instruction (
                 "lp_token_amount_in",
                 "min_base_amount_out",
                 "min_quote_amount_out",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -108,20 +95,16 @@ impl carbon_core::postgres::operations::Upsert for WithdrawRow {
                 "min_quote_amount_out" = EXCLUDED."min_quote_amount_out",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(&self.lp_token_amount_in)
-        .bind(&self.min_base_amount_out)
-        .bind(&self.min_quote_amount_out)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.lp_token_amount_in.clone())
+        .bind(self.min_base_amount_out.clone())
+        .bind(self.min_quote_amount_out.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -129,23 +112,16 @@ impl carbon_core::postgres::operations::Upsert for WithdrawRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for WithdrawRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM withdraw_instruction WHERE
+        sqlx::query(r#"DELETE FROM withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -153,26 +129,16 @@ impl carbon_core::postgres::operations::Delete for WithdrawRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for WithdrawRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -182,12 +148,8 @@ pub struct WithdrawMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS withdraw_instruction (
                 -- Instruction data
                 "lp_token_amount_in" NUMERIC(20) NOT NULL,
                 "min_base_amount_out" NUMERIC(20) NOT NULL,
@@ -197,22 +159,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawMigrationOperation {
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

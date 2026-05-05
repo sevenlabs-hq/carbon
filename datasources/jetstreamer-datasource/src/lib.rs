@@ -125,6 +125,9 @@ impl Datasource for JetstreamerDatasource {
 
         jetstreamer_firehose::firehose::firehose(
             self.threads,
+            false,
+            false,
+            None,
             start_slot..end_slot,
             if include_blocks {
                 Some(on_block_fn)

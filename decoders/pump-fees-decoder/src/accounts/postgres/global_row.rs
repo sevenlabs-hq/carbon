@@ -34,7 +34,7 @@ impl GlobalRow {
     pub fn from_parts(source: crate::accounts::global::Global, metadata: AccountMetadata) -> Self {
         Self {
             account_metadata: metadata.into(),
-            initialized: source.initialized,
+            initialized: source.initialized.into(),
             authority: source.authority.into(),
             fee_recipient: source.fee_recipient.into(),
             initial_virtual_token_reserves: source.initial_virtual_token_reserves.into(),
@@ -43,25 +43,17 @@ impl GlobalRow {
             token_total_supply: source.token_total_supply.into(),
             fee_basis_points: source.fee_basis_points.into(),
             withdraw_authority: source.withdraw_authority.into(),
-            enable_migrate: source.enable_migrate,
+            enable_migrate: source.enable_migrate.into(),
             pool_migration_fee: source.pool_migration_fee.into(),
             creator_fee_basis_points: source.creator_fee_basis_points.into(),
-            fee_recipients: source
-                .fee_recipients
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            fee_recipients: source.fee_recipients.into_iter().map(|element| element.into()).collect(),
             set_creator_authority: source.set_creator_authority.into(),
             admin_set_creator_authority: source.admin_set_creator_authority.into(),
-            create_v2_enabled: source.create_v2_enabled,
+            create_v2_enabled: source.create_v2_enabled.into(),
             whitelist_pda: source.whitelist_pda.into(),
             reserved_fee_recipient: source.reserved_fee_recipient.into(),
-            mayhem_mode_enabled: source.mayhem_mode_enabled,
-            reserved_fee_recipients: source
-                .reserved_fee_recipients
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            mayhem_mode_enabled: source.mayhem_mode_enabled.into(),
+            reserved_fee_recipients: source.reserved_fee_recipients.into_iter().map(|element| element.into()).collect(),
         }
     }
 }
@@ -70,7 +62,7 @@ impl TryFrom<GlobalRow> for crate::accounts::global::Global {
     type Error = carbon_core::error::Error;
     fn try_from(source: GlobalRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            initialized: source.initialized,
+            initialized: source.initialized.into(),
             authority: *source.authority,
             fee_recipient: *source.fee_recipient,
             initial_virtual_token_reserves: *source.initial_virtual_token_reserves,
@@ -79,47 +71,17 @@ impl TryFrom<GlobalRow> for crate::accounts::global::Global {
             token_total_supply: *source.token_total_supply,
             fee_basis_points: *source.fee_basis_points,
             withdraw_authority: *source.withdraw_authority,
-            enable_migrate: source.enable_migrate,
+            enable_migrate: source.enable_migrate.into(),
             pool_migration_fee: *source.pool_migration_fee,
             creator_fee_basis_points: *source.creator_fee_basis_points,
-            fee_recipients: source
-                .fee_recipients
-                .into_iter()
-                .map(|element| Ok(*element))
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to collect array elements".to_string(),
-                    )
-                })?
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            fee_recipients: source.fee_recipients.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
             set_creator_authority: *source.set_creator_authority,
             admin_set_creator_authority: *source.admin_set_creator_authority,
-            create_v2_enabled: source.create_v2_enabled,
+            create_v2_enabled: source.create_v2_enabled.into(),
             whitelist_pda: *source.whitelist_pda,
             reserved_fee_recipient: *source.reserved_fee_recipient,
-            mayhem_mode_enabled: source.mayhem_mode_enabled,
-            reserved_fee_recipients: source
-                .reserved_fee_recipients
-                .into_iter()
-                .map(|element| Ok(*element))
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to collect array elements".to_string(),
-                    )
-                })?
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            mayhem_mode_enabled: source.mayhem_mode_enabled.into(),
+            reserved_fee_recipients: source.reserved_fee_recipients.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
         })
     }
 }
@@ -186,28 +148,28 @@ impl carbon_core::postgres::operations::Insert for GlobalRow {
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22
             )"#)
-        .bind(self.initialized)
-        .bind(self.authority)
-        .bind(self.fee_recipient)
-        .bind(&self.initial_virtual_token_reserves)
-        .bind(&self.initial_virtual_sol_reserves)
-        .bind(&self.initial_real_token_reserves)
-        .bind(&self.token_total_supply)
-        .bind(&self.fee_basis_points)
-        .bind(self.withdraw_authority)
-        .bind(self.enable_migrate)
-        .bind(&self.pool_migration_fee)
-        .bind(&self.creator_fee_basis_points)
-        .bind(&self.fee_recipients)
-        .bind(self.set_creator_authority)
-        .bind(self.admin_set_creator_authority)
-        .bind(self.create_v2_enabled)
-        .bind(self.whitelist_pda)
-        .bind(self.reserved_fee_recipient)
-        .bind(self.mayhem_mode_enabled)
-        .bind(&self.reserved_fee_recipients)
-        .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
+        .bind(self.initialized.clone())
+        .bind(self.authority.clone())
+        .bind(self.fee_recipient.clone())
+        .bind(self.initial_virtual_token_reserves.clone())
+        .bind(self.initial_virtual_sol_reserves.clone())
+        .bind(self.initial_real_token_reserves.clone())
+        .bind(self.token_total_supply.clone())
+        .bind(self.fee_basis_points.clone())
+        .bind(self.withdraw_authority.clone())
+        .bind(self.enable_migrate.clone())
+        .bind(self.pool_migration_fee.clone())
+        .bind(self.creator_fee_basis_points.clone())
+        .bind(self.fee_recipients.clone())
+        .bind(self.set_creator_authority.clone())
+        .bind(self.admin_set_creator_authority.clone())
+        .bind(self.create_v2_enabled.clone())
+        .bind(self.whitelist_pda.clone())
+        .bind(self.reserved_fee_recipient.clone())
+        .bind(self.mayhem_mode_enabled.clone())
+        .bind(self.reserved_fee_recipients.clone())
+        .bind(self.account_metadata.pubkey.clone())
+        .bind(self.account_metadata.slot.clone())
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
@@ -266,28 +228,28 @@ impl carbon_core::postgres::operations::Upsert for GlobalRow {
                 "reserved_fee_recipients" = EXCLUDED."reserved_fee_recipients",
                 __slot = EXCLUDED.__slot
             "#)
-        .bind(self.initialized)
-        .bind(self.authority)
-        .bind(self.fee_recipient)
-        .bind(&self.initial_virtual_token_reserves)
-        .bind(&self.initial_virtual_sol_reserves)
-        .bind(&self.initial_real_token_reserves)
-        .bind(&self.token_total_supply)
-        .bind(&self.fee_basis_points)
-        .bind(self.withdraw_authority)
-        .bind(self.enable_migrate)
-        .bind(&self.pool_migration_fee)
-        .bind(&self.creator_fee_basis_points)
-        .bind(&self.fee_recipients)
-        .bind(self.set_creator_authority)
-        .bind(self.admin_set_creator_authority)
-        .bind(self.create_v2_enabled)
-        .bind(self.whitelist_pda)
-        .bind(self.reserved_fee_recipient)
-        .bind(self.mayhem_mode_enabled)
-        .bind(&self.reserved_fee_recipients)
+        .bind(self.initialized.clone())
+        .bind(self.authority.clone())
+        .bind(self.fee_recipient.clone())
+        .bind(self.initial_virtual_token_reserves.clone())
+        .bind(self.initial_virtual_sol_reserves.clone())
+        .bind(self.initial_real_token_reserves.clone())
+        .bind(self.token_total_supply.clone())
+        .bind(self.fee_basis_points.clone())
+        .bind(self.withdraw_authority.clone())
+        .bind(self.enable_migrate.clone())
+        .bind(self.pool_migration_fee.clone())
+        .bind(self.creator_fee_basis_points.clone())
+        .bind(self.fee_recipients.clone())
+        .bind(self.set_creator_authority.clone())
+        .bind(self.admin_set_creator_authority.clone())
+        .bind(self.create_v2_enabled.clone())
+        .bind(self.whitelist_pda.clone())
+        .bind(self.reserved_fee_recipient.clone())
+        .bind(self.mayhem_mode_enabled.clone())
+        .bind(self.reserved_fee_recipients.clone())
         .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
+        .bind(self.account_metadata.slot.clone())
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
@@ -299,14 +261,11 @@ impl carbon_core::postgres::operations::Delete for GlobalRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM global_account WHERE
+        sqlx::query(r#"DELETE FROM global_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -316,18 +275,12 @@ impl carbon_core::postgres::operations::Delete for GlobalRow {
 impl carbon_core::postgres::operations::LookUp for GlobalRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM global_account WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM global_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -337,12 +290,8 @@ pub struct GlobalMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS global_account (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS global_account (
                 -- Account data
                 "initialized" BOOLEAN NOT NULL,
                 "authority" BYTEA NOT NULL,
@@ -368,20 +317,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalMigrationOperation {
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS global_account"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS global_account"#).execute(connection).await?;
         Ok(())
     }
 }

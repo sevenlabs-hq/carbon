@@ -13,28 +13,17 @@ pub struct UpdateFeeConfigRow {
     pub protocol_fee_recipients: Vec<Pubkey>,
     pub coin_creator_fee_basis_points: U64,
     pub admin_set_coin_creator_authority: Pubkey,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl UpdateFeeConfigRow {
-    pub fn from_parts(
-        source: crate::instructions::update_fee_config::UpdateFeeConfig,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(source: crate::instructions::update_fee_config::UpdateFeeConfig, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             lp_fee_basis_points: source.lp_fee_basis_points.into(),
             protocol_fee_basis_points: source.protocol_fee_basis_points.into(),
-            protocol_fee_recipients: source
-                .protocol_fee_recipients
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            protocol_fee_recipients: source.protocol_fee_recipients.into_iter().map(|element| element.into()).collect(),
             coin_creator_fee_basis_points: source.coin_creator_fee_basis_points.into(),
             admin_set_coin_creator_authority: source.admin_set_coin_creator_authority.into(),
-            accounts: sqlx::types::Json(accounts),
         }
     }
 }
@@ -45,31 +34,14 @@ impl TryFrom<UpdateFeeConfigRow> for crate::instructions::update_fee_config::Upd
         Ok(Self {
             lp_fee_basis_points: *source.lp_fee_basis_points,
             protocol_fee_basis_points: *source.protocol_fee_basis_points,
-            protocol_fee_recipients: source
-                .protocol_fee_recipients
-                .into_iter()
-                .map(|element| Ok(*element))
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to collect array elements".to_string(),
-                    )
-                })?
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            protocol_fee_recipients: source.protocol_fee_recipients.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
             coin_creator_fee_basis_points: *source.coin_creator_fee_basis_points,
             admin_set_coin_creator_authority: *source.admin_set_coin_creator_authority,
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table
-    for crate::instructions::update_fee_config::UpdateFeeConfig
-{
+impl carbon_core::postgres::operations::Table for crate::instructions::update_fee_config::UpdateFeeConfig {
     fn table() -> &'static str {
         "update_fee_config_instruction"
     }
@@ -85,7 +57,6 @@ impl carbon_core::postgres::operations::Table
             "protocol_fee_recipients",
             "coin_creator_fee_basis_points",
             "admin_set_coin_creator_authority",
-            "__accounts",
         ]
     }
 }
@@ -93,31 +64,27 @@ impl carbon_core::postgres::operations::Table
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for UpdateFeeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO update_fee_config_instruction (
                 "lp_fee_basis_points",
                 "protocol_fee_basis_points",
                 "protocol_fee_recipients",
                 "coin_creator_fee_basis_points",
                 "admin_set_coin_creator_authority",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
-            )"#,
-        )
-        .bind(&self.lp_fee_basis_points)
-        .bind(&self.protocol_fee_basis_points)
-        .bind(&self.protocol_fee_recipients)
-        .bind(&self.coin_creator_fee_basis_points)
-        .bind(self.admin_set_coin_creator_authority)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4, $5, $6, $7, $8, $9
+            )"#)
+        .bind(self.lp_fee_basis_points.clone())
+        .bind(self.protocol_fee_basis_points.clone())
+        .bind(self.protocol_fee_recipients.clone())
+        .bind(self.coin_creator_fee_basis_points.clone())
+        .bind(self.admin_set_coin_creator_authority.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -126,16 +93,15 @@ impl carbon_core::postgres::operations::Insert for UpdateFeeConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UpdateFeeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO update_fee_config_instruction (
+        sqlx::query(r#"INSERT INTO update_fee_config_instruction (
                 "lp_fee_basis_points",
                 "protocol_fee_basis_points",
                 "protocol_fee_recipients",
                 "coin_creator_fee_basis_points",
                 "admin_set_coin_creator_authority",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+                $1, $2, $3, $4, $5, $6, $7, $8, $9
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -146,22 +112,18 @@ impl carbon_core::postgres::operations::Upsert for UpdateFeeConfigRow {
                 "admin_set_coin_creator_authority" = EXCLUDED."admin_set_coin_creator_authority",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(&self.lp_fee_basis_points)
-        .bind(&self.protocol_fee_basis_points)
-        .bind(&self.protocol_fee_recipients)
-        .bind(&self.coin_creator_fee_basis_points)
-        .bind(self.admin_set_coin_creator_authority)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.lp_fee_basis_points.clone())
+        .bind(self.protocol_fee_basis_points.clone())
+        .bind(self.protocol_fee_recipients.clone())
+        .bind(self.coin_creator_fee_basis_points.clone())
+        .bind(self.admin_set_coin_creator_authority.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -169,23 +131,16 @@ impl carbon_core::postgres::operations::Upsert for UpdateFeeConfigRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for UpdateFeeConfigRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM update_fee_config_instruction WHERE
+        sqlx::query(r#"DELETE FROM update_fee_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -193,26 +148,16 @@ impl carbon_core::postgres::operations::Delete for UpdateFeeConfigRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for UpdateFeeConfigRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM update_fee_config_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM update_fee_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -222,12 +167,8 @@ pub struct UpdateFeeConfigMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFeeConfigMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_fee_config_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS update_fee_config_instruction (
                 -- Instruction data
                 "lp_fee_basis_points" NUMERIC(20) NOT NULL,
                 "protocol_fee_basis_points" NUMERIC(20) NOT NULL,
@@ -239,22 +180,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFeeConfigMigrationOperat
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_fee_config_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS update_fee_config_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

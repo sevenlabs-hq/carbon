@@ -13,14 +13,10 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::BondingCurveGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(
-            solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
-        );
-        let row = crate::accounts::postgres::BondingCurveRow::lookup(pk, &context.pool)
-            .await
+        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
+        let row = crate::accounts::postgres::BondingCurveRow::lookup(pk, &context.pool).await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.and_then(|row| row.try_into().ok()))
+        Ok(row.map(|row| row.try_into().ok()).flatten())
     }
 
     async fn list_bonding_curve(
@@ -36,10 +32,35 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+    }
+
+    async fn buyback_vault(
+        context: &crate::graphql::context::GraphQLContext,
+        pubkey: String,
+    ) -> FieldResult<Option<crate::accounts::graphql::BuybackVaultGraphQL>> {
+        use carbon_core::postgres::operations::LookUp;
+        use carbon_core::postgres::primitives::Pubkey as PgPubkey;
+        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
+        let row = crate::accounts::postgres::BuybackVaultRow::lookup(pk, &context.pool).await
+            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(row.map(|row| row.try_into().ok()).flatten())
+    }
+
+    async fn list_buyback_vault(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::accounts::graphql::BuybackVaultGraphQL>> {
+        let rows: Vec<crate::accounts::postgres::BuybackVaultRow> = sqlx::query_as(
+            r#"SELECT * FROM buyback_vault_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn fee_config(
@@ -48,14 +69,10 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::FeeConfigGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(
-            solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
-        );
-        let row = crate::accounts::postgres::FeeConfigRow::lookup(pk, &context.pool)
-            .await
+        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
+        let row = crate::accounts::postgres::FeeConfigRow::lookup(pk, &context.pool).await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.and_then(|row| row.try_into().ok()))
+        Ok(row.map(|row| row.try_into().ok()).flatten())
     }
 
     async fn list_fee_config(
@@ -71,10 +88,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn fee_program_global(
@@ -83,14 +97,10 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::FeeProgramGlobalGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(
-            solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
-        );
-        let row = crate::accounts::postgres::FeeProgramGlobalRow::lookup(pk, &context.pool)
-            .await
+        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
+        let row = crate::accounts::postgres::FeeProgramGlobalRow::lookup(pk, &context.pool).await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.and_then(|row| row.try_into().ok()))
+        Ok(row.map(|row| row.try_into().ok()).flatten())
     }
 
     async fn list_fee_program_global(
@@ -106,10 +116,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn global(
@@ -118,14 +125,10 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::GlobalGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(
-            solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
-        );
-        let row = crate::accounts::postgres::GlobalRow::lookup(pk, &context.pool)
-            .await
+        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
+        let row = crate::accounts::postgres::GlobalRow::lookup(pk, &context.pool).await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.and_then(|row| row.try_into().ok()))
+        Ok(row.map(|row| row.try_into().ok()).flatten())
     }
 
     async fn list_global(
@@ -141,10 +144,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn pool(
@@ -153,14 +153,10 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::PoolGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(
-            solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
-        );
-        let row = crate::accounts::postgres::PoolRow::lookup(pk, &context.pool)
-            .await
+        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
+        let row = crate::accounts::postgres::PoolRow::lookup(pk, &context.pool).await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.and_then(|row| row.try_into().ok()))
+        Ok(row.map(|row| row.try_into().ok()).flatten())
     }
 
     async fn list_pool(
@@ -168,17 +164,15 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::PoolGraphQL>> {
-        let rows: Vec<crate::accounts::postgres::PoolRow> =
-            sqlx::query_as(r#"SELECT * FROM pool_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        let rows: Vec<crate::accounts::postgres::PoolRow> = sqlx::query_as(
+            r#"SELECT * FROM pool_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn sharing_config(
@@ -187,14 +181,10 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::SharingConfigGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(
-            solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
-        );
-        let row = crate::accounts::postgres::SharingConfigRow::lookup(pk, &context.pool)
-            .await
+        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
+        let row = crate::accounts::postgres::SharingConfigRow::lookup(pk, &context.pool).await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.and_then(|row| row.try_into().ok()))
+        Ok(row.map(|row| row.try_into().ok()).flatten())
     }
 
     async fn list_sharing_config(
@@ -210,10 +200,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn social_fee_pda(
@@ -222,14 +209,10 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::SocialFeePdaGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(
-            solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
-        );
-        let row = crate::accounts::postgres::SocialFeePdaRow::lookup(pk, &context.pool)
-            .await
+        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
+        let row = crate::accounts::postgres::SocialFeePdaRow::lookup(pk, &context.pool).await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.and_then(|row| row.try_into().ok()))
+        Ok(row.map(|row| row.try_into().ok()).flatten())
     }
 
     async fn list_social_fee_pda(
@@ -245,10 +228,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     // Instructions (per-instruction list and lookup by signature+index)
@@ -265,10 +245,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_claim_social_fee_pda(
@@ -284,48 +261,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn create_fee_sharing_config(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreateFeeSharingConfigGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CreateFeeSharingConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM create_fee_sharing_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn list_create_fee_sharing_config(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreateFeeSharingConfigGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CreateFeeSharingConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM create_fee_sharing_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn create_social_fee_pda(
@@ -341,10 +277,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_create_social_fee_pda(
@@ -360,10 +293,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn get_fees(
@@ -379,10 +309,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_get_fees(
@@ -398,48 +325,39 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
-    async fn initialize_fee_config(
+    async fn initialize_buyback(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeFeeConfigGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::InitializeFeeConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_fee_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeBuybackGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::InitializeBuybackRow> = sqlx::query_as(
+            r#"SELECT * FROM initialize_buyback_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
-    async fn list_initialize_fee_config(
+    async fn list_initialize_buyback(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeFeeConfigGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::InitializeFeeConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_fee_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeBuybackGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::InitializeBuybackRow> = sqlx::query_as(
+            r#"SELECT * FROM initialize_buyback_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn initialize_fee_program_global(
@@ -455,10 +373,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_initialize_fee_program_global(
@@ -474,86 +389,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn reset_fee_sharing_config(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ResetFeeSharingConfigGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ResetFeeSharingConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM reset_fee_sharing_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn list_reset_fee_sharing_config(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ResetFeeSharingConfigGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ResetFeeSharingConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM reset_fee_sharing_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn revoke_fee_sharing_authority(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RevokeFeeSharingAuthorityGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RevokeFeeSharingAuthorityRow> = sqlx::query_as(
-            r#"SELECT * FROM revoke_fee_sharing_authority_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn list_revoke_fee_sharing_authority(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RevokeFeeSharingAuthorityGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RevokeFeeSharingAuthorityRow> = sqlx::query_as(
-            r#"SELECT * FROM revoke_fee_sharing_authority_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn set_authority(
@@ -569,10 +405,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_set_authority(
@@ -588,10 +421,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn set_claim_rate_limit(
@@ -607,10 +437,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_set_claim_rate_limit(
@@ -626,10 +453,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn set_disable_flags(
@@ -645,10 +469,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_set_disable_flags(
@@ -664,10 +485,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn set_social_claim_authority(
@@ -683,10 +501,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_set_social_claim_authority(
@@ -702,86 +517,103 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
-    async fn transfer_fee_sharing_authority(
+    async fn sweep_buyback(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::TransferFeeSharingAuthorityGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::TransferFeeSharingAuthorityRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_fee_sharing_authority_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SweepBuybackGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SweepBuybackRow> = sqlx::query_as(
+            r#"SELECT * FROM sweep_buyback_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
-    async fn list_transfer_fee_sharing_authority(
+    async fn list_sweep_buyback(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::TransferFeeSharingAuthorityGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::TransferFeeSharingAuthorityRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_fee_sharing_authority_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SweepBuybackGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SweepBuybackRow> = sqlx::query_as(
+            r#"SELECT * FROM sweep_buyback_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
-    async fn update_admin(
+    async fn update_buyback_authority(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateAdminGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::UpdateAdminRow> = sqlx::query_as(
-            r#"SELECT * FROM update_admin_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateBuybackAuthorityGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UpdateBuybackAuthorityRow> = sqlx::query_as(
+            r#"SELECT * FROM update_buyback_authority_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
-    async fn list_update_admin(
+    async fn list_update_buyback_authority(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateAdminGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::UpdateAdminRow> = sqlx::query_as(
-            r#"SELECT * FROM update_admin_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateBuybackAuthorityGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UpdateBuybackAuthorityRow> = sqlx::query_as(
+            r#"SELECT * FROM update_buyback_authority_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+    }
+
+    async fn update_buyback_claim_rate_limit(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateBuybackClaimRateLimitGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UpdateBuybackClaimRateLimitRow> = sqlx::query_as(
+            r#"SELECT * FROM update_buyback_claim_rate_limit_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+    }
+
+    async fn list_update_buyback_claim_rate_limit(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateBuybackClaimRateLimitGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UpdateBuybackClaimRateLimitRow> = sqlx::query_as(
+            r#"SELECT * FROM update_buyback_claim_rate_limit_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn update_fee_config(
@@ -797,10 +629,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_update_fee_config(
@@ -816,10 +645,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn update_fee_shares(
@@ -835,10 +661,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_update_fee_shares(
@@ -854,10 +677,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn upsert_fee_tiers(
@@ -873,10 +693,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_upsert_fee_tiers(
@@ -892,10 +709,7 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 
     async fn list_cpi_events(
@@ -903,16 +717,14 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CpiEventRow> =
-            sqlx::query_as(r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
+        let rows: Vec<crate::instructions::postgres::CpiEventRow> = sqlx::query_as(
+            r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
 }

@@ -781,9 +781,9 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
 ///     AllInstructionTypesEnum,
 ///     AllProgramsEnum,
 ///     // 4-part (preferred): Variant => ProgramIdPath => DecoderExpr => InstructionTypePath
-///     Pumpfun => carbon_pumpfun_decoder::PROGRAM_ID => carbon_pumpfun_decoder::PumpfunDecoder => carbon_pumpfun_decoder::instructions::PumpfunInstruction,
+///     Pumpfun => carbon_pumpfun_decoder::PROGRAM_ID => carbon_pumpfun_decoder::PumpfunDecoder => carbon_pumpfun_decoder::instructions::PumpInstruction,
 ///     // 3-part (legacy): falls back to slow sequential decode
-///     PumpSwap => carbon_pump_swap_decoder::PumpSwapDecoder => carbon_pump_swap_decoder::instructions::PumpSwapInstruction,
+///     PumpSwap => carbon_pump_swap_decoder::PumpAmmDecoder => carbon_pump_swap_decoder::instructions::PumpAmmInstruction,
 /// );
 /// ```
 #[proc_macro]

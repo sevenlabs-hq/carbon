@@ -24,15 +24,9 @@ impl TryFrom<crate::accounts::postgres::FeeProgramGlobalRow> for FeeProgramGloba
             bump: carbon_core::graphql::primitives::U8((*row.bump) as u8),
             authority: carbon_core::graphql::primitives::Pubkey(row.authority.0),
             disable_flags: carbon_core::graphql::primitives::U8((*row.disable_flags) as u8),
-            social_claim_authority: carbon_core::graphql::primitives::Pubkey(
-                row.social_claim_authority.0,
-            ),
+            social_claim_authority: carbon_core::graphql::primitives::Pubkey(row.social_claim_authority.0),
             claim_rate_limit: carbon_core::graphql::primitives::U64(*row.claim_rate_limit),
-            reserved: row
-                .reserved
-                .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U8((*item) as u8))
-                .collect(),
+            reserved: row.reserved.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect(),
         })
     }
 }

@@ -2,55 +2,30 @@
 
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
-
 pub use super::super::events;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(
-    Debug,
-    Clone,
-    carbon_core::borsh::BorshSerialize,
-    carbon_core::borsh::BorshDeserialize,
-    PartialEq,
-)]
+#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
 pub enum CpiEvent {
     AdminSetCoinCreatorEvent(events::admin_set_coin_creator_event::AdminSetCoinCreatorEventEvent),
-    AdminUpdateTokenIncentivesEvent(
-        events::admin_update_token_incentives_event::AdminUpdateTokenIncentivesEventEvent,
-    ),
+    AdminUpdateTokenIncentivesEvent(events::admin_update_token_incentives_event::AdminUpdateTokenIncentivesEventEvent),
     BuyEvent(events::buy_event::BuyEventEvent),
     ClaimCashbackEvent(events::claim_cashback_event::ClaimCashbackEventEvent),
     ClaimTokenIncentivesEvent(events::claim_token_incentives_event::ClaimTokenIncentivesEventEvent),
-    CloseUserVolumeAccumulatorEvent(
-        events::close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEventEvent,
-    ),
-    CollectCoinCreatorFeeEvent(
-        events::collect_coin_creator_fee_event::CollectCoinCreatorFeeEventEvent,
-    ),
+    CloseUserVolumeAccumulatorEvent(events::close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEventEvent),
+    CollectCoinCreatorFeeEvent(events::collect_coin_creator_fee_event::CollectCoinCreatorFeeEventEvent),
     CreateConfigEvent(events::create_config_event::CreateConfigEventEvent),
     CreatePoolEvent(events::create_pool_event::CreatePoolEventEvent),
     DepositEvent(events::deposit_event::DepositEventEvent),
     DisableEvent(events::disable_event::DisableEventEvent),
     ExtendAccountEvent(events::extend_account_event::ExtendAccountEventEvent),
-    InitUserVolumeAccumulatorEvent(
-        events::init_user_volume_accumulator_event::InitUserVolumeAccumulatorEventEvent,
-    ),
-    MigratePoolCoinCreatorEvent(
-        events::migrate_pool_coin_creator_event::MigratePoolCoinCreatorEventEvent,
-    ),
-    ReservedFeeRecipientsEvent(
-        events::reserved_fee_recipients_event::ReservedFeeRecipientsEventEvent,
-    ),
+    InitUserVolumeAccumulatorEvent(events::init_user_volume_accumulator_event::InitUserVolumeAccumulatorEventEvent),
+    MigratePoolCoinCreatorEvent(events::migrate_pool_coin_creator_event::MigratePoolCoinCreatorEventEvent),
+    ReservedFeeRecipientsEvent(events::reserved_fee_recipients_event::ReservedFeeRecipientsEventEvent),
     SellEvent(events::sell_event::SellEventEvent),
-    SetBondingCurveCoinCreatorEvent(
-        events::set_bonding_curve_coin_creator_event::SetBondingCurveCoinCreatorEventEvent,
-    ),
-    SetMetaplexCoinCreatorEvent(
-        events::set_metaplex_coin_creator_event::SetMetaplexCoinCreatorEventEvent,
-    ),
-    SyncUserVolumeAccumulatorEvent(
-        events::sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEventEvent,
-    ),
+    SetBondingCurveCoinCreatorEvent(events::set_bonding_curve_coin_creator_event::SetBondingCurveCoinCreatorEventEvent),
+    SetMetaplexCoinCreatorEvent(events::set_metaplex_coin_creator_event::SetMetaplexCoinCreatorEventEvent),
+    SyncUserVolumeAccumulatorEvent(events::sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEventEvent),
     UpdateAdminEvent(events::update_admin_event::UpdateAdminEventEvent),
     UpdateFeeConfigEvent(events::update_fee_config_event::UpdateFeeConfigEventEvent),
     WithdrawEvent(events::withdraw_event::WithdrawEventEvent),
@@ -70,116 +45,79 @@ impl CpiEvent {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [228, 69, 165, 46, 81, 203, 154, 29] {
+        if discriminator != &[228, 69, 165, 46, 81, 203, 154, 29] {
             return None;
         }
 
         let event_data = &data[8..];
 
-        if let Some(decoded) =
-            events::admin_set_coin_creator_event::AdminSetCoinCreatorEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::admin_set_coin_creator_event::AdminSetCoinCreatorEventEvent::decode(event_data) {
             return Some(CpiEvent::AdminSetCoinCreatorEvent(decoded));
         }
-        if let Some(decoded) = events::admin_update_token_incentives_event::AdminUpdateTokenIncentivesEventEvent::decode(event_data) {
+                if let Some(decoded) = events::admin_update_token_incentives_event::AdminUpdateTokenIncentivesEventEvent::decode(event_data) {
             return Some(CpiEvent::AdminUpdateTokenIncentivesEvent(decoded));
         }
-        if let Some(decoded) = events::buy_event::BuyEventEvent::decode(event_data) {
+                if let Some(decoded) = events::buy_event::BuyEventEvent::decode(event_data) {
             return Some(CpiEvent::BuyEvent(decoded));
         }
-        if let Some(decoded) =
-            events::claim_cashback_event::ClaimCashbackEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::claim_cashback_event::ClaimCashbackEventEvent::decode(event_data) {
             return Some(CpiEvent::ClaimCashbackEvent(decoded));
         }
-        if let Some(decoded) =
-            events::claim_token_incentives_event::ClaimTokenIncentivesEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::claim_token_incentives_event::ClaimTokenIncentivesEventEvent::decode(event_data) {
             return Some(CpiEvent::ClaimTokenIncentivesEvent(decoded));
         }
-        if let Some(decoded) = events::close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEventEvent::decode(event_data) {
+                if let Some(decoded) = events::close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEventEvent::decode(event_data) {
             return Some(CpiEvent::CloseUserVolumeAccumulatorEvent(decoded));
         }
-        if let Some(decoded) =
-            events::collect_coin_creator_fee_event::CollectCoinCreatorFeeEventEvent::decode(
-                event_data,
-            )
-        {
+                if let Some(decoded) = events::collect_coin_creator_fee_event::CollectCoinCreatorFeeEventEvent::decode(event_data) {
             return Some(CpiEvent::CollectCoinCreatorFeeEvent(decoded));
         }
-        if let Some(decoded) =
-            events::create_config_event::CreateConfigEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::create_config_event::CreateConfigEventEvent::decode(event_data) {
             return Some(CpiEvent::CreateConfigEvent(decoded));
         }
-        if let Some(decoded) = events::create_pool_event::CreatePoolEventEvent::decode(event_data) {
+                if let Some(decoded) = events::create_pool_event::CreatePoolEventEvent::decode(event_data) {
             return Some(CpiEvent::CreatePoolEvent(decoded));
         }
-        if let Some(decoded) = events::deposit_event::DepositEventEvent::decode(event_data) {
+                if let Some(decoded) = events::deposit_event::DepositEventEvent::decode(event_data) {
             return Some(CpiEvent::DepositEvent(decoded));
         }
-        if let Some(decoded) = events::disable_event::DisableEventEvent::decode(event_data) {
+                if let Some(decoded) = events::disable_event::DisableEventEvent::decode(event_data) {
             return Some(CpiEvent::DisableEvent(decoded));
         }
-        if let Some(decoded) =
-            events::extend_account_event::ExtendAccountEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::extend_account_event::ExtendAccountEventEvent::decode(event_data) {
             return Some(CpiEvent::ExtendAccountEvent(decoded));
         }
-        if let Some(decoded) =
-            events::init_user_volume_accumulator_event::InitUserVolumeAccumulatorEventEvent::decode(
-                event_data,
-            )
-        {
+                if let Some(decoded) = events::init_user_volume_accumulator_event::InitUserVolumeAccumulatorEventEvent::decode(event_data) {
             return Some(CpiEvent::InitUserVolumeAccumulatorEvent(decoded));
         }
-        if let Some(decoded) =
-            events::migrate_pool_coin_creator_event::MigratePoolCoinCreatorEventEvent::decode(
-                event_data,
-            )
-        {
+                if let Some(decoded) = events::migrate_pool_coin_creator_event::MigratePoolCoinCreatorEventEvent::decode(event_data) {
             return Some(CpiEvent::MigratePoolCoinCreatorEvent(decoded));
         }
-        if let Some(decoded) =
-            events::reserved_fee_recipients_event::ReservedFeeRecipientsEventEvent::decode(
-                event_data,
-            )
-        {
+                if let Some(decoded) = events::reserved_fee_recipients_event::ReservedFeeRecipientsEventEvent::decode(event_data) {
             return Some(CpiEvent::ReservedFeeRecipientsEvent(decoded));
         }
-        if let Some(decoded) = events::sell_event::SellEventEvent::decode(event_data) {
+                if let Some(decoded) = events::sell_event::SellEventEvent::decode(event_data) {
             return Some(CpiEvent::SellEvent(decoded));
         }
-        if let Some(decoded) = events::set_bonding_curve_coin_creator_event::SetBondingCurveCoinCreatorEventEvent::decode(event_data) {
+                if let Some(decoded) = events::set_bonding_curve_coin_creator_event::SetBondingCurveCoinCreatorEventEvent::decode(event_data) {
             return Some(CpiEvent::SetBondingCurveCoinCreatorEvent(decoded));
         }
-        if let Some(decoded) =
-            events::set_metaplex_coin_creator_event::SetMetaplexCoinCreatorEventEvent::decode(
-                event_data,
-            )
-        {
+                if let Some(decoded) = events::set_metaplex_coin_creator_event::SetMetaplexCoinCreatorEventEvent::decode(event_data) {
             return Some(CpiEvent::SetMetaplexCoinCreatorEvent(decoded));
         }
-        if let Some(decoded) =
-            events::sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEventEvent::decode(
-                event_data,
-            )
-        {
+                if let Some(decoded) = events::sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEventEvent::decode(event_data) {
             return Some(CpiEvent::SyncUserVolumeAccumulatorEvent(decoded));
         }
-        if let Some(decoded) = events::update_admin_event::UpdateAdminEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::update_admin_event::UpdateAdminEventEvent::decode(event_data) {
             return Some(CpiEvent::UpdateAdminEvent(decoded));
         }
-        if let Some(decoded) =
-            events::update_fee_config_event::UpdateFeeConfigEventEvent::decode(event_data)
-        {
+                if let Some(decoded) = events::update_fee_config_event::UpdateFeeConfigEventEvent::decode(event_data) {
             return Some(CpiEvent::UpdateFeeConfigEvent(decoded));
         }
-        if let Some(decoded) = events::withdraw_event::WithdrawEventEvent::decode(event_data) {
+                if let Some(decoded) = events::withdraw_event::WithdrawEventEvent::decode(event_data) {
             return Some(CpiEvent::WithdrawEvent(decoded));
         }
-        None
+                None
     }
 }
 
@@ -200,3 +138,4 @@ impl ArrangeAccounts for CpiEvent {
         })
     }
 }
+

@@ -19,10 +19,7 @@ pub struct BondingCurveRow {
 }
 
 impl BondingCurveRow {
-    pub fn from_parts(
-        source: crate::accounts::bonding_curve::BondingCurve,
-        metadata: AccountMetadata,
-    ) -> Self {
+    pub fn from_parts(source: crate::accounts::bonding_curve::BondingCurve, metadata: AccountMetadata) -> Self {
         Self {
             account_metadata: metadata.into(),
             virtual_token_reserves: source.virtual_token_reserves.into(),
@@ -30,9 +27,9 @@ impl BondingCurveRow {
             real_token_reserves: source.real_token_reserves.into(),
             real_sol_reserves: source.real_sol_reserves.into(),
             token_total_supply: source.token_total_supply.into(),
-            complete: source.complete,
+            complete: source.complete.into(),
             creator: source.creator.into(),
-            is_mayhem_mode: source.is_mayhem_mode,
+            is_mayhem_mode: source.is_mayhem_mode.into(),
         }
     }
 }
@@ -46,9 +43,9 @@ impl TryFrom<BondingCurveRow> for crate::accounts::bonding_curve::BondingCurve {
             real_token_reserves: *source.real_token_reserves,
             real_sol_reserves: *source.real_sol_reserves,
             token_total_supply: *source.token_total_supply,
-            complete: source.complete,
+            complete: source.complete.into(),
             creator: *source.creator,
-            is_mayhem_mode: source.is_mayhem_mode,
+            is_mayhem_mode: source.is_mayhem_mode.into(),
         })
     }
 }
@@ -77,8 +74,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bonding_curve
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for BondingCurveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO bonding_curve_account (
                 "virtual_token_reserves",
                 "virtual_sol_reserves",
@@ -91,20 +87,18 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
                 __pubkey, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
-            )"#,
-        )
-        .bind(&self.virtual_token_reserves)
-        .bind(&self.virtual_sol_reserves)
-        .bind(&self.real_token_reserves)
-        .bind(&self.real_sol_reserves)
-        .bind(&self.token_total_supply)
-        .bind(self.complete)
-        .bind(self.creator)
-        .bind(self.is_mayhem_mode)
-        .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+            )"#)
+        .bind(self.virtual_token_reserves.clone())
+        .bind(self.virtual_sol_reserves.clone())
+        .bind(self.real_token_reserves.clone())
+        .bind(self.real_sol_reserves.clone())
+        .bind(self.token_total_supply.clone())
+        .bind(self.complete.clone())
+        .bind(self.creator.clone())
+        .bind(self.is_mayhem_mode.clone())
+        .bind(self.account_metadata.pubkey.clone())
+        .bind(self.account_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -113,8 +107,7 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO bonding_curve_account (
+        sqlx::query(r#"INSERT INTO bonding_curve_account (
                 "virtual_token_reserves",
                 "virtual_sol_reserves",
                 "real_token_reserves",
@@ -138,20 +131,18 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
                 "creator" = EXCLUDED."creator",
                 "is_mayhem_mode" = EXCLUDED."is_mayhem_mode",
                 __slot = EXCLUDED.__slot
-            "#,
-        )
-        .bind(&self.virtual_token_reserves)
-        .bind(&self.virtual_sol_reserves)
-        .bind(&self.real_token_reserves)
-        .bind(&self.real_sol_reserves)
-        .bind(&self.token_total_supply)
-        .bind(self.complete)
-        .bind(self.creator)
-        .bind(self.is_mayhem_mode)
+            "#)
+        .bind(self.virtual_token_reserves.clone())
+        .bind(self.virtual_sol_reserves.clone())
+        .bind(self.real_token_reserves.clone())
+        .bind(self.real_sol_reserves.clone())
+        .bind(self.token_total_supply.clone())
+        .bind(self.complete.clone())
+        .bind(self.creator.clone())
+        .bind(self.is_mayhem_mode.clone())
         .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .bind(self.account_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -162,14 +153,11 @@ impl carbon_core::postgres::operations::Delete for BondingCurveRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM bonding_curve_account WHERE
+        sqlx::query(r#"DELETE FROM bonding_curve_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -179,18 +167,12 @@ impl carbon_core::postgres::operations::Delete for BondingCurveRow {
 impl carbon_core::postgres::operations::LookUp for BondingCurveRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM bonding_curve_account WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM bonding_curve_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -200,12 +182,8 @@ pub struct BondingCurveMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS bonding_curve_account (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS bonding_curve_account (
                 -- Account data
                 "virtual_token_reserves" NUMERIC(20) NOT NULL,
                 "virtual_sol_reserves" NUMERIC(20) NOT NULL,
@@ -219,20 +197,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS bonding_curve_account"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS bonding_curve_account"#).execute(connection).await?;
         Ok(())
     }
 }

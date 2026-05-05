@@ -2,7 +2,6 @@
 use carbon_core::graphql::primitives::Pubkey;
 use carbon_core::graphql::primitives::U64;
 use juniper::GraphQLObject;
-use serde_json;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "CreateConfig")]
@@ -13,7 +12,6 @@ pub struct CreateConfigGraphQL {
     pub protocol_fee_recipients: Vec<Pubkey>,
     pub coin_creator_fee_basis_points: U64,
     pub admin_set_coin_creator_authority: Pubkey,
-    pub accounts: carbon_core::graphql::primitives::Json,
 }
 
 impl TryFrom<crate::instructions::postgres::CreateConfigRow> for CreateConfigGraphQL {
@@ -22,24 +20,10 @@ impl TryFrom<crate::instructions::postgres::CreateConfigRow> for CreateConfigGra
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             lp_fee_basis_points: carbon_core::graphql::primitives::U64(*row.lp_fee_basis_points),
-            protocol_fee_basis_points: carbon_core::graphql::primitives::U64(
-                *row.protocol_fee_basis_points,
-            ),
-            protocol_fee_recipients: row
-                .protocol_fee_recipients
-                .into_iter()
-                .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
-                .collect(),
-            coin_creator_fee_basis_points: carbon_core::graphql::primitives::U64(
-                *row.coin_creator_fee_basis_points,
-            ),
-            admin_set_coin_creator_authority: carbon_core::graphql::primitives::Pubkey(
-                row.admin_set_coin_creator_authority.0,
-            ),
-            accounts: carbon_core::graphql::primitives::Json(
-                serde_json::to_value(&row.accounts.0)
-                    .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,
-            ),
+            protocol_fee_basis_points: carbon_core::graphql::primitives::U64(*row.protocol_fee_basis_points),
+            protocol_fee_recipients: row.protocol_fee_recipients.into_iter().map(|item| carbon_core::graphql::primitives::Pubkey(item.0)).collect(),
+            coin_creator_fee_basis_points: carbon_core::graphql::primitives::U64(*row.coin_creator_fee_basis_points),
+            admin_set_coin_creator_authority: carbon_core::graphql::primitives::Pubkey(row.admin_set_coin_creator_authority.0),
         })
     }
 }

@@ -23,3 +23,4 @@ pub mod sync_user_volume_accumulator_event;
 pub mod trade_event;
 pub mod update_global_authority_event;
 pub mod update_mayhem_virtual_params_event;
+
