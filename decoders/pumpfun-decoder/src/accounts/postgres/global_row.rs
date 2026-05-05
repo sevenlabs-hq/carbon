@@ -31,6 +31,8 @@ pub struct GlobalRow {
     pub is_cashback_enabled: bool,
     pub buyback_fee_recipients: Vec<Pubkey>,
     pub buyback_basis_points: U64,
+    pub initial_virtual_quote_reserves: U64,
+    pub whitelisted_quote_mints: Vec<Pubkey>,
 }
 
 impl GlobalRow {
@@ -60,6 +62,8 @@ impl GlobalRow {
             is_cashback_enabled: source.is_cashback_enabled.into(),
             buyback_fee_recipients: source.buyback_fee_recipients.into_iter().map(|element| element.into()).collect(),
             buyback_basis_points: source.buyback_basis_points.into(),
+            initial_virtual_quote_reserves: source.initial_virtual_quote_reserves.into(),
+            whitelisted_quote_mints: source.whitelisted_quote_mints.into_iter().map(|element| element.into()).collect(),
         }
     }
 }
@@ -91,6 +95,8 @@ impl TryFrom<GlobalRow> for crate::accounts::global::Global {
             is_cashback_enabled: source.is_cashback_enabled.into(),
             buyback_fee_recipients: source.buyback_fee_recipients.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
             buyback_basis_points: *source.buyback_basis_points,
+            initial_virtual_quote_reserves: *source.initial_virtual_quote_reserves,
+            whitelisted_quote_mints: source.whitelisted_quote_mints.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
         })
     }
 }
@@ -127,6 +133,8 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global::Globa
             "is_cashback_enabled",
             "buyback_fee_recipients",
             "buyback_basis_points",
+            "initial_virtual_quote_reserves",
+            "whitelisted_quote_mints",
         ]
     }
 }
@@ -159,9 +167,11 @@ impl carbon_core::postgres::operations::Insert for GlobalRow {
                 "is_cashback_enabled",
                 "buyback_fee_recipients",
                 "buyback_basis_points",
+                "initial_virtual_quote_reserves",
+                "whitelisted_quote_mints",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27
             )"#)
         .bind(self.initialized.clone())
         .bind(self.authority.clone())
@@ -186,6 +196,8 @@ impl carbon_core::postgres::operations::Insert for GlobalRow {
         .bind(self.is_cashback_enabled.clone())
         .bind(self.buyback_fee_recipients.clone())
         .bind(self.buyback_basis_points.clone())
+        .bind(self.initial_virtual_quote_reserves.clone())
+        .bind(self.whitelisted_quote_mints.clone())
         .bind(self.account_metadata.pubkey.clone())
         .bind(self.account_metadata.slot.clone())
         .execute(pool).await
@@ -221,9 +233,11 @@ impl carbon_core::postgres::operations::Upsert for GlobalRow {
                 "is_cashback_enabled",
                 "buyback_fee_recipients",
                 "buyback_basis_points",
+                "initial_virtual_quote_reserves",
+                "whitelisted_quote_mints",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -250,6 +264,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalRow {
                 "is_cashback_enabled" = EXCLUDED."is_cashback_enabled",
                 "buyback_fee_recipients" = EXCLUDED."buyback_fee_recipients",
                 "buyback_basis_points" = EXCLUDED."buyback_basis_points",
+                "initial_virtual_quote_reserves" = EXCLUDED."initial_virtual_quote_reserves",
+                "whitelisted_quote_mints" = EXCLUDED."whitelisted_quote_mints",
                 __slot = EXCLUDED.__slot
             "#)
         .bind(self.initialized.clone())
@@ -275,6 +291,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalRow {
         .bind(self.is_cashback_enabled.clone())
         .bind(self.buyback_fee_recipients.clone())
         .bind(self.buyback_basis_points.clone())
+        .bind(self.initial_virtual_quote_reserves.clone())
+        .bind(self.whitelisted_quote_mints.clone())
         .bind(self.account_metadata.pubkey)
         .bind(self.account_metadata.slot.clone())
         .execute(pool).await
@@ -343,6 +361,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalMigrationOperation {
                 "is_cashback_enabled" BOOLEAN NOT NULL,
                 "buyback_fee_recipients" BYTEA[] NOT NULL,
                 "buyback_basis_points" NUMERIC(20) NOT NULL,
+                "initial_virtual_quote_reserves" NUMERIC(20) NOT NULL,
+                "whitelisted_quote_mints" BYTEA[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

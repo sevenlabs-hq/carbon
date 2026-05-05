@@ -16,6 +16,9 @@ use {
     clap::Parser,
 };
 
+const NATIVE_SOL_MINT: &str = "So11111111111111111111111111111111111111112";
+const LAMPORTS_PER_SOL: u64 = 1_000_000_000;
+
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -75,14 +78,16 @@ impl Processor for PumpInstructionProcessor {
             match cpi_event {
                 CpiEvent::CreateEvent(create_event) => {
                     log::info!(
-                        "New token created: {:#?} on slot {}",
+                        "New token created with quote mint {}: {:#?} on slot {}",
+                        create_event.quote_mint,
                         create_event,
                         metadata.transaction_metadata.slot
                     );
                 }
                 CpiEvent::TradeEvent(trade_event) => {
                     log::info!(
-                        "New trade occured: {:#?} on slot {:#?}",
+                        "New trade occurred: quote: {}, trade: {:#?} on slot {:#?}",
+                        format_quote_amount(&trade_event.quote_mint, trade_event.quote_amount),
                         trade_event,
                         metadata.transaction_metadata.slot
                     );
@@ -93,4 +98,15 @@ impl Processor for PumpInstructionProcessor {
 
         Ok(())
     }
+}
+
+fn format_quote_amount(quote_mint: &impl std::fmt::Display, quote_amount: u64) -> String {
+    if quote_mint.to_string() == NATIVE_SOL_MINT {
+        return format!(
+            "{:.4} SOL ({quote_amount} lamports)",
+            quote_amount as f64 / LAMPORTS_PER_SOL as f64
+        );
+    }
+
+    format!("{quote_amount} raw units of {quote_mint}")
 }

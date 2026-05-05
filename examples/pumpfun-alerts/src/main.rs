@@ -17,6 +17,8 @@ use {
     tokio::sync::RwLock,
 };
 
+const NATIVE_SOL_MINT: &str = "So11111111111111111111111111111111111111112";
+
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
@@ -90,15 +92,32 @@ impl Processor for PumpInstructionProcessor {
         if let PumpInstruction::CpiEvent(cpi_event) = pumpfun_instruction {
             match cpi_event {
                 CpiEvent::CreateEvent(create_event) => {
-                    log::info!("New token created: {create_event:#?}");
+                    log::info!(
+                        "New token created with quote mint {}: {create_event:#?}",
+                        create_event.quote_mint,
+                    );
                 }
                 CpiEvent::TradeEvent(trade_event) => {
-                    if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
-                        log::info!("Big trade occured: {trade_event:#?}");
+                    if is_native_sol_quote(&trade_event.quote_mint)
+                        && trade_event.quote_amount > 10 * LAMPORTS_PER_SOL
+                    {
+                        log::info!(
+                            "Big SOL quote trade occurred: quote_amount: {:.4} SOL, trade: {trade_event:#?}",
+                            trade_event.quote_amount as f64 / LAMPORTS_PER_SOL as f64,
+                        );
+                    } else {
+                        log::info!(
+                            "Trade occurred: quote_mint: {}, quote_amount: {}, trade: {trade_event:#?}",
+                            trade_event.quote_mint,
+                            trade_event.quote_amount,
+                        );
                     }
                 }
                 CpiEvent::CompleteEvent(complete_event) => {
-                    log::info!("Bonded: {complete_event:#?}");
+                    log::info!(
+                        "Bonded with quote mint {}: {complete_event:#?}",
+                        complete_event.quote_mint,
+                    );
                 }
                 _ => {}
             }
@@ -106,4 +125,8 @@ impl Processor for PumpInstructionProcessor {
 
         Ok(())
     }
+}
+
+fn is_native_sol_quote(quote_mint: &impl std::fmt::Display) -> bool {
+    quote_mint.to_string() == NATIVE_SOL_MINT
 }

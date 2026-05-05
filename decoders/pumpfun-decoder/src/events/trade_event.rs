@@ -2,6 +2,7 @@
 use carbon_core::CarbonDeserialize;
 use carbon_core::borsh;
 use carbon_core::deserialize::CarbonDeserialize;
+use crate::types::Shareholder;
 use solana_pubkey::Pubkey;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -34,6 +35,11 @@ pub struct TradeEventEvent {
     pub cashback: u64,
     pub buyback_fee_basis_points: u64,
     pub buyback_fee: u64,
+    pub shareholders: Vec<Shareholder>,
+    pub quote_mint: Pubkey,
+    pub quote_amount: u64,
+    pub virtual_quote_reserves: u64,
+    pub real_quote_reserves: u64,
 }
 
 impl TradeEventEvent {

@@ -11,6 +11,7 @@ pub struct CompleteEventEvent {
     pub mint: Pubkey,
     pub bonding_curve: Pubkey,
     pub timestamp: i64,
+    pub quote_mint: Pubkey,
 }
 
 impl CompleteEventEvent {
