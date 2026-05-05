@@ -1173,7 +1173,7 @@ name = "block-finality-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-rpc-block-subscribe-datasource",
  "dotenv",
@@ -1402,7 +1402,7 @@ version = "0.12.0"
 dependencies = [
  "bincode",
  "bytemuck",
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1413,7 +1413,7 @@ dependencies = [
 name = "carbon-associated-token-account-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1425,7 +1425,7 @@ name = "carbon-block-crawler-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-pumpfun-decoder",
  "carbon-rpc-block-crawler-datasource",
  "clap 4.6.1",
@@ -1442,8 +1442,8 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "borsh",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "solana-account",
@@ -1457,7 +1457,7 @@ dependencies = [
 name = "carbon-boop-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1476,7 +1476,7 @@ dependencies = [
 name = "carbon-bubblegum-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1487,7 +1487,7 @@ dependencies = [
 name = "carbon-circle-message-transmitter-v2-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1498,7 +1498,7 @@ dependencies = [
 name = "carbon-circle-token-messenger-v2-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1515,9 +1515,9 @@ dependencies = [
  "bigdecimal",
  "borsh",
  "bs58",
- "carbon-macros 0.12.0",
- "carbon-proc-macros 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "carbon-test-utils",
  "chrono",
  "juniper",
  "juniper_axum",
@@ -1546,51 +1546,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-core"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71498aece4ecab92457e81078eb22ec07cff87c1e599570355bd1f518185c922"
-dependencies = [
- "async-trait",
- "axum 0.8.9",
- "base64 0.22.1",
- "bigdecimal",
- "borsh",
- "bs58",
- "carbon-macros 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "carbon-proc-macros 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "juniper",
- "juniper_axum",
- "log",
- "num-traits",
- "serde",
- "serde_json",
- "solana-account",
- "solana-hash 3.1.0",
- "solana-instruction",
- "solana-message",
- "solana-program",
- "solana-pubkey 3.0.0",
- "solana-signature",
- "solana-transaction",
- "solana-transaction-context",
- "solana-transaction-status",
- "sqlx",
- "sqlx_migrator",
- "thiserror 2.0.18",
- "tokio",
- "tokio-util 0.7.18",
- "uuid",
-]
-
-[[package]]
 name = "carbon-dflow-aggregator-v4-decoder"
 version = "0.12.0"
 dependencies = [
  "async-trait",
  "borsh",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde-big-array",
@@ -1606,7 +1568,7 @@ dependencies = [
 name = "carbon-drift-v2-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -1632,8 +1594,8 @@ dependencies = [
 name = "carbon-fluxbeam-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1644,8 +1606,8 @@ dependencies = [
 name = "carbon-gavel-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1656,7 +1618,7 @@ dependencies = [
 name = "carbon-heaven-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -1671,7 +1633,7 @@ dependencies = [
  "async-trait",
  "bincode",
  "bs58",
- "carbon-core 0.12.0",
+ "carbon-core",
  "futures 0.3.32",
  "helius",
  "log",
@@ -1694,7 +1656,7 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
- "carbon-core 0.12.0",
+ "carbon-core",
  "log",
  "reqwest 0.12.28",
  "serde",
@@ -1711,7 +1673,7 @@ name = "carbon-helius-gtfa-datasource"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "log",
  "reqwest 0.12.28",
  "serde",
@@ -1729,7 +1691,7 @@ name = "carbon-helius-laserstream-datasource"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "futures 0.3.32",
  "log",
  "solana-account",
@@ -1748,7 +1710,7 @@ name = "carbon-jetstreamer-datasource"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "futures-util",
  "jetstreamer-firehose",
  "solana-pubkey 3.0.0",
@@ -1774,7 +1736,7 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "bincode",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-jito-protos",
  "futures 0.3.32",
  "log",
@@ -1790,8 +1752,8 @@ dependencies = [
 name = "carbon-jupiter-dca-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1804,8 +1766,8 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "borsh",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde_json",
@@ -1820,7 +1782,7 @@ dependencies = [
 name = "carbon-jupiter-limit-order-2-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1831,7 +1793,7 @@ dependencies = [
 name = "carbon-jupiter-limit-order-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1842,7 +1804,7 @@ dependencies = [
 name = "carbon-jupiter-perpetuals-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1855,8 +1817,8 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "borsh",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde_json",
@@ -1871,7 +1833,7 @@ dependencies = [
 name = "carbon-kamino-farms-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -1883,7 +1845,7 @@ dependencies = [
 name = "carbon-kamino-lending-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -1895,7 +1857,7 @@ dependencies = [
 name = "carbon-kamino-limit-order-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -1907,7 +1869,7 @@ dependencies = [
 name = "carbon-kamino-vault-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -1919,8 +1881,8 @@ dependencies = [
 name = "carbon-lifinity-amm-v2-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1932,7 +1894,7 @@ name = "carbon-log-metrics"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "log",
  "tokio",
 ]
@@ -1942,16 +1904,10 @@ name = "carbon-macros"
 version = "0.12.0"
 
 [[package]]
-name = "carbon-macros"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50085799d24728d29148fd8b7a618b39f88c5f0784112c883ce46908e7d0b168"
-
-[[package]]
 name = "carbon-marginfi-v2-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -1963,7 +1919,7 @@ dependencies = [
 name = "carbon-marinade-finance-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1974,7 +1930,7 @@ dependencies = [
 name = "carbon-memo-program-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-instruction",
  "spl-memo-interface",
@@ -1986,8 +1942,8 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "borsh",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde-big-array",
@@ -2003,7 +1959,7 @@ dependencies = [
 name = "carbon-meteora-dbc-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2015,8 +1971,8 @@ dependencies = [
 name = "carbon-meteora-dlmm-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2028,8 +1984,8 @@ dependencies = [
 name = "carbon-meteora-pools-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2041,7 +1997,7 @@ dependencies = [
 name = "carbon-meteora-vault-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2052,8 +2008,8 @@ dependencies = [
 name = "carbon-moonshot-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2065,7 +2021,7 @@ dependencies = [
 name = "carbon-mpl-core-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2076,8 +2032,8 @@ dependencies = [
 name = "carbon-mpl-token-metadata-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2088,7 +2044,7 @@ dependencies = [
 name = "carbon-name-service-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2099,7 +2055,7 @@ dependencies = [
 name = "carbon-okx-dex-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2112,8 +2068,8 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "borsh",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde_json",
@@ -2130,8 +2086,8 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "borsh",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde_json",
@@ -2146,7 +2102,7 @@ dependencies = [
 name = "carbon-openbook-v2-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2158,8 +2114,8 @@ dependencies = [
 name = "carbon-orca-whirlpool-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2171,7 +2127,7 @@ dependencies = [
 name = "carbon-pancake-swap-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2183,7 +2139,7 @@ dependencies = [
 name = "carbon-phoenix-v1-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2193,20 +2149,6 @@ dependencies = [
 [[package]]
 name = "carbon-proc-macros"
 version = "0.12.0"
-dependencies = [
- "borsh-derive-internal-satellite",
- "hex",
- "proc-macro2",
- "quote",
- "serde",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "carbon-proc-macros"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b73cbb018afd27973e5d6297461d15d1c715bdaca0cb5bc19c68c42f0f7b8ba3"
 dependencies = [
  "borsh-derive-internal-satellite",
  "hex",
@@ -2221,7 +2163,7 @@ name = "carbon-prometheus-metrics"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "log",
  "metrics",
  "metrics-exporter-prometheus",
@@ -2235,8 +2177,8 @@ dependencies = [
  "async-trait",
  "base64 0.22.1",
  "borsh",
- "carbon-core 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "carbon-test-utils 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde-big-array",
@@ -2255,8 +2197,8 @@ dependencies = [
  "async-trait",
  "borsh",
  "carbon-borsh-types",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde_json",
@@ -2274,8 +2216,8 @@ dependencies = [
  "async-trait",
  "borsh",
  "carbon-borsh-types",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde_json",
@@ -2290,7 +2232,7 @@ dependencies = [
 name = "carbon-raydium-amm-v4-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2302,8 +2244,8 @@ dependencies = [
 name = "carbon-raydium-clmm-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2315,7 +2257,7 @@ dependencies = [
 name = "carbon-raydium-cpmm-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2327,7 +2269,7 @@ dependencies = [
 name = "carbon-raydium-launchpad-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2339,7 +2281,7 @@ dependencies = [
 name = "carbon-raydium-liquidity-locking-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2350,7 +2292,7 @@ dependencies = [
 name = "carbon-raydium-stable-swap-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2363,7 +2305,7 @@ version = "0.12.0"
 dependencies = [
  "async-stream",
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "futures 0.3.32",
  "log",
  "solana-client",
@@ -2379,7 +2321,7 @@ name = "carbon-rpc-block-subscribe-datasource"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "chrono",
  "futures 0.3.32",
  "log",
@@ -2394,7 +2336,7 @@ name = "carbon-rpc-gpa-datasource"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "log",
  "serde_json",
  "solana-account-decoder",
@@ -2410,7 +2352,7 @@ name = "carbon-rpc-program-subscribe-datasource"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "futures 0.3.32",
  "log",
  "solana-account",
@@ -2426,7 +2368,7 @@ version = "0.12.0"
 dependencies = [
  "async-stream",
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "futures 0.3.32",
  "log",
  "solana-client",
@@ -2442,7 +2384,7 @@ dependencies = [
 name = "carbon-sharky-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2453,7 +2395,7 @@ dependencies = [
 name = "carbon-solayer-restaking-program-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2464,7 +2406,7 @@ dependencies = [
 name = "carbon-stabble-stable-swap-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2475,7 +2417,7 @@ dependencies = [
 name = "carbon-stabble-weighted-swap-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2486,7 +2428,7 @@ dependencies = [
 name = "carbon-stake-program-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2498,7 +2440,7 @@ name = "carbon-stream-message-datasource"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "log",
  "solana-pubkey 3.0.0",
  "solana-system-interface 2.0.0",
@@ -2512,8 +2454,8 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "borsh",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "solana-account",
@@ -2527,8 +2469,8 @@ dependencies = [
 name = "carbon-system-program-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2539,24 +2481,6 @@ dependencies = [
 [[package]]
 name = "carbon-test-utils"
 version = "0.12.0"
-dependencies = [
- "anyhow",
- "base64 0.22.1",
- "bs58",
- "hex",
- "serde",
- "serde_json",
- "solana-account",
- "solana-instruction",
- "solana-pubkey 3.0.0",
- "solana-transaction-status",
-]
-
-[[package]]
-name = "carbon-test-utils"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7779b7e92909ec3784d9098569f430362b9530941eacbfc9d6b20bbf9026260b"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -2576,8 +2500,8 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "borsh",
- "carbon-core 0.12.0",
- "carbon-test-utils 0.12.0",
+ "carbon-core",
+ "carbon-test-utils",
  "juniper",
  "serde",
  "serde-big-array",
@@ -2599,7 +2523,7 @@ dependencies = [
 name = "carbon-token-program-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2614,7 +2538,7 @@ version = "0.12.0"
 dependencies = [
  "agave-snapshots",
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "log",
  "reqwest 0.12.28",
  "solana-account",
@@ -2632,7 +2556,7 @@ name = "carbon-validator-snapshot-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-validator-snapshot-datasource",
  "dotenv",
@@ -2647,7 +2571,7 @@ dependencies = [
 name = "carbon-vertigo-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2658,7 +2582,7 @@ dependencies = [
 name = "carbon-virtuals-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2669,7 +2593,7 @@ dependencies = [
 name = "carbon-wavebreak-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -2682,7 +2606,7 @@ name = "carbon-yellowstone-grpc-datasource"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "chrono",
  "futures 0.3.32",
  "log",
@@ -2700,7 +2624,7 @@ dependencies = [
 name = "carbon-zeta-decoder"
 version = "0.12.0"
 dependencies = [
- "carbon-core 0.12.0",
+ "carbon-core",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -3893,7 +3817,7 @@ name = "filtering-carbon-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-kamino-lending-decoder",
  "carbon-log-metrics",
  "carbon-yellowstone-grpc-datasource",
@@ -5124,7 +5048,7 @@ name = "jetstreamer-carbon-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-jetstreamer-datasource",
  "carbon-log-metrics",
  "carbon-token-2022-decoder",
@@ -5487,7 +5411,7 @@ name = "jupiter-swap-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-jupiter-swap-decoder",
  "carbon-log-metrics",
  "carbon-yellowstone-grpc-datasource",
@@ -5519,7 +5443,7 @@ name = "kamino-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-kamino-lending-decoder",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
@@ -5753,7 +5677,7 @@ name = "log-events-example"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-cpmm-decoder",
  "carbon-yellowstone-grpc-datasource",
@@ -5888,7 +5812,7 @@ name = "meteora-activities-carbon-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-meteora-dlmm-decoder",
  "carbon-rpc-transaction-crawler-datasource",
@@ -6032,7 +5956,7 @@ name = "moonshot-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-moonshot-decoder",
  "carbon-rpc-block-subscribe-datasource",
@@ -6330,7 +6254,7 @@ name = "openbook-v2-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-openbook-v2-decoder",
  "carbon-rpc-block-subscribe-datasource",
@@ -7072,7 +6996,7 @@ name = "pumpfun-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-helius-atlas-ws-datasource",
  "carbon-pumpfun-decoder",
  "dotenv",
@@ -7088,7 +7012,7 @@ name = "pumpswap-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-helius-laserstream-datasource",
  "carbon-log-metrics",
  "carbon-pump-swap-decoder",
@@ -7370,7 +7294,7 @@ name = "raydium-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-amm-v4-decoder",
  "carbon-yellowstone-grpc-datasource",
@@ -7389,7 +7313,7 @@ name = "raydium-clmm-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-clmm-decoder",
  "carbon-rpc-block-subscribe-datasource",
@@ -7406,7 +7330,7 @@ name = "raydium-cpmm-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-cpmm-decoder",
  "carbon-rpc-block-subscribe-datasource",
@@ -8392,7 +8316,7 @@ version = "0.2.1"
 dependencies = [
  "anyhow",
  "async-trait",
- "carbon-core 0.12.0",
+ "carbon-core",
  "carbon-log-metrics",
  "carbon-rpc-program-subscribe-datasource",
  "carbon-sharky-decoder",
