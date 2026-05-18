@@ -2,11 +2,17 @@
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod add_assets_to_group_v1_args;
 pub mod add_blocker;
 pub mod add_collection_external_plugin_adapter_v1_args;
 pub mod add_collection_plugin_v1_args;
+pub mod add_collections_to_group_v1_args;
 pub mod add_external_plugin_adapter_v1_args;
+pub mod add_groups_to_group_v1_args;
 pub mod add_plugin_v1_args;
+pub mod agent_identity;
+pub mod agent_identity_init_info;
+pub mod agent_identity_update_info;
 pub mod app_data;
 pub mod app_data_init_info;
 pub mod app_data_update_info;
@@ -21,10 +27,12 @@ pub mod bubblegum_v2;
 pub mod burn_collection_v1_args;
 pub mod burn_delegate;
 pub mod burn_v1_args;
+pub mod close_group_v1_args;
 pub mod compress_v1_args;
 pub mod compression_proof;
 pub mod create_collection_v1_args;
 pub mod create_collection_v2_args;
+pub mod create_group_v1_args;
 pub mod create_v1_args;
 pub mod create_v2_args;
 pub mod creator;
@@ -47,6 +55,7 @@ pub mod external_validation_result;
 pub mod extra_account;
 pub mod freeze_delegate;
 pub mod freeze_execute;
+pub mod groups;
 pub mod hashable_plugin_schema;
 pub mod hashed_asset_schema;
 pub mod hookable_lifecycle_event;
@@ -75,9 +84,14 @@ pub mod plugin;
 pub mod plugin_authority_pair;
 pub mod plugin_type;
 pub mod registry_record;
+pub mod relationship_entry;
+pub mod relationship_kind;
+pub mod remove_assets_from_group_v1_args;
 pub mod remove_collection_external_plugin_adapter_v1_args;
 pub mod remove_collection_plugin_v1_args;
+pub mod remove_collections_from_group_v1_args;
 pub mod remove_external_plugin_adapter_v1_args;
+pub mod remove_groups_from_group_v1_args;
 pub mod remove_plugin_v1_args;
 pub mod revoke_collection_plugin_authority_v1_args;
 pub mod revoke_plugin_authority_v1_args;
@@ -93,6 +107,7 @@ pub mod update_collection_plugin_v1_args;
 pub mod update_collection_v1_args;
 pub mod update_delegate;
 pub mod update_external_plugin_adapter_v1_args;
+pub mod update_group_v1_args;
 pub mod update_plugin_v1_args;
 pub mod update_type;
 pub mod update_v1_args;
@@ -105,38 +120,42 @@ pub mod write_collection_external_plugin_adapter_data_v1_args;
 pub mod write_external_plugin_adapter_data_v1_args;
 
 pub use self::{
-    add_blocker::*, add_collection_external_plugin_adapter_v1_args::*,
-    add_collection_plugin_v1_args::*, add_external_plugin_adapter_v1_args::*,
-    add_plugin_v1_args::*, app_data::*, app_data_init_info::*, app_data_update_info::*,
-    approve_collection_plugin_authority_v1_args::*, approve_plugin_authority_v1_args::*,
-    attribute::*, attributes::*, authority::*, autograph::*, autograph_signature::*,
-    bubblegum_v2::*, burn_collection_v1_args::*, burn_delegate::*, burn_v1_args::*,
-    compress_v1_args::*, compression_proof::*, create_collection_v1_args::*,
-    create_collection_v2_args::*, create_v1_args::*, create_v2_args::*, creator::*,
-    data_section::*, data_section_init_info::*, data_section_update_info::*, data_state::*,
-    decompress_v1_args::*, edition::*, execute_v1_args::*, external_check_result::*,
-    external_plugin_adapter::*, external_plugin_adapter_init_info::*,
-    external_plugin_adapter_key::*, external_plugin_adapter_schema::*,
-    external_plugin_adapter_type::*, external_plugin_adapter_update_info::*,
-    external_registry_record::*, external_validation_result::*, extra_account::*,
-    freeze_delegate::*, freeze_execute::*, hashable_plugin_schema::*, hashed_asset_schema::*,
-    hookable_lifecycle_event::*, immutable_metadata::*, key::*, lifecycle_hook::*,
-    lifecycle_hook_init_info::*, lifecycle_hook_update_info::*, linked_app_data::*,
-    linked_app_data_init_info::*, linked_app_data_update_info::*, linked_data_key::*,
-    linked_lifecycle_hook::*, linked_lifecycle_hook_init_info::*,
-    linked_lifecycle_hook_update_info::*, master_edition::*, oracle::*, oracle_init_info::*,
-    oracle_update_info::*, oracle_validation::*, permanent_burn_delegate::*,
-    permanent_freeze_delegate::*, permanent_freeze_execute::*, permanent_transfer_delegate::*,
-    plugin::*, plugin_authority_pair::*, plugin_type::*, registry_record::*,
-    remove_collection_external_plugin_adapter_v1_args::*, remove_collection_plugin_v1_args::*,
-    remove_external_plugin_adapter_v1_args::*, remove_plugin_v1_args::*,
-    revoke_collection_plugin_authority_v1_args::*, revoke_plugin_authority_v1_args::*,
-    royalties::*, rule_set::*, seed::*, transfer_delegate::*, transfer_v1_args::*,
-    update_authority::*, update_collection_external_plugin_adapter_v1_args::*,
+    add_assets_to_group_v1_args::*, add_blocker::*,
+    add_collection_external_plugin_adapter_v1_args::*, add_collection_plugin_v1_args::*,
+    add_collections_to_group_v1_args::*, add_external_plugin_adapter_v1_args::*,
+    add_groups_to_group_v1_args::*, add_plugin_v1_args::*, agent_identity::*,
+    agent_identity_init_info::*, agent_identity_update_info::*, app_data::*, app_data_init_info::*,
+    app_data_update_info::*, approve_collection_plugin_authority_v1_args::*,
+    approve_plugin_authority_v1_args::*, attribute::*, attributes::*, authority::*, autograph::*,
+    autograph_signature::*, bubblegum_v2::*, burn_collection_v1_args::*, burn_delegate::*,
+    burn_v1_args::*, close_group_v1_args::*, compress_v1_args::*, compression_proof::*,
+    create_collection_v1_args::*, create_collection_v2_args::*, create_group_v1_args::*,
+    create_v1_args::*, create_v2_args::*, creator::*, data_section::*, data_section_init_info::*,
+    data_section_update_info::*, data_state::*, decompress_v1_args::*, edition::*,
+    execute_v1_args::*, external_check_result::*, external_plugin_adapter::*,
+    external_plugin_adapter_init_info::*, external_plugin_adapter_key::*,
+    external_plugin_adapter_schema::*, external_plugin_adapter_type::*,
+    external_plugin_adapter_update_info::*, external_registry_record::*,
+    external_validation_result::*, extra_account::*, freeze_delegate::*, freeze_execute::*,
+    groups::*, hashable_plugin_schema::*, hashed_asset_schema::*, hookable_lifecycle_event::*,
+    immutable_metadata::*, key::*, lifecycle_hook::*, lifecycle_hook_init_info::*,
+    lifecycle_hook_update_info::*, linked_app_data::*, linked_app_data_init_info::*,
+    linked_app_data_update_info::*, linked_data_key::*, linked_lifecycle_hook::*,
+    linked_lifecycle_hook_init_info::*, linked_lifecycle_hook_update_info::*, master_edition::*,
+    oracle::*, oracle_init_info::*, oracle_update_info::*, oracle_validation::*,
+    permanent_burn_delegate::*, permanent_freeze_delegate::*, permanent_freeze_execute::*,
+    permanent_transfer_delegate::*, plugin::*, plugin_authority_pair::*, plugin_type::*,
+    registry_record::*, relationship_entry::*, relationship_kind::*,
+    remove_assets_from_group_v1_args::*, remove_collection_external_plugin_adapter_v1_args::*,
+    remove_collection_plugin_v1_args::*, remove_collections_from_group_v1_args::*,
+    remove_external_plugin_adapter_v1_args::*, remove_groups_from_group_v1_args::*,
+    remove_plugin_v1_args::*, revoke_collection_plugin_authority_v1_args::*,
+    revoke_plugin_authority_v1_args::*, royalties::*, rule_set::*, seed::*, transfer_delegate::*,
+    transfer_v1_args::*, update_authority::*, update_collection_external_plugin_adapter_v1_args::*,
     update_collection_info_v1_args::*, update_collection_plugin_v1_args::*,
     update_collection_v1_args::*, update_delegate::*, update_external_plugin_adapter_v1_args::*,
-    update_plugin_v1_args::*, update_type::*, update_v1_args::*, update_v2_args::*,
-    validation_result::*, validation_results_offset::*, verified_creators::*,
+    update_group_v1_args::*, update_plugin_v1_args::*, update_type::*, update_v1_args::*,
+    update_v2_args::*, validation_result::*, validation_results_offset::*, verified_creators::*,
     verified_creators_signature::*, write_collection_external_plugin_adapter_data_v1_args::*,
     write_external_plugin_adapter_data_v1_args::*,
 };

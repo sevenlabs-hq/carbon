@@ -16,6 +16,7 @@ pub struct CreateAmmConfigRow {
     pub protocol_fee_rate: U64,
     pub fund_fee_rate: U64,
     pub create_pool_fee: U64,
+    pub creator_fee_rate: U64,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -33,6 +34,7 @@ impl CreateAmmConfigRow {
             protocol_fee_rate: source.protocol_fee_rate.into(),
             fund_fee_rate: source.fund_fee_rate.into(),
             create_pool_fee: source.create_pool_fee.into(),
+            creator_fee_rate: source.creator_fee_rate.into(),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -51,6 +53,7 @@ impl TryFrom<CreateAmmConfigRow> for crate::instructions::create_amm_config::Cre
             protocol_fee_rate: *source.protocol_fee_rate,
             fund_fee_rate: *source.fund_fee_rate,
             create_pool_fee: *source.create_pool_fee,
+            creator_fee_rate: *source.creator_fee_rate,
         })
     }
 }
@@ -73,6 +76,7 @@ impl carbon_core::postgres::operations::Table
             "protocol_fee_rate",
             "fund_fee_rate",
             "create_pool_fee",
+            "creator_fee_rate",
             "__accounts",
         ]
     }
@@ -89,9 +93,10 @@ impl carbon_core::postgres::operations::Insert for CreateAmmConfigRow {
                 "protocol_fee_rate",
                 "fund_fee_rate",
                 "create_pool_fee",
+                "creator_fee_rate",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             )"#,
         )
         .bind(self.index)
@@ -99,6 +104,7 @@ impl carbon_core::postgres::operations::Insert for CreateAmmConfigRow {
         .bind(&self.protocol_fee_rate)
         .bind(&self.fund_fee_rate)
         .bind(&self.create_pool_fee)
+        .bind(&self.creator_fee_rate)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -121,9 +127,10 @@ impl carbon_core::postgres::operations::Upsert for CreateAmmConfigRow {
                 "protocol_fee_rate",
                 "fund_fee_rate",
                 "create_pool_fee",
+                "creator_fee_rate",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -132,6 +139,7 @@ impl carbon_core::postgres::operations::Upsert for CreateAmmConfigRow {
                 "protocol_fee_rate" = EXCLUDED."protocol_fee_rate",
                 "fund_fee_rate" = EXCLUDED."fund_fee_rate",
                 "create_pool_fee" = EXCLUDED."create_pool_fee",
+                "creator_fee_rate" = EXCLUDED."creator_fee_rate",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
@@ -143,6 +151,7 @@ impl carbon_core::postgres::operations::Upsert for CreateAmmConfigRow {
         .bind(&self.protocol_fee_rate)
         .bind(&self.fund_fee_rate)
         .bind(&self.create_pool_fee)
+        .bind(&self.creator_fee_rate)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -222,6 +231,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateAmmConfigMigrationOperat
                 "protocol_fee_rate" NUMERIC(20) NOT NULL,
                 "fund_fee_rate" NUMERIC(20) NOT NULL,
                 "create_pool_fee" NUMERIC(20) NOT NULL,
+                "creator_fee_rate" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

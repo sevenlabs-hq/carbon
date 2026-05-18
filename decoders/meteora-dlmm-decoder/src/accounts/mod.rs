@@ -12,9 +12,9 @@ pub mod bin_array_bitmap_extension;
 pub mod claim_fee_operator;
 pub mod dummy_zc_account;
 pub mod lb_pair;
+pub mod limit_order;
 pub mod operator;
 pub mod oracle;
-pub mod position;
 pub mod position_v2;
 pub mod preset_parameter;
 pub mod preset_parameter2;
@@ -29,9 +29,9 @@ pub enum MeteoraDlmmAccount {
     ClaimFeeOperator(Box<claim_fee_operator::ClaimFeeOperator>),
     DummyZcAccount(Box<dummy_zc_account::DummyZcAccount>),
     LbPair(Box<lb_pair::LbPair>),
+    LimitOrder(Box<limit_order::LimitOrder>),
     Operator(Box<operator::Operator>),
     Oracle(Box<oracle::Oracle>),
-    Position(Box<position::Position>),
     PositionV2(Box<position_v2::PositionV2>),
     PresetParameter(Box<preset_parameter::PresetParameter>),
     PresetParameter2(Box<preset_parameter2::PresetParameter2>),
@@ -108,6 +108,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MeteoraDlmmDecoder {
             }
         }
         {
+            if let Some(decoded) = limit_order::LimitOrder::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MeteoraDlmmAccount::LimitOrder(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
             if let Some(decoded) = operator::Operator::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
@@ -123,17 +134,6 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MeteoraDlmmDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: MeteoraDlmmAccount::Oracle(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
-        }
-        {
-            if let Some(decoded) = position::Position::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: MeteoraDlmmAccount::Position(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

@@ -9,7 +9,9 @@ pub struct InitPermissionPairIxGraphQL {
     pub base_factor: i32,
     pub base_fee_power_factor: U8,
     pub activation_type: U8,
-    pub protocol_share: i32,
+    pub padding0: i32,
+    pub concrete_function_type: U8,
+    pub collect_fee_mode: U8,
 }
 
 impl From<crate::types::InitPermissionPairIx> for InitPermissionPairIxGraphQL {
@@ -22,7 +24,11 @@ impl From<crate::types::InitPermissionPairIx> for InitPermissionPairIxGraphQL {
                 original.base_fee_power_factor,
             ),
             activation_type: carbon_core::graphql::primitives::U8(original.activation_type),
-            protocol_share: original.protocol_share as i32,
+            padding0: original.padding0 as i32,
+            concrete_function_type: carbon_core::graphql::primitives::U8(
+                original.concrete_function_type,
+            ),
+            collect_fee_mode: carbon_core::graphql::primitives::U8(original.collect_fee_mode),
         }
     }
 }

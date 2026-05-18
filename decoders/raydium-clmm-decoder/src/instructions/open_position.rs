@@ -7,9 +7,9 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// * `tick_lower_index` - The low boundary of market
 /// * `tick_upper_index` - The upper boundary of market
 /// * `tick_array_lower_start_index` - The start index of tick array which
-///   include tick low
+///   includes tick low
 /// * `tick_array_upper_start_index` - The start index of tick array which
-///   include tick upper
+///   includes tick upper
 /// * `liquidity` - The liquidity to be added
 /// * `amount_0_max` - The max amount of token_0 to spend, which serves as a
 ///   slippage check

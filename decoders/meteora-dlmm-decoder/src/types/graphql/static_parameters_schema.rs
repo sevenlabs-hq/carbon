@@ -18,6 +18,7 @@ pub struct StaticParametersGraphQL {
     pub protocol_share: i32,
     pub base_fee_power_factor: U8,
     pub function_type: U8,
+    pub collect_fee_mode: U8,
     pub padding: Vec<U8>,
 }
 
@@ -41,6 +42,7 @@ impl From<crate::types::StaticParameters> for StaticParametersGraphQL {
                 original.base_fee_power_factor,
             ),
             function_type: carbon_core::graphql::primitives::U8(original.function_type),
+            collect_fee_mode: carbon_core::graphql::primitives::U8(original.collect_fee_mode),
             padding: original
                 .padding
                 .into_iter()

@@ -56,6 +56,7 @@ pub struct PerpMarketRow {
     pub lp_exchange_fee_excluscion_scalar: U8,
     pub last_fill_price: U64,
     pub lp_pool_id: U8,
+    pub market_config: U8,
     pub padding: Vec<u8>,
 }
 
@@ -112,6 +113,7 @@ impl PerpMarketRow {
             lp_exchange_fee_excluscion_scalar: source.lp_exchange_fee_excluscion_scalar.into(),
             last_fill_price: source.last_fill_price.into(),
             lp_pool_id: source.lp_pool_id.into(),
+            market_config: source.market_config.into(),
             padding: source.padding.to_vec(),
         }
     }
@@ -297,9 +299,14 @@ impl TryFrom<PerpMarketRow> for crate::accounts::perp_market::PerpMarket {
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
+            market_config: source.market_config.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
             padding: source.padding.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 23 bytes"
+                    "Failed to convert padding from postgres primitive: expected 22 bytes"
                         .to_string(),
                 )
             })?,
@@ -358,6 +365,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::perp_market::
             "lp_exchange_fee_excluscion_scalar",
             "last_fill_price",
             "lp_pool_id",
+            "market_config",
             "padding",
         ]
     }
@@ -410,10 +418,11 @@ impl carbon_core::postgres::operations::Insert for PerpMarketRow {
                 "lp_exchange_fee_excluscion_scalar",
                 "last_fill_price",
                 "lp_pool_id",
+                "market_config",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46
             )"#)
         .bind(self.pubkey)
         .bind(&self.amm)
@@ -457,6 +466,7 @@ impl carbon_core::postgres::operations::Insert for PerpMarketRow {
         .bind(self.lp_exchange_fee_excluscion_scalar)
         .bind(&self.last_fill_price)
         .bind(self.lp_pool_id)
+        .bind(self.market_config)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -512,10 +522,11 @@ impl carbon_core::postgres::operations::Upsert for PerpMarketRow {
                 "lp_exchange_fee_excluscion_scalar",
                 "last_fill_price",
                 "lp_pool_id",
+                "market_config",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -561,6 +572,7 @@ impl carbon_core::postgres::operations::Upsert for PerpMarketRow {
                 "lp_exchange_fee_excluscion_scalar" = EXCLUDED."lp_exchange_fee_excluscion_scalar",
                 "last_fill_price" = EXCLUDED."last_fill_price",
                 "lp_pool_id" = EXCLUDED."lp_pool_id",
+                "market_config" = EXCLUDED."market_config",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
             "#)
@@ -606,6 +618,7 @@ impl carbon_core::postgres::operations::Upsert for PerpMarketRow {
         .bind(self.lp_exchange_fee_excluscion_scalar)
         .bind(&self.last_fill_price)
         .bind(self.lp_pool_id)
+        .bind(self.market_config)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -707,6 +720,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PerpMarketMigrationOperation {
                 "lp_exchange_fee_excluscion_scalar" INT2 NOT NULL,
                 "last_fill_price" NUMERIC(20) NOT NULL,
                 "lp_pool_id" INT2 NOT NULL,
+                "market_config" INT2 NOT NULL,
                 "padding" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

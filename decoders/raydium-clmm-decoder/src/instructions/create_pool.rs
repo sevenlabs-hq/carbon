@@ -2,7 +2,7 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// Creates a pool for the given token pair and the initial price
 /// # Arguments
-/// * `ctx`- The context of accounts
+/// * `ctx` - The context of accounts
 /// * `sqrt_price_x64` - the initial sqrt price (amount_token_1 /
 ///   amount_token_0) of the pool as a Q64.64
 ///

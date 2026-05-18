@@ -18,8 +18,19 @@ pub struct ReserveConfig {
     /// Effectively blocks deposit_reserve_liquidity and
     /// withdraw_obligation_collateral
     pub block_ctoken_usage: u8,
+    /// The percentage of remaining interest over the debt term that is charged
+    /// as early repay penalty. Only meaningful when `debt_term_seconds >
+    /// 0`.
+    pub early_repay_remaining_interest_pct: u8,
+    /// Whether the reserve is in emergency mode.
+    /// Blocks most user operations involving this reserve, similar to
+    /// [LendingMarket::emergency_mode] but scoped to a single reserve. Also
+    /// cascades to obligations using this reserve as collateral or debt,
+    /// blocking borrows and withdrawals on other reserves but still
+    /// allowing repays and deposits.
+    pub emergency_mode: u8,
     /// Past reserved space - feel free to reuse.
-    pub reserved1: [u8; 6],
+    pub reserved1: [u8; 4],
     /// Cut of the order execution bonus that the protocol receives, as a
     /// percentage
     pub protocol_order_execution_fee_pct: u8,
@@ -113,4 +124,14 @@ pub struct ReserveConfig {
     /// [Self::debt_maturity_timestamp] - the liquidation mechanism is based
     /// on the [ObligationLiquidity::last_borrowed_at_timestamp].
     pub debt_term_seconds: u64,
+    /// Rewards distributed per slot to depositors. Drained from
+    /// [ReserveLiquidity::rewards_amount_available] into
+    /// [ReserveLiquidity::total_available_amount] at each refresh, capped by
+    /// the market-level [LendingMarket::reserve_rewards_max_apr_bps]. `0`
+    /// disables. **Note:** because rewards inflate
+    /// `total_available_amount`, a non-zero RPS on a reserve with
+    /// [Self::autodeleverage_enabled] and a finite [Self::deposit_limit]
+    /// will eventually cross the cap and arm the autodeleverage countdown. Size
+    /// `deposit_limit` and RPS together.
+    pub rewards_amount_per_slot: u64,
 }

@@ -2,8 +2,8 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// Collect remaining reward token for reward founder
 /// # Arguments
-/// * `ctx`- The context of accounts
-/// * `reward_index` - the index to reward info, it must be smaller than 3
+/// * `ctx` - The context of accounts
+/// * `reward_index` - the index to reward info
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CollectRemainingRewards {

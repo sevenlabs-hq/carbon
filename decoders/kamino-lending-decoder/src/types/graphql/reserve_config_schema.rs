@@ -15,6 +15,8 @@ pub struct ReserveConfigGraphQL {
     pub host_fixed_interest_rate_bps: i32,
     pub min_deleveraging_bonus_bps: i32,
     pub block_ctoken_usage: U8,
+    pub early_repay_remaining_interest_pct: U8,
+    pub emergency_mode: U8,
     pub reserved1: Vec<U8>,
     pub protocol_order_execution_fee_pct: U8,
     pub protocol_take_rate_pct: U8,
@@ -44,6 +46,7 @@ pub struct ReserveConfigGraphQL {
     pub deleveraging_bonus_increase_bps_per_day: U64,
     pub debt_maturity_timestamp: U64,
     pub debt_term_seconds: U64,
+    pub rewards_amount_per_slot: U64,
 }
 
 impl From<crate::types::ReserveConfig> for ReserveConfigGraphQL {
@@ -56,6 +59,10 @@ impl From<crate::types::ReserveConfig> for ReserveConfigGraphQL {
             host_fixed_interest_rate_bps: original.host_fixed_interest_rate_bps as i32,
             min_deleveraging_bonus_bps: original.min_deleveraging_bonus_bps as i32,
             block_ctoken_usage: carbon_core::graphql::primitives::U8(original.block_ctoken_usage),
+            early_repay_remaining_interest_pct: carbon_core::graphql::primitives::U8(
+                original.early_repay_remaining_interest_pct,
+            ),
+            emergency_mode: carbon_core::graphql::primitives::U8(original.emergency_mode),
             reserved1: original
                 .reserved1
                 .into_iter()
@@ -123,6 +130,9 @@ impl From<crate::types::ReserveConfig> for ReserveConfigGraphQL {
                 original.debt_maturity_timestamp,
             ),
             debt_term_seconds: carbon_core::graphql::primitives::U64(original.debt_term_seconds),
+            rewards_amount_per_slot: carbon_core::graphql::primitives::U64(
+                original.rewards_amount_per_slot,
+            ),
         }
     }
 }

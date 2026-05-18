@@ -43,4 +43,9 @@ pub enum UpdateLendingMarketMode {
     UpdateTermBasedFullLiquidationDurationSecs,
     UpdateObligationBorrowMigrationToFixedExecutionEnabled,
     UpdateMinPartialRolloverValue,
+    UpdateWithdrawTicketCancellationEnabled,
+    UpdatePermissioningAuthority,
+    UpdatePermissionedOps,
+    DeprecatedUpdateReserveRewardsMaxAprPct,
+    UpdateReserveRewardsMaxAprBps,
 }

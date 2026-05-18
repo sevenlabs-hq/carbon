@@ -3,16 +3,20 @@ pub mod add_liquidity2_schema;
 pub mod add_liquidity_by_strategy2_schema;
 pub mod add_liquidity_by_strategy_one_side_schema;
 pub mod add_liquidity_by_strategy_schema;
+pub mod add_liquidity_by_weight2_schema;
 pub mod add_liquidity_by_weight_schema;
 pub mod add_liquidity_one_side_precise2_schema;
 pub mod add_liquidity_one_side_precise_schema;
 pub mod add_liquidity_one_side_schema;
 pub mod add_liquidity_schema;
+pub mod cancel_limit_order_schema;
 pub mod claim_fee2_schema;
 pub mod claim_fee_schema;
 pub mod claim_reward2_schema;
 pub mod claim_reward_schema;
+pub mod close_bin_array_schema;
 pub mod close_claim_fee_operator_account_schema;
+pub mod close_limit_order_if_empty_schema;
 pub mod close_operator_account_schema;
 pub mod close_position2_schema;
 pub mod close_position_if_empty_schema;
@@ -43,19 +47,17 @@ pub mod initialize_position_schema;
 pub mod initialize_preset_parameter_schema;
 pub mod initialize_reward_schema;
 pub mod initialize_token_badge_schema;
-pub mod migrate_position_schema;
+pub mod place_limit_order_schema;
 pub mod rebalance_liquidity_schema;
 pub mod remove_all_liquidity_schema;
 pub mod remove_liquidity2_schema;
 pub mod remove_liquidity_by_range2_schema;
 pub mod remove_liquidity_by_range_schema;
 pub mod remove_liquidity_schema;
-pub mod reset_bin_array_tombstone_fields_schema;
-pub mod reset_pool_tombstone_fields_schema;
-pub mod reset_position_tombstone_fields_schema;
 pub mod set_activation_point_schema;
 pub mod set_pair_status_permissionless_schema;
 pub mod set_pair_status_schema;
+pub mod set_permissionless_operation_bits_schema;
 pub mod set_pre_activation_duration_schema;
 pub mod set_pre_activation_swap_address_schema;
 pub mod swap2_schema;
@@ -79,12 +81,14 @@ use juniper::GraphQLObject;
 pub use {
     add_liquidity2_schema::*, add_liquidity_by_strategy2_schema::*,
     add_liquidity_by_strategy_one_side_schema::*, add_liquidity_by_strategy_schema::*,
-    add_liquidity_by_weight_schema::*, add_liquidity_one_side_precise2_schema::*,
-    add_liquidity_one_side_precise_schema::*, add_liquidity_one_side_schema::*,
-    add_liquidity_schema::*, claim_fee2_schema::*, claim_fee_schema::*, claim_reward2_schema::*,
-    claim_reward_schema::*, close_claim_fee_operator_account_schema::*,
-    close_operator_account_schema::*, close_position2_schema::*, close_position_if_empty_schema::*,
-    close_position_schema::*, close_preset_parameter2_schema::*, close_preset_parameter_schema::*,
+    add_liquidity_by_weight2_schema::*, add_liquidity_by_weight_schema::*,
+    add_liquidity_one_side_precise2_schema::*, add_liquidity_one_side_precise_schema::*,
+    add_liquidity_one_side_schema::*, add_liquidity_schema::*, cancel_limit_order_schema::*,
+    claim_fee2_schema::*, claim_fee_schema::*, claim_reward2_schema::*, claim_reward_schema::*,
+    close_bin_array_schema::*, close_claim_fee_operator_account_schema::*,
+    close_limit_order_if_empty_schema::*, close_operator_account_schema::*,
+    close_position2_schema::*, close_position_if_empty_schema::*, close_position_schema::*,
+    close_preset_parameter2_schema::*, close_preset_parameter_schema::*,
     close_token_badge_schema::*, cpi_event_schema::*, create_operator_account_schema::*,
     decrease_position_length_schema::*, for_idl_type_generation_do_not_call_schema::*,
     fund_reward_schema::*, go_to_a_bin_schema::*, increase_oracle_length_schema::*,
@@ -96,13 +100,12 @@ pub use {
     initialize_position2_schema::*, initialize_position_by_operator_schema::*,
     initialize_position_pda_schema::*, initialize_position_schema::*,
     initialize_preset_parameter_schema::*, initialize_reward_schema::*,
-    initialize_token_badge_schema::*, migrate_position_schema::*, rebalance_liquidity_schema::*,
+    initialize_token_badge_schema::*, place_limit_order_schema::*, rebalance_liquidity_schema::*,
     remove_all_liquidity_schema::*, remove_liquidity2_schema::*,
     remove_liquidity_by_range2_schema::*, remove_liquidity_by_range_schema::*,
-    remove_liquidity_schema::*, reset_bin_array_tombstone_fields_schema::*,
-    reset_pool_tombstone_fields_schema::*, reset_position_tombstone_fields_schema::*,
-    set_activation_point_schema::*, set_pair_status_permissionless_schema::*,
-    set_pair_status_schema::*, set_pre_activation_duration_schema::*,
+    remove_liquidity_schema::*, set_activation_point_schema::*,
+    set_pair_status_permissionless_schema::*, set_pair_status_schema::*,
+    set_permissionless_operation_bits_schema::*, set_pre_activation_duration_schema::*,
     set_pre_activation_swap_address_schema::*, swap2_schema::*, swap_exact_out2_schema::*,
     swap_exact_out_schema::*, swap_schema::*, swap_with_price_impact2_schema::*,
     swap_with_price_impact_schema::*, update_base_fee_parameters_schema::*,

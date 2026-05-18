@@ -29,10 +29,13 @@ pub struct PresetParameter2 {
     /// Base fee power factor
     pub base_fee_power_factor: u8,
     /// function type, to check whether the pool should have LM farming or other
-    /// functions in the future, refer FunctionType
-    pub function_type: u8,
+    /// functions in the future, refer ConcreteFunctionType
+    pub concrete_function_type: u8,
+    /// collect fee mode
+    pub collect_fee_mode: u8,
+    pub padding0: [u8; 7],
     /// Padding 1 for future use
-    pub padding1: [u64; 20],
+    pub padding1: [u64; 19],
 }
 
 impl PresetParameter2 {

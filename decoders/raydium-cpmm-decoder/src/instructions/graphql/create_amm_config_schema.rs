@@ -10,6 +10,7 @@ pub struct CreateAmmConfigGraphQL {
     pub protocol_fee_rate: U64,
     pub fund_fee_rate: U64,
     pub create_pool_fee: U64,
+    pub creator_fee_rate: U64,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
 
@@ -25,6 +26,7 @@ impl TryFrom<crate::instructions::postgres::CreateAmmConfigRow> for CreateAmmCon
             protocol_fee_rate: carbon_core::graphql::primitives::U64(*row.protocol_fee_rate),
             fund_fee_rate: carbon_core::graphql::primitives::U64(*row.fund_fee_rate),
             create_pool_fee: carbon_core::graphql::primitives::U64(*row.create_pool_fee),
+            creator_fee_rate: carbon_core::graphql::primitives::U64(*row.creator_fee_rate),
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,

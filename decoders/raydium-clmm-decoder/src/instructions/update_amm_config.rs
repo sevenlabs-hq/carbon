@@ -3,16 +3,21 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// Updates the owner of the amm config
 /// Must be called by the current owner or admin
 /// # Arguments
-/// * `ctx`- The context of accounts
-/// * `trade_fee_rate`- The new trade fee rate of amm config, be set when
+/// * `ctx` - The context of accounts
+/// * `trade_fee_rate` - The new trade fee rate of amm config, be set when
 ///   `param` is 0
-/// * `protocol_fee_rate`- The new protocol fee rate of amm config, be set when
+/// * `protocol_fee_rate` - The new protocol fee rate of amm config, be set when
 ///   `param` is 1
-/// * `fund_fee_rate`- The new fund fee rate of amm config, be set when `param`
+/// * `fund_fee_rate` - The new fund fee rate of amm config, be set when `param`
 ///   is 2
-/// * `new_owner`- The config's new owner, be set when `param` is 3
-/// * `new_fund_owner`- The config's new fund owner, be set when `param` is 4
-/// * `param`- The value can be 0 | 1 | 2 | 3 | 4, otherwise will report a error
+/// * `new_owner` - The config's new owner, be set when `param` is 3
+/// * `new_fund_owner` - The config's new fund owner, be set when `param` is 4
+/// * `limit_protocol_fee_rate` - The new limit protocol fee rate of amm config,
+///   be set when `param` is 5
+/// * `limit_fund_fee_rate` - The new limit fund fee rate of amm config, be set
+///   when `param` is 6
+/// * `param` - The value can be 0 | 1 | 2 | 3 | 4 | 5 | 6, otherwise will
+///   report an error
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateAmmConfig {

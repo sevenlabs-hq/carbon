@@ -4,9 +4,9 @@ pub mod bin_array_row;
 pub mod claim_fee_operator_row;
 pub mod dummy_zc_account_row;
 pub mod lb_pair_row;
+pub mod limit_order_row;
 pub mod operator_row;
 pub mod oracle_row;
-pub mod position_row;
 pub mod position_v2_row;
 pub mod preset_parameter2_row;
 pub mod preset_parameter_row;
@@ -14,7 +14,7 @@ pub mod token_badge_row;
 
 pub use self::{
     bin_array_bitmap_extension_row::*, bin_array_row::*, claim_fee_operator_row::*,
-    dummy_zc_account_row::*, lb_pair_row::*, operator_row::*, oracle_row::*, position_row::*,
+    dummy_zc_account_row::*, lb_pair_row::*, limit_order_row::*, operator_row::*, oracle_row::*,
     position_v2_row::*, preset_parameter2_row::*, preset_parameter_row::*, token_badge_row::*,
 };
 use super::MeteoraDlmmAccount;
@@ -37,9 +37,9 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraDlmmAccountsMigration {
             Box::new(ClaimFeeOperatorMigrationOperation),
             Box::new(DummyZcAccountMigrationOperation),
             Box::new(LbPairMigrationOperation),
+            Box::new(LimitOrderMigrationOperation),
             Box::new(OperatorMigrationOperation),
             Box::new(OracleMigrationOperation),
-            Box::new(PositionMigrationOperation),
             Box::new(PositionV2MigrationOperation),
             Box::new(PresetParameterMigrationOperation),
             Box::new(PresetParameter2MigrationOperation),
@@ -106,6 +106,12 @@ impl carbon_core::postgres::operations::Insert for MeteoraDlmmAccountWithMetadat
                 row.insert(pool).await?;
                 Ok(())
             }
+            MeteoraDlmmAccount::LimitOrder(account) => {
+                let row =
+                    limit_order_row::LimitOrderRow::from_parts(*account.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
             MeteoraDlmmAccount::Operator(account) => {
                 let row = operator_row::OperatorRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
@@ -113,11 +119,6 @@ impl carbon_core::postgres::operations::Insert for MeteoraDlmmAccountWithMetadat
             }
             MeteoraDlmmAccount::Oracle(account) => {
                 let row = oracle_row::OracleRow::from_parts(*account.clone(), metadata.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraDlmmAccount::Position(account) => {
-                let row = position_row::PositionRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -193,6 +194,12 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDlmmAccountWithMetadat
                 row.upsert(pool).await?;
                 Ok(())
             }
+            MeteoraDlmmAccount::LimitOrder(account) => {
+                let row =
+                    limit_order_row::LimitOrderRow::from_parts(*account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
             MeteoraDlmmAccount::Operator(account) => {
                 let row = operator_row::OperatorRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
@@ -200,11 +207,6 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDlmmAccountWithMetadat
             }
             MeteoraDlmmAccount::Oracle(account) => {
                 let row = oracle_row::OracleRow::from_parts(*account.clone(), metadata.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraDlmmAccount::Position(account) => {
-                let row = position_row::PositionRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

@@ -2,7 +2,7 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// Creates an operation account for the program
 /// # Arguments
-/// * `ctx`- The context of accounts
+/// * `ctx` - The context of accounts
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CreateOperationAccount {}

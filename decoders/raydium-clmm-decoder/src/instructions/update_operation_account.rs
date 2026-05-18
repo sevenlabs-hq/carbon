@@ -5,8 +5,8 @@ use {
 };
 /// Update the operation account
 /// # Arguments
-/// * `ctx`- The context of accounts
-/// * `param`- The value can be 0 | 1 | 2 | 3, otherwise will report a error
+/// * `ctx` - The context of accounts
+/// * `param` - The value can be 0 | 1 | 2 | 3, otherwise will report an error
 /// * `keys`- update operation owner when the `param` is 0
 ///
 /// remove operation owner when the `param` is 1

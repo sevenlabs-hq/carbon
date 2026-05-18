@@ -4,9 +4,9 @@ pub mod bin_array_schema;
 pub mod claim_fee_operator_schema;
 pub mod dummy_zc_account_schema;
 pub mod lb_pair_schema;
+pub mod limit_order_schema;
 pub mod operator_schema;
 pub mod oracle_schema;
-pub mod position_schema;
 pub mod position_v2_schema;
 pub mod preset_parameter2_schema;
 pub mod preset_parameter_schema;
@@ -15,8 +15,8 @@ pub mod token_badge_schema;
 use juniper::GraphQLObject;
 pub use {
     bin_array_bitmap_extension_schema::*, bin_array_schema::*, claim_fee_operator_schema::*,
-    dummy_zc_account_schema::*, lb_pair_schema::*, operator_schema::*, oracle_schema::*,
-    position_schema::*, position_v2_schema::*, preset_parameter2_schema::*,
+    dummy_zc_account_schema::*, lb_pair_schema::*, limit_order_schema::*, operator_schema::*,
+    oracle_schema::*, position_v2_schema::*, preset_parameter2_schema::*,
     preset_parameter_schema::*, token_badge_schema::*,
 };
 

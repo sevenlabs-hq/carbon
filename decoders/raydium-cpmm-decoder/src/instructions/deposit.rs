@@ -3,8 +3,7 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// Deposit lp token to the pool
 /// # Arguments
 /// * `ctx`- The context of accounts
-/// * `lp_token_amount` - Pool token amount to transfer. token_a and token_b
-///   amount are set by the current exchange rate and size of the pool
+/// * `lp_token_amount` - Increased number of LPs
 /// * `maximum_token_0_amount` -  Maximum token 0 amount to deposit, prevents
 ///   excessive slippage
 /// * `maximum_token_1_amount` - Maximum token 1 amount to deposit, prevents

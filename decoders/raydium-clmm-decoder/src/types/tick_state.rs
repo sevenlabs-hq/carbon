@@ -13,6 +13,18 @@ pub struct TickState {
     /// absolute — the value depends on when the tick is initialized
     pub fee_growth_outside0_x64: u128,
     pub fee_growth_outside1_x64: u128,
+    /// Reward growth per unit of liquidity like fee, array of Q64.64
     pub reward_growths_outside_x64: [u128; 3],
-    pub padding: [u32; 13],
+    /// Order phase of the tick, used as a FIFO cohort index for limit orders
+    pub order_phase: u64,
+    /// The amount of limit orders that have never been matched,
+    /// only counts newly opened orders, not partially filled ones
+    pub orders_amount: u64,
+    /// Remaining part filled orders amount
+    pub part_filled_orders_remaining: u64,
+    /// Cumulative unfilled ratio for the current part-filled cohort (Q64.64
+    /// format). Starts at Q64(1) when a new cohort forms, multiplied down
+    /// as fills occur.
+    pub unfilled_ratio_x64: u128,
+    pub padding: [u32; 3],
 }

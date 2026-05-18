@@ -14,8 +14,8 @@ pub struct RewardInfo {
     /// Q64.64 number indicates how many tokens per second are earned per unit
     /// of liquidity.
     pub emissions_per_second_x64: u128,
-    /// The total amount of reward emissioned
-    pub reward_total_emissioned: u64,
+    /// The total amount of reward emitted
+    pub reward_total_emitted: u64,
     /// The total amount of claimed reward
     pub reward_claimed: u64,
     /// Reward token mint.

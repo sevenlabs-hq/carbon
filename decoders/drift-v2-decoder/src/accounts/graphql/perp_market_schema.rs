@@ -54,6 +54,7 @@ pub struct PerpMarketGraphQL {
     pub lp_exchange_fee_excluscion_scalar: U8,
     pub last_fill_price: U64,
     pub lp_pool_id: U8,
+    pub market_config: U8,
     pub padding: Vec<U8>,
 }
 
@@ -138,6 +139,7 @@ impl TryFrom<crate::accounts::postgres::PerpMarketRow> for PerpMarketGraphQL {
             ),
             last_fill_price: carbon_core::graphql::primitives::U64(*row.last_fill_price),
             lp_pool_id: carbon_core::graphql::primitives::U8((*row.lp_pool_id) as u8),
+            market_config: carbon_core::graphql::primitives::U8((*row.market_config) as u8),
             padding: row
                 .padding
                 .into_iter()

@@ -179,6 +179,40 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn limit_order(
+        context: &crate::graphql::context::GraphQLContext,
+        pubkey: String,
+    ) -> FieldResult<Option<crate::accounts::graphql::LimitOrderGraphQL>> {
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::LimitOrderRow::lookup(pk, &context.pool)
+            .await
+            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(row.and_then(|row| row.try_into().ok()))
+    }
+
+    async fn list_limit_order(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::accounts::graphql::LimitOrderGraphQL>> {
+        let rows: Vec<crate::accounts::postgres::LimitOrderRow> = sqlx::query_as(
+            r#"SELECT * FROM limit_order_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn operator(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
@@ -235,40 +269,6 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::accounts::graphql::OracleGraphQL>> {
         let rows: Vec<crate::accounts::postgres::OracleRow> = sqlx::query_as(
             r#"SELECT * FROM oracle_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn position(
-        context: &crate::graphql::context::GraphQLContext,
-        pubkey: String,
-    ) -> FieldResult<Option<crate::accounts::graphql::PositionGraphQL>> {
-        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
-        let pk = PgPubkey(
-            solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
-        );
-        let row = crate::accounts::postgres::PositionRow::lookup(pk, &context.pool)
-            .await
-            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.and_then(|row| row.try_into().ok()))
-    }
-
-    async fn list_position(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::accounts::graphql::PositionGraphQL>> {
-        let rows: Vec<crate::accounts::postgres::PositionRow> = sqlx::query_as(
-            r#"SELECT * FROM position_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -646,6 +646,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn add_liquidity_by_weight2(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::AddLiquidityByWeight2GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::AddLiquidityByWeight2Row> = sqlx::query_as(
+            r#"SELECT * FROM add_liquidity_by_weight2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_add_liquidity_by_weight2(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::AddLiquidityByWeight2GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::AddLiquidityByWeight2Row> = sqlx::query_as(
+            r#"SELECT * FROM add_liquidity_by_weight2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn add_liquidity_one_side(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -748,6 +786,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::AddLiquidityOneSidePrecise2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::AddLiquidityOneSidePrecise2Row> = sqlx::query_as(
             r#"SELECT * FROM add_liquidity_one_side_precise2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn cancel_limit_order(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CancelLimitOrderGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CancelLimitOrderRow> = sqlx::query_as(
+            r#"SELECT * FROM cancel_limit_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_cancel_limit_order(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CancelLimitOrderGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CancelLimitOrderRow> = sqlx::query_as(
+            r#"SELECT * FROM cancel_limit_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -912,6 +988,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn close_bin_array(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseBinArrayGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseBinArrayRow> = sqlx::query_as(
+            r#"SELECT * FROM close_bin_array_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_close_bin_array(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseBinArrayGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseBinArrayRow> = sqlx::query_as(
+            r#"SELECT * FROM close_bin_array_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn close_claim_fee_operator_account(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -938,6 +1052,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseClaimFeeOperatorAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseClaimFeeOperatorAccountRow> = sqlx::query_as(
             r#"SELECT * FROM close_claim_fee_operator_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn close_limit_order_if_empty(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseLimitOrderIfEmptyGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseLimitOrderIfEmptyRow> = sqlx::query_as(
+            r#"SELECT * FROM close_limit_order_if_empty_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_close_limit_order_if_empty(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseLimitOrderIfEmptyGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseLimitOrderIfEmptyRow> = sqlx::query_as(
+            r#"SELECT * FROM close_limit_order_if_empty_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -2062,13 +2214,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn migrate_position(
+    async fn place_limit_order(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::MigratePositionGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::MigratePositionRow> = sqlx::query_as(
-            r#"SELECT * FROM migrate_position_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PlaceLimitOrderGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PlaceLimitOrderRow> = sqlx::query_as(
+            r#"SELECT * FROM place_limit_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -2081,13 +2233,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_migrate_position(
+    async fn list_place_limit_order(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::MigratePositionGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::MigratePositionRow> = sqlx::query_as(
-            r#"SELECT * FROM migrate_position_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PlaceLimitOrderGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PlaceLimitOrderRow> = sqlx::query_as(
+            r#"SELECT * FROM place_limit_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -2328,120 +2480,6 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn reset_bin_array_tombstone_fields(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ResetBinArrayTombstoneFieldsGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ResetBinArrayTombstoneFieldsRow> = sqlx::query_as(
-            r#"SELECT * FROM reset_bin_array_tombstone_fields_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn list_reset_bin_array_tombstone_fields(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ResetBinArrayTombstoneFieldsGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ResetBinArrayTombstoneFieldsRow> = sqlx::query_as(
-            r#"SELECT * FROM reset_bin_array_tombstone_fields_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn reset_pool_tombstone_fields(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ResetPoolTombstoneFieldsGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ResetPoolTombstoneFieldsRow> = sqlx::query_as(
-            r#"SELECT * FROM reset_pool_tombstone_fields_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn list_reset_pool_tombstone_fields(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ResetPoolTombstoneFieldsGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ResetPoolTombstoneFieldsRow> = sqlx::query_as(
-            r#"SELECT * FROM reset_pool_tombstone_fields_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn reset_position_tombstone_fields(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ResetPositionTombstoneFieldsGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ResetPositionTombstoneFieldsRow> = sqlx::query_as(
-            r#"SELECT * FROM reset_position_tombstone_fields_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn list_reset_position_tombstone_fields(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ResetPositionTombstoneFieldsGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ResetPositionTombstoneFieldsRow> = sqlx::query_as(
-            r#"SELECT * FROM reset_position_tombstone_fields_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
     async fn set_activation_point(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -2544,6 +2582,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::SetPairStatusPermissionlessGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetPairStatusPermissionlessRow> = sqlx::query_as(
             r#"SELECT * FROM set_pair_status_permissionless_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn set_permissionless_operation_bits(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SetPermissionlessOperationBitsGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SetPermissionlessOperationBitsRow> = sqlx::query_as(
+            r#"SELECT * FROM set_permissionless_operation_bits_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_set_permissionless_operation_bits(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SetPermissionlessOperationBitsGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SetPermissionlessOperationBitsRow> = sqlx::query_as(
+            r#"SELECT * FROM set_permissionless_operation_bits_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

@@ -25,10 +25,12 @@ impl CpiEventRow {
             instruction_metadata: metadata.into(),
             name: match &source {
                 CpiEvent::AddLiquidity(_) => "add_liquidity".to_string(),
+                CpiEvent::CancelLimitOrderEvt(_) => "cancel_limit_order_evt".to_string(),
                 CpiEvent::ClaimFee(_) => "claim_fee".to_string(),
                 CpiEvent::ClaimFee2(_) => "claim_fee2".to_string(),
                 CpiEvent::ClaimReward(_) => "claim_reward".to_string(),
                 CpiEvent::ClaimReward2(_) => "claim_reward2".to_string(),
+                CpiEvent::CloseLimitOrderEvt(_) => "close_limit_order_evt".to_string(),
                 CpiEvent::CompositionFee(_) => "composition_fee".to_string(),
                 CpiEvent::DecreasePositionLength(_) => "decrease_position_length".to_string(),
                 CpiEvent::DynamicFeeParameterUpdate(_) => {
@@ -41,11 +43,16 @@ impl CpiEventRow {
                 CpiEvent::IncreasePositionLength(_) => "increase_position_length".to_string(),
                 CpiEvent::InitializeReward(_) => "initialize_reward".to_string(),
                 CpiEvent::LbPairCreate(_) => "lb_pair_create".to_string(),
+                CpiEvent::PlaceLimitOrderEvt(_) => "place_limit_order_evt".to_string(),
                 CpiEvent::PositionClose(_) => "position_close".to_string(),
                 CpiEvent::PositionCreate(_) => "position_create".to_string(),
                 CpiEvent::Rebalancing(_) => "rebalancing".to_string(),
                 CpiEvent::RemoveLiquidity(_) => "remove_liquidity".to_string(),
+                CpiEvent::SetPositionPermissionlessOperationBitsEvt(_) => {
+                    "set_position_permissionless_operation_bits_evt".to_string()
+                }
                 CpiEvent::Swap(_) => "swap".to_string(),
+                CpiEvent::Swap2Evt(_) => "swap2_evt".to_string(),
                 CpiEvent::UpdatePositionLockReleasePoint(_) => {
                     "update_position_lock_release_point".to_string()
                 }

@@ -4456,6 +4456,46 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn admin_withdraw_from_insurance_fund_vault(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::AdminWithdrawFromInsuranceFundVaultGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::AdminWithdrawFromInsuranceFundVaultRow> = sqlx::query_as(
+            r#"SELECT * FROM admin_withdraw_from_insurance_fund_vault_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_admin_withdraw_from_insurance_fund_vault(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::AdminWithdrawFromInsuranceFundVaultGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::AdminWithdrawFromInsuranceFundVaultRow> = sqlx::query_as(
+            r#"SELECT * FROM admin_withdraw_from_insurance_fund_vault_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn deposit_into_insurance_fund_stake(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -10444,6 +10484,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::SettlePerpToLpPoolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SettlePerpToLpPoolRow> = sqlx::query_as(
             r#"SELECT * FROM settle_perp_to_lp_pool_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn update_perp_market_config(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdatePerpMarketConfigGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UpdatePerpMarketConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM update_perp_market_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_update_perp_market_config(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdatePerpMarketConfigGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UpdatePerpMarketConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM update_perp_market_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

@@ -3,8 +3,10 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// Collect the fund fee accrued to the pool
 /// # Arguments
 /// * `ctx` - The context of accounts
-/// * `amount_0_requested` - The maximum amount of token_0 to send
-/// * `amount_1_requested` - The maximum amount of token_1 to send
+/// * `amount_0_requested` - The maximum amount of token_0 to send, can be 0 to
+///   collect fees in only token_1
+/// * `amount_1_requested` - The maximum amount of token_1 to send, can be 0 to
+///   collect fees in only token_0
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CollectFundFee {

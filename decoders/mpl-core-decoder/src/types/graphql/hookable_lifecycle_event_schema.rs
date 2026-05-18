@@ -8,6 +8,7 @@ pub enum HookableLifecycleEventGraphQL {
     Transfer,
     Burn,
     Update,
+    Execute,
 }
 
 impl From<crate::types::HookableLifecycleEvent> for HookableLifecycleEventGraphQL {
@@ -17,6 +18,7 @@ impl From<crate::types::HookableLifecycleEvent> for HookableLifecycleEventGraphQ
             crate::types::HookableLifecycleEvent::Transfer => Self::Transfer,
             crate::types::HookableLifecycleEvent::Burn => Self::Burn,
             crate::types::HookableLifecycleEvent::Update => Self::Update,
+            crate::types::HookableLifecycleEvent::Execute => Self::Execute,
         }
     }
 }

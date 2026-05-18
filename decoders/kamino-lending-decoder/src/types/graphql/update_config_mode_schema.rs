@@ -59,6 +59,9 @@ pub enum UpdateConfigModeGraphQL {
     UpdateBlockCTokenUsage,
     UpdateDebtMaturityTimestamp,
     UpdateDebtTermSeconds,
+    UpdateEarlyRepayRemainingInterestPct,
+    UpdateReserveEmergencyMode,
+    UpdateRewardsAmountPerSlot,
 }
 
 impl From<crate::types::UpdateConfigMode> for UpdateConfigModeGraphQL {
@@ -119,6 +122,9 @@ impl From<crate::types::UpdateConfigMode> for UpdateConfigModeGraphQL {
             crate::types::UpdateConfigMode::UpdateBlockCTokenUsage => Self::UpdateBlockCTokenUsage,
             crate::types::UpdateConfigMode::UpdateDebtMaturityTimestamp => Self::UpdateDebtMaturityTimestamp,
             crate::types::UpdateConfigMode::UpdateDebtTermSeconds => Self::UpdateDebtTermSeconds,
+            crate::types::UpdateConfigMode::UpdateEarlyRepayRemainingInterestPct => Self::UpdateEarlyRepayRemainingInterestPct,
+            crate::types::UpdateConfigMode::UpdateReserveEmergencyMode => Self::UpdateReserveEmergencyMode,
+            crate::types::UpdateConfigMode::UpdateRewardsAmountPerSlot => Self::UpdateRewardsAmountPerSlot,
         }
     }
 }

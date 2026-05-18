@@ -12,6 +12,7 @@ pub mod add_insurance_fund_stake;
 pub mod add_market_to_amm_cache;
 pub mod admin_deposit;
 pub mod admin_update_user_stats_paused_operations;
+pub mod admin_withdraw_from_insurance_fund_vault;
 pub mod begin_insurance_fund_swap;
 pub mod begin_lp_swap;
 pub mod begin_swap;
@@ -173,6 +174,7 @@ pub mod update_perp_market_amm_spread_adjustment;
 pub mod update_perp_market_amm_summary_stats;
 pub mod update_perp_market_base_spread;
 pub mod update_perp_market_concentration_coef;
+pub mod update_perp_market_config;
 pub mod update_perp_market_contract_tier;
 pub mod update_perp_market_curve_update_intensity;
 pub mod update_perp_market_expiry;
@@ -258,8 +260,9 @@ pub mod zero_mm_oracle_fields;
 
 pub use self::{
     add_amm_constituent_mapping_data::*, add_insurance_fund_stake::*, add_market_to_amm_cache::*,
-    admin_deposit::*, admin_update_user_stats_paused_operations::*, begin_insurance_fund_swap::*,
-    begin_lp_swap::*, begin_swap::*, cancel_order::*, cancel_order_by_user_id::*, cancel_orders::*,
+    admin_deposit::*, admin_update_user_stats_paused_operations::*,
+    admin_withdraw_from_insurance_fund_vault::*, begin_insurance_fund_swap::*, begin_lp_swap::*,
+    begin_swap::*, cancel_order::*, cancel_order_by_user_id::*, cancel_orders::*,
     cancel_orders_by_ids::*, cancel_request_remove_insurance_fund_stake::*,
     change_approved_builder::*, change_signed_msg_ws_delegate_status::*, cpi_event::*,
     delete_amm_cache::*, delete_initialized_perp_market::*, delete_initialized_spot_market::*,
@@ -320,18 +323,19 @@ pub use self::{
     update_perp_auction_duration::*, update_perp_bid_ask_twap::*, update_perp_fee_structure::*,
     update_perp_market_amm_oracle_twap::*, update_perp_market_amm_spread_adjustment::*,
     update_perp_market_amm_summary_stats::*, update_perp_market_base_spread::*,
-    update_perp_market_concentration_coef::*, update_perp_market_contract_tier::*,
-    update_perp_market_curve_update_intensity::*, update_perp_market_expiry::*,
-    update_perp_market_fee_adjustment::*, update_perp_market_funding_period::*,
-    update_perp_market_high_leverage_margin_ratio::*, update_perp_market_imf_factor::*,
-    update_perp_market_liquidation_fee::*, update_perp_market_lp_pool_fee_transfer_scalar::*,
-    update_perp_market_lp_pool_id::*, update_perp_market_lp_pool_paused_operations::*,
-    update_perp_market_lp_pool_status::*, update_perp_market_margin_ratio::*,
-    update_perp_market_max_fill_reserve_fraction::*, update_perp_market_max_imbalances::*,
-    update_perp_market_max_open_interest::*, update_perp_market_max_slippage_ratio::*,
-    update_perp_market_max_spread::*, update_perp_market_min_order_size::*,
-    update_perp_market_name::*, update_perp_market_number_of_users::*,
-    update_perp_market_oracle::*, update_perp_market_oracle_low_risk_slot_delay_override::*,
+    update_perp_market_concentration_coef::*, update_perp_market_config::*,
+    update_perp_market_contract_tier::*, update_perp_market_curve_update_intensity::*,
+    update_perp_market_expiry::*, update_perp_market_fee_adjustment::*,
+    update_perp_market_funding_period::*, update_perp_market_high_leverage_margin_ratio::*,
+    update_perp_market_imf_factor::*, update_perp_market_liquidation_fee::*,
+    update_perp_market_lp_pool_fee_transfer_scalar::*, update_perp_market_lp_pool_id::*,
+    update_perp_market_lp_pool_paused_operations::*, update_perp_market_lp_pool_status::*,
+    update_perp_market_margin_ratio::*, update_perp_market_max_fill_reserve_fraction::*,
+    update_perp_market_max_imbalances::*, update_perp_market_max_open_interest::*,
+    update_perp_market_max_slippage_ratio::*, update_perp_market_max_spread::*,
+    update_perp_market_min_order_size::*, update_perp_market_name::*,
+    update_perp_market_number_of_users::*, update_perp_market_oracle::*,
+    update_perp_market_oracle_low_risk_slot_delay_override::*,
     update_perp_market_oracle_slot_delay_override::*, update_perp_market_paused_operations::*,
     update_perp_market_pnl_pool::*, update_perp_market_protected_maker_params::*,
     update_perp_market_reference_price_offset_deadband_pct::*, update_perp_market_status::*,
@@ -391,6 +395,11 @@ pub enum DriftV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: AdminUpdateUserStatsPausedOperations,
         accounts: AdminUpdateUserStatsPausedOperationsInstructionAccounts,
+    },
+    AdminWithdrawFromInsuranceFundVault {
+        program_id: solana_pubkey::Pubkey,
+        data: AdminWithdrawFromInsuranceFundVault,
+        accounts: AdminWithdrawFromInsuranceFundVaultInstructionAccounts,
     },
     BeginInsuranceFundSwap {
         program_id: solana_pubkey::Pubkey,
@@ -1192,6 +1201,11 @@ pub enum DriftV2Instruction {
         data: UpdatePerpMarketConcentrationCoef,
         accounts: UpdatePerpMarketConcentrationCoefInstructionAccounts,
     },
+    UpdatePerpMarketConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdatePerpMarketConfig,
+        accounts: UpdatePerpMarketConfigInstructionAccounts,
+    },
     UpdatePerpMarketContractTier {
         program_id: solana_pubkey::Pubkey,
         data: UpdatePerpMarketContractTier,
@@ -1628,6 +1642,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DriftV2Decoder {
             DriftV2Instruction::AddMarketToAmmCache => AddMarketToAmmCache,
             DriftV2Instruction::AdminDeposit => AdminDeposit,
             DriftV2Instruction::AdminUpdateUserStatsPausedOperations => AdminUpdateUserStatsPausedOperations,
+            DriftV2Instruction::AdminWithdrawFromInsuranceFundVault => AdminWithdrawFromInsuranceFundVault,
             DriftV2Instruction::BeginInsuranceFundSwap => BeginInsuranceFundSwap,
             DriftV2Instruction::BeginLpSwap => BeginLpSwap,
             DriftV2Instruction::BeginSwap => BeginSwap,
@@ -1788,6 +1803,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DriftV2Decoder {
             DriftV2Instruction::UpdatePerpMarketAmmSummaryStats => UpdatePerpMarketAmmSummaryStats,
             DriftV2Instruction::UpdatePerpMarketBaseSpread => UpdatePerpMarketBaseSpread,
             DriftV2Instruction::UpdatePerpMarketConcentrationCoef => UpdatePerpMarketConcentrationCoef,
+            DriftV2Instruction::UpdatePerpMarketConfig => UpdatePerpMarketConfig,
             DriftV2Instruction::UpdatePerpMarketContractTier => UpdatePerpMarketContractTier,
             DriftV2Instruction::UpdatePerpMarketCurveUpdateIntensity => UpdatePerpMarketCurveUpdateIntensity,
             DriftV2Instruction::UpdatePerpMarketExpiry => UpdatePerpMarketExpiry,

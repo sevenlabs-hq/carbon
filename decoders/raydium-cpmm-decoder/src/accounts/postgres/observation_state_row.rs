@@ -18,6 +18,7 @@ pub struct ObservationStateRow {
     pub observation_index: U16,
     pub pool_id: Pubkey,
     pub observations: sqlx::types::Json<Vec<Observation>>,
+    pub last_update_timestamp: U64,
     pub padding: Vec<U64>,
 }
 
@@ -32,6 +33,7 @@ impl ObservationStateRow {
             observation_index: source.observation_index.into(),
             pool_id: source.pool_id.into(),
             observations: sqlx::types::Json(source.observations.to_vec()),
+            last_update_timestamp: source.last_update_timestamp.into(),
             padding: source
                 .padding
                 .into_iter()
@@ -63,6 +65,7 @@ impl TryFrom<ObservationStateRow> for crate::accounts::observation_state::Observ
                         "Failed to convert value from postgres primitive".to_string(),
                     )
                 })?,
+            last_update_timestamp: *source.last_update_timestamp,
             padding: source
                 .padding
                 .into_iter()
@@ -98,6 +101,7 @@ impl carbon_core::postgres::operations::Table
             "observation_index",
             "pool_id",
             "observations",
+            "last_update_timestamp",
             "padding",
         ]
     }
@@ -113,16 +117,18 @@ impl carbon_core::postgres::operations::Insert for ObservationStateRow {
                 "observation_index",
                 "pool_id",
                 "observations",
+                "last_update_timestamp",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
         .bind(self.initialized)
         .bind(self.observation_index)
         .bind(self.pool_id)
         .bind(&self.observations)
+        .bind(&self.last_update_timestamp)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -142,10 +148,11 @@ impl carbon_core::postgres::operations::Upsert for ObservationStateRow {
                 "observation_index",
                 "pool_id",
                 "observations",
+                "last_update_timestamp",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -153,6 +160,7 @@ impl carbon_core::postgres::operations::Upsert for ObservationStateRow {
                 "observation_index" = EXCLUDED."observation_index",
                 "pool_id" = EXCLUDED."pool_id",
                 "observations" = EXCLUDED."observations",
+                "last_update_timestamp" = EXCLUDED."last_update_timestamp",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
             "#,
@@ -161,6 +169,7 @@ impl carbon_core::postgres::operations::Upsert for ObservationStateRow {
         .bind(self.observation_index)
         .bind(self.pool_id)
         .bind(&self.observations)
+        .bind(&self.last_update_timestamp)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -225,6 +234,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ObservationStateMigrationOpera
                 "observation_index" INT4 NOT NULL,
                 "pool_id" BYTEA NOT NULL,
                 "observations" JSONB NOT NULL,
+                "last_update_timestamp" NUMERIC(20) NOT NULL,
                 "padding" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

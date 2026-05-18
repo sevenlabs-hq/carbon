@@ -45,6 +45,11 @@ pub enum UpdateLendingMarketModeGraphQL {
     UpdateTermBasedFullLiquidationDurationSecs,
     UpdateObligationBorrowMigrationToFixedExecutionEnabled,
     UpdateMinPartialRolloverValue,
+    UpdateWithdrawTicketCancellationEnabled,
+    UpdatePermissioningAuthority,
+    UpdatePermissionedOps,
+    DeprecatedUpdateReserveRewardsMaxAprPct,
+    UpdateReserveRewardsMaxAprBps,
 }
 
 impl From<crate::types::UpdateLendingMarketMode> for UpdateLendingMarketModeGraphQL {
@@ -91,6 +96,11 @@ impl From<crate::types::UpdateLendingMarketMode> for UpdateLendingMarketModeGrap
             crate::types::UpdateLendingMarketMode::UpdateTermBasedFullLiquidationDurationSecs => Self::UpdateTermBasedFullLiquidationDurationSecs,
             crate::types::UpdateLendingMarketMode::UpdateObligationBorrowMigrationToFixedExecutionEnabled => Self::UpdateObligationBorrowMigrationToFixedExecutionEnabled,
             crate::types::UpdateLendingMarketMode::UpdateMinPartialRolloverValue => Self::UpdateMinPartialRolloverValue,
+            crate::types::UpdateLendingMarketMode::UpdateWithdrawTicketCancellationEnabled => Self::UpdateWithdrawTicketCancellationEnabled,
+            crate::types::UpdateLendingMarketMode::UpdatePermissioningAuthority => Self::UpdatePermissioningAuthority,
+            crate::types::UpdateLendingMarketMode::UpdatePermissionedOps => Self::UpdatePermissionedOps,
+            crate::types::UpdateLendingMarketMode::DeprecatedUpdateReserveRewardsMaxAprPct => Self::DeprecatedUpdateReserveRewardsMaxAprPct,
+            crate::types::UpdateLendingMarketMode::UpdateReserveRewardsMaxAprBps => Self::UpdateReserveRewardsMaxAprBps,
         }
     }
 }

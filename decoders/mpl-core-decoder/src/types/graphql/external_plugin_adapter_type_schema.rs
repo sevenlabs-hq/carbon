@@ -10,6 +10,7 @@ pub enum ExternalPluginAdapterTypeGraphQL {
     LinkedLifecycleHook,
     LinkedAppData,
     DataSection,
+    AgentIdentity,
 }
 
 impl From<crate::types::ExternalPluginAdapterType> for ExternalPluginAdapterTypeGraphQL {
@@ -23,6 +24,7 @@ impl From<crate::types::ExternalPluginAdapterType> for ExternalPluginAdapterType
             }
             crate::types::ExternalPluginAdapterType::LinkedAppData => Self::LinkedAppData,
             crate::types::ExternalPluginAdapterType::DataSection => Self::DataSection,
+            crate::types::ExternalPluginAdapterType::AgentIdentity => Self::AgentIdentity,
         }
     }
 }

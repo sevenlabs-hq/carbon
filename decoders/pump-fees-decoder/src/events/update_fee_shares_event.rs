@@ -9,6 +9,7 @@ pub struct UpdateFeeSharesEventEvent {
     pub sharing_config: Pubkey,
     pub admin: Pubkey,
     pub new_shareholders: Vec<Shareholder>,
+    pub version: u8,
 }
 
 impl UpdateFeeSharesEventEvent {

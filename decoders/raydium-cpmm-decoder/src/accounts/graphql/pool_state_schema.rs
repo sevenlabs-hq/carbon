@@ -30,6 +30,11 @@ pub struct PoolStateGraphQL {
     pub fund_fees_token1: U64,
     pub open_time: U64,
     pub recent_epoch: U64,
+    pub creator_fee_on: U8,
+    pub enable_creator_fee: bool,
+    pub padding1: Vec<U8>,
+    pub creator_fees_token0: U64,
+    pub creator_fees_token1: U64,
     pub padding: Vec<U64>,
 }
 
@@ -60,6 +65,15 @@ impl TryFrom<crate::accounts::postgres::PoolStateRow> for PoolStateGraphQL {
             fund_fees_token1: carbon_core::graphql::primitives::U64(*row.fund_fees_token1),
             open_time: carbon_core::graphql::primitives::U64(*row.open_time),
             recent_epoch: carbon_core::graphql::primitives::U64(*row.recent_epoch),
+            creator_fee_on: carbon_core::graphql::primitives::U8((*row.creator_fee_on) as u8),
+            enable_creator_fee: row.enable_creator_fee,
+            padding1: row
+                .padding1
+                .into_iter()
+                .map(|x| carbon_core::graphql::primitives::U8((*x) as u8))
+                .collect(),
+            creator_fees_token0: carbon_core::graphql::primitives::U64(*row.creator_fees_token0),
+            creator_fees_token1: carbon_core::graphql::primitives::U64(*row.creator_fees_token1),
             padding: row
                 .padding
                 .into_iter()

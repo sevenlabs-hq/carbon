@@ -3,8 +3,7 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// Reset reward param, start a new reward cycle or extend the current cycle.
 /// # Arguments
 /// * `ctx` - The context of accounts
-/// * `reward_index` - The index of reward token in the pool, it must be smaller
-///   than 3
+/// * `reward_index` - The index of reward token in the pool.
 /// * `emissions_per_second_x64` - The per second emission reward, when extend
 ///   the current cycle,
 ///

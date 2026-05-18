@@ -10,6 +10,7 @@ pub enum KeyGraphQL {
     PluginHeaderV1,
     PluginRegistryV1,
     CollectionV1,
+    GroupV1,
 }
 
 impl From<crate::types::Key> for KeyGraphQL {
@@ -21,6 +22,7 @@ impl From<crate::types::Key> for KeyGraphQL {
             crate::types::Key::PluginHeaderV1 => Self::PluginHeaderV1,
             crate::types::Key::PluginRegistryV1 => Self::PluginRegistryV1,
             crate::types::Key::CollectionV1 => Self::CollectionV1,
+            crate::types::Key::GroupV1 => Self::GroupV1,
         }
     }
 }

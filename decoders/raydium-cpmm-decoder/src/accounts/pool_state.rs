@@ -47,8 +47,17 @@ pub struct PoolState {
     pub open_time: u64,
     /// recent epoch
     pub recent_epoch: u64,
+    /// Creator fee collect mode
+    /// 0: both token_0 and token_1 can be used as trade fees. It depends on
+    /// what the input token is when swapping 1: only token_0 as trade fee
+    /// 2: only token_1 as trade fee
+    pub creator_fee_on: u8,
+    pub enable_creator_fee: bool,
+    pub padding1: [u8; 6],
+    pub creator_fees_token0: u64,
+    pub creator_fees_token1: u64,
     /// padding for future updates
-    pub padding: [u64; 31],
+    pub padding: [u64; 28],
 }
 
 impl PoolState {

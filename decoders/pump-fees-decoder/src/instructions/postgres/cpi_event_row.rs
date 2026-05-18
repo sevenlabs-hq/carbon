@@ -34,9 +34,6 @@ impl CpiEventRow {
                 CpiEvent::ResetFeeSharingConfigEvent(_) => {
                     "reset_fee_sharing_config_event".to_string()
                 }
-                CpiEvent::RevokeFeeSharingAuthorityEvent(_) => {
-                    "revoke_fee_sharing_authority_event".to_string()
-                }
                 CpiEvent::SetAuthorityEvent(_) => "set_authority_event".to_string(),
                 CpiEvent::SetClaimRateLimitEvent(_) => "set_claim_rate_limit_event".to_string(),
                 CpiEvent::SetDisableFlagsEvent(_) => "set_disable_flags_event".to_string(),
@@ -45,9 +42,6 @@ impl CpiEventRow {
                 }
                 CpiEvent::SocialFeePdaClaimed(_) => "social_fee_pda_claimed".to_string(),
                 CpiEvent::SocialFeePdaCreated(_) => "social_fee_pda_created".to_string(),
-                CpiEvent::TransferFeeSharingAuthorityEvent(_) => {
-                    "transfer_fee_sharing_authority_event".to_string()
-                }
                 CpiEvent::UpdateAdminEvent(_) => "update_admin_event".to_string(),
                 CpiEvent::UpdateFeeConfigEvent(_) => "update_fee_config_event".to_string(),
                 CpiEvent::UpdateFeeSharesEvent(_) => "update_fee_shares_event".to_string(),

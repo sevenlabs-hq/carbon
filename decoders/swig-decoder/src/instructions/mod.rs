@@ -8,12 +8,14 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod add_authority_v1;
+pub mod close_swig_v1;
+pub mod close_token_account_v1;
 pub mod create_session_v1;
 pub mod create_sub_account_v1;
 pub mod create_v1;
+pub mod deprecated_sign_v1;
 pub mod migrate_to_wallet_address_v1;
 pub mod remove_authority_v1;
-pub mod sign_v1;
 pub mod sign_v2;
 pub mod sub_account_sign_v1;
 pub mod toggle_sub_account_v1;
@@ -22,10 +24,10 @@ pub mod update_authority_v1;
 pub mod withdraw_from_sub_account_v1;
 
 pub use self::{
-    add_authority_v1::*, create_session_v1::*, create_sub_account_v1::*, create_v1::*,
-    migrate_to_wallet_address_v1::*, remove_authority_v1::*, sign_v1::*, sign_v2::*,
-    sub_account_sign_v1::*, toggle_sub_account_v1::*, transfer_assets_v1::*,
-    update_authority_v1::*, withdraw_from_sub_account_v1::*,
+    add_authority_v1::*, close_swig_v1::*, close_token_account_v1::*, create_session_v1::*,
+    create_sub_account_v1::*, create_v1::*, deprecated_sign_v1::*, migrate_to_wallet_address_v1::*,
+    remove_authority_v1::*, sign_v2::*, sub_account_sign_v1::*, toggle_sub_account_v1::*,
+    transfer_assets_v1::*, update_authority_v1::*, withdraw_from_sub_account_v1::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -36,6 +38,16 @@ pub enum SwigInstruction {
         program_id: solana_pubkey::Pubkey,
         data: AddAuthorityV1,
         accounts: AddAuthorityV1InstructionAccounts,
+    },
+    CloseSwigV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseSwigV1,
+        accounts: CloseSwigV1InstructionAccounts,
+    },
+    CloseTokenAccountV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseTokenAccountV1,
+        accounts: CloseTokenAccountV1InstructionAccounts,
     },
     CreateSessionV1 {
         program_id: solana_pubkey::Pubkey,
@@ -52,6 +64,11 @@ pub enum SwigInstruction {
         data: CreateV1,
         accounts: CreateV1InstructionAccounts,
     },
+    DeprecatedSignV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: DeprecatedSignV1,
+        accounts: DeprecatedSignV1InstructionAccounts,
+    },
     MigrateToWalletAddressV1 {
         program_id: solana_pubkey::Pubkey,
         data: MigrateToWalletAddressV1,
@@ -61,11 +78,6 @@ pub enum SwigInstruction {
         program_id: solana_pubkey::Pubkey,
         data: RemoveAuthorityV1,
         accounts: RemoveAuthorityV1InstructionAccounts,
-    },
-    SignV1 {
-        program_id: solana_pubkey::Pubkey,
-        data: SignV1,
-        accounts: SignV1InstructionAccounts,
     },
     SignV2 {
         program_id: solana_pubkey::Pubkey,
@@ -114,12 +126,14 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
             instruction,
             PROGRAM_ID,
             SwigInstruction::AddAuthorityV1 => AddAuthorityV1,
+            SwigInstruction::CloseSwigV1 => CloseSwigV1,
+            SwigInstruction::CloseTokenAccountV1 => CloseTokenAccountV1,
             SwigInstruction::CreateSessionV1 => CreateSessionV1,
             SwigInstruction::CreateSubAccountV1 => CreateSubAccountV1,
             SwigInstruction::CreateV1 => CreateV1,
+            SwigInstruction::DeprecatedSignV1 => DeprecatedSignV1,
             SwigInstruction::MigrateToWalletAddressV1 => MigrateToWalletAddressV1,
             SwigInstruction::RemoveAuthorityV1 => RemoveAuthorityV1,
-            SwigInstruction::SignV1 => SignV1,
             SwigInstruction::SignV2 => SignV2,
             SwigInstruction::SubAccountSignV1 => SubAccountSignV1,
             SwigInstruction::ToggleSubAccountV1 => ToggleSubAccountV1,

@@ -60,7 +60,9 @@ pub struct Obligation {
     pub lowest_reserve_deposit_max_ltv_pct: u8,
     /// The number of obsolete reserves the obligation has a borrow in
     pub num_of_obsolete_borrow_reserves: u8,
-    pub reserved: [u8; 4],
+    /// State of ownership transfer, see [OwnershipTransferState]
+    pub ownership_transfer_state: u8,
+    pub reserved: [u8; 3],
     pub highest_borrow_factor_pct: u64,
     /// A timestamp at which the market owner most-recently marked this
     /// obligation for deleveraging. Zero if not currently subject to
@@ -74,8 +76,11 @@ pub struct Obligation {
     /// obligation. Non-zeroed only on a newly-initialized fixed-rate,
     /// fixed-term obligation.
     pub borrow_order: BorrowOrder,
+    /// Pending owner during ownership transfer process.
+    /// Pubkey::default() means no pending owner (similar to Option::None)
+    pub pending_owner: Pubkey,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub padding3: [u64; 73],
+    pub padding3: [u64; 69],
 }
 
 impl Obligation {

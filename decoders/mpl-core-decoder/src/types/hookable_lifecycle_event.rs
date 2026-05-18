@@ -6,4 +6,5 @@ pub enum HookableLifecycleEvent {
     Transfer,
     Burn,
     Update,
+    Execute,
 }

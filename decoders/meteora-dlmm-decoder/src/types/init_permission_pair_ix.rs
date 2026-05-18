@@ -7,5 +7,7 @@ pub struct InitPermissionPairIx {
     pub base_factor: u16,
     pub base_fee_power_factor: u8,
     pub activation_type: u8,
-    pub protocol_share: u16,
+    pub padding0: u16,
+    pub concrete_function_type: u8,
+    pub collect_fee_mode: u8,
 }

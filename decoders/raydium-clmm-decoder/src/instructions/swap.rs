@@ -7,9 +7,8 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// * `amount` - Arranged in pairs with other_amount_threshold. (amount_in,
 ///   amount_out_minimum) or (amount_out, amount_in_maximum)
 /// * `other_amount_threshold` - For slippage check
-/// * `sqrt_price_limit_x64` - The Q64.64 format √P limit price, and if it is 0,
-///   the maximum and minimum prices that can be reached are set by default
-///   according to the swap direction.
+/// * `sqrt_price_limit` - The Q64.64 sqrt price √P limit. If zero for one, the
+///   price cannot
 /// * `is_base_input` - swap base input or swap base output
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]

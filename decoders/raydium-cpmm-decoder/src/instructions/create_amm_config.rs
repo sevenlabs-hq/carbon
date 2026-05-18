@@ -14,6 +14,7 @@ pub struct CreateAmmConfig {
     pub protocol_fee_rate: u64,
     pub fund_fee_rate: u64,
     pub create_pool_fee: u64,
+    pub creator_fee_rate: u64,
 }
 
 #[derive(Debug, Clone, PartialEq)]

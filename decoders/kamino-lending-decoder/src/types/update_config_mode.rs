@@ -57,4 +57,7 @@ pub enum UpdateConfigMode {
     UpdateBlockCTokenUsage,
     UpdateDebtMaturityTimestamp,
     UpdateDebtTermSeconds,
+    UpdateEarlyRepayRemainingInterestPct,
+    UpdateReserveEmergencyMode,
+    UpdateRewardsAmountPerSlot,
 }

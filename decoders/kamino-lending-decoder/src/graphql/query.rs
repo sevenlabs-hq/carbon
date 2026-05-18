@@ -502,6 +502,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn clone_reserve_config(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloneReserveConfigGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloneReserveConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM clone_reserve_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_clone_reserve_config(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloneReserveConfigGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloneReserveConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM clone_reserve_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn init_farms_for_reserve(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -680,6 +718,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::SeedDepositOnInitReserveGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SeedDepositOnInitReserveRow> = sqlx::query_as(
             r#"SELECT * FROM seed_deposit_on_init_reserve_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn topup_reserve_rewards(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::TopupReserveRewardsGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::TopupReserveRewardsRow> = sqlx::query_as(
+            r#"SELECT * FROM topup_reserve_rewards_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_topup_reserve_rewards(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::TopupReserveRewardsGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::TopupReserveRewardsRow> = sqlx::query_as(
+            r#"SELECT * FROM topup_reserve_rewards_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -2230,6 +2306,164 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn initiate_obligation_ownership_transfer(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitiateObligationOwnershipTransferGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::InitiateObligationOwnershipTransferRow> = sqlx::query_as(
+            r#"SELECT * FROM initiate_obligation_ownership_transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_initiate_obligation_ownership_transfer(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitiateObligationOwnershipTransferGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::InitiateObligationOwnershipTransferRow> = sqlx::query_as(
+            r#"SELECT * FROM initiate_obligation_ownership_transfer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn approve_obligation_ownership_transfer(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ApproveObligationOwnershipTransferGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::ApproveObligationOwnershipTransferRow> = sqlx::query_as(
+            r#"SELECT * FROM approve_obligation_ownership_transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_approve_obligation_ownership_transfer(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ApproveObligationOwnershipTransferGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::ApproveObligationOwnershipTransferRow> = sqlx::query_as(
+            r#"SELECT * FROM approve_obligation_ownership_transfer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn accept_obligation_ownership(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::AcceptObligationOwnershipGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::AcceptObligationOwnershipRow> = sqlx::query_as(
+            r#"SELECT * FROM accept_obligation_ownership_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_accept_obligation_ownership(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::AcceptObligationOwnershipGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::AcceptObligationOwnershipRow> = sqlx::query_as(
+            r#"SELECT * FROM accept_obligation_ownership_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn abort_obligation_ownership_transfer(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::AbortObligationOwnershipTransferGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::AbortObligationOwnershipTransferRow> = sqlx::query_as(
+            r#"SELECT * FROM abort_obligation_ownership_transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_abort_obligation_ownership_transfer(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::AbortObligationOwnershipTransferGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::AbortObligationOwnershipTransferRow> = sqlx::query_as(
+            r#"SELECT * FROM abort_obligation_ownership_transfer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn enqueue_to_withdraw(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -2332,6 +2566,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::RecoverInvalidTicketCollateralGraphQL>> {
         let rows: Vec<crate::instructions::postgres::RecoverInvalidTicketCollateralRow> = sqlx::query_as(
             r#"SELECT * FROM recover_invalid_ticket_collateral_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn cancel_withdraw_ticket(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CancelWithdrawTicketGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CancelWithdrawTicketRow> = sqlx::query_as(
+            r#"SELECT * FROM cancel_withdraw_ticket_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_cancel_withdraw_ticket(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CancelWithdrawTicketGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CancelWithdrawTicketRow> = sqlx::query_as(
+            r#"SELECT * FROM cancel_withdraw_ticket_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

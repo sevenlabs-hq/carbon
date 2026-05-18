@@ -7,12 +7,16 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod close_permission_pda;
+pub mod collect_creator_fee;
 pub mod collect_fund_fee;
 pub mod collect_protocol_fee;
 pub mod cpi_event;
 pub mod create_amm_config;
+pub mod create_permission_pda;
 pub mod deposit;
 pub mod initialize;
+pub mod initialize_with_permission;
 pub mod swap_base_input;
 pub mod swap_base_output;
 pub mod update_amm_config;
@@ -20,8 +24,9 @@ pub mod update_pool_status;
 pub mod withdraw;
 
 pub use self::{
-    collect_fund_fee::*, collect_protocol_fee::*, cpi_event::*, create_amm_config::*, deposit::*,
-    initialize::*, swap_base_input::*, swap_base_output::*, update_amm_config::*,
+    close_permission_pda::*, collect_creator_fee::*, collect_fund_fee::*, collect_protocol_fee::*,
+    cpi_event::*, create_amm_config::*, create_permission_pda::*, deposit::*, initialize::*,
+    initialize_with_permission::*, swap_base_input::*, swap_base_output::*, update_amm_config::*,
     update_pool_status::*, withdraw::*,
 };
 
@@ -29,6 +34,16 @@ pub use self::{
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum RaydiumCpmmInstruction {
+    ClosePermissionPda {
+        program_id: solana_pubkey::Pubkey,
+        data: ClosePermissionPda,
+        accounts: ClosePermissionPdaInstructionAccounts,
+    },
+    CollectCreatorFee {
+        program_id: solana_pubkey::Pubkey,
+        data: CollectCreatorFee,
+        accounts: CollectCreatorFeeInstructionAccounts,
+    },
     CollectFundFee {
         program_id: solana_pubkey::Pubkey,
         data: CollectFundFee,
@@ -44,6 +59,11 @@ pub enum RaydiumCpmmInstruction {
         data: CreateAmmConfig,
         accounts: CreateAmmConfigInstructionAccounts,
     },
+    CreatePermissionPda {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatePermissionPda,
+        accounts: CreatePermissionPdaInstructionAccounts,
+    },
     Deposit {
         program_id: solana_pubkey::Pubkey,
         data: Deposit,
@@ -53,6 +73,11 @@ pub enum RaydiumCpmmInstruction {
         program_id: solana_pubkey::Pubkey,
         data: Initialize,
         accounts: InitializeInstructionAccounts,
+    },
+    InitializeWithPermission {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeWithPermission,
+        accounts: InitializeWithPermissionInstructionAccounts,
     },
     SwapBaseInput {
         program_id: solana_pubkey::Pubkey,
@@ -100,11 +125,15 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumCpmmDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            RaydiumCpmmInstruction::ClosePermissionPda => ClosePermissionPda,
+            RaydiumCpmmInstruction::CollectCreatorFee => CollectCreatorFee,
             RaydiumCpmmInstruction::CollectFundFee => CollectFundFee,
             RaydiumCpmmInstruction::CollectProtocolFee => CollectProtocolFee,
             RaydiumCpmmInstruction::CreateAmmConfig => CreateAmmConfig,
+            RaydiumCpmmInstruction::CreatePermissionPda => CreatePermissionPda,
             RaydiumCpmmInstruction::Deposit => Deposit,
             RaydiumCpmmInstruction::Initialize => Initialize,
+            RaydiumCpmmInstruction::InitializeWithPermission => InitializeWithPermission,
             RaydiumCpmmInstruction::SwapBaseInput => SwapBaseInput,
             RaydiumCpmmInstruction::SwapBaseOutput => SwapBaseOutput,
             RaydiumCpmmInstruction::UpdateAmmConfig => UpdateAmmConfig,

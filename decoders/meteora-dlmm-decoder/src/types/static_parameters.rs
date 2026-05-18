@@ -30,6 +30,8 @@ pub struct StaticParameters {
     pub base_fee_power_factor: u8,
     /// function type
     pub function_type: u8,
+    /// Collect fee mode
+    pub collect_fee_mode: u8,
     /// Padding for bytemuck safe alignment
-    pub padding: [u8; 4],
+    pub padding: [u8; 3],
 }

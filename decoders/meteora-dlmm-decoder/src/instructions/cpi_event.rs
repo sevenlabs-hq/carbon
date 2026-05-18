@@ -13,10 +13,12 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
 )]
 pub enum CpiEvent {
     AddLiquidity(events::add_liquidity::AddLiquidityEvent),
+    CancelLimitOrderEvt(events::cancel_limit_order_evt::CancelLimitOrderEvtEvent),
     ClaimFee(events::claim_fee::ClaimFeeEvent),
     ClaimFee2(events::claim_fee2::ClaimFee2Event),
     ClaimReward(events::claim_reward::ClaimRewardEvent),
     ClaimReward2(events::claim_reward2::ClaimReward2Event),
+    CloseLimitOrderEvt(events::close_limit_order_evt::CloseLimitOrderEvtEvent),
     CompositionFee(events::composition_fee::CompositionFeeEvent),
     DecreasePositionLength(events::decrease_position_length::DecreasePositionLengthEvent),
     DynamicFeeParameterUpdate(events::dynamic_fee_parameter_update::DynamicFeeParameterUpdateEvent),
@@ -27,14 +29,15 @@ pub enum CpiEvent {
     IncreasePositionLength(events::increase_position_length::IncreasePositionLengthEvent),
     InitializeReward(events::initialize_reward::InitializeRewardEvent),
     LbPairCreate(events::lb_pair_create::LbPairCreateEvent),
+    PlaceLimitOrderEvt(events::place_limit_order_evt::PlaceLimitOrderEvtEvent),
     PositionClose(events::position_close::PositionCloseEvent),
     PositionCreate(events::position_create::PositionCreateEvent),
     Rebalancing(events::rebalancing::RebalancingEvent),
     RemoveLiquidity(events::remove_liquidity::RemoveLiquidityEvent),
+    SetPositionPermissionlessOperationBitsEvt(events::set_position_permissionless_operation_bits_evt::SetPositionPermissionlessOperationBitsEvtEvent),
     Swap(events::swap::SwapEvent),
-    UpdatePositionLockReleasePoint(
-        events::update_position_lock_release_point::UpdatePositionLockReleasePointEvent,
-    ),
+    Swap2Evt(events::swap2_evt::Swap2EvtEvent),
+    UpdatePositionLockReleasePoint(events::update_position_lock_release_point::UpdatePositionLockReleasePointEvent),
     UpdatePositionOperator(events::update_position_operator::UpdatePositionOperatorEvent),
     UpdateRewardDuration(events::update_reward_duration::UpdateRewardDurationEvent),
     UpdateRewardFunder(events::update_reward_funder::UpdateRewardFunderEvent),
@@ -64,6 +67,11 @@ impl CpiEvent {
         if let Some(decoded) = events::add_liquidity::AddLiquidityEvent::decode(event_data) {
             return Some(CpiEvent::AddLiquidity(decoded));
         }
+        if let Some(decoded) =
+            events::cancel_limit_order_evt::CancelLimitOrderEvtEvent::decode(event_data)
+        {
+            return Some(CpiEvent::CancelLimitOrderEvt(decoded));
+        }
         if let Some(decoded) = events::claim_fee::ClaimFeeEvent::decode(event_data) {
             return Some(CpiEvent::ClaimFee(decoded));
         }
@@ -75,6 +83,11 @@ impl CpiEvent {
         }
         if let Some(decoded) = events::claim_reward2::ClaimReward2Event::decode(event_data) {
             return Some(CpiEvent::ClaimReward2(decoded));
+        }
+        if let Some(decoded) =
+            events::close_limit_order_evt::CloseLimitOrderEvtEvent::decode(event_data)
+        {
+            return Some(CpiEvent::CloseLimitOrderEvt(decoded));
         }
         if let Some(decoded) = events::composition_fee::CompositionFeeEvent::decode(event_data) {
             return Some(CpiEvent::CompositionFee(decoded));
@@ -117,6 +130,11 @@ impl CpiEvent {
         if let Some(decoded) = events::lb_pair_create::LbPairCreateEvent::decode(event_data) {
             return Some(CpiEvent::LbPairCreate(decoded));
         }
+        if let Some(decoded) =
+            events::place_limit_order_evt::PlaceLimitOrderEvtEvent::decode(event_data)
+        {
+            return Some(CpiEvent::PlaceLimitOrderEvt(decoded));
+        }
         if let Some(decoded) = events::position_close::PositionCloseEvent::decode(event_data) {
             return Some(CpiEvent::PositionClose(decoded));
         }
@@ -129,8 +147,14 @@ impl CpiEvent {
         if let Some(decoded) = events::remove_liquidity::RemoveLiquidityEvent::decode(event_data) {
             return Some(CpiEvent::RemoveLiquidity(decoded));
         }
+        if let Some(decoded) = events::set_position_permissionless_operation_bits_evt::SetPositionPermissionlessOperationBitsEvtEvent::decode(event_data) {
+            return Some(CpiEvent::SetPositionPermissionlessOperationBitsEvt(decoded));
+        }
         if let Some(decoded) = events::swap::SwapEvent::decode(event_data) {
             return Some(CpiEvent::Swap(decoded));
+        }
+        if let Some(decoded) = events::swap2_evt::Swap2EvtEvent::decode(event_data) {
+            return Some(CpiEvent::Swap2Evt(decoded));
         }
         if let Some(decoded) =
             events::update_position_lock_release_point::UpdatePositionLockReleasePointEvent::decode(

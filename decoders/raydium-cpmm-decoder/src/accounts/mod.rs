@@ -9,6 +9,7 @@ pub mod graphql;
 
 pub mod amm_config;
 pub mod observation_state;
+pub mod permission;
 pub mod pool_state;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -17,6 +18,7 @@ pub mod pool_state;
 pub enum RaydiumCpmmAccount {
     AmmConfig(Box<amm_config::AmmConfig>),
     ObservationState(Box<observation_state::ObservationState>),
+    Permission(Box<permission::Permission>),
     PoolState(Box<pool_state::PoolState>),
 }
 
@@ -49,6 +51,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumCpmmDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: RaydiumCpmmAccount::ObservationState(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = permission::Permission::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumCpmmAccount::Permission(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,
