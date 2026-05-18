@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for LpTakeoverRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LpTakeoverRow {
+impl carbon_core::postgres::operations::Lookup for LpTakeoverRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for ToggleCashbackEnabledRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ToggleCashbackEnabledRow {
+impl carbon_core::postgres::operations::Lookup for ToggleCashbackEnabledRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

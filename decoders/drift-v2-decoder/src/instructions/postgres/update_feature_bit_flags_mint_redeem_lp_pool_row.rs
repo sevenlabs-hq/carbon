@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFeatureBitFlagsMintRede
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateFeatureBitFlagsMintRedeemLpPoolRow {
+impl carbon_core::postgres::operations::Lookup for UpdateFeatureBitFlagsMintRedeemLpPoolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

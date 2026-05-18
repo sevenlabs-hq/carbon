@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for InitializePermanentDelegateRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializePermanentDelegateRow {
+impl carbon_core::postgres::operations::Lookup for InitializePermanentDelegateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

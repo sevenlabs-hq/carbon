@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for MarginfiAccountSetKeeperClose
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MarginfiAccountSetKeeperCloseFlagsRow {
+impl carbon_core::postgres::operations::Lookup for MarginfiAccountSetKeeperCloseFlagsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

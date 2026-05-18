@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for RebalanceInsuranceVaultRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RebalanceInsuranceVaultRow {
+impl carbon_core::postgres::operations::Lookup for RebalanceInsuranceVaultRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

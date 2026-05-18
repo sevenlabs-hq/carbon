@@ -166,7 +166,7 @@ impl carbon_core::postgres::operations::Delete for PartialUnstakeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PartialUnstakeRow {
+impl carbon_core::postgres::operations::Lookup for PartialUnstakeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

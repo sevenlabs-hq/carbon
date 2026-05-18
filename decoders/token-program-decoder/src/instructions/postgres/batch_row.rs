@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for BatchRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BatchRow {
+impl carbon_core::postgres::operations::Lookup for BatchRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

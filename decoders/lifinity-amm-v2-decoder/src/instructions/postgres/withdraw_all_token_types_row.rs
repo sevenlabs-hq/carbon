@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawAllTokenTypesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawAllTokenTypesRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawAllTokenTypesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

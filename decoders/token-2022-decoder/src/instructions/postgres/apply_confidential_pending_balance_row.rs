@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Delete for ApplyConfidentialPendingBalan
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ApplyConfidentialPendingBalanceRow {
+impl carbon_core::postgres::operations::Lookup for ApplyConfidentialPendingBalanceRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

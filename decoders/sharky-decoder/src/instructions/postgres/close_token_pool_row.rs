@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for CloseTokenPoolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CloseTokenPoolRow {
+impl carbon_core::postgres::operations::Lookup for CloseTokenPoolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

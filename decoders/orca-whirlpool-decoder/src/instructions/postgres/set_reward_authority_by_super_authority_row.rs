@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for SetRewardAuthorityBySuperAuth
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetRewardAuthorityBySuperAuthorityRow {
+impl carbon_core::postgres::operations::Lookup for SetRewardAuthorityBySuperAuthorityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

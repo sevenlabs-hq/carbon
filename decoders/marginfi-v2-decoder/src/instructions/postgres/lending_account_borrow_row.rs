@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for LendingAccountBorrowRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LendingAccountBorrowRow {
+impl carbon_core::postgres::operations::Lookup for LendingAccountBorrowRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

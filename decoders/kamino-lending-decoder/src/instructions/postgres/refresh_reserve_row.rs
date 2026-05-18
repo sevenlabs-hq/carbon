@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for RefreshReserveRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RefreshReserveRow {
+impl carbon_core::postgres::operations::Lookup for RefreshReserveRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

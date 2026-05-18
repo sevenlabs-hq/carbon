@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for PermissionRefundRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PermissionRefundRow {
+impl carbon_core::postgres::operations::Lookup for PermissionRefundRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -205,7 +205,7 @@ impl carbon_core::postgres::operations::Delete for UpdateTokenOrderbookRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateTokenOrderbookRow {
+impl carbon_core::postgres::operations::Lookup for UpdateTokenOrderbookRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

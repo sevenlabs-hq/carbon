@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for OpenOrdersMapRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for OpenOrdersMapRow {
+impl carbon_core::postgres::operations::Lookup for OpenOrdersMapRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

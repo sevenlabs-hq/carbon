@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for EnableHarvestToMintRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for EnableHarvestToMintRow {
+impl carbon_core::postgres::operations::Lookup for EnableHarvestToMintRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

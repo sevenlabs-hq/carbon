@@ -154,7 +154,7 @@ impl carbon_core::postgres::operations::Delete for CreateLockedlaunchRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateLockedlaunchRow {
+impl carbon_core::postgres::operations::Lookup for CreateLockedlaunchRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Delete for AdminDepositRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdminDepositRow {
+impl carbon_core::postgres::operations::Lookup for AdminDepositRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

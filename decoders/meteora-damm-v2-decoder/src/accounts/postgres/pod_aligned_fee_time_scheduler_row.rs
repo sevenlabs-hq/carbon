@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Delete for PodAlignedFeeTimeSchedulerRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PodAlignedFeeTimeSchedulerRow {
+impl carbon_core::postgres::operations::Lookup for PodAlignedFeeTimeSchedulerRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

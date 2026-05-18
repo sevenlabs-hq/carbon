@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketFeeAdjustment
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSpotMarketFeeAdjustmentRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketFeeAdjustmentRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

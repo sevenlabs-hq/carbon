@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Delete for PlaceAndTakeSpotOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PlaceAndTakeSpotOrderRow {
+impl carbon_core::postgres::operations::Lookup for PlaceAndTakeSpotOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

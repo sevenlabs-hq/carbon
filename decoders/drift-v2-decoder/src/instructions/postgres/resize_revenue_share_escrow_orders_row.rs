@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for ResizeRevenueShareEscrowOrder
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ResizeRevenueShareEscrowOrdersRow {
+impl carbon_core::postgres::operations::Lookup for ResizeRevenueShareEscrowOrdersRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

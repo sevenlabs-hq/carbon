@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ReservedGraduateCRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReservedGraduateCRow {
+impl carbon_core::postgres::operations::Lookup for ReservedGraduateCRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

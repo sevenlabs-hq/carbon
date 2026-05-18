@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for UnstakeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UnstakeRow {
+impl carbon_core::postgres::operations::Lookup for UnstakeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

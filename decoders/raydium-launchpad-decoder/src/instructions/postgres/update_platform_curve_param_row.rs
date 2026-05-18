@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePlatformCurveParamRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePlatformCurveParamRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePlatformCurveParamRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

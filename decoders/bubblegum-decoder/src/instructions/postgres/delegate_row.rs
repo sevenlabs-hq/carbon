@@ -193,7 +193,7 @@ impl carbon_core::postgres::operations::Delete for DelegateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DelegateRow {
+impl carbon_core::postgres::operations::Lookup for DelegateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

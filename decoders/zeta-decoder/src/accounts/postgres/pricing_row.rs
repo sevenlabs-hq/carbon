@@ -846,7 +846,7 @@ impl carbon_core::postgres::operations::Delete for PricingRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PricingRow {
+impl carbon_core::postgres::operations::Lookup for PricingRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Delete for SwapExactOut2Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapExactOut2Row {
+impl carbon_core::postgres::operations::Lookup for SwapExactOut2Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePrimarySaleHappenedViaT
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePrimarySaleHappenedViaTokenRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePrimarySaleHappenedViaTokenRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

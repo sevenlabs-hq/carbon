@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for RepayAndWithdrawAndRedeemRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RepayAndWithdrawAndRedeemRow {
+impl carbon_core::postgres::operations::Lookup for RepayAndWithdrawAndRedeemRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

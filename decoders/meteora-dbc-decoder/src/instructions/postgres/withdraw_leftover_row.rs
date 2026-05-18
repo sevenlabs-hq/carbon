@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawLeftoverRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawLeftoverRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawLeftoverRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

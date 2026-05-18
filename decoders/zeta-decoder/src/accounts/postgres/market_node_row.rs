@@ -163,7 +163,7 @@ impl carbon_core::postgres::operations::Delete for MarketNodeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MarketNodeRow {
+impl carbon_core::postgres::operations::Lookup for MarketNodeRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

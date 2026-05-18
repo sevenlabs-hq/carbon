@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for SeedDepositOnInitReserveRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SeedDepositOnInitReserveRow {
+impl carbon_core::postgres::operations::Lookup for SeedDepositOnInitReserveRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

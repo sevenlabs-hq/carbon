@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for InitGlobalConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitGlobalConfigRow {
+impl carbon_core::postgres::operations::Lookup for InitGlobalConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

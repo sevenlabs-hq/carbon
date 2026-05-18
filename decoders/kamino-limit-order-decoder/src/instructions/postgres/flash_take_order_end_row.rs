@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Delete for FlashTakeOrderEndRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FlashTakeOrderEndRow {
+impl carbon_core::postgres::operations::Lookup for FlashTakeOrderEndRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

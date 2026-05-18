@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for AssertUserSwapBalancesStartRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AssertUserSwapBalancesStartRow {
+impl carbon_core::postgres::operations::Lookup for AssertUserSwapBalancesStartRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

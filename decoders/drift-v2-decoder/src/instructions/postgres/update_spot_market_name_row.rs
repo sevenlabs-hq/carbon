@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketNameRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSpotMarketNameRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketNameRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

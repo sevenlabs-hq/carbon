@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for DelegateStakeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DelegateStakeRow {
+impl carbon_core::postgres::operations::Lookup for DelegateStakeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

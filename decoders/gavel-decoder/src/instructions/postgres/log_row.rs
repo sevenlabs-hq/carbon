@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for LogRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LogRow {
+impl carbon_core::postgres::operations::Lookup for LogRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

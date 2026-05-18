@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for PermissionConfigCloseRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PermissionConfigCloseRow {
+impl carbon_core::postgres::operations::Lookup for PermissionConfigCloseRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

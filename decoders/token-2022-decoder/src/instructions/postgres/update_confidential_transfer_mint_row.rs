@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for UpdateConfidentialTransferMin
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateConfidentialTransferMintRow {
+impl carbon_core::postgres::operations::Lookup for UpdateConfidentialTransferMintRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFeatureBitFlagsMmOracle
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateFeatureBitFlagsMmOracleRow {
+impl carbon_core::postgres::operations::Lookup for UpdateFeatureBitFlagsMmOracleRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

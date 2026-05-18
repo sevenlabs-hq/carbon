@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Delete for ProtectedMakerModeConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ProtectedMakerModeConfigRow {
+impl carbon_core::postgres::operations::Lookup for ProtectedMakerModeConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

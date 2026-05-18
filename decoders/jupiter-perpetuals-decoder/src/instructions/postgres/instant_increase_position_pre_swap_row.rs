@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for InstantIncreasePositionPreSwa
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InstantIncreasePositionPreSwapRow {
+impl carbon_core::postgres::operations::Lookup for InstantIncreasePositionPreSwapRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -181,7 +181,7 @@ impl carbon_core::postgres::operations::Delete for SharingConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SharingConfigRow {
+impl carbon_core::postgres::operations::Lookup for SharingConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

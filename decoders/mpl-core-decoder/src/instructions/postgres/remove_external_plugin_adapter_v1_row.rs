@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for RemoveExternalPluginAdapterV1
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RemoveExternalPluginAdapterV1Row {
+impl carbon_core::postgres::operations::Lookup for RemoveExternalPluginAdapterV1Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

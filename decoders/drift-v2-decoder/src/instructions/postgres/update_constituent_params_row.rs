@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateConstituentParamsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateConstituentParamsRow {
+impl carbon_core::postgres::operations::Lookup for UpdateConstituentParamsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

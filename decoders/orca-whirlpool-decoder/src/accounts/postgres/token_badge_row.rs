@@ -130,7 +130,7 @@ impl carbon_core::postgres::operations::Delete for TokenBadgeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TokenBadgeRow {
+impl carbon_core::postgres::operations::Lookup for TokenBadgeRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

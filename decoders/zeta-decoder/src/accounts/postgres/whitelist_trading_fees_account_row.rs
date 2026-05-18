@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for WhitelistTradingFeesAccountRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WhitelistTradingFeesAccountRow {
+impl carbon_core::postgres::operations::Lookup for WhitelistTradingFeesAccountRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

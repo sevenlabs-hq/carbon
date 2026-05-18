@@ -468,7 +468,7 @@ impl carbon_core::postgres::operations::Delete for VaultStateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for VaultStateRow {
+impl carbon_core::postgres::operations::Lookup for VaultStateRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

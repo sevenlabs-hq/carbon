@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for LogUserSwapBalancesStartRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LogUserSwapBalancesStartRow {
+impl carbon_core::postgres::operations::Lookup for LogUserSwapBalancesStartRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

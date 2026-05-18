@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for AddLiquidityByWeightRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AddLiquidityByWeightRow {
+impl carbon_core::postgres::operations::Lookup for AddLiquidityByWeightRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Delete for CancelOrderNoErrorRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CancelOrderNoErrorRow {
+impl carbon_core::postgres::operations::Lookup for CancelOrderNoErrorRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

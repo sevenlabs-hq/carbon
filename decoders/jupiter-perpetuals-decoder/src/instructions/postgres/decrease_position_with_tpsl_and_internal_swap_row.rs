@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for DecreasePositionWithTpslAndIn
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DecreasePositionWithTpslAndInternalSwapRow {
+impl carbon_core::postgres::operations::Lookup for DecreasePositionWithTpslAndInternalSwapRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

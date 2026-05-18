@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketStepSizeAndTi
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketStepSizeAndTickSizeRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketStepSizeAndTickSizeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

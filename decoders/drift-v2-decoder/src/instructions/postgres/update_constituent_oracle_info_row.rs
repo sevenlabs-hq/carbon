@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for UpdateConstituentOracleInfoRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateConstituentOracleInfoRow {
+impl carbon_core::postgres::operations::Lookup for UpdateConstituentOracleInfoRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for DepositToFarmVaultRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DepositToFarmVaultRow {
+impl carbon_core::postgres::operations::Lookup for DepositToFarmVaultRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

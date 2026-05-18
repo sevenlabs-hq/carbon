@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketOracleSlotDel
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketOracleSlotDelayOverrideRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketOracleSlotDelayOverrideRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

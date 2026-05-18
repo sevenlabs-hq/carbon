@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for AdminClaimStandardCreatorTrad
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdminClaimStandardCreatorTradingFeesRow {
+impl carbon_core::postgres::operations::Lookup for AdminClaimStandardCreatorTradingFeesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

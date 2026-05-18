@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Delete for AllocateWithSeedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AllocateWithSeedRow {
+impl carbon_core::postgres::operations::Lookup for AllocateWithSeedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

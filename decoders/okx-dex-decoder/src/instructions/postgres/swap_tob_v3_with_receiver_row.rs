@@ -193,7 +193,7 @@ impl carbon_core::postgres::operations::Delete for SwapTobV3WithReceiverRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapTobV3WithReceiverRow {
+impl carbon_core::postgres::operations::Lookup for SwapTobV3WithReceiverRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for BeginInsuranceFundSwapRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BeginInsuranceFundSwapRow {
+impl carbon_core::postgres::operations::Lookup for BeginInsuranceFundSwapRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

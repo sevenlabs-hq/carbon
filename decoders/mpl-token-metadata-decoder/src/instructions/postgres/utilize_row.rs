@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for UtilizeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UtilizeRow {
+impl carbon_core::postgres::operations::Lookup for UtilizeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

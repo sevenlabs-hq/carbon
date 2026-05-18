@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for CloseDcaRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CloseDcaRow {
+impl carbon_core::postgres::operations::Lookup for CloseDcaRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

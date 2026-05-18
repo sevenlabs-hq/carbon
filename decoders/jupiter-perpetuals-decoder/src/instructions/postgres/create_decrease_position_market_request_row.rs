@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for CreateDecreasePositionMarketR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateDecreasePositionMarketRequestRow {
+impl carbon_core::postgres::operations::Lookup for CreateDecreasePositionMarketRequestRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for InitializeCombinedSocializedL
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeCombinedSocializedLossAccountRow {
+impl carbon_core::postgres::operations::Lookup for InitializeCombinedSocializedLossAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

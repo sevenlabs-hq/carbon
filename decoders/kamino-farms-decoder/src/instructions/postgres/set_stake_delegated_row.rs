@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for SetStakeDelegatedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetStakeDelegatedRow {
+impl carbon_core::postgres::operations::Lookup for SetStakeDelegatedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

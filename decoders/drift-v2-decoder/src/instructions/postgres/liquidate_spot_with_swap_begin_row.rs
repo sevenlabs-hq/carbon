@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for LiquidateSpotWithSwapBeginRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LiquidateSpotWithSwapBeginRow {
+impl carbon_core::postgres::operations::Lookup for LiquidateSpotWithSwapBeginRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

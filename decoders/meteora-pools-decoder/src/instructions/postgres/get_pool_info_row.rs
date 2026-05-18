@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for GetPoolInfoRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for GetPoolInfoRow {
+impl carbon_core::postgres::operations::Lookup for GetPoolInfoRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

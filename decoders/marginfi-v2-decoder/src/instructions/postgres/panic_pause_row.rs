@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for PanicPauseRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PanicPauseRow {
+impl carbon_core::postgres::operations::Lookup for PanicPauseRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

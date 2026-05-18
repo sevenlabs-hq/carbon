@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for UpdateInsuranceFundUnstakingP
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateInsuranceFundUnstakingPeriodRow {
+impl carbon_core::postgres::operations::Lookup for UpdateInsuranceFundUnstakingPeriodRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

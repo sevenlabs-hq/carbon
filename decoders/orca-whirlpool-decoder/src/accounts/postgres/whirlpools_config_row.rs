@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Delete for WhirlpoolsConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WhirlpoolsConfigRow {
+impl carbon_core::postgres::operations::Lookup for WhirlpoolsConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

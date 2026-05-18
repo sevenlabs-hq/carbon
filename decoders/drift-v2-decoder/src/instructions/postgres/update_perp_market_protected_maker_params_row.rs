@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketProtectedMake
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketProtectedMakerParamsRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketProtectedMakerParamsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

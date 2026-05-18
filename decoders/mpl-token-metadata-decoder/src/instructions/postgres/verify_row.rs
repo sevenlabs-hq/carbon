@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for VerifyRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for VerifyRow {
+impl carbon_core::postgres::operations::Lookup for VerifyRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

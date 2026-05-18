@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for RemoveLiquiditySingleSideRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RemoveLiquiditySingleSideRow {
+impl carbon_core::postgres::operations::Lookup for RemoveLiquiditySingleSideRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

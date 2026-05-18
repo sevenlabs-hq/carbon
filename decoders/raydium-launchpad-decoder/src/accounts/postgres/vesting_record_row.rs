@@ -180,7 +180,7 @@ impl carbon_core::postgres::operations::Delete for VestingRecordRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for VestingRecordRow {
+impl carbon_core::postgres::operations::Lookup for VestingRecordRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

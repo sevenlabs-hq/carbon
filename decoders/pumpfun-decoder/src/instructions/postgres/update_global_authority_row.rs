@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for UpdateGlobalAuthorityRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateGlobalAuthorityRow {
+impl carbon_core::postgres::operations::Lookup for UpdateGlobalAuthorityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

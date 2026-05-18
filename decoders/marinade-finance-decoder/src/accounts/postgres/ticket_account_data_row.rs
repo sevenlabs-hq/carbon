@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Delete for TicketAccountDataRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TicketAccountDataRow {
+impl carbon_core::postgres::operations::Lookup for TicketAccountDataRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

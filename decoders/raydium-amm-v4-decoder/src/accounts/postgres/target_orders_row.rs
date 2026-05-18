@@ -463,7 +463,7 @@ impl carbon_core::postgres::operations::Delete for TargetOrdersRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TargetOrdersRow {
+impl carbon_core::postgres::operations::Lookup for TargetOrdersRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

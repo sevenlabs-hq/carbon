@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SwapWithDestinationRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapWithDestinationRow {
+impl carbon_core::postgres::operations::Lookup for SwapWithDestinationRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

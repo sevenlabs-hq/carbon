@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for CancelAllMarketOrdersRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CancelAllMarketOrdersRow {
+impl carbon_core::postgres::operations::Lookup for CancelAllMarketOrdersRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

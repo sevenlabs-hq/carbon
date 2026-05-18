@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for CollectRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CollectRow {
+impl carbon_core::postgres::operations::Lookup for CollectRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

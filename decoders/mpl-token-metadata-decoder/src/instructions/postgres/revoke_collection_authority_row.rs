@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for RevokeCollectionAuthorityRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RevokeCollectionAuthorityRow {
+impl carbon_core::postgres::operations::Lookup for RevokeCollectionAuthorityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

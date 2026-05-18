@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for RestakingPoolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RestakingPoolRow {
+impl carbon_core::postgres::operations::Lookup for RestakingPoolRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for InitializePerpSyncQueueRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializePerpSyncQueueRow {
+impl carbon_core::postgres::operations::Lookup for InitializePerpSyncQueueRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

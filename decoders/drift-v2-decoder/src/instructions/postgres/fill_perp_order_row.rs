@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Delete for FillPerpOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FillPerpOrderRow {
+impl carbon_core::postgres::operations::Lookup for FillPerpOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

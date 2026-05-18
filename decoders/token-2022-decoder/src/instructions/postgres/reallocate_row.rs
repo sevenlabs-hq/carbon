@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for ReallocateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReallocateRow {
+impl carbon_core::postgres::operations::Lookup for ReallocateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

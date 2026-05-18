@@ -293,7 +293,7 @@ impl carbon_core::postgres::operations::Delete for InitializeConstituentRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeConstituentRow {
+impl carbon_core::postgres::operations::Lookup for InitializeConstituentRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

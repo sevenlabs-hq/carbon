@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for MarginfiGroupInitializeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MarginfiGroupInitializeRow {
+impl carbon_core::postgres::operations::Lookup for MarginfiGroupInitializeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

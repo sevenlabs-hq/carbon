@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateDecreasePositionRequest
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateDecreasePositionRequest2Row {
+impl carbon_core::postgres::operations::Lookup for UpdateDecreasePositionRequest2Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

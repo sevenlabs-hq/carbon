@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawRewardsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawRewardsRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawRewardsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

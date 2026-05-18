@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for RecenterPerpMarketAmmRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RecenterPerpMarketAmmRow {
+impl carbon_core::postgres::operations::Lookup for RecenterPerpMarketAmmRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

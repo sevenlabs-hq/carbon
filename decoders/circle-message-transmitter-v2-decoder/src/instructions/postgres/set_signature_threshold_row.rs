@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SetSignatureThresholdRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetSignatureThresholdRow {
+impl carbon_core::postgres::operations::Lookup for SetSignatureThresholdRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

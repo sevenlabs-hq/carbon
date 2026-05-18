@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for ReservedLpXRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReservedLpXRow {
+impl carbon_core::postgres::operations::Lookup for ReservedLpXRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

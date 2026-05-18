@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CancelExpiredOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CancelExpiredOrderRow {
+impl carbon_core::postgres::operations::Lookup for CancelExpiredOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

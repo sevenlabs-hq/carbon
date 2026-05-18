@@ -186,7 +186,7 @@ impl carbon_core::postgres::operations::Delete for ViewLpPoolSwapFeesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ViewLpPoolSwapFeesRow {
+impl carbon_core::postgres::operations::Lookup for ViewLpPoolSwapFeesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

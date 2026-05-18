@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for SetFeeRateByDelegatedFeeAutho
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetFeeRateByDelegatedFeeAuthorityRow {
+impl carbon_core::postgres::operations::Lookup for SetFeeRateByDelegatedFeeAuthorityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

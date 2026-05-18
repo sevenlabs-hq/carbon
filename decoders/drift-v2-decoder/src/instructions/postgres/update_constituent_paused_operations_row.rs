@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for UpdateConstituentPausedOperat
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateConstituentPausedOperationsRow {
+impl carbon_core::postgres::operations::Lookup for UpdateConstituentPausedOperationsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

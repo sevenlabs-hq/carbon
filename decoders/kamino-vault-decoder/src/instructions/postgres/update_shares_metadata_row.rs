@@ -154,7 +154,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSharesMetadataRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSharesMetadataRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSharesMetadataRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

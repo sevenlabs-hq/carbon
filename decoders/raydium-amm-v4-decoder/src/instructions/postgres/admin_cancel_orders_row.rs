@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for AdminCancelOrdersRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdminCancelOrdersRow {
+impl carbon_core::postgres::operations::Lookup for AdminCancelOrdersRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

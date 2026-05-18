@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for OperatorSetCustodyConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for OperatorSetCustodyConfigRow {
+impl carbon_core::postgres::operations::Lookup for OperatorSetCustodyConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

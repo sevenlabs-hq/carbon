@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for ThawAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ThawAccountRow {
+impl carbon_core::postgres::operations::Lookup for ThawAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

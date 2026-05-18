@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete for SettlementAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SettlementAccountRow {
+impl carbon_core::postgres::operations::Lookup for SettlementAccountRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

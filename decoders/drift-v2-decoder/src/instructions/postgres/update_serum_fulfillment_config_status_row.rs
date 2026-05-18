@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSerumFulfillmentConfigS
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSerumFulfillmentConfigStatusRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSerumFulfillmentConfigStatusRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

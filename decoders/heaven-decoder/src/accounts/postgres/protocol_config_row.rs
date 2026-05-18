@@ -408,7 +408,7 @@ impl carbon_core::postgres::operations::Delete for ProtocolConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ProtocolConfigRow {
+impl carbon_core::postgres::operations::Lookup for ProtocolConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -170,7 +170,7 @@ impl carbon_core::postgres::operations::Delete for UpdateProtectedMakerModeConfi
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateProtectedMakerModeConfigRow {
+impl carbon_core::postgres::operations::Lookup for UpdateProtectedMakerModeConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

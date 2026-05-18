@@ -170,7 +170,7 @@ impl carbon_core::postgres::operations::Delete for PlatformGlobalAccessRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PlatformGlobalAccessRow {
+impl carbon_core::postgres::operations::Lookup for PlatformGlobalAccessRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

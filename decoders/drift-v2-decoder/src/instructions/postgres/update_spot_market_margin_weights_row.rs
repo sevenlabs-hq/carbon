@@ -197,7 +197,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketMarginWeights
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSpotMarketMarginWeightsRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketMarginWeightsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

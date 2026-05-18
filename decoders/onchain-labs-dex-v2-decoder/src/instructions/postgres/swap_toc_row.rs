@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Delete for SwapTocRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapTocRow {
+impl carbon_core::postgres::operations::Lookup for SwapTocRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Delete for EditOrderPeggedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for EditOrderPeggedRow {
+impl carbon_core::postgres::operations::Lookup for EditOrderPeggedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

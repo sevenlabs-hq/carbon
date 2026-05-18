@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for UpdateUserDelegateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateUserDelegateRow {
+impl carbon_core::postgres::operations::Lookup for UpdateUserDelegateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

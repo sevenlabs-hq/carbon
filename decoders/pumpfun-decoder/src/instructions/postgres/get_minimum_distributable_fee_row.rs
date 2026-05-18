@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for GetMinimumDistributableFeeRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for GetMinimumDistributableFeeRow {
+impl carbon_core::postgres::operations::Lookup for GetMinimumDistributableFeeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

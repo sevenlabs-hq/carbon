@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketScaleInitialA
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateSpotMarketScaleInitialAssetWeightStartRow {
+impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketScaleInitialAssetWeightStartRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

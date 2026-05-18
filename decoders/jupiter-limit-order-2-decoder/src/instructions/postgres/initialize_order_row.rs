@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for InitializeOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeOrderRow {
+impl carbon_core::postgres::operations::Lookup for InitializeOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for DepositIntoPerpMarketFeePoolR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DepositIntoPerpMarketFeePoolRow {
+impl carbon_core::postgres::operations::Lookup for DepositIntoPerpMarketFeePoolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

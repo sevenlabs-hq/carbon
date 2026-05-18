@@ -320,7 +320,7 @@ impl carbon_core::postgres::operations::Delete for CrossMarginAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CrossMarginAccountRow {
+impl carbon_core::postgres::operations::Lookup for CrossMarginAccountRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

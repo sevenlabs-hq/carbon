@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for UpdateTokenMetadataFieldRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateTokenMetadataFieldRow {
+impl carbon_core::postgres::operations::Lookup for UpdateTokenMetadataFieldRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

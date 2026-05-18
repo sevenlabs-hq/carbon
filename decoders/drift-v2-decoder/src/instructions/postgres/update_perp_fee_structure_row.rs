@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpFeeStructureRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpFeeStructureRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpFeeStructureRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SetDecompressibleStateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetDecompressibleStateRow {
+impl carbon_core::postgres::operations::Lookup for SetDecompressibleStateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

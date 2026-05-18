@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Delete for UiAmountToAmountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UiAmountToAmountRow {
+impl carbon_core::postgres::operations::Lookup for UiAmountToAmountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

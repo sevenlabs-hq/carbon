@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for DisableRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DisableRow {
+impl carbon_core::postgres::operations::Lookup for DisableRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for SwapSolForTokensOnRaydiumRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapSolForTokensOnRaydiumRow {
+impl carbon_core::postgres::operations::Lookup for SwapSolForTokensOnRaydiumRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

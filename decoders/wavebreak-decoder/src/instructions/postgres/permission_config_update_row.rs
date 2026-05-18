@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for PermissionConfigUpdateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PermissionConfigUpdateRow {
+impl carbon_core::postgres::operations::Lookup for PermissionConfigUpdateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

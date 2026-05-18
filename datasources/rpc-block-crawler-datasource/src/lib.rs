@@ -1,11 +1,8 @@
-use carbon_core::datasource::DatasourceId;
 pub use solana_client::rpc_config::RpcBlockConfig;
-use solana_hash::Hash;
-use std::str::FromStr;
 use {
     async_trait::async_trait,
     carbon_core::{
-        datasource::{Datasource, TransactionUpdate, Update, UpdateType},
+        datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
         transformers::transaction_metadata_from_original_meta,
@@ -13,8 +10,10 @@ use {
     futures::StreamExt,
     solana_client::{nonblocking::rpc_client::RpcClient, rpc_client::SerializableTransaction},
     solana_commitment_config::CommitmentConfig,
+    solana_hash::Hash,
     solana_transaction_status::UiConfirmedBlock,
     std::{
+        str::FromStr,
         sync::{Arc, LazyLock},
         time::{Duration, Instant},
     },
@@ -99,8 +98,9 @@ fn register_block_crawler_metrics() {
     registry.register_histogram(&BLOCK_PROCESS_TIME_NANOS);
 }
 
-/// RpcBlockCrawler is a datasource that crawls the Solana blockchain for blocks and sends them to the sender.
-/// It uses a channel to send blocks to the task processor.
+/// RpcBlockCrawler is a datasource that crawls the Solana blockchain for blocks
+/// and sends them to the sender. It uses a channel to send blocks to the task
+/// processor.
 pub struct RpcBlockCrawler {
     pub rpc_url: String,
     pub start_slot: u64,
@@ -251,8 +251,9 @@ fn block_fetcher(
                                 // https://support.quicknode.com/hc/en-us/articles/16459608696721-Solana-RPC-Error-Code-Reference
                                 // solana skippable errors
                                 // -32004, // Block not available for slot x
-                                // -32007, // Slot {} was skipped, or missing due to ledger jump to recent snapshot
-                                // -32009, // Slot {} was skipped, or missing in long-term storage
+                                // -32007, // Slot {} was skipped, or missing due to ledger jump to
+                                // recent snapshot -32009, // Slot
+                                // {} was skipped, or missing in long-term storage
                                 if e.to_string().contains("-32009")
                                     || e.to_string().contains("-32004")
                                     || e.to_string().contains("-32007")

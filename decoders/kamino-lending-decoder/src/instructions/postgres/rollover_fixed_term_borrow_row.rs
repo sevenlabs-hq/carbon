@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for RolloverFixedTermBorrowRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RolloverFixedTermBorrowRow {
+impl carbon_core::postgres::operations::Lookup for RolloverFixedTermBorrowRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

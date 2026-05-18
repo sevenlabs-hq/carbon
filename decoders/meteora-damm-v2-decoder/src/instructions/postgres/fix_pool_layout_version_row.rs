@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for FixPoolLayoutVersionRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FixPoolLayoutVersionRow {
+impl carbon_core::postgres::operations::Lookup for FixPoolLayoutVersionRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

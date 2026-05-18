@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for InitializePoolWithDynamicConf
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializePoolWithDynamicConfigRow {
+impl carbon_core::postgres::operations::Lookup for InitializePoolWithDynamicConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

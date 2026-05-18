@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for BatchThawLstAccountsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BatchThawLstAccountsRow {
+impl carbon_core::postgres::operations::Lookup for BatchThawLstAccountsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

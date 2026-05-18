@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ToggleZetaGroupPerpsOnlyRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ToggleZetaGroupPerpsOnlyRow {
+impl carbon_core::postgres::operations::Lookup for ToggleZetaGroupPerpsOnlyRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

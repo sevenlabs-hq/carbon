@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for UpdateExchangePriceRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateExchangePriceRow {
+impl carbon_core::postgres::operations::Lookup for UpdateExchangePriceRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

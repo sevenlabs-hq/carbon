@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Delete for LendingPoolConfigureBankEmode
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LendingPoolConfigureBankEmodeRow {
+impl carbon_core::postgres::operations::Lookup for LendingPoolConfigureBankEmodeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

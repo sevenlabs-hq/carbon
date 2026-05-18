@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Delete for MintToCheckedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MintToCheckedRow {
+impl carbon_core::postgres::operations::Lookup for MintToCheckedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

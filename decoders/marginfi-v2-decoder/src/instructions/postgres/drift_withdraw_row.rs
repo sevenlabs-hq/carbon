@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for DriftWithdrawRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DriftWithdrawRow {
+impl carbon_core::postgres::operations::Lookup for DriftWithdrawRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

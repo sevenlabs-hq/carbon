@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Delete for BookSideRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BookSideRow {
+impl carbon_core::postgres::operations::Lookup for BookSideRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

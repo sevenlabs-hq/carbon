@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for InitializeZetaMarketRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeZetaMarketRow {
+impl carbon_core::postgres::operations::Lookup for InitializeZetaMarketRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

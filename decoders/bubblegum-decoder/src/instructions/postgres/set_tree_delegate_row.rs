@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SetTreeDelegateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetTreeDelegateRow {
+impl carbon_core::postgres::operations::Lookup for SetTreeDelegateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for ProtocolAdminStateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ProtocolAdminStateRow {
+impl carbon_core::postgres::operations::Lookup for ProtocolAdminStateRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

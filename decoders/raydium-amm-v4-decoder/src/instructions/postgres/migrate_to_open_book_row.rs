@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for MigrateToOpenBookRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MigrateToOpenBookRow {
+impl carbon_core::postgres::operations::Lookup for MigrateToOpenBookRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -196,7 +196,7 @@ impl carbon_core::postgres::operations::Delete for LocalTokenRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LocalTokenRow {
+impl carbon_core::postgres::operations::Lookup for LocalTokenRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

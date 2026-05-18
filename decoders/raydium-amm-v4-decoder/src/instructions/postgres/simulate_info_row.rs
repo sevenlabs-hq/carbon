@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Delete for SimulateInfoRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SimulateInfoRow {
+impl carbon_core::postgres::operations::Lookup for SimulateInfoRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

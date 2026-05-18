@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for CancelOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CancelOrderRow {
+impl carbon_core::postgres::operations::Lookup for CancelOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

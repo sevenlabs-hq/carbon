@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for InitializeMetadataPointerRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeMetadataPointerRow {
+impl carbon_core::postgres::operations::Lookup for InitializeMetadataPointerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

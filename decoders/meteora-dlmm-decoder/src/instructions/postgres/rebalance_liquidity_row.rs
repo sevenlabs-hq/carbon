@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for RebalanceLiquidityRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RebalanceLiquidityRow {
+impl carbon_core::postgres::operations::Lookup for RebalanceLiquidityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -418,7 +418,7 @@ impl carbon_core::postgres::operations::Delete for BondingCurveInitializeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BondingCurveInitializeRow {
+impl carbon_core::postgres::operations::Lookup for BondingCurveInitializeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

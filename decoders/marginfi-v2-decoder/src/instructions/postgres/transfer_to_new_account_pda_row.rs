@@ -161,7 +161,7 @@ impl carbon_core::postgres::operations::Delete for TransferToNewAccountPdaRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TransferToNewAccountPdaRow {
+impl carbon_core::postgres::operations::Lookup for TransferToNewAccountPdaRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

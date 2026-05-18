@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for UndenylistAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UndenylistAccountRow {
+impl carbon_core::postgres::operations::Lookup for UndenylistAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for TestInitRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TestInitRow {
+impl carbon_core::postgres::operations::Lookup for TestInitRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

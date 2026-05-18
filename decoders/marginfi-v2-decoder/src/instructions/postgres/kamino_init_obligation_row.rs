@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for KaminoInitObligationRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for KaminoInitObligationRow {
+impl carbon_core::postgres::operations::Lookup for KaminoInitObligationRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

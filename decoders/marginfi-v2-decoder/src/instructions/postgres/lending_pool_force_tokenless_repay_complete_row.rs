@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Delete for LendingPoolForceTokenlessRepa
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LendingPoolForceTokenlessRepayCompleteRow {
+impl carbon_core::postgres::operations::Lookup for LendingPoolForceTokenlessRepayCompleteRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

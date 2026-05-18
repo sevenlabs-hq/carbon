@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for MigrationDammV2CreateMetadata
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MigrationDammV2CreateMetadataRow {
+impl carbon_core::postgres::operations::Lookup for MigrationDammV2CreateMetadataRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

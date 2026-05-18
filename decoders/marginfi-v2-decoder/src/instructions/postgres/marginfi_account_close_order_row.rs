@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for MarginfiAccountCloseOrderRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MarginfiAccountCloseOrderRow {
+impl carbon_core::postgres::operations::Lookup for MarginfiAccountCloseOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

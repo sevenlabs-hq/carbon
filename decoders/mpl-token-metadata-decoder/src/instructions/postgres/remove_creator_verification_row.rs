@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for RemoveCreatorVerificationRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RemoveCreatorVerificationRow {
+impl carbon_core::postgres::operations::Lookup for RemoveCreatorVerificationRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

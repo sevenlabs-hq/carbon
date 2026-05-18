@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for MintConfigUpdateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MintConfigUpdateRow {
+impl carbon_core::postgres::operations::Lookup for MintConfigUpdateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

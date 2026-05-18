@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for InsuranceDepositAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InsuranceDepositAccountRow {
+impl carbon_core::postgres::operations::Lookup for InsuranceDepositAccountRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

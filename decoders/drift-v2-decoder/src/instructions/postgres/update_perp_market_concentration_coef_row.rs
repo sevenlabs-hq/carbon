@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketConcentration
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketConcentrationCoefRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketConcentrationCoefRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketLpPoolPausedO
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketLpPoolPausedOperationsRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketLpPoolPausedOperationsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

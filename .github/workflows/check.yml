@@ -21,7 +21,7 @@ jobs:
 
       - name: Stable Rust
         uses: actions-rs/toolchain@v1
-        with:
+        with: 
           toolchain: stable
 
       - name: Install `rustfmt`

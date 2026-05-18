@@ -193,7 +193,7 @@ impl carbon_core::postgres::operations::Delete for RedeemRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RedeemRow {
+impl carbon_core::postgres::operations::Lookup for RedeemRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

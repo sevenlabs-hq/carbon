@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for KaminoDepositRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for KaminoDepositRow {
+impl carbon_core::postgres::operations::Lookup for KaminoDepositRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

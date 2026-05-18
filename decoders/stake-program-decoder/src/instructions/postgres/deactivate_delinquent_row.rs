@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for DeactivateDelinquentRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DeactivateDelinquentRow {
+impl carbon_core::postgres::operations::Lookup for DeactivateDelinquentRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

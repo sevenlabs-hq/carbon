@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawFundsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawFundsRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawFundsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

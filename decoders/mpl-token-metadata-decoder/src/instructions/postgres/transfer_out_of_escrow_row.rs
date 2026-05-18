@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for TransferOutOfEscrowRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TransferOutOfEscrowRow {
+impl carbon_core::postgres::operations::Lookup for TransferOutOfEscrowRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

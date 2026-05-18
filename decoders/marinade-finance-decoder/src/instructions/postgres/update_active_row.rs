@@ -152,7 +152,7 @@ impl carbon_core::postgres::operations::Delete for UpdateActiveRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateActiveRow {
+impl carbon_core::postgres::operations::Lookup for UpdateActiveRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

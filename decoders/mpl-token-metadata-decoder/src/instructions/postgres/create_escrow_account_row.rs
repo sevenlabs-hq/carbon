@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CreateEscrowAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateEscrowAccountRow {
+impl carbon_core::postgres::operations::Lookup for CreateEscrowAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -193,7 +193,7 @@ impl carbon_core::postgres::operations::Delete for BurnRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BurnRow {
+impl carbon_core::postgres::operations::Lookup for BurnRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

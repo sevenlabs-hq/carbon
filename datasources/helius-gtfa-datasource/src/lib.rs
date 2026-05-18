@@ -1,10 +1,10 @@
 mod types;
 
-use crate::types::{
-    FetchHeliusGtfaTransactionsPageResult, HeliusGtfaRequest, HeliusGtfaRequestConfig,
-    HeliusGtfaResponse,
-};
 use {
+    crate::types::{
+        FetchHeliusGtfaTransactionsPageResult, HeliusGtfaRequest, HeliusGtfaRequestConfig,
+        HeliusGtfaResponse,
+    },
     async_trait::async_trait,
     carbon_core::{
         datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},

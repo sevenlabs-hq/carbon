@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for AuthorizeWithSeedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AuthorizeWithSeedRow {
+impl carbon_core::postgres::operations::Lookup for AuthorizeWithSeedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

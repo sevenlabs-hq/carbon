@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for StubOracleCloseRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for StubOracleCloseRow {
+impl carbon_core::postgres::operations::Lookup for StubOracleCloseRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

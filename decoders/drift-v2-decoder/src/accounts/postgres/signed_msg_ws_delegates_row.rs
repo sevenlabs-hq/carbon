@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Delete for SignedMsgWsDelegatesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SignedMsgWsDelegatesRow {
+impl carbon_core::postgres::operations::Lookup for SignedMsgWsDelegatesRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

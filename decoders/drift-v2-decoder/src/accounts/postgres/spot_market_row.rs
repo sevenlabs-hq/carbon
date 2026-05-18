@@ -789,7 +789,7 @@ impl carbon_core::postgres::operations::Delete for SpotMarketRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SpotMarketRow {
+impl carbon_core::postgres::operations::Lookup for SpotMarketRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

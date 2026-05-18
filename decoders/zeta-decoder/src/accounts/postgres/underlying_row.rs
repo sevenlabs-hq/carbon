@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for UnderlyingRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UnderlyingRow {
+impl carbon_core::postgres::operations::Lookup for UnderlyingRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

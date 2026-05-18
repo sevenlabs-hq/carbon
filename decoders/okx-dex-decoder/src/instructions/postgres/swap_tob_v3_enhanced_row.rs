@@ -206,7 +206,7 @@ impl carbon_core::postgres::operations::Delete for SwapTobV3EnhancedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapTobV3EnhancedRow {
+impl carbon_core::postgres::operations::Lookup for SwapTobV3EnhancedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

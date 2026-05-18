@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ChangeFeeRecipientRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ChangeFeeRecipientRow {
+impl carbon_core::postgres::operations::Lookup for ChangeFeeRecipientRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

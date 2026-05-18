@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for MoveStakeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MoveStakeRow {
+impl carbon_core::postgres::operations::Lookup for MoveStakeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for CollectFundFeeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CollectFundFeeRow {
+impl carbon_core::postgres::operations::Lookup for CollectFundFeeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

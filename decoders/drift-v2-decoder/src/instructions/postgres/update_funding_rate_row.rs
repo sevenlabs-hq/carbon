@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFundingRateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateFundingRateRow {
+impl carbon_core::postgres::operations::Lookup for UpdateFundingRateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

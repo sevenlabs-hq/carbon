@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for InitializeMeteoraAccountsRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeMeteoraAccountsRow {
+impl carbon_core::postgres::operations::Lookup for InitializeMeteoraAccountsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Delete for UnpauseUserRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UnpauseUserRow {
+impl carbon_core::postgres::operations::Lookup for UnpauseUserRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

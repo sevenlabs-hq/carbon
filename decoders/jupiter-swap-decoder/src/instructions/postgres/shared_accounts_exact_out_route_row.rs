@@ -202,7 +202,7 @@ impl carbon_core::postgres::operations::Delete for SharedAccountsExactOutRouteRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SharedAccountsExactOutRouteRow {
+impl carbon_core::postgres::operations::Lookup for SharedAccountsExactOutRouteRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

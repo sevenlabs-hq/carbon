@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for RevertFillRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RevertFillRow {
+impl carbon_core::postgres::operations::Lookup for RevertFillRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

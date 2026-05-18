@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for InstantCreateTpslRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InstantCreateTpslRow {
+impl carbon_core::postgres::operations::Lookup for InstantCreateTpslRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for SignMetadataRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SignMetadataRow {
+impl carbon_core::postgres::operations::Lookup for SignMetadataRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for AddLiquidityRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AddLiquidityRow {
+impl carbon_core::postgres::operations::Lookup for AddLiquidityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -1,11 +1,24 @@
-use bigdecimal::BigDecimal;
-use borsh::BorshDeserialize;
-use num_traits::cast::{FromPrimitive, ToPrimitive};
-use sqlx::postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef};
-use sqlx::types::Decimal;
-use sqlx::{Decode, Encode, Postgres, Type};
-use std::str::FromStr;
-use std::{convert::TryFrom, ops::Deref};
+//! sqlx `Encode`/`Decode` newtypes that map Solana / Carbon types onto
+//! Postgres columns.
+//!
+//! - [`Pubkey`] — wraps `solana_pubkey::Pubkey` as `BYTEA`.
+//! - `U8` / `U16` / `U32` — wider signed-int columns (`INT2`/`INT4`/`INT8`)
+//!   that round-trip through Rust's unsigned types.
+//! - `U64` / `U128` — `NUMERIC` columns bridged via `BigDecimal` for full
+//!   unsigned range.
+//! - `I128` — same `NUMERIC` bridge for signed 128-bit values.
+
+use {
+    bigdecimal::BigDecimal,
+    borsh::BorshDeserialize,
+    num_traits::cast::{FromPrimitive, ToPrimitive},
+    sqlx::{
+        postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef},
+        types::Decimal,
+        Decode, Encode, Postgres, Type,
+    },
+    std::{convert::TryFrom, ops::Deref, str::FromStr},
+};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(transparent)]
@@ -24,7 +37,8 @@ impl From<solana_pubkey::Pubkey> for Pubkey {
     }
 }
 
-// Ergonomic conversions from raw bytes (DEFAULT on invalid length/format) for debugging paths
+// Ergonomic conversions from raw bytes (DEFAULT on invalid length/format) for
+// debugging paths
 impl From<Vec<u8>> for Pubkey {
     fn from(bytes: Vec<u8>) -> Self {
         Self(solana_pubkey::Pubkey::try_from_slice(&bytes).unwrap_or_default())

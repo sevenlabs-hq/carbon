@@ -1,10 +1,17 @@
-use axum::{
-    routing::{get, on, MethodFilter},
-    Extension, Router,
+//! Pre-wired Juniper + Axum integration. Build a schema with
+//! [`build_schema`], turn it into a [`graphql_router`] mounted on
+//! `/graphql` (GET + POST) and `/graphiql` (playground), then merge
+//! into your Axum app.
+
+use {
+    axum::{
+        routing::{get, on, MethodFilter},
+        Extension, Router,
+    },
+    juniper::{EmptyMutation, EmptySubscription, RootNode},
+    juniper_axum::{extract::JuniperRequest, graphiql, response::JuniperResponse},
+    std::sync::Arc,
 };
-use juniper::{EmptyMutation, EmptySubscription, RootNode};
-use juniper_axum::{extract::JuniperRequest, graphiql, response::JuniperResponse};
-use std::sync::Arc;
 
 pub type DefaultMutation<C> = EmptyMutation<C>;
 pub type DefaultSubscription<C> = EmptySubscription<C>;

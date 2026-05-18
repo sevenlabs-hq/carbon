@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketUnrealizedAss
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketUnrealizedAssetWeightRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketUnrealizedAssetWeightRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

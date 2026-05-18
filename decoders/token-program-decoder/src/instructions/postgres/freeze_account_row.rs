@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for FreezeAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FreezeAccountRow {
+impl carbon_core::postgres::operations::Lookup for FreezeAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

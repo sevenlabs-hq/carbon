@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Delete for UpdateReserveConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateReserveConfigRow {
+impl carbon_core::postgres::operations::Lookup for UpdateReserveConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

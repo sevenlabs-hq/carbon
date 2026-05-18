@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CreatePlatformVestingAccountR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreatePlatformVestingAccountRow {
+impl carbon_core::postgres::operations::Lookup for CreatePlatformVestingAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

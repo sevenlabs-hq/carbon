@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for SwapWithTokenLedgerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SwapWithTokenLedgerRow {
+impl carbon_core::postgres::operations::Lookup for SwapWithTokenLedgerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

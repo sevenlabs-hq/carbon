@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CreateMetadataAccountRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateMetadataAccountRow {
+impl carbon_core::postgres::operations::Lookup for CreateMetadataAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

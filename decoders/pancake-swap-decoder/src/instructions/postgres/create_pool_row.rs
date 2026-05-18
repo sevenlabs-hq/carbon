@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Delete for CreatePoolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreatePoolRow {
+impl carbon_core::postgres::operations::Lookup for CreatePoolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

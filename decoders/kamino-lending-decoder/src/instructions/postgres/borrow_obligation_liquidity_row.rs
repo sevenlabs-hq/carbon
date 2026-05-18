@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for BorrowObligationLiquidityRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BorrowObligationLiquidityRow {
+impl carbon_core::postgres::operations::Lookup for BorrowObligationLiquidityRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

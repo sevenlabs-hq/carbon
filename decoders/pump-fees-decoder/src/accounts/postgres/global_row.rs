@@ -316,7 +316,7 @@ impl carbon_core::postgres::operations::Delete for GlobalRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for GlobalRow {
+impl carbon_core::postgres::operations::Lookup for GlobalRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

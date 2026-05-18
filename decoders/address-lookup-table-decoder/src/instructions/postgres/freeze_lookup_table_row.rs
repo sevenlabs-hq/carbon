@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for FreezeLookupTableRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FreezeLookupTableRow {
+impl carbon_core::postgres::operations::Lookup for FreezeLookupTableRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

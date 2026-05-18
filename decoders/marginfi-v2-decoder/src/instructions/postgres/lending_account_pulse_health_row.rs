@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for LendingAccountPulseHealthRow 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LendingAccountPulseHealthRow {
+impl carbon_core::postgres::operations::Lookup for LendingAccountPulseHealthRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

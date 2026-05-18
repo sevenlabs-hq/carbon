@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for GetMinimumDelegationRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for GetMinimumDelegationRow {
+impl carbon_core::postgres::operations::Lookup for GetMinimumDelegationRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

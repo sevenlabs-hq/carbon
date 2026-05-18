@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for RemoveLocalTokenRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RemoveLocalTokenRow {
+impl carbon_core::postgres::operations::Lookup for RemoveLocalTokenRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

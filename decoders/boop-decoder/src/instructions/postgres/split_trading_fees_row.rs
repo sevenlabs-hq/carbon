@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SplitTradingFeesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SplitTradingFeesRow {
+impl carbon_core::postgres::operations::Lookup for SplitTradingFeesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

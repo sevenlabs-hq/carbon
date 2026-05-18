@@ -166,7 +166,7 @@ impl carbon_core::postgres::operations::Delete for SetValidatorScoreRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetValidatorScoreRow {
+impl carbon_core::postgres::operations::Lookup for SetValidatorScoreRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

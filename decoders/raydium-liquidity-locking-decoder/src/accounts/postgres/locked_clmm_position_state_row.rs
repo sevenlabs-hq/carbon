@@ -222,7 +222,7 @@ impl carbon_core::postgres::operations::Delete for LockedClmmPositionStateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for LockedClmmPositionStateRow {
+impl carbon_core::postgres::operations::Lookup for LockedClmmPositionStateRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for SetPairStatusRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetPairStatusRow {
+impl carbon_core::postgres::operations::Lookup for SetPairStatusRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

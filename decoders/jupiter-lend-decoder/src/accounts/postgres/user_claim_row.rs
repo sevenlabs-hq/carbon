@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for UserClaimRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UserClaimRow {
+impl carbon_core::postgres::operations::Lookup for UserClaimRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

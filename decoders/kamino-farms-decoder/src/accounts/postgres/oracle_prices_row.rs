@@ -130,7 +130,7 @@ impl carbon_core::postgres::operations::Delete for OraclePricesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for OraclePricesRow {
+impl carbon_core::postgres::operations::Lookup for OraclePricesRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

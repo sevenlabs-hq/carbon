@@ -213,7 +213,7 @@ impl carbon_core::postgres::operations::Delete for PhoenixV1FulfillmentConfigRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PhoenixV1FulfillmentConfigRow {
+impl carbon_core::postgres::operations::Lookup for PhoenixV1FulfillmentConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ReservedAuthorityConfigZRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReservedAuthorityConfigZRow {
+impl carbon_core::postgres::operations::Lookup for ReservedAuthorityConfigZRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

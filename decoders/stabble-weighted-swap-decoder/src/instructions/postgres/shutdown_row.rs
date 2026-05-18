@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for ShutdownRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ShutdownRow {
+impl carbon_core::postgres::operations::Lookup for ShutdownRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

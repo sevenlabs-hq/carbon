@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for UnpauseRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UnpauseRow {
+impl carbon_core::postgres::operations::Lookup for UnpauseRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

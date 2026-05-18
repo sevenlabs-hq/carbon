@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ClaimVestedTokenRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ClaimVestedTokenRow {
+impl carbon_core::postgres::operations::Lookup for ClaimVestedTokenRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for ClaimStandardProtocolTradingF
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ClaimStandardProtocolTradingFeesRow {
+impl carbon_core::postgres::operations::Lookup for ClaimStandardProtocolTradingFeesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

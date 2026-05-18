@@ -152,7 +152,7 @@ impl carbon_core::postgres::operations::Delete for ConsumeGivenEventsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ConsumeGivenEventsRow {
+impl carbon_core::postgres::operations::Lookup for ConsumeGivenEventsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

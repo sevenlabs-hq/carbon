@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for UpdateGuardiansRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateGuardiansRow {
+impl carbon_core::postgres::operations::Lookup for UpdateGuardiansRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for ReservedBondingCurveXRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ReservedBondingCurveXRow {
+impl carbon_core::postgres::operations::Lookup for ReservedBondingCurveXRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

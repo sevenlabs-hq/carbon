@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for GiveUpPendingFeesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for GiveUpPendingFeesRow {
+impl carbon_core::postgres::operations::Lookup for GiveUpPendingFeesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

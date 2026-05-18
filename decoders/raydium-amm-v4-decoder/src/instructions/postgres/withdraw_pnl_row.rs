@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawPnlRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawPnlRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawPnlRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for DecompressV1Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DecompressV1Row {
+impl carbon_core::postgres::operations::Lookup for DecompressV1Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

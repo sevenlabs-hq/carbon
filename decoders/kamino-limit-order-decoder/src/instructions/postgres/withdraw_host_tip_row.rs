@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawHostTipRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawHostTipRow {
+impl carbon_core::postgres::operations::Lookup for WithdrawHostTipRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

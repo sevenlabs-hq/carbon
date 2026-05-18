@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFarmConfigRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateFarmConfigRow {
+impl carbon_core::postgres::operations::Lookup for UpdateFarmConfigRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

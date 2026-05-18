@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for CloseEscrowValueMintAtaAdminR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CloseEscrowValueMintAtaAdminRow {
+impl carbon_core::postgres::operations::Lookup for CloseEscrowValueMintAtaAdminRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

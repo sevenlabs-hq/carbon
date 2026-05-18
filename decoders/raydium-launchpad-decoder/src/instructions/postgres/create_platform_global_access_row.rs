@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CreatePlatformGlobalAccessRow
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreatePlatformGlobalAccessRow {
+impl carbon_core::postgres::operations::Lookup for CreatePlatformGlobalAccessRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

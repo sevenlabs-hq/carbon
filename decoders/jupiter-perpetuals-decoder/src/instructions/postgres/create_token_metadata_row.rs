@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for CreateTokenMetadataRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateTokenMetadataRow {
+impl carbon_core::postgres::operations::Lookup for CreateTokenMetadataRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

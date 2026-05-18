@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for AddStrategyRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AddStrategyRow {
+impl carbon_core::postgres::operations::Lookup for AddStrategyRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

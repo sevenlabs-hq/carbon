@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Delete for TransferSolWithSeedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TransferSolWithSeedRow {
+impl carbon_core::postgres::operations::Lookup for TransferSolWithSeedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

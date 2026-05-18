@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketMarginRatioRo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketMarginRatioRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketMarginRatioRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

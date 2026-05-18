@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Delete for RemoveAmmConstituentMappingDa
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RemoveAmmConstituentMappingDataRow {
+impl carbon_core::postgres::operations::Lookup for RemoveAmmConstituentMappingDataRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for ExtendTokenLoanRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ExtendTokenLoanRow {
+impl carbon_core::postgres::operations::Lookup for ExtendTokenLoanRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

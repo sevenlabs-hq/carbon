@@ -267,7 +267,7 @@ impl carbon_core::postgres::operations::Delete for MeteoraDammMigrationMetadataR
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MeteoraDammMigrationMetadataRow {
+impl carbon_core::postgres::operations::Lookup for MeteoraDammMigrationMetadataRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

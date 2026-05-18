@@ -1,10 +1,17 @@
+//! Row types + CRUD impls for the bundled `accounts` and `instructions`
+//! Postgres tables.
+//!
+//! `AccountRow<T>` and `InstructionRow<T>` store the decoded body as
+//! `Json<T>`. The accompanying `*Migration` types apply
+//! `CREATE TABLE IF NOT EXISTS` via `sqlx_migrator`.
+
 use crate::{
     account::AccountMetadata,
     error::CarbonResult,
     instruction::InstructionMetadata,
     postgres::{
         metadata::{AccountRowMetadata, InstructionRowMetadata},
-        operations::{Delete, Insert, LookUp, Upsert},
+        operations::{Delete, Insert, Lookup, Upsert},
         primitives::{Pubkey, U32},
     },
 };
@@ -84,7 +91,7 @@ impl<
 #[async_trait::async_trait]
 impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
-    > LookUp for AccountRow<T>
+    > Lookup for AccountRow<T>
 {
     type Key = Pubkey;
 
@@ -231,7 +238,7 @@ impl<
 #[async_trait::async_trait]
 impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
-    > LookUp for InstructionRow<T>
+    > Lookup for InstructionRow<T>
 {
     type Key = (String, U32, U32);
 

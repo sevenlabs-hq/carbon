@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for TogglePausedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TogglePausedRow {
+impl carbon_core::postgres::operations::Lookup for TogglePausedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

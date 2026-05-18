@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFeatureBitFlagsMedianTr
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateFeatureBitFlagsMedianTriggerPriceRow {
+impl carbon_core::postgres::operations::Lookup for UpdateFeatureBitFlagsMedianTriggerPriceRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

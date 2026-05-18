@@ -1,3 +1,14 @@
+//! Procedural macros backing Carbon's instruction-decoder collection pattern.
+//!
+//! # Components
+//!
+//! - [`instruction_decoder_collection!`] — function-like macro that generates a
+//!   sum-type enum over many program decoders plus its
+//!   `InstructionDecoderCollection` impl, dispatching on `program_id`.
+//! - [`InstructionType`] — derive macro that emits a sibling `*Type` enum
+//!   (variant tags only) and a `get_instruction_type` accessor on the source
+//!   enum.
+
 use {
     proc_macro::TokenStream,
     quote::{format_ident, quote},
@@ -35,8 +46,9 @@ impl Parse for InstructionMacroInput {
             let program_variant: Ident = input.parse()?;
             input.parse::<Token![=>]>()?;
 
-            // Attempt to parse 4-part syntax: variant => PROGRAM_ID_PATH => DECODER => INSTRUCTION
-            // Use a forked parser to decide without consuming on failure.
+            // Attempt to parse 4-part syntax: variant => PROGRAM_ID_PATH => DECODER =>
+            // INSTRUCTION Use a forked parser to decide without consuming on
+            // failure.
             let mut use_four_part = false;
             let fork = input.fork();
             let program_id_path_candidate: syn::Path = match fork.parse() {
@@ -100,6 +112,23 @@ impl Parse for InstructionMacroInput {
     }
 }
 
+/// Generate a sum-type instruction enum over multiple program decoders along
+/// with its `InstructionDecoderCollection` impl.
+///
+/// # Syntax
+///
+/// ```text
+/// instruction_decoder_collection!(
+///     AllInstructions, AllInstructionTypes, AllPrograms,
+///     // 4-part (preferred): explicit program id enables fast dispatch.
+///     Token => spl_token::ID => TokenDecoder => TokenInstruction,
+///     // 3-part (legacy): falls back to a linear try-decode loop.
+///     Memo => MemoDecoder => MemoInstruction,
+/// );
+/// ```
+///
+/// 4-part entries are matched directly on `instruction.program_id`. Any
+/// remaining 3-part entries are tried in declaration order as a fallback.
 #[proc_macro]
 pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as InstructionMacroInput);
@@ -211,6 +240,11 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
+/// Derive a sibling `*Type` enum (variant tags only) and a
+/// `get_instruction_type(&self) -> *Type` accessor on the annotated enum.
+///
+/// Used on per-program instruction enums so the runtime can compare/filter on
+/// variant identity without touching decoded payloads.
 #[proc_macro_derive(InstructionType)]
 pub fn instruction_type_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemEnum);

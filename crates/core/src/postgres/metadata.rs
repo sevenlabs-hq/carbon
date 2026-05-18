@@ -1,3 +1,6 @@
+//! Conversions from pipeline metadata to the column-prefixes embedded
+//! in `AccountRow` / `InstructionRow` via `#[sqlx(flatten)]`.
+
 use crate::{
     account::AccountMetadata,
     instruction::InstructionMetadata,

@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Delete for ToggleMarketMakerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ToggleMarketMakerRow {
+impl carbon_core::postgres::operations::Lookup for ToggleMarketMakerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

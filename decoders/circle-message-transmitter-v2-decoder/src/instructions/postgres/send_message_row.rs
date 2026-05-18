@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for SendMessageRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SendMessageRow {
+impl carbon_core::postgres::operations::Lookup for SendMessageRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

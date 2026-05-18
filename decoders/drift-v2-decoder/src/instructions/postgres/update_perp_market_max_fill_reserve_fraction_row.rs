@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketMaxFillReserv
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketMaxFillReserveFractionRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketMaxFillReserveFractionRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

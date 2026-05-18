@@ -8,12 +8,13 @@ Thank you for your interest in contributing to Carbon! This document provides gu
 - [Development Setup](#development-setup)
 - [Project Structure](#project-structure)
 - [Code Style and Standards](#code-style-and-standards)
+- [Continuous Integration](#continuous-integration)
 - [Testing](#testing)
 - [Adding New Features](#adding-new-features)
 - [Adding New Decoders](#adding-new-decoders)
 - [Adding New Datasources](#adding-new-datasources)
 - [Submitting Changes](#submitting-changes)
-- [Release Process](#release-process)
+- [Getting Help](#getting-help)
 
 ## About Carbon
 
@@ -23,9 +24,10 @@ Carbon is an indexing framework for Solana that provides a modular pipeline for 
 
 ### Prerequisites
 
-- **Rust**: Version 1.82 or higher (see `rust-toolchain.toml` for exact version)
-- **Git**: For version control
-- **Cargo**: Rust's package manager (included with Rust)
+- **Rust**: 1.88.0 (pinned via [`rust-toolchain.toml`](rust-toolchain.toml)). Published crates target **MSRV 1.82** (set in [`clippy.toml`](clippy.toml)) — develop on 1.88, but don't reach for features newer than 1.82 in code that ships.
+- **Git**: For version control.
+- **Cargo**: Rust's package manager (included with Rust).
+- **System libs**: Some datasources need `libclang` (for `bindgen`) — `sudo apt-get install libclang-dev` on Debian/Ubuntu, `brew install llvm` on macOS.
 
 ### Getting Started
 
@@ -55,12 +57,15 @@ To activate the pre-commit hooks, run:
 ./.pre-commit.sh
 ```
 
-This will register the following checks that run on each commit:
+On every `git commit` it runs:
 
-- **fmt**: Checks code formatting using `cargo fmt --check`
-- **clippy**: Runs `cargo clippy` to catch potential issues
-- **cargo_sort**: Uses `cargo-sort` to ensure Cargo.toml files are sorted correctly
-- **machete**: Checks for unused Cargo dependencies using `cargo-machete`
+- `cargo fmt --check` — formatting
+- `cargo clippy --all-targets --all-features -- -D warnings` — lint, deny warnings
+- `cargo sort -c -g` — `Cargo.toml` ordering
+- `cargo machete` — unused dependencies
+- `cargo test --all-targets --all-features` — full test suite
+
+The same five checks run in CI (see [Continuous Integration](#continuous-integration)).
 
 ## Project Structure
 
@@ -68,23 +73,22 @@ The Carbon project is organized as a Rust workspace with the following main comp
 
 ### Core Crates (`crates/`)
 
-- **`carbon-core`**: The main framework providing pipeline orchestration
-- **`carbon-cli`**: Command-line interface for generating decoders and scaffolding projects
-- **`carbon-macros`**: Procedural macros for the framework
-- **`carbon-proc-macros`**: Additional procedural macros
-- **`carbon-test-utils`**: Testing utilities and helpers
+- **`carbon-core`**: The framework — pipeline orchestration, traits, filters, metrics.
+- **`carbon-macros`**: `no_std` declarative helper macros (e.g. `try_decode_instructions!`).
+- **`carbon-proc-macros`**: Procedural macros — `instruction_decoder_collection!` and `InstructionType` derive.
+- **`carbon-test-utils`**: JSON-fixture helpers used by decoder tests.
+
+The TypeScript CLI (`@sevenlabs-hq/carbon-cli`) and the codama renderer live under [`packages/`](packages/), not `crates/`.
 
 ### Datasources (`datasources/`)
 
-Data source implementations for various Solana data streams:
+Update producers grouped by source — each crate ships its own README with setup details and tradeoffs:
 
-- **`carbon-rpc-block-subscribe-datasource`**: WebSocket-based block subscription
-- **`carbon-rpc-program-subscribe-datasource`**: Program-specific account updates
-- **`carbon-yellowstone-grpc-datasource`**: Yellowstone gRPC Geyser client
-- **`carbon-helius-atlas-ws-datasource`**: Helius Atlas WebSocket integration
-- **`carbon-jito-shredstream-grpc-datasource`**: JITO shredstream integration
-- **`carbon-rpc-block-crawler-datasource`**: Historical block crawling
-- **`carbon-rpc-transaction-crawler-datasource`**: Historical transaction crawling
+- **Solana RPC**: `carbon-rpc-block-subscribe-datasource`, `carbon-rpc-program-subscribe-datasource`, `carbon-rpc-transaction-crawler-datasource`, `carbon-rpc-block-crawler-datasource`, `carbon-rpc-gpa-datasource`
+- **Helius**: `carbon-helius-atlas-ws-datasource`, `carbon-helius-laserstream-datasource`, `carbon-helius-gpa-v2-datasource`, `carbon-helius-gtfa-datasource`
+- **Geyser gRPC**: `carbon-yellowstone-grpc-datasource`, `carbon-jito-shredstream-grpc-datasource`
+- **Historical / archive**: `carbon-validator-snapshot-datasource`, `carbon-jetstreamer-datasource`
+- **Adapter**: `carbon-stream-message-datasource`
 
 ### Decoders (`decoders/`)
 
@@ -103,13 +107,19 @@ Program-specific decoders for popular Solana programs:
 
 ### Examples (`examples/`)
 
-Working examples demonstrating various use cases:
+Standalone, runnable indexers — one crate per indexing pattern:
 
-- **`block-finality-alerts`**: Block processing example
-- **`jupiter-swap-alerts`**: Jupiter swap monitoring
-- **`kamino-alerts`**: Kamino lending monitoring
-- **`token-indexing`**: Token account indexing with PostgreSQL
-- And more...
+- **`yellowstone-grpc`**: Real-time pipeline (Yellowstone gRPC, with LaserStream and Jito Shredstream variants)
+- **`block-subscribe-rpc`**: Real-time pipeline over public Solana RPC
+- **`gpa-rpc`**: Loading current program state via `getProgramAccounts`
+- **`transaction-crawler-rpc`**: Per-program transaction history
+- **`snapshot-validator`**: Loading state from a validator snapshot file
+- **`jetstreamer`**: Bounded-range historical backfill from an archive
+- **`versioned-decoders`**: Routing across program upgrades with breaking IDL changes
+- **`postgres-graphql`**: Persisting decoded data to Postgres with a GraphQL query layer
+- **`custom-datasource`**: Reference for implementing your own `Datasource`
+
+See [`examples/README.md`](examples/README.md) for the use-case index.
 
 ## Code Style and Standards
 
@@ -146,6 +156,20 @@ The project uses a strict clippy configuration defined in `clippy.toml`:
 - Minimum Rust version: 1.82
 - Maximum stack size for large types: 128 bytes
 - Denies warnings, default trait access, arithmetic side effects, manual let-else, and used underscore binding
+
+## Continuous Integration
+
+Every PR runs the workflow in [`.github/workflows/check.yml`](.github/workflows/check.yml):
+
+| Check  | Command                                                    |
+| ------ | ---------------------------------------------------------- |
+| Format | `cargo fmt --check`                                        |
+| Lint   | `cargo clippy --all-targets --all-features -- -D warnings` |
+| Sort   | `cargo sort -c -g`                                         |
+| Unused | `cargo machete`                                            |
+| Tests  | `cargo test --all-targets --all-features`                  |
+
+All five must pass before a PR is mergeable. Run the same locally via `./.pre-commit.sh` plus `cargo test --workspace`.
 
 ## Testing
 
@@ -214,7 +238,7 @@ When adding a new crate to the workspace:
 
 ### Decoder Structure
 
-Each decoder follows a consistent structure:
+A generated decoder crate follows this layout:
 
 ```
 decoders/your-program-decoder/
@@ -222,25 +246,27 @@ decoders/your-program-decoder/
 ├── README.md
 ├── src/
 │   ├── lib.rs
-│   │   ├── account/
-│   │   │   ├── mod.rs
-│   │   │   └── decoder.rs
-│   │   ├── instruction/
-│   │   │   ├── mod.rs
-│   │   │   └── decoder.rs
-│   │   └── types/
-│   │       ├── mod.rs
-│   │       └── types.rs
-│   └── tests/
-│       └── fixtures/
+│   ├── accounts/         # account types + decoder
+│   │   ├── postgres/     # optional: sqlx row impls
+│   │   └── graphql/      # optional: juniper schemas
+│   ├── instructions/     # instruction types + decoder
+│   │   ├── postgres/
+│   │   └── graphql/
+│   ├── types/            # shared IDL-defined types
+│   │   └── graphql/
+│   └── graphql/          # top-level query roots
+└── tests/
+    └── fixtures/         # captured on-chain JSON payloads
 ```
+
+The `postgres/` and `graphql/` modules are gated by Cargo features (`--with-postgres`, `--with-graphql` at scaffold time) and only generated when enabled.
 
 ### Creating a New Decoder
 
 1. **Generate decoder using CLI** (recommended):
 
     ```bash
-    carbon-cli parse --idl program_address -u mainnet-beta --output ./decoders/your-program-decoder
+    carbon-cli parse --idl <program-address-or-idl-path> -u mainnet-beta --out-dir ./decoders/your-program-decoder
     ```
 
 2. **Manual creation**:
@@ -279,8 +305,14 @@ datasources/your-datasource/
 1. **Implement the `Datasource` trait**:
 
     ```rust
-    use carbon_core::datasource::{Datasource, Update, UpdateType};
-    use async_trait::async_trait;
+    use {
+        async_trait::async_trait,
+        carbon_core::{
+            datasource::{Datasource, DatasourceId, Update, UpdateType},
+            error::CarbonResult,
+        },
+        tokio_util::sync::CancellationToken,
+    };
 
     pub struct YourDatasource;
 
@@ -288,10 +320,12 @@ datasources/your-datasource/
     impl Datasource for YourDatasource {
         async fn consume(
             &self,
-            sender: &tokio::sync::mpsc::UnboundedSender<Update>,
+            id: DatasourceId,
+            sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
             cancellation_token: CancellationToken,
         ) -> CarbonResult<()> {
-            // Implementation
+            // produce updates and `sender.send((update, id.clone()))` until cancelled
+            Ok(())
         }
 
         fn update_types(&self) -> Vec<UpdateType> {
@@ -299,6 +333,8 @@ datasources/your-datasource/
         }
     }
     ```
+
+    The full set of update types is `AccountUpdate`, `Transaction`, `AccountDeletion`, and `BlockDetails`. Declare all variants your datasource may emit. A worked, runnable reference: [`examples/custom-datasource`](examples/custom-datasource).
 
 2. **Add configuration options** for flexibility
 3. **Include proper error handling** and retry logic

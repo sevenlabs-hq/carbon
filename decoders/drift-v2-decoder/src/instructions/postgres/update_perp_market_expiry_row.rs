@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketExpiryRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdatePerpMarketExpiryRow {
+impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketExpiryRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

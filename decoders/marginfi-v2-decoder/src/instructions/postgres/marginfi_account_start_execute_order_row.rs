@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for MarginfiAccountStartExecuteOr
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for MarginfiAccountStartExecuteOrderRow {
+impl carbon_core::postgres::operations::Lookup for MarginfiAccountStartExecuteOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

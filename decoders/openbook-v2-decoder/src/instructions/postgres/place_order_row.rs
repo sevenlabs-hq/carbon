@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for PlaceOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PlaceOrderRow {
+impl carbon_core::postgres::operations::Lookup for PlaceOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

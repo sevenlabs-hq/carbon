@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for DeprecatedCreateReservationLi
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for DeprecatedCreateReservationListRow {
+impl carbon_core::postgres::operations::Lookup for DeprecatedCreateReservationListRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

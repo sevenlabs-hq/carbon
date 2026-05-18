@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for EnableVaultRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for EnableVaultRow {
+impl carbon_core::postgres::operations::Lookup for EnableVaultRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Delete for UpsertFeeTiersRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpsertFeeTiersRow {
+impl carbon_core::postgres::operations::Lookup for UpsertFeeTiersRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

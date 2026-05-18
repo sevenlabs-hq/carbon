@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for InitializeMarketStrikesRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitializeMarketStrikesRow {
+impl carbon_core::postgres::operations::Lookup for InitializeMarketStrikesRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

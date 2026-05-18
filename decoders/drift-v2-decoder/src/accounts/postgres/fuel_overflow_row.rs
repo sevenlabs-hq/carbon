@@ -224,7 +224,7 @@ impl carbon_core::postgres::operations::Delete for FuelOverflowRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for FuelOverflowRow {
+impl carbon_core::postgres::operations::Lookup for FuelOverflowRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

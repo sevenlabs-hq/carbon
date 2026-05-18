@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for UpdateLendingMarketOwnerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateLendingMarketOwnerRow {
+impl carbon_core::postgres::operations::Lookup for UpdateLendingMarketOwnerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

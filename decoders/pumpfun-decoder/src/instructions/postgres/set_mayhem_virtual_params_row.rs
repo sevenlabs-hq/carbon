@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for SetMayhemVirtualParamsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetMayhemVirtualParamsRow {
+impl carbon_core::postgres::operations::Lookup for SetMayhemVirtualParamsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

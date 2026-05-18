@@ -198,7 +198,7 @@ impl carbon_core::postgres::operations::Delete for PodAlignedFeeMarketCapSchedul
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for PodAlignedFeeMarketCapSchedulerRow {
+impl carbon_core::postgres::operations::Lookup for PodAlignedFeeMarketCapSchedulerRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

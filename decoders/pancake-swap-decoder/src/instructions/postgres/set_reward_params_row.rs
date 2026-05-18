@@ -171,7 +171,7 @@ impl carbon_core::postgres::operations::Delete for SetRewardParamsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetRewardParamsRow {
+impl carbon_core::postgres::operations::Lookup for SetRewardParamsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

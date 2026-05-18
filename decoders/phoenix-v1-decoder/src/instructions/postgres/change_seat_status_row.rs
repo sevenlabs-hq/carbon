@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for ChangeSeatStatusRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ChangeSeatStatusRow {
+impl carbon_core::postgres::operations::Lookup for ChangeSeatStatusRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

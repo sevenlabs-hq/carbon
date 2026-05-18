@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for CreateMasterEditionV3Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateMasterEditionV3Row {
+impl carbon_core::postgres::operations::Lookup for CreateMasterEditionV3Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

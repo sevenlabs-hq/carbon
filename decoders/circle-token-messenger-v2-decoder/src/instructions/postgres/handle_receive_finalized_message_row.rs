@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for HandleReceiveFinalizedMessage
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for HandleReceiveFinalizedMessageRow {
+impl carbon_core::postgres::operations::Lookup for HandleReceiveFinalizedMessageRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

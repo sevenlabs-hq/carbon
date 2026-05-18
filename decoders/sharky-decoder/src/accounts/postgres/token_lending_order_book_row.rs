@@ -253,7 +253,7 @@ impl carbon_core::postgres::operations::Delete for TokenLendingOrderBookRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for TokenLendingOrderBookRow {
+impl carbon_core::postgres::operations::Lookup for TokenLendingOrderBookRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(

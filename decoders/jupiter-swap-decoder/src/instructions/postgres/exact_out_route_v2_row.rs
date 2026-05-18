@@ -200,7 +200,7 @@ impl carbon_core::postgres::operations::Delete for ExactOutRouteV2Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ExactOutRouteV2Row {
+impl carbon_core::postgres::operations::Lookup for ExactOutRouteV2Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

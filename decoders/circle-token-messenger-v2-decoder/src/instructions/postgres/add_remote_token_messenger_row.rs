@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for AddRemoteTokenMessengerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AddRemoteTokenMessengerRow {
+impl carbon_core::postgres::operations::Lookup for AddRemoteTokenMessengerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for UpdateOrderRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateOrderRow {
+impl carbon_core::postgres::operations::Lookup for UpdateOrderRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

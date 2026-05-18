@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for RequestSeatAuthorizedRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for RequestSeatAuthorizedRow {
+impl carbon_core::postgres::operations::Lookup for RequestSeatAuthorizedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

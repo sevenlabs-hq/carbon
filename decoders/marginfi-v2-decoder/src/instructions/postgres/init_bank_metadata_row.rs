@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for InitBankMetadataRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitBankMetadataRow {
+impl carbon_core::postgres::operations::Lookup for InitBankMetadataRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

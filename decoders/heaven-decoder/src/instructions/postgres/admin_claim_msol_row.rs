@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Delete for AdminClaimMsolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AdminClaimMsolRow {
+impl carbon_core::postgres::operations::Lookup for AdminClaimMsolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

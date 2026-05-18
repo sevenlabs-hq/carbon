@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for SetRewardEmissionsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetRewardEmissionsRow {
+impl carbon_core::postgres::operations::Lookup for SetRewardEmissionsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

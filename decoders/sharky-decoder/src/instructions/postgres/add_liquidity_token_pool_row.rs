@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for AddLiquidityTokenPoolRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AddLiquidityTokenPoolRow {
+impl carbon_core::postgres::operations::Lookup for AddLiquidityTokenPoolRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

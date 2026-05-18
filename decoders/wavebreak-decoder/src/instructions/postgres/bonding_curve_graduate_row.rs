@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for BondingCurveGraduateRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for BondingCurveGraduateRow {
+impl carbon_core::postgres::operations::Lookup for BondingCurveGraduateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

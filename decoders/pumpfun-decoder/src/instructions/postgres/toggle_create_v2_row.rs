@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Delete for ToggleCreateV2Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ToggleCreateV2Row {
+impl carbon_core::postgres::operations::Lookup for ToggleCreateV2Row {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateOracleGuardRailsRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateOracleGuardRailsRow {
+impl carbon_core::postgres::operations::Lookup for UpdateOracleGuardRailsRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

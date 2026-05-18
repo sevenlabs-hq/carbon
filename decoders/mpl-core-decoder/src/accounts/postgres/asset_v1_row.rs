@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Delete for AssetV1Row {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for AssetV1Row {
+impl carbon_core::postgres::operations::Lookup for AssetV1Row {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(
