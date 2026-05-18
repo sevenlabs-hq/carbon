@@ -10,13 +10,16 @@ pub mod add_liquidity_single_side_precise_parameter;
 pub mod add_liquidity_single_side_precise_parameter2;
 pub mod base_fee_parameter;
 pub mod bin;
+pub mod bin_limit_order_amount;
 pub mod bin_liquidity_distribution;
 pub mod bin_liquidity_distribution_by_weight;
 pub mod bin_liquidity_reduction;
+pub mod cancel_limit_order_evt;
 pub mod claim_fee;
 pub mod claim_fee2;
 pub mod claim_reward;
 pub mod claim_reward2;
+pub mod close_limit_order_evt;
 pub mod composition_fee;
 pub mod compressed_bin_deposit_amount;
 pub mod customizable_params;
@@ -42,12 +45,15 @@ pub mod liquidity_parameter_by_strategy_one_side;
 pub mod liquidity_parameter_by_weight;
 pub mod pair_status;
 pub mod pair_type;
+pub mod place_limit_order_evt;
+pub mod place_limit_order_params;
 pub mod position_bin_data;
 pub mod position_close;
 pub mod position_create;
 pub mod protocol_fee;
 pub mod rebalance_liquidity_params;
 pub mod rebalancing;
+pub mod relative_bin;
 pub mod remaining_accounts_info;
 pub mod remaining_accounts_slice;
 pub mod remove_liquidity;
@@ -55,10 +61,12 @@ pub mod remove_liquidity_params;
 pub mod resize_side;
 pub mod reward_info;
 pub mod rounding;
+pub mod set_position_permissionless_operation_bits_evt;
 pub mod static_parameters;
 pub mod strategy_parameters;
 pub mod strategy_type;
 pub mod swap;
+pub mod swap2_evt;
 pub mod token_program_flags;
 pub mod update_position_lock_release_point;
 pub mod update_position_operator;
@@ -72,8 +80,9 @@ pub use self::{
     accounts_type::*, activation_type::*, add_liquidity::*, add_liquidity_params::*,
     add_liquidity_single_side_precise_parameter::*,
     add_liquidity_single_side_precise_parameter2::*, base_fee_parameter::*, bin::*,
-    bin_liquidity_distribution::*, bin_liquidity_distribution_by_weight::*,
-    bin_liquidity_reduction::*, claim_fee::*, claim_fee2::*, claim_reward::*, claim_reward2::*,
+    bin_limit_order_amount::*, bin_liquidity_distribution::*,
+    bin_liquidity_distribution_by_weight::*, bin_liquidity_reduction::*, cancel_limit_order_evt::*,
+    claim_fee::*, claim_fee2::*, claim_reward::*, claim_reward2::*, close_limit_order_evt::*,
     composition_fee::*, compressed_bin_deposit_amount::*, customizable_params::*,
     decrease_position_length::*, dummy_ix::*, dynamic_fee_parameter::*,
     dynamic_fee_parameter_update::*, fee_info::*, fee_parameter_update::*, fund_reward::*,
@@ -82,11 +91,13 @@ pub use self::{
     initialize_reward::*, lb_pair_create::*, liquidity_one_side_parameter::*,
     liquidity_parameter::*, liquidity_parameter_by_strategy::*,
     liquidity_parameter_by_strategy_one_side::*, liquidity_parameter_by_weight::*, pair_status::*,
-    pair_type::*, position_bin_data::*, position_close::*, position_create::*, protocol_fee::*,
-    rebalance_liquidity_params::*, rebalancing::*, remaining_accounts_info::*,
-    remaining_accounts_slice::*, remove_liquidity::*, remove_liquidity_params::*, resize_side::*,
-    reward_info::*, rounding::*, static_parameters::*, strategy_parameters::*, strategy_type::*,
-    swap::*, token_program_flags::*, update_position_lock_release_point::*,
-    update_position_operator::*, update_reward_duration::*, update_reward_funder::*,
-    user_reward_info::*, variable_parameters::*, withdraw_ineligible_reward::*,
+    pair_type::*, place_limit_order_evt::*, place_limit_order_params::*, position_bin_data::*,
+    position_close::*, position_create::*, protocol_fee::*, rebalance_liquidity_params::*,
+    rebalancing::*, relative_bin::*, remaining_accounts_info::*, remaining_accounts_slice::*,
+    remove_liquidity::*, remove_liquidity_params::*, resize_side::*, reward_info::*, rounding::*,
+    set_position_permissionless_operation_bits_evt::*, static_parameters::*,
+    strategy_parameters::*, strategy_type::*, swap::*, swap2_evt::*, token_program_flags::*,
+    update_position_lock_release_point::*, update_position_operator::*, update_reward_duration::*,
+    update_reward_funder::*, user_reward_info::*, variable_parameters::*,
+    withdraw_ineligible_reward::*,
 };

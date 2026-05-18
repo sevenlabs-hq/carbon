@@ -45,9 +45,10 @@ pub struct PositionV2 {
     pub fee_owner: Pubkey,
     /// version to know whether we have reset tombstone fields
     pub version: u8,
+    pub permissionless_operation_bits: u8,
     /// Reserved space for future use
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub reserved: [u8; 86],
+    pub reserved: [u8; 85],
 }
 
 impl PositionV2 {

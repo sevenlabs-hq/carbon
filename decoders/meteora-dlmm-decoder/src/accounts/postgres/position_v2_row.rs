@@ -30,6 +30,7 @@ pub struct PositionV2Row {
     pub padding0: U8,
     pub fee_owner: Pubkey,
     pub version: U8,
+    pub permissionless_operation_bits: U8,
     pub reserved: Vec<u8>,
 }
 
@@ -64,6 +65,7 @@ impl PositionV2Row {
             padding0: source.padding0.into(),
             fee_owner: source.fee_owner.into(),
             version: source.version.into(),
+            permissionless_operation_bits: source.permissionless_operation_bits.into(),
             reserved: source.reserved.to_vec(),
         }
     }
@@ -147,9 +149,17 @@ impl TryFrom<PositionV2Row> for crate::accounts::position_v2::PositionV2 {
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
+            permissionless_operation_bits: source
+                .permissionless_operation_bits
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
             reserved: source.reserved.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 86 bytes"
+                    "Failed to convert padding from postgres primitive: expected 85 bytes"
                         .to_string(),
                 )
             })?,
@@ -182,6 +192,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::position_v2::
             "padding0",
             "fee_owner",
             "version",
+            "permissionless_operation_bits",
             "reserved",
         ]
     }
@@ -190,8 +201,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::position_v2::
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for PositionV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO position_v2_account (
                 "lb_pair",
                 "owner",
@@ -209,12 +219,12 @@ impl carbon_core::postgres::operations::Insert for PositionV2Row {
                 "padding0",
                 "fee_owner",
                 "version",
+                "permissionless_operation_bits",
                 "reserved",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
-            )"#,
-        )
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
+            )"#)
         .bind(self.lb_pair)
         .bind(self.owner)
         .bind(&self.liquidity_shares)
@@ -231,11 +241,11 @@ impl carbon_core::postgres::operations::Insert for PositionV2Row {
         .bind(self.padding0)
         .bind(self.fee_owner)
         .bind(self.version)
+        .bind(self.permissionless_operation_bits)
         .bind(&self.reserved)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -244,8 +254,7 @@ impl carbon_core::postgres::operations::Insert for PositionV2Row {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PositionV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO position_v2_account (
+        sqlx::query(r#"INSERT INTO position_v2_account (
                 "lb_pair",
                 "owner",
                 "liquidity_shares",
@@ -262,10 +271,11 @@ impl carbon_core::postgres::operations::Upsert for PositionV2Row {
                 "padding0",
                 "fee_owner",
                 "version",
+                "permissionless_operation_bits",
                 "reserved",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -285,10 +295,10 @@ impl carbon_core::postgres::operations::Upsert for PositionV2Row {
                 "padding0" = EXCLUDED."padding0",
                 "fee_owner" = EXCLUDED."fee_owner",
                 "version" = EXCLUDED."version",
+                "permissionless_operation_bits" = EXCLUDED."permissionless_operation_bits",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
-            "#,
-        )
+            "#)
         .bind(self.lb_pair)
         .bind(self.owner)
         .bind(&self.liquidity_shares)
@@ -305,11 +315,11 @@ impl carbon_core::postgres::operations::Upsert for PositionV2Row {
         .bind(self.padding0)
         .bind(self.fee_owner)
         .bind(self.version)
+        .bind(self.permissionless_operation_bits)
         .bind(&self.reserved)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -381,6 +391,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionV2MigrationOperation {
                 "padding0" INT2 NOT NULL,
                 "fee_owner" BYTEA NOT NULL,
                 "version" INT2 NOT NULL,
+                "permissionless_operation_bits" INT2 NOT NULL,
                 "reserved" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

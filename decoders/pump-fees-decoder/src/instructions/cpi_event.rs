@@ -22,9 +22,6 @@ pub enum CpiEvent {
     ResetFeeSharingConfigEvent(
         events::reset_fee_sharing_config_event::ResetFeeSharingConfigEventEvent,
     ),
-    RevokeFeeSharingAuthorityEvent(
-        events::revoke_fee_sharing_authority_event::RevokeFeeSharingAuthorityEventEvent,
-    ),
     SetAuthorityEvent(events::set_authority_event::SetAuthorityEventEvent),
     SetClaimRateLimitEvent(events::set_claim_rate_limit_event::SetClaimRateLimitEventEvent),
     SetDisableFlagsEvent(events::set_disable_flags_event::SetDisableFlagsEventEvent),
@@ -33,9 +30,6 @@ pub enum CpiEvent {
     ),
     SocialFeePdaClaimed(events::social_fee_pda_claimed::SocialFeePdaClaimedEvent),
     SocialFeePdaCreated(events::social_fee_pda_created::SocialFeePdaCreatedEvent),
-    TransferFeeSharingAuthorityEvent(
-        events::transfer_fee_sharing_authority_event::TransferFeeSharingAuthorityEventEvent,
-    ),
     UpdateAdminEvent(events::update_admin_event::UpdateAdminEventEvent),
     UpdateFeeConfigEvent(events::update_fee_config_event::UpdateFeeConfigEventEvent),
     UpdateFeeSharesEvent(events::update_fee_shares_event::UpdateFeeSharesEventEvent),
@@ -85,13 +79,6 @@ impl CpiEvent {
             return Some(CpiEvent::ResetFeeSharingConfigEvent(decoded));
         }
         if let Some(decoded) =
-            events::revoke_fee_sharing_authority_event::RevokeFeeSharingAuthorityEventEvent::decode(
-                event_data,
-            )
-        {
-            return Some(CpiEvent::RevokeFeeSharingAuthorityEvent(decoded));
-        }
-        if let Some(decoded) =
             events::set_authority_event::SetAuthorityEventEvent::decode(event_data)
         {
             return Some(CpiEvent::SetAuthorityEvent(decoded));
@@ -122,9 +109,6 @@ impl CpiEvent {
             events::social_fee_pda_created::SocialFeePdaCreatedEvent::decode(event_data)
         {
             return Some(CpiEvent::SocialFeePdaCreated(decoded));
-        }
-        if let Some(decoded) = events::transfer_fee_sharing_authority_event::TransferFeeSharingAuthorityEventEvent::decode(event_data) {
-            return Some(CpiEvent::TransferFeeSharingAuthorityEvent(decoded));
         }
         if let Some(decoded) = events::update_admin_event::UpdateAdminEventEvent::decode(event_data)
         {

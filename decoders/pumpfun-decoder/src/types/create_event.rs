@@ -18,4 +18,6 @@ pub struct CreateEvent {
     pub token_program: Pubkey,
     pub is_mayhem_mode: bool,
     pub is_cashback_enabled: bool,
+    pub quote_mint: Pubkey,
+    pub virtual_quote_reserves: u64,
 }

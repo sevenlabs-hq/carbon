@@ -22,6 +22,7 @@ pub enum PluginTypeGraphQL {
     BubblegumV2,
     FreezeExecute,
     PermanentFreezeExecute,
+    Groups,
 }
 
 impl From<crate::types::PluginType> for PluginTypeGraphQL {
@@ -45,6 +46,7 @@ impl From<crate::types::PluginType> for PluginTypeGraphQL {
             crate::types::PluginType::BubblegumV2 => Self::BubblegumV2,
             crate::types::PluginType::FreezeExecute => Self::FreezeExecute,
             crate::types::PluginType::PermanentFreezeExecute => Self::PermanentFreezeExecute,
+            crate::types::PluginType::Groups => Self::Groups,
         }
     }
 }

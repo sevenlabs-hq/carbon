@@ -91,9 +91,8 @@ pub struct LendingMarket {
     /// should be disabled. This includes regular liquidation (i.e. LTV
     /// exceeding the unhealthy threshold) and some obligation orders'
     /// execution. *Caution:* this flag is *disabling* the liquidations when
-    /// `1` - contrary to all the other
-    ///
-    /// liquidation-driving flags (see e.g. [Self::autodeleverage_enabled]).
+    /// `1` - contrary to all the other liquidation-driving flags (see e.g.
+    /// [Self::autodeleverage_enabled]).
     pub price_triggered_liquidation_disabled: u8,
     /// Whether the debts that reached their reserve's
     /// [ReserveConfig::debt_maturity_timestamp] can be liquidated.
@@ -128,7 +127,7 @@ pub struct LendingMarket {
     /// - [Self::open_term_rollover_window_duration_seconds],
     /// - [Self::obligation_borrow_migration_to_fixed_execution_enabled].
     ///
-    /// Note 2: when this configuration is disabled, the obligation owners can
+    /// *Note 2:* when this configuration is disabled, the obligation owners can
     /// still disable their rollover (i.e. set the obligation's flags to
     /// zeroes).
     pub obligation_borrow_rollover_configuration_enabled: u8,
@@ -136,7 +135,18 @@ pub struct LendingMarket {
     /// is allowed.
     /// See [FixedTermBorrowRolloverConfig::migration_to_fixed_enabled].
     pub obligation_borrow_migration_to_fixed_execution_enabled: u8,
-    pub padding2: [u8; 4],
+    /// Whether the ticket owners can cancel their withdraw tickets (i.e.
+    /// recover ctokens from the queued collateral vault back to their
+    /// wallet).
+    pub withdraw_ticket_cancellation_enabled: u8,
+    pub padding2: [u8; 1],
+    /// Maximum APR (in basis points; `FULL_BPS = 10_000` = 100%) at which
+    /// reserves on this market may distribute their
+    /// `rewards_amount_per_slot`. `0` disables rewards on this market
+    /// entirely (`topup_reserve_rewards` is rejected). Bounded by `FULL_BPS`
+    /// (100% APR) when set. See [ReserveConfig::rewards_amount_per_slot]
+    /// for the depositor-cap interaction.
+    pub reserve_rewards_max_apr_bps: u16,
     /// Minimum value that can be withdrawn in a single
     /// `withdraw_queued_liquidity()` call, in full units of the quote
     /// currency (e.g. `2` means "$2", not "2 lamports of USDC").
@@ -186,8 +196,13 @@ pub struct LendingMarket {
     /// compatible reserve). When zeroed, an entire expired debt can be
     /// liquidated right after expiration (i.e. no throttling).
     pub term_based_full_liquidation_duration_secs: u64,
+    /// If not NULL, operations encoded in permissioned_ops require a signature
+    /// from this authority
+    pub permissioning_authority: Pubkey,
+    /// Bitmap of operations that require permissioning authority signature
+    pub permissioned_ops: u64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub padding1: [u64; 158],
+    pub padding1: [u64; 153],
 }
 
 impl LendingMarket {

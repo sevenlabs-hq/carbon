@@ -18,7 +18,9 @@ pub struct PresetParameter2GraphQL {
     pub protocol_share: i32,
     pub index: i32,
     pub base_fee_power_factor: U8,
-    pub function_type: U8,
+    pub concrete_function_type: U8,
+    pub collect_fee_mode: U8,
+    pub padding0: Vec<U8>,
     pub padding1: Vec<U64>,
 }
 
@@ -43,7 +45,15 @@ impl TryFrom<crate::accounts::postgres::PresetParameter2Row> for PresetParameter
             base_fee_power_factor: carbon_core::graphql::primitives::U8(
                 (*row.base_fee_power_factor) as u8,
             ),
-            function_type: carbon_core::graphql::primitives::U8((*row.function_type) as u8),
+            concrete_function_type: carbon_core::graphql::primitives::U8(
+                (*row.concrete_function_type) as u8,
+            ),
+            collect_fee_mode: carbon_core::graphql::primitives::U8((*row.collect_fee_mode) as u8),
+            padding0: row
+                .padding0
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
+                .collect(),
             padding1: row
                 .padding1
                 .into_iter()

@@ -9,6 +9,7 @@ pub mod graphql;
 
 pub mod asset_v1;
 pub mod collection_v1;
+pub mod group_v1;
 pub mod hashed_asset_v1;
 pub mod plugin_header_v1;
 pub mod plugin_registry_v1;
@@ -19,6 +20,7 @@ pub mod plugin_registry_v1;
 pub enum MplCoreAccount {
     AssetV1(Box<asset_v1::AssetV1>),
     CollectionV1(Box<collection_v1::CollectionV1>),
+    GroupV1(Box<group_v1::GroupV1>),
     HashedAssetV1(Box<hashed_asset_v1::HashedAssetV1>),
     PluginHeaderV1(Box<plugin_header_v1::PluginHeaderV1>),
     PluginRegistryV1(Box<plugin_registry_v1::PluginRegistryV1>),
@@ -75,6 +77,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MplCoreDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: MplCoreAccount::CollectionV1(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = group_v1::GroupV1::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MplCoreAccount::GroupV1(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

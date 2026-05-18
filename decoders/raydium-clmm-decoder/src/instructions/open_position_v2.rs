@@ -7,9 +7,9 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// * `tick_lower_index` - The low boundary of market
 /// * `tick_upper_index` - The upper boundary of market
 /// * `tick_array_lower_start_index` - The start index of tick array which
-///   include tick low
+///   includes tick low
 /// * `tick_array_upper_start_index` - The start index of tick array which
-///   include tick upper
+///   includes tick upper
 /// * `liquidity` - The liquidity to be added, if zero, and the base_flag is
 ///   specified, calculate liquidity base amount_0_max or amount_1_max according
 ///   base_flag, otherwise open position with zero liquidity

@@ -11,6 +11,7 @@ pub struct CompleteEventGraphQL {
     pub mint: Pubkey,
     pub bonding_curve: Pubkey,
     pub timestamp: I64,
+    pub quote_mint: Pubkey,
 }
 
 impl From<crate::types::CompleteEvent> for CompleteEventGraphQL {
@@ -20,6 +21,7 @@ impl From<crate::types::CompleteEvent> for CompleteEventGraphQL {
             mint: carbon_core::graphql::primitives::Pubkey(original.mint),
             bonding_curve: carbon_core::graphql::primitives::Pubkey(original.bonding_curve),
             timestamp: carbon_core::graphql::primitives::I64(original.timestamp),
+            quote_mint: carbon_core::graphql::primitives::Pubkey(original.quote_mint),
         }
     }
 }

@@ -16,6 +16,7 @@ pub mod dynamic_route_v1_candidate_action;
 pub mod fee_event;
 pub mod fill_order_params;
 pub mod gamma_swap_options;
+pub mod ghost_swap_options;
 pub mod heaven_swap_options;
 pub mod humidi_fi_dynamic_route_v1_options;
 pub mod humidi_fi_swap_options;
@@ -60,6 +61,7 @@ pub mod sanctum_infinity_liquidity_options;
 pub mod sanctum_infinity_swap_options;
 pub mod saros_dlmm_swap_options;
 pub mod scorch_swap_options;
+pub mod set_max_underconsumption_bps_options;
 pub mod set_minimum_leg_outputs_options;
 pub mod set_minimum_leg_prices_options;
 pub mod side;
@@ -90,9 +92,9 @@ pub use self::{
     bison_fi_dynamic_route_v1_options::*, bison_fi_swap_options::*, c::*,
     clearpools_swap_options::*, d_flow_dynamic_route_v1_options::*, deriverse_swap_options::*,
     dynamic_route_v1_candidate_action::*, fee_event::*, fill_order_params::*,
-    gamma_swap_options::*, heaven_swap_options::*, humidi_fi_dynamic_route_v1_options::*,
-    humidi_fi_swap_options::*, k_d_e_x_swap_options::*, leg_price::*,
-    lemmings_fi_dynamic_route_v1_options::*, lemmings_fi_swap_options::*,
+    gamma_swap_options::*, ghost_swap_options::*, heaven_swap_options::*,
+    humidi_fi_dynamic_route_v1_options::*, humidi_fi_swap_options::*, k_d_e_x_swap_options::*,
+    leg_price::*, lemmings_fi_dynamic_route_v1_options::*, lemmings_fi_swap_options::*,
     lifinity_v2_swap_options::*, manifest_dynamic_route_v1_options::*, manifest_swap_options::*,
     meta_dao_swap_options::*, meteora_damm_v1_swap_options::*, meteora_damm_v2_swap_options::*,
     meteora_dbc_swap_options::*, meteora_dlmm_swap_options::*, meteora_dlmm_swap_v2_options::*,
@@ -105,9 +107,10 @@ pub use self::{
     raydium_launchlab_swap_options::*, record_id2_options::*, record_id_options::*,
     rubicon_dynamic_route_v1_options::*, rubicon_swap_options::*,
     sanctum_infinity_liquidity_options::*, sanctum_infinity_swap_options::*,
-    saros_dlmm_swap_options::*, scorch_swap_options::*, set_minimum_leg_outputs_options::*,
-    set_minimum_leg_prices_options::*, side::*, sol_fi_dynamic_route_v1_options::*,
-    sol_fi_swap_options::*, sol_fi_v2_dynamic_route_v1_options::*, sol_fi_v2_swap_options::*,
+    saros_dlmm_swap_options::*, scorch_swap_options::*, set_max_underconsumption_bps_options::*,
+    set_minimum_leg_outputs_options::*, set_minimum_leg_prices_options::*, side::*,
+    sol_fi_dynamic_route_v1_options::*, sol_fi_swap_options::*,
+    sol_fi_v2_dynamic_route_v1_options::*, sol_fi_v2_swap_options::*,
     stabble_stable_swap_options::*, stabble_weighted_swap_options::*, swap2_params::*,
     swap_event::*, swap_params::*, tessera_v_dynamic_route_v1_options::*,
     tessera_v_swap_options::*, token_swap_options::*, transfer_fee_options::*,

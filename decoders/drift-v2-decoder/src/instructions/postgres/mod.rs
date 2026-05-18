@@ -4,6 +4,7 @@ pub mod add_insurance_fund_stake_row;
 pub mod add_market_to_amm_cache_row;
 pub mod admin_deposit_row;
 pub mod admin_update_user_stats_paused_operations_row;
+pub mod admin_withdraw_from_insurance_fund_vault_row;
 pub mod begin_insurance_fund_swap_row;
 pub mod begin_lp_swap_row;
 pub mod begin_swap_row;
@@ -165,6 +166,7 @@ pub mod update_perp_market_amm_spread_adjustment_row;
 pub mod update_perp_market_amm_summary_stats_row;
 pub mod update_perp_market_base_spread_row;
 pub mod update_perp_market_concentration_coef_row;
+pub mod update_perp_market_config_row;
 pub mod update_perp_market_contract_tier_row;
 pub mod update_perp_market_curve_update_intensity_row;
 pub mod update_perp_market_expiry_row;
@@ -251,7 +253,8 @@ pub mod zero_mm_oracle_fields_row;
 pub use self::{
     add_amm_constituent_mapping_data_row::*, add_insurance_fund_stake_row::*,
     add_market_to_amm_cache_row::*, admin_deposit_row::*,
-    admin_update_user_stats_paused_operations_row::*, begin_insurance_fund_swap_row::*,
+    admin_update_user_stats_paused_operations_row::*,
+    admin_withdraw_from_insurance_fund_vault_row::*, begin_insurance_fund_swap_row::*,
     begin_lp_swap_row::*, begin_swap_row::*, cancel_order_by_user_id_row::*, cancel_order_row::*,
     cancel_orders_by_ids_row::*, cancel_orders_row::*,
     cancel_request_remove_insurance_fund_stake_row::*, change_approved_builder_row::*,
@@ -321,10 +324,11 @@ pub use self::{
     update_perp_fee_structure_row::*, update_perp_market_amm_oracle_twap_row::*,
     update_perp_market_amm_spread_adjustment_row::*, update_perp_market_amm_summary_stats_row::*,
     update_perp_market_base_spread_row::*, update_perp_market_concentration_coef_row::*,
-    update_perp_market_contract_tier_row::*, update_perp_market_curve_update_intensity_row::*,
-    update_perp_market_expiry_row::*, update_perp_market_fee_adjustment_row::*,
-    update_perp_market_funding_period_row::*, update_perp_market_high_leverage_margin_ratio_row::*,
-    update_perp_market_imf_factor_row::*, update_perp_market_liquidation_fee_row::*,
+    update_perp_market_config_row::*, update_perp_market_contract_tier_row::*,
+    update_perp_market_curve_update_intensity_row::*, update_perp_market_expiry_row::*,
+    update_perp_market_fee_adjustment_row::*, update_perp_market_funding_period_row::*,
+    update_perp_market_high_leverage_margin_ratio_row::*, update_perp_market_imf_factor_row::*,
+    update_perp_market_liquidation_fee_row::*,
     update_perp_market_lp_pool_fee_transfer_scalar_row::*, update_perp_market_lp_pool_id_row::*,
     update_perp_market_lp_pool_paused_operations_row::*, update_perp_market_lp_pool_status_row::*,
     update_perp_market_margin_ratio_row::*, update_perp_market_max_fill_reserve_fraction_row::*,
@@ -385,6 +389,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DriftV2InstructionsMigration {
             Box::new(AddMarketToAmmCacheMigrationOperation),
             Box::new(AdminDepositMigrationOperation),
             Box::new(AdminUpdateUserStatsPausedOperationsMigrationOperation),
+            Box::new(AdminWithdrawFromInsuranceFundVaultMigrationOperation),
             Box::new(BeginInsuranceFundSwapMigrationOperation),
             Box::new(BeginLpSwapMigrationOperation),
             Box::new(BeginSwapMigrationOperation),
@@ -545,6 +550,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DriftV2InstructionsMigration {
             Box::new(UpdatePerpMarketAmmSummaryStatsMigrationOperation),
             Box::new(UpdatePerpMarketBaseSpreadMigrationOperation),
             Box::new(UpdatePerpMarketConcentrationCoefMigrationOperation),
+            Box::new(UpdatePerpMarketConfigMigrationOperation),
             Box::new(UpdatePerpMarketContractTierMigrationOperation),
             Box::new(UpdatePerpMarketCurveUpdateIntensityMigrationOperation),
             Box::new(UpdatePerpMarketExpiryMigrationOperation),
@@ -1413,6 +1419,11 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
                 row.insert(pool).await?;
                 Ok(())
             }
+            DriftV2Instruction::AdminWithdrawFromInsuranceFundVault { data, .. } => {
+                let row = admin_withdraw_from_insurance_fund_vault_row::AdminWithdrawFromInsuranceFundVaultRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
             DriftV2Instruction::DepositIntoInsuranceFundStake { data, .. } => {
                 let row = deposit_into_insurance_fund_stake_row::DepositIntoInsuranceFundStakeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
@@ -2509,6 +2520,15 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::SettlePerpToLpPool { data, .. } => {
                 let row = settle_perp_to_lp_pool_row::SettlePerpToLpPoolRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            DriftV2Instruction::UpdatePerpMarketConfig { data, .. } => {
+                let row = update_perp_market_config_row::UpdatePerpMarketConfigRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -3282,6 +3302,11 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
                 row.upsert(pool).await?;
                 Ok(())
             }
+            DriftV2Instruction::AdminWithdrawFromInsuranceFundVault { data, .. } => {
+                let row = admin_withdraw_from_insurance_fund_vault_row::AdminWithdrawFromInsuranceFundVaultRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
             DriftV2Instruction::DepositIntoInsuranceFundStake { data, .. } => {
                 let row = deposit_into_insurance_fund_stake_row::DepositIntoInsuranceFundStakeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
@@ -4378,6 +4403,15 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::SettlePerpToLpPool { data, .. } => {
                 let row = settle_perp_to_lp_pool_row::SettlePerpToLpPoolRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            DriftV2Instruction::UpdatePerpMarketConfig { data, .. } => {
+                let row = update_perp_market_config_row::UpdatePerpMarketConfigRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

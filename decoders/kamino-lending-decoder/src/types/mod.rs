@@ -25,6 +25,7 @@ pub mod progress_callback_type;
 pub mod pyth_configuration;
 pub mod reserve_collateral;
 pub mod reserve_config;
+pub mod reserve_config_customization_args;
 pub mod reserve_farm_kind;
 pub mod reserve_fees;
 pub mod reserve_liquidity;
@@ -48,9 +49,9 @@ pub use self::{
     fixed_term_borrow_rollover_config::*, init_obligation_args::*, last_update::*,
     obligation_collateral::*, obligation_liquidity::*, obligation_order::*, price_heuristic::*,
     progress_callback_type::*, pyth_configuration::*, reserve_collateral::*, reserve_config::*,
-    reserve_farm_kind::*, reserve_fees::*, reserve_liquidity::*, reserve_status::*,
-    scope_configuration::*, switchboard_configuration::*, token_info::*, update_config_mode::*,
-    update_global_config_mode::*, update_lending_market_config_value::*,
-    update_lending_market_mode::*, update_obligation_config_mode::*, withdraw_queue::*,
-    withdrawal_caps::*,
+    reserve_config_customization_args::*, reserve_farm_kind::*, reserve_fees::*,
+    reserve_liquidity::*, reserve_status::*, scope_configuration::*, switchboard_configuration::*,
+    token_info::*, update_config_mode::*, update_global_config_mode::*,
+    update_lending_market_config_value::*, update_lending_market_mode::*,
+    update_obligation_config_mode::*, withdraw_queue::*, withdrawal_caps::*,
 };

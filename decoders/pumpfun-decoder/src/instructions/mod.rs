@@ -7,12 +7,16 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod add_quote_mint;
 pub mod admin_set_creator;
 pub mod admin_set_idl_authority;
 pub mod admin_update_token_incentives;
 pub mod buy;
+pub mod buy_exact_quote_in_v2;
 pub mod buy_exact_sol_in;
+pub mod buy_v2;
 pub mod claim_cashback;
+pub mod claim_cashback_v2;
 pub mod claim_token_incentives;
 pub mod close_user_volume_accumulator;
 pub mod collect_creator_fee;
@@ -26,33 +30,46 @@ pub mod init_user_volume_accumulator;
 pub mod initialize;
 pub mod migrate;
 pub mod migrate_bonding_curve_creator;
+pub mod migrate_v2;
+pub mod remove_quote_mint;
 pub mod sell;
+pub mod sell_v2;
 pub mod set_creator;
 pub mod set_mayhem_virtual_params;
 pub mod set_metaplex_creator;
 pub mod set_params;
 pub mod set_reserved_fee_recipients;
+pub mod set_virtual_quote_reserves;
 pub mod sync_user_volume_accumulator;
 pub mod toggle_cashback_enabled;
 pub mod toggle_create_v2;
 pub mod toggle_mayhem_mode;
+pub mod update_buyback_config;
 pub mod update_global_authority;
 
 pub use self::{
-    admin_set_creator::*, admin_set_idl_authority::*, admin_update_token_incentives::*, buy::*,
-    buy_exact_sol_in::*, claim_cashback::*, claim_token_incentives::*,
+    add_quote_mint::*, admin_set_creator::*, admin_set_idl_authority::*,
+    admin_update_token_incentives::*, buy::*, buy_exact_quote_in_v2::*, buy_exact_sol_in::*,
+    buy_v2::*, claim_cashback::*, claim_cashback_v2::*, claim_token_incentives::*,
     close_user_volume_accumulator::*, collect_creator_fee::*, cpi_event::*, create::*,
     create_v2::*, distribute_creator_fees::*, extend_account::*, get_minimum_distributable_fee::*,
     init_user_volume_accumulator::*, initialize::*, migrate::*, migrate_bonding_curve_creator::*,
-    sell::*, set_creator::*, set_mayhem_virtual_params::*, set_metaplex_creator::*, set_params::*,
-    set_reserved_fee_recipients::*, sync_user_volume_accumulator::*, toggle_cashback_enabled::*,
-    toggle_create_v2::*, toggle_mayhem_mode::*, update_global_authority::*,
+    migrate_v2::*, remove_quote_mint::*, sell::*, sell_v2::*, set_creator::*,
+    set_mayhem_virtual_params::*, set_metaplex_creator::*, set_params::*,
+    set_reserved_fee_recipients::*, set_virtual_quote_reserves::*, sync_user_volume_accumulator::*,
+    toggle_cashback_enabled::*, toggle_create_v2::*, toggle_mayhem_mode::*,
+    update_buyback_config::*, update_global_authority::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum PumpfunInstruction {
+    AddQuoteMint {
+        program_id: solana_pubkey::Pubkey,
+        data: AddQuoteMint,
+        accounts: AddQuoteMintInstructionAccounts,
+    },
     AdminSetCreator {
         program_id: solana_pubkey::Pubkey,
         data: AdminSetCreator,
@@ -73,15 +90,30 @@ pub enum PumpfunInstruction {
         data: Buy,
         accounts: BuyInstructionAccounts,
     },
+    BuyExactQuoteInV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: BuyExactQuoteInV2,
+        accounts: BuyExactQuoteInV2InstructionAccounts,
+    },
     BuyExactSolIn {
         program_id: solana_pubkey::Pubkey,
         data: BuyExactSolIn,
         accounts: BuyExactSolInInstructionAccounts,
     },
+    BuyV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: BuyV2,
+        accounts: BuyV2InstructionAccounts,
+    },
     ClaimCashback {
         program_id: solana_pubkey::Pubkey,
         data: ClaimCashback,
         accounts: ClaimCashbackInstructionAccounts,
+    },
+    ClaimCashbackV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimCashbackV2,
+        accounts: ClaimCashbackV2InstructionAccounts,
     },
     ClaimTokenIncentives {
         program_id: solana_pubkey::Pubkey,
@@ -143,10 +175,25 @@ pub enum PumpfunInstruction {
         data: MigrateBondingCurveCreator,
         accounts: MigrateBondingCurveCreatorInstructionAccounts,
     },
+    MigrateV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: MigrateV2,
+        accounts: MigrateV2InstructionAccounts,
+    },
+    RemoveQuoteMint {
+        program_id: solana_pubkey::Pubkey,
+        data: RemoveQuoteMint,
+        accounts: RemoveQuoteMintInstructionAccounts,
+    },
     Sell {
         program_id: solana_pubkey::Pubkey,
         data: Sell,
         accounts: SellInstructionAccounts,
+    },
+    SellV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SellV2,
+        accounts: SellV2InstructionAccounts,
     },
     SetCreator {
         program_id: solana_pubkey::Pubkey,
@@ -173,6 +220,11 @@ pub enum PumpfunInstruction {
         data: SetReservedFeeRecipients,
         accounts: SetReservedFeeRecipientsInstructionAccounts,
     },
+    SetVirtualQuoteReserves {
+        program_id: solana_pubkey::Pubkey,
+        data: SetVirtualQuoteReserves,
+        accounts: SetVirtualQuoteReservesInstructionAccounts,
+    },
     SyncUserVolumeAccumulator {
         program_id: solana_pubkey::Pubkey,
         data: SyncUserVolumeAccumulator,
@@ -192,6 +244,11 @@ pub enum PumpfunInstruction {
         program_id: solana_pubkey::Pubkey,
         data: ToggleMayhemMode,
         accounts: ToggleMayhemModeInstructionAccounts,
+    },
+    UpdateBuybackConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateBuybackConfig,
+        accounts: UpdateBuybackConfigInstructionAccounts,
     },
     UpdateGlobalAuthority {
         program_id: solana_pubkey::Pubkey,
@@ -219,12 +276,16 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            PumpfunInstruction::AddQuoteMint => AddQuoteMint,
             PumpfunInstruction::AdminSetCreator => AdminSetCreator,
             PumpfunInstruction::AdminSetIdlAuthority => AdminSetIdlAuthority,
             PumpfunInstruction::AdminUpdateTokenIncentives => AdminUpdateTokenIncentives,
             PumpfunInstruction::Buy => Buy,
+            PumpfunInstruction::BuyExactQuoteInV2 => BuyExactQuoteInV2,
             PumpfunInstruction::BuyExactSolIn => BuyExactSolIn,
+            PumpfunInstruction::BuyV2 => BuyV2,
             PumpfunInstruction::ClaimCashback => ClaimCashback,
+            PumpfunInstruction::ClaimCashbackV2 => ClaimCashbackV2,
             PumpfunInstruction::ClaimTokenIncentives => ClaimTokenIncentives,
             PumpfunInstruction::CloseUserVolumeAccumulator => CloseUserVolumeAccumulator,
             PumpfunInstruction::CollectCreatorFee => CollectCreatorFee,
@@ -237,16 +298,21 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
             PumpfunInstruction::InitUserVolumeAccumulator => InitUserVolumeAccumulator,
             PumpfunInstruction::Migrate => Migrate,
             PumpfunInstruction::MigrateBondingCurveCreator => MigrateBondingCurveCreator,
+            PumpfunInstruction::MigrateV2 => MigrateV2,
+            PumpfunInstruction::RemoveQuoteMint => RemoveQuoteMint,
             PumpfunInstruction::Sell => Sell,
+            PumpfunInstruction::SellV2 => SellV2,
             PumpfunInstruction::SetCreator => SetCreator,
             PumpfunInstruction::SetMayhemVirtualParams => SetMayhemVirtualParams,
             PumpfunInstruction::SetMetaplexCreator => SetMetaplexCreator,
             PumpfunInstruction::SetParams => SetParams,
             PumpfunInstruction::SetReservedFeeRecipients => SetReservedFeeRecipients,
+            PumpfunInstruction::SetVirtualQuoteReserves => SetVirtualQuoteReserves,
             PumpfunInstruction::SyncUserVolumeAccumulator => SyncUserVolumeAccumulator,
             PumpfunInstruction::ToggleCashbackEnabled => ToggleCashbackEnabled,
             PumpfunInstruction::ToggleCreateV2 => ToggleCreateV2,
             PumpfunInstruction::ToggleMayhemMode => ToggleMayhemMode,
+            PumpfunInstruction::UpdateBuybackConfig => UpdateBuybackConfig,
             PumpfunInstruction::UpdateGlobalAuthority => UpdateGlobalAuthority,
             PumpfunInstruction::CpiEvent => CpiEvent,
         )

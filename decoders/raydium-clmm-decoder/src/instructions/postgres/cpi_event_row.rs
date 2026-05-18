@@ -30,11 +30,15 @@ impl CpiEventRow {
                 CpiEvent::CreatePersonalPositionEvent(_) => {
                     "create_personal_position_event".to_string()
                 }
+                CpiEvent::DecreaseLimitOrderEvent(_) => "decrease_limit_order_event".to_string(),
                 CpiEvent::DecreaseLiquidityEvent(_) => "decrease_liquidity_event".to_string(),
+                CpiEvent::IncreaseLimitOrderEvent(_) => "increase_limit_order_event".to_string(),
                 CpiEvent::IncreaseLiquidityEvent(_) => "increase_liquidity_event".to_string(),
                 CpiEvent::LiquidityCalculateEvent(_) => "liquidity_calculate_event".to_string(),
                 CpiEvent::LiquidityChangeEvent(_) => "liquidity_change_event".to_string(),
+                CpiEvent::OpenLimitOrderEvent(_) => "open_limit_order_event".to_string(),
                 CpiEvent::PoolCreatedEvent(_) => "pool_created_event".to_string(),
+                CpiEvent::SettleLimitOrderEvent(_) => "settle_limit_order_event".to_string(),
                 CpiEvent::SwapEvent(_) => "swap_event".to_string(),
                 CpiEvent::UpdateRewardInfosEvent(_) => "update_reward_infos_event".to_string(),
             },

@@ -2,23 +2,38 @@
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Bin {
-    /// Amount of token X in the bin. This already excluded protocol fees.
+    /// Amount of token X in the bin for market making. This already excluded
+    /// protocol fees.
     pub amount_x: u64,
-    /// Amount of token Y in the bin. This already excluded protocol fees.
+    /// Amount of token Y in the bin for market making. This already excluded
+    /// protocol fees.
     pub amount_y: u64,
     /// Bin price
     pub price: u128,
-    /// Liquidities of the bin. This is the same as LP mint supply. q-number
+    /// Bin MM liquidity supply.
     pub liquidity_supply: u128,
-    /// function bytes, could be used for liquidity mining or other functions in
-    /// future
-    pub function_bytes: [u128; 2],
+    /// Total fulfilled order amount x
+    pub fulfilled_order_amount_x: u64,
+    /// Total fulfilled order amount y
+    pub fulfilled_order_amount_y: u64,
+    /// Limit order fee collected by ask side orders
+    pub limit_order_fee_ask_side: u64,
+    /// Limit order fee collected by bid side orders
+    pub limit_order_fee_bid_side: u64,
     /// Swap fee amount of token X per liquidity deposited.
     pub fee_amount_x_per_token_stored: u128,
     /// Swap fee amount of token Y per liquidity deposited.
     pub fee_amount_y_per_token_stored: u128,
-    /// _padding_0, previous amount_x_in, BE CAREFUL FOR TOMBSTONE WHEN REUSE !!
-    pub padding0: u128,
-    /// _padding_1, previous amount_y_in, BE CAREFUL FOR TOMBSTONE WHEN REUSE !!
-    pub padding1: u128,
+    /// Pending open limit orders amount in the bin.
+    pub open_order_amount: u64,
+    /// Total processing order amount
+    pub total_processing_order_amount: u64,
+    /// Remaining in processing open limit orders amount in the bin.
+    pub processed_order_remaining_amount: u64,
+    /// Age
+    pub order_age: u32,
+    /// limit order flag
+    pub limit_order_ask_side: u8,
+    /// padding
+    pub padding1: [u8; 3],
 }

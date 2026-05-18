@@ -10,4 +10,6 @@ pub struct ResetFeeSharingConfigEvent {
     pub old_shareholders: Vec<Shareholder>,
     pub new_admin: Pubkey,
     pub new_shareholders: Vec<Shareholder>,
+    pub old_version: u8,
+    pub new_version: u8,
 }

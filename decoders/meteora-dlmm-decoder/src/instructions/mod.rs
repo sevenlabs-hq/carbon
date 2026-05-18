@@ -13,14 +13,18 @@ pub mod add_liquidity_by_strategy;
 pub mod add_liquidity_by_strategy2;
 pub mod add_liquidity_by_strategy_one_side;
 pub mod add_liquidity_by_weight;
+pub mod add_liquidity_by_weight2;
 pub mod add_liquidity_one_side;
 pub mod add_liquidity_one_side_precise;
 pub mod add_liquidity_one_side_precise2;
+pub mod cancel_limit_order;
 pub mod claim_fee;
 pub mod claim_fee2;
 pub mod claim_reward;
 pub mod claim_reward2;
+pub mod close_bin_array;
 pub mod close_claim_fee_operator_account;
+pub mod close_limit_order_if_empty;
 pub mod close_operator_account;
 pub mod close_position;
 pub mod close_position2;
@@ -51,19 +55,17 @@ pub mod initialize_position_pda;
 pub mod initialize_preset_parameter;
 pub mod initialize_reward;
 pub mod initialize_token_badge;
-pub mod migrate_position;
+pub mod place_limit_order;
 pub mod rebalance_liquidity;
 pub mod remove_all_liquidity;
 pub mod remove_liquidity;
 pub mod remove_liquidity2;
 pub mod remove_liquidity_by_range;
 pub mod remove_liquidity_by_range2;
-pub mod reset_bin_array_tombstone_fields;
-pub mod reset_pool_tombstone_fields;
-pub mod reset_position_tombstone_fields;
 pub mod set_activation_point;
 pub mod set_pair_status;
 pub mod set_pair_status_permissionless;
+pub mod set_permissionless_operation_bits;
 pub mod set_pre_activation_duration;
 pub mod set_pre_activation_swap_address;
 pub mod swap;
@@ -86,9 +88,10 @@ pub mod zap_protocol_fee;
 pub use self::{
     add_liquidity::*, add_liquidity2::*, add_liquidity_by_strategy::*,
     add_liquidity_by_strategy2::*, add_liquidity_by_strategy_one_side::*,
-    add_liquidity_by_weight::*, add_liquidity_one_side::*, add_liquidity_one_side_precise::*,
-    add_liquidity_one_side_precise2::*, claim_fee::*, claim_fee2::*, claim_reward::*,
-    claim_reward2::*, close_claim_fee_operator_account::*, close_operator_account::*,
+    add_liquidity_by_weight::*, add_liquidity_by_weight2::*, add_liquidity_one_side::*,
+    add_liquidity_one_side_precise::*, add_liquidity_one_side_precise2::*, cancel_limit_order::*,
+    claim_fee::*, claim_fee2::*, claim_reward::*, claim_reward2::*, close_bin_array::*,
+    close_claim_fee_operator_account::*, close_limit_order_if_empty::*, close_operator_account::*,
     close_position::*, close_position2::*, close_position_if_empty::*, close_preset_parameter::*,
     close_preset_parameter2::*, close_token_badge::*, cpi_event::*, create_operator_account::*,
     decrease_position_length::*, for_idl_type_generation_do_not_call::*, fund_reward::*,
@@ -99,11 +102,10 @@ pub use self::{
     initialize_lb_pair2::*, initialize_permission_lb_pair::*, initialize_position::*,
     initialize_position2::*, initialize_position_by_operator::*, initialize_position_pda::*,
     initialize_preset_parameter::*, initialize_reward::*, initialize_token_badge::*,
-    migrate_position::*, rebalance_liquidity::*, remove_all_liquidity::*, remove_liquidity::*,
+    place_limit_order::*, rebalance_liquidity::*, remove_all_liquidity::*, remove_liquidity::*,
     remove_liquidity2::*, remove_liquidity_by_range::*, remove_liquidity_by_range2::*,
-    reset_bin_array_tombstone_fields::*, reset_pool_tombstone_fields::*,
-    reset_position_tombstone_fields::*, set_activation_point::*, set_pair_status::*,
-    set_pair_status_permissionless::*, set_pre_activation_duration::*,
+    set_activation_point::*, set_pair_status::*, set_pair_status_permissionless::*,
+    set_permissionless_operation_bits::*, set_pre_activation_duration::*,
     set_pre_activation_swap_address::*, swap::*, swap2::*, swap_exact_out::*, swap_exact_out2::*,
     swap_with_price_impact::*, swap_with_price_impact2::*, update_base_fee_parameters::*,
     update_dynamic_fee_parameters::*, update_fees_and_reward2::*, update_fees_and_rewards::*,
@@ -145,6 +147,11 @@ pub enum MeteoraDlmmInstruction {
         data: AddLiquidityByWeight,
         accounts: AddLiquidityByWeightInstructionAccounts,
     },
+    AddLiquidityByWeight2 {
+        program_id: solana_pubkey::Pubkey,
+        data: AddLiquidityByWeight2,
+        accounts: AddLiquidityByWeight2InstructionAccounts,
+    },
     AddLiquidityOneSide {
         program_id: solana_pubkey::Pubkey,
         data: AddLiquidityOneSide,
@@ -159,6 +166,11 @@ pub enum MeteoraDlmmInstruction {
         program_id: solana_pubkey::Pubkey,
         data: AddLiquidityOneSidePrecise2,
         accounts: AddLiquidityOneSidePrecise2InstructionAccounts,
+    },
+    CancelLimitOrder {
+        program_id: solana_pubkey::Pubkey,
+        data: CancelLimitOrder,
+        accounts: CancelLimitOrderInstructionAccounts,
     },
     ClaimFee {
         program_id: solana_pubkey::Pubkey,
@@ -180,10 +192,20 @@ pub enum MeteoraDlmmInstruction {
         data: ClaimReward2,
         accounts: ClaimReward2InstructionAccounts,
     },
+    CloseBinArray {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseBinArray,
+        accounts: CloseBinArrayInstructionAccounts,
+    },
     CloseClaimFeeOperatorAccount {
         program_id: solana_pubkey::Pubkey,
         data: CloseClaimFeeOperatorAccount,
         accounts: CloseClaimFeeOperatorAccountInstructionAccounts,
+    },
+    CloseLimitOrderIfEmpty {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseLimitOrderIfEmpty,
+        accounts: CloseLimitOrderIfEmptyInstructionAccounts,
     },
     CloseOperatorAccount {
         program_id: solana_pubkey::Pubkey,
@@ -330,10 +352,10 @@ pub enum MeteoraDlmmInstruction {
         data: InitializeTokenBadge,
         accounts: InitializeTokenBadgeInstructionAccounts,
     },
-    MigratePosition {
+    PlaceLimitOrder {
         program_id: solana_pubkey::Pubkey,
-        data: MigratePosition,
-        accounts: MigratePositionInstructionAccounts,
+        data: PlaceLimitOrder,
+        accounts: PlaceLimitOrderInstructionAccounts,
     },
     RebalanceLiquidity {
         program_id: solana_pubkey::Pubkey,
@@ -365,21 +387,6 @@ pub enum MeteoraDlmmInstruction {
         data: RemoveLiquidityByRange2,
         accounts: RemoveLiquidityByRange2InstructionAccounts,
     },
-    ResetBinArrayTombstoneFields {
-        program_id: solana_pubkey::Pubkey,
-        data: ResetBinArrayTombstoneFields,
-        accounts: ResetBinArrayTombstoneFieldsInstructionAccounts,
-    },
-    ResetPoolTombstoneFields {
-        program_id: solana_pubkey::Pubkey,
-        data: ResetPoolTombstoneFields,
-        accounts: ResetPoolTombstoneFieldsInstructionAccounts,
-    },
-    ResetPositionTombstoneFields {
-        program_id: solana_pubkey::Pubkey,
-        data: ResetPositionTombstoneFields,
-        accounts: ResetPositionTombstoneFieldsInstructionAccounts,
-    },
     SetActivationPoint {
         program_id: solana_pubkey::Pubkey,
         data: SetActivationPoint,
@@ -394,6 +401,11 @@ pub enum MeteoraDlmmInstruction {
         program_id: solana_pubkey::Pubkey,
         data: SetPairStatusPermissionless,
         accounts: SetPairStatusPermissionlessInstructionAccounts,
+    },
+    SetPermissionlessOperationBits {
+        program_id: solana_pubkey::Pubkey,
+        data: SetPermissionlessOperationBits,
+        accounts: SetPermissionlessOperationBitsInstructionAccounts,
     },
     SetPreActivationDuration {
         program_id: solana_pubkey::Pubkey,
@@ -512,14 +524,18 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
             MeteoraDlmmInstruction::AddLiquidityByStrategy2 => AddLiquidityByStrategy2,
             MeteoraDlmmInstruction::AddLiquidityByStrategyOneSide => AddLiquidityByStrategyOneSide,
             MeteoraDlmmInstruction::AddLiquidityByWeight => AddLiquidityByWeight,
+            MeteoraDlmmInstruction::AddLiquidityByWeight2 => AddLiquidityByWeight2,
             MeteoraDlmmInstruction::AddLiquidityOneSide => AddLiquidityOneSide,
             MeteoraDlmmInstruction::AddLiquidityOneSidePrecise => AddLiquidityOneSidePrecise,
             MeteoraDlmmInstruction::AddLiquidityOneSidePrecise2 => AddLiquidityOneSidePrecise2,
+            MeteoraDlmmInstruction::CancelLimitOrder => CancelLimitOrder,
             MeteoraDlmmInstruction::ClaimFee => ClaimFee,
             MeteoraDlmmInstruction::ClaimFee2 => ClaimFee2,
             MeteoraDlmmInstruction::ClaimReward => ClaimReward,
             MeteoraDlmmInstruction::ClaimReward2 => ClaimReward2,
+            MeteoraDlmmInstruction::CloseBinArray => CloseBinArray,
             MeteoraDlmmInstruction::CloseClaimFeeOperatorAccount => CloseClaimFeeOperatorAccount,
+            MeteoraDlmmInstruction::CloseLimitOrderIfEmpty => CloseLimitOrderIfEmpty,
             MeteoraDlmmInstruction::CloseOperatorAccount => CloseOperatorAccount,
             MeteoraDlmmInstruction::ClosePosition => ClosePosition,
             MeteoraDlmmInstruction::ClosePosition2 => ClosePosition2,
@@ -549,19 +565,17 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
             MeteoraDlmmInstruction::InitializePresetParameter => InitializePresetParameter,
             MeteoraDlmmInstruction::InitializeReward => InitializeReward,
             MeteoraDlmmInstruction::InitializeTokenBadge => InitializeTokenBadge,
-            MeteoraDlmmInstruction::MigratePosition => MigratePosition,
+            MeteoraDlmmInstruction::PlaceLimitOrder => PlaceLimitOrder,
             MeteoraDlmmInstruction::RebalanceLiquidity => RebalanceLiquidity,
             MeteoraDlmmInstruction::RemoveAllLiquidity => RemoveAllLiquidity,
             MeteoraDlmmInstruction::RemoveLiquidity => RemoveLiquidity,
             MeteoraDlmmInstruction::RemoveLiquidity2 => RemoveLiquidity2,
             MeteoraDlmmInstruction::RemoveLiquidityByRange => RemoveLiquidityByRange,
             MeteoraDlmmInstruction::RemoveLiquidityByRange2 => RemoveLiquidityByRange2,
-            MeteoraDlmmInstruction::ResetBinArrayTombstoneFields => ResetBinArrayTombstoneFields,
-            MeteoraDlmmInstruction::ResetPoolTombstoneFields => ResetPoolTombstoneFields,
-            MeteoraDlmmInstruction::ResetPositionTombstoneFields => ResetPositionTombstoneFields,
             MeteoraDlmmInstruction::SetActivationPoint => SetActivationPoint,
             MeteoraDlmmInstruction::SetPairStatus => SetPairStatus,
             MeteoraDlmmInstruction::SetPairStatusPermissionless => SetPairStatusPermissionless,
+            MeteoraDlmmInstruction::SetPermissionlessOperationBits => SetPermissionlessOperationBits,
             MeteoraDlmmInstruction::SetPreActivationDuration => SetPreActivationDuration,
             MeteoraDlmmInstruction::SetPreActivationSwapAddress => SetPreActivationSwapAddress,
             MeteoraDlmmInstruction::Swap => Swap,

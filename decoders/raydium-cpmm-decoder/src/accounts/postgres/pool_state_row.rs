@@ -33,6 +33,11 @@ pub struct PoolStateRow {
     pub fund_fees_token1: U64,
     pub open_time: U64,
     pub recent_epoch: U64,
+    pub creator_fee_on: U8,
+    pub enable_creator_fee: bool,
+    pub padding1: Vec<U8>,
+    pub creator_fees_token0: U64,
+    pub creator_fees_token1: U64,
     pub padding: Vec<U64>,
 }
 
@@ -65,6 +70,15 @@ impl PoolStateRow {
             fund_fees_token1: source.fund_fees_token1.into(),
             open_time: source.open_time.into(),
             recent_epoch: source.recent_epoch.into(),
+            creator_fee_on: source.creator_fee_on.into(),
+            enable_creator_fee: source.enable_creator_fee,
+            padding1: source
+                .padding1
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            creator_fees_token0: source.creator_fees_token0.into(),
+            creator_fees_token1: source.creator_fees_token1.into(),
             padding: source
                 .padding
                 .into_iter()
@@ -120,6 +134,31 @@ impl TryFrom<PoolStateRow> for crate::accounts::pool_state::PoolState {
             fund_fees_token1: *source.fund_fees_token1,
             open_time: *source.open_time,
             recent_epoch: *source.recent_epoch,
+            creator_fee_on: source.creator_fee_on.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            enable_creator_fee: source.enable_creator_fee,
+            padding1: source
+                .padding1
+                .into_iter()
+                .map(|element| {
+                    element.try_into().map_err(|_| {
+                        carbon_core::error::Error::Custom(
+                            "Failed to convert value from postgres primitive".to_string(),
+                        )
+                    })
+                })
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
+            creator_fees_token0: *source.creator_fees_token0,
+            creator_fees_token1: *source.creator_fees_token1,
             padding: source
                 .padding
                 .into_iter()
@@ -171,6 +210,11 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool_state::P
             "fund_fees_token1",
             "open_time",
             "recent_epoch",
+            "creator_fee_on",
+            "enable_creator_fee",
+            "padding1",
+            "creator_fees_token0",
+            "creator_fees_token1",
             "padding",
         ]
     }
@@ -203,10 +247,15 @@ impl carbon_core::postgres::operations::Insert for PoolStateRow {
                 "fund_fees_token1",
                 "open_time",
                 "recent_epoch",
+                "creator_fee_on",
+                "enable_creator_fee",
+                "padding1",
+                "creator_fees_token0",
+                "creator_fees_token1",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30
             )"#)
         .bind(self.amm_config)
         .bind(self.pool_creator)
@@ -230,6 +279,11 @@ impl carbon_core::postgres::operations::Insert for PoolStateRow {
         .bind(&self.fund_fees_token1)
         .bind(&self.open_time)
         .bind(&self.recent_epoch)
+        .bind(self.creator_fee_on)
+        .bind(self.enable_creator_fee)
+        .bind(&self.padding1)
+        .bind(&self.creator_fees_token0)
+        .bind(&self.creator_fees_token1)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -265,10 +319,15 @@ impl carbon_core::postgres::operations::Upsert for PoolStateRow {
                 "fund_fees_token1",
                 "open_time",
                 "recent_epoch",
+                "creator_fee_on",
+                "enable_creator_fee",
+                "padding1",
+                "creator_fees_token0",
+                "creator_fees_token1",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -294,6 +353,11 @@ impl carbon_core::postgres::operations::Upsert for PoolStateRow {
                 "fund_fees_token1" = EXCLUDED."fund_fees_token1",
                 "open_time" = EXCLUDED."open_time",
                 "recent_epoch" = EXCLUDED."recent_epoch",
+                "creator_fee_on" = EXCLUDED."creator_fee_on",
+                "enable_creator_fee" = EXCLUDED."enable_creator_fee",
+                "padding1" = EXCLUDED."padding1",
+                "creator_fees_token0" = EXCLUDED."creator_fees_token0",
+                "creator_fees_token1" = EXCLUDED."creator_fees_token1",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
             "#)
@@ -319,6 +383,11 @@ impl carbon_core::postgres::operations::Upsert for PoolStateRow {
         .bind(&self.fund_fees_token1)
         .bind(&self.open_time)
         .bind(&self.recent_epoch)
+        .bind(self.creator_fee_on)
+        .bind(self.enable_creator_fee)
+        .bind(&self.padding1)
+        .bind(&self.creator_fees_token0)
+        .bind(&self.creator_fees_token1)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -400,6 +469,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolStateMigrationOperation {
                 "fund_fees_token1" NUMERIC(20) NOT NULL,
                 "open_time" NUMERIC(20) NOT NULL,
                 "recent_epoch" NUMERIC(20) NOT NULL,
+                "creator_fee_on" INT2 NOT NULL,
+                "enable_creator_fee" BOOLEAN NOT NULL,
+                "padding1" INT2[] NOT NULL,
+                "creator_fees_token0" NUMERIC(20) NOT NULL,
+                "creator_fees_token1" NUMERIC(20) NOT NULL,
                 "padding" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

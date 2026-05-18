@@ -15,7 +15,8 @@ pub struct CustomizableParamsGraphQL {
     pub activation_point: Option<U64>,
     pub creator_pool_on_off_control: bool,
     pub base_fee_power_factor: U8,
-    pub function_type: U8,
+    pub concrete_function_type: U8,
+    pub collect_fee_mode: U8,
     pub padding: Vec<U8>,
 }
 
@@ -34,7 +35,10 @@ impl From<crate::types::CustomizableParams> for CustomizableParamsGraphQL {
             base_fee_power_factor: carbon_core::graphql::primitives::U8(
                 original.base_fee_power_factor,
             ),
-            function_type: carbon_core::graphql::primitives::U8(original.function_type),
+            concrete_function_type: carbon_core::graphql::primitives::U8(
+                original.concrete_function_type,
+            ),
+            collect_fee_mode: carbon_core::graphql::primitives::U8(original.collect_fee_mode),
             padding: original
                 .padding
                 .into_iter()

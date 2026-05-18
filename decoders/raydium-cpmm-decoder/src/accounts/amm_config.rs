@@ -22,8 +22,10 @@ pub struct AmmConfig {
     pub protocol_owner: Pubkey,
     /// Address of the fund fee owner
     pub fund_owner: Pubkey,
+    /// The pool creator fee, denominated in hundredths of a bip (10^-6)
+    pub creator_fee_rate: u64,
     /// padding
-    pub padding: [u64; 16],
+    pub padding: [u64; 15],
 }
 
 impl AmmConfig {

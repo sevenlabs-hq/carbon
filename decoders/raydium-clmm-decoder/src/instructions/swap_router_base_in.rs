@@ -4,7 +4,8 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// provided, base input # Arguments
 /// * `ctx` - The context of accounts
 /// * `amount_in` - Token amount to be swapped in
-/// * `amount_out_minimum` - Minimum output amount for slip control
+/// * `amount_out_minimum` - Panic if output amount is below minimum amount. For
+///   slippage.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SwapRouterBaseIn {

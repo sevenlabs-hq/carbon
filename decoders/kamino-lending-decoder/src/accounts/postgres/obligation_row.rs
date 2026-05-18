@@ -37,11 +37,13 @@ pub struct ObligationRow {
     pub autodeleverage_target_ltv_pct: U8,
     pub lowest_reserve_deposit_max_ltv_pct: U8,
     pub num_of_obsolete_borrow_reserves: U8,
+    pub ownership_transfer_state: U8,
     pub reserved: Vec<u8>,
     pub highest_borrow_factor_pct: U64,
     pub autodeleverage_margin_call_started_timestamp: U64,
     pub obligation_orders: sqlx::types::Json<Vec<ObligationOrder>>,
     pub borrow_order: sqlx::types::Json<BorrowOrder>,
+    pub pending_owner: Pubkey,
     pub padding3: Vec<U64>,
 }
 
@@ -77,6 +79,7 @@ impl ObligationRow {
             autodeleverage_target_ltv_pct: source.autodeleverage_target_ltv_pct.into(),
             lowest_reserve_deposit_max_ltv_pct: source.lowest_reserve_deposit_max_ltv_pct.into(),
             num_of_obsolete_borrow_reserves: source.num_of_obsolete_borrow_reserves.into(),
+            ownership_transfer_state: source.ownership_transfer_state.into(),
             reserved: source.reserved.to_vec(),
             highest_borrow_factor_pct: source.highest_borrow_factor_pct.into(),
             autodeleverage_margin_call_started_timestamp: source
@@ -84,6 +87,7 @@ impl ObligationRow {
                 .into(),
             obligation_orders: sqlx::types::Json(source.obligation_orders.to_vec()),
             borrow_order: sqlx::types::Json(source.borrow_order),
+            pending_owner: source.pending_owner.into(),
             padding3: source
                 .padding3
                 .into_iter()
@@ -187,9 +191,14 @@ impl TryFrom<ObligationRow> for crate::accounts::obligation::Obligation {
                         "Failed to convert value from postgres primitive".to_string(),
                     )
                 })?,
+            ownership_transfer_state: source.ownership_transfer_state.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
             reserved: source.reserved.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 4 bytes"
+                    "Failed to convert padding from postgres primitive: expected 3 bytes"
                         .to_string(),
                 )
             })?,
@@ -208,6 +217,7 @@ impl TryFrom<ObligationRow> for crate::accounts::obligation::Obligation {
                     )
                 })?,
             borrow_order: source.borrow_order.0,
+            pending_owner: *source.pending_owner,
             padding3: source
                 .padding3
                 .into_iter()
@@ -258,11 +268,13 @@ impl carbon_core::postgres::operations::Table for crate::accounts::obligation::O
             "autodeleverage_target_ltv_pct",
             "lowest_reserve_deposit_max_ltv_pct",
             "num_of_obsolete_borrow_reserves",
+            "ownership_transfer_state",
             "reserved",
             "highest_borrow_factor_pct",
             "autodeleverage_margin_call_started_timestamp",
             "obligation_orders",
             "borrow_order",
+            "pending_owner",
             "padding3",
         ]
     }
@@ -294,15 +306,17 @@ impl carbon_core::postgres::operations::Insert for ObligationRow {
                 "autodeleverage_target_ltv_pct",
                 "lowest_reserve_deposit_max_ltv_pct",
                 "num_of_obsolete_borrow_reserves",
+                "ownership_transfer_state",
                 "reserved",
                 "highest_borrow_factor_pct",
                 "autodeleverage_margin_call_started_timestamp",
                 "obligation_orders",
                 "borrow_order",
+                "pending_owner",
                 "padding3",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31
             )"#)
         .bind(&self.tag)
         .bind(&self.last_update)
@@ -325,11 +339,13 @@ impl carbon_core::postgres::operations::Insert for ObligationRow {
         .bind(self.autodeleverage_target_ltv_pct)
         .bind(self.lowest_reserve_deposit_max_ltv_pct)
         .bind(self.num_of_obsolete_borrow_reserves)
+        .bind(self.ownership_transfer_state)
         .bind(&self.reserved)
         .bind(&self.highest_borrow_factor_pct)
         .bind(&self.autodeleverage_margin_call_started_timestamp)
         .bind(&self.obligation_orders)
         .bind(&self.borrow_order)
+        .bind(self.pending_owner)
         .bind(&self.padding3)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -364,15 +380,17 @@ impl carbon_core::postgres::operations::Upsert for ObligationRow {
                 "autodeleverage_target_ltv_pct",
                 "lowest_reserve_deposit_max_ltv_pct",
                 "num_of_obsolete_borrow_reserves",
+                "ownership_transfer_state",
                 "reserved",
                 "highest_borrow_factor_pct",
                 "autodeleverage_margin_call_started_timestamp",
                 "obligation_orders",
                 "borrow_order",
+                "pending_owner",
                 "padding3",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -397,11 +415,13 @@ impl carbon_core::postgres::operations::Upsert for ObligationRow {
                 "autodeleverage_target_ltv_pct" = EXCLUDED."autodeleverage_target_ltv_pct",
                 "lowest_reserve_deposit_max_ltv_pct" = EXCLUDED."lowest_reserve_deposit_max_ltv_pct",
                 "num_of_obsolete_borrow_reserves" = EXCLUDED."num_of_obsolete_borrow_reserves",
+                "ownership_transfer_state" = EXCLUDED."ownership_transfer_state",
                 "reserved" = EXCLUDED."reserved",
                 "highest_borrow_factor_pct" = EXCLUDED."highest_borrow_factor_pct",
                 "autodeleverage_margin_call_started_timestamp" = EXCLUDED."autodeleverage_margin_call_started_timestamp",
                 "obligation_orders" = EXCLUDED."obligation_orders",
                 "borrow_order" = EXCLUDED."borrow_order",
+                "pending_owner" = EXCLUDED."pending_owner",
                 "padding3" = EXCLUDED."padding3",
                 __slot = EXCLUDED.__slot
             "#)
@@ -426,11 +446,13 @@ impl carbon_core::postgres::operations::Upsert for ObligationRow {
         .bind(self.autodeleverage_target_ltv_pct)
         .bind(self.lowest_reserve_deposit_max_ltv_pct)
         .bind(self.num_of_obsolete_borrow_reserves)
+        .bind(self.ownership_transfer_state)
         .bind(&self.reserved)
         .bind(&self.highest_borrow_factor_pct)
         .bind(&self.autodeleverage_margin_call_started_timestamp)
         .bind(&self.obligation_orders)
         .bind(&self.borrow_order)
+        .bind(self.pending_owner)
         .bind(&self.padding3)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -511,11 +533,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ObligationMigrationOperation {
                 "autodeleverage_target_ltv_pct" INT2 NOT NULL,
                 "lowest_reserve_deposit_max_ltv_pct" INT2 NOT NULL,
                 "num_of_obsolete_borrow_reserves" INT2 NOT NULL,
+                "ownership_transfer_state" INT2 NOT NULL,
                 "reserved" BYTEA NOT NULL,
                 "highest_borrow_factor_pct" NUMERIC(20) NOT NULL,
                 "autodeleverage_margin_call_started_timestamp" NUMERIC(20) NOT NULL,
                 "obligation_orders" JSONB NOT NULL,
                 "borrow_order" JSONB NOT NULL,
+                "pending_owner" BYTEA NOT NULL,
                 "padding3" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

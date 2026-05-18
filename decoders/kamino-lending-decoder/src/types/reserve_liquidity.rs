@@ -48,7 +48,15 @@ pub struct ReserveLiquidity {
     pub absolute_referral_rate_sf: u128,
     /// Token program of the liquidity mint
     pub token_program: Pubkey,
+    /// Reserve rewards budget remaining for distribution.
+    /// Tokens are deposited via `topup_reserve_rewards` and increase this
+    /// counter (without touching [Self::total_available_amount]). On every
+    /// `refresh_reserve`, up to `rewards_amount_per_slot * slots_elapsed`
+    /// tokens are moved from this counter into
+    /// [Self::total_available_amount], inflating the cToken exchange rate,
+    /// capped by the market-level `reserve_rewards_max_apr_bps` cap.
+    pub rewards_amount_available: u64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub padding2: [u64; 51],
+    pub padding2: [u64; 50],
     pub padding3: [u128; 32],
 }

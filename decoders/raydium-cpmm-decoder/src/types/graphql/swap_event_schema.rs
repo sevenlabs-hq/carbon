@@ -15,6 +15,11 @@ pub struct SwapEventGraphQL {
     pub input_transfer_fee: U64,
     pub output_transfer_fee: U64,
     pub base_input: bool,
+    pub input_mint: Pubkey,
+    pub output_mint: Pubkey,
+    pub trade_fee: U64,
+    pub creator_fee: U64,
+    pub creator_fee_on_input: bool,
 }
 
 impl From<crate::types::SwapEvent> for SwapEventGraphQL {
@@ -32,6 +37,11 @@ impl From<crate::types::SwapEvent> for SwapEventGraphQL {
                 original.output_transfer_fee,
             ),
             base_input: original.base_input,
+            input_mint: carbon_core::graphql::primitives::Pubkey(original.input_mint),
+            output_mint: carbon_core::graphql::primitives::Pubkey(original.output_mint),
+            trade_fee: carbon_core::graphql::primitives::U64(original.trade_fee),
+            creator_fee: carbon_core::graphql::primitives::U64(original.creator_fee),
+            creator_fee_on_input: original.creator_fee_on_input,
         }
     }
 }

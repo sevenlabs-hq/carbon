@@ -3,16 +3,20 @@ pub mod add_liquidity2_row;
 pub mod add_liquidity_by_strategy2_row;
 pub mod add_liquidity_by_strategy_one_side_row;
 pub mod add_liquidity_by_strategy_row;
+pub mod add_liquidity_by_weight2_row;
 pub mod add_liquidity_by_weight_row;
 pub mod add_liquidity_one_side_precise2_row;
 pub mod add_liquidity_one_side_precise_row;
 pub mod add_liquidity_one_side_row;
 pub mod add_liquidity_row;
+pub mod cancel_limit_order_row;
 pub mod claim_fee2_row;
 pub mod claim_fee_row;
 pub mod claim_reward2_row;
 pub mod claim_reward_row;
+pub mod close_bin_array_row;
 pub mod close_claim_fee_operator_account_row;
+pub mod close_limit_order_if_empty_row;
 pub mod close_operator_account_row;
 pub mod close_position2_row;
 pub mod close_position_if_empty_row;
@@ -43,19 +47,17 @@ pub mod initialize_position_row;
 pub mod initialize_preset_parameter_row;
 pub mod initialize_reward_row;
 pub mod initialize_token_badge_row;
-pub mod migrate_position_row;
+pub mod place_limit_order_row;
 pub mod rebalance_liquidity_row;
 pub mod remove_all_liquidity_row;
 pub mod remove_liquidity2_row;
 pub mod remove_liquidity_by_range2_row;
 pub mod remove_liquidity_by_range_row;
 pub mod remove_liquidity_row;
-pub mod reset_bin_array_tombstone_fields_row;
-pub mod reset_pool_tombstone_fields_row;
-pub mod reset_position_tombstone_fields_row;
 pub mod set_activation_point_row;
 pub mod set_pair_status_permissionless_row;
 pub mod set_pair_status_row;
+pub mod set_permissionless_operation_bits_row;
 pub mod set_pre_activation_duration_row;
 pub mod set_pre_activation_swap_address_row;
 pub mod swap2_row;
@@ -78,10 +80,12 @@ pub mod zap_protocol_fee_row;
 pub use self::{
     add_liquidity2_row::*, add_liquidity_by_strategy2_row::*,
     add_liquidity_by_strategy_one_side_row::*, add_liquidity_by_strategy_row::*,
-    add_liquidity_by_weight_row::*, add_liquidity_one_side_precise2_row::*,
-    add_liquidity_one_side_precise_row::*, add_liquidity_one_side_row::*, add_liquidity_row::*,
+    add_liquidity_by_weight2_row::*, add_liquidity_by_weight_row::*,
+    add_liquidity_one_side_precise2_row::*, add_liquidity_one_side_precise_row::*,
+    add_liquidity_one_side_row::*, add_liquidity_row::*, cancel_limit_order_row::*,
     claim_fee2_row::*, claim_fee_row::*, claim_reward2_row::*, claim_reward_row::*,
-    close_claim_fee_operator_account_row::*, close_operator_account_row::*, close_position2_row::*,
+    close_bin_array_row::*, close_claim_fee_operator_account_row::*,
+    close_limit_order_if_empty_row::*, close_operator_account_row::*, close_position2_row::*,
     close_position_if_empty_row::*, close_position_row::*, close_preset_parameter2_row::*,
     close_preset_parameter_row::*, close_token_badge_row::*, cpi_event_row::*,
     create_operator_account_row::*, decrease_position_length_row::*,
@@ -93,14 +97,13 @@ pub use self::{
     initialize_lb_pair_row::*, initialize_permission_lb_pair_row::*, initialize_position2_row::*,
     initialize_position_by_operator_row::*, initialize_position_pda_row::*,
     initialize_position_row::*, initialize_preset_parameter_row::*, initialize_reward_row::*,
-    initialize_token_badge_row::*, migrate_position_row::*, rebalance_liquidity_row::*,
+    initialize_token_badge_row::*, place_limit_order_row::*, rebalance_liquidity_row::*,
     remove_all_liquidity_row::*, remove_liquidity2_row::*, remove_liquidity_by_range2_row::*,
-    remove_liquidity_by_range_row::*, remove_liquidity_row::*,
-    reset_bin_array_tombstone_fields_row::*, reset_pool_tombstone_fields_row::*,
-    reset_position_tombstone_fields_row::*, set_activation_point_row::*,
+    remove_liquidity_by_range_row::*, remove_liquidity_row::*, set_activation_point_row::*,
     set_pair_status_permissionless_row::*, set_pair_status_row::*,
-    set_pre_activation_duration_row::*, set_pre_activation_swap_address_row::*, swap2_row::*,
-    swap_exact_out2_row::*, swap_exact_out_row::*, swap_row::*, swap_with_price_impact2_row::*,
+    set_permissionless_operation_bits_row::*, set_pre_activation_duration_row::*,
+    set_pre_activation_swap_address_row::*, swap2_row::*, swap_exact_out2_row::*,
+    swap_exact_out_row::*, swap_row::*, swap_with_price_impact2_row::*,
     swap_with_price_impact_row::*, update_base_fee_parameters_row::*,
     update_dynamic_fee_parameters_row::*, update_fees_and_reward2_row::*,
     update_fees_and_rewards_row::*, update_position_operator_row::*, update_reward_duration_row::*,
@@ -128,14 +131,18 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraDlmmInstructionsMigrati
             Box::new(AddLiquidityByStrategy2MigrationOperation),
             Box::new(AddLiquidityByStrategyOneSideMigrationOperation),
             Box::new(AddLiquidityByWeightMigrationOperation),
+            Box::new(AddLiquidityByWeight2MigrationOperation),
             Box::new(AddLiquidityOneSideMigrationOperation),
             Box::new(AddLiquidityOneSidePreciseMigrationOperation),
             Box::new(AddLiquidityOneSidePrecise2MigrationOperation),
+            Box::new(CancelLimitOrderMigrationOperation),
             Box::new(ClaimFeeMigrationOperation),
             Box::new(ClaimFee2MigrationOperation),
             Box::new(ClaimRewardMigrationOperation),
             Box::new(ClaimReward2MigrationOperation),
+            Box::new(CloseBinArrayMigrationOperation),
             Box::new(CloseClaimFeeOperatorAccountMigrationOperation),
+            Box::new(CloseLimitOrderIfEmptyMigrationOperation),
             Box::new(CloseOperatorAccountMigrationOperation),
             Box::new(ClosePositionMigrationOperation),
             Box::new(ClosePosition2MigrationOperation),
@@ -165,19 +172,17 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraDlmmInstructionsMigrati
             Box::new(InitializePresetParameterMigrationOperation),
             Box::new(InitializeRewardMigrationOperation),
             Box::new(InitializeTokenBadgeMigrationOperation),
-            Box::new(MigratePositionMigrationOperation),
+            Box::new(PlaceLimitOrderMigrationOperation),
             Box::new(RebalanceLiquidityMigrationOperation),
             Box::new(RemoveAllLiquidityMigrationOperation),
             Box::new(RemoveLiquidityMigrationOperation),
             Box::new(RemoveLiquidity2MigrationOperation),
             Box::new(RemoveLiquidityByRangeMigrationOperation),
             Box::new(RemoveLiquidityByRange2MigrationOperation),
-            Box::new(ResetBinArrayTombstoneFieldsMigrationOperation),
-            Box::new(ResetPoolTombstoneFieldsMigrationOperation),
-            Box::new(ResetPositionTombstoneFieldsMigrationOperation),
             Box::new(SetActivationPointMigrationOperation),
             Box::new(SetPairStatusMigrationOperation),
             Box::new(SetPairStatusPermissionlessMigrationOperation),
+            Box::new(SetPermissionlessOperationBitsMigrationOperation),
             Box::new(SetPreActivationDurationMigrationOperation),
             Box::new(SetPreActivationSwapAddressMigrationOperation),
             Box::new(SwapMigrationOperation),
@@ -284,6 +289,15 @@ impl carbon_core::postgres::operations::Insert for MeteoraDlmmInstructionWithMet
                 row.insert(pool).await?;
                 Ok(())
             }
+            MeteoraDlmmInstruction::AddLiquidityByWeight2 { data, .. } => {
+                let row = add_liquidity_by_weight2_row::AddLiquidityByWeight2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             MeteoraDlmmInstruction::AddLiquidityOneSide { data, .. } => {
                 let row = add_liquidity_one_side_row::AddLiquidityOneSideRow::from_parts(
                     data.clone(),
@@ -310,6 +324,15 @@ impl carbon_core::postgres::operations::Insert for MeteoraDlmmInstructionWithMet
                         metadata.clone(),
                         raw_accounts.clone(),
                     );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraDlmmInstruction::CancelLimitOrder { data, .. } => {
+                let row = cancel_limit_order_row::CancelLimitOrderRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -349,8 +372,26 @@ impl carbon_core::postgres::operations::Insert for MeteoraDlmmInstructionWithMet
                 row.insert(pool).await?;
                 Ok(())
             }
+            MeteoraDlmmInstruction::CloseBinArray { data, .. } => {
+                let row = close_bin_array_row::CloseBinArrayRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             MeteoraDlmmInstruction::CloseClaimFeeOperatorAccount { data, .. } => {
                 let row = close_claim_fee_operator_account_row::CloseClaimFeeOperatorAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraDlmmInstruction::CloseLimitOrderIfEmpty { data, .. } => {
+                let row = close_limit_order_if_empty_row::CloseLimitOrderIfEmptyRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -598,8 +639,8 @@ impl carbon_core::postgres::operations::Insert for MeteoraDlmmInstructionWithMet
                 row.insert(pool).await?;
                 Ok(())
             }
-            MeteoraDlmmInstruction::MigratePosition { data, .. } => {
-                let row = migrate_position_row::MigratePositionRow::from_parts(
+            MeteoraDlmmInstruction::PlaceLimitOrder { data, .. } => {
+                let row = place_limit_order_row::PlaceLimitOrderRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -661,25 +702,6 @@ impl carbon_core::postgres::operations::Insert for MeteoraDlmmInstructionWithMet
                 row.insert(pool).await?;
                 Ok(())
             }
-            MeteoraDlmmInstruction::ResetBinArrayTombstoneFields { data, .. } => {
-                let row = reset_bin_array_tombstone_fields_row::ResetBinArrayTombstoneFieldsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraDlmmInstruction::ResetPoolTombstoneFields { data, .. } => {
-                let row = reset_pool_tombstone_fields_row::ResetPoolTombstoneFieldsRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraDlmmInstruction::ResetPositionTombstoneFields { data, .. } => {
-                let row = reset_position_tombstone_fields_row::ResetPositionTombstoneFieldsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
             MeteoraDlmmInstruction::SetActivationPoint { data, .. } => {
                 let row = set_activation_point_row::SetActivationPointRow::from_parts(
                     data.clone(),
@@ -705,6 +727,11 @@ impl carbon_core::postgres::operations::Insert for MeteoraDlmmInstructionWithMet
                         metadata.clone(),
                         raw_accounts.clone(),
                     );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraDlmmInstruction::SetPermissionlessOperationBits { data, .. } => {
+                let row = set_permissionless_operation_bits_row::SetPermissionlessOperationBitsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -940,6 +967,15 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDlmmInstructionWithMet
                 row.upsert(pool).await?;
                 Ok(())
             }
+            MeteoraDlmmInstruction::AddLiquidityByWeight2 { data, .. } => {
+                let row = add_liquidity_by_weight2_row::AddLiquidityByWeight2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             MeteoraDlmmInstruction::AddLiquidityOneSide { data, .. } => {
                 let row = add_liquidity_one_side_row::AddLiquidityOneSideRow::from_parts(
                     data.clone(),
@@ -966,6 +1002,15 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDlmmInstructionWithMet
                         metadata.clone(),
                         raw_accounts.clone(),
                     );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraDlmmInstruction::CancelLimitOrder { data, .. } => {
+                let row = cancel_limit_order_row::CancelLimitOrderRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -1005,8 +1050,26 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDlmmInstructionWithMet
                 row.upsert(pool).await?;
                 Ok(())
             }
+            MeteoraDlmmInstruction::CloseBinArray { data, .. } => {
+                let row = close_bin_array_row::CloseBinArrayRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             MeteoraDlmmInstruction::CloseClaimFeeOperatorAccount { data, .. } => {
                 let row = close_claim_fee_operator_account_row::CloseClaimFeeOperatorAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraDlmmInstruction::CloseLimitOrderIfEmpty { data, .. } => {
+                let row = close_limit_order_if_empty_row::CloseLimitOrderIfEmptyRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -1254,8 +1317,8 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDlmmInstructionWithMet
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MeteoraDlmmInstruction::MigratePosition { data, .. } => {
-                let row = migrate_position_row::MigratePositionRow::from_parts(
+            MeteoraDlmmInstruction::PlaceLimitOrder { data, .. } => {
+                let row = place_limit_order_row::PlaceLimitOrderRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -1317,25 +1380,6 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDlmmInstructionWithMet
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MeteoraDlmmInstruction::ResetBinArrayTombstoneFields { data, .. } => {
-                let row = reset_bin_array_tombstone_fields_row::ResetBinArrayTombstoneFieldsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraDlmmInstruction::ResetPoolTombstoneFields { data, .. } => {
-                let row = reset_pool_tombstone_fields_row::ResetPoolTombstoneFieldsRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraDlmmInstruction::ResetPositionTombstoneFields { data, .. } => {
-                let row = reset_position_tombstone_fields_row::ResetPositionTombstoneFieldsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
             MeteoraDlmmInstruction::SetActivationPoint { data, .. } => {
                 let row = set_activation_point_row::SetActivationPointRow::from_parts(
                     data.clone(),
@@ -1361,6 +1405,11 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDlmmInstructionWithMet
                         metadata.clone(),
                         raw_accounts.clone(),
                     );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraDlmmInstruction::SetPermissionlessOperationBits { data, .. } => {
+                let row = set_permissionless_operation_bits_row::SetPermissionlessOperationBitsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

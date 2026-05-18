@@ -8,6 +8,9 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod amm_config;
+pub mod dynamic_fee_config;
+pub mod limit_order_nonce;
+pub mod limit_order_state;
 pub mod observation_state;
 pub mod operation_state;
 pub mod personal_position_state;
@@ -22,6 +25,9 @@ pub mod tick_array_state;
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum RaydiumClmmAccount {
     AmmConfig(Box<amm_config::AmmConfig>),
+    DynamicFeeConfig(Box<dynamic_fee_config::DynamicFeeConfig>),
+    LimitOrderNonce(Box<limit_order_nonce::LimitOrderNonce>),
+    LimitOrderState(Box<limit_order_state::LimitOrderState>),
     ObservationState(Box<observation_state::ObservationState>),
     OperationState(Box<operation_state::OperationState>),
     PersonalPositionState(Box<personal_position_state::PersonalPositionState>),
@@ -50,6 +56,39 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumClmmDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: RaydiumClmmAccount::AmmConfig(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = dynamic_fee_config::DynamicFeeConfig::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumClmmAccount::DynamicFeeConfig(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = limit_order_nonce::LimitOrderNonce::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumClmmAccount::LimitOrderNonce(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = limit_order_state::LimitOrderState::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumClmmAccount::LimitOrderState(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

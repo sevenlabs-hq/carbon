@@ -160,13 +160,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn sign_v1(
+    async fn deprecated_sign_v1(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::SignV1GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::SignV1Row> = sqlx::query_as(
-            r#"SELECT * FROM sign_v1_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::DeprecatedSignV1GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::DeprecatedSignV1Row> = sqlx::query_as(
+            r#"SELECT * FROM deprecated_sign_v1_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -179,51 +179,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_sign_v1(
+    async fn list_deprecated_sign_v1(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::SignV1GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::SignV1Row> = sqlx::query_as(
-            r#"SELECT * FROM sign_v1_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn sign_v2(
-        context: &crate::graphql::context::GraphQLContext,
-        signature: String,
-        instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::SignV2GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::SignV2Row> = sqlx::query_as(
-            r#"SELECT * FROM sign_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
-        )
-        .bind(signature)
-        .bind(instruction_index)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
-    async fn list_sign_v2(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::SignV2GraphQL>> {
-        let rows: Vec<crate::instructions::postgres::SignV2Row> = sqlx::query_as(
-            r#"SELECT * FROM sign_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::DeprecatedSignV1GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::DeprecatedSignV1Row> = sqlx::query_as(
+            r#"SELECT * FROM deprecated_sign_v1_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -426,6 +388,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn sign_v2(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SignV2GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SignV2Row> = sqlx::query_as(
+            r#"SELECT * FROM sign_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_sign_v2(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SignV2GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SignV2Row> = sqlx::query_as(
+            r#"SELECT * FROM sign_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn migrate_to_wallet_address_v1(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -490,6 +490,82 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferAssetsV1GraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferAssetsV1Row> = sqlx::query_as(
             r#"SELECT * FROM transfer_assets_v1_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn close_token_account_v1(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseTokenAccountV1GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseTokenAccountV1Row> = sqlx::query_as(
+            r#"SELECT * FROM close_token_account_v1_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_close_token_account_v1(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseTokenAccountV1GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseTokenAccountV1Row> = sqlx::query_as(
+            r#"SELECT * FROM close_token_account_v1_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn close_swig_v1(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseSwigV1GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseSwigV1Row> = sqlx::query_as(
+            r#"SELECT * FROM close_swig_v1_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_close_swig_v1(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseSwigV1GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseSwigV1Row> = sqlx::query_as(
+            r#"SELECT * FROM close_swig_v1_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

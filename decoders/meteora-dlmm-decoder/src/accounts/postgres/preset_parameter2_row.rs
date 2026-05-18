@@ -21,7 +21,9 @@ pub struct PresetParameter2Row {
     pub protocol_share: U16,
     pub index: U16,
     pub base_fee_power_factor: U8,
-    pub function_type: U8,
+    pub concrete_function_type: U8,
+    pub collect_fee_mode: U8,
+    pub padding0: Vec<u8>,
     pub padding1: Vec<U64>,
 }
 
@@ -42,7 +44,9 @@ impl PresetParameter2Row {
             protocol_share: source.protocol_share.into(),
             index: source.index.into(),
             base_fee_power_factor: source.base_fee_power_factor.into(),
-            function_type: source.function_type.into(),
+            concrete_function_type: source.concrete_function_type.into(),
+            collect_fee_mode: source.collect_fee_mode.into(),
+            padding0: source.padding0.to_vec(),
             padding1: source
                 .padding1
                 .into_iter()
@@ -108,9 +112,20 @@ impl TryFrom<PresetParameter2Row> for crate::accounts::preset_parameter2::Preset
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            function_type: source.function_type.try_into().map_err(|_| {
+            concrete_function_type: source.concrete_function_type.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            collect_fee_mode: source.collect_fee_mode.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            padding0: source.padding0.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 7 bytes"
+                        .to_string(),
                 )
             })?,
             padding1: source
@@ -154,7 +169,9 @@ impl carbon_core::postgres::operations::Table
             "protocol_share",
             "index",
             "base_fee_power_factor",
-            "function_type",
+            "concrete_function_type",
+            "collect_fee_mode",
+            "padding0",
             "padding1",
         ]
     }
@@ -176,11 +193,13 @@ impl carbon_core::postgres::operations::Insert for PresetParameter2Row {
                 "protocol_share",
                 "index",
                 "base_fee_power_factor",
-                "function_type",
+                "concrete_function_type",
+                "collect_fee_mode",
+                "padding0",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
             )"#,
         )
         .bind(self.bin_step)
@@ -193,7 +212,9 @@ impl carbon_core::postgres::operations::Insert for PresetParameter2Row {
         .bind(self.protocol_share)
         .bind(self.index)
         .bind(self.base_fee_power_factor)
-        .bind(self.function_type)
+        .bind(self.concrete_function_type)
+        .bind(self.collect_fee_mode)
+        .bind(&self.padding0)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -219,11 +240,13 @@ impl carbon_core::postgres::operations::Upsert for PresetParameter2Row {
                 "protocol_share",
                 "index",
                 "base_fee_power_factor",
-                "function_type",
+                "concrete_function_type",
+                "collect_fee_mode",
+                "padding0",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -237,7 +260,9 @@ impl carbon_core::postgres::operations::Upsert for PresetParameter2Row {
                 "protocol_share" = EXCLUDED."protocol_share",
                 "index" = EXCLUDED."index",
                 "base_fee_power_factor" = EXCLUDED."base_fee_power_factor",
-                "function_type" = EXCLUDED."function_type",
+                "concrete_function_type" = EXCLUDED."concrete_function_type",
+                "collect_fee_mode" = EXCLUDED."collect_fee_mode",
+                "padding0" = EXCLUDED."padding0",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
             "#,
@@ -252,7 +277,9 @@ impl carbon_core::postgres::operations::Upsert for PresetParameter2Row {
         .bind(self.protocol_share)
         .bind(self.index)
         .bind(self.base_fee_power_factor)
-        .bind(self.function_type)
+        .bind(self.concrete_function_type)
+        .bind(self.collect_fee_mode)
+        .bind(&self.padding0)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -323,7 +350,9 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PresetParameter2MigrationOpera
                 "protocol_share" INT4 NOT NULL,
                 "index" INT4 NOT NULL,
                 "base_fee_power_factor" INT2 NOT NULL,
-                "function_type" INT2 NOT NULL,
+                "concrete_function_type" INT2 NOT NULL,
+                "collect_fee_mode" INT2 NOT NULL,
+                "padding0" BYTEA NOT NULL,
                 "padding1" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

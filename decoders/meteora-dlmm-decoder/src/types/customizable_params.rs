@@ -20,9 +20,11 @@ pub struct CustomizableParams {
     pub creator_pool_on_off_control: bool,
     /// Base fee power factor
     pub base_fee_power_factor: u8,
-    /// function type
-    pub function_type: u8,
+    /// Concrete function type
+    pub concrete_function_type: u8,
+    /// Collect fee mode
+    pub collect_fee_mode: u8,
     /// Padding, for future use
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub padding: [u8; 61],
+    pub padding: [u8; 60],
 }

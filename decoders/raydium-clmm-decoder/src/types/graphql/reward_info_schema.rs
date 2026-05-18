@@ -12,7 +12,7 @@ pub struct RewardInfoGraphQL {
     pub end_time: U64,
     pub last_update_time: U64,
     pub emissions_per_second_x64: U128,
-    pub reward_total_emissioned: U64,
+    pub reward_total_emitted: U64,
     pub reward_claimed: U64,
     pub token_mint: Pubkey,
     pub token_vault: Pubkey,
@@ -30,8 +30,8 @@ impl From<crate::types::RewardInfo> for RewardInfoGraphQL {
             emissions_per_second_x64: carbon_core::graphql::primitives::U128(
                 original.emissions_per_second_x64,
             ),
-            reward_total_emissioned: carbon_core::graphql::primitives::U64(
-                original.reward_total_emissioned,
+            reward_total_emitted: carbon_core::graphql::primitives::U64(
+                original.reward_total_emitted,
             ),
             reward_claimed: carbon_core::graphql::primitives::U64(original.reward_claimed),
             token_mint: carbon_core::graphql::primitives::Pubkey(original.token_mint),

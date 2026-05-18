@@ -18,6 +18,7 @@ pub struct AmmConfig {
     /// The fund fee, denominated in hundredths of a bip (10^-6)
     pub fund_fee_rate: u32,
     pub padding_u32: u32,
+    /// The fund owner
     pub fund_owner: Pubkey,
     pub padding: [u64; 3],
 }

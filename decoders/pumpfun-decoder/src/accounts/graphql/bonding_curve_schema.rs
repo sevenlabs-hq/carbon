@@ -9,14 +9,15 @@ use {
 pub struct BondingCurveGraphQL {
     pub account_metadata: crate::accounts::graphql::AccountMetadataGraphQL,
     pub virtual_token_reserves: U64,
-    pub virtual_sol_reserves: U64,
+    pub virtual_quote_reserves: U64,
     pub real_token_reserves: U64,
-    pub real_sol_reserves: U64,
+    pub real_quote_reserves: U64,
     pub token_total_supply: U64,
     pub complete: bool,
     pub creator: Pubkey,
     pub is_mayhem_mode: bool,
     pub is_cashback_coin: bool,
+    pub quote_mint: Pubkey,
 }
 
 impl TryFrom<crate::accounts::postgres::BondingCurveRow> for BondingCurveGraphQL {
@@ -27,14 +28,17 @@ impl TryFrom<crate::accounts::postgres::BondingCurveRow> for BondingCurveGraphQL
             virtual_token_reserves: carbon_core::graphql::primitives::U64(
                 *row.virtual_token_reserves,
             ),
-            virtual_sol_reserves: carbon_core::graphql::primitives::U64(*row.virtual_sol_reserves),
+            virtual_quote_reserves: carbon_core::graphql::primitives::U64(
+                *row.virtual_quote_reserves,
+            ),
             real_token_reserves: carbon_core::graphql::primitives::U64(*row.real_token_reserves),
-            real_sol_reserves: carbon_core::graphql::primitives::U64(*row.real_sol_reserves),
+            real_quote_reserves: carbon_core::graphql::primitives::U64(*row.real_quote_reserves),
             token_total_supply: carbon_core::graphql::primitives::U64(*row.token_total_supply),
             complete: row.complete,
             creator: carbon_core::graphql::primitives::Pubkey(row.creator.0),
             is_mayhem_mode: row.is_mayhem_mode,
             is_cashback_coin: row.is_cashback_coin,
+            quote_mint: carbon_core::graphql::primitives::Pubkey(row.quote_mint.0),
         })
     }
 }

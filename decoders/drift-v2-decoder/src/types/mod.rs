@@ -65,6 +65,8 @@ pub mod lp_status;
 pub mod margin_calculation_mode;
 pub mod margin_mode;
 pub mod margin_requirement_type;
+pub mod margin_type_config;
+pub mod market_config_flag;
 pub mod market_identifier;
 pub mod market_status;
 pub mod market_type;
@@ -161,19 +163,20 @@ pub use self::{
     liquidation_bit_flag::*, liquidation_multiplier_type::*, liquidation_record::*,
     liquidation_type::*, log_mode::*, lp_pool_feature_bit_flags::*, lp_pool_params::*,
     lp_status::*, margin_calculation_mode::*, margin_mode::*, margin_requirement_type::*,
-    market_identifier::*, market_status::*, market_type::*, modify_order_id::*,
-    modify_order_params::*, modify_order_policy::*, new_user_record::*, oracle_guard_rails::*,
-    oracle_source::*, oracle_validity::*, order::*, order_action::*, order_action_explanation::*,
-    order_action_record::*, order_bit_flag::*, order_filler_reward_structure::*, order_params::*,
-    order_params_bit_flag::*, order_record::*, order_status::*, order_trigger_condition::*,
-    order_type::*, override_amm_cache_params::*, perp_bankruptcy_record::*,
-    perp_fulfillment_method::*, perp_lp_operation::*, perp_operation::*, perp_position::*,
-    place_and_take_order_success_condition::*, pool_balance::*, position_direction::*,
-    position_flag::*, position_update_type::*, post_only_param::*, prelaunch_oracle_params::*,
-    price_divergence_guard_rails::*, referrer_status::*, revenue_share_escrow_fixed::*,
-    revenue_share_order::*, revenue_share_order_bit_flag::*, revenue_share_settle_record::*,
-    scale_order_params::*, settle_pnl_explanation::*, settle_pnl_mode::*, settle_pnl_record::*,
-    settlement_direction::*, signature_verification_error::*, signed_msg_order_id::*,
+    margin_type_config::*, market_config_flag::*, market_identifier::*, market_status::*,
+    market_type::*, modify_order_id::*, modify_order_params::*, modify_order_policy::*,
+    new_user_record::*, oracle_guard_rails::*, oracle_source::*, oracle_validity::*, order::*,
+    order_action::*, order_action_explanation::*, order_action_record::*, order_bit_flag::*,
+    order_filler_reward_structure::*, order_params::*, order_params_bit_flag::*, order_record::*,
+    order_status::*, order_trigger_condition::*, order_type::*, override_amm_cache_params::*,
+    perp_bankruptcy_record::*, perp_fulfillment_method::*, perp_lp_operation::*, perp_operation::*,
+    perp_position::*, place_and_take_order_success_condition::*, pool_balance::*,
+    position_direction::*, position_flag::*, position_update_type::*, post_only_param::*,
+    prelaunch_oracle_params::*, price_divergence_guard_rails::*, referrer_status::*,
+    revenue_share_escrow_fixed::*, revenue_share_order::*, revenue_share_order_bit_flag::*,
+    revenue_share_settle_record::*, scale_order_params::*, settle_pnl_explanation::*,
+    settle_pnl_mode::*, settle_pnl_record::*, settlement_direction::*,
+    signature_verification_error::*, signed_msg_order_id::*,
     signed_msg_order_params_delegate_message::*, signed_msg_order_params_message::*,
     signed_msg_order_record::*, signed_msg_trigger_order_params::*,
     signed_msg_user_orders_fixed::*, size_distribution::*, spot_balance_type::*,

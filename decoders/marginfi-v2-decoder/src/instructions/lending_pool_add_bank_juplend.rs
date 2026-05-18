@@ -6,7 +6,6 @@ use {
 /// (admin) Add a JupLend bank to the marginfi group.
 /// Remaining accounts (for oracle validation):
 /// 0. underlying oracle feed (pyth push or switchboard pull)
-///
 /// 1. JupLend `Lending` state
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]

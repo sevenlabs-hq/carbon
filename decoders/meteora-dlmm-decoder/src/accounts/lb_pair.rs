@@ -39,7 +39,7 @@ pub struct LbPair {
     pub reserve_y: Pubkey,
     /// Uncollected protocol fee
     pub protocol_fee: ProtocolFee,
-    /// _padding_1, previous Fee owner, BE CAREFUL FOR TOMBSTONE WHEN REUSE !!
+    /// padding 1
     pub padding1: [u8; 32],
     /// Farming reward information
     pub reward_infos: [RewardInfo; 2],
@@ -49,8 +49,7 @@ pub struct LbPair {
     pub bin_array_bitmap: [u64; 16],
     /// Last time the pool fee parameter was updated
     pub last_updated_at: i64,
-    /// _padding_2, previous whitelisted_wallet, BE CAREFUL FOR TOMBSTONE WHEN
-    /// REUSE !!
+    /// _padding_2
     pub padding2: [u8; 32],
     /// Address allowed to swap when the current point is greater than or equal
     /// to the pre-activation point. The pre-activation point is calculated as
@@ -63,11 +62,9 @@ pub struct LbPair {
     /// Duration before activation activation_point. Used to calculate
     /// pre-activation time point for pre_activation_swap_address
     pub pre_activation_duration: u64,
-    /// _padding 3 is reclaimed free space from swap_cap_deactivate_point and
-    /// swap_cap_amount before, BE CAREFUL FOR TOMBSTONE WHEN REUSE !!
+    /// _padding 3
     pub padding3: [u8; 8],
-    /// _padding_4, previous lock_duration, BE CAREFUL FOR TOMBSTONE WHEN REUSE
-    /// !!
+    /// _padding_4
     pub padding4: u64,
     /// Pool creator
     pub creator: Pubkey,

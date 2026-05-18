@@ -18,11 +18,15 @@ pub enum CpiEvent {
     CreatePersonalPositionEvent(
         events::create_personal_position_event::CreatePersonalPositionEventEvent,
     ),
+    DecreaseLimitOrderEvent(events::decrease_limit_order_event::DecreaseLimitOrderEventEvent),
     DecreaseLiquidityEvent(events::decrease_liquidity_event::DecreaseLiquidityEventEvent),
+    IncreaseLimitOrderEvent(events::increase_limit_order_event::IncreaseLimitOrderEventEvent),
     IncreaseLiquidityEvent(events::increase_liquidity_event::IncreaseLiquidityEventEvent),
     LiquidityCalculateEvent(events::liquidity_calculate_event::LiquidityCalculateEventEvent),
     LiquidityChangeEvent(events::liquidity_change_event::LiquidityChangeEventEvent),
+    OpenLimitOrderEvent(events::open_limit_order_event::OpenLimitOrderEventEvent),
     PoolCreatedEvent(events::pool_created_event::PoolCreatedEventEvent),
+    SettleLimitOrderEvent(events::settle_limit_order_event::SettleLimitOrderEventEvent),
     SwapEvent(events::swap_event::SwapEventEvent),
     UpdateRewardInfosEvent(events::update_reward_infos_event::UpdateRewardInfosEventEvent),
 }
@@ -70,9 +74,19 @@ impl CpiEvent {
             return Some(CpiEvent::CreatePersonalPositionEvent(decoded));
         }
         if let Some(decoded) =
+            events::decrease_limit_order_event::DecreaseLimitOrderEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::DecreaseLimitOrderEvent(decoded));
+        }
+        if let Some(decoded) =
             events::decrease_liquidity_event::DecreaseLiquidityEventEvent::decode(event_data)
         {
             return Some(CpiEvent::DecreaseLiquidityEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::increase_limit_order_event::IncreaseLimitOrderEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::IncreaseLimitOrderEvent(decoded));
         }
         if let Some(decoded) =
             events::increase_liquidity_event::IncreaseLiquidityEventEvent::decode(event_data)
@@ -89,9 +103,19 @@ impl CpiEvent {
         {
             return Some(CpiEvent::LiquidityChangeEvent(decoded));
         }
+        if let Some(decoded) =
+            events::open_limit_order_event::OpenLimitOrderEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::OpenLimitOrderEvent(decoded));
+        }
         if let Some(decoded) = events::pool_created_event::PoolCreatedEventEvent::decode(event_data)
         {
             return Some(CpiEvent::PoolCreatedEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::settle_limit_order_event::SettleLimitOrderEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SettleLimitOrderEvent(decoded));
         }
         if let Some(decoded) = events::swap_event::SwapEventEvent::decode(event_data) {
             return Some(CpiEvent::SwapEvent(decoded));

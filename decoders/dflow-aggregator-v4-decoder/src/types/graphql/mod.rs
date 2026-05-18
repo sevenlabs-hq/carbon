@@ -13,6 +13,7 @@ pub mod dynamic_route_v1_candidate_action_schema;
 pub mod fee_event_schema;
 pub mod fill_order_params_schema;
 pub mod gamma_swap_options_schema;
+pub mod ghost_swap_options_schema;
 pub mod heaven_swap_options_schema;
 pub mod humidi_fi_dynamic_route_v1_options_schema;
 pub mod humidi_fi_swap_options_schema;
@@ -57,6 +58,7 @@ pub mod sanctum_infinity_liquidity_options_schema;
 pub mod sanctum_infinity_swap_options_schema;
 pub mod saros_dlmm_swap_options_schema;
 pub mod scorch_swap_options_schema;
+pub mod set_max_underconsumption_bps_options_schema;
 pub mod set_minimum_leg_outputs_options_schema;
 pub mod set_minimum_leg_prices_options_schema;
 pub mod side_schema;
@@ -88,7 +90,7 @@ pub use {
     bison_fi_swap_options_schema::*, c_schema::*, clearpools_swap_options_schema::*,
     d_flow_dynamic_route_v1_options_schema::*, deriverse_swap_options_schema::*,
     dynamic_route_v1_candidate_action_schema::*, fee_event_schema::*, fill_order_params_schema::*,
-    gamma_swap_options_schema::*, heaven_swap_options_schema::*,
+    gamma_swap_options_schema::*, ghost_swap_options_schema::*, heaven_swap_options_schema::*,
     humidi_fi_dynamic_route_v1_options_schema::*, humidi_fi_swap_options_schema::*,
     k_d_e_x_swap_options_schema::*, leg_price_schema::*,
     lemmings_fi_dynamic_route_v1_options_schema::*, lemmings_fi_swap_options_schema::*,
@@ -110,8 +112,9 @@ pub use {
     rubicon_dynamic_route_v1_options_schema::*, rubicon_swap_options_schema::*,
     sanctum_infinity_liquidity_options_schema::*, sanctum_infinity_swap_options_schema::*,
     saros_dlmm_swap_options_schema::*, scorch_swap_options_schema::*,
-    set_minimum_leg_outputs_options_schema::*, set_minimum_leg_prices_options_schema::*,
-    side_schema::*, sol_fi_dynamic_route_v1_options_schema::*, sol_fi_swap_options_schema::*,
+    set_max_underconsumption_bps_options_schema::*, set_minimum_leg_outputs_options_schema::*,
+    set_minimum_leg_prices_options_schema::*, side_schema::*,
+    sol_fi_dynamic_route_v1_options_schema::*, sol_fi_swap_options_schema::*,
     sol_fi_v2_dynamic_route_v1_options_schema::*, sol_fi_v2_swap_options_schema::*,
     stabble_stable_swap_options_schema::*, stabble_weighted_swap_options_schema::*,
     swap2_params_schema::*, swap_event_schema::*, swap_params_schema::*,

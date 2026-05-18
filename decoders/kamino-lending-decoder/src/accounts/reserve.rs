@@ -26,7 +26,7 @@ pub struct Reserve {
     /// Reserve configuration values
     pub config: ReserveConfig,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub config_padding: [u64; 114],
+    pub config_padding: [u64; 113],
     pub borrowed_amount_outside_elevation_group: u64,
     /// Amount of token borrowed in lamport of debt asset in the given
     /// elevation group when this reserve is part of the collaterals.

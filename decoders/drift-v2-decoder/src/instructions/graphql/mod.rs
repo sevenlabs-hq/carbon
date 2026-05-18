@@ -4,6 +4,7 @@ pub mod add_insurance_fund_stake_schema;
 pub mod add_market_to_amm_cache_schema;
 pub mod admin_deposit_schema;
 pub mod admin_update_user_stats_paused_operations_schema;
+pub mod admin_withdraw_from_insurance_fund_vault_schema;
 pub mod begin_insurance_fund_swap_schema;
 pub mod begin_lp_swap_schema;
 pub mod begin_swap_schema;
@@ -165,6 +166,7 @@ pub mod update_perp_market_amm_spread_adjustment_schema;
 pub mod update_perp_market_amm_summary_stats_schema;
 pub mod update_perp_market_base_spread_schema;
 pub mod update_perp_market_concentration_coef_schema;
+pub mod update_perp_market_config_schema;
 pub mod update_perp_market_contract_tier_schema;
 pub mod update_perp_market_curve_update_intensity_schema;
 pub mod update_perp_market_expiry_schema;
@@ -252,7 +254,8 @@ use juniper::GraphQLObject;
 pub use {
     add_amm_constituent_mapping_data_schema::*, add_insurance_fund_stake_schema::*,
     add_market_to_amm_cache_schema::*, admin_deposit_schema::*,
-    admin_update_user_stats_paused_operations_schema::*, begin_insurance_fund_swap_schema::*,
+    admin_update_user_stats_paused_operations_schema::*,
+    admin_withdraw_from_insurance_fund_vault_schema::*, begin_insurance_fund_swap_schema::*,
     begin_lp_swap_schema::*, begin_swap_schema::*, cancel_order_by_user_id_schema::*,
     cancel_order_schema::*, cancel_orders_by_ids_schema::*, cancel_orders_schema::*,
     cancel_request_remove_insurance_fund_stake_schema::*, change_approved_builder_schema::*,
@@ -330,7 +333,8 @@ pub use {
     update_perp_fee_structure_schema::*, update_perp_market_amm_oracle_twap_schema::*,
     update_perp_market_amm_spread_adjustment_schema::*,
     update_perp_market_amm_summary_stats_schema::*, update_perp_market_base_spread_schema::*,
-    update_perp_market_concentration_coef_schema::*, update_perp_market_contract_tier_schema::*,
+    update_perp_market_concentration_coef_schema::*, update_perp_market_config_schema::*,
+    update_perp_market_contract_tier_schema::*,
     update_perp_market_curve_update_intensity_schema::*, update_perp_market_expiry_schema::*,
     update_perp_market_fee_adjustment_schema::*, update_perp_market_funding_period_schema::*,
     update_perp_market_high_leverage_margin_ratio_schema::*,

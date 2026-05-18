@@ -6,4 +6,5 @@ pub struct FeeParameterUpdate {
     pub lb_pair: Pubkey,
     pub protocol_share: u16,
     pub base_factor: u16,
+    pub base_fee_power_factor: u8,
 }

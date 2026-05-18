@@ -27,5 +27,7 @@ pub struct InitPresetParametersIx {
     /// Base fee power factor
     pub base_fee_power_factor: u8,
     /// function type
-    pub function_type: u8,
+    pub concrete_function_type: u8,
+    /// collect fee mode
+    pub collect_fee_mode: u8,
 }

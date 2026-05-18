@@ -24,6 +24,7 @@ pub struct ReserveLiquidityGraphQL {
     pub pending_referrer_fees_sf: U128,
     pub absolute_referral_rate_sf: U128,
     pub token_program: Pubkey,
+    pub rewards_amount_available: U64,
     pub padding2: Vec<U64>,
     pub padding3: Vec<U128>,
 }
@@ -63,6 +64,9 @@ impl From<crate::types::ReserveLiquidity> for ReserveLiquidityGraphQL {
                 original.absolute_referral_rate_sf,
             ),
             token_program: carbon_core::graphql::primitives::Pubkey(original.token_program),
+            rewards_amount_available: carbon_core::graphql::primitives::U64(
+                original.rewards_amount_available,
+            ),
             padding2: original
                 .padding2
                 .into_iter()

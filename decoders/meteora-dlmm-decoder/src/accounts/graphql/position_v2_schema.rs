@@ -25,6 +25,7 @@ pub struct PositionV2GraphQL {
     pub padding0: U8,
     pub fee_owner: Pubkey,
     pub version: U8,
+    pub permissionless_operation_bits: U8,
     pub reserved: Vec<U8>,
 }
 
@@ -71,6 +72,9 @@ impl TryFrom<crate::accounts::postgres::PositionV2Row> for PositionV2GraphQL {
             padding0: carbon_core::graphql::primitives::U8((*row.padding0) as u8),
             fee_owner: carbon_core::graphql::primitives::Pubkey(row.fee_owner.0),
             version: carbon_core::graphql::primitives::U8((*row.version) as u8),
+            permissionless_operation_bits: carbon_core::graphql::primitives::U8(
+                (*row.permissionless_operation_bits) as u8,
+            ),
             reserved: row
                 .reserved
                 .into_iter()

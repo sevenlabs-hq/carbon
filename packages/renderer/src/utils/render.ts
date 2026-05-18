@@ -19,7 +19,7 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
     // This is critical for proper indentation of continuation lines after list items
     const allLines = docs.join('\n').split('\n');
     const result: string[] = [];
-    let inListContext = false;
+    const isBulletLine = (s: string): boolean => /^\* +/.test(s) || /^- +/.test(s) || /^[0-9]+\. +/.test(s);
 
     for (let i = 0; i < allLines.length; i++) {
         const line = allLines[i];
@@ -27,17 +27,14 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
 
         // Skip empty lines completely - never output them
         if (trimmed === '') {
-            // Empty line resets list context
-            inListContext = false;
             continue;
         }
 
-        const isListItem = trimmed.startsWith('*') || trimmed.startsWith('-');
+        const isListItem = isBulletLine(trimmed);
 
         if (isListItem) {
             // List item - output trimmed version, set context to true
             result.push(`${indent}/// ${trimmed}`);
-            inListContext = true;
         } else {
             // Not a list item; this may follow a list or start a new section/paragraph.
             // When a non-list line directly follows a list item, Clippy expects a blank
@@ -52,8 +49,7 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
             }
 
             if (prevNonEmpty) {
-                const isPrevBullet =
-                    prevNonEmpty.startsWith('*') || prevNonEmpty.startsWith('-') || /^[0-9]+\./.test(prevNonEmpty);
+                const isPrevBullet = isBulletLine(prevNonEmpty);
                 if (isPrevBullet) {
                     // Blank doc line (paragraph break)
                     result.push(`${indent}///`);
@@ -61,7 +57,6 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
             }
 
             result.push(`${indent}/// ${trimmed}`);
-            inListContext = false;
         }
     }
 

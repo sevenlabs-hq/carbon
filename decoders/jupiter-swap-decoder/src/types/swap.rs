@@ -292,4 +292,11 @@ pub enum Swap {
         max_split_quote_calls: u8,
         max_split_candidates: u8,
     },
+    PumpSwapBuyV3WithCashbackClaim,
+    PumpSwapSellV3WithCashbackClaim,
+    PumpWrappedBuyV4WithCashbackClaim,
+    PumpWrappedSellV4WithCashbackClaim,
+    GoonFiV3 {
+        is_bid: bool,
+    },
 }

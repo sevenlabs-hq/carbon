@@ -2,7 +2,7 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// Update rewards info of the given pool, can be called for everyone
 /// # Arguments
-/// * `ctx`- The context of accounts
+/// * `ctx` - The context of accounts
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateRewardInfos {}

@@ -32,6 +32,7 @@ pub struct MigrateInstructionAccounts {
     pub pump_amm_event_authority: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
     pub program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -85,6 +86,7 @@ impl ArrangeAccounts for Migrate {
         let pump_amm_event_authority = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
         let program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -113,6 +115,7 @@ impl ArrangeAccounts for Migrate {
             pump_amm_event_authority,
             event_authority,
             program,
+            rent,
             remaining: remaining.to_vec(),
         })
     }

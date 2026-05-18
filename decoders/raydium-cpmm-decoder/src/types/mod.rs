@@ -2,8 +2,9 @@
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod creator_fee_on;
 pub mod lp_change_event;
 pub mod observation;
 pub mod swap_event;
 
-pub use self::{lp_change_event::*, observation::*, swap_event::*};
+pub use self::{creator_fee_on::*, lp_change_event::*, observation::*, swap_event::*};

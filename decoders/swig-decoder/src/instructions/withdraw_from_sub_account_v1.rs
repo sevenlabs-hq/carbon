@@ -10,7 +10,7 @@ pub struct WithdrawFromSubAccountV1InstructionAccounts {
     pub swig: solana_pubkey::Pubkey,
     pub payer: solana_pubkey::Pubkey,
     pub sub_account: solana_pubkey::Pubkey,
-    pub authority: solana_pubkey::Pubkey,
+    pub authority_context: solana_pubkey::Pubkey,
     pub swig_wallet_address: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -45,7 +45,7 @@ impl ArrangeAccounts for WithdrawFromSubAccountV1 {
         let swig = next_account(&mut iter)?;
         let payer = next_account(&mut iter)?;
         let sub_account = next_account(&mut iter)?;
-        let authority = next_account(&mut iter)?;
+        let authority_context = next_account(&mut iter)?;
         let swig_wallet_address = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
 
@@ -55,7 +55,7 @@ impl ArrangeAccounts for WithdrawFromSubAccountV1 {
             swig,
             payer,
             sub_account,
-            authority,
+            authority_context,
             swig_wallet_address,
             system_program,
             remaining: remaining.to_vec(),

@@ -7,25 +7,33 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod add_assets_to_group_v1;
 pub mod add_collection_external_plugin_adapter_v1;
 pub mod add_collection_plugin_v1;
+pub mod add_collections_to_group_v1;
 pub mod add_external_plugin_adapter_v1;
+pub mod add_groups_to_group_v1;
 pub mod add_plugin_v1;
 pub mod approve_collection_plugin_authority_v1;
 pub mod approve_plugin_authority_v1;
 pub mod burn_collection_v1;
 pub mod burn_v1;
+pub mod close_group_v1;
 pub mod collect;
 pub mod compress_v1;
 pub mod create_collection_v1;
 pub mod create_collection_v2;
+pub mod create_group_v1;
 pub mod create_v1;
 pub mod create_v2;
 pub mod decompress_v1;
 pub mod execute_v1;
+pub mod remove_assets_from_group_v1;
 pub mod remove_collection_external_plugin_adapter_v1;
 pub mod remove_collection_plugin_v1;
+pub mod remove_collections_from_group_v1;
 pub mod remove_external_plugin_adapter_v1;
+pub mod remove_groups_from_group_v1;
 pub mod remove_plugin_v1;
 pub mod revoke_collection_plugin_authority_v1;
 pub mod revoke_plugin_authority_v1;
@@ -35,6 +43,7 @@ pub mod update_collection_info_v1;
 pub mod update_collection_plugin_v1;
 pub mod update_collection_v1;
 pub mod update_external_plugin_adapter_v1;
+pub mod update_group_v1;
 pub mod update_plugin_v1;
 pub mod update_v1;
 pub mod update_v2;
@@ -42,16 +51,19 @@ pub mod write_collection_external_plugin_adapter_data_v1;
 pub mod write_external_plugin_adapter_data_v1;
 
 pub use self::{
-    add_collection_external_plugin_adapter_v1::*, add_collection_plugin_v1::*,
-    add_external_plugin_adapter_v1::*, add_plugin_v1::*, approve_collection_plugin_authority_v1::*,
-    approve_plugin_authority_v1::*, burn_collection_v1::*, burn_v1::*, collect::*, compress_v1::*,
-    create_collection_v1::*, create_collection_v2::*, create_v1::*, create_v2::*, decompress_v1::*,
-    execute_v1::*, remove_collection_external_plugin_adapter_v1::*, remove_collection_plugin_v1::*,
-    remove_external_plugin_adapter_v1::*, remove_plugin_v1::*,
+    add_assets_to_group_v1::*, add_collection_external_plugin_adapter_v1::*,
+    add_collection_plugin_v1::*, add_collections_to_group_v1::*, add_external_plugin_adapter_v1::*,
+    add_groups_to_group_v1::*, add_plugin_v1::*, approve_collection_plugin_authority_v1::*,
+    approve_plugin_authority_v1::*, burn_collection_v1::*, burn_v1::*, close_group_v1::*,
+    collect::*, compress_v1::*, create_collection_v1::*, create_collection_v2::*,
+    create_group_v1::*, create_v1::*, create_v2::*, decompress_v1::*, execute_v1::*,
+    remove_assets_from_group_v1::*, remove_collection_external_plugin_adapter_v1::*,
+    remove_collection_plugin_v1::*, remove_collections_from_group_v1::*,
+    remove_external_plugin_adapter_v1::*, remove_groups_from_group_v1::*, remove_plugin_v1::*,
     revoke_collection_plugin_authority_v1::*, revoke_plugin_authority_v1::*, transfer_v1::*,
     update_collection_external_plugin_adapter_v1::*, update_collection_info_v1::*,
     update_collection_plugin_v1::*, update_collection_v1::*, update_external_plugin_adapter_v1::*,
-    update_plugin_v1::*, update_v1::*, update_v2::*,
+    update_group_v1::*, update_plugin_v1::*, update_v1::*, update_v2::*,
     write_collection_external_plugin_adapter_data_v1::*, write_external_plugin_adapter_data_v1::*,
 };
 
@@ -59,6 +71,11 @@ pub use self::{
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum MplCoreInstruction {
+    AddAssetsToGroupV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: AddAssetsToGroupV1,
+        accounts: AddAssetsToGroupV1InstructionAccounts,
+    },
     AddCollectionExternalPluginAdapterV1 {
         program_id: solana_pubkey::Pubkey,
         data: AddCollectionExternalPluginAdapterV1,
@@ -69,10 +86,20 @@ pub enum MplCoreInstruction {
         data: AddCollectionPluginV1,
         accounts: AddCollectionPluginV1InstructionAccounts,
     },
+    AddCollectionsToGroupV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: AddCollectionsToGroupV1,
+        accounts: AddCollectionsToGroupV1InstructionAccounts,
+    },
     AddExternalPluginAdapterV1 {
         program_id: solana_pubkey::Pubkey,
         data: AddExternalPluginAdapterV1,
         accounts: AddExternalPluginAdapterV1InstructionAccounts,
+    },
+    AddGroupsToGroupV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: AddGroupsToGroupV1,
+        accounts: AddGroupsToGroupV1InstructionAccounts,
     },
     AddPluginV1 {
         program_id: solana_pubkey::Pubkey,
@@ -99,6 +126,11 @@ pub enum MplCoreInstruction {
         data: BurnV1,
         accounts: BurnV1InstructionAccounts,
     },
+    CloseGroupV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseGroupV1,
+        accounts: CloseGroupV1InstructionAccounts,
+    },
     Collect {
         program_id: solana_pubkey::Pubkey,
         data: Collect,
@@ -118,6 +150,11 @@ pub enum MplCoreInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CreateCollectionV2,
         accounts: CreateCollectionV2InstructionAccounts,
+    },
+    CreateGroupV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateGroupV1,
+        accounts: CreateGroupV1InstructionAccounts,
     },
     CreateV1 {
         program_id: solana_pubkey::Pubkey,
@@ -139,6 +176,11 @@ pub enum MplCoreInstruction {
         data: ExecuteV1,
         accounts: ExecuteV1InstructionAccounts,
     },
+    RemoveAssetsFromGroupV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: RemoveAssetsFromGroupV1,
+        accounts: RemoveAssetsFromGroupV1InstructionAccounts,
+    },
     RemoveCollectionExternalPluginAdapterV1 {
         program_id: solana_pubkey::Pubkey,
         data: RemoveCollectionExternalPluginAdapterV1,
@@ -149,10 +191,20 @@ pub enum MplCoreInstruction {
         data: RemoveCollectionPluginV1,
         accounts: RemoveCollectionPluginV1InstructionAccounts,
     },
+    RemoveCollectionsFromGroupV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: RemoveCollectionsFromGroupV1,
+        accounts: RemoveCollectionsFromGroupV1InstructionAccounts,
+    },
     RemoveExternalPluginAdapterV1 {
         program_id: solana_pubkey::Pubkey,
         data: RemoveExternalPluginAdapterV1,
         accounts: RemoveExternalPluginAdapterV1InstructionAccounts,
+    },
+    RemoveGroupsFromGroupV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: RemoveGroupsFromGroupV1,
+        accounts: RemoveGroupsFromGroupV1InstructionAccounts,
     },
     RemovePluginV1 {
         program_id: solana_pubkey::Pubkey,
@@ -199,6 +251,11 @@ pub enum MplCoreInstruction {
         data: UpdateExternalPluginAdapterV1,
         accounts: UpdateExternalPluginAdapterV1InstructionAccounts,
     },
+    UpdateGroupV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateGroupV1,
+        accounts: UpdateGroupV1InstructionAccounts,
+    },
     UpdatePluginV1 {
         program_id: solana_pubkey::Pubkey,
         data: UpdatePluginV1,
@@ -240,25 +297,33 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MplCoreDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            MplCoreInstruction::AddAssetsToGroupV1 => AddAssetsToGroupV1,
             MplCoreInstruction::AddCollectionExternalPluginAdapterV1 => AddCollectionExternalPluginAdapterV1,
             MplCoreInstruction::AddCollectionPluginV1 => AddCollectionPluginV1,
+            MplCoreInstruction::AddCollectionsToGroupV1 => AddCollectionsToGroupV1,
             MplCoreInstruction::AddExternalPluginAdapterV1 => AddExternalPluginAdapterV1,
+            MplCoreInstruction::AddGroupsToGroupV1 => AddGroupsToGroupV1,
             MplCoreInstruction::AddPluginV1 => AddPluginV1,
             MplCoreInstruction::ApproveCollectionPluginAuthorityV1 => ApproveCollectionPluginAuthorityV1,
             MplCoreInstruction::ApprovePluginAuthorityV1 => ApprovePluginAuthorityV1,
             MplCoreInstruction::BurnCollectionV1 => BurnCollectionV1,
             MplCoreInstruction::BurnV1 => BurnV1,
+            MplCoreInstruction::CloseGroupV1 => CloseGroupV1,
             MplCoreInstruction::Collect => Collect,
             MplCoreInstruction::CompressV1 => CompressV1,
             MplCoreInstruction::CreateCollectionV1 => CreateCollectionV1,
             MplCoreInstruction::CreateCollectionV2 => CreateCollectionV2,
+            MplCoreInstruction::CreateGroupV1 => CreateGroupV1,
             MplCoreInstruction::CreateV1 => CreateV1,
             MplCoreInstruction::CreateV2 => CreateV2,
             MplCoreInstruction::DecompressV1 => DecompressV1,
             MplCoreInstruction::ExecuteV1 => ExecuteV1,
+            MplCoreInstruction::RemoveAssetsFromGroupV1 => RemoveAssetsFromGroupV1,
             MplCoreInstruction::RemoveCollectionExternalPluginAdapterV1 => RemoveCollectionExternalPluginAdapterV1,
             MplCoreInstruction::RemoveCollectionPluginV1 => RemoveCollectionPluginV1,
+            MplCoreInstruction::RemoveCollectionsFromGroupV1 => RemoveCollectionsFromGroupV1,
             MplCoreInstruction::RemoveExternalPluginAdapterV1 => RemoveExternalPluginAdapterV1,
+            MplCoreInstruction::RemoveGroupsFromGroupV1 => RemoveGroupsFromGroupV1,
             MplCoreInstruction::RemovePluginV1 => RemovePluginV1,
             MplCoreInstruction::RevokeCollectionPluginAuthorityV1 => RevokeCollectionPluginAuthorityV1,
             MplCoreInstruction::RevokePluginAuthorityV1 => RevokePluginAuthorityV1,
@@ -268,6 +333,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MplCoreDecoder {
             MplCoreInstruction::UpdateCollectionPluginV1 => UpdateCollectionPluginV1,
             MplCoreInstruction::UpdateCollectionV1 => UpdateCollectionV1,
             MplCoreInstruction::UpdateExternalPluginAdapterV1 => UpdateExternalPluginAdapterV1,
+            MplCoreInstruction::UpdateGroupV1 => UpdateGroupV1,
             MplCoreInstruction::UpdatePluginV1 => UpdatePluginV1,
             MplCoreInstruction::UpdateV1 => UpdateV1,
             MplCoreInstruction::UpdateV2 => UpdateV2,

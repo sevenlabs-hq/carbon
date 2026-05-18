@@ -5,7 +5,7 @@ use {
 };
 /// Initialize a reward info for a given pool and reward index
 /// # Arguments
-/// * `ctx`- The context of accounts
+/// * `ctx` - The context of accounts
 /// * `reward_index` - the index to reward info
 /// * `open_time` - reward open timestamp
 /// * `end_time` - reward end timestamp

@@ -5,8 +5,8 @@ use {
 };
 /// Transfer reward owner
 /// # Arguments
-/// * `ctx`- The context of accounts
-/// * `new_owner`- new owner pubkey
+/// * `ctx` - The context of accounts
+/// * `new_owner` - new owner pubkey
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct TransferRewardOwner {
