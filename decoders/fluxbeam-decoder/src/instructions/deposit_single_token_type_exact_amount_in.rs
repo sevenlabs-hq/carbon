@@ -20,22 +20,23 @@ pub struct DepositSingleTokenTypeExactAmountInInstructionAccounts {
     pub destination: solana_pubkey::Pubkey,
     pub source_mint: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub token_program_b: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
 impl DepositSingleTokenTypeExactAmountIn {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 8 {
+        if data.is_empty() {
             return None;
         }
-        let discriminator = &data[0..8];
-        if discriminator != [99, 207, 4, 42, 88, 157, 45, 55] {
+        let discriminator = &data[0..1];
+        if discriminator != [4] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[8..];
+        data_slice = &data_slice[1..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
@@ -59,6 +60,7 @@ impl ArrangeAccounts for DepositSingleTokenTypeExactAmountIn {
         let destination = next_account(&mut iter)?;
         let source_mint = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let token_program_b = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -73,6 +75,7 @@ impl ArrangeAccounts for DepositSingleTokenTypeExactAmountIn {
             destination,
             source_mint,
             token_program,
+            token_program_b,
             remaining: remaining.to_vec(),
         })
     }

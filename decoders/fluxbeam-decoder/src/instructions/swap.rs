@@ -22,22 +22,24 @@ pub struct SwapInstructionAccounts {
     pub source_mint: solana_pubkey::Pubkey,
     pub destination_mint: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub token_program_b: solana_pubkey::Pubkey,
+    pub token_program_c: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
 impl Swap {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 8 {
+        if data.is_empty() {
             return None;
         }
-        let discriminator = &data[0..8];
-        if discriminator != [248, 198, 158, 145, 225, 117, 135, 200] {
+        let discriminator = &data[0..1];
+        if discriminator != [1] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[8..];
+        data_slice = &data_slice[1..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
@@ -63,6 +65,8 @@ impl ArrangeAccounts for Swap {
         let source_mint = next_account(&mut iter)?;
         let destination_mint = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let token_program_b = next_account(&mut iter)?;
+        let token_program_c = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -79,6 +83,8 @@ impl ArrangeAccounts for Swap {
             source_mint,
             destination_mint,
             token_program,
+            token_program_b,
+            token_program_c,
             remaining: remaining.to_vec(),
         })
     }
