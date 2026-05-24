@@ -2,27 +2,21 @@
 use {carbon_core::graphql::primitives::U64, juniper::GraphQLObject, serde_json};
 
 #[derive(Debug, Clone, GraphQLObject)]
-#[graphql(name = "Withdraw")]
-pub struct WithdrawGraphQL {
+#[graphql(name = "SwapBaseInV2")]
+pub struct SwapBaseInV2GraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
-    pub amount: U64,
-    pub min_coin_amount: Option<U64>,
-    pub min_pc_amount: Option<U64>,
+    pub amount_in: U64,
+    pub minimum_amount_out: U64,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
 
-impl TryFrom<crate::instructions::postgres::WithdrawRow> for WithdrawGraphQL {
+impl TryFrom<crate::instructions::postgres::SwapBaseInV2Row> for SwapBaseInV2GraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::WithdrawRow) -> Result<Self, Self::Error> {
+    fn try_from(row: crate::instructions::postgres::SwapBaseInV2Row) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            amount: carbon_core::graphql::primitives::U64(*row.amount),
-            min_coin_amount: row
-                .min_coin_amount
-                .map(|v| carbon_core::graphql::primitives::U64(*v)),
-            min_pc_amount: row
-                .min_pc_amount
-                .map(|v| carbon_core::graphql::primitives::U64(*v)),
+            amount_in: carbon_core::graphql::primitives::U64(*row.amount_in),
+            minimum_amount_out: carbon_core::graphql::primitives::U64(*row.minimum_amount_out),
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,

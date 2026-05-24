@@ -9,9 +9,9 @@ use {
 #[graphql(name = "TargetOrders")]
 pub struct TargetOrdersGraphQL {
     pub account_metadata: crate::accounts::graphql::AccountMetadataGraphQL,
-    pub owner: Vec<U64>,
+    pub owner: Vec<Vec<U64>>,
     pub buy_orders: Vec<TargetOrderGraphQL>,
-    pub padding1: Vec<U64>,
+    pub padding1: Vec<Vec<U64>>,
     pub target_x: U128,
     pub target_y: U128,
     pub plan_x_buy: U128,
@@ -23,16 +23,16 @@ pub struct TargetOrdersGraphQL {
     pub calc_pnl_x: U128,
     pub calc_pnl_y: U128,
     pub sell_orders: Vec<TargetOrderGraphQL>,
-    pub padding2: Vec<U64>,
-    pub replace_buy_client_id: Vec<U64>,
-    pub replace_sell_client_id: Vec<U64>,
+    pub padding2: Vec<Vec<U64>>,
+    pub replace_buy_client_id: Vec<Vec<U64>>,
+    pub replace_sell_client_id: Vec<Vec<U64>>,
     pub last_order_numerator: U64,
     pub last_order_denominator: U64,
     pub plan_orders_cur: U64,
     pub place_orders_cur: U64,
     pub valid_buy_order_num: U64,
     pub valid_sell_order_num: U64,
-    pub padding3: Vec<U64>,
+    pub padding3: Vec<Vec<U64>>,
     pub free_slot_bits: U128,
 }
 
@@ -43,8 +43,13 @@ impl TryFrom<crate::accounts::postgres::TargetOrdersRow> for TargetOrdersGraphQL
             account_metadata: row.account_metadata.into(),
             owner: row
                 .owner
+                .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U64(*item))
+                .map(|item| {
+                    item.into_iter()
+                        .map(carbon_core::graphql::primitives::U64)
+                        .collect()
+                })
                 .collect(),
             buy_orders: row
                 .buy_orders
@@ -54,8 +59,13 @@ impl TryFrom<crate::accounts::postgres::TargetOrdersRow> for TargetOrdersGraphQL
                 .collect(),
             padding1: row
                 .padding1
+                .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U64(*item))
+                .map(|item| {
+                    item.into_iter()
+                        .map(carbon_core::graphql::primitives::U64)
+                        .collect()
+                })
                 .collect(),
             target_x: carbon_core::graphql::primitives::U128(*row.target_x),
             target_y: carbon_core::graphql::primitives::U128(*row.target_y),
@@ -75,18 +85,33 @@ impl TryFrom<crate::accounts::postgres::TargetOrdersRow> for TargetOrdersGraphQL
                 .collect(),
             padding2: row
                 .padding2
+                .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U64(*item))
+                .map(|item| {
+                    item.into_iter()
+                        .map(carbon_core::graphql::primitives::U64)
+                        .collect()
+                })
                 .collect(),
             replace_buy_client_id: row
                 .replace_buy_client_id
+                .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U64(*item))
+                .map(|item| {
+                    item.into_iter()
+                        .map(carbon_core::graphql::primitives::U64)
+                        .collect()
+                })
                 .collect(),
             replace_sell_client_id: row
                 .replace_sell_client_id
+                .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U64(*item))
+                .map(|item| {
+                    item.into_iter()
+                        .map(carbon_core::graphql::primitives::U64)
+                        .collect()
+                })
                 .collect(),
             last_order_numerator: carbon_core::graphql::primitives::U64(*row.last_order_numerator),
             last_order_denominator: carbon_core::graphql::primitives::U64(
@@ -98,8 +123,13 @@ impl TryFrom<crate::accounts::postgres::TargetOrdersRow> for TargetOrdersGraphQL
             valid_sell_order_num: carbon_core::graphql::primitives::U64(*row.valid_sell_order_num),
             padding3: row
                 .padding3
+                .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U64(*item))
+                .map(|item| {
+                    item.into_iter()
+                        .map(carbon_core::graphql::primitives::U64)
+                        .collect()
+                })
                 .collect(),
             free_slot_bits: carbon_core::graphql::primitives::U128(*row.free_slot_bits),
         })

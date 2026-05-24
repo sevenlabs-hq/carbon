@@ -5,34 +5,40 @@ use {
 };
 
 #[derive(Debug, Clone, GraphQLObject)]
-#[graphql(name = "OutPutData")]
-pub struct OutPutDataGraphQL {
+#[graphql(name = "StateData")]
+pub struct StateDataGraphQL {
     pub need_take_pnl_coin: U64,
     pub need_take_pnl_pc: U64,
     pub total_pnl_pc: U64,
     pub total_pnl_coin: U64,
     pub pool_open_time: U64,
-    pub punish_pc_amount: U64,
-    pub punish_coin_amount: U64,
+    pub padding: Vec<Vec<U64>>,
     pub orderbook_to_init_time: U64,
     pub swap_coin_in_amount: U128,
     pub swap_pc_out_amount: U128,
-    pub swap_take_pc_fee: U64,
+    pub swap_acc_pc_fee: U64,
     pub swap_pc_in_amount: U128,
     pub swap_coin_out_amount: U128,
-    pub swap_take_coin_fee: U64,
+    pub swap_acc_coin_fee: U64,
 }
 
-impl From<crate::types::OutPutData> for OutPutDataGraphQL {
-    fn from(original: crate::types::OutPutData) -> Self {
+impl From<crate::types::StateData> for StateDataGraphQL {
+    fn from(original: crate::types::StateData) -> Self {
         Self {
             need_take_pnl_coin: carbon_core::graphql::primitives::U64(original.need_take_pnl_coin),
             need_take_pnl_pc: carbon_core::graphql::primitives::U64(original.need_take_pnl_pc),
             total_pnl_pc: carbon_core::graphql::primitives::U64(original.total_pnl_pc),
             total_pnl_coin: carbon_core::graphql::primitives::U64(original.total_pnl_coin),
             pool_open_time: carbon_core::graphql::primitives::U64(original.pool_open_time),
-            punish_pc_amount: carbon_core::graphql::primitives::U64(original.punish_pc_amount),
-            punish_coin_amount: carbon_core::graphql::primitives::U64(original.punish_coin_amount),
+            padding: original
+                .padding
+                .into_iter()
+                .map(|item| {
+                    item.into_iter()
+                        .map(carbon_core::graphql::primitives::U64)
+                        .collect()
+                })
+                .collect(),
             orderbook_to_init_time: carbon_core::graphql::primitives::U64(
                 original.orderbook_to_init_time,
             ),
@@ -40,12 +46,12 @@ impl From<crate::types::OutPutData> for OutPutDataGraphQL {
                 original.swap_coin_in_amount,
             ),
             swap_pc_out_amount: carbon_core::graphql::primitives::U128(original.swap_pc_out_amount),
-            swap_take_pc_fee: carbon_core::graphql::primitives::U64(original.swap_take_pc_fee),
+            swap_acc_pc_fee: carbon_core::graphql::primitives::U64(original.swap_acc_pc_fee),
             swap_pc_in_amount: carbon_core::graphql::primitives::U128(original.swap_pc_in_amount),
             swap_coin_out_amount: carbon_core::graphql::primitives::U128(
                 original.swap_coin_out_amount,
             ),
-            swap_take_coin_fee: carbon_core::graphql::primitives::U64(original.swap_take_coin_fee),
+            swap_acc_coin_fee: carbon_core::graphql::primitives::U64(original.swap_acc_coin_fee),
         }
     }
 }

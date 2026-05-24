@@ -9,6 +9,8 @@ pub struct WithdrawRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     pub amount: U64,
+    pub min_coin_amount: Option<U64>,
+    pub min_pc_amount: Option<U64>,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -22,6 +24,8 @@ impl WithdrawRow {
         Self {
             instruction_metadata: metadata.into(),
             amount: source.amount.into(),
+            min_coin_amount: source.min_coin_amount.map(|value| value.into()),
+            min_pc_amount: source.min_pc_amount.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -32,6 +36,8 @@ impl TryFrom<WithdrawRow> for crate::instructions::withdraw::Withdraw {
     fn try_from(source: WithdrawRow) -> Result<Self, Self::Error> {
         Ok(Self {
             amount: *source.amount,
+            min_coin_amount: source.min_coin_amount.map(|value| *value),
+            min_pc_amount: source.min_pc_amount.map(|value| *value),
         })
     }
 }
@@ -48,6 +54,8 @@ impl carbon_core::postgres::operations::Table for crate::instructions::withdraw:
             "__stack_height",
             "__slot",
             "amount",
+            "min_coin_amount",
+            "min_pc_amount",
             "__accounts",
         ]
     }
@@ -60,12 +68,16 @@ impl carbon_core::postgres::operations::Insert for WithdrawRow {
             r#"
             INSERT INTO withdraw_instruction (
                 "amount",
+                "min_coin_amount",
+                "min_pc_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
         .bind(&self.amount)
+        .bind(&self.min_coin_amount)
+        .bind(&self.min_pc_amount)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -84,13 +96,17 @@ impl carbon_core::postgres::operations::Upsert for WithdrawRow {
         sqlx::query(
             r#"INSERT INTO withdraw_instruction (
                 "amount",
+                "min_coin_amount",
+                "min_pc_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
                 "amount" = EXCLUDED."amount",
+                "min_coin_amount" = EXCLUDED."min_coin_amount",
+                "min_pc_amount" = EXCLUDED."min_pc_amount",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
@@ -98,6 +114,8 @@ impl carbon_core::postgres::operations::Upsert for WithdrawRow {
             "#,
         )
         .bind(&self.amount)
+        .bind(&self.min_coin_amount)
+        .bind(&self.min_pc_amount)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -173,6 +191,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawMigrationOperation {
             r#"CREATE TABLE IF NOT EXISTS withdraw_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
+                "min_coin_amount" NUMERIC(20),
+                "min_pc_amount" NUMERIC(20),
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

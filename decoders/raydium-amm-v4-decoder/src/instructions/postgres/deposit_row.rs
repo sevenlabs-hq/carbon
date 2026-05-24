@@ -11,6 +11,7 @@ pub struct DepositRow {
     pub max_coin_amount: U64,
     pub max_pc_amount: U64,
     pub base_side: U64,
+    pub other_amount_min: Option<U64>,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -26,6 +27,7 @@ impl DepositRow {
             max_coin_amount: source.max_coin_amount.into(),
             max_pc_amount: source.max_pc_amount.into(),
             base_side: source.base_side.into(),
+            other_amount_min: source.other_amount_min.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -38,6 +40,7 @@ impl TryFrom<DepositRow> for crate::instructions::deposit::Deposit {
             max_coin_amount: *source.max_coin_amount,
             max_pc_amount: *source.max_pc_amount,
             base_side: *source.base_side,
+            other_amount_min: source.other_amount_min.map(|value| *value),
         })
     }
 }
@@ -56,6 +59,7 @@ impl carbon_core::postgres::operations::Table for crate::instructions::deposit::
             "max_coin_amount",
             "max_pc_amount",
             "base_side",
+            "other_amount_min",
             "__accounts",
         ]
     }
@@ -70,14 +74,16 @@ impl carbon_core::postgres::operations::Insert for DepositRow {
                 "max_coin_amount",
                 "max_pc_amount",
                 "base_side",
+                "other_amount_min",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7, $8, $9
             )"#,
         )
         .bind(&self.max_coin_amount)
         .bind(&self.max_pc_amount)
         .bind(&self.base_side)
+        .bind(&self.other_amount_min)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -98,15 +104,17 @@ impl carbon_core::postgres::operations::Upsert for DepositRow {
                 "max_coin_amount",
                 "max_pc_amount",
                 "base_side",
+                "other_amount_min",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7, $8, $9
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
                 "max_coin_amount" = EXCLUDED."max_coin_amount",
                 "max_pc_amount" = EXCLUDED."max_pc_amount",
                 "base_side" = EXCLUDED."base_side",
+                "other_amount_min" = EXCLUDED."other_amount_min",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
@@ -116,6 +124,7 @@ impl carbon_core::postgres::operations::Upsert for DepositRow {
         .bind(&self.max_coin_amount)
         .bind(&self.max_pc_amount)
         .bind(&self.base_side)
+        .bind(&self.other_amount_min)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -193,6 +202,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositMigrationOperation {
                 "max_coin_amount" NUMERIC(20) NOT NULL,
                 "max_pc_amount" NUMERIC(20) NOT NULL,
                 "base_side" NUMERIC(20) NOT NULL,
+                "other_amount_min" NUMERIC(20),
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,
