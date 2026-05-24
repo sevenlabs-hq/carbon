@@ -10,7 +10,6 @@ pub mod condensed_order;
 pub mod deposit_params;
 pub mod evict_event;
 pub mod expired_order_event;
-pub mod f_i_f_o_order_id;
 pub mod failed_multiple_limit_order_behavior;
 pub mod fee_event;
 pub mod fill_event;
@@ -21,7 +20,6 @@ pub mod market_size_params;
 pub mod market_status;
 pub mod multiple_order_packet;
 pub mod order_packet;
-pub mod phoenix_events;
 pub mod phoenix_market_event;
 pub mod place_event;
 pub mod reduce_event;
@@ -37,10 +35,9 @@ pub mod withdraw_params;
 pub use self::{
     audit_log_header::*, cancel_multiple_orders_by_id_params::*, cancel_order_params::*,
     cancel_up_to_params::*, condensed_order::*, deposit_params::*, evict_event::*,
-    expired_order_event::*, f_i_f_o_order_id::*, failed_multiple_limit_order_behavior::*,
-    fee_event::*, fill_event::*, fill_summary_event::*, initialize_params::*, market_header::*,
-    market_size_params::*, market_status::*, multiple_order_packet::*, order_packet::*,
-    phoenix_events::*, phoenix_market_event::*, place_event::*, reduce_event::*,
-    reduce_order_params::*, seat::*, seat_approval_status::*, self_trade_behavior::*, side::*,
-    time_in_force_event::*, token_params::*, withdraw_params::*,
+    expired_order_event::*, failed_multiple_limit_order_behavior::*, fee_event::*, fill_event::*,
+    fill_summary_event::*, initialize_params::*, market_header::*, market_size_params::*,
+    market_status::*, multiple_order_packet::*, order_packet::*, phoenix_market_event::*,
+    place_event::*, reduce_event::*, reduce_order_params::*, seat::*, seat_approval_status::*,
+    self_trade_behavior::*, side::*, time_in_force_event::*, token_params::*, withdraw_params::*,
 };
