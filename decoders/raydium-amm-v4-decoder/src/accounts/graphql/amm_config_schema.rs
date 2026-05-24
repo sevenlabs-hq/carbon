@@ -10,8 +10,8 @@ pub struct AmmConfigGraphQL {
     pub account_metadata: crate::accounts::graphql::AccountMetadataGraphQL,
     pub pnl_owner: Pubkey,
     pub cancel_owner: Pubkey,
-    pub pending1: Vec<Vec<U64>>,
-    pub pending2: Vec<Vec<U64>>,
+    pub pending1: Vec<U64>,
+    pub pending2: Vec<U64>,
     pub create_pool_fee: U64,
 }
 
@@ -26,21 +26,13 @@ impl TryFrom<crate::accounts::postgres::AmmConfigRow> for AmmConfigGraphQL {
                 .pending1
                 .0
                 .into_iter()
-                .map(|item| {
-                    item.into_iter()
-                        .map(carbon_core::graphql::primitives::U64)
-                        .collect()
-                })
+                .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
             pending2: row
                 .pending2
                 .0
                 .into_iter()
-                .map(|item| {
-                    item.into_iter()
-                        .map(carbon_core::graphql::primitives::U64)
-                        .collect()
-                })
+                .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
             create_pool_fee: carbon_core::graphql::primitives::U64(*row.create_pool_fee),
         })

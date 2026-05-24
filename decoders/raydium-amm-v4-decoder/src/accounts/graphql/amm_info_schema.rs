@@ -36,7 +36,7 @@ pub struct AmmInfoGraphQL {
     pub market: Pubkey,
     pub market_program: Pubkey,
     pub target_orders: Pubkey,
-    pub padding1: Vec<Vec<U64>>,
+    pub padding1: Vec<U64>,
     pub amm_owner: Pubkey,
     pub lp_amount: U64,
     pub client_order_id: U64,
@@ -80,11 +80,7 @@ impl TryFrom<crate::accounts::postgres::AmmInfoRow> for AmmInfoGraphQL {
                 .padding1
                 .0
                 .into_iter()
-                .map(|item| {
-                    item.into_iter()
-                        .map(carbon_core::graphql::primitives::U64)
-                        .collect()
-                })
+                .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
             amm_owner: carbon_core::graphql::primitives::Pubkey(row.amm_owner.0),
             lp_amount: carbon_core::graphql::primitives::U64(*row.lp_amount),

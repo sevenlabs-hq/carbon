@@ -13,8 +13,8 @@ pub struct AmmConfigRow {
     pub account_metadata: AccountRowMetadata,
     pub pnl_owner: Pubkey,
     pub cancel_owner: Pubkey,
-    pub pending1: sqlx::types::Json<Vec<Vec<U64>>>,
-    pub pending2: sqlx::types::Json<Vec<Vec<U64>>>,
+    pub pending1: sqlx::types::Json<Vec<U64>>,
+    pub pending2: sqlx::types::Json<Vec<U64>>,
     pub create_pool_fee: U64,
 }
 
@@ -27,16 +27,8 @@ impl AmmConfigRow {
             account_metadata: metadata.into(),
             pnl_owner: source.pnl_owner.into(),
             cancel_owner: source.cancel_owner.into(),
-            pending1: source
-                .pending1
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
-            pending2: source
-                .pending2
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            pending1: sqlx::types::Json(source.pending1.into_iter().map(U64).collect()),
+            pending2: sqlx::types::Json(source.pending2.into_iter().map(U64).collect()),
             create_pool_fee: source.create_pool_fee.into(),
         }
     }
@@ -50,14 +42,10 @@ impl TryFrom<AmmConfigRow> for crate::accounts::amm_config::AmmConfig {
             cancel_owner: *source.cancel_owner,
             pending1: source
                 .pending1
+                .0
                 .into_iter()
-                .map(|element| Ok(*element))
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to collect array elements".to_string(),
-                    )
-                })?
+                .map(|element| *element)
+                .collect::<Vec<u64>>()
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -66,14 +54,10 @@ impl TryFrom<AmmConfigRow> for crate::accounts::amm_config::AmmConfig {
                 })?,
             pending2: source
                 .pending2
+                .0
                 .into_iter()
-                .map(|element| Ok(*element))
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to collect array elements".to_string(),
-                    )
-                })?
+                .map(|element| *element)
+                .collect::<Vec<u64>>()
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(

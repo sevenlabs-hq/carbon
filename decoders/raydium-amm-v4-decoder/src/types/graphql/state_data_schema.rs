@@ -12,7 +12,7 @@ pub struct StateDataGraphQL {
     pub total_pnl_pc: U64,
     pub total_pnl_coin: U64,
     pub pool_open_time: U64,
-    pub padding: Vec<Vec<U64>>,
+    pub padding: Vec<U64>,
     pub orderbook_to_init_time: U64,
     pub swap_coin_in_amount: U128,
     pub swap_pc_out_amount: U128,
@@ -33,11 +33,7 @@ impl From<crate::types::StateData> for StateDataGraphQL {
             padding: original
                 .padding
                 .into_iter()
-                .map(|item| {
-                    item.into_iter()
-                        .map(carbon_core::graphql::primitives::U64)
-                        .collect()
-                })
+                .map(carbon_core::graphql::primitives::U64)
                 .collect(),
             orderbook_to_init_time: carbon_core::graphql::primitives::U64(
                 original.orderbook_to_init_time,
