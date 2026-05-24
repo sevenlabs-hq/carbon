@@ -3,5 +3,7 @@
 pub mod create_liquidity_pool_event;
 pub mod create_standard_liquidity_pool_event;
 pub mod creating_liquidity_pool_event;
+pub mod high_reflection_fee_event;
+pub mod migration_event;
 pub mod trade_event;
 pub mod user_defined_event;

@@ -7,18 +7,27 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod add_liquidity_pro_pool;
 pub mod admin_borrow_sol;
 pub mod admin_claim_msol;
+pub mod admin_claim_pro_creator_trading_fees;
 pub mod admin_claim_staking_rewards;
 pub mod admin_claim_standard_creator_trading_fees;
 pub mod admin_deposit_msol;
 pub mod admin_mint_msol;
 pub mod admin_repay_sol;
+pub mod admin_set_transfer_fee;
 pub mod admin_unstake_msol;
+pub mod admin_update_pro_liquidity_pool_state;
 pub mod admin_update_standard_liquidity_pool_state;
 pub mod admin_withdraw_msol;
 pub mod admin_withdraw_transfer_fee;
 pub mod buy;
+pub mod claim_pro_creator_trading_fee_protocol_fees;
+pub mod claim_pro_creator_trading_fees;
+pub mod claim_pro_liquidity_provider_trading_fees;
+pub mod claim_pro_protocol_trading_fees;
+pub mod claim_pro_reflection_trading_fees;
 pub mod claim_standard_creator_trading_fee_protocol_fees;
 pub mod claim_standard_creator_trading_fees;
 pub mod claim_standard_protocol_trading_fees;
@@ -28,38 +37,66 @@ pub mod cpi_event;
 pub mod create_or_update_protocol_fee_admin;
 pub mod create_or_update_protocol_owner;
 pub mod create_or_update_protocol_staking_admin;
+pub mod create_pro_liquidity_pool;
 pub mod create_protocol_config;
 pub mod create_protocol_lookup_table;
 pub mod create_standard_liquidity_pool;
+pub mod creator_set_pro_market_cap_creator_fee;
+pub mod creator_set_pro_market_cap_lp_fee;
+pub mod creator_set_pro_market_cap_reflection_fee;
+pub mod creator_set_pro_slot_creator_fee;
+pub mod creator_toggle_pro_deposit;
+pub mod creator_toggle_pro_swap;
+pub mod creator_toggle_pro_withdraw;
 pub mod deactivate_protocol_lookup_table;
 pub mod extend_protocol_lookup_table;
 pub mod initialize_protocol_lending;
+pub mod pro_buy;
+pub mod pro_sell;
 pub mod remaining_accounts_stub;
+pub mod remove_liquidity_pro_pool;
 pub mod sell;
 pub mod set_protocol_slot_fees;
+pub mod transfer_lp_tokens;
 pub mod update_allow_create_pool;
 pub mod update_creator_trading_fee_receiver;
+pub mod update_pro_creator_trading_fee_receiver;
 pub mod update_protocol_config;
 
 pub use self::{
-    admin_borrow_sol::*, admin_claim_msol::*, admin_claim_staking_rewards::*,
+    add_liquidity_pro_pool::*, admin_borrow_sol::*, admin_claim_msol::*,
+    admin_claim_pro_creator_trading_fees::*, admin_claim_staking_rewards::*,
     admin_claim_standard_creator_trading_fees::*, admin_deposit_msol::*, admin_mint_msol::*,
-    admin_repay_sol::*, admin_unstake_msol::*, admin_update_standard_liquidity_pool_state::*,
+    admin_repay_sol::*, admin_set_transfer_fee::*, admin_unstake_msol::*,
+    admin_update_pro_liquidity_pool_state::*, admin_update_standard_liquidity_pool_state::*,
     admin_withdraw_msol::*, admin_withdraw_transfer_fee::*, buy::*,
-    claim_standard_creator_trading_fee_protocol_fees::*, claim_standard_creator_trading_fees::*,
-    claim_standard_protocol_trading_fees::*, claim_standard_reflection_trading_fees::*,
-    close_protocol_lookup_table::*, cpi_event::*, create_or_update_protocol_fee_admin::*,
-    create_or_update_protocol_owner::*, create_or_update_protocol_staking_admin::*,
+    claim_pro_creator_trading_fee_protocol_fees::*, claim_pro_creator_trading_fees::*,
+    claim_pro_liquidity_provider_trading_fees::*, claim_pro_protocol_trading_fees::*,
+    claim_pro_reflection_trading_fees::*, claim_standard_creator_trading_fee_protocol_fees::*,
+    claim_standard_creator_trading_fees::*, claim_standard_protocol_trading_fees::*,
+    claim_standard_reflection_trading_fees::*, close_protocol_lookup_table::*, cpi_event::*,
+    create_or_update_protocol_fee_admin::*, create_or_update_protocol_owner::*,
+    create_or_update_protocol_staking_admin::*, create_pro_liquidity_pool::*,
     create_protocol_config::*, create_protocol_lookup_table::*, create_standard_liquidity_pool::*,
+    creator_set_pro_market_cap_creator_fee::*, creator_set_pro_market_cap_lp_fee::*,
+    creator_set_pro_market_cap_reflection_fee::*, creator_set_pro_slot_creator_fee::*,
+    creator_toggle_pro_deposit::*, creator_toggle_pro_swap::*, creator_toggle_pro_withdraw::*,
     deactivate_protocol_lookup_table::*, extend_protocol_lookup_table::*,
-    initialize_protocol_lending::*, remaining_accounts_stub::*, sell::*, set_protocol_slot_fees::*,
-    update_allow_create_pool::*, update_creator_trading_fee_receiver::*, update_protocol_config::*,
+    initialize_protocol_lending::*, pro_buy::*, pro_sell::*, remaining_accounts_stub::*,
+    remove_liquidity_pro_pool::*, sell::*, set_protocol_slot_fees::*, transfer_lp_tokens::*,
+    update_allow_create_pool::*, update_creator_trading_fee_receiver::*,
+    update_pro_creator_trading_fee_receiver::*, update_protocol_config::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum HeavenInstruction {
+    AddLiquidityProPool {
+        program_id: solana_pubkey::Pubkey,
+        data: AddLiquidityProPool,
+        accounts: AddLiquidityProPoolInstructionAccounts,
+    },
     AdminBorrowSol {
         program_id: solana_pubkey::Pubkey,
         data: AdminBorrowSol,
@@ -69,6 +106,11 @@ pub enum HeavenInstruction {
         program_id: solana_pubkey::Pubkey,
         data: AdminClaimMsol,
         accounts: AdminClaimMsolInstructionAccounts,
+    },
+    AdminClaimProCreatorTradingFees {
+        program_id: solana_pubkey::Pubkey,
+        data: AdminClaimProCreatorTradingFees,
+        accounts: AdminClaimProCreatorTradingFeesInstructionAccounts,
     },
     AdminClaimStakingRewards {
         program_id: solana_pubkey::Pubkey,
@@ -95,10 +137,20 @@ pub enum HeavenInstruction {
         data: AdminRepaySol,
         accounts: AdminRepaySolInstructionAccounts,
     },
+    AdminSetTransferFee {
+        program_id: solana_pubkey::Pubkey,
+        data: AdminSetTransferFee,
+        accounts: AdminSetTransferFeeInstructionAccounts,
+    },
     AdminUnstakeMsol {
         program_id: solana_pubkey::Pubkey,
         data: AdminUnstakeMsol,
         accounts: AdminUnstakeMsolInstructionAccounts,
+    },
+    AdminUpdateProLiquidityPoolState {
+        program_id: solana_pubkey::Pubkey,
+        data: AdminUpdateProLiquidityPoolState,
+        accounts: AdminUpdateProLiquidityPoolStateInstructionAccounts,
     },
     AdminUpdateStandardLiquidityPoolState {
         program_id: solana_pubkey::Pubkey,
@@ -119,6 +171,31 @@ pub enum HeavenInstruction {
         program_id: solana_pubkey::Pubkey,
         data: Buy,
         accounts: BuyInstructionAccounts,
+    },
+    ClaimProCreatorTradingFeeProtocolFees {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimProCreatorTradingFeeProtocolFees,
+        accounts: ClaimProCreatorTradingFeeProtocolFeesInstructionAccounts,
+    },
+    ClaimProCreatorTradingFees {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimProCreatorTradingFees,
+        accounts: ClaimProCreatorTradingFeesInstructionAccounts,
+    },
+    ClaimProLiquidityProviderTradingFees {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimProLiquidityProviderTradingFees,
+        accounts: ClaimProLiquidityProviderTradingFeesInstructionAccounts,
+    },
+    ClaimProProtocolTradingFees {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimProProtocolTradingFees,
+        accounts: ClaimProProtocolTradingFeesInstructionAccounts,
+    },
+    ClaimProReflectionTradingFees {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimProReflectionTradingFees,
+        accounts: ClaimProReflectionTradingFeesInstructionAccounts,
     },
     ClaimStandardCreatorTradingFeeProtocolFees {
         program_id: solana_pubkey::Pubkey,
@@ -160,6 +237,11 @@ pub enum HeavenInstruction {
         data: CreateOrUpdateProtocolStakingAdmin,
         accounts: CreateOrUpdateProtocolStakingAdminInstructionAccounts,
     },
+    CreateProLiquidityPool {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateProLiquidityPool,
+        accounts: CreateProLiquidityPoolInstructionAccounts,
+    },
     CreateProtocolConfig {
         program_id: solana_pubkey::Pubkey,
         data: CreateProtocolConfig,
@@ -174,6 +256,41 @@ pub enum HeavenInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CreateStandardLiquidityPool,
         accounts: CreateStandardLiquidityPoolInstructionAccounts,
+    },
+    CreatorSetProMarketCapCreatorFee {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatorSetProMarketCapCreatorFee,
+        accounts: CreatorSetProMarketCapCreatorFeeInstructionAccounts,
+    },
+    CreatorSetProMarketCapLpFee {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatorSetProMarketCapLpFee,
+        accounts: CreatorSetProMarketCapLpFeeInstructionAccounts,
+    },
+    CreatorSetProMarketCapReflectionFee {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatorSetProMarketCapReflectionFee,
+        accounts: CreatorSetProMarketCapReflectionFeeInstructionAccounts,
+    },
+    CreatorSetProSlotCreatorFee {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatorSetProSlotCreatorFee,
+        accounts: CreatorSetProSlotCreatorFeeInstructionAccounts,
+    },
+    CreatorToggleProDeposit {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatorToggleProDeposit,
+        accounts: CreatorToggleProDepositInstructionAccounts,
+    },
+    CreatorToggleProSwap {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatorToggleProSwap,
+        accounts: CreatorToggleProSwapInstructionAccounts,
+    },
+    CreatorToggleProWithdraw {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatorToggleProWithdraw,
+        accounts: CreatorToggleProWithdrawInstructionAccounts,
     },
     DeactivateProtocolLookupTable {
         program_id: solana_pubkey::Pubkey,
@@ -190,10 +307,25 @@ pub enum HeavenInstruction {
         data: InitializeProtocolLending,
         accounts: InitializeProtocolLendingInstructionAccounts,
     },
+    ProBuy {
+        program_id: solana_pubkey::Pubkey,
+        data: ProBuy,
+        accounts: ProBuyInstructionAccounts,
+    },
+    ProSell {
+        program_id: solana_pubkey::Pubkey,
+        data: ProSell,
+        accounts: ProSellInstructionAccounts,
+    },
     RemainingAccountsStub {
         program_id: solana_pubkey::Pubkey,
         data: RemainingAccountsStub,
         accounts: RemainingAccountsStubInstructionAccounts,
+    },
+    RemoveLiquidityProPool {
+        program_id: solana_pubkey::Pubkey,
+        data: RemoveLiquidityProPool,
+        accounts: RemoveLiquidityProPoolInstructionAccounts,
     },
     Sell {
         program_id: solana_pubkey::Pubkey,
@@ -205,6 +337,11 @@ pub enum HeavenInstruction {
         data: SetProtocolSlotFees,
         accounts: SetProtocolSlotFeesInstructionAccounts,
     },
+    TransferLpTokens {
+        program_id: solana_pubkey::Pubkey,
+        data: TransferLpTokens,
+        accounts: TransferLpTokensInstructionAccounts,
+    },
     UpdateAllowCreatePool {
         program_id: solana_pubkey::Pubkey,
         data: UpdateAllowCreatePool,
@@ -214,6 +351,11 @@ pub enum HeavenInstruction {
         program_id: solana_pubkey::Pubkey,
         data: UpdateCreatorTradingFeeReceiver,
         accounts: UpdateCreatorTradingFeeReceiverInstructionAccounts,
+    },
+    UpdateProCreatorTradingFeeReceiver {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateProCreatorTradingFeeReceiver,
+        accounts: UpdateProCreatorTradingFeeReceiverInstructionAccounts,
     },
     UpdateProtocolConfig {
         program_id: solana_pubkey::Pubkey,
@@ -241,18 +383,27 @@ impl carbon_core::instruction::InstructionDecoder<'_> for HeavenDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            HeavenInstruction::AddLiquidityProPool => AddLiquidityProPool,
             HeavenInstruction::AdminBorrowSol => AdminBorrowSol,
             HeavenInstruction::AdminClaimMsol => AdminClaimMsol,
+            HeavenInstruction::AdminClaimProCreatorTradingFees => AdminClaimProCreatorTradingFees,
             HeavenInstruction::AdminClaimStakingRewards => AdminClaimStakingRewards,
             HeavenInstruction::AdminClaimStandardCreatorTradingFees => AdminClaimStandardCreatorTradingFees,
             HeavenInstruction::AdminDepositMsol => AdminDepositMsol,
             HeavenInstruction::AdminMintMsol => AdminMintMsol,
             HeavenInstruction::AdminRepaySol => AdminRepaySol,
+            HeavenInstruction::AdminSetTransferFee => AdminSetTransferFee,
             HeavenInstruction::AdminUnstakeMsol => AdminUnstakeMsol,
+            HeavenInstruction::AdminUpdateProLiquidityPoolState => AdminUpdateProLiquidityPoolState,
             HeavenInstruction::AdminUpdateStandardLiquidityPoolState => AdminUpdateStandardLiquidityPoolState,
             HeavenInstruction::AdminWithdrawMsol => AdminWithdrawMsol,
             HeavenInstruction::AdminWithdrawTransferFee => AdminWithdrawTransferFee,
             HeavenInstruction::Buy => Buy,
+            HeavenInstruction::ClaimProCreatorTradingFeeProtocolFees => ClaimProCreatorTradingFeeProtocolFees,
+            HeavenInstruction::ClaimProCreatorTradingFees => ClaimProCreatorTradingFees,
+            HeavenInstruction::ClaimProLiquidityProviderTradingFees => ClaimProLiquidityProviderTradingFees,
+            HeavenInstruction::ClaimProProtocolTradingFees => ClaimProProtocolTradingFees,
+            HeavenInstruction::ClaimProReflectionTradingFees => ClaimProReflectionTradingFees,
             HeavenInstruction::ClaimStandardCreatorTradingFeeProtocolFees => ClaimStandardCreatorTradingFeeProtocolFees,
             HeavenInstruction::ClaimStandardCreatorTradingFees => ClaimStandardCreatorTradingFees,
             HeavenInstruction::ClaimStandardProtocolTradingFees => ClaimStandardProtocolTradingFees,
@@ -261,17 +412,30 @@ impl carbon_core::instruction::InstructionDecoder<'_> for HeavenDecoder {
             HeavenInstruction::CreateOrUpdateProtocolFeeAdmin => CreateOrUpdateProtocolFeeAdmin,
             HeavenInstruction::CreateOrUpdateProtocolOwner => CreateOrUpdateProtocolOwner,
             HeavenInstruction::CreateOrUpdateProtocolStakingAdmin => CreateOrUpdateProtocolStakingAdmin,
+            HeavenInstruction::CreateProLiquidityPool => CreateProLiquidityPool,
             HeavenInstruction::CreateProtocolConfig => CreateProtocolConfig,
             HeavenInstruction::CreateProtocolLookupTable => CreateProtocolLookupTable,
             HeavenInstruction::CreateStandardLiquidityPool => CreateStandardLiquidityPool,
+            HeavenInstruction::CreatorSetProMarketCapCreatorFee => CreatorSetProMarketCapCreatorFee,
+            HeavenInstruction::CreatorSetProMarketCapLpFee => CreatorSetProMarketCapLpFee,
+            HeavenInstruction::CreatorSetProMarketCapReflectionFee => CreatorSetProMarketCapReflectionFee,
+            HeavenInstruction::CreatorSetProSlotCreatorFee => CreatorSetProSlotCreatorFee,
+            HeavenInstruction::CreatorToggleProDeposit => CreatorToggleProDeposit,
+            HeavenInstruction::CreatorToggleProSwap => CreatorToggleProSwap,
+            HeavenInstruction::CreatorToggleProWithdraw => CreatorToggleProWithdraw,
             HeavenInstruction::DeactivateProtocolLookupTable => DeactivateProtocolLookupTable,
             HeavenInstruction::ExtendProtocolLookupTable => ExtendProtocolLookupTable,
             HeavenInstruction::InitializeProtocolLending => InitializeProtocolLending,
+            HeavenInstruction::ProBuy => ProBuy,
+            HeavenInstruction::ProSell => ProSell,
             HeavenInstruction::RemainingAccountsStub => RemainingAccountsStub,
+            HeavenInstruction::RemoveLiquidityProPool => RemoveLiquidityProPool,
             HeavenInstruction::Sell => Sell,
             HeavenInstruction::SetProtocolSlotFees => SetProtocolSlotFees,
+            HeavenInstruction::TransferLpTokens => TransferLpTokens,
             HeavenInstruction::UpdateAllowCreatePool => UpdateAllowCreatePool,
             HeavenInstruction::UpdateCreatorTradingFeeReceiver => UpdateCreatorTradingFeeReceiver,
+            HeavenInstruction::UpdateProCreatorTradingFeeReceiver => UpdateProCreatorTradingFeeReceiver,
             HeavenInstruction::UpdateProtocolConfig => UpdateProtocolConfig,
             HeavenInstruction::CpiEvent => CpiEvent,
         )

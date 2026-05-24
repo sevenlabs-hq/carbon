@@ -7,6 +7,11 @@ pub struct TradeEventEvent {
     pub quote_reserve: u64,
     pub total_creator_trading_fees: u64,
     pub total_fee_paid: u64,
+    pub price_sol_usd: f64,
+    pub base_in: u64,
+    pub base_out: u64,
+    pub quote_in: u64,
+    pub quote_out: u64,
 }
 
 impl TradeEventEvent {

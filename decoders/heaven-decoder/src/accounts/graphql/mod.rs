@@ -4,11 +4,13 @@ pub mod msol_ticket_sol_spent_schema;
 pub mod protocol_admin_state_schema;
 pub mod protocol_config_schema;
 pub mod protocol_owner_state_schema;
+pub mod user_lp_position_schema;
 
 use juniper::GraphQLObject;
 pub use {
     liquidity_pool_state_schema::*, msol_ticket_sol_spent_schema::*,
     protocol_admin_state_schema::*, protocol_config_schema::*, protocol_owner_state_schema::*,
+    user_lp_position_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

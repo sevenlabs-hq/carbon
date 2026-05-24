@@ -31,6 +31,8 @@ impl CpiEventRow {
                 CpiEvent::CreatingLiquidityPoolEvent(_) => {
                     "creating_liquidity_pool_event".to_string()
                 }
+                CpiEvent::HighReflectionFeeEvent(_) => "high_reflection_fee_event".to_string(),
+                CpiEvent::MigrationEvent(_) => "migration_event".to_string(),
                 CpiEvent::TradeEvent(_) => "trade_event".to_string(),
                 CpiEvent::UserDefinedEvent(_) => "user_defined_event".to_string(),
             },

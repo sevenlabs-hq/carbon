@@ -8,6 +8,11 @@ pub struct TradeEventGraphQL {
     pub quote_reserve: U64,
     pub total_creator_trading_fees: U64,
     pub total_fee_paid: U64,
+    pub price_sol_usd: f64,
+    pub base_in: U64,
+    pub base_out: U64,
+    pub quote_in: U64,
+    pub quote_out: U64,
 }
 
 impl From<crate::types::TradeEvent> for TradeEventGraphQL {
@@ -19,6 +24,11 @@ impl From<crate::types::TradeEvent> for TradeEventGraphQL {
                 original.total_creator_trading_fees,
             ),
             total_fee_paid: carbon_core::graphql::primitives::U64(original.total_fee_paid),
+            price_sol_usd: original.price_sol_usd,
+            base_in: carbon_core::graphql::primitives::U64(original.base_in),
+            base_out: carbon_core::graphql::primitives::U64(original.base_out),
+            quote_in: carbon_core::graphql::primitives::U64(original.quote_in),
+            quote_out: carbon_core::graphql::primitives::U64(original.quote_out),
         }
     }
 }

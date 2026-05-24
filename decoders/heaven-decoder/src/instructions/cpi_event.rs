@@ -19,6 +19,8 @@ pub enum CpiEvent {
     CreatingLiquidityPoolEvent(
         events::creating_liquidity_pool_event::CreatingLiquidityPoolEventEvent,
     ),
+    HighReflectionFeeEvent(events::high_reflection_fee_event::HighReflectionFeeEventEvent),
+    MigrationEvent(events::migration_event::MigrationEventEvent),
     TradeEvent(events::trade_event::TradeEventEvent),
     UserDefinedEvent(events::user_defined_event::UserDefinedEventEvent),
 }
@@ -57,6 +59,14 @@ impl CpiEvent {
             )
         {
             return Some(CpiEvent::CreatingLiquidityPoolEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::high_reflection_fee_event::HighReflectionFeeEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::HighReflectionFeeEvent(decoded));
+        }
+        if let Some(decoded) = events::migration_event::MigrationEventEvent::decode(event_data) {
+            return Some(CpiEvent::MigrationEvent(decoded));
         }
         if let Some(decoded) = events::trade_event::TradeEventEvent::decode(event_data) {
             return Some(CpiEvent::TradeEvent(decoded));
