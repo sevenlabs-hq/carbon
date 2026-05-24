@@ -3,7 +3,7 @@ use carbon_core::deserialize::ArrangeAccounts;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct AddMemo {
-    pub memo: String,
+    pub memo: Vec<u8>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -12,9 +12,9 @@ pub struct AddMemoInstructionAccounts {}
 
 impl AddMemo {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        let mut data_slice = data;
-
-        borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
+        Some(AddMemo {
+            memo: data.to_vec(),
+        })
     }
 }
 
