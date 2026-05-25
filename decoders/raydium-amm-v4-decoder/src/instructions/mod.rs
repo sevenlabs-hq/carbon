@@ -18,7 +18,9 @@ pub mod pre_initialize;
 pub mod set_params;
 pub mod simulate_info;
 pub mod swap_base_in;
+pub mod swap_base_in_v2;
 pub mod swap_base_out;
+pub mod swap_base_out_v2;
 pub mod update_config_account;
 pub mod withdraw;
 pub mod withdraw_pnl;
@@ -27,8 +29,8 @@ pub mod withdraw_srm;
 pub use self::{
     admin_cancel_orders::*, create_config_account::*, deposit::*, initialize::*, initialize2::*,
     migrate_to_open_book::*, monitor_step::*, pre_initialize::*, set_params::*, simulate_info::*,
-    swap_base_in::*, swap_base_out::*, update_config_account::*, withdraw::*, withdraw_pnl::*,
-    withdraw_srm::*,
+    swap_base_in::*, swap_base_in_v2::*, swap_base_out::*, swap_base_out_v2::*,
+    update_config_account::*, withdraw::*, withdraw_pnl::*, withdraw_srm::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -90,10 +92,20 @@ pub enum RaydiumAmmV4Instruction {
         data: SwapBaseIn,
         accounts: SwapBaseInInstructionAccounts,
     },
+    SwapBaseInV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapBaseInV2,
+        accounts: SwapBaseInV2InstructionAccounts,
+    },
     SwapBaseOut {
         program_id: solana_pubkey::Pubkey,
         data: SwapBaseOut,
         accounts: SwapBaseOutInstructionAccounts,
+    },
+    SwapBaseOutV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapBaseOutV2,
+        accounts: SwapBaseOutV2InstructionAccounts,
     },
     UpdateConfigAccount {
         program_id: solana_pubkey::Pubkey,
@@ -142,7 +154,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumAmmV4Decoder {
             RaydiumAmmV4Instruction::SetParams => SetParams,
             RaydiumAmmV4Instruction::SimulateInfo => SimulateInfo,
             RaydiumAmmV4Instruction::SwapBaseIn => SwapBaseIn,
+            RaydiumAmmV4Instruction::SwapBaseInV2 => SwapBaseInV2,
             RaydiumAmmV4Instruction::SwapBaseOut => SwapBaseOut,
+            RaydiumAmmV4Instruction::SwapBaseOutV2 => SwapBaseOutV2,
             RaydiumAmmV4Instruction::UpdateConfigAccount => UpdateConfigAccount,
             RaydiumAmmV4Instruction::Withdraw => Withdraw,
             RaydiumAmmV4Instruction::WithdrawPnl => WithdrawPnl,

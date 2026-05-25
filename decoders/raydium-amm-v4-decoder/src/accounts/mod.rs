@@ -7,6 +7,7 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod amm_config;
 pub mod amm_info;
 pub mod target_orders;
 
@@ -14,6 +15,7 @@ pub mod target_orders;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum RaydiumAmmV4Account {
+    AmmConfig(Box<amm_config::AmmConfig>),
     AmmInfo(Box<amm_info::AmmInfo>),
     TargetOrders(Box<target_orders::TargetOrders>),
 }
@@ -32,10 +34,10 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumAmmV4Decoder {
         let data = account.data.as_slice();
 
         {
-            if let Some(decoded) = target_orders::TargetOrders::decode(data) {
+            if let Some(decoded) = amm_info::AmmInfo::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
-                    data: RaydiumAmmV4Account::TargetOrders(Box::new(decoded)),
+                    data: RaydiumAmmV4Account::AmmInfo(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,
@@ -43,10 +45,21 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumAmmV4Decoder {
             }
         }
         {
-            if let Some(decoded) = amm_info::AmmInfo::decode(data) {
+            if let Some(decoded) = amm_config::AmmConfig::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
-                    data: RaydiumAmmV4Account::AmmInfo(Box::new(decoded)),
+                    data: RaydiumAmmV4Account::AmmConfig(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = target_orders::TargetOrders::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumAmmV4Account::TargetOrders(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

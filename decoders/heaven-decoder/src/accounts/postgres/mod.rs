@@ -4,10 +4,11 @@ pub mod msol_ticket_sol_spent_row;
 pub mod protocol_admin_state_row;
 pub mod protocol_config_row;
 pub mod protocol_owner_state_row;
+pub mod user_lp_position_row;
 
 pub use self::{
     liquidity_pool_state_row::*, msol_ticket_sol_spent_row::*, protocol_admin_state_row::*,
-    protocol_config_row::*, protocol_owner_state_row::*,
+    protocol_config_row::*, protocol_owner_state_row::*, user_lp_position_row::*,
 };
 use super::HeavenAccount;
 
@@ -29,6 +30,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for HeavenAccountsMigration {
             Box::new(ProtocolAdminStateMigrationOperation),
             Box::new(ProtocolConfigMigrationOperation),
             Box::new(ProtocolOwnerStateMigrationOperation),
+            Box::new(UserLpPositionMigrationOperation),
         ]
     }
 
@@ -91,6 +93,14 @@ impl carbon_core::postgres::operations::Insert for HeavenAccountWithMetadata {
                 row.insert(pool).await?;
                 Ok(())
             }
+            HeavenAccount::UserLpPosition(account) => {
+                let row = user_lp_position_row::UserLpPositionRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
         }
     }
 }
@@ -134,6 +144,14 @@ impl carbon_core::postgres::operations::Upsert for HeavenAccountWithMetadata {
             }
             HeavenAccount::ProtocolOwnerState(account) => {
                 let row = protocol_owner_state_row::ProtocolOwnerStateRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            HeavenAccount::UserLpPosition(account) => {
+                let row = user_lp_position_row::UserLpPositionRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
                 );

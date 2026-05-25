@@ -12,6 +12,7 @@ pub mod msol_ticket_sol_spent;
 pub mod protocol_admin_state;
 pub mod protocol_config;
 pub mod protocol_owner_state;
+pub mod user_lp_position;
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -22,6 +23,7 @@ pub enum HeavenAccount {
     ProtocolAdminState(Box<protocol_admin_state::ProtocolAdminState>),
     ProtocolConfig(Box<protocol_config::ProtocolConfig>),
     ProtocolOwnerState(Box<protocol_owner_state::ProtocolOwnerState>),
+    UserLpPosition(Box<user_lp_position::UserLpPosition>),
 }
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for HeavenDecoder {
@@ -86,6 +88,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for HeavenDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: HeavenAccount::ProtocolOwnerState(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = user_lp_position::UserLpPosition::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: HeavenAccount::UserLpPosition(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

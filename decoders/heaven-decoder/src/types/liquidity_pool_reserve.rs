@@ -7,7 +7,7 @@ pub struct LiquidityPoolReserve {
     pub snapshot_slot: u64,
     pub snapshot_a: u64,
     pub snapshot_b: u64,
-    pub padding: u64,
+    pub accumulated_fee_per_lp_token: u64,
     pub initial_a: u64,
     pub initial_b: u64,
     pub leader_slot_window: u8,

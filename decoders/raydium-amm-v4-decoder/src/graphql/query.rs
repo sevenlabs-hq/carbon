@@ -9,40 +9,6 @@ pub struct QueryRoot;
 #[graphql_object(context = crate::graphql::context::GraphQLContext)]
 impl QueryRoot {
     // Accounts
-    async fn target_orders(
-        context: &crate::graphql::context::GraphQLContext,
-        pubkey: String,
-    ) -> FieldResult<Option<crate::accounts::graphql::TargetOrdersGraphQL>> {
-        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
-        let pk = PgPubkey(
-            solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
-        );
-        let row = crate::accounts::postgres::TargetOrdersRow::lookup(pk, &context.pool)
-            .await
-            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.and_then(|row| row.try_into().ok()))
-    }
-
-    async fn list_target_orders(
-        context: &crate::graphql::context::GraphQLContext,
-        limit: i32,
-        offset: i32,
-    ) -> FieldResult<Vec<crate::accounts::graphql::TargetOrdersGraphQL>> {
-        let rows: Vec<crate::accounts::postgres::TargetOrdersRow> = sqlx::query_as(
-            r#"SELECT * FROM target_orders_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows
-            .into_iter()
-            .filter_map(|row| row.try_into().ok())
-            .collect())
-    }
-
     async fn amm_info(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
@@ -65,6 +31,74 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::accounts::graphql::AmmInfoGraphQL>> {
         let rows: Vec<crate::accounts::postgres::AmmInfoRow> = sqlx::query_as(
             r#"SELECT * FROM amm_info_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn amm_config(
+        context: &crate::graphql::context::GraphQLContext,
+        pubkey: String,
+    ) -> FieldResult<Option<crate::accounts::graphql::AmmConfigGraphQL>> {
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::AmmConfigRow::lookup(pk, &context.pool)
+            .await
+            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(row.and_then(|row| row.try_into().ok()))
+    }
+
+    async fn list_amm_config(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::accounts::graphql::AmmConfigGraphQL>> {
+        let rows: Vec<crate::accounts::postgres::AmmConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM amm_config_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn target_orders(
+        context: &crate::graphql::context::GraphQLContext,
+        pubkey: String,
+    ) -> FieldResult<Option<crate::accounts::graphql::TargetOrdersGraphQL>> {
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::TargetOrdersRow::lookup(pk, &context.pool)
+            .await
+            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(row.and_then(|row| row.try_into().ok()))
+    }
+
+    async fn list_target_orders(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::accounts::graphql::TargetOrdersGraphQL>> {
+        let rows: Vec<crate::accounts::postgres::TargetOrdersRow> = sqlx::query_as(
+            r#"SELECT * FROM target_orders_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -674,6 +708,82 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdateConfigAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdateConfigAccountRow> = sqlx::query_as(
             r#"SELECT * FROM update_config_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_base_in_v2(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapBaseInV2GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapBaseInV2Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_base_in_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_base_in_v2(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapBaseInV2GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapBaseInV2Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_base_in_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_base_out_v2(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapBaseOutV2GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapBaseOutV2Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_base_out_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_base_out_v2(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapBaseOutV2GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapBaseOutV2Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_base_out_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

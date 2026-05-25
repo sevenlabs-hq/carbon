@@ -10,7 +10,9 @@ pub mod pre_initialize_row;
 pub mod set_params_row;
 pub mod simulate_info_row;
 pub mod swap_base_in_row;
+pub mod swap_base_in_v2_row;
 pub mod swap_base_out_row;
+pub mod swap_base_out_v2_row;
 pub mod update_config_account_row;
 pub mod withdraw_pnl_row;
 pub mod withdraw_row;
@@ -19,8 +21,9 @@ pub mod withdraw_srm_row;
 pub use self::{
     admin_cancel_orders_row::*, create_config_account_row::*, deposit_row::*, initialize2_row::*,
     initialize_row::*, migrate_to_open_book_row::*, monitor_step_row::*, pre_initialize_row::*,
-    set_params_row::*, simulate_info_row::*, swap_base_in_row::*, swap_base_out_row::*,
-    update_config_account_row::*, withdraw_pnl_row::*, withdraw_row::*, withdraw_srm_row::*,
+    set_params_row::*, simulate_info_row::*, swap_base_in_row::*, swap_base_in_v2_row::*,
+    swap_base_out_row::*, swap_base_out_v2_row::*, update_config_account_row::*,
+    withdraw_pnl_row::*, withdraw_row::*, withdraw_srm_row::*,
 };
 use super::RaydiumAmmV4Instruction;
 
@@ -48,7 +51,9 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumAmmV4InstructionsMigrat
             Box::new(SetParamsMigrationOperation),
             Box::new(SimulateInfoMigrationOperation),
             Box::new(SwapBaseInMigrationOperation),
+            Box::new(SwapBaseInV2MigrationOperation),
             Box::new(SwapBaseOutMigrationOperation),
+            Box::new(SwapBaseOutV2MigrationOperation),
             Box::new(UpdateConfigAccountMigrationOperation),
             Box::new(WithdrawMigrationOperation),
             Box::new(WithdrawPnlMigrationOperation),
@@ -234,6 +239,24 @@ impl carbon_core::postgres::operations::Insert for RaydiumAmmV4InstructionWithMe
                 row.insert(pool).await?;
                 Ok(())
             }
+            RaydiumAmmV4Instruction::SwapBaseInV2 { data, .. } => {
+                let row = swap_base_in_v2_row::SwapBaseInV2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            RaydiumAmmV4Instruction::SwapBaseOutV2 { data, .. } => {
+                let row = swap_base_out_v2_row::SwapBaseOutV2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
         }
     }
 }
@@ -380,6 +403,24 @@ impl carbon_core::postgres::operations::Upsert for RaydiumAmmV4InstructionWithMe
             }
             RaydiumAmmV4Instruction::UpdateConfigAccount { data, .. } => {
                 let row = update_config_account_row::UpdateConfigAccountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            RaydiumAmmV4Instruction::SwapBaseInV2 { data, .. } => {
+                let row = swap_base_in_v2_row::SwapBaseInV2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            RaydiumAmmV4Instruction::SwapBaseOutV2 { data, .. } => {
+                let row = swap_base_out_v2_row::SwapBaseOutV2Row::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

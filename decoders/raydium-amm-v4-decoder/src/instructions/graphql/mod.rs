@@ -10,7 +10,9 @@ pub mod pre_initialize_schema;
 pub mod set_params_schema;
 pub mod simulate_info_schema;
 pub mod swap_base_in_schema;
+pub mod swap_base_in_v2_schema;
 pub mod swap_base_out_schema;
+pub mod swap_base_out_v2_schema;
 pub mod update_config_account_schema;
 pub mod withdraw_pnl_schema;
 pub mod withdraw_schema;
@@ -21,9 +23,9 @@ pub use {
     admin_cancel_orders_schema::*, create_config_account_schema::*, deposit_schema::*,
     initialize2_schema::*, initialize_schema::*, migrate_to_open_book_schema::*,
     monitor_step_schema::*, pre_initialize_schema::*, set_params_schema::*,
-    simulate_info_schema::*, swap_base_in_schema::*, swap_base_out_schema::*,
-    update_config_account_schema::*, withdraw_pnl_schema::*, withdraw_schema::*,
-    withdraw_srm_schema::*,
+    simulate_info_schema::*, swap_base_in_schema::*, swap_base_in_v2_schema::*,
+    swap_base_out_schema::*, swap_base_out_v2_schema::*, update_config_account_schema::*,
+    withdraw_pnl_schema::*, withdraw_schema::*, withdraw_srm_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

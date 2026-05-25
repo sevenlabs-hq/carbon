@@ -21,22 +21,23 @@ pub struct WithdrawSingleTokenTypeExactAmountOutInstructionAccounts {
     pub fee_account: solana_pubkey::Pubkey,
     pub destination_mint: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub token_program_b: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
 impl WithdrawSingleTokenTypeExactAmountOut {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 8 {
+        if data.is_empty() {
             return None;
         }
-        let discriminator = &data[0..8];
-        if discriminator != [243, 192, 70, 139, 209, 156, 8, 139] {
+        let discriminator = &data[0..1];
+        if discriminator != [5] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[8..];
+        data_slice = &data_slice[1..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
@@ -61,6 +62,7 @@ impl ArrangeAccounts for WithdrawSingleTokenTypeExactAmountOut {
         let fee_account = next_account(&mut iter)?;
         let destination_mint = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let token_program_b = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -76,6 +78,7 @@ impl ArrangeAccounts for WithdrawSingleTokenTypeExactAmountOut {
             fee_account,
             destination_mint,
             token_program,
+            token_program_b,
             remaining: remaining.to_vec(),
         })
     }

@@ -26,17 +26,17 @@ pub struct InitializeInstructionAccounts {
 
 impl Initialize {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 8 {
+        if data.is_empty() {
             return None;
         }
-        let discriminator = &data[0..8];
-        if discriminator != [175, 175, 109, 31, 13, 152, 155, 237] {
+        let discriminator = &data[0..1];
+        if discriminator != [0] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[8..];
+        data_slice = &data_slice[1..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

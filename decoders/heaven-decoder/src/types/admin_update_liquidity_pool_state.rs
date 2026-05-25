@@ -22,4 +22,5 @@ pub enum AdminUpdateLiquidityPoolState {
         fees: FeeBrackets,
     },
     ToggleSwapPermission(bool),
+    SetCreatorTradingFeeTradingVolumeThreshold(f64),
 }

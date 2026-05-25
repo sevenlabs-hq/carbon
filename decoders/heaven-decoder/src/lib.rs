@@ -2,7 +2,7 @@
 use solana_pubkey::Pubkey;
 pub struct HeavenDecoder;
 pub const PROGRAM_ID: Pubkey =
-    solana_pubkey::Pubkey::from_str_const("GgE4QoiM8VYoQNZkiNLHNbzXEkKyynzsApC8BvBY4b1V");
+    solana_pubkey::Pubkey::from_str_const("HEAVENoP2qxoeuF8Dj2oT1GHEnu49U5mJYkdeC8BAX2o");
 
 pub mod accounts;
 pub mod events;
