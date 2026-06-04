@@ -1,23 +1,13 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
-
-publish_args=()
-if [[ "${DRY_RUN:-0}" == "1" ]]; then
-    publish_args+=(--dry-run)
-fi
-if [[ "${ALLOW_DIRTY:-0}" == "1" ]]; then
-    publish_args+=(--allow-dirty)
-fi
+set -ex
 
 workspace_crates=(
-    # Core crates
     carbon-macros
     carbon-proc-macros
     carbon-test-utils
     carbon-core
 
-    # Datasources.
     carbon-helius-atlas-ws-datasource
     carbon-helius-gpa-v2-datasource
     carbon-helius-gtfa-datasource
@@ -33,11 +23,9 @@ workspace_crates=(
     carbon-stream-message-datasource
     carbon-validator-snapshot-datasource
 
-    # Metrics.
     carbon-log-metrics
     carbon-prometheus-metrics
 
-    # Decoders.
     carbon-address-lookup-table-decoder
     carbon-associated-token-account-decoder
     carbon-bonkswap-decoder
@@ -65,10 +53,10 @@ workspace_crates=(
     carbon-marinade-finance-decoder
     carbon-memo-program-decoder
     carbon-meteora-damm-v2-decoder
-    carbon-meteora-dbc-decoder
     carbon-meteora-dlmm-decoder
     carbon-meteora-pools-decoder
     carbon-meteora-vault-decoder
+    carbon-meteora-dbc-decoder
     carbon-moonshot-decoder
     carbon-mpl-core-decoder
     carbon-mpl-token-metadata-decoder
@@ -79,8 +67,8 @@ workspace_crates=(
     carbon-orca-whirlpool-decoder
     carbon-pancake-swap-decoder
     carbon-phoenix-v1-decoder
-    carbon-pump-fees-decoder
     carbon-pump-swap-decoder
+    carbon-pump-fees-decoder
     carbon-pumpfun-decoder
     carbon-raydium-amm-v4-decoder
     carbon-raydium-clmm-decoder
@@ -101,15 +89,11 @@ workspace_crates=(
     carbon-virtuals-decoder
     carbon-wavebreak-decoder
     carbon-zeta-decoder
+   
 )
 
 for crate in "${workspace_crates[@]}"; do
-    if [[ -n "${START_AT:-}" && "${crate}" != "${START_AT}" ]]; then
-        echo "--- Skipping $crate"
-        continue
-    fi
-    unset START_AT
-
-    echo "--- Publishing $crate"
-    cargo publish -p "$crate" "${publish_args[@]}"
+    echo "--- $crate"
+    # cargo package -p $crate
+    cargo publish -p $crate --allow-dirty
 done
