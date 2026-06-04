@@ -1118,7 +1118,7 @@ dependencies = [
 
 [[package]]
 name = "block-subscribe-rpc-carbon-example"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "carbon-core",
  "carbon-log-metrics",
@@ -1334,7 +1334,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-address-lookup-table-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1352,7 +1352,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-associated-token-account-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1370,7 +1370,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-bonkswap-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1388,7 +1388,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-boop-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1406,7 +1406,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-bubblegum-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1424,7 +1424,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-circle-message-transmitter-v2-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1442,7 +1442,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-circle-token-messenger-v2-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1460,7 +1460,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-core"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "axum 0.8.8",
@@ -1499,7 +1499,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-dflow-aggregator-v4-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1518,7 +1518,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-drift-v2-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1537,7 +1537,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-fluxbeam-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1555,7 +1555,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-gavel-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1573,7 +1573,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-heaven-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1592,7 +1592,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-helius-atlas-ws-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "bincode",
@@ -1616,7 +1616,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-helius-gpa-v2-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
@@ -1634,7 +1634,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-helius-gtfa-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -1652,7 +1652,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-helius-laserstream-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -1671,7 +1671,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jetstreamer-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -1696,7 +1696,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jito-shredstream-grpc-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "bincode",
@@ -1714,7 +1714,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-dca-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1732,7 +1732,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-lend-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1750,7 +1750,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-limit-order-2-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1768,7 +1768,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-limit-order-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1786,7 +1786,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-perpetuals-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1805,7 +1805,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-swap-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1823,7 +1823,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-kamino-farms-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1842,7 +1842,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-kamino-lending-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1861,7 +1861,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-kamino-limit-order-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1880,7 +1880,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-kamino-vault-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1899,7 +1899,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-lifinity-amm-v2-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1917,7 +1917,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-log-metrics"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "carbon-core",
  "log",
@@ -1927,11 +1927,11 @@ dependencies = [
 
 [[package]]
 name = "carbon-macros"
-version = "0.12.0"
+version = "1.0.0"
 
 [[package]]
 name = "carbon-marginfi-v2-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1950,7 +1950,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-marinade-finance-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1968,7 +1968,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-memo-program-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -1986,7 +1986,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-meteora-damm-v2-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2005,7 +2005,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-meteora-dbc-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2024,7 +2024,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-meteora-dlmm-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2043,7 +2043,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-meteora-pools-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2062,7 +2062,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-meteora-vault-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2080,7 +2080,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-moonshot-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2098,7 +2098,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-mpl-core-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2116,7 +2116,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-mpl-token-metadata-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2134,7 +2134,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-name-service-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2152,7 +2152,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-okx-dex-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2171,7 +2171,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-onchain-labs-dex-v2-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2190,7 +2190,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-openbook-v2-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2209,7 +2209,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-orca-whirlpool-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2228,7 +2228,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-pancake-swap-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2247,7 +2247,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-phoenix-v1-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2265,7 +2265,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-proc-macros"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "quote",
  "serde",
@@ -2274,7 +2274,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-prometheus-metrics"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "axum 0.8.8",
  "carbon-core",
@@ -2286,7 +2286,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-pump-fees-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2305,7 +2305,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-pump-swap-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2323,7 +2323,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-pumpfun-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2341,7 +2341,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-raydium-amm-v4-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2360,7 +2360,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-raydium-clmm-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2379,7 +2379,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-raydium-cpmm-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2398,7 +2398,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-raydium-launchpad-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2417,7 +2417,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-raydium-liquidity-locking-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2435,7 +2435,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-raydium-stable-swap-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2453,7 +2453,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-rpc-block-crawler-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-stream",
  "async-trait",
@@ -2470,7 +2470,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-rpc-block-subscribe-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -2485,7 +2485,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-rpc-gpa-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -2501,7 +2501,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-rpc-program-subscribe-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -2516,7 +2516,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-rpc-transaction-crawler-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-stream",
  "async-trait",
@@ -2534,7 +2534,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-sharky-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2552,7 +2552,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-simple-dex-decoder-v1"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "borsh",
  "carbon-core",
@@ -2564,7 +2564,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-simple-dex-decoder-v2"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "borsh",
  "carbon-core",
@@ -2576,7 +2576,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-solayer-restaking-program-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2594,7 +2594,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-stabble-stable-swap-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2612,7 +2612,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-stabble-weighted-swap-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2630,7 +2630,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-stake-program-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2648,7 +2648,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-stream-message-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -2661,7 +2661,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-swig-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2679,7 +2679,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-system-program-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2697,7 +2697,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-test-utils"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -2713,7 +2713,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-token-2022-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2738,7 +2738,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-token-program-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2756,7 +2756,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-validator-snapshot-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "agave-snapshots",
  "async-trait",
@@ -2775,7 +2775,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-vertigo-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2793,7 +2793,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-virtuals-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2811,7 +2811,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-wavebreak-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -2830,7 +2830,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-yellowstone-grpc-datasource"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -2849,7 +2849,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-zeta-decoder"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "borsh",
@@ -3362,7 +3362,7 @@ dependencies = [
 
 [[package]]
 name = "custom-datasource-carbon-example"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -4374,7 +4374,7 @@ dependencies = [
 
 [[package]]
 name = "gpa-rpc-carbon-example"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "carbon-core",
  "carbon-helius-gpa-v2-datasource",
@@ -5226,7 +5226,7 @@ checksum = "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2"
 
 [[package]]
 name = "jetstreamer-carbon-example"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "carbon-core",
  "carbon-jetstreamer-datasource",
@@ -6619,7 +6619,7 @@ dependencies = [
 
 [[package]]
 name = "postgres-graphql-carbon-example"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "axum 0.8.8",
  "bs58",
@@ -8244,7 +8244,7 @@ dependencies = [
 
 [[package]]
 name = "snapshot-validator-carbon-example"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "carbon-core",
  "carbon-log-metrics",
@@ -13124,7 +13124,7 @@ dependencies = [
 
 [[package]]
 name = "transaction-crawler-rpc-carbon-example"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "carbon-core",
  "carbon-helius-gtfa-datasource",
@@ -13368,7 +13368,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "versioned-decoders-carbon-example"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "carbon-core",
@@ -14096,7 +14096,7 @@ checksum = "fdd20c5420375476fbd4394763288da7eb0cc0b8c11deed431a91562af7335d3"
 
 [[package]]
 name = "yellowstone-grpc-carbon-example"
-version = "0.12.0"
+version = "1.0.0"
 dependencies = [
  "carbon-core",
  "carbon-helius-laserstream-datasource",

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-set -ex
+set -euo pipefail
 
-VERSION="0.12.0"
+VERSION="${VERSION:-1.0.0}"
 
 workspace_crates=(
     carbon-macros
@@ -14,6 +14,7 @@ workspace_crates=(
     carbon-helius-gpa-v2-datasource
     carbon-helius-gtfa-datasource
     carbon-helius-laserstream-datasource
+    carbon-jetstreamer-datasource
     carbon-rpc-block-crawler-datasource
     carbon-rpc-block-subscribe-datasource
     carbon-rpc-gpa-datasource
@@ -39,6 +40,7 @@ workspace_crates=(
     carbon-gavel-decoder
     carbon-heaven-decoder
     carbon-jupiter-dca-decoder
+    carbon-jupiter-lend-decoder
     carbon-jupiter-limit-order-2-decoder
     carbon-jupiter-limit-order-decoder
     carbon-jupiter-perpetuals-decoder
