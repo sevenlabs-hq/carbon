@@ -165,7 +165,7 @@ flate2 = "1.1.5"
 futures = "0.3.31"
 futures-util = "0.3.31"
 heck = "0.5.0"
-helius = { git = "https://github.com/helius-labs/helius-rust-sdk", rev = "f62d528283ca009acacebdd343a8cf2bc0fd09cd" }
+helius = "1.1.0"
 hex = "0.4.3"
 indicatif = "0.17.11"
 inquire = "0.7.5"
