@@ -8,43 +8,139 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod claim;
+pub mod claim_cashback_pumpfun;
+pub mod claim_cashback_pumpswap;
 pub mod cpi_event;
 pub mod create_token_account;
 pub mod create_token_account_with_seed;
+pub mod init_token_ledger;
 pub mod proxy_swap;
+pub mod set_token_ledger;
 pub mod swap;
 pub mod swap_tob;
 pub mod swap_tob_enhanced;
+pub mod swap_tob_v2;
 pub mod swap_tob_with_receiver;
+pub mod swap_tob_with_receiver_token_ledger;
+pub mod swap_tob_with_token_ledger;
 pub mod swap_toc;
 pub mod swap_toc_v2;
 pub mod wrap_unwrap;
 pub mod wrap_unwrap_with_receiver;
 
 pub use self::{
-    claim::*, cpi_event::*, create_token_account::*, create_token_account_with_seed::*,
-    proxy_swap::*, swap::*, swap_tob::*, swap_tob_enhanced::*, swap_tob_with_receiver::*,
-    swap_toc::*, swap_toc_v2::*, wrap_unwrap::*, wrap_unwrap_with_receiver::*,
+    claim::*, claim_cashback_pumpfun::*, claim_cashback_pumpswap::*, cpi_event::*,
+    create_token_account::*, create_token_account_with_seed::*, init_token_ledger::*,
+    proxy_swap::*, set_token_ledger::*, swap::*, swap_tob::*, swap_tob_enhanced::*, swap_tob_v2::*,
+    swap_tob_with_receiver::*, swap_tob_with_receiver_token_ledger::*,
+    swap_tob_with_token_ledger::*, swap_toc::*, swap_toc_v2::*, wrap_unwrap::*,
+    wrap_unwrap_with_receiver::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum OnchainLabsDexV2Instruction {
-    Claim(Claim),
-    CreateTokenAccount(CreateTokenAccount),
-    CreateTokenAccountWithSeed(CreateTokenAccountWithSeed),
-    ProxySwap(ProxySwap),
-    Swap(Swap),
-    SwapTob(SwapTob),
-    SwapTobEnhanced(SwapTobEnhanced),
-    SwapTobWithReceiver(SwapTobWithReceiver),
-    SwapToc(SwapToc),
-    SwapTocV2(SwapTocV2),
-    WrapUnwrap(WrapUnwrap),
-    WrapUnwrapWithReceiver(WrapUnwrapWithReceiver),
-    // Anchor CPI Event Instruction
-    CpiEvent(Box<CpiEvent>),
+    Claim {
+        program_id: solana_pubkey::Pubkey,
+        data: Claim,
+        accounts: ClaimInstructionAccounts,
+    },
+    ClaimCashbackPumpfun {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimCashbackPumpfun,
+        accounts: ClaimCashbackPumpfunInstructionAccounts,
+    },
+    ClaimCashbackPumpswap {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimCashbackPumpswap,
+        accounts: ClaimCashbackPumpswapInstructionAccounts,
+    },
+    CreateTokenAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateTokenAccount,
+        accounts: CreateTokenAccountInstructionAccounts,
+    },
+    CreateTokenAccountWithSeed {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateTokenAccountWithSeed,
+        accounts: CreateTokenAccountWithSeedInstructionAccounts,
+    },
+    InitTokenLedger {
+        program_id: solana_pubkey::Pubkey,
+        data: InitTokenLedger,
+        accounts: InitTokenLedgerInstructionAccounts,
+    },
+    ProxySwap {
+        program_id: solana_pubkey::Pubkey,
+        data: ProxySwap,
+        accounts: ProxySwapInstructionAccounts,
+    },
+    SetTokenLedger {
+        program_id: solana_pubkey::Pubkey,
+        data: SetTokenLedger,
+        accounts: SetTokenLedgerInstructionAccounts,
+    },
+    Swap {
+        program_id: solana_pubkey::Pubkey,
+        data: Swap,
+        accounts: SwapInstructionAccounts,
+    },
+    SwapTob {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTob,
+        accounts: SwapTobInstructionAccounts,
+    },
+    SwapTobEnhanced {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTobEnhanced,
+        accounts: SwapTobEnhancedInstructionAccounts,
+    },
+    SwapTobV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTobV2,
+        accounts: SwapTobV2InstructionAccounts,
+    },
+    SwapTobWithReceiver {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTobWithReceiver,
+        accounts: SwapTobWithReceiverInstructionAccounts,
+    },
+    SwapTobWithReceiverTokenLedger {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTobWithReceiverTokenLedger,
+        accounts: SwapTobWithReceiverTokenLedgerInstructionAccounts,
+    },
+    SwapTobWithTokenLedger {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTobWithTokenLedger,
+        accounts: SwapTobWithTokenLedgerInstructionAccounts,
+    },
+    SwapToc {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapToc,
+        accounts: SwapTocInstructionAccounts,
+    },
+    SwapTocV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTocV2,
+        accounts: SwapTocV2InstructionAccounts,
+    },
+    WrapUnwrap {
+        program_id: solana_pubkey::Pubkey,
+        data: WrapUnwrap,
+        accounts: WrapUnwrapInstructionAccounts,
+    },
+    WrapUnwrapWithReceiver {
+        program_id: solana_pubkey::Pubkey,
+        data: WrapUnwrapWithReceiver,
+        accounts: WrapUnwrapWithReceiverInstructionAccounts,
+    },
+    CpiEvent {
+        program_id: solana_pubkey::Pubkey,
+        data: CpiEvent,
+        accounts: CpiEventInstructionAccounts,
+    },
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for OnchainLabsDexV2Decoder {
@@ -53,133 +149,34 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OnchainLabsDexV2Decode
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
-    ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+    ) -> Option<Self::InstructionType> {
         if instruction.program_id != PROGRAM_ID {
             return None;
         }
 
-        let data = instruction.data.as_slice();
-
-        {
-            if let Some(decoded) = claim::Claim::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::Claim(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = create_token_account::CreateTokenAccount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::CreateTokenAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                create_token_account_with_seed::CreateTokenAccountWithSeed::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::CreateTokenAccountWithSeed(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = proxy_swap::ProxySwap::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::ProxySwap(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = swap::Swap::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::Swap(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = swap_tob::SwapTob::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::SwapTob(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = swap_tob_enhanced::SwapTobEnhanced::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::SwapTobEnhanced(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = swap_tob_with_receiver::SwapTobWithReceiver::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::SwapTobWithReceiver(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = swap_toc::SwapToc::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::SwapToc(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = swap_toc_v2::SwapTocV2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::SwapTocV2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = wrap_unwrap::WrapUnwrap::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::WrapUnwrap(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = wrap_unwrap_with_receiver::WrapUnwrapWithReceiver::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::WrapUnwrapWithReceiver(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = cpi_event::CpiEvent::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: OnchainLabsDexV2Instruction::CpiEvent(Box::new(decoded)),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            OnchainLabsDexV2Instruction::Claim => Claim,
+            OnchainLabsDexV2Instruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
+            OnchainLabsDexV2Instruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
+            OnchainLabsDexV2Instruction::CreateTokenAccount => CreateTokenAccount,
+            OnchainLabsDexV2Instruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
+            OnchainLabsDexV2Instruction::InitTokenLedger => InitTokenLedger,
+            OnchainLabsDexV2Instruction::ProxySwap => ProxySwap,
+            OnchainLabsDexV2Instruction::SetTokenLedger => SetTokenLedger,
+            OnchainLabsDexV2Instruction::Swap => Swap,
+            OnchainLabsDexV2Instruction::SwapTob => SwapTob,
+            OnchainLabsDexV2Instruction::SwapTobEnhanced => SwapTobEnhanced,
+            OnchainLabsDexV2Instruction::SwapTobV2 => SwapTobV2,
+            OnchainLabsDexV2Instruction::SwapTobWithReceiver => SwapTobWithReceiver,
+            OnchainLabsDexV2Instruction::SwapTobWithReceiverTokenLedger => SwapTobWithReceiverTokenLedger,
+            OnchainLabsDexV2Instruction::SwapTobWithTokenLedger => SwapTobWithTokenLedger,
+            OnchainLabsDexV2Instruction::SwapToc => SwapToc,
+            OnchainLabsDexV2Instruction::SwapTocV2 => SwapTocV2,
+            OnchainLabsDexV2Instruction::WrapUnwrap => WrapUnwrap,
+            OnchainLabsDexV2Instruction::WrapUnwrapWithReceiver => WrapUnwrapWithReceiver,
+            OnchainLabsDexV2Instruction::CpiEvent => CpiEvent,
+        )
     }
 }

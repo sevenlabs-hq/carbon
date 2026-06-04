@@ -1,30 +1,16 @@
-//! Defines the `Error` enum and `CarbonResult` type used for error handling in
-//! the `carbon-core` framework.
+//! Crate-wide error type and `Result` alias used across the pipeline.
 //!
-//! The `Error` enum captures various error types that can occur within the
-//! framework, providing detailed error messages and support for custom error
-//! handling. The `CarbonResult` type alias simplifies function signatures by
-//! unifying the return type for functions that may return an `Error`.
+//! # Categories
 //!
-//! # Overview
-//!
-//! - **`Error`**: An enum representing specific error cases, from missing data
-//!   in transactions to issues with data sources. Each variant provides a
-//!   descriptive error message.
-//! - **`CarbonResult`**: A type alias for `Result<T, Error>`, where `T` is the
-//!   successful return type.
-//!
-//! These errors are essential for handling various scenarios that may arise
-//! during data processing in the `carbon-core` pipeline, including missing
-//! update types, missing transaction components, and custom errors for more
-//! flexible error management.
-//!
-//! # Notes
-//!
-//! - Implementing `thiserror::Error` provides automatic derivation of error
-//!   display messages.
-//! - Each error variant corresponds to a unique error scenario within the
-//!   `carbon-core` framework.
+//! - Structural data errors — missing transaction fields required for
+//!   processing: `MissingFeePayer`, `MissingInnerInstructions`,
+//!   `MissingAccountInTransaction`, `MissingInstructionData`.
+//! - Datasource contract violations —
+//!   `MissingUpdateTypeInDatasource(UpdateType)`.
+//! - Runtime failures — channel or datasource execution issues:
+//!   `FailedToReceiveUpdates(String)`, `FailedToConsumeDatasource(String)`.
+//! - `Custom(String)` — catch-all for external or feature-specific errors (e.g.
+//!   `postgres` / `sqlx` wrapping).
 
 use {crate::datasource::UpdateType, thiserror::Error};
 
@@ -48,30 +34,4 @@ pub enum Error {
     Custom(String),
 }
 
-/// A type alias for `Result` with the `Error` type as the error variant.
-///
-/// This alias simplifies function signatures in the `carbon-core` framework by
-/// unifying error handling under a common type. Any function that may result in
-/// an `Error` can return a `CarbonResult`, providing clear and consistent error
-/// reporting.
-///
-/// # Example
-///
-/// ```ignore
-/// use core::error::Error;
-/// use carbon_core::error::CarbonResult;
-///
-/// fn example_function(success: bool) -> CarbonResult<()> {
-///     if success {
-///         Ok(())
-///     } else {
-///        Err(<dyn Error>::MissingInstructionData)
-///     }
-/// }
-///
-/// match example_function(false) {
-///     Ok(_) => println!("Operation succeeded."),
-///     Err(e) => eprintln!("Error occurred: {}", e),
-/// }
-/// ```
 pub type CarbonResult<T> = Result<T, Error>;

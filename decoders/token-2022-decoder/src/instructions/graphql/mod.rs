@@ -48,6 +48,7 @@ pub mod initialize_multisig_schema;
 pub mod initialize_non_transferable_mint_schema;
 pub mod initialize_pausable_config_schema;
 pub mod initialize_permanent_delegate_schema;
+pub mod initialize_permissioned_burn_schema;
 pub mod initialize_scaled_ui_amount_mint_schema;
 pub mod initialize_token_group_member_schema;
 pub mod initialize_token_group_schema;
@@ -57,6 +58,8 @@ pub mod initialize_transfer_hook_schema;
 pub mod mint_to_checked_schema;
 pub mod mint_to_schema;
 pub mod pause_schema;
+pub mod permissioned_burn_checked_schema;
+pub mod permissioned_burn_schema;
 pub mod reallocate_schema;
 pub mod remove_token_metadata_key_schema;
 pub mod resume_schema;
@@ -69,6 +72,7 @@ pub mod transfer_checked_schema;
 pub mod transfer_checked_with_fee_schema;
 pub mod transfer_schema;
 pub mod ui_amount_to_amount_schema;
+pub mod unwrap_lamports_schema;
 pub mod update_confidential_transfer_mint_schema;
 pub mod update_default_account_state_schema;
 pub mod update_group_member_pointer_schema;
@@ -113,20 +117,23 @@ pub use {
     initialize_mint_close_authority_schema::*, initialize_mint_schema::*,
     initialize_multisig2_schema::*, initialize_multisig_schema::*,
     initialize_non_transferable_mint_schema::*, initialize_pausable_config_schema::*,
-    initialize_permanent_delegate_schema::*, initialize_scaled_ui_amount_mint_schema::*,
-    initialize_token_group_member_schema::*, initialize_token_group_schema::*,
-    initialize_token_metadata_schema::*, initialize_transfer_fee_config_schema::*,
-    initialize_transfer_hook_schema::*, mint_to_checked_schema::*, mint_to_schema::*,
-    pause_schema::*, reallocate_schema::*, remove_token_metadata_key_schema::*, resume_schema::*,
-    revoke_schema::*, set_authority_schema::*, set_transfer_fee_schema::*, sync_native_schema::*,
+    initialize_permanent_delegate_schema::*, initialize_permissioned_burn_schema::*,
+    initialize_scaled_ui_amount_mint_schema::*, initialize_token_group_member_schema::*,
+    initialize_token_group_schema::*, initialize_token_metadata_schema::*,
+    initialize_transfer_fee_config_schema::*, initialize_transfer_hook_schema::*,
+    mint_to_checked_schema::*, mint_to_schema::*, pause_schema::*,
+    permissioned_burn_checked_schema::*, permissioned_burn_schema::*, reallocate_schema::*,
+    remove_token_metadata_key_schema::*, resume_schema::*, revoke_schema::*,
+    set_authority_schema::*, set_transfer_fee_schema::*, sync_native_schema::*,
     thaw_account_schema::*, transfer_checked_schema::*, transfer_checked_with_fee_schema::*,
-    transfer_schema::*, ui_amount_to_amount_schema::*, update_confidential_transfer_mint_schema::*,
-    update_default_account_state_schema::*, update_group_member_pointer_schema::*,
-    update_group_pointer_schema::*, update_metadata_pointer_schema::*,
-    update_multiplier_scaled_ui_mint_schema::*, update_rate_interest_bearing_mint_schema::*,
-    update_token_group_max_size_schema::*, update_token_group_update_authority_schema::*,
-    update_token_metadata_field_schema::*, update_token_metadata_update_authority_schema::*,
-    update_transfer_hook_schema::*, withdraw_excess_lamports_schema::*,
+    transfer_schema::*, ui_amount_to_amount_schema::*, unwrap_lamports_schema::*,
+    update_confidential_transfer_mint_schema::*, update_default_account_state_schema::*,
+    update_group_member_pointer_schema::*, update_group_pointer_schema::*,
+    update_metadata_pointer_schema::*, update_multiplier_scaled_ui_mint_schema::*,
+    update_rate_interest_bearing_mint_schema::*, update_token_group_max_size_schema::*,
+    update_token_group_update_authority_schema::*, update_token_metadata_field_schema::*,
+    update_token_metadata_update_authority_schema::*, update_transfer_hook_schema::*,
+    withdraw_excess_lamports_schema::*,
     withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_schema::*,
     withdraw_withheld_tokens_from_accounts_schema::*,
     withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_schema::*,

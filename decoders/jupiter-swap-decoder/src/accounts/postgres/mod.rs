@@ -2,7 +2,6 @@
 pub mod token_ledger_row;
 
 pub use self::token_ledger_row::*;
-
 use super::JupiterSwapAccount;
 
 pub struct JupiterSwapAccountsMigration;

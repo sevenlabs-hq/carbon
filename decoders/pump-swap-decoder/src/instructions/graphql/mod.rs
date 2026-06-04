@@ -26,34 +26,19 @@ pub mod update_admin_schema;
 pub mod update_fee_config_schema;
 pub mod withdraw_schema;
 
-pub use admin_set_coin_creator_schema::*;
-pub use admin_update_token_incentives_schema::*;
-pub use buy_exact_quote_in_schema::*;
-pub use buy_schema::*;
-pub use claim_cashback_schema::*;
-pub use claim_token_incentives_schema::*;
-pub use close_user_volume_accumulator_schema::*;
-pub use collect_coin_creator_fee_schema::*;
-pub use cpi_event_schema::*;
-pub use create_config_schema::*;
-pub use create_pool_schema::*;
-pub use deposit_schema::*;
-pub use disable_schema::*;
-pub use extend_account_schema::*;
-pub use init_user_volume_accumulator_schema::*;
-pub use migrate_pool_coin_creator_schema::*;
-pub use sell_schema::*;
-pub use set_coin_creator_schema::*;
-pub use set_reserved_fee_recipients_schema::*;
-pub use sync_user_volume_accumulator_schema::*;
-pub use toggle_cashback_enabled_schema::*;
-pub use toggle_mayhem_mode_schema::*;
-pub use transfer_creator_fees_to_pump_schema::*;
-pub use update_admin_schema::*;
-pub use update_fee_config_schema::*;
-pub use withdraw_schema::*;
-
 use juniper::GraphQLObject;
+pub use {
+    admin_set_coin_creator_schema::*, admin_update_token_incentives_schema::*,
+    buy_exact_quote_in_schema::*, buy_schema::*, claim_cashback_schema::*,
+    claim_token_incentives_schema::*, close_user_volume_accumulator_schema::*,
+    collect_coin_creator_fee_schema::*, cpi_event_schema::*, create_config_schema::*,
+    create_pool_schema::*, deposit_schema::*, disable_schema::*, extend_account_schema::*,
+    init_user_volume_accumulator_schema::*, migrate_pool_coin_creator_schema::*, sell_schema::*,
+    set_coin_creator_schema::*, set_reserved_fee_recipients_schema::*,
+    sync_user_volume_accumulator_schema::*, toggle_cashback_enabled_schema::*,
+    toggle_mayhem_mode_schema::*, transfer_creator_fees_to_pump_schema::*, update_admin_schema::*,
+    update_fee_config_schema::*, withdraw_schema::*,
+};
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "InstructionMetadata")]

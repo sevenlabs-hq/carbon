@@ -6,13 +6,10 @@ pub mod global_volume_accumulator_row;
 pub mod sharing_config_row;
 pub mod user_volume_accumulator_row;
 
-pub use self::bonding_curve_row::*;
-pub use self::fee_config_row::*;
-pub use self::global_row::*;
-pub use self::global_volume_accumulator_row::*;
-pub use self::sharing_config_row::*;
-pub use self::user_volume_accumulator_row::*;
-
+pub use self::{
+    bonding_curve_row::*, fee_config_row::*, global_row::*, global_volume_accumulator_row::*,
+    sharing_config_row::*, user_volume_accumulator_row::*,
+};
 use super::PumpfunAccount;
 
 pub struct PumpfunAccountsMigration;

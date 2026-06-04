@@ -12,7 +12,7 @@ pub struct CreateOperatorAccount {
 pub struct CreateOperatorAccountInstructionAccounts {
     pub operator: solana_pubkey::Pubkey,
     pub whitelisted_address: solana_pubkey::Pubkey,
-    pub admin: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub payer: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
@@ -48,7 +48,7 @@ impl ArrangeAccounts for CreateOperatorAccount {
 
         let operator = next_account(&mut iter)?;
         let whitelisted_address = next_account(&mut iter)?;
-        let admin = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let payer = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
@@ -59,7 +59,7 @@ impl ArrangeAccounts for CreateOperatorAccount {
         Some(CreateOperatorAccountInstructionAccounts {
             operator,
             whitelisted_address,
-            admin,
+            signer,
             payer,
             system_program,
             event_authority,

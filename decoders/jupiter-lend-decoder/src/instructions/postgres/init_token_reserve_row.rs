@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for InitTokenReserveRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for InitTokenReserveRow {
+impl carbon_core::postgres::operations::Lookup for InitTokenReserveRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

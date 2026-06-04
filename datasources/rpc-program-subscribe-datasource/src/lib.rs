@@ -3,7 +3,7 @@ use {
     carbon_core::{
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     futures::StreamExt,
     solana_account::Account,
@@ -11,13 +11,39 @@ use {
         nonblocking::pubsub_client::PubsubClient, rpc_config::RpcProgramAccountsConfig,
     },
     solana_pubkey::Pubkey,
-    std::{str::FromStr, sync::Arc, time::Duration},
+    std::{str::FromStr, sync::LazyLock, time::Duration},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
 const RECONNECTION_DELAY_MS: u64 = 3000;
+
+static ACCOUNT_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "program_subscribe_account_process_time_nanoseconds",
+        "Time to process account in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static ACCOUNTS_PROCESSED: Counter = Counter::new(
+    "program_subscribe_accounts_processed_total",
+    "Accounts processed by program subscribe",
+);
+
+fn register_program_subscribe_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&ACCOUNTS_PROCESSED);
+    registry.register_histogram(&ACCOUNT_PROCESS_TIME_NANOS);
+}
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -58,8 +84,9 @@ impl Datasource for RpcProgramSubscribe {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_program_subscribe_metrics();
+
         let mut reconnection_attempts = 0;
 
         loop {
@@ -137,17 +164,8 @@ impl Datasource for RpcProgramSubscribe {
                                     transaction_signature: None,
                                 });
 
-                                metrics
-                                    .record_histogram(
-                                        "program_subscribe_account_process_time_nanoseconds",
-                                        start_time.elapsed().as_nanos() as f64
-                                    )
-                                    .await
-                                    .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
-
-                                metrics.increment_counter("program_subscribe_accounts_processed", 1)
-                                    .await
-                                    .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
+                                ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+                                ACCOUNTS_PROCESSED.inc();
 
                                 if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
                                     log::error!("Error sending account update: {err:?}");

@@ -13,7 +13,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::MintGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -46,7 +46,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::TokenGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -80,7 +80,7 @@ impl QueryRoot {
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::MultisigGraphQL>> {
-        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
@@ -3423,6 +3423,158 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeTokenGroupMemberGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeTokenGroupMemberRow> = sqlx::query_as(
             r#"SELECT * FROM initialize_token_group_member_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn unwrap_lamports(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UnwrapLamportsGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UnwrapLamportsRow> = sqlx::query_as(
+            r#"SELECT * FROM unwrap_lamports_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_unwrap_lamports(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UnwrapLamportsGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UnwrapLamportsRow> = sqlx::query_as(
+            r#"SELECT * FROM unwrap_lamports_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn initialize_permissioned_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializePermissionedBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::InitializePermissionedBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM initialize_permissioned_burn_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_initialize_permissioned_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializePermissionedBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::InitializePermissionedBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM initialize_permissioned_burn_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn permissioned_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PermissionedBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PermissionedBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM permissioned_burn_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_permissioned_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PermissionedBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PermissionedBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM permissioned_burn_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn permissioned_burn_checked(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PermissionedBurnCheckedGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PermissionedBurnCheckedRow> = sqlx::query_as(
+            r#"SELECT * FROM permissioned_burn_checked_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_permissioned_burn_checked(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PermissionedBurnCheckedGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PermissionedBurnCheckedRow> = sqlx::query_as(
+            r#"SELECT * FROM permissioned_burn_checked_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

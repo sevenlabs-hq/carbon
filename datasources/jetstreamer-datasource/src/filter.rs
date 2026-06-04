@@ -1,6 +1,4 @@
-use std::collections::HashSet;
-
-use solana_pubkey::Pubkey;
+use {solana_pubkey::Pubkey, std::collections::HashSet};
 
 #[derive(Clone, Debug, Default)]
 pub struct JetstreamerFilter {

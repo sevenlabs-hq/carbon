@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Delete for ApproveConfidentialTransferAc
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for ApproveConfidentialTransferAccountRow {
+impl carbon_core::postgres::operations::Lookup for ApproveConfidentialTransferAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

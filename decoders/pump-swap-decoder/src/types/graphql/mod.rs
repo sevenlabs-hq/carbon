@@ -27,30 +27,16 @@ pub mod update_admin_event_schema;
 pub mod update_fee_config_event_schema;
 pub mod withdraw_event_schema;
 
-pub use admin_set_coin_creator_event_schema::*;
-pub use admin_update_token_incentives_event_schema::*;
-pub use buy_event_schema::*;
-pub use claim_cashback_event_schema::*;
-pub use claim_token_incentives_event_schema::*;
-pub use close_user_volume_accumulator_event_schema::*;
-pub use collect_coin_creator_fee_event_schema::*;
-pub use config_status_schema::*;
-pub use create_config_event_schema::*;
-pub use create_pool_event_schema::*;
-pub use deposit_event_schema::*;
-pub use disable_event_schema::*;
-pub use extend_account_event_schema::*;
-pub use fee_tier_schema::*;
-pub use fees_schema::*;
-pub use init_user_volume_accumulator_event_schema::*;
-pub use migrate_pool_coin_creator_event_schema::*;
-pub use option_bool_schema::*;
-pub use reserved_fee_recipients_event_schema::*;
-pub use sell_event_schema::*;
-pub use set_bonding_curve_coin_creator_event_schema::*;
-pub use set_metaplex_coin_creator_event_schema::*;
-pub use shareholder_schema::*;
-pub use sync_user_volume_accumulator_event_schema::*;
-pub use update_admin_event_schema::*;
-pub use update_fee_config_event_schema::*;
-pub use withdraw_event_schema::*;
+pub use {
+    admin_set_coin_creator_event_schema::*, admin_update_token_incentives_event_schema::*,
+    buy_event_schema::*, claim_cashback_event_schema::*, claim_token_incentives_event_schema::*,
+    close_user_volume_accumulator_event_schema::*, collect_coin_creator_fee_event_schema::*,
+    config_status_schema::*, create_config_event_schema::*, create_pool_event_schema::*,
+    deposit_event_schema::*, disable_event_schema::*, extend_account_event_schema::*,
+    fee_tier_schema::*, fees_schema::*, init_user_volume_accumulator_event_schema::*,
+    migrate_pool_coin_creator_event_schema::*, option_bool_schema::*,
+    reserved_fee_recipients_event_schema::*, sell_event_schema::*,
+    set_bonding_curve_coin_creator_event_schema::*, set_metaplex_coin_creator_event_schema::*,
+    shareholder_schema::*, sync_user_volume_accumulator_event_schema::*,
+    update_admin_event_schema::*, update_fee_config_event_schema::*, withdraw_event_schema::*,
+};

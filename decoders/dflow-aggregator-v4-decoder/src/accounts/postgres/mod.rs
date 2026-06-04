@@ -2,18 +2,17 @@
 pub mod order_row;
 
 pub use self::order_row::*;
+use super::DflowAggregatorV4Account;
 
-use super::SwapOrchestratorAccount;
+pub struct DflowAggregatorV4AccountsMigration;
 
-pub struct SwapOrchestratorAccountsMigration;
-
-impl sqlx_migrator::Migration<sqlx::Postgres> for SwapOrchestratorAccountsMigration {
+impl sqlx_migrator::Migration<sqlx::Postgres> for DflowAggregatorV4AccountsMigration {
     fn app(&self) -> &str {
-        "swap-orchestrator"
+        "dflow-aggregator-v4"
     }
 
     fn name(&self) -> &str {
-        "swap_orchestrator_accounts"
+        "dflow_aggregator_v4_accounts"
     }
 
     fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
@@ -25,34 +24,34 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for SwapOrchestratorAccountsMigrat
     }
 }
 
-pub struct SwapOrchestratorAccountWithMetadata(
-    pub SwapOrchestratorAccount,
+pub struct DflowAggregatorV4AccountWithMetadata(
+    pub DflowAggregatorV4Account,
     pub carbon_core::account::AccountMetadata,
 );
 
 impl
     From<(
-        SwapOrchestratorAccount,
+        DflowAggregatorV4Account,
         carbon_core::account::AccountMetadata,
-    )> for SwapOrchestratorAccountWithMetadata
+    )> for DflowAggregatorV4AccountWithMetadata
 {
     fn from(
         value: (
-            SwapOrchestratorAccount,
+            DflowAggregatorV4Account,
             carbon_core::account::AccountMetadata,
         ),
     ) -> Self {
-        SwapOrchestratorAccountWithMetadata(value.0, value.1)
+        DflowAggregatorV4AccountWithMetadata(value.0, value.1)
     }
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for SwapOrchestratorAccountWithMetadata {
+impl carbon_core::postgres::operations::Insert for DflowAggregatorV4AccountWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let SwapOrchestratorAccountWithMetadata(account, metadata) = self;
+        let DflowAggregatorV4AccountWithMetadata(account, metadata) = self;
 
         match account {
-            SwapOrchestratorAccount::Order(account) => {
+            DflowAggregatorV4Account::Order(account) => {
                 let row = order_row::OrderRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
@@ -62,11 +61,11 @@ impl carbon_core::postgres::operations::Insert for SwapOrchestratorAccountWithMe
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for SwapOrchestratorAccountWithMetadata {
+impl carbon_core::postgres::operations::Upsert for DflowAggregatorV4AccountWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let SwapOrchestratorAccountWithMetadata(account, metadata) = self;
+        let DflowAggregatorV4AccountWithMetadata(account, metadata) = self;
         match account {
-            SwapOrchestratorAccount::Order(account) => {
+            DflowAggregatorV4Account::Order(account) => {
                 let row = order_row::OrderRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())

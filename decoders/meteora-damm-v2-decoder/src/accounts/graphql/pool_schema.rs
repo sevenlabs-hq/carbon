@@ -15,13 +15,12 @@ pub struct PoolGraphQL {
     pub token_a_vault: Pubkey,
     pub token_b_vault: Pubkey,
     pub whitelisted_vault: Pubkey,
-    pub partner: Pubkey,
+    pub padding0: Vec<U8>,
     pub liquidity: U128,
-    pub padding: U128,
+    pub padding1: U128,
     pub protocol_a_fee: U64,
     pub protocol_b_fee: U64,
-    pub partner_a_fee: U64,
-    pub partner_b_fee: U64,
+    pub padding2: U128,
     pub sqrt_min_price: U128,
     pub sqrt_max_price: U128,
     pub sqrt_price: U128,
@@ -32,14 +31,18 @@ pub struct PoolGraphQL {
     pub token_b_flag: U8,
     pub collect_fee_mode: U8,
     pub pool_type: U8,
-    pub version: U8,
-    pub padding0: U8,
+    pub fee_version: U8,
+    pub padding3: U8,
     pub fee_a_per_liquidity: Vec<U8>,
     pub fee_b_per_liquidity: Vec<U8>,
     pub permanent_lock_liquidity: U128,
     pub metrics: PoolMetricsGraphQL,
     pub creator: Pubkey,
-    pub padding1: Vec<U64>,
+    pub token_a_amount: U64,
+    pub token_b_amount: U64,
+    pub layout_version: U8,
+    pub padding4: Vec<U8>,
+    pub padding5: Vec<U64>,
     pub reward_infos: Vec<RewardInfoGraphQL>,
 }
 
@@ -54,13 +57,16 @@ impl TryFrom<crate::accounts::postgres::PoolRow> for PoolGraphQL {
             token_a_vault: carbon_core::graphql::primitives::Pubkey(row.token_a_vault.0),
             token_b_vault: carbon_core::graphql::primitives::Pubkey(row.token_b_vault.0),
             whitelisted_vault: carbon_core::graphql::primitives::Pubkey(row.whitelisted_vault.0),
-            partner: carbon_core::graphql::primitives::Pubkey(row.partner.0),
+            padding0: row
+                .padding0
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
+                .collect(),
             liquidity: carbon_core::graphql::primitives::U128(*row.liquidity),
-            padding: carbon_core::graphql::primitives::U128(*row.padding),
+            padding1: carbon_core::graphql::primitives::U128(*row.padding1),
             protocol_a_fee: carbon_core::graphql::primitives::U64(*row.protocol_a_fee),
             protocol_b_fee: carbon_core::graphql::primitives::U64(*row.protocol_b_fee),
-            partner_a_fee: carbon_core::graphql::primitives::U64(*row.partner_a_fee),
-            partner_b_fee: carbon_core::graphql::primitives::U64(*row.partner_b_fee),
+            padding2: carbon_core::graphql::primitives::U128(*row.padding2),
             sqrt_min_price: carbon_core::graphql::primitives::U128(*row.sqrt_min_price),
             sqrt_max_price: carbon_core::graphql::primitives::U128(*row.sqrt_max_price),
             sqrt_price: carbon_core::graphql::primitives::U128(*row.sqrt_price),
@@ -71,8 +77,8 @@ impl TryFrom<crate::accounts::postgres::PoolRow> for PoolGraphQL {
             token_b_flag: carbon_core::graphql::primitives::U8((*row.token_b_flag) as u8),
             collect_fee_mode: carbon_core::graphql::primitives::U8((*row.collect_fee_mode) as u8),
             pool_type: carbon_core::graphql::primitives::U8((*row.pool_type) as u8),
-            version: carbon_core::graphql::primitives::U8((*row.version) as u8),
-            padding0: carbon_core::graphql::primitives::U8((*row.padding0) as u8),
+            fee_version: carbon_core::graphql::primitives::U8((*row.fee_version) as u8),
+            padding3: carbon_core::graphql::primitives::U8((*row.padding3) as u8),
             fee_a_per_liquidity: row
                 .fee_a_per_liquidity
                 .into_iter()
@@ -88,8 +94,16 @@ impl TryFrom<crate::accounts::postgres::PoolRow> for PoolGraphQL {
             ),
             metrics: row.metrics.0.into(),
             creator: carbon_core::graphql::primitives::Pubkey(row.creator.0),
-            padding1: row
-                .padding1
+            token_a_amount: carbon_core::graphql::primitives::U64(*row.token_a_amount),
+            token_b_amount: carbon_core::graphql::primitives::U64(*row.token_b_amount),
+            layout_version: carbon_core::graphql::primitives::U8((*row.layout_version) as u8),
+            padding4: row
+                .padding4
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
+                .collect(),
+            padding5: row
+                .padding5
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),

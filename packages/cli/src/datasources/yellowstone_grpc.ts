@@ -60,7 +60,7 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
         imports,
         init,
         env: {
-            required: ['GEYSER_URL'],
+            required: ['GEYSER_URL', 'X_TOKEN'],
             validate: () => {},
         },
     };

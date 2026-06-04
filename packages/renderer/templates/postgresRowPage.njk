@@ -200,7 +200,7 @@ impl carbon_core::postgres::operations::Delete for {{ entityName | pascalCase }}
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for {{ entityName | pascalCase }}Row {
+impl carbon_core::postgres::operations::Lookup for {{ entityName | pascalCase }}Row {
     type Key = {% if isAccount %}carbon_core::postgres::primitives::Pubkey{% else %}(String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32){% endif %};
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {

@@ -7,8 +7,8 @@ pub struct SwapResult2 {
     pub amount_left: u64,
     pub output_amount: u64,
     pub next_sqrt_price: u128,
-    pub trading_fee: u64,
+    pub claiming_fee: u64,
     pub protocol_fee: u64,
-    pub partner_fee: u64,
+    pub compounding_fee: u64,
     pub referral_fee: u64,
 }

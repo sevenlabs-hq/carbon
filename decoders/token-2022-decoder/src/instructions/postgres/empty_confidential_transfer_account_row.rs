@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for EmptyConfidentialTransferAcco
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for EmptyConfidentialTransferAccountRow {
+impl carbon_core::postgres::operations::Lookup for EmptyConfidentialTransferAccountRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

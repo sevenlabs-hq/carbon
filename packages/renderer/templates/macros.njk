@@ -18,9 +18,8 @@
 {% endif %}
 {%- endmacro %}
 
-{# Escape Rust keywords by adding r# prefix #}
 {% macro escapeRustKeyword(name) %}
-{% set rustKeywords = ['use', 'type', 'const', 'static', 'fn', 'mod', 'pub', 'crate', 'super', 'self', 'async', 'await', 'break', 'continue', 'else', 'enum', 'extern', 'false', 'for', 'if', 'impl', 'in', 'let', 'loop', 'match', 'move', 'mut', 'ref', 'return', 'struct', 'trait', 'true', 'unsafe', 'where', 'while', 'dyn', 'abstract', 'become', 'box', 'do', 'final', 'macro', 'override', 'priv', 'typeof', 'unsized', 'virtual', 'yield', 'try', 'union', 'async', 'await'] %}
+{% set rustKeywords = RUST_KEYWORDS %}
 {% if name in rustKeywords %}r#{{ name }}{% else %}{{ name }}{% endif %}
 {% endmacro %}
 
@@ -66,4 +65,11 @@
 {% macro cpiEventDerives() -%}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+{%- endmacro %}
+
+{# Derives for optional bool newtypes (e.g. OptionBool) with custom BorshDeserialize. #}
+{% macro optionalBoolDerives() -%}
+#[derive(Debug, Clone, Copy, PartialEq, borsh::BorshSerialize)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(transparent))]
 {%- endmacro %}

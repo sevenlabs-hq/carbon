@@ -11,10 +11,11 @@ pub struct PoolFeesConfigGraphQL {
     pub base_fee: BaseFeeInfoGraphQL,
     pub dynamic_fee: DynamicFeeConfigGraphQL,
     pub protocol_fee_percent: U8,
-    pub partner_fee_percent: U8,
+    pub padding0: U8,
     pub referral_fee_percent: U8,
-    pub padding0: Vec<U8>,
-    pub padding1: Vec<U64>,
+    pub padding1: Vec<U8>,
+    pub compounding_fee_bps: i32,
+    pub padding2: Vec<U64>,
 }
 
 impl From<crate::types::PoolFeesConfig> for PoolFeesConfigGraphQL {
@@ -25,17 +26,18 @@ impl From<crate::types::PoolFeesConfig> for PoolFeesConfigGraphQL {
             protocol_fee_percent: carbon_core::graphql::primitives::U8(
                 original.protocol_fee_percent,
             ),
-            partner_fee_percent: carbon_core::graphql::primitives::U8(original.partner_fee_percent),
+            padding0: carbon_core::graphql::primitives::U8(original.padding0),
             referral_fee_percent: carbon_core::graphql::primitives::U8(
                 original.referral_fee_percent,
             ),
-            padding0: original
-                .padding0
+            padding1: original
+                .padding1
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),
-            padding1: original
-                .padding1
+            compounding_fee_bps: original.compounding_fee_bps as i32,
+            padding2: original
+                .padding2
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U64)
                 .collect(),

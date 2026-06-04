@@ -19,4 +19,5 @@ pub enum AuthorityType {
     GroupMemberPointer,
     ScaledUiAmount,
     Pause,
+    PermissionedBurn,
 }

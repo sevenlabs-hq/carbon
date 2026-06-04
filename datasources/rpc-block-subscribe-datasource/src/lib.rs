@@ -1,16 +1,15 @@
-use carbon_core::datasource::{BlockDetails, DatasourceDisconnection, DatasourceId};
-use chrono::Utc;
-use solana_hash::Hash;
-use std::str::FromStr;
-
 use {
     async_trait::async_trait,
     carbon_core::{
-        datasource::{Datasource, TransactionUpdate, Update, UpdateType},
+        datasource::{
+            BlockDetails, Datasource, DatasourceDisconnection, DatasourceId, TransactionUpdate,
+            Update, UpdateType,
+        },
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
         transformers::transaction_metadata_from_original_meta,
     },
+    chrono::Utc,
     core::time::Duration,
     futures::StreamExt,
     solana_client::{
@@ -18,14 +17,61 @@ use {
         rpc_client::SerializableTransaction,
         rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     },
-    std::sync::Arc,
-    tokio::sync::mpsc,
-    tokio::sync::mpsc::Sender,
+    solana_hash::Hash,
+    std::{str::FromStr, sync::LazyLock},
+    tokio::sync::{mpsc, mpsc::Sender},
     tokio_util::sync::CancellationToken,
 };
 
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
 const RECONNECTION_DELAY_MS: u64 = 3000;
+
+static TRANSACTION_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_subscribe_transaction_process_time_nanoseconds",
+        "Time to process transaction in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static TRANSACTIONS_PROCESSED: Counter = Counter::new(
+    "block_subscribe_transactions_processed_total",
+    "Transactions processed by block subscribe",
+);
+static BLOCK_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_subscribe_block_process_time_nanoseconds",
+        "Time to process block in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static BLOCKS_RECEIVED: Counter = Counter::new(
+    "block_subscribe_blocks_received_total",
+    "Blocks received by block subscribe",
+);
+
+fn register_block_subscribe_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&TRANSACTIONS_PROCESSED);
+    registry.register_counter(&BLOCKS_RECEIVED);
+    registry.register_histogram(&TRANSACTION_PROCESS_TIME_NANOS);
+    registry.register_histogram(&BLOCK_PROCESS_TIME_NANOS);
+}
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -97,8 +143,9 @@ impl Datasource for RpcBlockSubscribe {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_block_subscribe_metrics();
+
         let mut reconnection_attempts = 0;
         let mut last_processed_slot = 0u64;
         let mut last_disconnect_time = None;
@@ -270,17 +317,8 @@ impl Datasource for RpcBlockSubscribe {
                                                 block_hash,
                                             }));
 
-                                            metrics
-                                                .record_histogram(
-                                                    "block_subscribe_transaction_process_time_nanoseconds",
-                                                    start_time.elapsed().as_nanos() as f64
-                                                )
-                                                .await
-                                                .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
-
-                                            metrics.increment_counter("block_subscribe_transactions_processed", 1)
-                                                .await
-                                                .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
+                                            TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+                                            TRANSACTIONS_PROCESSED.inc();
 
                                             if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
                                                 log::error!("Error sending transaction update: {err:?}");
@@ -289,17 +327,8 @@ impl Datasource for RpcBlockSubscribe {
                                         }
                                     }
 
-                                    metrics
-                                        .record_histogram(
-                                            "block_subscribe_block_process_time_nanoseconds",
-                                            block_start_time.elapsed().as_nanos() as f64
-                                        )
-                                        .await
-                                        .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
-
-                                    metrics.increment_counter("block_subscribe_blocks_received", 1)
-                                        .await
-                                        .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
+                                    BLOCK_PROCESS_TIME_NANOS.record(block_start_time.elapsed().as_nanos() as f64);
+                                    BLOCKS_RECEIVED.inc();
                                 }
                             }
                             None => {

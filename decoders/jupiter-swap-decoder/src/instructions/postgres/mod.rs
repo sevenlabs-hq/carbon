@@ -2,6 +2,7 @@
 pub mod claim_row;
 pub mod claim_token_row;
 pub mod close_token_row;
+pub mod close_wsol_token_account_row;
 pub mod cpi_event_row;
 pub mod create_token_account_row;
 pub mod create_token_ledger_row;
@@ -17,24 +18,15 @@ pub mod shared_accounts_route_row;
 pub mod shared_accounts_route_v2_row;
 pub mod shared_accounts_route_with_token_ledger_row;
 
-pub use self::claim_row::*;
-pub use self::claim_token_row::*;
-pub use self::close_token_row::*;
-pub use self::cpi_event_row::*;
-pub use self::create_token_account_row::*;
-pub use self::create_token_ledger_row::*;
-pub use self::exact_out_route_row::*;
-pub use self::exact_out_route_v2_row::*;
-pub use self::route_row::*;
-pub use self::route_v2_row::*;
-pub use self::route_with_token_ledger_row::*;
-pub use self::set_token_ledger_row::*;
-pub use self::shared_accounts_exact_out_route_row::*;
-pub use self::shared_accounts_exact_out_route_v2_row::*;
-pub use self::shared_accounts_route_row::*;
-pub use self::shared_accounts_route_v2_row::*;
-pub use self::shared_accounts_route_with_token_ledger_row::*;
-
+pub use self::{
+    claim_row::*, claim_token_row::*, close_token_row::*, close_wsol_token_account_row::*,
+    cpi_event_row::*, create_token_account_row::*, create_token_ledger_row::*,
+    exact_out_route_row::*, exact_out_route_v2_row::*, route_row::*, route_v2_row::*,
+    route_with_token_ledger_row::*, set_token_ledger_row::*,
+    shared_accounts_exact_out_route_row::*, shared_accounts_exact_out_route_v2_row::*,
+    shared_accounts_route_row::*, shared_accounts_route_v2_row::*,
+    shared_accounts_route_with_token_ledger_row::*,
+};
 use super::JupiterSwapInstruction;
 
 pub struct JupiterSwapInstructionsMigration;
@@ -53,6 +45,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterSwapInstructionsMigrati
             Box::new(ClaimMigrationOperation),
             Box::new(ClaimTokenMigrationOperation),
             Box::new(CloseTokenMigrationOperation),
+            Box::new(CloseWsolTokenAccountMigrationOperation),
             Box::new(CreateTokenAccountMigrationOperation),
             Box::new(CreateTokenLedgerMigrationOperation),
             Box::new(ExactOutRouteMigrationOperation),
@@ -102,150 +95,159 @@ impl
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for JupiterSwapInstructionWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let JupiterSwapInstructionWithMetadata(instruction, metadata, accounts) = self;
-        match instruction {
-            JupiterSwapInstruction::Claim(instruction) => {
+        let JupiterSwapInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
+        match decoded_instruction {
+            JupiterSwapInstruction::Claim { data, .. } => {
                 let row = claim_row::ClaimRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::ClaimToken(instruction) => {
+            JupiterSwapInstruction::ClaimToken { data, .. } => {
                 let row = claim_token_row::ClaimTokenRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::CloseToken(instruction) => {
+            JupiterSwapInstruction::CloseToken { data, .. } => {
                 let row = close_token_row::CloseTokenRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::CreateTokenLedger(instruction) => {
+            JupiterSwapInstruction::CreateTokenLedger { data, .. } => {
                 let row = create_token_ledger_row::CreateTokenLedgerRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::CreateTokenAccount(instruction) => {
+            JupiterSwapInstruction::CreateTokenAccount { data, .. } => {
                 let row = create_token_account_row::CreateTokenAccountRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::ExactOutRoute(instruction) => {
+            JupiterSwapInstruction::CloseWsolTokenAccount { data, .. } => {
+                let row = close_wsol_token_account_row::CloseWsolTokenAccountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::ExactOutRoute { data, .. } => {
                 let row = exact_out_route_row::ExactOutRouteRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::Route(instruction) => {
+            JupiterSwapInstruction::Route { data, .. } => {
                 let row = route_row::RouteRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::RouteWithTokenLedger(instruction) => {
+            JupiterSwapInstruction::RouteWithTokenLedger { data, .. } => {
                 let row = route_with_token_ledger_row::RouteWithTokenLedgerRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SetTokenLedger(instruction) => {
+            JupiterSwapInstruction::SetTokenLedger { data, .. } => {
                 let row = set_token_ledger_row::SetTokenLedgerRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsExactOutRoute(instruction) => {
+            JupiterSwapInstruction::SharedAccountsExactOutRoute { data, .. } => {
                 let row =
                     shared_accounts_exact_out_route_row::SharedAccountsExactOutRouteRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsRoute(instruction) => {
+            JupiterSwapInstruction::SharedAccountsRoute { data, .. } => {
                 let row = shared_accounts_route_row::SharedAccountsRouteRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger(instruction) => {
-                let row = shared_accounts_route_with_token_ledger_row::SharedAccountsRouteWithTokenLedgerRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger { data, .. } => {
+                let row = shared_accounts_route_with_token_ledger_row::SharedAccountsRouteWithTokenLedgerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::ExactOutRouteV2(instruction) => {
+            JupiterSwapInstruction::ExactOutRouteV2 { data, .. } => {
                 let row = exact_out_route_v2_row::ExactOutRouteV2Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::RouteV2(instruction) => {
+            JupiterSwapInstruction::RouteV2 { data, .. } => {
                 let row = route_v2_row::RouteV2Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsExactOutRouteV2(instruction) => {
-                let row = shared_accounts_exact_out_route_v2_row::SharedAccountsExactOutRouteV2Row::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            JupiterSwapInstruction::SharedAccountsExactOutRouteV2 { data, .. } => {
+                let row = shared_accounts_exact_out_route_v2_row::SharedAccountsExactOutRouteV2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsRouteV2(instruction) => {
+            JupiterSwapInstruction::SharedAccountsRouteV2 { data, .. } => {
                 let row = shared_accounts_route_v2_row::SharedAccountsRouteV2Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::CpiEvent(instruction) => {
+            JupiterSwapInstruction::CpiEvent { data, .. } => {
                 let row = cpi_event_row::CpiEventRow::from_parts(
-                    (**instruction).clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
@@ -257,150 +259,159 @@ impl carbon_core::postgres::operations::Insert for JupiterSwapInstructionWithMet
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for JupiterSwapInstructionWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let JupiterSwapInstructionWithMetadata(instruction, metadata, accounts) = self;
-        match instruction {
-            JupiterSwapInstruction::Claim(instruction) => {
+        let JupiterSwapInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
+        match decoded_instruction {
+            JupiterSwapInstruction::Claim { data, .. } => {
                 let row = claim_row::ClaimRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::ClaimToken(instruction) => {
+            JupiterSwapInstruction::ClaimToken { data, .. } => {
                 let row = claim_token_row::ClaimTokenRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::CloseToken(instruction) => {
+            JupiterSwapInstruction::CloseToken { data, .. } => {
                 let row = close_token_row::CloseTokenRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::CreateTokenLedger(instruction) => {
+            JupiterSwapInstruction::CreateTokenLedger { data, .. } => {
                 let row = create_token_ledger_row::CreateTokenLedgerRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::CreateTokenAccount(instruction) => {
+            JupiterSwapInstruction::CreateTokenAccount { data, .. } => {
                 let row = create_token_account_row::CreateTokenAccountRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::ExactOutRoute(instruction) => {
+            JupiterSwapInstruction::CloseWsolTokenAccount { data, .. } => {
+                let row = close_wsol_token_account_row::CloseWsolTokenAccountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::ExactOutRoute { data, .. } => {
                 let row = exact_out_route_row::ExactOutRouteRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::Route(instruction) => {
+            JupiterSwapInstruction::Route { data, .. } => {
                 let row = route_row::RouteRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::RouteWithTokenLedger(instruction) => {
+            JupiterSwapInstruction::RouteWithTokenLedger { data, .. } => {
                 let row = route_with_token_ledger_row::RouteWithTokenLedgerRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SetTokenLedger(instruction) => {
+            JupiterSwapInstruction::SetTokenLedger { data, .. } => {
                 let row = set_token_ledger_row::SetTokenLedgerRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsExactOutRoute(instruction) => {
+            JupiterSwapInstruction::SharedAccountsExactOutRoute { data, .. } => {
                 let row =
                     shared_accounts_exact_out_route_row::SharedAccountsExactOutRouteRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsRoute(instruction) => {
+            JupiterSwapInstruction::SharedAccountsRoute { data, .. } => {
                 let row = shared_accounts_route_row::SharedAccountsRouteRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger(instruction) => {
-                let row = shared_accounts_route_with_token_ledger_row::SharedAccountsRouteWithTokenLedgerRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger { data, .. } => {
+                let row = shared_accounts_route_with_token_ledger_row::SharedAccountsRouteWithTokenLedgerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::ExactOutRouteV2(instruction) => {
+            JupiterSwapInstruction::ExactOutRouteV2 { data, .. } => {
                 let row = exact_out_route_v2_row::ExactOutRouteV2Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::RouteV2(instruction) => {
+            JupiterSwapInstruction::RouteV2 { data, .. } => {
                 let row = route_v2_row::RouteV2Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsExactOutRouteV2(instruction) => {
-                let row = shared_accounts_exact_out_route_v2_row::SharedAccountsExactOutRouteV2Row::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            JupiterSwapInstruction::SharedAccountsExactOutRouteV2 { data, .. } => {
+                let row = shared_accounts_exact_out_route_v2_row::SharedAccountsExactOutRouteV2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::SharedAccountsRouteV2(instruction) => {
+            JupiterSwapInstruction::SharedAccountsRouteV2 { data, .. } => {
                 let row = shared_accounts_route_v2_row::SharedAccountsRouteV2Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            JupiterSwapInstruction::CpiEvent(instruction) => {
+            JupiterSwapInstruction::CpiEvent { data, .. } => {
                 let row = cpi_event_row::CpiEventRow::from_parts(
-                    (**instruction).clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())

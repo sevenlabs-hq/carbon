@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateMetadataPointerRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for UpdateMetadataPointerRow {
+impl carbon_core::postgres::operations::Lookup for UpdateMetadataPointerRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

@@ -9,11 +9,13 @@ use {
 /// accompanied by the following list of `zk_elgamal_proof` program
 /// instructions:
 /// - `VerifyCiphertextCommitmentEquality`
-/// - `VerifyBatchedRangeProofU64` These instructions can be accompanied in the
-///   same transaction or can be pre-verified into a context state account, in
-///   which case, only their context state account address need to be provided.
-///   Fails if the source or destination accounts are frozen. Fails if the
-///   associated mint is extended as `NonTransferable`.
+/// - `VerifyBatchedRangeProofU64`
+///
+/// These instructions can be accompanied in the same transaction or can be
+/// pre-verified into a context state account, in which case, only their
+/// context state account address need to be provided.
+/// Fails if the source or destination accounts are frozen.
+/// Fails if the associated mint is extended as `NonTransferable`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ConfidentialWithdraw {

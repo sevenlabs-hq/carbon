@@ -35,17 +35,17 @@ pub use self::{
     update_user_borrow_config_row::*, update_user_class_row::*, update_user_supply_config_row::*,
     update_user_withdrawal_limit_row::*,
 };
-use super::LiquidityInstruction;
+use super::JupiterLendInstruction;
 
-pub struct LiquidityInstructionsMigration;
+pub struct JupiterLendInstructionsMigration;
 
-impl sqlx_migrator::Migration<sqlx::Postgres> for LiquidityInstructionsMigration {
+impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterLendInstructionsMigration {
     fn app(&self) -> &str {
-        "liquidity"
+        "jupiter-lend"
     }
 
     fn name(&self) -> &str {
-        "liquidity_instructions"
+        "jupiter_lend_instructions"
     }
 
     fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
@@ -83,257 +83,257 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for LiquidityInstructionsMigration
     }
 }
 
-pub struct LiquidityInstructionWithMetadata(
-    pub LiquidityInstruction,
+pub struct JupiterLendInstructionWithMetadata(
+    pub JupiterLendInstruction,
     pub carbon_core::instruction::InstructionMetadata,
     pub Vec<solana_instruction::AccountMeta>,
 );
 
 impl
     From<(
-        LiquidityInstruction,
+        JupiterLendInstruction,
         carbon_core::instruction::InstructionMetadata,
         Vec<solana_instruction::AccountMeta>,
-    )> for LiquidityInstructionWithMetadata
+    )> for JupiterLendInstructionWithMetadata
 {
     fn from(
         value: (
-            LiquidityInstruction,
+            JupiterLendInstruction,
             carbon_core::instruction::InstructionMetadata,
             Vec<solana_instruction::AccountMeta>,
         ),
     ) -> Self {
-        LiquidityInstructionWithMetadata(value.0, value.1, value.2)
+        JupiterLendInstructionWithMetadata(value.0, value.1, value.2)
     }
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for LiquidityInstructionWithMetadata {
+impl carbon_core::postgres::operations::Insert for JupiterLendInstructionWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let LiquidityInstructionWithMetadata(instruction, metadata, accounts) = self;
-        match instruction {
-            LiquidityInstruction::ChangeStatus(instruction) => {
+        let JupiterLendInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
+        match decoded_instruction {
+            JupiterLendInstruction::ChangeStatus { data, .. } => {
                 let row = change_status_row::ChangeStatusRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::Claim(instruction) => {
+            JupiterLendInstruction::Claim { data, .. } => {
                 let row = claim_row::ClaimRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::CloseClaimAccount(instruction) => {
+            JupiterLendInstruction::CloseClaimAccount { data, .. } => {
                 let row = close_claim_account_row::CloseClaimAccountRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::CollectRevenue(instruction) => {
+            JupiterLendInstruction::CollectRevenue { data, .. } => {
                 let row = collect_revenue_row::CollectRevenueRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::InitClaimAccount(instruction) => {
+            JupiterLendInstruction::InitClaimAccount { data, .. } => {
                 let row = init_claim_account_row::InitClaimAccountRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::InitLiquidity(instruction) => {
+            JupiterLendInstruction::InitLiquidity { data, .. } => {
                 let row = init_liquidity_row::InitLiquidityRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::InitNewProtocol(instruction) => {
+            JupiterLendInstruction::InitNewProtocol { data, .. } => {
                 let row = init_new_protocol_row::InitNewProtocolRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::InitTokenReserve(instruction) => {
+            JupiterLendInstruction::InitTokenReserve { data, .. } => {
                 let row = init_token_reserve_row::InitTokenReserveRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::Operate(instruction) => {
+            JupiterLendInstruction::Operate { data, .. } => {
                 let row = operate_row::OperateRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::PauseUser(instruction) => {
+            JupiterLendInstruction::PauseUser { data, .. } => {
                 let row = pause_user_row::PauseUserRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::PreOperate(instruction) => {
+            JupiterLendInstruction::PreOperate { data, .. } => {
                 let row = pre_operate_row::PreOperateRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UnpauseUser(instruction) => {
+            JupiterLendInstruction::UnpauseUser { data, .. } => {
                 let row = unpause_user_row::UnpauseUserRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateAuthority(instruction) => {
+            JupiterLendInstruction::UpdateAuthority { data, .. } => {
                 let row = update_authority_row::UpdateAuthorityRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateAuths(instruction) => {
+            JupiterLendInstruction::UpdateAuths { data, .. } => {
                 let row = update_auths_row::UpdateAuthsRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateExchangePrice(instruction) => {
+            JupiterLendInstruction::UpdateExchangePrice { data, .. } => {
                 let row = update_exchange_price_row::UpdateExchangePriceRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateGuardians(instruction) => {
+            JupiterLendInstruction::UpdateGuardians { data, .. } => {
                 let row = update_guardians_row::UpdateGuardiansRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateRateDataV1(instruction) => {
+            JupiterLendInstruction::UpdateRateDataV1 { data, .. } => {
                 let row = update_rate_data_v1_row::UpdateRateDataV1Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateRateDataV2(instruction) => {
+            JupiterLendInstruction::UpdateRateDataV2 { data, .. } => {
                 let row = update_rate_data_v2_row::UpdateRateDataV2Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateRevenueCollector(instruction) => {
+            JupiterLendInstruction::UpdateRevenueCollector { data, .. } => {
                 let row = update_revenue_collector_row::UpdateRevenueCollectorRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateTokenConfig(instruction) => {
+            JupiterLendInstruction::UpdateTokenConfig { data, .. } => {
                 let row = update_token_config_row::UpdateTokenConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateUserBorrowConfig(instruction) => {
+            JupiterLendInstruction::UpdateUserBorrowConfig { data, .. } => {
                 let row = update_user_borrow_config_row::UpdateUserBorrowConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateUserClass(instruction) => {
+            JupiterLendInstruction::UpdateUserClass { data, .. } => {
                 let row = update_user_class_row::UpdateUserClassRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateUserSupplyConfig(instruction) => {
+            JupiterLendInstruction::UpdateUserSupplyConfig { data, .. } => {
                 let row = update_user_supply_config_row::UpdateUserSupplyConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateUserWithdrawalLimit(instruction) => {
+            JupiterLendInstruction::UpdateUserWithdrawalLimit { data, .. } => {
                 let row =
                     update_user_withdrawal_limit_row::UpdateUserWithdrawalLimitRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::CpiEvent(instruction) => {
+            JupiterLendInstruction::CpiEvent { data, .. } => {
                 let row = cpi_event_row::CpiEventRow::from_parts(
-                    (**instruction).clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
@@ -343,232 +343,232 @@ impl carbon_core::postgres::operations::Insert for LiquidityInstructionWithMetad
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for LiquidityInstructionWithMetadata {
+impl carbon_core::postgres::operations::Upsert for JupiterLendInstructionWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let LiquidityInstructionWithMetadata(instruction, metadata, accounts) = self;
-        match instruction {
-            LiquidityInstruction::ChangeStatus(instruction) => {
+        let JupiterLendInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
+        match decoded_instruction {
+            JupiterLendInstruction::ChangeStatus { data, .. } => {
                 let row = change_status_row::ChangeStatusRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::Claim(instruction) => {
+            JupiterLendInstruction::Claim { data, .. } => {
                 let row = claim_row::ClaimRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::CloseClaimAccount(instruction) => {
+            JupiterLendInstruction::CloseClaimAccount { data, .. } => {
                 let row = close_claim_account_row::CloseClaimAccountRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::CollectRevenue(instruction) => {
+            JupiterLendInstruction::CollectRevenue { data, .. } => {
                 let row = collect_revenue_row::CollectRevenueRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::InitClaimAccount(instruction) => {
+            JupiterLendInstruction::InitClaimAccount { data, .. } => {
                 let row = init_claim_account_row::InitClaimAccountRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::InitLiquidity(instruction) => {
+            JupiterLendInstruction::InitLiquidity { data, .. } => {
                 let row = init_liquidity_row::InitLiquidityRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::InitNewProtocol(instruction) => {
+            JupiterLendInstruction::InitNewProtocol { data, .. } => {
                 let row = init_new_protocol_row::InitNewProtocolRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::InitTokenReserve(instruction) => {
+            JupiterLendInstruction::InitTokenReserve { data, .. } => {
                 let row = init_token_reserve_row::InitTokenReserveRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::Operate(instruction) => {
+            JupiterLendInstruction::Operate { data, .. } => {
                 let row = operate_row::OperateRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::PauseUser(instruction) => {
+            JupiterLendInstruction::PauseUser { data, .. } => {
                 let row = pause_user_row::PauseUserRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::PreOperate(instruction) => {
+            JupiterLendInstruction::PreOperate { data, .. } => {
                 let row = pre_operate_row::PreOperateRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UnpauseUser(instruction) => {
+            JupiterLendInstruction::UnpauseUser { data, .. } => {
                 let row = unpause_user_row::UnpauseUserRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateAuthority(instruction) => {
+            JupiterLendInstruction::UpdateAuthority { data, .. } => {
                 let row = update_authority_row::UpdateAuthorityRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateAuths(instruction) => {
+            JupiterLendInstruction::UpdateAuths { data, .. } => {
                 let row = update_auths_row::UpdateAuthsRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateExchangePrice(instruction) => {
+            JupiterLendInstruction::UpdateExchangePrice { data, .. } => {
                 let row = update_exchange_price_row::UpdateExchangePriceRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateGuardians(instruction) => {
+            JupiterLendInstruction::UpdateGuardians { data, .. } => {
                 let row = update_guardians_row::UpdateGuardiansRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateRateDataV1(instruction) => {
+            JupiterLendInstruction::UpdateRateDataV1 { data, .. } => {
                 let row = update_rate_data_v1_row::UpdateRateDataV1Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateRateDataV2(instruction) => {
+            JupiterLendInstruction::UpdateRateDataV2 { data, .. } => {
                 let row = update_rate_data_v2_row::UpdateRateDataV2Row::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateRevenueCollector(instruction) => {
+            JupiterLendInstruction::UpdateRevenueCollector { data, .. } => {
                 let row = update_revenue_collector_row::UpdateRevenueCollectorRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateTokenConfig(instruction) => {
+            JupiterLendInstruction::UpdateTokenConfig { data, .. } => {
                 let row = update_token_config_row::UpdateTokenConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateUserBorrowConfig(instruction) => {
+            JupiterLendInstruction::UpdateUserBorrowConfig { data, .. } => {
                 let row = update_user_borrow_config_row::UpdateUserBorrowConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateUserClass(instruction) => {
+            JupiterLendInstruction::UpdateUserClass { data, .. } => {
                 let row = update_user_class_row::UpdateUserClassRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateUserSupplyConfig(instruction) => {
+            JupiterLendInstruction::UpdateUserSupplyConfig { data, .. } => {
                 let row = update_user_supply_config_row::UpdateUserSupplyConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::UpdateUserWithdrawalLimit(instruction) => {
+            JupiterLendInstruction::UpdateUserWithdrawalLimit { data, .. } => {
                 let row =
                     update_user_withdrawal_limit_row::UpdateUserWithdrawalLimitRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityInstruction::CpiEvent(instruction) => {
+            JupiterLendInstruction::CpiEvent { data, .. } => {
                 let row = cpi_event_row::CpiEventRow::from_parts(
-                    (**instruction).clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())

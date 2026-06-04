@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for SetTransferFeeRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for SetTransferFeeRow {
+impl carbon_core::postgres::operations::Lookup for SetTransferFeeRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,

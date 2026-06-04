@@ -1,10 +1,19 @@
-use juniper::{GraphQLScalar, InputValue, ScalarValue, Value};
-use serde::{Deserialize, Serialize};
-use solana_pubkey::Pubkey as SolanaPubkey;
-use std::{
-    fmt::{self, Display},
-    ops::Deref,
-    str::FromStr,
+//! GraphQL-shaped scalars for Solana primitives.
+//!
+//! Wide integers (`I64`, `I128`, `U64`, `U128`) are serialised as
+//! strings to preserve full precision for JavaScript clients (which
+//! truncate beyond 2^53). [`Pubkey`] serialises as base58. [`Json`]
+//! carries arbitrary `serde_json::Value` payloads.
+
+use {
+    juniper::{GraphQLScalar, InputValue, ScalarValue, Value},
+    serde::{Deserialize, Serialize},
+    solana_pubkey::Pubkey as SolanaPubkey,
+    std::{
+        fmt::{self, Display},
+        ops::Deref,
+        str::FromStr,
+    },
 };
 
 #[derive(Clone, Debug, Deserialize, Eq, GraphQLScalar, PartialEq, Serialize)]
@@ -12,8 +21,10 @@ use std::{
 pub struct Pubkey(pub SolanaPubkey);
 
 impl Pubkey {
-    pub fn new<S: Into<String>>(value: S) -> Self {
-        Pubkey::from(value.into())
+    pub fn new<S: Into<String>>(value: S) -> Result<Self, String> {
+        SolanaPubkey::from_str(&value.into())
+            .map(Self)
+            .map_err(|e| e.to_string())
     }
 
     fn to_output<S: ScalarValue>(&self) -> Value<S> {
@@ -33,17 +44,11 @@ impl Pubkey {
     }
 }
 
-impl From<String> for Pubkey {
-    fn from(s: String) -> Pubkey {
-        Pubkey(SolanaPubkey::from_str(&s).expect("invalid pubkey"))
-    }
-}
-
 impl Deref for Pubkey {
-    type Target = str;
+    type Target = SolanaPubkey;
 
-    fn deref(&self) -> &str {
-        std::str::from_utf8(self.0.as_ref()).expect("invalid pubkey")
+    fn deref(&self) -> &SolanaPubkey {
+        &self.0
     }
 }
 
