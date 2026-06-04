@@ -6,7 +6,7 @@ version = "1.0.0"
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
-keywords = ["solana", "indexer", "helius", "datasource", "gtfa", "transactions"]
+keywords = ["solana", "indexer", "helius", "datasource", "gtfa"]
 categories = ["encoding"]
 
 [lib]

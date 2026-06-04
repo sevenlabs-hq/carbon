@@ -8,7 +8,7 @@ workspace_crates=(
     carbon-test-utils
     carbon-core
 
-    carbon-helius-atlas-ws-datasource
+    # carbon-helius-atlas-ws-datasource
     carbon-helius-gpa-v2-datasource
     carbon-helius-gtfa-datasource
     carbon-helius-laserstream-datasource
