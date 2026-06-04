@@ -3,6 +3,9 @@
 set -euo pipefail
 
 publish_args=()
+if [[ "${DRY_RUN:-0}" == "1" ]]; then
+    publish_args+=(--dry-run)
+fi
 if [[ "${ALLOW_DIRTY:-0}" == "1" ]]; then
     publish_args+=(--allow-dirty)
 fi

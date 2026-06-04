@@ -3,7 +3,7 @@ members = ["crates/*", "datasources/*", "decoders/*", "examples/*", "metrics/*"]
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.0.0"
+rust-version = "1.82"
 version = "1.0.0"
 edition = "2021"
 license = "MIT"
