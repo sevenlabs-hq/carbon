@@ -10,8 +10,8 @@ use {
     },
     futures::StreamExt,
     helius::{
-        types::{Cluster, RpcTransactionsConfig},
-        Helius,
+        types::{Cluster, RpcTransactionsConfig, TransactionNotification},
+        HeliusBuilder,
     },
     solana_account::Account,
     solana_clock::Clock,
@@ -215,14 +215,19 @@ impl Datasource for HeliusWebsocket {
                 break;
             }
 
-            let helius = match Helius::new_with_ws_with_timeouts(
-                &self.api_key,
-                self.cluster.clone(),
-                self.ping_interval_secs,
-                self.pong_timeout_secs,
-            )
-            .await
-            {
+            let helius_result = match HeliusBuilder::new().with_api_key(&self.api_key) {
+                Ok(builder) => {
+                    builder
+                        .with_cluster(self.cluster.clone())
+                        .with_async_solana()
+                        .with_websocket(self.ping_interval_secs, self.pong_timeout_secs)
+                        .build()
+                        .await
+                }
+                Err(err) => Err(err),
+            };
+
+            let helius = match helius_result {
                 Ok(client) => client,
                 Err(err) => {
                     log::error!("Failed to create Helius client: {err}");
@@ -491,6 +496,11 @@ impl Datasource for HeliusWebsocket {
                                         Some(tx_event) => {
                                             last_transaction_update = std::time::Instant::now();
                                             let start_time = std::time::Instant::now();
+                                            let TransactionNotification::Full(tx_event) = tx_event else {
+                                                log::warn!("Skipping non-full Helius transaction notification");
+                                                continue;
+                                            };
+
                                             let encoded_transaction_with_status_meta = tx_event.transaction;
                                             let signature_str = tx_event.signature;
                                             let Ok(signature) = Signature::from_str(&signature_str) else {
