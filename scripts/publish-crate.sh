@@ -8,10 +8,11 @@ workspace_crates=(
     carbon-test-utils
     carbon-core
 
-    # carbon-helius-atlas-ws-datasource
+    carbon-helius-atlas-ws-datasource
     carbon-helius-gpa-v2-datasource
     carbon-helius-gtfa-datasource
     carbon-helius-laserstream-datasource
+    carbon-jetstreamer-datasource
     carbon-rpc-block-crawler-datasource
     carbon-rpc-block-subscribe-datasource
     carbon-rpc-gpa-datasource
@@ -20,6 +21,7 @@ workspace_crates=(
     carbon-jito-shredstream-grpc-datasource
     carbon-yellowstone-grpc-datasource
     carbon-stream-message-datasource
+    carbon-validator-snapshot-datasource
 
     carbon-log-metrics
     carbon-prometheus-metrics
@@ -37,6 +39,7 @@ workspace_crates=(
     carbon-gavel-decoder
     carbon-heaven-decoder
     carbon-jupiter-dca-decoder
+    carbon-jupiter-lend-decoder
     carbon-jupiter-limit-order-2-decoder
     carbon-jupiter-limit-order-decoder
     carbon-jupiter-perpetuals-decoder
@@ -82,7 +85,6 @@ workspace_crates=(
     carbon-system-program-decoder
     carbon-token-2022-decoder
     carbon-token-program-decoder
-    carbon-validator-snapshot-datasource
     carbon-vertigo-decoder
     carbon-virtuals-decoder
     carbon-wavebreak-decoder

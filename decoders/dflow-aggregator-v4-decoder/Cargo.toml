@@ -1,6 +1,6 @@
 [package]
 name = "carbon-dflow-aggregator-v4-decoder"
-version = "0.12.0"
+version = "1.0.0"
 edition = { workspace = true }
 description = "Dflow Aggregator V4 Decoder"
 license = { workspace = true }
