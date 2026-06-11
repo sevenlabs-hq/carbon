@@ -87,13 +87,13 @@ impl<T, W> PostgresAccountProcessor<T, W> {
     }
 }
 
-impl<T, W> crate::processor::Processor<AccountProcessorInputType<'_, T>>
+impl<'a, T, W> crate::processor::Processor<AccountProcessorInputType<'a, T>>
     for PostgresAccountProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
     W: From<(T, AccountMetadata)> + Upsert + Send + 'static,
 {
-    async fn process(&mut self, input: &AccountProcessorInputType<'_, T>) -> CarbonResult<()> {
+    async fn process(&mut self, input: &AccountProcessorInputType<'a, T>) -> CarbonResult<()> {
         let start = std::time::Instant::now();
 
         let wrapper = W::from((input.decoded_account.data.clone(), input.metadata.clone()));
@@ -126,12 +126,12 @@ impl<T> PostgresJsonAccountProcessor<T> {
     }
 }
 
-impl<T> crate::processor::Processor<AccountProcessorInputType<'_, T>>
+impl<'a, T> crate::processor::Processor<AccountProcessorInputType<'a, T>>
     for PostgresJsonAccountProcessor<T>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    async fn process(&mut self, input: &AccountProcessorInputType<'_, T>) -> CarbonResult<()> {
+    async fn process(&mut self, input: &AccountProcessorInputType<'a, T>) -> CarbonResult<()> {
         let account_row =
             AccountRow::from_parts(input.decoded_account.data.clone(), input.metadata.clone());
 
@@ -165,13 +165,13 @@ impl<T, W> PostgresInstructionProcessor<T, W> {
     }
 }
 
-impl<T, W> crate::processor::Processor<InstructionProcessorInputType<'_, T>>
+impl<'a, T, W> crate::processor::Processor<InstructionProcessorInputType<'a, T>>
     for PostgresInstructionProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
     W: From<(T, InstructionMetadata, Vec<AccountMeta>)> + Upsert + Send + 'static,
 {
-    async fn process(&mut self, input: &InstructionProcessorInputType<'_, T>) -> CarbonResult<()> {
+    async fn process(&mut self, input: &InstructionProcessorInputType<'a, T>) -> CarbonResult<()> {
         let start = std::time::Instant::now();
 
         let wrapper = W::from((
@@ -209,12 +209,12 @@ impl<T> PostgresJsonInstructionProcessor<T> {
     }
 }
 
-impl<T> crate::processor::Processor<InstructionProcessorInputType<'_, T>>
+impl<'a, T> crate::processor::Processor<InstructionProcessorInputType<'a, T>>
     for PostgresJsonInstructionProcessor<T>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    async fn process(&mut self, input: &InstructionProcessorInputType<'_, T>) -> CarbonResult<()> {
+    async fn process(&mut self, input: &InstructionProcessorInputType<'a, T>) -> CarbonResult<()> {
         let instruction_row =
             InstructionRow::from_parts(input.decoded_instruction.clone(), input.metadata.clone());
 
