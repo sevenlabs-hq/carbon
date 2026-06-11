@@ -27,6 +27,8 @@ use {
 const CHANNEL_BUFFER_SIZE: usize = 1000;
 const MAX_CONCURRENT_REQUESTS: usize = 10;
 const BLOCK_INTERVAL: Duration = Duration::from_millis(100);
+const GET_BLOCK_MAX_RETRIES: usize = 3;
+const GET_BLOCK_RETRY_BACKOFF: Duration = Duration::from_millis(500);
 
 static BLOCKS_FETCH_TIMES_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
     Histogram::new(
@@ -98,6 +100,21 @@ fn register_block_crawler_metrics() {
     registry.register_histogram(&BLOCK_PROCESS_TIME_NANOS);
 }
 
+fn skippable_block_error_code(error: &str) -> Option<&'static str> {
+    ["-32001", "-32007", "-32009"]
+        .into_iter()
+        .find(|code| error.contains(code))
+}
+
+fn is_retryable_block_error(error: &str) -> bool {
+    error.contains("TimedOut")
+        || error.contains("IncompleteMessage")
+        || error.contains("-32004")
+        || error.contains("-32014")
+        || error.contains("429")
+        || error.contains("Too Many Requests")
+}
+
 /// RpcBlockCrawler is a datasource that crawls the Solana blockchain for blocks
 /// and sends them to the sender. It uses a channel to send blocks to the task
 /// processor.
@@ -164,9 +181,12 @@ impl Datasource for RpcBlockCrawler {
         let task_processor = task_processor(block_receiver, sender, id, cancellation_token.clone());
 
         tokio::spawn(async move {
-            tokio::select! {
-                _ = block_fetcher => {},
-                _ = task_processor => {},
+            if let Err(error) = block_fetcher.await {
+                log::error!("RPC Crawler block fetcher task failed: {error:?}");
+            }
+
+            if let Err(error) = task_processor.await {
+                log::error!("RPC Crawler task processor failed: {error:?}");
             }
         });
 
@@ -240,29 +260,46 @@ fn block_fetcher(
 
                     async move {
                         let start = Instant::now();
-                        match rpc_client.get_block_with_config(slot, block_config).await {
-                            Ok(block) => {
-                                let time_taken = start.elapsed().as_millis();
-                                BLOCKS_FETCH_TIMES_MILLIS.record(time_taken as f64);
-                                BLOCKS_FETCHED.inc();
-                                Some((slot, block))
-                            }
-                            Err(e) => {
-                                // https://support.quicknode.com/hc/en-us/articles/16459608696721-Solana-RPC-Error-Code-Reference
-                                // solana skippable errors
-                                // -32004, // Block not available for slot x
-                                // -32007, // Slot {} was skipped, or missing due to ledger jump to
-                                // recent snapshot -32009, // Slot
-                                // {} was skipped, or missing in long-term storage
-                                if e.to_string().contains("-32009")
-                                    || e.to_string().contains("-32004")
-                                    || e.to_string().contains("-32007")
-                                {
-                                    BLOCKS_SKIPPED.inc();
-                                } else {
-                                    log::error!("Error fetching block at slot {slot}: {e:?}");
+                        let mut attempt = 0usize;
+                        loop {
+                            match rpc_client.get_block_with_config(slot, block_config).await {
+                                Ok(block) => {
+                                    let time_taken = start.elapsed().as_millis();
+                                    BLOCKS_FETCH_TIMES_MILLIS.record(time_taken as f64);
+                                    BLOCKS_FETCHED.inc();
+                                    break Some((slot, block));
                                 }
-                                None
+                                Err(e) => {
+                                    let error = format!("{e:?}");
+                                    // https://support.quicknode.com/hc/en-us/articles/16459608696721-Solana-RPC-Error-Code-Reference
+                                    // Solana permanent skip errors:
+                                    // -32001 cleaned up, -32007 skipped/missing slot,
+                                    // -32009 missing in long-term storage.
+                                    if let Some(error_code) = skippable_block_error_code(&error) {
+                                        log::warn!(
+                                            "Skipping block at slot {slot}: skippable RPC error {error_code}: {e:?}"
+                                        );
+                                        BLOCKS_SKIPPED.inc();
+                                        break None;
+                                    }
+
+                                    if attempt < GET_BLOCK_MAX_RETRIES
+                                        && is_retryable_block_error(&error)
+                                    {
+                                        attempt += 1;
+                                        log::debug!(
+                                            "Retrying block fetch for slot {slot}; attempt {attempt}/{GET_BLOCK_MAX_RETRIES}: {e:?}"
+                                        );
+                                        tokio::time::sleep(
+                                            GET_BLOCK_RETRY_BACKOFF.saturating_mul(attempt as u32),
+                                        )
+                                        .await;
+                                        continue;
+                                    }
+
+                                    log::error!("Error fetching block at slot {slot}: {e:?}");
+                                    break None;
+                                }
                             }
                         }
                     }
@@ -299,70 +336,73 @@ fn task_processor(
     let id_for_loop = id.clone();
 
     tokio::spawn(async move {
-        loop {
-            tokio::select! {
-            _ = cancellation_token.cancelled() => {
-                log::info!("Cancelling RPC Crawler task processor...");
-                break;
-            }
-            maybe_block = block_receiver.recv() => {
-                match maybe_block {
-                    Some((slot, block)) => {
-                        BLOCKS_RECEIVED.inc();
-                        let block_start_time = Instant::now();
-                        let block_hash = Hash::from_str(&block.blockhash).ok();
-                        if let Some(transactions) = block.transactions {
-                            for (tx_index, encoded_transaction_with_status_meta) in transactions.into_iter().enumerate() {
-                                let start_time = std::time::Instant::now();
+        while let Some((slot, block)) = block_receiver.recv().await {
+            BLOCKS_RECEIVED.inc();
+            let block_start_time = Instant::now();
+            let block_hash = Hash::from_str(&block.blockhash).ok();
+            if let Some(transactions) = block.transactions {
+                for (tx_index, encoded_transaction_with_status_meta) in
+                    transactions.into_iter().enumerate()
+                {
+                    let start_time = std::time::Instant::now();
 
-                                let meta_original = if let Some(meta) = encoded_transaction_with_status_meta.clone().meta {
-                                    meta
-                                } else {
-                                    continue;
-                                };
+                    let meta_original =
+                        if let Some(meta) = encoded_transaction_with_status_meta.clone().meta {
+                            meta
+                        } else {
+                            continue;
+                        };
 
-                                if meta_original.status.is_err() {
-                                    continue;
-                                }
-
-                                let Some(decoded_transaction) = encoded_transaction_with_status_meta.transaction.decode() else {
-                                    log::error!("Failed to decode transaction: {encoded_transaction_with_status_meta:?}");
-                                    continue;
-                                };
-
-                                let Ok(meta_needed) = transaction_metadata_from_original_meta(meta_original) else {
-                                    log::error!("Error getting metadata from transaction original meta.");
-                                    continue;
-                                };
-
-                                let update = Update::Transaction(Box::new(TransactionUpdate {
-                                    signature: *decoded_transaction.get_signature(),
-                                    transaction: decoded_transaction.clone(),
-                                    meta: meta_needed,
-                                    is_vote: false,
-                                    slot,
-                                    index: Some(tx_index as u64),
-                                    block_time: block.block_time,
-                                    block_hash,
-                                }));
-
-                                TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
-                                TRANSACTIONS_PROCESSED.inc();
-
-                                if let Err(err) = sender.try_send((update, id_for_loop.clone())) {
-                                    log::error!("Error sending transaction update: {err:?}");
-                                    break;
-                                }
-                            }
-                        }
-                        BLOCK_PROCESS_TIME_NANOS.record(block_start_time.elapsed().as_nanos() as f64);
-                        BLOCKS_PROCESSED.inc();
+                    if meta_original.status.is_err() {
+                        continue;
                     }
-                    None => {
-                        break;
+
+                    let Some(decoded_transaction) =
+                        encoded_transaction_with_status_meta.transaction.decode()
+                    else {
+                        log::error!(
+                            "Failed to decode transaction: {encoded_transaction_with_status_meta:?}"
+                        );
+                        continue;
+                    };
+
+                    let Ok(meta_needed) = transaction_metadata_from_original_meta(meta_original)
+                    else {
+                        log::error!("Error getting metadata from transaction original meta.");
+                        continue;
+                    };
+
+                    let update = Update::Transaction(Box::new(TransactionUpdate {
+                        signature: *decoded_transaction.get_signature(),
+                        transaction: decoded_transaction.clone(),
+                        meta: meta_needed,
+                        is_vote: false,
+                        slot,
+                        index: Some(tx_index as u64),
+                        block_time: block.block_time,
+                        block_hash,
+                    }));
+
+                    TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+                    TRANSACTIONS_PROCESSED.inc();
+
+                    let send_result = tokio::select! {
+                        _ = cancellation_token.cancelled() => {
+                            log::info!("Cancelling RPC Crawler task processor...");
+                            return;
+                        }
+                        result = sender.send((update, id_for_loop.clone())) => result,
+                    };
+
+                    if let Err(err) = send_result {
+                        log::error!("Error sending transaction update: {err:?}");
+                        cancellation_token.cancel();
+                        return;
                     }
                 }
-            }}
+            }
+            BLOCK_PROCESS_TIME_NANOS.record(block_start_time.elapsed().as_nanos() as f64);
+            BLOCKS_PROCESSED.inc();
         }
     })
 }
@@ -370,6 +410,79 @@ fn task_processor(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn block_error_classifier_matches_agave_error_semantics() {
+        assert!(is_retryable_block_error("-32004 BlockNotAvailable"));
+        assert!(is_retryable_block_error(
+            "-32014 BlockStatusNotAvailableYet"
+        ));
+        assert!(is_retryable_block_error("TimedOut"));
+        assert!(is_retryable_block_error("IncompleteMessage"));
+        assert!(is_retryable_block_error("429 Too Many Requests"));
+
+        assert_eq!(
+            skippable_block_error_code("-32001 BlockCleanedUp"),
+            Some("-32001")
+        );
+        assert_eq!(
+            skippable_block_error_code("-32007 SlotSkipped"),
+            Some("-32007")
+        );
+        assert_eq!(
+            skippable_block_error_code("-32009 LongTermStorageSlotSkipped"),
+            Some("-32009")
+        );
+
+        assert_eq!(skippable_block_error_code("-32004 BlockNotAvailable"), None);
+        assert_eq!(
+            skippable_block_error_code("-32014 BlockStatusNotAvailableYet"),
+            None
+        );
+    }
+
+    #[tokio::test]
+    async fn task_processor_drains_buffered_blocks_until_channel_closes() {
+        let before_received = BLOCKS_RECEIVED.get();
+        let before_processed = BLOCKS_PROCESSED.get();
+        let (block_sender, block_receiver) = mpsc::channel(2);
+        let (update_sender, _update_receiver) = mpsc::channel(1);
+        let handle = task_processor(
+            block_receiver,
+            update_sender,
+            DatasourceId::new_named("test"),
+            CancellationToken::new(),
+        );
+
+        for slot in 1..=3 {
+            block_sender
+                .send((
+                    slot,
+                    UiConfirmedBlock {
+                        previous_blockhash: "previous".to_string(),
+                        blockhash: "current".to_string(),
+                        parent_slot: slot.saturating_sub(1),
+                        transactions: Some(Vec::new()),
+                        signatures: None,
+                        rewards: None,
+                        num_reward_partitions: None,
+                        block_time: None,
+                        block_height: None,
+                    },
+                ))
+                .await
+                .expect("processor should receive queued block");
+        }
+        drop(block_sender);
+
+        tokio::time::timeout(Duration::from_secs(1), handle)
+            .await
+            .expect("processor should exit after the block channel closes")
+            .expect("processor should not panic");
+
+        assert_eq!(BLOCKS_RECEIVED.get() - before_received, 3);
+        assert_eq!(BLOCKS_PROCESSED.get() - before_processed, 3);
+    }
 
     #[tokio::test]
     async fn test_block_fetcher_with_end_slot() {
