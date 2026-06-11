@@ -14,16 +14,13 @@ pub struct Multisig {
     pub signers: [Pubkey; 11],
 }
 
-impl Multisig {
-    pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() != 355 {
-            return None;
+impl From<spl_token_interface::state::Multisig> for Multisig {
+    fn from(value: spl_token_interface::state::Multisig) -> Self {
+        Multisig {
+            m: value.m,
+            n: value.n,
+            is_initialized: value.is_initialized,
+            signers: value.signers,
         }
-
-        let mut data_slice = data;
-
-        data_slice = &data_slice[0..];
-
-        borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
 }

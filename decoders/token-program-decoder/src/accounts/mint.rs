@@ -18,16 +18,14 @@ pub struct Mint {
     pub freeze_authority: Option<Pubkey>,
 }
 
-impl Mint {
-    pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() != 82 {
-            return None;
+impl From<spl_token_interface::state::Mint> for Mint {
+    fn from(value: spl_token_interface::state::Mint) -> Self {
+        Mint {
+            mint_authority: value.mint_authority.into(),
+            supply: value.supply,
+            decimals: value.decimals,
+            is_initialized: value.is_initialized,
+            freeze_authority: value.freeze_authority.into(),
         }
-
-        let mut data_slice = data;
-
-        data_slice = &data_slice[0..];
-
-        borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
 }

@@ -26,16 +26,27 @@ pub struct Token {
     pub close_authority: Option<Pubkey>,
 }
 
-impl Token {
-    pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() != 165 {
-            return None;
+impl From<spl_token_interface::state::Account> for Token {
+    fn from(value: spl_token_interface::state::Account) -> Self {
+        Token {
+            mint: value.mint,
+            owner: value.owner,
+            amount: value.amount,
+            delegate: value.delegate.into(),
+            state: match value.state {
+                spl_token_interface::state::AccountState::Uninitialized => {
+                    crate::types::AccountState::Uninitialized
+                }
+                spl_token_interface::state::AccountState::Initialized => {
+                    crate::types::AccountState::Initialized
+                }
+                spl_token_interface::state::AccountState::Frozen => {
+                    crate::types::AccountState::Frozen
+                }
+            },
+            is_native: value.is_native.into(),
+            delegated_amount: value.delegated_amount,
+            close_authority: value.close_authority.into(),
         }
-
-        let mut data_slice = data;
-
-        data_slice = &data_slice[0..];
-
-        borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
 }
