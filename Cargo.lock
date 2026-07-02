@@ -2749,7 +2749,9 @@ dependencies = [
  "serde_json",
  "solana-account",
  "solana-instruction",
+ "solana-program-pack",
  "solana-pubkey 3.0.0",
+ "spl-token-interface",
  "sqlx",
  "sqlx_migrator",
 ]
