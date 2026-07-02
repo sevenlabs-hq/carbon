@@ -312,8 +312,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                     match message {
                                         Ok(msg) => {
                                             if first_message_after_reconnect {
-                                                first_message_after_reconnect = false;
-
                                                 let current_slot = match &msg.update_oneof {
                                                     Some(UpdateOneof::Account(ref update)) => Some(update.slot),
                                                     Some(UpdateOneof::Transaction(ref update)) => Some(update.slot),
@@ -322,6 +320,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                 };
 
                                                 if let Some(slot) = current_slot {
+                                                    first_message_after_reconnect = false;
+
                                                     if let (Some(disconnect_time), Some(last_slot)) =
                                                         (last_disconnect_time.take(), last_slot_before_disconnect.take())
                                                     {
