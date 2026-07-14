@@ -24,7 +24,7 @@ use {
         compiled_instruction::CompiledInstruction, v0::LoadedAddresses, VersionedMessage,
     },
     solana_pubkey::Pubkey,
-    solana_transaction_context::TransactionReturnData,
+    solana_transaction_context::transaction::TransactionReturnData,
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
@@ -89,6 +89,7 @@ pub fn extract_instructions_with_metadata(
                 |_, idx| idx < v0.header.num_required_signatures as usize,
             );
         }
+        VersionedMessage::V1(_) => panic!("not supported"),
     }
 
     Ok(instructions_with_metadata)
@@ -327,6 +328,7 @@ pub fn transaction_metadata_from_original_meta(
                     post_balance: rewards.post_balance,
                     reward_type: rewards.reward_type,
                     commission: rewards.commission,
+                    commission_bps: rewards.commission_bps,
                 })
                 .collect::<Vec<Reward>>(),
         ),
@@ -434,7 +436,7 @@ mod tests {
                                     6,
                                     3
                                 ],
-                                data: base58_deserialize::ix_data("hDDqy4KAEGx3J") 
+                                data: base58_deserialize::ix_data("hDDqy4KAEGx3J")
                             },
                             stack_height: Some(2),
                         },
@@ -445,7 +447,7 @@ mod tests {
                                     0,
                                     3
                                 ],
-                                data: base58_deserialize::ix_data("3Bxs4ezjpW22kuoV") 
+                                data: base58_deserialize::ix_data("3Bxs4ezjpW22kuoV")
                             },
                             stack_height: Some(2),
                         },
@@ -456,7 +458,7 @@ mod tests {
                                     0,
                                     2
                                 ],
-                                data: base58_deserialize::ix_data("3Bxs4KSwSHEiNiN3") 
+                                data: base58_deserialize::ix_data("3Bxs4KSwSHEiNiN3")
                             },
                             stack_height: Some(2),
                         },
@@ -467,7 +469,7 @@ mod tests {
                                     0,
                                     4
                                 ],
-                                data: base58_deserialize::ix_data("3Bxs4TdopiUbobUj") 
+                                data: base58_deserialize::ix_data("3Bxs4TdopiUbobUj")
                             },
                             stack_height: Some(2),
                         },
@@ -713,7 +715,7 @@ mod tests {
                                     10,
                                     12,
                                 ],
-                                data: base58_deserialize::ix_data("PgQWtn8oziwqoZL8sWNwT7LtzLzAUp8MM") 
+                                data: base58_deserialize::ix_data("PgQWtn8oziwqoZL8sWNwT7LtzLzAUp8MM")
                             },
                             stack_height: Some(2),
                         },
@@ -726,7 +728,7 @@ mod tests {
                                     15,
                                     0,
                                 ],
-                                data: base58_deserialize::ix_data("gD28Qcm8qkpHv") 
+                                data: base58_deserialize::ix_data("gD28Qcm8qkpHv")
                             },
                             stack_height: Some(3),
                         },
@@ -739,7 +741,7 @@ mod tests {
                                     2,
                                     13,
                                 ],
-                                data: base58_deserialize::ix_data("hLZYKissEeFUU") 
+                                data: base58_deserialize::ix_data("hLZYKissEeFUU")
                             },
                             stack_height: Some(3),
                         },
@@ -749,7 +751,7 @@ mod tests {
                                 accounts: vec![
                                     19,
                                 ],
-                                data: base58_deserialize::ix_data("yCGxBopjnVNQkNP5usq1PonMQAFjN4WpP7MXQHZjf7XRFvuZeLCkVHy966UtS1VyTsN9u6oGPC5aaYqLj5UXxLj8FaCJccaibatRPgkX95PDrzwLBhZE43gcsTwwccBuEd67YuWJsM1j7tXo5ntSaTWRsfuaqkkoaCDDeidPunPSTBRUY68Hw5oFnYhUcG5CUEPWmM") 
+                                data: base58_deserialize::ix_data("yCGxBopjnVNQkNP5usq1PonMQAFjN4WpP7MXQHZjf7XRFvuZeLCkVHy966UtS1VyTsN9u6oGPC5aaYqLj5UXxLj8FaCJccaibatRPgkX95PDrzwLBhZE43gcsTwwccBuEd67YuWJsM1j7tXo5ntSaTWRsfuaqkkoaCDDeidPunPSTBRUY68Hw5oFnYhUcG5CUEPWmM")
                             },
                             stack_height: Some(3),
                         },
@@ -762,7 +764,7 @@ mod tests {
                                     4,
                                     0,
                                 ],
-                                data: base58_deserialize::ix_data("heASn5ozzjZrp") 
+                                data: base58_deserialize::ix_data("heASn5ozzjZrp")
                             },
                             stack_height: Some(2),
                         },
