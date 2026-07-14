@@ -103,7 +103,7 @@ impl Gauge {
     #[inline]
     pub fn add(&self, delta: f64) {
         self.value
-            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
+            .try_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
                 Some((f64::from_bits(current) + delta).to_bits())
             })
             .ok();
@@ -163,7 +163,7 @@ impl Histogram {
     #[inline]
     fn add_sum(&self, delta: f64) {
         self.sum
-            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
+            .try_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
                 Some((f64::from_bits(current) + delta).to_bits())
             })
             .ok();

@@ -199,17 +199,17 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
     }
 
     let expanded = quote! {
-        #[derive(Debug, Clone, std::hash::Hash, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
+        #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
         pub enum #instructions_enum_name {
             #(#instruction_variants),*
         }
 
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+        #[derive(Debug, Clone, PartialEq, serde::Serialize)]
         pub enum #instruction_types_enum_name {
             #(#instruction_type_variants),*
         }
 
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+        #[derive(Debug, Clone, PartialEq, serde::Serialize)]
         pub enum #programs_enum_name {
             #(#program_variants),*
         }
@@ -260,7 +260,7 @@ pub fn instruction_type_derive(input: TokenStream) -> TokenStream {
     });
 
     let instruction_type_enum = quote! {
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+        #[derive(Debug, Clone, PartialEq, serde::Serialize)]
         pub enum #instruction_type_name {
             #(#variants),*
         }
