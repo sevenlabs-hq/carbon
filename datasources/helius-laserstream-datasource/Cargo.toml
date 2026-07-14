@@ -13,6 +13,8 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [dependencies]
+yellowstone-grpc-convert = { path = "../../crates/yellowstone-grpc-convert" }
+
 solana-account = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-signature = { workspace = true }

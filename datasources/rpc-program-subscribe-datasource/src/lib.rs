@@ -144,7 +144,7 @@ impl Datasource for RpcProgramSubscribe {
                         match event_result {
                             Some(acc_event) => {
                                 let start_time = std::time::Instant::now();
-                                let decoded_account: Account = match acc_event.value.account.decode() {
+                                let decoded_account: Account = match acc_event.value.account.to_account() {
                                     Some(account_data) => account_data,
                                     None => {
                                         log::error!("Error decoding account event");

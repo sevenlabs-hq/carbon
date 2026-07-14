@@ -16,7 +16,6 @@ crate-type = ["rlib"]
 async-trait = { workspace = true }
 carbon-core = { workspace = true }
 futures-util = { workspace = true }
-jetstreamer-firehose = "0.2.0"
 solana-pubkey = { workspace = true }
 solana-transaction-status-client-types = { workspace = true }
 tokio = { workspace = true }

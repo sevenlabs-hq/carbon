@@ -22,8 +22,8 @@ use {
     tokio::sync::{mpsc, mpsc::Sender, RwLock},
     tokio_util::sync::CancellationToken,
     yellowstone_grpc_client::{GeyserGrpcBuilder, GeyserGrpcBuilderResult, GeyserGrpcClient},
+    yellowstone_grpc_convert::convert_from::{create_tx_meta, create_tx_versioned},
     yellowstone_grpc_proto::{
-        convert_from::{create_tx_meta, create_tx_versioned},
         geyser::{
             subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
             SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,
