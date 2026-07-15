@@ -13,7 +13,7 @@ export type NormalizedCodamaEvents = {
     eventDataOffset: number;
 };
 
-export const ANCHOR_EVENT_CPI_DISCRIMINATOR = [228, 69, 165, 46, 81, 203, 154, 29];
+export const LEGACY_ANCHOR_EVENT_CPI_DISCRIMINATOR = [228, 69, 165, 46, 81, 203, 154, 29];
 
 export function normalizeCodamaEvents(root: RootNode): NormalizedCodamaEvents | null {
     // Codama 1.3 preserves eventNode values from JSON even though its public

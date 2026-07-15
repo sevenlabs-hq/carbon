@@ -33,7 +33,7 @@ import {
 import { formatDocComments } from './utils/render';
 import { PostgresRowMapper, type FlattenedField } from './postgresRowMapper';
 import { checkRequiresBigArray } from './utils/postgresHelpers';
-import { ANCHOR_EVENT_CPI_DISCRIMINATOR, normalizeCodamaEvents, type RenderEvent } from './eventNodes';
+import { LEGACY_ANCHOR_EVENT_CPI_DISCRIMINATOR, normalizeCodamaEvents, type RenderEvent } from './eventNodes';
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
@@ -58,7 +58,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
     const hasExplicitAnchorEvents = options.anchorEvents !== undefined;
     let renderEvents: RenderEvent[] = options.anchorEvents ?? [];
-    let eventCpiDiscriminator = ANCHOR_EVENT_CPI_DISCRIMINATOR;
+    let eventCpiDiscriminator = LEGACY_ANCHOR_EVENT_CPI_DISCRIMINATOR;
     let eventDataOffset =
         (renderEvents[0]?.discriminator.length ?? 0) > eventCpiDiscriminator.length ? 0 : eventCpiDiscriminator.length;
     let definedTypesMap: Map<string, any> | null = null;
