@@ -56,6 +56,7 @@ export type GetRenderMapOptions = {
 
 export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
+    const hasExplicitAnchorEvents = options.anchorEvents !== undefined;
     let renderEvents: RenderEvent[] = options.anchorEvents ?? [];
     let eventCpiDiscriminator = ANCHOR_EVENT_CPI_DISCRIMINATOR;
     let eventDataOffset =
@@ -641,11 +642,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                 visitRoot(node, { self }) {
                     let renderRoot = node;
-                    const normalizedEvents = normalizeCodamaEvents(node);
+                    const normalizedEvents = hasExplicitAnchorEvents ? null : normalizeCodamaEvents(node);
                     if (normalizedEvents !== null) {
-                        if (renderEvents.length > 0) {
-                            throw new Error('Cannot combine Codama event nodes with the anchorEvents renderer option');
-                        }
                         renderRoot = normalizedEvents.root;
                         renderEvents = normalizedEvents.events;
                         eventCpiDiscriminator = normalizedEvents.cpiDiscriminator;

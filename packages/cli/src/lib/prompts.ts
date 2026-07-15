@@ -73,6 +73,13 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         } else {
             standard = existingOpts.standard as 'anchor' | 'codama';
         }
+
+        if (standard === 'codama' && !eventHints) {
+            eventHints = await input({
+                message: 'Event hints (comma-separated names of types to parse as CPI Events):',
+                default: '',
+            });
+        }
     }
 
     if (existingOpts.clean === undefined) {
