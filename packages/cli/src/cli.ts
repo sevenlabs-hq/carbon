@@ -31,7 +31,7 @@ program.addHelpText(
     `\nExamples:
   # Parse command (generate decoder only)
   $ carbon-cli parse -i packages/example/anchor-idl.json -o packages/example/generated -s anchor
-  $ carbon-cli parse -i packages/example/codama.json -o packages/example/generated -s codama --event-hints "BuyEvent,CreatePoolEvent"
+  $ carbon-cli parse -i packages/example/codama.json -o packages/example/generated -s codama
   $ carbon-cli parse -i <ProgramPubkey> -u devnet -o ./generated -s anchor
   
   # Scaffold with generated decoder from IDL
@@ -58,7 +58,7 @@ program
     )
     .option('-c, --as-crate', 'Generate as a Cargo crate layout', false)
     .option('-s, --standard <anchor|codama>', 'Specify the IDL standard to parse', 'anchor')
-    .option('--event-hints <csv>', 'Comma-separated names of defined types to parse as CPI Events (Codama only)')
+    .option('--event-hints <csv>', 'Deprecated: native Codama events are detected automatically')
     .option('-u, --url <rpcUrl>', 'RPC URL for fetching IDL when using a program address')
     .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
     .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
@@ -181,7 +181,7 @@ program
     .option('--idl <fileOrAddress>', 'IDL file or program address')
     .option('--idl-standard <anchor|codama>', 'IDL standard')
     .option('--idl-url <rpcUrl>', 'RPC URL for fetching IDL (when using program address)')
-    .option('--event-hints <csv>', 'Event hints for Codama IDL')
+    .option('--event-hints <csv>', 'Deprecated: native Codama events are detected automatically')
     .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
     .option('-s, --data-source <name>', 'Name of data source')
     .option('-m, --metrics <log|prometheus>', 'Metrics to use', 'log')

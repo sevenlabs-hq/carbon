@@ -33,7 +33,7 @@ carbon-cli parse [OPTIONS]
 - `-o, --out-dir <dir>` - Output directory for generated code
 - `-c, --as-crate` - Generate as a Cargo crate layout (default: false)
 - `-s, --standard <anchor|codama>` - Specify the IDL standard to parse (default: anchor)
-- `--event-hints <csv>` - Comma-separated names of defined types to parse as CPI Events (Codama only)
+- `--event-hints <csv>` - Deprecated; native Codama events are detected automatically
 - `-u, --url <rpcUrl>` - RPC URL for fetching IDL when using a program address
 - `--no-clean` - Do not delete output directory before rendering (default: false)
 
@@ -51,11 +51,14 @@ carbon-cli parse --idl my_program.json --out-dir ./src/decoders
 carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo --url mainnet-beta --out-dir ./src/decoders
 ```
 
-**Parse Codama IDL with event hints:**
+**Parse Codama IDL with native events:**
 
 ```sh
-carbon-cli parse --idl my_program_codama.json --out-dir ./src/decoders --standard codama --event-hints "BuyEvent,CreatePoolEvent"
+carbon-cli parse --idl my_program_codama.json --out-dir ./src/decoders --standard codama
 ```
+
+Codama `eventNode` values generate typed event data and the `CpiEvent`
+instruction variant automatically.
 
 ### Scaffold Command
 
@@ -73,7 +76,7 @@ carbon-cli scaffold [OPTIONS]
 - `--idl <fileOrAddress>` - IDL file or program address
 - `--idl-standard <anchor|codama>` - IDL standard
 - `--idl-url <rpcUrl>` - RPC URL for fetching IDL (when using program address)
-- `--event-hints <csv>` - Event hints for Codama IDL
+- `--event-hints <csv>` - Deprecated; native Codama events are detected automatically
 - `-s, --data-source <name>` - Name of data source
 - `-m, --metrics <log|prometheus>` - Metrics to use (default: log)
 - `--with-postgres <boolean>` - Include Postgres wiring and deps (default: true)

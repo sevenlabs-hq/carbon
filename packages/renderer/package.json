@@ -39,14 +39,14 @@
         "dev": "tsup --watch",
         "type-check": "tsc --noEmit",
         "lint": "echo 'No linting configured'",
-        "test": "echo 'No tests configured'",
+        "test": "tsup && cp -r templates dist/ && node --test tests/*.test.mjs",
         "clean": "rimraf dist"
     },
     "dependencies": {
-        "@codama/errors": "1.3.0",
-        "@codama/nodes": "1.3.0",
+        "@codama/errors": "1.9.0",
+        "@codama/nodes": "1.9.0",
         "@codama/renderers-core": "1.0.16",
-        "@codama/visitors-core": "1.3.0",
+        "@codama/visitors-core": "1.9.0",
         "@sevenlabs-hq/carbon-versions": "workspace:*",
         "@solana/codecs-strings": "^2.2.0",
         "nunjucks": "^3.2.4"
