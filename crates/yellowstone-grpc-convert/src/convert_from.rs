@@ -341,8 +341,9 @@ pub fn create_pubkey(pubkey: &[u8]) -> CreateResult<Pubkey> {
 #[cfg(feature = "account-data-as-bytes")]
 fn take_account_data(account: &mut proto::SubscribeUpdateAccountInfo) -> Vec<u8> {
     // By taking the data, we make sure the reference count goes quicker to 1.
-    // If only one reference remains (say this instance), during `into()`, it won't copy the vector
-    // Compared to `Bytes:to_vec`, it should not allocate new memory.
+    // If only one reference remains (say this instance), during `into()`, it won't
+    // copy the vector Compared to `Bytes:to_vec`, it should not allocate new
+    // memory.
     let bytes = std::mem::take(&mut account.data);
     bytes.into()
 }

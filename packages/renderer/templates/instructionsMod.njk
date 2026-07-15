@@ -28,6 +28,7 @@ pub use self::cpi_event::*;
 {% endif %}
 
 {{ macros.enumWrapperDerives() }}
+{{ macros.instructionCollectionDerives() }}
 pub enum {{ program.name | pascalCase }}Instruction {
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
     {{ instruction.name | pascalCase }} {

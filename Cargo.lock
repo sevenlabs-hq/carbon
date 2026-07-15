@@ -2450,6 +2450,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-raptor-v1-decoder"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "borsh",
+ "carbon-core",
+ "carbon-test-utils",
+ "juniper",
+ "serde",
+ "serde_json",
+ "solana-account 4.3.1",
+ "solana-instruction",
+ "solana-pubkey 4.2.0",
+ "sqlx",
+ "sqlx_migrator",
+]
+
+[[package]]
 name = "carbon-raydium-amm-v4-decoder"
 version = "1.0.0"
 dependencies = [

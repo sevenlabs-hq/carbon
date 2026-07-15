@@ -16,6 +16,7 @@ pub use self::{create::*, create_idempotent::*, recover_nested::*};
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+#[cfg_attr(feature = "serde", derive(carbon_core::InstructionType))]
 pub enum AssociatedTokenAccountInstruction {
     Create {
         program_id: solana_pubkey::Pubkey,
