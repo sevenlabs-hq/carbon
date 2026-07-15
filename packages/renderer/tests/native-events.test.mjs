@@ -69,8 +69,8 @@ test('renders native Codama events with their IDL-defined CPI discriminator', ()
         assert.match(generatedEvent, /if discriminator != \[9\]/);
 
         const cargoToml = readFileSync(join(outputDirectory, 'Cargo.toml'), 'utf8');
-        assert.match(cargoToml, /carbon-core = \{ version = "1\.0\.0"/);
-        assert.match(cargoToml, /carbon-test-utils = "1\.0\.0"/);
+        assert.match(cargoToml, /carbon-core = \{ version = "0\.12\.0"/);
+        assert.match(cargoToml, /carbon-test-utils = "0\.12\.0"/);
     } finally {
         rmSync(outputDirectory, { force: true, recursive: true });
     }
