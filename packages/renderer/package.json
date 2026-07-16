@@ -39,7 +39,7 @@
         "dev": "tsup --watch",
         "type-check": "tsc --noEmit",
         "lint": "echo 'No linting configured'",
-        "test": "echo 'No tests configured'",
+        "test": "tsup && cp -r templates dist/ && node --test tests/*.test.mjs",
         "clean": "rimraf dist"
     },
     "dependencies": {

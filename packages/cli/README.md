@@ -57,6 +57,10 @@ carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo --url mainnet
 carbon-cli parse --idl my_program_codama.json --out-dir ./src/decoders --standard codama --event-hints "BuyEvent,CreatePoolEvent"
 ```
 
+Event hints remain supported for compatibility. When the IDL contains native
+Codama `eventNode` values describing event-CPI payloads, typed event data and
+the `CpiEvent` instruction variant are also generated automatically.
+
 ### Scaffold Command
 
 Generate a complete project skeleton with decoder and indexer setup.
