@@ -15,7 +15,13 @@ pub enum CpiEvent {
 
 {{ macros.simpleStructDerives() }}
 pub struct CpiEventInstructionAccounts {
+{% if withBase58 %}
+    #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+{% endif %}
     pub program: solana_pubkey::Pubkey,
+{% if withBase58 %}
+    #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+{% endif %}
     pub event_authority: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }

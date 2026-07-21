@@ -76,6 +76,54 @@ test('renders native Codama events with their IDL-defined CPI discriminator', ()
     }
 });
 
+test('serializes instruction metadata pubkeys as base58 when enabled', () => {
+    const outputDirectory = mkdtempSync(join(tmpdir(), 'carbon-base58-program-id-'));
+
+    try {
+        const event = nativeEventNode({
+            name: 'paymentCreated',
+            data: structTypeNode([]),
+            discriminators: [
+                constantDiscriminatorNode(constantValueNodeFromBytes('base16', '01020304'), 0),
+                constantDiscriminatorNode(constantValueNodeFromBytes('base16', '09'), 4),
+            ],
+        });
+        const root = rootNode(
+            programWithEvents({
+                name: 'payments',
+                publicKey: '11111111111111111111111111111111',
+                events: [event],
+                instructions: [instructionNode({ name: 'createPayment' })],
+            }),
+        );
+
+        visit(
+            root,
+            renderVisitor(outputDirectory, {
+                standalone: true,
+                withBase58: true,
+                withGraphql: false,
+                withPostgres: false,
+                withSerde: true,
+            }),
+        );
+
+        const instructionsMod = readFileSync(join(outputDirectory, 'src/instructions/mod.rs'), 'utf8');
+        const programIdSerializationAttributes = instructionsMod.match(
+            /serde\(serialize_with = "crate::base58::serialize"\)/g,
+        );
+        assert.equal(programIdSerializationAttributes?.length, 2);
+
+        const cpiEvent = readFileSync(join(outputDirectory, 'src/instructions/cpi_event.rs'), 'utf8');
+        const cpiAccountSerializationAttributes = cpiEvent.match(
+            /serde\(serialize_with = "crate::base58::serialize"\)/g,
+        );
+        assert.equal(cpiAccountSerializationAttributes?.length, 2);
+    } finally {
+        rmSync(outputDirectory, { force: true, recursive: true });
+    }
+});
+
 test('keeps the anchorEvents renderer option backward compatible', () => {
     const outputDirectory = mkdtempSync(join(tmpdir(), 'carbon-anchor-events-'));
 
