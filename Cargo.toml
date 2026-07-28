@@ -82,6 +82,7 @@ carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder", version = 
 carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder", version = "1.0.0" }
 carbon-pancake-swap-decoder = { path = "decoders/pancake-swap-decoder", version = "1.0.0" }
 carbon-phoenix-v1-decoder = { path = "decoders/phoenix-v1-decoder", version = "1.0.0" }
+carbon-popi-decoder = { path = "decoders/popi-decoder", version = "0.1.0" }
 carbon-pump-fees-decoder = { path = "decoders/pump-fees-decoder", version = "1.0.0" }
 carbon-pump-swap-decoder = { path = "decoders/pump-swap-decoder", version = "1.0.0" }
 carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "1.0.0" }

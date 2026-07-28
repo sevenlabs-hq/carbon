@@ -2264,6 +2264,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-popi-decoder"
+version = "0.1.0"
+dependencies = [
+ "borsh",
+ "carbon-core",
+ "carbon-test-utils",
+ "serde",
+ "serde-big-array",
+ "serde_json",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey 3.0.0",
+]
+
+[[package]]
 name = "carbon-proc-macros"
 version = "1.0.0"
 dependencies = [
