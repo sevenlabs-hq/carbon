@@ -28,8 +28,8 @@ jobs:
       
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - run: pnpm test
       - run: pnpm format:check
       - run: pnpm type-check
-
 
 

@@ -15,6 +15,12 @@ npm install @sevenlabs-hq/carbon-codama-renderer
 
 This package is used internally by [`@sevenlabs-hq/carbon-cli`](https://www.npmjs.com/package/@sevenlabs-hq/carbon-cli) when processing Codama IDL files.
 
+Codama `eventNode` values are rendered automatically. The renderer derives the
+event-CPI discriminator and each event discriminator from the IDL, generates the
+typed event data, and adds the `CpiEvent` instruction variant. The existing
+`anchorEvents` renderer option remains available for Anchor IDLs that represent
+events as defined types.
+
 ## Links
 
 - [NPM Package](https://www.npmjs.com/package/@sevenlabs-hq/carbon-codama-renderer)

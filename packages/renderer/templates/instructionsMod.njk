@@ -32,6 +32,9 @@ pub use self::cpi_event::*;
 pub enum {{ program.name | pascalCase }}Instruction {
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
     {{ instruction.name | pascalCase }} {
+{% if withBase58 %}
+        #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+{% endif %}
         program_id: solana_pubkey::Pubkey,
         data: {{ instruction.name | pascalCase }},
         accounts: {{ instruction.name | pascalCase }}InstructionAccounts,
@@ -39,6 +42,9 @@ pub enum {{ program.name | pascalCase }}Instruction {
 {% endfor %}
 {% if hasAnchorEvents %}
     CpiEvent {
+{% if withBase58 %}
+        #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+{% endif %}
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
         accounts: CpiEventInstructionAccounts,

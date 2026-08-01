@@ -15,22 +15,28 @@ pub enum CpiEvent {
 
 {{ macros.simpleStructDerives() }}
 pub struct CpiEventInstructionAccounts {
+{% if withBase58 %}
+    #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+{% endif %}
     pub program: solana_pubkey::Pubkey,
+{% if withBase58 %}
+    #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+{% endif %}
     pub event_authority: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
 impl CpiEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 8 {
+        if data.len() < {{ eventCpiDiscriminator | length }} {
             return None;
         }
-        let discriminator = &data[0..8];
-        if discriminator != [228, 69, 165, 46, 81, 203, 154, 29] {
+        let discriminator = &data[0..{{ eventCpiDiscriminator | length }}];
+        if discriminator != [{{ eventCpiDiscriminator | join(', ') }}] {
             return None;
         }
 
-        let event_data = {% if events[0].discriminator | length > 8 %}data{% else %}&data[8..]{% endif %};
+        let event_data = {% if eventDataOffset > 0 %}&data[{{ eventDataOffset }}..]{% else %}data{% endif %};
 
         {% for event in events %}
         if let Some(decoded) = events::{{ event.name | snakeCase }}::{{ event.name | pascalCase }}Event::decode(event_data) {
