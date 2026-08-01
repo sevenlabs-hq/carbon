@@ -20,7 +20,9 @@ use {
         sync::Arc,
     },
     tokio::sync::RwLock,
-    yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterAccounts},
+    yellowstone_grpc_proto::geyser::{
+        CommitmentLevel, SubscribeRequest, SubscribeRequestFilterAccounts,
+    },
 };
 
 #[derive(Clone, GraphQLObject, Debug)]
@@ -144,6 +146,7 @@ pub async fn main() -> CarbonResult<()> {
             owner: vec![TOKEN_PROGRAM_ID.to_string()],
             filters: vec![],
             nonempty_txn_signature: None,
+            cuckoo_accounts_filter: None,
         },
     );
 
@@ -152,12 +155,14 @@ pub async fn main() -> CarbonResult<()> {
     let datasource = YellowstoneGrpcGeyserClient::new(
         geyser_url,
         env::var("X_TOKEN").ok(),
-        Some(CommitmentLevel::Confirmed),
-        account_filters,
-        HashMap::default(),
-        Default::default(),
+        SubscribeRequest {
+            commitment: Some(CommitmentLevel::Confirmed.into()),
+            accounts: account_filters,
+            ..Default::default()
+        },
         Arc::new(RwLock::new(HashSet::new())),
         YellowstoneGrpcClientConfig::default(),
+        None,
         None,
         None,
     );

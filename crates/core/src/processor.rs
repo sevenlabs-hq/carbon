@@ -12,7 +12,8 @@
 //!   a generic bound, avoiding per-call boxing.
 //! - Dyn-dispatched traits in the crate (`Datasource`, `*Pipes`) retain
 //!   `#[async_trait]` due to current async trait object limitations.
-
+#[cfg(feature = "batch")]
+use crate::datasource::BatchUpdateId;
 use {crate::error::CarbonResult, std::future::Future};
 
 /// Async handler invoked for each decoded update of type `T`.
@@ -29,5 +30,9 @@ pub trait Processor<T>
 where
     T: Sync,
 {
-    fn process(&mut self, data: &T) -> impl Future<Output = CarbonResult<()>> + Send;
+    fn process(
+        &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        data: &T,
+    ) -> impl Future<Output = CarbonResult<()>> + Send;
 }

@@ -8,7 +8,8 @@
 //!   `block_details_with_filters(...)`.
 //! - [`BlockDetailsPipes`] — dyn-dispatch trait the pipeline holds as `Box<dyn
 //!   BlockDetailsPipes>`.
-
+#[cfg(feature = "batch")]
+use crate::datasource::BatchUpdateId;
 use {
     crate::{datasource::BlockDetails, error::CarbonResult, filter::Filter, processor::Processor},
     async_trait::async_trait,
@@ -27,7 +28,11 @@ impl<P> BlockDetailsPipe<P> {
 
 #[async_trait]
 pub trait BlockDetailsPipes: Send + Sync {
-    async fn run(&mut self, block_details: BlockDetails) -> CarbonResult<()>;
+    async fn run(
+        &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        block_details: BlockDetails,
+    ) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -37,8 +42,18 @@ impl<P> BlockDetailsPipes for BlockDetailsPipe<P>
 where
     P: Processor<BlockDetails> + Send + Sync,
 {
-    async fn run(&mut self, block_details: BlockDetails) -> CarbonResult<()> {
-        self.processor.process(&block_details).await?;
+    async fn run(
+        &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        block_details: BlockDetails,
+    ) -> CarbonResult<()> {
+        self.processor
+            .process(
+                #[cfg(feature = "batch")]
+                update_id,
+                &block_details,
+            )
+            .await?;
 
         Ok(())
     }

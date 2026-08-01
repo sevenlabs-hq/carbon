@@ -12,6 +12,8 @@
 //! - [`parse_instructions_flat`] — helper that maps a flat list of instructions
 //!   through a collection.
 
+#[cfg(feature = "batch")]
+use crate::datasource::BatchUpdateId;
 use {
     crate::{
         collection::InstructionDecoderCollection, error::CarbonResult, filter::Filter,
@@ -91,6 +93,7 @@ impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
 pub trait TransactionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()>;
@@ -106,6 +109,7 @@ where
 {
     async fn run(
         &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()> {
@@ -116,7 +120,13 @@ where
             instructions: &parsed_instructions,
         };
 
-        self.processor.process(&data).await?;
+        self.processor
+            .process(
+                #[cfg(feature = "batch")]
+                update_id,
+                &data,
+            )
+            .await?;
 
         Ok(())
     }

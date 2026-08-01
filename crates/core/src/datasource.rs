@@ -51,6 +51,15 @@ pub struct DatasourceDisconnection {
 /// emitted.
 #[async_trait]
 pub trait Datasource: Send + Sync {
+    #[cfg(feature = "batch")]
+    async fn consume(
+        &self,
+        id: DatasourceId,
+        sender: tokio::sync::mpsc::Sender<((BatchUpdateId, Vec<Update>), DatasourceId)>,
+        cancellation_token: CancellationToken,
+    ) -> CarbonResult<()>;
+
+    #[cfg(not(feature = "batch"))]
     async fn consume(
         &self,
         id: DatasourceId,
@@ -74,6 +83,38 @@ impl DatasourceId {
 
     pub fn new_named(name: &str) -> Self {
         Self(name.to_string())
+    }
+}
+
+/// Unique identifier for batch updates.
+///
+/// Used for sending processed updates notifications upstream.
+#[cfg(feature = "batch")]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct BatchUpdateId(String);
+
+#[cfg(feature = "batch")]
+impl BatchUpdateId {
+    pub fn new_unique() -> Self {
+        Self(uuid::Uuid::new_v4().to_string())
+    }
+
+    pub fn new_named(name: &str) -> Self {
+        Self(name.to_string())
+    }
+}
+
+#[cfg(feature = "batch")]
+impl ToString for BatchUpdateId {
+    fn to_string(&self) -> String {
+        self.0.clone()
+    }
+}
+
+#[cfg(feature = "batch")]
+impl ToString for &BatchUpdateId {
+    fn to_string(&self) -> String {
+        self.0.clone()
     }
 }
 

@@ -8,7 +8,8 @@
 //!   `account_deletions_with_filters(...)`.
 //! - [`AccountDeletionPipes`] — dyn-dispatch trait the pipeline holds as
 //!   `Box<dyn AccountDeletionPipes>`.
-
+#[cfg(feature = "batch")]
+use crate::datasource::BatchUpdateId;
 use {
     crate::{
         datasource::AccountDeletion, error::CarbonResult, filter::Filter, processor::Processor,
@@ -29,7 +30,11 @@ impl<P> AccountDeletionPipe<P> {
 
 #[async_trait]
 pub trait AccountDeletionPipes: Send + Sync {
-    async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()>;
+    async fn run(
+        &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        account_deletion: AccountDeletion,
+    ) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -39,8 +44,18 @@ impl<P> AccountDeletionPipes for AccountDeletionPipe<P>
 where
     P: Processor<AccountDeletion> + Send + Sync,
 {
-    async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()> {
-        self.processor.process(&account_deletion).await?;
+    async fn run(
+        &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        account_deletion: AccountDeletion,
+    ) -> CarbonResult<()> {
+        self.processor
+            .process(
+                #[cfg(feature = "batch")]
+                update_id,
+                &account_deletion,
+            )
+            .await?;
 
         Ok(())
     }

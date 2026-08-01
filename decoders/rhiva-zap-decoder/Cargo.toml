@@ -1,0 +1,32 @@
+[package]
+name = "carbon-rhiva-zap-decoder"
+version = "1.0.0"
+edition = { workspace = true }
+description = "Rhiva Zap Decoder"
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "sharky"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = []
+
+serde = ["dep:serde"]
+
+
+[dependencies]
+carbon-core = { workspace = true, features = ["macros"] }
+borsh = { workspace = true, features = ["derive"] }
+solana-pubkey = { workspace = true, features = ["borsh"] }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true }
+
+serde = { workspace = true, features = ["derive"], optional = true }
+
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }

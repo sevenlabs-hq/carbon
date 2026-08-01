@@ -12,7 +12,8 @@
 //!   to user processors.
 //! - [`AccountPipe`] / [`AccountPipes`] — internal pipe wrapping the decoder +
 //!   processor + filters; constructed by `PipelineBuilder`.
-
+#[cfg(feature = "batch")]
+use crate::datasource::BatchUpdateId;
 use {
     crate::{error::CarbonResult, filter::Filter, processor::Processor},
     async_trait::async_trait,
@@ -86,6 +87,7 @@ impl<T, P> AccountPipe<T, P> {
 pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
         account_with_metadata: (AccountMetadata, solana_account::Account),
     ) -> CarbonResult<()>;
 
@@ -100,6 +102,7 @@ where
 {
     async fn run(
         &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
         account_with_metadata: (AccountMetadata, solana_account::Account),
     ) -> CarbonResult<()> {
         let (account_metadata, account) = account_with_metadata;
@@ -111,7 +114,13 @@ where
                 raw_account: &account,
             };
 
-            self.processor.process(&data).await?;
+            self.processor
+                .process(
+                    #[cfg(feature = "batch")]
+                    update_id,
+                    &data,
+                )
+                .await?;
         }
         Ok(())
     }

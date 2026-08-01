@@ -13,7 +13,7 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [features]
-default = []
+default = ["serde"]
 
 serde = ["dep:serde"]
 

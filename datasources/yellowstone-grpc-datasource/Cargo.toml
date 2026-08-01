@@ -12,7 +12,12 @@ categories = ["encoding"]
 [lib]
 crate-type = ["rlib"]
 
+[features]
+batch = ["carbon-core/batch"]
+
 [dependencies]
+yellowstone-grpc-convert = { path = "../../crates/yellowstone-grpc-convert" }
+
 solana-account = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-signature = { workspace = true }

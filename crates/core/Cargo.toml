@@ -14,6 +14,7 @@ crate-type = ["rlib"]
 
 [features]
 default = ["macros"]
+batch = []
 macros = ["carbon-macros", "carbon-proc-macros"]
 postgres = ["sqlx", "num-traits", "sqlx_migrator", "bigdecimal"]
 graphql = ["juniper", "axum", "juniper_axum"]

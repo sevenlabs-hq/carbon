@@ -12,6 +12,8 @@
 //! All four record per-upsert metrics (`postgres_*_upserted` counters
 //! and `postgres_*_upsert_duration_milliseconds` histograms).
 
+#[cfg(feature = "batch")]
+use crate::datasource::BatchUpdateId;
 use {
     crate::{
         account::{AccountMetadata, AccountProcessorInputType},
@@ -93,7 +95,11 @@ where
     T: Clone + Send + Sync + 'static,
     W: From<(T, AccountMetadata)> + Upsert + Send + 'static,
 {
-    async fn process(&mut self, input: &AccountProcessorInputType<'a, T>) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        #[cfg(feature = "batch")] _update_id: BatchUpdateId,
+        input: &AccountProcessorInputType<'a, T>,
+    ) -> CarbonResult<()> {
         let start = std::time::Instant::now();
 
         let wrapper = W::from((input.decoded_account.data.clone(), input.metadata.clone()));
@@ -131,7 +137,11 @@ impl<'a, T> crate::processor::Processor<AccountProcessorInputType<'a, T>>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    async fn process(&mut self, input: &AccountProcessorInputType<'a, T>) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        #[cfg(feature = "batch")] _update_id: BatchUpdateId,
+        input: &AccountProcessorInputType<'a, T>,
+    ) -> CarbonResult<()> {
         let account_row =
             AccountRow::from_parts(input.decoded_account.data.clone(), input.metadata.clone());
 
@@ -171,7 +181,11 @@ where
     T: Clone + Send + Sync + 'static,
     W: From<(T, InstructionMetadata, Vec<AccountMeta>)> + Upsert + Send + 'static,
 {
-    async fn process(&mut self, input: &InstructionProcessorInputType<'a, T>) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        #[cfg(feature = "batch")] _update_id: BatchUpdateId,
+        input: &InstructionProcessorInputType<'a, T>,
+    ) -> CarbonResult<()> {
         let start = std::time::Instant::now();
 
         let wrapper = W::from((
@@ -214,7 +228,11 @@ impl<'a, T> crate::processor::Processor<InstructionProcessorInputType<'a, T>>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    async fn process(&mut self, input: &InstructionProcessorInputType<'a, T>) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        #[cfg(feature = "batch")] _update_id: BatchUpdateId,
+        input: &InstructionProcessorInputType<'a, T>,
+    ) -> CarbonResult<()> {
         let instruction_row =
             InstructionRow::from_parts(input.decoded_instruction.clone(), input.metadata.clone());
 

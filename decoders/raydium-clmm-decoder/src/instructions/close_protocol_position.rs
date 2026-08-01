@@ -2,7 +2,8 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// The CLMM protocol decides to discard the protocol position account, which
 /// can reduce users' opening costs. After the original protocol position
-/// account is closed, the gas fee will be refunded to the user who created it. # Arguments
+/// account is closed, the gas fee will be refunded to the user who created it.
+/// # Arguments
 /// * `ctx` - The context of accounts
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]

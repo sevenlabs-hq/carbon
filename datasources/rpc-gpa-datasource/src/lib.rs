@@ -117,7 +117,7 @@ impl Datasource for GpaDatasource {
                         "Failed to parse pubkey: {e}"
                     ))
                 })?,
-                account: account.account.decode().ok_or(
+                account: account.account.to_account().ok_or(
                     carbon_core::error::Error::FailedToConsumeDatasource(
                         "Failed to decode account".to_string(),
                     ),

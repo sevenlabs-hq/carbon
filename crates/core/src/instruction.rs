@@ -18,6 +18,8 @@
 //! - [`MAX_INSTRUCTION_STACK_DEPTH`] — Solana's per-transaction CPI depth
 //!   ceiling (5).
 
+#[cfg(feature = "batch")]
+use crate::datasource::BatchUpdateId;
 use {
     crate::{
         deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter, processor::Processor,
@@ -229,7 +231,11 @@ impl<T: Send, P> InstructionPipe<T, P> {
 
 #[async_trait]
 pub trait InstructionPipes<'a>: Send + Sync {
-    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
+    async fn run(
+        &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        nested_instruction: &NestedInstruction,
+    ) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -240,7 +246,11 @@ where
     T: Send + Sync + 'static,
     P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
 {
-    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
+    async fn run(
+        &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        nested_instruction: &NestedInstruction,
+    ) -> CarbonResult<()> {
         if let Some(decoded_instruction) = self
             .decoder
             .decode_instruction(&nested_instruction.instruction)
@@ -252,7 +262,13 @@ where
                 raw_instruction: &nested_instruction.instruction,
             };
 
-            self.processor.process(&data).await?;
+            self.processor
+                .process(
+                    #[cfg(feature = "batch")]
+                    update_id,
+                    &data,
+                )
+                .await?;
         }
 
         Ok(())

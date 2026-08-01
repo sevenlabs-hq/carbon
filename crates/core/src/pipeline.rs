@@ -23,6 +23,8 @@
 //! 5. Shutdown via the supplied `CancellationToken` or ctrl-C; behaviour
 //!    governed by [`ShutdownStrategy`].
 
+#[cfg(feature = "batch")]
+use crate::datasource::BatchUpdateId;
 use {
     crate::{
         account::{
@@ -147,6 +149,10 @@ pub enum ShutdownStrategy {
     ProcessPending,
 }
 
+/// Processed Batch Result
+#[cfg(feature = "batch")]
+pub type BatchResult = (BatchUpdateId, Option<Vec<(crate::error::Error, Update)>>);
+
 /// Default capacity of the MPSC channel between datasources and the
 /// pipeline loop. Override with [`PipelineBuilder::channel_buffer_size`].
 pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
@@ -157,6 +163,8 @@ pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 /// [`run`](Self::run). Fields are public for advanced introspection but
 /// the standard construction path is the builder.
 pub struct Pipeline {
+    #[cfg(feature = "batch")]
+    pub processed_updates_notification: Option<tokio::sync::broadcast::Sender<BatchResult>>,
     pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
@@ -188,6 +196,12 @@ impl Pipeline {
             let exporter = Arc::clone(exporter);
             MetricsExporter::initialize(exporter)?;
         }
+        #[cfg(feature = "batch")]
+        let (update_sender, mut update_receiver) = tokio::sync::mpsc::channel::<(
+            (BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>(self.channel_buffer_size);
+        #[cfg(not(feature = "batch"))]
         let (update_sender, mut update_receiver) =
             tokio::sync::mpsc::channel::<(Update, DatasourceId)>(self.channel_buffer_size);
 
@@ -239,29 +253,53 @@ impl Pipeline {
                 }
                 update = update_receiver.recv() => {
                     match update {
-                        Some((update, datasource_id)) => {
+                        Some((maybe_multiple_updates, datasource_id)) => {
+                            let  mut errors = vec![];
+
+                            #[cfg(feature = "batch")]
+                            let (update_id,  updates)= maybe_multiple_updates;
+
+                            #[cfg(not(feature = "batch"))]
+                            let updates = [maybe_multiple_updates];
+
                             UPDATES_RECEIVED.inc();
 
                             let start = Instant::now();
-                            let process_result = self.process(update.clone(), datasource_id.clone()).await;
+                            for update in updates {
+                              let process_result = self.process(
+                                  #[cfg(feature="batch")]
+                                  update_id.clone(),
+                                  update.clone(),
+                                  datasource_id.clone()
+                              ).await;
+                              match process_result {
+                                  Ok(_) => {
+                                      UPDATES_SUCCESSFUL.inc();
+                                  }
+                                  Err(error) => {
+                                      log::error!("error processing update ({update:?}): {error:?}");
+                                      UPDATES_FAILED.inc();
+                                      errors.push((error, update));
+                                  }
+                              };
+                            }
+
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
                             PROCESSING_TIME_NANOS.record(time_taken_nanoseconds as f64);
                             PROCESSING_TIME_MILLIS.record(time_taken_milliseconds as f64);
 
-                            match process_result {
-                                Ok(_) => {
-                                    UPDATES_SUCCESSFUL.inc();
-                                }
-                                Err(error) => {
-                                    log::error!("error processing update ({update:?}): {error:?}");
-                                    UPDATES_FAILED.inc();
-                                }
-                            };
-
                             UPDATES_PROCESSED.inc();
                             UPDATES_QUEUED.set(update_receiver.len() as f64);
+
+                            #[cfg(feature = "batch")]
+                            if let Some(ref notifier) = self.processed_updates_notification {
+                                let error = if errors.is_empty() { None } else { Some(errors)};
+                                if let Err(error) = notifier.send((update_id, error)) {
+                                    log::error!("failed to send processed updates notification {error:?}");
+                                }
+                            }
                         }
                         None => {
                             log::info!("update_receiver closed, shutting down.");
@@ -294,7 +332,12 @@ impl Pipeline {
         Ok(())
     }
 
-    async fn process(&mut self, update: Update, datasource_id: DatasourceId) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        update: Update,
+        datasource_id: DatasourceId,
+    ) -> CarbonResult<()> {
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
@@ -318,8 +361,12 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run((account_metadata.clone(), account_update.account.clone()))
-                            .await?;
+                        pipe.run(
+                            #[cfg(feature = "batch")]
+                            update_id.clone(),
+                            (account_metadata.clone(), account_update.account.clone()),
+                        )
+                        .await?;
                     }
                 }
 
@@ -351,7 +398,12 @@ impl Pipeline {
                                 FilterResult::Accept
                             )
                         }) {
-                            pipe.run(nested_instruction).await?;
+                            pipe.run(
+                                #[cfg(feature = "batch")]
+                                update_id.clone(),
+                                nested_instruction,
+                            )
+                            .await?;
                         }
                     }
                 }
@@ -367,8 +419,13 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(transaction_metadata.clone(), &instructions_with_metadata)
-                            .await?;
+                        pipe.run(
+                            #[cfg(feature = "batch")]
+                            update_id.clone(),
+                            transaction_metadata.clone(),
+                            &instructions_with_metadata,
+                        )
+                        .await?;
                     }
                 }
 
@@ -386,7 +443,12 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(account_deletion.clone()).await?;
+                        pipe.run(
+                            #[cfg(feature = "batch")]
+                            update_id.clone(),
+                            account_deletion.clone(),
+                        )
+                        .await?;
                     }
                 }
 
@@ -404,7 +466,12 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(block_details.clone()).await?;
+                        pipe.run(
+                            #[cfg(feature = "batch")]
+                            update_id.clone(),
+                            block_details.clone(),
+                        )
+                        .await?;
                     }
                 }
 
@@ -427,6 +494,8 @@ impl Pipeline {
 }
 
 pub struct PipelineBuilder {
+    #[cfg(feature = "batch")]
+    pub processed_updates_notification: Option<tokio::sync::broadcast::Sender<BatchResult>>,
     pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
@@ -450,6 +519,8 @@ impl Default for PipelineBuilder {
             transaction_pipes: Vec::new(),
             exporters: Vec::new(),
             datasource_cancellation_token: None,
+            #[cfg(feature = "batch")]
+            processed_updates_notification: None,
             shutdown_strategy: ShutdownStrategy::default(),
             channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
         }
@@ -473,6 +544,15 @@ impl PipelineBuilder {
         id: DatasourceId,
     ) -> Self {
         self.datasources.push((id, Arc::new(datasource)));
+        self
+    }
+
+    #[cfg(feature = "batch")]
+    pub fn processed_updates_notification(
+        mut self,
+        channel: tokio::sync::broadcast::Sender<BatchResult>,
+    ) -> Self {
+        self.processed_updates_notification = Some(channel);
         self
     }
 
@@ -642,6 +722,8 @@ impl PipelineBuilder {
         #[cfg(feature = "postgres")]
         crate::postgres::processors::register_postgres_metrics();
         Ok(Pipeline {
+            #[cfg(feature = "batch")]
+            processed_updates_notification: self.processed_updates_notification,
             datasources: self.datasources,
             account_pipes: self.account_pipes,
             account_deletion_pipes: self.account_deletion_pipes,

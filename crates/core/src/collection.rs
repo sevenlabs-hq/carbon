@@ -28,9 +28,9 @@ use serde::Serialize;
 /// - [`InstructionType`](Self::InstructionType): Discriminant returned by
 ///   [`get_type`](Self::get_type), used for routing within the pipe.
 pub trait InstructionDecoderCollection:
-    Clone + std::fmt::Debug + Send + Sync + Eq + std::hash::Hash + Serialize + 'static
+    Clone + std::fmt::Debug + Send + Sync + PartialEq + Serialize + 'static
 {
-    type InstructionType: Clone + std::fmt::Debug + PartialEq + Eq + Send + Sync + 'static;
+    type InstructionType: Clone + std::fmt::Debug + PartialEq + Send + Sync + 'static;
 
     fn parse_instruction(instruction: &solana_instruction::Instruction) -> Option<Self>;
 
