@@ -68,6 +68,7 @@ export type DecoderGenerationOptions = {
     standard?: string;
     url?: string;
     eventHints?: string;
+    eventCpiDiscriminator?: string;
     deleteFolderBeforeRendering?: boolean;
     programId?: string;
     packageName?: string;
@@ -96,6 +97,24 @@ function getValidIdlAddress(idlJson: any): string | undefined {
         return addr as string;
     }
     return undefined;
+}
+
+/**
+ * Parses the --event-cpi-discriminator hex string into bytes
+ */
+export function parseEventCpiDiscriminator(hex?: string): number[] | undefined {
+    if (hex === undefined) {
+        return undefined;
+    }
+    const cleaned = hex.trim().replace(/^0x/i, '');
+    if (!/^[0-9a-fA-F]+$/.test(cleaned) || cleaned.length % 2 !== 0) {
+        exitWithError('Invalid --event-cpi-discriminator: expected an even-length hex string (e.g. e445a52e51cb9a1d)');
+    }
+    const bytes: number[] = [];
+    for (let index = 0; index < cleaned.length; index += 2) {
+        bytes.push(parseInt(cleaned.slice(index, index + 2), 16));
+    }
+    return bytes;
 }
 
 /**
@@ -154,6 +173,7 @@ export function validateDecoderOptions(
     url?: string,
     eventHints?: string,
     programId?: string,
+    eventCpiDiscriminator?: string,
 ): void {
     if (idlSource.type === 'program') {
         if (!url) {
@@ -166,6 +186,10 @@ export function validateDecoderOptions(
 
     if (standard === 'anchor' && eventHints) {
         exitWithError('Event hints can only be used with Codama standard');
+    }
+
+    if (standard === 'anchor' && eventCpiDiscriminator) {
+        exitWithError('--event-cpi-discriminator can only be used with Codama standard');
     }
 
     if (programId) {
@@ -242,11 +266,12 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
 
     const idlSource = parseIdlSource(idl);
     const standard = validateIdlStandard(standardOpt || 'anchor', idlSource);
-    validateDecoderOptions(standard, idlSource, url, options.eventHints, programId);
+    validateDecoderOptions(standard, idlSource, url, options.eventHints, programId, options.eventCpiDiscriminator);
 
     // Common render options shared across all branches
     const renderOpts = {
         deleteFolderBeforeRendering,
+        eventCpiDiscriminator: parseEventCpiDiscriminator(options.eventCpiDiscriminator),
         packageName,
         postgresMode,
         withPostgres,

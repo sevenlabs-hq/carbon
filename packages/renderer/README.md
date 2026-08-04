@@ -17,9 +17,12 @@ This package is used internally by [`@sevenlabs-hq/carbon-cli`](https://www.npmj
 
 Codama `eventNode` values are rendered automatically. The renderer derives the
 event-CPI discriminator and each event discriminator from the IDL, generates the
-typed event data, and adds the `CpiEvent` instruction variant. The existing
-`anchorEvents` renderer option remains available for Anchor IDLs that represent
-events as defined types.
+typed event data, and adds the `CpiEvent` instruction variant. Events encoded as
+a `hiddenPrefixTypeNode` carry no event-CPI envelope in the IDL; they default to
+the Anchor event-CPI discriminator `[228, 69, 165, 46, 81, 203, 154, 29]`, and
+the `eventCpiDiscriminator` renderer option overrides that default for programs
+with a custom envelope. The existing `anchorEvents` renderer option remains
+available for Anchor IDLs that represent events as defined types.
 
 ## Links
 

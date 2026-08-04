@@ -59,6 +59,10 @@ program
     .option('-c, --as-crate', 'Generate as a Cargo crate layout', false)
     .option('-s, --standard <anchor|codama>', 'Specify the IDL standard to parse', 'anchor')
     .option('--event-hints <csv>', 'Comma-separated names of defined types to parse as CPI Events (Codama only)')
+    .option(
+        '--event-cpi-discriminator <hex>',
+        'Event-CPI envelope for hidden-prefix Codama events as hex bytes (default: the Anchor event tag e445a52e51cb9a1d)',
+    )
     .option('-u, --url <rpcUrl>', 'RPC URL for fetching IDL when using a program address')
     .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
     .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
@@ -133,6 +137,7 @@ program
                 standard: opts.standard,
                 url: opts.url,
                 eventHints: opts.eventHints,
+                eventCpiDiscriminator: opts.eventCpiDiscriminator,
                 deleteFolderBeforeRendering: Boolean(opts.clean),
                 programId: opts.programId,
                 packageName,
@@ -182,6 +187,10 @@ program
     .option('--idl-standard <anchor|codama>', 'IDL standard')
     .option('--idl-url <rpcUrl>', 'RPC URL for fetching IDL (when using program address)')
     .option('--event-hints <csv>', 'Event hints for Codama IDL')
+    .option(
+        '--event-cpi-discriminator <hex>',
+        'Event-CPI envelope for hidden-prefix Codama events as hex bytes (default: the Anchor event tag e445a52e51cb9a1d)',
+    )
     .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
     .option('-s, --data-source <name>', 'Name of data source')
     .option('-m, --metrics <log|prometheus>', 'Metrics to use', 'log')
@@ -278,6 +287,7 @@ program
                 standard: opts.idlStandard,
                 url: opts.idlUrl,
                 eventHints: opts.eventHints,
+                eventCpiDiscriminator: opts.eventCpiDiscriminator,
                 deleteFolderBeforeRendering: true,
                 programId: opts.programId,
                 packageName: decoder,
