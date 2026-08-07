@@ -136,7 +136,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     const isToken2022 = isToken2022Program(currentProgram);
                     const accountNameLower = node.name.toLowerCase();
-                    const isExcludedToken2022Account = isToken2022 && (accountNameLower === 'mint' || accountNameLower === 'token' || accountNameLower === 'multisig');
+                    const isExcludedToken2022Account =
+                        isToken2022 &&
+                        (accountNameLower === 'mint' ||
+                            accountNameLower === 'token' ||
+                            accountNameLower === 'multisig');
                     if (!isExcludedToken2022Account) {
                         imports.add('carbon_core::deserialize::CarbonDeserialize');
                     }
