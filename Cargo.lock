@@ -12063,17 +12063,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "solana-zero-copy"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd3183a7934dd7e6490ae86732616cd70361f5ab9401b9a375ab62f7fa17b112"
-dependencies = [
- "borsh",
- "bytemuck",
- "bytemuck_derive",
-]
-
-[[package]]
 name = "solana-zk-elgamal-proof-program"
 version = "3.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -12290,9 +12279,9 @@ dependencies = [
 
 [[package]]
 name = "spl-pod"
-version = "0.7.3"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f9c6e142cdf1e7e77f480053ec9f0ce989890768ddf91f619b50f39d1b456f5"
+checksum = "b1233fdecd7461611d69bb87bc2e95af742df47291975d21232a0be8217da9de"
 dependencies = [
  "borsh",
  "bytemuck",
@@ -12303,7 +12292,6 @@ dependencies = [
  "solana-program-error",
  "solana-program-option",
  "solana-pubkey 3.0.0",
- "solana-zero-copy",
  "solana-zk-sdk",
  "thiserror 2.0.19",
 ]
@@ -12553,18 +12541,19 @@ dependencies = [
 
 [[package]]
 name = "spl-type-length-value"
-version = "0.9.1"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2504631748c48d2a937414d64a12dcac4588d34bd07d355d648619c189d29435"
+checksum = "ca20a1a19f4507a98ca4b28ff5ed54cac9b9d34ed27863e2bde50a3238f9a6ac"
 dependencies = [
  "bytemuck",
  "num-derive",
  "num-traits",
  "num_enum",
  "solana-account-info",
+ "solana-msg",
  "solana-program-error",
- "solana-zero-copy",
  "spl-discriminator",
+ "spl-pod",
  "thiserror 2.0.19",
 ]
 

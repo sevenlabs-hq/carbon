@@ -182,12 +182,12 @@ solana-transaction-error = "^3.0.0"
 solana-transaction-status = "^3.0.0"
 solana-transaction-status-client-types = "^3.0.0"
 spl-memo-interface = "2.0.0"
-spl-pod = "0.7.1"
-spl-token-2022 = "10.0.0"
-spl-token-group-interface = "0.7.1"
-spl-token-interface = "2.0.0"
-spl-token-metadata-interface = "0.8.0"
-spl-type-length-value = "0.9.0"
+spl-pod = "=0.7.1"
+spl-token-2022 = "=10.0.0"
+spl-token-group-interface = "=0.7.1"
+spl-token-interface = "=2.0.0"
+spl-token-metadata-interface = "=0.8.0"
+spl-type-length-value = "=0.9.0"
 sqlx = { version = "0.8.6", features = [
     "macros",
     "runtime-tokio-rustls",
