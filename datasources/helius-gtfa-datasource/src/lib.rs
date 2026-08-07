@@ -296,7 +296,11 @@ impl Datasource for HeliusGtfaDatasource {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_helius_gtfa_metrics();
@@ -365,7 +369,20 @@ impl Datasource for HeliusGtfaDatasource {
                     block_hash: None,
                 }));
 
-                if let Err(e) = sender.send((update, id_for_loop.clone())).await {
+                #[cfg(feature = "batch")]
+                let result = sender
+                    .send((
+                        (
+                            carbon_core::datasource::BatchUpdateId::new_unique(),
+                            vec![update],
+                        ),
+                        id_for_loop.clone(),
+                    ))
+                    .await;
+                #[cfg(not(feature = "batch"))]
+                let result = sender.send((update, id_for_loop.clone())).await;
+
+                if let Err(e) = result {
                     log::error!("Failed to send transaction update: {e:?}");
                 } else {
                     TRANSACTIONS_PROCESSED.inc();

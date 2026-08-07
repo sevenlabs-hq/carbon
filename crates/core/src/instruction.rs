@@ -64,7 +64,7 @@ impl InstructionMetadata {
         self.extract_event_log_data()
             .into_iter()
             .filter(|log| log.len() >= 8)
-            .filter_map(|log| <T as CarbonDeserialize>::deserialize(&log))
+            .filter_map(|log| <T as CarbonDeserialize>::decode(&log))
             .collect()
     }
 

@@ -32,8 +32,7 @@ graphql = [
 ]
 
 [dependencies]
-solana-zk-sdk = "7.0.1"
-solana-zk-sdk-pod = "0.1.2"
+solana-zk-sdk = "4.0.0"
 
 carbon-core = { workspace = true, features = ["macros"] }
 borsh = { workspace = true, features = ["derive"] }

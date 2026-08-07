@@ -5,6 +5,7 @@ use {
         LiquidityPoolLpTokenInfo, LiquidityPoolMarketCapBasedFees, LiquidityPoolReserve,
         LiquidityPoolSlotOffsetBasedFees, LiquidityPoolTokenInfo,
     },
+    carbon_core::deserialize::CarbonDeserialize,
     solana_pubkey::Pubkey,
 };
 
@@ -45,13 +46,15 @@ pub struct LiquidityPoolState {
     pub creator_trading_fee_receiver: Pubkey,
 }
 
-impl LiquidityPoolState {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for LiquidityPoolState {
+    const DISCRIMINATOR: &'static [u8] = &[190, 158, 220, 130, 15, 162, 132, 252];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [190, 158, 220, 130, 15, 162, 132, 252] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

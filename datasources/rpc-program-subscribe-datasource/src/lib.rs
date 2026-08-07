@@ -82,7 +82,11 @@ impl Datasource for RpcProgramSubscribe {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_program_subscribe_metrics();
@@ -144,7 +148,7 @@ impl Datasource for RpcProgramSubscribe {
                         match event_result {
                             Some(acc_event) => {
                                 let start_time = std::time::Instant::now();
-                                let decoded_account: Account = match acc_event.value.account.to_account() {
+                                let decoded_account: Account = match acc_event.value.account.decode() {
                                     Some(account_data) => account_data,
                                     None => {
                                         log::error!("Error decoding account event");
@@ -153,7 +157,7 @@ impl Datasource for RpcProgramSubscribe {
                                 };
 
                                 let Ok(account_pubkey) = Pubkey::from_str(&acc_event.value.pubkey) else {
-                                    log::error!("Error parsing account pubkey. Value: {}", &acc_event.value.pubkey);
+                                    log::error!("Error parsing account pubkey. Value: {}", acc_event.value.pubkey);
                                     continue;
                                 };
 
@@ -166,8 +170,12 @@ impl Datasource for RpcProgramSubscribe {
 
                                 ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                 ACCOUNTS_PROCESSED.inc();
+                                #[cfg(feature = "batch")]
+                                let result = sender_clone.send(((carbon_core::datasource::BatchUpdateId::new_unique(), vec![update]), id_for_loop.clone())).await;
+                                #[cfg(not(feature = "batch"))]
+                                let result = sender_clone.send((update, id_for_loop.clone())).await;
 
-                                if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
+                                if let Err(err) = result {
                                     log::error!("Error sending account update: {err:?}");
                                     break;
                                 }

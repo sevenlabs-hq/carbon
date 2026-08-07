@@ -24,7 +24,7 @@ use {
         compiled_instruction::CompiledInstruction, v0::LoadedAddresses, VersionedMessage,
     },
     solana_pubkey::Pubkey,
-    solana_transaction_context::transaction::TransactionReturnData,
+    solana_transaction_context::TransactionReturnData,
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
@@ -89,7 +89,6 @@ pub fn extract_instructions_with_metadata(
                 |_, idx| idx < v0.header.num_required_signatures as usize,
             );
         }
-        VersionedMessage::V1(_) => panic!("not supported"),
     }
 
     Ok(instructions_with_metadata)
@@ -328,7 +327,6 @@ pub fn transaction_metadata_from_original_meta(
                     post_balance: rewards.post_balance,
                     reward_type: rewards.reward_type,
                     commission: rewards.commission,
-                    commission_bps: rewards.commission_bps,
                 })
                 .collect::<Vec<Reward>>(),
         ),

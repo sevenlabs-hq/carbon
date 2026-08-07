@@ -224,7 +224,11 @@ impl Datasource for SnapshotDatasource {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_validator_snapshot_metrics();
@@ -315,7 +319,18 @@ impl Datasource for SnapshotDatasource {
 
                             let update = Update::Account(account_update);
 
-                            if let Err(e) = sender_clone.blocking_send((update, id_clone.clone())) {
+                            #[cfg(feature = "batch")]
+                            let send_res = sender_clone.blocking_send((
+                                (
+                                    carbon_core::datasource::BatchUpdateId::new_unique(),
+                                    vec![update],
+                                ),
+                                id_clone.clone(),
+                            ));
+                            #[cfg(not(feature = "batch"))]
+                            let send_res = sender_clone.blocking_send((update, id_clone.clone()));
+
+                            if let Err(e) = send_res {
                                 log::error!("Failed to send account update: {e:?}");
                                 channel_closed = true;
                             } else {

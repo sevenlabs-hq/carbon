@@ -12,7 +12,7 @@ repository = "https://github.com/sevenlabs-hq/carbon"
 [workspace.dependencies]
 
 # solana
-agave-snapshots = "^4.1.2"
+agave-snapshots = "^3.1.5"
 
 # misc
 anyhow = "1.0.100"
@@ -65,6 +65,7 @@ carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder", vers
 carbon-kamino-limit-order-decoder = { path = "decoders/kamino-limit-order-decoder", version = "1.0.0" }
 carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder", version = "1.0.0" }
 carbon-lifinity-amm-v2-decoder = { path = "decoders/lifinity-amm-v2-decoder", version = "1.0.0" }
+
 # metrics
 carbon-log-metrics = { path = "metrics/log-metrics", version = "1.0.0" }
 carbon-macros = { path = "crates/macros", version = "1.0.0" }
@@ -91,7 +92,6 @@ carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "1.
 carbon-pump-fees-decoder = { path = "decoders/pump-fees-decoder", version = "1.0.0" }
 carbon-pump-swap-decoder = { path = "decoders/pump-swap-decoder", version = "1.0.0" }
 carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "1.0.0" }
-carbon-raptor-v1-decoder = { path = "decoders/raptor-v1-decoder", version = "1.0.0" }
 carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", version = "1.0.0" }
 carbon-raydium-clmm-decoder = { path = "decoders/raydium-clmm-decoder", version = "1.0.0" }
 carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder", version = "1.0.0" }
@@ -155,39 +155,39 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde-big-array = "0.5.1"
 serde_json = "1.0.145"
 sha2 = "0.10.9"
-solana-account = "^4.1.0"
-solana-account-decoder = "^4.1.0"
-solana-account-decoder-client-types = "^4.1.0"
-solana-accounts-db = "^4.1.2"
-solana-client = "^4.1.0"
-solana-clock = "^3.1.1"
-solana-commitment-config = "^3.1.1"
-solana-entry = "^4.1.0"
-solana-genesis-utils = { version = "^4.1.2", features = ["agave-unstable-api"] }
-solana-hash = "^4.1.0"
-solana-instruction = { version = "^3.4.0", default-features = false }
-solana-ledger = { version = "^4.1.2", features = ["agave-unstable-api"] }
-solana-message = "^4.1.0"
+solana-account = "^3.0.0"
+solana-account-decoder = "^3.0.0"
+solana-account-decoder-client-types = "^3.0.0"
+solana-accounts-db = "^3.1.5"
+solana-client = "^3.0.0"
+solana-clock = "^3.0.0"
+solana-commitment-config = "^3.0.0"
+solana-entry = "^3.0.0"
+solana-genesis-utils = { version = "^3.1.5", features = ["agave-unstable-api"] }
+solana-hash = "^3.0.0"
+solana-instruction = { version = "^3.0.0", default-features = false }
+solana-ledger = { version = "^3.1.5", features = ["agave-unstable-api"] }
+solana-message = "^3.0.0"
 solana-native-token = "^3.0.0"
-solana-program = { version = "^4.0.0", features = ["borsh"] }
-solana-program-pack = "^3.1.0"
-solana-pubkey = { version = "^4.1.0", features = ["serde", "borsh", "curve25519"] }
-solana-reward-info = "^4.1.0"
-solana-runtime = "^4.1.2"
-solana-signature = { version = "^3.4.1", features = ["rand"] }
+solana-program = { version = "^3.0.0", features = ["borsh"] }
+solana-program-pack = "^3.0.0"
+solana-pubkey = { version = "^3.0.0", features = ["serde", "borsh", "curve25519"] }
+solana-reward-info = "^3.0.0"
+solana-runtime = "^3.1.5"
+solana-signature = { version = "^3.0.0", features = ["rand"] }
 solana-system-interface = "^2.0.0"
-solana-transaction = "^4.1.5"
-solana-transaction-context = "^4.1.0"
-solana-transaction-error = "^3.3.1"
-solana-transaction-status = { version = "^4.1.0", features = ["agave-unstable-api"] }
+solana-transaction = "^3.0.0"
+solana-transaction-context = "^3.0.0"
+solana-transaction-error = "^3.0.0"
+solana-transaction-status = "^3.0.0"
 solana-transaction-status-client-types = "^3.0.0"
 spl-memo-interface = "2.0.0"
 spl-pod = "0.7.1"
-spl-token-2022 = "11.0.0"
-spl-token-group-interface = "0.7.2"
-spl-token-interface = "3.0.0"
-spl-token-metadata-interface = "1.0.1"
-spl-type-length-value = "0.9.1"
+spl-token-2022 = "10.0.0"
+spl-token-group-interface = "0.7.1"
+spl-token-interface = "2.0.0"
+spl-token-metadata-interface = "0.8.0"
+spl-type-length-value = "0.9.0"
 sqlx = { version = "0.8.6", features = [
     "macros",
     "runtime-tokio-rustls",
@@ -207,6 +207,5 @@ tonic = { version = "0.13.1", features = ["tls-native-roots", "tls-webpki-roots"
 tonic-build = "0.13.1"
 unicode-xid = "0.2"
 uuid = { version = "1.18.1", features = ["serde", "v7"] }
-yellowstone-grpc-client = { version = "13.2.0" }
-yellowstone-grpc-convert = { path = "crates/yellowstone-grpc-convert" }
-yellowstone-grpc-proto = { version = "12.5.0" }
+yellowstone-grpc-client = { version = "10.0.0" }
+yellowstone-grpc-proto = { version = "10.0.0", features = ["convert"] }

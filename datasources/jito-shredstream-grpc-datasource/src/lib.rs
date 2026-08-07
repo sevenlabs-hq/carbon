@@ -66,7 +66,11 @@ impl Datasource for JitoShredstreamGrpcClient {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_jito_shredstream_metrics();
@@ -161,7 +165,12 @@ impl Datasource for JitoShredstreamGrpcClient {
                                     block_hash: None,
                                 }));
 
-                                if let Err(e) = sender.try_send((update, id_for_closure.clone())) {
+                                #[cfg(feature = "batch")]
+                                let send_res = sender.try_send(((carbon_core::datasource::BatchUpdateId::new_unique(), vec![update]), id_for_closure.clone()));
+                                #[cfg(not(feature = "batch"))]
+                                let send_res = sender.try_send((update, id_for_closure.clone()));
+
+                                if let Err(e) = send_res {
                                     log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, message.slot, e);
                                     return Ok(());
                                 }

@@ -26,7 +26,7 @@ where
 {
     const DISCRIMINATOR: &'static [u8];
 
-    fn deserialize(data: &[u8]) -> Option<Self>;
+    fn decode(data: &[u8]) -> Option<Self>;
 }
 
 pub fn extract_discriminator(length: usize, data: &[u8]) -> Option<(&[u8], &[u8])> {

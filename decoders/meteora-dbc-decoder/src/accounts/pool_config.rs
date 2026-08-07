@@ -3,6 +3,7 @@ use {
     crate::types::{
         LiquidityDistributionConfig, LiquidityVestingInfo, LockedVestingConfig, PoolFeesConfig,
     },
+    carbon_core::deserialize::CarbonDeserialize,
     solana_pubkey::Pubkey,
 };
 
@@ -95,13 +96,15 @@ pub struct PoolConfig {
     pub curve: [LiquidityDistributionConfig; 20],
 }
 
-impl PoolConfig {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for PoolConfig {
+    const DISCRIMINATOR: &'static [u8] = &[26, 108, 14, 123, 116, 230, 129, 43];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [26, 108, 14, 123, 116, 230, 129, 43] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

@@ -3,6 +3,10 @@ name = "gpa-rpc-carbon-example"
 version = "1.0.0"
 edition = { workspace = true }
 
+[features]
+batch = ["carbon-core/batch"]
+
+
 [dependencies]
 carbon-core = { workspace = true }
 carbon-helius-gpa-v2-datasource = { workspace = true }

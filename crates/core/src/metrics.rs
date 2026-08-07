@@ -12,7 +12,6 @@
 //! - [`MetricsExporter`] — trait implemented by metric backends
 //!   (`carbon-log-metrics`, `carbon-prometheus-metrics`). The pipeline calls
 //!   `export(snapshot)` after each processed update.
-
 use {
     crate::error::CarbonResult,
     std::sync::{
@@ -102,6 +101,7 @@ impl Gauge {
 
     #[inline]
     pub fn add(&self, delta: f64) {
+        #[allow(clippy::incompatible_msrv)]
         self.value
             .try_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
                 Some((f64::from_bits(current) + delta).to_bits())
@@ -162,6 +162,7 @@ impl Histogram {
 
     #[inline]
     fn add_sum(&self, delta: f64) {
+        #[allow(clippy::incompatible_msrv)]
         self.sum
             .try_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
                 Some((f64::from_bits(current) + delta).to_bits())

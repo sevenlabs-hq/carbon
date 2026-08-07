@@ -3,6 +3,9 @@ name = "versioned-decoders-carbon-example"
 version = "1.0.0"
 edition = { workspace = true }
 
+[features]
+batch = ["carbon-core/batch"]
+
 [dependencies]
 carbon-core = { workspace = true }
 carbon-simple-dex-decoder-v1 = { path = "decoder-v1" }

@@ -4,6 +4,7 @@ use {
         Asset, ExpirySeries, HaltState, MarginParameters, PerpParameters, PricingParameters,
         Product,
     },
+    carbon_core::deserialize::CarbonDeserialize,
     solana_pubkey::Pubkey,
 };
 
@@ -41,13 +42,15 @@ pub struct ZetaGroup {
     pub padding: [u8; 964],
 }
 
-impl ZetaGroup {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for ZetaGroup {
+    const DISCRIMINATOR: &'static [u8] = &[121, 17, 210, 107, 109, 235, 14, 12];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [121, 17, 210, 107, 109, 235, 14, 12] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

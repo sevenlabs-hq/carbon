@@ -47,7 +47,11 @@ impl Datasource for HttpPollDatasource {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         let registry = MetricsRegistry::global();
@@ -160,7 +164,20 @@ impl Datasource for HttpPollDatasource {
                     block_hash: None,
                 }));
 
-                if sender.send((update, id.clone())).await.is_err() {
+                #[cfg(feature = "batch")]
+                let result = sender
+                    .send((
+                        (
+                            carbon_core::datasource::BatchUpdateId::new_unique(),
+                            vec![update],
+                        ),
+                        id.clone(),
+                    ))
+                    .await;
+                #[cfg(not(feature = "batch"))]
+                let result = sender.send((update, id.clone())).await;
+
+                if result.is_err() {
                     log::info!("pipeline closed, stopping custom datasource");
                     return Ok(());
                 }
@@ -220,6 +237,7 @@ impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>>
 {
     async fn process(
         &mut self,
+        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
         input: &InstructionProcessorInputType<'_, JupiterSwapInstruction>,
     ) -> CarbonResult<()> {
         let signature = input.metadata.transaction_metadata.signature;

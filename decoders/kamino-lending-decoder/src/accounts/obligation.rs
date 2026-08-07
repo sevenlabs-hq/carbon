@@ -3,6 +3,7 @@ use {
     crate::types::{
         BorrowOrder, LastUpdate, ObligationCollateral, ObligationLiquidity, ObligationOrder,
     },
+    carbon_core::deserialize::CarbonDeserialize,
     solana_pubkey::Pubkey,
 };
 
@@ -83,13 +84,15 @@ pub struct Obligation {
     pub padding3: [u64; 69],
 }
 
-impl Obligation {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for Obligation {
+    const DISCRIMINATOR: &'static [u8] = &[168, 206, 141, 106, 88, 76, 172, 167];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [168, 206, 141, 106, 88, 76, 172, 167] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

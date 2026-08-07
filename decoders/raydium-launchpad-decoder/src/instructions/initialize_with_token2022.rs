@@ -3,7 +3,10 @@ use {
     crate::types::{
         AmmCreatorFeeOn, CurveParams, MintParams, TransferFeeExtensionParams, VestingParams,
     },
-    carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
+    carbon_core::{
+        account_utils::next_account,
+        deserialize::{ArrangeAccounts, CarbonDeserialize},
+    },
 };
 /// Initializes a new trading pool with base token belongs to spl-token-2022,
 /// pool created by this instruction must be migrated to cpswap after
@@ -40,13 +43,15 @@ pub struct InitializeWithToken2022InstructionAccounts {
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
-impl InitializeWithToken2022 {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for InitializeWithToken2022 {
+    const DISCRIMINATOR: &'static [u8] = &[37, 190, 126, 222, 44, 154, 171, 17];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [37, 190, 126, 222, 44, 154, 171, 17] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

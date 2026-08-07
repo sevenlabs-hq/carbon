@@ -73,6 +73,7 @@ impl Processor<InstructionProcessorInputType<'_, Token2022Instruction>>
 {
     async fn process(
         &mut self,
+        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
         input: &InstructionProcessorInputType<'_, Token2022Instruction>,
     ) -> CarbonResult<()> {
         let slot = input.metadata.transaction_metadata.slot;

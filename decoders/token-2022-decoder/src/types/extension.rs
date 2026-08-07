@@ -2,10 +2,11 @@
 use {
     crate::types::{AccountState, DecryptableBalance, EncryptedBalance, TransferFee},
     solana_pubkey::Pubkey,
-    solana_zk_sdk::encryption::elgamal::ElGamalPubkey,
-    solana_zk_sdk_pod::encryption::elgamal::PodElGamalPubkey,
     spl_pod::primitives::PodI64,
-    spl_token_2022::extension::{BaseStateWithExtensions as _, ExtensionType, StateWithExtensions},
+    spl_token_2022::{
+        extension::{BaseStateWithExtensions as _, ExtensionType, StateWithExtensions},
+        solana_zk_sdk::encryption::{elgamal::ElGamalPubkey, pod::elgamal::PodElGamalPubkey},
+    },
     spl_type_length_value::variable_len_pack::VariableLenPack,
     std::collections::HashMap,
 };
@@ -227,9 +228,9 @@ impl Extension {
         match extension_type {
             ExtensionType::Uninitialized => None,
             ExtensionType::TransferFeeConfig => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::transfer_fee::TransferFeeConfig>().ok().and_then(|extension| Some(Extension::TransferFeeConfig {
-                        transfer_fee_config_authority: extension.transfer_fee_config_authority.get()?,
-                        withdraw_withheld_authority: extension.withdraw_withheld_authority.get()?,
+                state_with_extensions.get_extension::<spl_token_2022::extension::transfer_fee::TransferFeeConfig>().map(|extension| Extension::TransferFeeConfig {
+                        transfer_fee_config_authority: extension.transfer_fee_config_authority.0,
+                        withdraw_withheld_authority: extension.withdraw_withheld_authority.0,
                         withheld_amount: extension.withheld_amount.into(),
                         older_transfer_fee: TransferFee {
                             epoch: extension.older_transfer_fee.epoch.into(),
@@ -241,12 +242,12 @@ impl Extension {
                             maximum_fee: extension.newer_transfer_fee.maximum_fee.into(),
                             transfer_fee_basis_points: extension.newer_transfer_fee.transfer_fee_basis_points.into(),
                         },
-                    }))
+                    }).ok()
             }
             ExtensionType::MintCloseAuthority => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::mint_close_authority::MintCloseAuthority>().ok().and_then(|extension| Some(Extension::MintCloseAuthority {
-                    close_authority: extension.close_authority.get()?,
-                }))
+                state_with_extensions.get_extension::<spl_token_2022::extension::mint_close_authority::MintCloseAuthority>().map(|extension| Extension::MintCloseAuthority {
+                    close_authority: extension.close_authority.0,
+                }).ok()
             }
             ExtensionType::ConfidentialTransferMint => {
                 state_with_extensions.get_extension::<spl_token_2022::extension::confidential_transfer::ConfidentialTransferMint>().map(|extension| Some(Extension::ConfidentialTransferMint {
@@ -269,8 +270,8 @@ impl Extension {
                 state_with_extensions.get_extension::<spl_token_2022::extension::non_transferable::NonTransferable>().map(|_extension| Extension::NonTransferable {}).ok()
             }
             ExtensionType::InterestBearingConfig => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::interest_bearing_mint::InterestBearingConfig>().ok().and_then(|extension| Some(Extension::InterestBearingConfig {
-                    rate_authority: extension.rate_authority.get()?,
+                state_with_extensions.get_extension::<spl_token_2022::extension::interest_bearing_mint::InterestBearingConfig>().map(|extension| Extension::InterestBearingConfig {
+                    rate_authority: extension.rate_authority.0,
                     // SAFETY: PodI64 and u64 have the same size (8 bytes) and alignment.
                     // PodI64 is a transparent wrapper around i64, and we're converting to u64 for timestamp representation.
                     // This is safe because we're only reading the bytes, not modifying memory layout.
@@ -281,24 +282,24 @@ impl Extension {
                     // This is safe because we're only reading the bytes, not modifying memory layout.
                     last_update_timestamp: unsafe { std::mem::transmute::<PodI64, u64>(extension.last_update_timestamp) },
                     current_rate: extension.current_rate.into(),
-                }))
+                }).ok()
             }
             ExtensionType::PermanentDelegate => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::permanent_delegate::PermanentDelegate>().ok().and_then(|extension| Some(Extension::PermanentDelegate {
-                    delegate: extension.delegate.get()?,
-                }))
+                state_with_extensions.get_extension::<spl_token_2022::extension::permanent_delegate::PermanentDelegate>().map(|extension| Extension::PermanentDelegate {
+                    delegate: extension.delegate.0,
+                }).ok()
             }
             ExtensionType::TransferHook => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::transfer_hook::TransferHook>().ok().and_then(|extension| Some(Extension::TransferHook {
-                    authority: extension.authority.get()?,
-                    program_id: extension.program_id.get()?,
-                }))
+                state_with_extensions.get_extension::<spl_token_2022::extension::transfer_hook::TransferHook>().map(|extension| Extension::TransferHook {
+                    authority: extension.authority.0,
+                    program_id: extension.program_id.0,
+                }).ok()
             }
             ExtensionType::ConfidentialTransferFeeConfig => {
                 state_with_extensions.get_extension::<spl_token_2022::extension::confidential_transfer_fee::ConfidentialTransferFeeConfig>().map(|extension| {
                     if let (Some(elgamal_pubkey), Some(withheld_amount)) = (
                         ElGamalPubkey::try_from(extension.withdraw_withheld_authority_elgamal_pubkey).ok(),
-                        solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.withheld_amount).ok(),
+                        spl_token_2022::solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.withheld_amount).ok(),
                     ) {
                         Some(Extension::ConfidentialTransferFee {
                             authority: extension.authority.into(),
@@ -358,15 +359,15 @@ impl Extension {
                     })).ok().flatten()
             },
             ExtensionType::ScaledUiAmount => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::scaled_ui_amount::ScaledUiAmountConfig>().ok().and_then(|extension| Some(Extension::ScaledUiAmountConfig {
-                        authority: extension.authority.get()?,
+                state_with_extensions.get_extension::<spl_token_2022::extension::scaled_ui_amount::ScaledUiAmountConfig>().map(|extension| Extension::ScaledUiAmountConfig {
+                        authority: extension.authority.0,
                         multiplier: extension.multiplier.into(),
                         // SAFETY: PodI64 and [u8; 8] have the same size (8 bytes) and alignment.
                         // PodI64 is a transparent wrapper around i64, and we're converting to byte array for timestamp representation.
                         // This is safe because we're only reading the bytes, not modifying memory layout.
                         new_multiplier_effective_timestamp: u64::from_le_bytes(unsafe { std::mem::transmute::<PodI64, [u8; 8]>(extension.new_multiplier_effective_timestamp)}),
                         new_multiplier: extension.new_multiplier.into(),
-                    }))
+                    }).ok()
             }
             ExtensionType::Pausable => {
                 state_with_extensions.get_extension::<spl_token_2022::extension::pausable::PausableConfig>().map(|extension| Extension::PausableConfig {
@@ -392,10 +393,10 @@ impl Extension {
                 state_with_extensions.get_extension::<spl_token_2022::extension::confidential_transfer::ConfidentialTransferAccount>().map(|extension| {
                     if let (Some(elgamal_pubkey), Some(pending_balance_lo), Some(pending_balance_hi), Some(available_balance), Some(decryptable_available_balance)) = (
                         ElGamalPubkey::try_from(extension.elgamal_pubkey).ok(),
-                        solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.pending_balance_lo).ok(),
-                        solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.pending_balance_hi).ok(),
-                        solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.available_balance).ok(),
-                        solana_zk_sdk::encryption::auth_encryption::AeCiphertext::try_from(extension.decryptable_available_balance).ok(),
+                        spl_token_2022::solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.pending_balance_lo).ok(),
+                        spl_token_2022::solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.pending_balance_hi).ok(),
+                        spl_token_2022::solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.available_balance).ok(),
+                        spl_token_2022::solana_zk_sdk::encryption::auth_encryption::AeCiphertext::try_from(extension.decryptable_available_balance).ok(),
                     ) {
                         Some(Extension::ConfidentialTransferAccount {
                             approved: extension.approved.into(),
@@ -436,7 +437,7 @@ impl Extension {
             }
             ExtensionType::ConfidentialTransferFeeAmount => {
                 state_with_extensions.get_extension::<spl_token_2022::extension::confidential_transfer_fee::ConfidentialTransferFeeAmount>().map(|extension| {
-                    solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.withheld_amount).ok().map(|withheld_amount| {
+                    spl_token_2022::solana_zk_sdk::encryption::elgamal::ElGamalCiphertext::try_from(extension.withheld_amount).ok().map(|withheld_amount| {
                         Extension::ConfidentialTransferFeeAmount {
                             withheld_amount: EncryptedBalance(withheld_amount.to_bytes()),
                         }

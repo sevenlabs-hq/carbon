@@ -141,7 +141,11 @@ impl Datasource for RpcBlockSubscribe {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_block_subscribe_metrics();
@@ -277,7 +281,12 @@ impl Datasource for RpcBlockSubscribe {
                                                 block_height: block.block_height,
                                     });
 
-                                    if let Err(err) = sender_clone.try_send((block_deteils, id_for_loop.clone())) {
+                                    #[cfg(feature = "batch")]
+                                    let send_res = sender_clone.try_send(((carbon_core::datasource::BatchUpdateId::new_unique(), vec![block_deteils]), id_for_loop.clone()));
+                                    #[cfg(not(feature = "batch"))]
+                                    let send_res = sender_clone.try_send((block_deteils, id_for_loop.clone()));
+
+                                    if let Err(err) = send_res {
                                         log::error!("Error sending block details: {err:?}");
                                         break;
                                     }
@@ -320,7 +329,12 @@ impl Datasource for RpcBlockSubscribe {
                                             TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                             TRANSACTIONS_PROCESSED.inc();
 
-                                            if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
+                                            #[cfg(feature = "batch")]
+                                            let send_res = sender_clone.try_send(((carbon_core::datasource::BatchUpdateId::new_unique(), vec![update]), id_for_loop.clone()));
+                                            #[cfg(not(feature = "batch"))]
+                                            let send_res = sender_clone.try_send((update, id_for_loop.clone()));
+
+                                            if let Err(err) = send_res {
                                                 log::error!("Error sending transaction update: {err:?}");
                                                 break;
                                             }

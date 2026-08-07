@@ -66,7 +66,11 @@ impl Datasource for GpaDatasource {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_rpc_gpa_metrics();
@@ -117,7 +121,7 @@ impl Datasource for GpaDatasource {
                         "Failed to parse pubkey: {e}"
                     ))
                 })?,
-                account: account.account.to_account().ok_or(
+                account: account.account.decode().ok_or(
                     carbon_core::error::Error::FailedToConsumeDatasource(
                         "Failed to decode account".to_string(),
                     ),
@@ -126,7 +130,20 @@ impl Datasource for GpaDatasource {
                 transaction_signature: None,
             });
 
-            if let Err(e) = sender.send((update, id_for_loop.clone())).await {
+            #[cfg(feature = "batch")]
+            let send_res = sender
+                .send((
+                    (
+                        carbon_core::datasource::BatchUpdateId::new_unique(),
+                        vec![update],
+                    ),
+                    id_for_loop.clone(),
+                ))
+                .await;
+            #[cfg(not(feature = "batch"))]
+            let send_res = sender.send((update, id_for_loop.clone())).await;
+
+            if let Err(e) = send_res {
                 log::error!("Failed to send account update: {e:?}");
             } else {
                 ACCOUNTS_PROCESSED.inc();

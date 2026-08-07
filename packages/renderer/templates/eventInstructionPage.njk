@@ -26,13 +26,15 @@ pub struct CpiEventInstructionAccounts {
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
-impl CpiEvent {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for CpiEvent {
+    const DISCRIMINATOR: &'static [u8] = &[{{ eventCpiDiscriminator | join(', ') }}];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < {{ eventCpiDiscriminator | length }} {
             return None;
         }
         let discriminator = &data[0..{{ eventCpiDiscriminator | length }}];
-        if discriminator != [{{ eventCpiDiscriminator | join(', ') }}] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

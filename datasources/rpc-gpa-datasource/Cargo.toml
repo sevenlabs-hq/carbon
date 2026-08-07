@@ -12,6 +12,9 @@ categories = ["encoding"]
 [lib]
 crate-type = ["rlib"]
 
+[features]
+batch = ["carbon-core/batch"]
+
 [dependencies]
 solana-account-decoder = { workspace = true }
 solana-client = { workspace = true }

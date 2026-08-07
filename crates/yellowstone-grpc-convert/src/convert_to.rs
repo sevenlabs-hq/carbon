@@ -7,7 +7,7 @@ use {
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     solana_transaction::versioned::VersionedTransaction,
-    solana_transaction_context::transaction::TransactionReturnData,
+    solana_transaction_context::TransactionReturnData,
     solana_transaction_error::TransactionError,
     solana_transaction_status::{
         InnerInstruction, InnerInstructions, Reward, RewardType, TransactionStatusMeta,
@@ -45,7 +45,6 @@ pub fn create_message(message: &VersionedMessage) -> proto::Message {
             versioned: true,
             address_table_lookups: create_lookups(&message.address_table_lookups),
         },
-        VersionedMessage::V1(_) => panic!("v1 transactions not supported"),
     }
 }
 
@@ -219,10 +218,6 @@ pub fn create_reward(reward: &Reward) -> proto::Reward {
         post_balance: reward.post_balance,
         reward_type: create_reward_type(reward.reward_type) as i32,
         commission: reward.commission.map(|c| c.to_string()).unwrap_or_default(),
-        commission_bps: reward
-            .commission_bps
-            .map(|c| c.to_string())
-            .unwrap_or_default(),
     }
 }
 
@@ -233,7 +228,6 @@ pub const fn create_reward_type(reward_type: Option<RewardType>) -> proto::Rewar
         Some(RewardType::Rent) => proto::RewardType::Rent,
         Some(RewardType::Staking) => proto::RewardType::Staking,
         Some(RewardType::Voting) => proto::RewardType::Voting,
-        Some(RewardType::DeactivatedStake) => proto::RewardType::Staking,
     }
 }
 

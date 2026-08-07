@@ -4,6 +4,7 @@ use {
         Assets, BorrowLendParams, FundingRateState, JumpRateState, OracleParams, Permissions,
         PriceImpactBuffer, PricingParams,
     },
+    carbon_core::deserialize::CarbonDeserialize,
     solana_pubkey::Pubkey,
 };
 
@@ -47,13 +48,15 @@ pub struct Custody {
     pub withdrawal_limit_interval_seconds: u64,
 }
 
-impl Custody {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for Custody {
+    const DISCRIMINATOR: &'static [u8] = &[1, 184, 48, 81, 93, 131, 63, 145];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [1, 184, 48, 81, 93, 131, 63, 145] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

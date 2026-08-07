@@ -9,7 +9,8 @@
 #[macro_export]
 macro_rules! try_decode_instructions {
     ($instruction:expr, $program_id:expr, $($enum_name:ident :: $variant:ident => $ty:ty),* $(,)?) => {{
-        use carbon_core::deserialize::ArrangeAccounts;
+        use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
+
         $(
             if let Some(data) = <$ty>::decode($instruction.data.as_slice()) {
                 if let Some(accounts) = <$ty>::arrange_accounts(&$instruction.accounts) {

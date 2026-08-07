@@ -10,7 +10,7 @@ use {
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     solana_transaction::versioned::VersionedTransaction,
-    solana_transaction_context::transaction::TransactionReturnData,
+    solana_transaction_context::TransactionReturnData,
     solana_transaction_error::TransactionError,
     solana_transaction_status::{
         ConfirmedBlock, InnerInstruction, InnerInstructions, Reward, RewardType,
@@ -255,16 +255,6 @@ pub fn create_reward(reward: proto::Reward) -> CreateResult<Reward> {
         pubkey: reward.pubkey,
         lamports: reward.lamports,
         post_balance: reward.post_balance,
-        commission_bps: if reward.commission_bps.is_empty() {
-            None
-        } else {
-            Some(
-                reward
-                    .commission_bps
-                    .parse()
-                    .map_err(|_| "failed to parse reward commission bps")?,
-            )
-        },
         reward_type: match proto::RewardType::try_from(reward.reward_type)
             .map_err(|_| "failed to parse reward_type")?
         {
@@ -344,8 +334,7 @@ fn take_account_data(account: &mut proto::SubscribeUpdateAccountInfo) -> Vec<u8>
     // If only one reference remains (say this instance), during `into()`, it won't
     // copy the vector Compared to `Bytes:to_vec`, it should not allocate new
     // memory.
-    let bytes = std::mem::take(&mut account.data);
-    bytes.into()
+    std::mem::take(&mut account.data)
 }
 
 #[cfg(not(feature = "account-data-as-bytes"))]

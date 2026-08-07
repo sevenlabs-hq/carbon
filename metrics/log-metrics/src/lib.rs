@@ -107,16 +107,13 @@ impl MetricsExporter for LogMetrics {
             .unwrap_or(0.0);
 
         let total_received = updates_received + updates_queued as u64;
-        let pct_processed = if total_received > 0 {
-            (updates_processed * 100) / total_received
-        } else {
-            0
-        };
-        let pct_failed = if updates_processed > 0 {
-            (updates_failed * 100) / updates_processed
-        } else {
-            0
-        };
+        let pct_processed = (updates_processed * 100)
+            .checked_div(total_received)
+            .unwrap_or(0);
+
+        let pct_failed = (updates_failed * 100)
+            .checked_div(updates_processed)
+            .unwrap_or(0);
 
         log::info!(
             "{:02}:{:02}:{:02} (+{:?}) | {} processed ({}%), {} successful, {} failed ({}%), {:.0} in queue",

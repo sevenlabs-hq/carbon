@@ -12,6 +12,9 @@ categories = ["encoding"]
 [lib]
 crate-type = ["rlib"]
 
+[features]
+batch = ["carbon-core/batch"]
+
 [dependencies]
 solana-client = { workspace = true }
 solana-commitment-config = { workspace = true }

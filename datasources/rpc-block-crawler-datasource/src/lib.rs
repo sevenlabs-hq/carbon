@@ -138,7 +138,11 @@ impl Datasource for RpcBlockCrawler {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_block_crawler_metrics();
@@ -290,7 +294,11 @@ fn block_fetcher(
 /// Process the block and send the transactions to the sender
 fn task_processor(
     block_receiver: Receiver<(u64, UiConfirmedBlock)>,
-    sender: Sender<(Update, DatasourceId)>,
+    #[cfg(feature = "batch")] sender: Sender<(
+        (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+        DatasourceId,
+    )>,
+    #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     cancellation_token: CancellationToken,
 ) -> JoinHandle<()> {
@@ -349,7 +357,12 @@ fn task_processor(
                                 TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                 TRANSACTIONS_PROCESSED.inc();
 
-                                if let Err(err) = sender.try_send((update, id_for_loop.clone())) {
+                                #[cfg(feature = "batch")]
+                                let result = sender.try_send(((carbon_core::datasource::BatchUpdateId::new_unique(), vec![update]), id_for_loop.clone()));
+                                #[cfg(not(feature = "batch"))]
+                                let result = sender.try_send((update, id_for_loop.clone()));
+
+                                if let Err(err) = result {
                                     log::error!("Error sending transaction update: {err:?}");
                                     break;
                                 }

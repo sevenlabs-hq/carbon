@@ -209,7 +209,11 @@ impl Datasource for RpcTransactionCrawler {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_transaction_crawler_metrics();
@@ -494,7 +498,11 @@ fn transaction_fetcher(
 
 fn task_processor(
     transaction_receiver: Receiver<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
-    sender: Sender<(Update, DatasourceId)>,
+    #[cfg(feature = "batch")] sender: Sender<(
+        (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+        DatasourceId,
+    )>,
+    #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     filters: Filters,
     cancellation_token: CancellationToken,
@@ -589,13 +597,23 @@ fn task_processor(
                     TRANSACTION_PROCESS_TIME_MILLIS.record(start.elapsed().as_millis() as f64);
 
                     if connection_config.blocking_send {
-                        if let Err(e) = sender.send((update.clone(), id_for_loop.clone())).await {
+                        #[cfg(feature = "batch")]
+                        let result = sender.send(((carbon_core::datasource::BatchUpdateId::new_unique(), vec![update.clone()]), id_for_loop.clone())).await;
+                        #[cfg(not(feature = "batch"))]
+                        let result = sender.send((update.clone(), id_for_loop.clone())).await;
+
+                        if let Err(e) = result {
                             log::warn!("Failed to send update: {e:?}");
                             continue;
                         }
                     }
                     if !connection_config.blocking_send {
-                        if let Err(e) = sender.try_send((update.clone(), id_for_loop.clone())) {
+                        #[cfg(feature = "batch")]
+                        let result = sender.try_send(((carbon_core::datasource::BatchUpdateId::new_unique(), vec![update.clone()]), id_for_loop.clone()));
+                        #[cfg(not(feature = "batch"))]
+                        let result = sender.try_send((update.clone(), id_for_loop.clone()));
+
+                        if let Err(e) = result {
                             log::warn!("Failed to send update: {e:?}");
                             continue;
                         }

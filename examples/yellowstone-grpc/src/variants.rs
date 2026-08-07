@@ -13,7 +13,9 @@ use {
         time::Duration,
     },
     tokio::sync::RwLock,
-    yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterTransactions},
+    yellowstone_grpc_proto::geyser::{
+        CommitmentLevel, SubscribeRequest, SubscribeRequestFilterTransactions,
+    },
 };
 
 pub fn yellowstone(
@@ -22,12 +24,14 @@ pub fn yellowstone(
     YellowstoneGrpcGeyserClient::new(
         env::var("GEYSER_URL").expect("GEYSER_URL must be set"),
         env::var("X_TOKEN").ok(),
-        Some(CommitmentLevel::Confirmed),
-        HashMap::default(),
-        transaction_filters,
-        Default::default(),
+        SubscribeRequest {
+            transactions: transaction_filters,
+            commitment: Some(CommitmentLevel::Confirmed.into()),
+            ..Default::default()
+        },
         Arc::new(RwLock::new(HashSet::new())),
         YellowstoneGrpcClientConfig::default(),
+        None,
         None,
         None,
     )

@@ -12,6 +12,9 @@ categories = ["encoding"]
 [lib]
 crate-type = ["rlib"]
 
+[features]
+batch = ["carbon-core/batch"]
+
 [dependencies]
 async-trait = { workspace = true }
 base64 = { workspace = true }
@@ -25,4 +28,3 @@ solana-client = { workspace = true }
 solana-pubkey = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }
-

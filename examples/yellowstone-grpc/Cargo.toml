@@ -3,6 +3,9 @@ name = "yellowstone-grpc-carbon-example"
 version = "1.0.0"
 edition = { workspace = true }
 
+[features]
+batch = ["carbon-core/batch"]
+
 [dependencies]
 carbon-core = { workspace = true }
 carbon-helius-laserstream-datasource = { workspace = true }

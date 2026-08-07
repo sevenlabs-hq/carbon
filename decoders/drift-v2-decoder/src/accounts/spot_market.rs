@@ -4,6 +4,7 @@ use {
         AssetTier, HistoricalIndexData, HistoricalOracleData, InsuranceFund, MarketStatus,
         OracleSource, PoolBalance,
     },
+    carbon_core::deserialize::CarbonDeserialize,
     solana_pubkey::Pubkey,
 };
 
@@ -198,13 +199,15 @@ pub struct SpotMarket {
     pub padding: [u8; 40],
 }
 
-impl SpotMarket {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for SpotMarket {
+    const DISCRIMINATOR: &'static [u8] = &[100, 177, 8, 107, 168, 65, 65, 39];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [100, 177, 8, 107, 168, 65, 65, 39] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

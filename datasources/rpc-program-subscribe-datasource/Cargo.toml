@@ -9,6 +9,9 @@ repository = { workspace = true }
 keywords = ["solana", "indexer", "program", "datasource"]
 categories = ["encoding"]
 
+[features]
+batch = ["carbon-core/batch"]
+
 [dependencies]
 solana-account = { workspace = true }
 solana-client = { workspace = true }

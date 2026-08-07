@@ -3,12 +3,15 @@
 
 {% block main %}
 {{ imports }}
+use carbon_core::deserialize::CarbonDeserialize;
 
 {{ macros.coreDecoderDerives() }}
 pub struct {{ event.name | pascalCase }}Event {{ typeManifest.type }}
 
-impl {{ event.name | pascalCase }}Event {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for {{ event.name | pascalCase }}Event {
+    const DISCRIMINATOR: &'static [u8] = &{% if discriminatorManifest %}{{ discriminatorManifest.bytes }}{% else %}[]{% endif %};
+
+    fn decode(data: &[u8]) -> Option<Self> {
 {% if discriminatorManifest -%}
 {{ discriminatorManifest.checkCode | safe }}
 {% endif %}

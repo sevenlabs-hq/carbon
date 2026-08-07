@@ -56,6 +56,7 @@ impl Processor<InstructionProcessorInputType<'_, RaydiumClmmInstruction>>
 {
     async fn process(
         &mut self,
+        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
         input: &InstructionProcessorInputType<'_, RaydiumClmmInstruction>,
     ) -> CarbonResult<()> {
         let signature = input.metadata.transaction_metadata.signature;
@@ -83,7 +84,11 @@ impl Processor<InstructionProcessorInputType<'_, RaydiumClmmInstruction>>
 pub struct BlockDetailsProcessor;
 
 impl Processor<BlockDetails> for BlockDetailsProcessor {
-    async fn process(&mut self, block: &BlockDetails) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
+        block: &BlockDetails,
+    ) -> CarbonResult<()> {
         log::info!(
             "block slot={} hash={:?} parent={:?} time={:?}",
             block.slot,

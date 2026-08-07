@@ -134,6 +134,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const typeManifest = visit(newNode.data, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest);
 
+                    const isToken2022 = isToken2022Program(currentProgram);
+                    const accountNameLower = node.name.toLowerCase();
+                    const isExcludedToken2022Account = isToken2022 && (accountNameLower === 'mint' || accountNameLower === 'token' || accountNameLower === 'multisig');
+                    if (!isExcludedToken2022Account) {
+                        imports.add('carbon_core::deserialize::CarbonDeserialize');
+                    }
+
                     // Check if this account's fields require serde-big-array
                     if (checkRequiresBigArray(newNode.data)) {
                         requiresSerdeBigArray = true;
@@ -142,8 +149,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Add token-2022 specific imports for accounts that need extension handling
                     // Note: StateWithExtensions is used in accounts/mod.rs, not in individual account files
                     // Extension is only needed for Mint and Token accounts (not Multisig)
-                    if (isToken2022Program(currentProgram)) {
-                        const accountNameLower = node.name.toLowerCase();
+                    if (isToken2022) {
                         if (accountNameLower === 'mint' || accountNameLower === 'token') {
                             imports.add('spl_token_2022::extension::BaseStateWithExtensions');
                             imports.add('crate::types::Extension');
@@ -346,7 +352,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return None;
         }
         let discriminator = &data[0..${event.discriminator.length}];
-        if discriminator != [${event.discriminator.join(', ')}] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }`,
                             };
@@ -435,7 +441,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 },
 
                 visitInstruction(node) {
-                    const imports = new ImportMap().add('carbon_core::deserialize::ArrangeAccounts');
+                    const imports = new ImportMap()
+                        .add('carbon_core::deserialize::ArrangeAccounts')
+                        .add('carbon_core::deserialize::CarbonDeserialize');
 
                     if (node.accounts && node.accounts.length > 0) {
                         imports.add('carbon_core::account_utils::next_account');
@@ -732,9 +740,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         .add(`crate::${pascalCase(programName)}Decoder`);
 
                     // Add token-2022 specific imports for StateWithExtensions unpacking
-                    if (isToken2022Program(program, originalProgramName)) {
+                    const isToken2022 = isToken2022Program(program, originalProgramName);
+                    if (isToken2022) {
                         accountsModImports.add('solana_program_pack::Pack');
                         // StateWithExtensions is used directly in unpack() calls, no import needed
+                    } else if (accountsToExport.length > 0) {
+                        accountsModImports.add('carbon_core::deserialize::CarbonDeserialize');
                     }
 
                     map.add(
@@ -790,7 +801,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     if (renderEvents.length > 0) {
                         const eventInstructionImports = new ImportMap()
                             .add('carbon_core::borsh')
-                            .add('carbon_core::deserialize::ArrangeAccounts');
+                            .add('carbon_core::deserialize::ArrangeAccounts')
+                            .add('carbon_core::deserialize::CarbonDeserialize');
                         map.add(
                             'src/instructions/cpi_event.rs',
                             render('eventInstructionPage.njk', { ...ctx, imports: eventInstructionImports.toString() }),

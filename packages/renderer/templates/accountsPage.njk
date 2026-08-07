@@ -79,8 +79,10 @@ impl From<spl_token_2022::state::Multisig> for {{ account.name | pascalCase }} {
 {{ macros.coreDecoderDerives() }}
 pub struct {{ account.name | pascalCase }} {{ typeManifest.type }}
 
-impl {{ account.name | pascalCase }} {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for {{ account.name | pascalCase }} {
+    const DISCRIMINATOR: &'static [u8] = &{% if discriminatorManifest %}{{ discriminatorManifest.bytes }}{% else %}[]{% endif %};
+
+    fn decode(data: &[u8]) -> Option<Self> {
 {% if discriminatorManifest -%}
 {{ discriminatorManifest.checkCode | safe }}
 {% endif %}

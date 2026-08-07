@@ -84,6 +84,7 @@ pub struct SnapshotAccountProcessor;
 impl Processor<AccountProcessorInputType<'_, Account>> for SnapshotAccountProcessor {
     async fn process(
         &mut self,
+        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
         input: &AccountProcessorInputType<'_, Account>,
     ) -> CarbonResult<()> {
         let raw = &input.decoded_account.data;
@@ -102,7 +103,11 @@ impl Processor<AccountProcessorInputType<'_, Account>> for SnapshotAccountProces
 pub struct AccountDeletionProcessor;
 
 impl Processor<AccountDeletion> for AccountDeletionProcessor {
-    async fn process(&mut self, deletion: &AccountDeletion) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
+        deletion: &AccountDeletion,
+    ) -> CarbonResult<()> {
         log::info!(
             "account_deletion pubkey={} slot={}",
             deletion.pubkey,

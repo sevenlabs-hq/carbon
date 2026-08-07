@@ -4,6 +4,7 @@ use {
         LiquidateBorrowForPerpPnlRecord, LiquidatePerpPnlForDepositRecord, LiquidatePerpRecord,
         LiquidateSpotRecord, LiquidationType, PerpBankruptcyRecord, SpotBankruptcyRecord,
     },
+    carbon_core::deserialize::CarbonDeserialize,
     solana_pubkey::Pubkey,
 };
 
@@ -29,17 +30,17 @@ pub struct LiquidationRecordEvent {
     pub bit_flags: u8,
 }
 
-impl LiquidationRecordEvent {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for LiquidationRecordEvent {
+    const DISCRIMINATOR: &'static [u8] = &[
+        228, 69, 165, 46, 81, 203, 154, 29, 127, 17, 0, 108, 182, 13, 231, 53,
+    ];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 16 {
             return None;
         }
         let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 127, 17, 0, 108, 182, 13, 231, 53,
-            ]
-        {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

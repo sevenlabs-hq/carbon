@@ -107,7 +107,11 @@ impl Datasource for JetstreamerDatasource {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: tokio::sync::mpsc::Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
         _cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_jetstreamer_metrics();
@@ -159,6 +163,9 @@ impl Datasource for JetstreamerDatasource {
 
         let result = jetstreamer_firehose::firehose::firehose(
             self.threads,
+            true,
+            false,
+            None,
             start_slot..end_slot,
             if include_blocks {
                 Some(on_block_fn)
@@ -194,7 +201,11 @@ impl JetstreamerDatasource {
     pub async fn on_block(
         block: BlockData,
         id: DatasourceId,
-        sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: tokio::sync::mpsc::Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let BlockData::Block {
             parent_blockhash,
@@ -209,7 +220,39 @@ impl JetstreamerDatasource {
             return Ok(());
         };
 
-        sender
+        #[cfg(feature = "batch")]
+        let send_res = sender
+            .send((
+                (
+                    carbon_core::datasource::BatchUpdateId::new_unique(),
+                    vec![Update::BlockDetails(BlockDetails {
+                        slot,
+                        block_hash: Some(blockhash),
+                        previous_block_hash: Some(parent_blockhash),
+                        rewards: Some(
+                            rewards
+                                .keyed_rewards
+                                .iter()
+                                .map(|(pubkey, reward)| Reward {
+                                    pubkey: pubkey.to_string(),
+                                    lamports: reward.lamports,
+                                    post_balance: reward.post_balance,
+                                    reward_type: Some(reward.reward_type),
+                                    commission: reward.commission,
+                                })
+                                .collect::<Vec<_>>(),
+                        ),
+                        num_reward_partitions: rewards.num_partitions,
+                        block_time,
+                        block_height,
+                    })],
+                ),
+                id,
+            ))
+            .await;
+
+        #[cfg(not(feature = "batch"))]
+        let send_res = sender
             .send((
                 Update::BlockDetails(BlockDetails {
                     slot,
@@ -234,7 +277,9 @@ impl JetstreamerDatasource {
                 }),
                 id,
             ))
-            .await?;
+            .await;
+
+        send_res?;
 
         BLOCKS_SENT.inc();
         Ok(())
@@ -243,7 +288,11 @@ impl JetstreamerDatasource {
     pub async fn on_transaction(
         transaction: TransactionData,
         id: DatasourceId,
-        sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: tokio::sync::mpsc::Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
         transaction_filters: Vec<TransactionFilter>,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         if !transaction_filters.is_empty() {
@@ -278,21 +327,31 @@ impl JetstreamerDatasource {
 
         TRANSACTIONS_FILTERED_IN.inc();
 
-        sender
+        let update = Update::Transaction(Box::new(TransactionUpdate {
+            signature: transaction.signature,
+            transaction: transaction.transaction,
+            meta: transaction.transaction_status_meta,
+            is_vote: transaction.is_vote,
+            slot: transaction.slot,
+            index: Some(transaction.transaction_slot_index as u64),
+            block_time: None,
+            block_hash: None,
+        }));
+
+        #[cfg(feature = "batch")]
+        let result = sender
             .send((
-                Update::Transaction(Box::new(TransactionUpdate {
-                    signature: transaction.signature,
-                    transaction: transaction.transaction,
-                    meta: transaction.transaction_status_meta,
-                    is_vote: transaction.is_vote,
-                    slot: transaction.slot,
-                    index: Some(transaction.transaction_slot_index as u64),
-                    block_time: None,
-                    block_hash: None,
-                })),
+                (
+                    carbon_core::datasource::BatchUpdateId::new_unique(),
+                    vec![update],
+                ),
                 id,
             ))
-            .await?;
+            .await;
+        #[cfg(not(feature = "batch"))]
+        let result = sender.send((update, id)).await;
+
+        result?;
 
         TRANSACTIONS_SENT.inc();
         Ok(())

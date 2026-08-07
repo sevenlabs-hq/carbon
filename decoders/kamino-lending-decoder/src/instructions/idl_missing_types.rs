@@ -4,7 +4,10 @@ use {
         FeeCalculation, ReserveFarmKind, ReserveStatus, UpdateConfigMode,
         UpdateLendingMarketConfigValue, UpdateLendingMarketMode,
     },
-    carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
+    carbon_core::{
+        account_utils::next_account,
+        deserialize::{ArrangeAccounts, CarbonDeserialize},
+    },
 };
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
@@ -27,13 +30,15 @@ pub struct IdlMissingTypesInstructionAccounts {
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
-impl IdlMissingTypes {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for IdlMissingTypes {
+    const DISCRIMINATOR: &'static [u8] = &[130, 80, 38, 153, 80, 212, 182, 253];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != [130, 80, 38, 153, 80, 212, 182, 253] {
+        if discriminator != Self::DISCRIMINATOR {
             return None;
         }
 

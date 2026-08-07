@@ -497,7 +497,11 @@ export function getDiscriminatorManifest(
                     if (size === 1) {
                         // Single byte discriminator
                         checkParts.push(`let ${varName} = data[${discriminator.offset}];`);
-                        checkParts.push(`if ${varName} != ${bytes[0]} {`);
+                        if (discriminator.offset === 0) {
+                            checkParts.push(`if ${varName} != Self::DISCRIMINATOR[0] {`);
+                        } else {
+                            checkParts.push(`if ${varName} != ${bytes[0]} {`);
+                        }
                         checkParts.push(`    return None;`);
                         checkParts.push(`}`);
                     } else {
@@ -505,7 +509,11 @@ export function getDiscriminatorManifest(
                         checkParts.push(
                             `let ${varName} = &data[${discriminator.offset}..${discriminator.offset + size}];`,
                         );
-                        checkParts.push(`if ${varName} != [${bytes.join(', ')}] {`);
+                        if (discriminator.offset === 0) {
+                            checkParts.push(`if ${varName} != Self::DISCRIMINATOR {`);
+                        } else {
+                            checkParts.push(`if ${varName} != [${bytes.join(', ')}] {`);
+                        }
                         checkParts.push(`    return None;`);
                         checkParts.push(`}`);
                     }
@@ -541,7 +549,7 @@ export function getDiscriminatorManifest(
     return None;
 }
 let discriminator = &data[${discriminator.offset}..${discriminator.offset + size}];
-if discriminator != [${bytes.join(', ')}] {
+if discriminator != Self::DISCRIMINATOR {
     return None;
 }`;
             return { bytes: `[${bytes.join(', ')}]`, size, checkCode };

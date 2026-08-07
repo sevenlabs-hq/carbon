@@ -12,6 +12,9 @@ categories = ["encoding"]
 [lib]
 crate-type = ["rlib"]
 
+[features]
+batch = ["carbon-core/batch"]
+
 [dependencies]
 yellowstone-grpc-convert = { path = "../../crates/yellowstone-grpc-convert" }
 

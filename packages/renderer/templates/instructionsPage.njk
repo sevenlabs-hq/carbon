@@ -35,8 +35,10 @@ pub struct {{ instruction.name | pascalCase }}InstructionAccounts {
 {% endif %}
 }
 
-impl {{ instruction.name | pascalCase }} {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for {{ instruction.name | pascalCase }} {
+    const DISCRIMINATOR: &'static [u8] = &{% if discriminatorManifest %}{{ discriminatorManifest.bytes }}{% else %}[]{% endif %};
+
+    fn decode(data: &[u8]) -> Option<Self> {
 {% if discriminatorManifest -%}
 {{ discriminatorManifest.checkCode | safe }}
 {% endif %}

@@ -36,7 +36,6 @@ use {
         tonic::{codec::CompressionEncoding, transport::ClientTlsConfig},
     },
 };
-
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
 const RECONNECTION_DELAY_MS: u64 = 3000;
 
@@ -210,7 +209,11 @@ impl Datasource for LaserStreamGeyserClient {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_laserstream_metrics();
@@ -419,7 +422,11 @@ impl Datasource for LaserStreamGeyserClient {
 
 async fn send_subscribe_account_update_info(
     account_update_info: Option<SubscribeUpdateAccountInfo>,
-    sender: &Sender<(Update, DatasourceId)>,
+    #[cfg(feature = "batch")] sender: &Sender<(
+        (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+        DatasourceId,
+    )>,
+    #[cfg(not(feature = "batch"))] sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     slot: u64,
     account_deletions_tracked: &RwLock<HashSet<Pubkey>>,
@@ -456,7 +463,18 @@ async fn send_subscribe_account_update_info(
                         .txn_signature
                         .and_then(|sig| Signature::try_from(sig).ok()),
                 };
-                if let Err(e) = sender.try_send((Update::AccountDeletion(account_deletion), id)) {
+                #[cfg(feature = "batch")]
+                let send_res = sender.try_send((
+                    (
+                        carbon_core::datasource::BatchUpdateId::new_unique(),
+                        vec![Update::AccountDeletion(account_deletion)],
+                    ),
+                    id,
+                ));
+                #[cfg(not(feature = "batch"))]
+                let send_res = sender.try_send((Update::AccountDeletion(account_deletion), id));
+
+                if let Err(e) = send_res {
                     log::error!(
                         "Failed to send account deletion update for pubkey {account_pubkey:?} at slot {slot}: {e:?}"
                     );
@@ -472,7 +490,18 @@ async fn send_subscribe_account_update_info(
                     .and_then(|sig| Signature::try_from(sig).ok()),
             });
 
-            if let Err(e) = sender.try_send((update, id)) {
+            #[cfg(feature = "batch")]
+            let result = sender.try_send((
+                (
+                    carbon_core::datasource::BatchUpdateId::new_unique(),
+                    vec![update],
+                ),
+                id,
+            ));
+            #[cfg(not(feature = "batch"))]
+            let result = sender.try_send((update, id));
+
+            if let Err(e) = result {
                 log::error!(
                     "Failed to send account update for pubkey {account_pubkey:?} at slot {slot}: {e:?}"
                 );
@@ -488,7 +517,11 @@ async fn send_subscribe_account_update_info(
 
 async fn send_subscribe_update_transaction_info(
     transaction_info: Option<SubscribeUpdateTransactionInfo>,
-    sender: &Sender<(Update, DatasourceId)>,
+    #[cfg(feature = "batch")] sender: &Sender<(
+        (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+        DatasourceId,
+    )>,
+    #[cfg(not(feature = "batch"))] sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     slot: u64,
     block_time: Option<i64>,
@@ -525,7 +558,18 @@ async fn send_subscribe_update_transaction_info(
             block_time,
             block_hash: None,
         }));
-        if let Err(e) = sender.try_send((update, id)) {
+        #[cfg(feature = "batch")]
+        let send_res = sender.try_send((
+            (
+                carbon_core::datasource::BatchUpdateId::new_unique(),
+                vec![update],
+            ),
+            id,
+        ));
+        #[cfg(not(feature = "batch"))]
+        let send_res = sender.try_send((update, id));
+
+        if let Err(e) = send_res {
             log::error!(
                 "Failed to send transaction update with signature {signature:?} at slot {slot}: {e:?}"
             );

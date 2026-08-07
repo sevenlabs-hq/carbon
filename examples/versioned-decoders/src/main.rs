@@ -41,9 +41,26 @@ impl Datasource for MockDatasource {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: mpsc::Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: mpsc::Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: mpsc::Sender<(Update, DatasourceId)>,
         _cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
+        #[cfg(feature = "batch")]
+        sender
+            .send((
+                (
+                    carbon_core::datasource::BatchUpdateId::new_unique(),
+                    self.updates.clone(),
+                ),
+                id.clone(),
+            ))
+            .await
+            .map_err(|e| Error::Custom(format!("send error: {e}")))?;
+
+        #[cfg(not(feature = "batch"))]
         for update in &self.updates {
             sender
                 .send((update.clone(), id.clone()))
@@ -153,6 +170,7 @@ impl SwapProcessor {
 impl Processor<InstructionProcessorInputType<'_, V1Instruction>> for SwapProcessor {
     async fn process(
         &mut self,
+        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
         input: &InstructionProcessorInputType<'_, V1Instruction>,
     ) -> CarbonResult<()> {
         let V1Instruction::Swap { data, .. } = input.decoded_instruction;
@@ -169,6 +187,7 @@ impl Processor<InstructionProcessorInputType<'_, V1Instruction>> for SwapProcess
 impl Processor<InstructionProcessorInputType<'_, V2Instruction>> for SwapProcessor {
     async fn process(
         &mut self,
+        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
         input: &InstructionProcessorInputType<'_, V2Instruction>,
     ) -> CarbonResult<()> {
         let V2Instruction::Swap { data, .. } = input.decoded_instruction;

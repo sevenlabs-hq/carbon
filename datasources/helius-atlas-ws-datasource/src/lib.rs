@@ -196,7 +196,11 @@ impl Datasource for HeliusWebsocket {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_helius_atlas_metrics();
@@ -402,10 +406,21 @@ impl Datasource for HeliusWebsocket {
                                                         ACCOUNT_DELETION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                                         ACCOUNT_DELETIONS_RECEIVED.inc();
 
-                                                        if let Err(err) = sender_clone.try_send((
-                                                            Update::AccountDeletion(account_deletion),
+                                                        let update = Update::AccountDeletion(account_deletion);
+
+                                                        #[cfg(feature = "batch")]
+                                                        let result = sender_clone.try_send((
+                                                            (carbon_core::datasource::BatchUpdateId::new_unique(), vec![update]),
                                                             id_for_account.clone(),
-                                                        )) {
+                                                        ));
+
+                                                         #[cfg(not(feature = "batch"))]
+                                                        let result = sender_clone.try_send((
+                                                            update,
+                                                            id_for_account.clone(),
+                                                        ));
+
+                                                        if let Err(err) = result  {
                                                             log::error!("Error sending account update: {err:?}");
                                                             break;
                                                         }
@@ -421,10 +436,18 @@ impl Datasource for HeliusWebsocket {
                                                     ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                                     ACCOUNT_UPDATES_RECEIVED.inc();
 
-                                                    if let Err(err) = sender_clone.try_send((
+                                                    #[cfg(feature = "batch")]
+                                                    let result = sender_clone.try_send((
+                                                        (carbon_core::datasource::BatchUpdateId::new_unique(), vec![update]),
+                                                        id_for_account.clone(),
+                                                    ));
+                                                    #[cfg(not(feature = "batch"))]
+                                                    let result = sender_clone.try_send((
                                                         update,
                                                         id_for_account.clone(),
-                                                    )) {
+                                                    ));
+
+                                                    if let Err(err) = result {
                                                         log::error!("Error sending account update: {err:?}");
                                                         break;
                                                     }
@@ -695,10 +718,18 @@ impl Datasource for HeliusWebsocket {
                                             TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                             TRANSACTION_UPDATES_RECEIVED.inc();
 
-                                            if let Err(err) = sender_clone.try_send((
+                                            #[cfg(feature = "batch")]
+                                            let result = sender_clone.try_send((
+                                                (carbon_core::datasource::BatchUpdateId::new_unique(), vec![update]),
+                                                id_for_transaction.clone(),
+                                            ));
+                                            #[cfg(not(feature = "batch"))]
+                                            let result = sender_clone.try_send((
                                                 update,
                                                 id_for_transaction.clone(),
-                                            )) {
+                                            ));
+
+                                            if let Err(err) = result {
                                                 log::error!("Error sending transaction update: {err:?}");
                                                 break;
                                             }

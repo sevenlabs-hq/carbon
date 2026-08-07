@@ -3,6 +3,7 @@ use {
     crate::types::{
         Collection, CollectionDetails, Data, Key, ProgrammableConfig, TokenStandard, Uses,
     },
+    carbon_core::deserialize::CarbonDeserialize,
     solana_pubkey::Pubkey,
 };
 
@@ -23,8 +24,10 @@ pub struct Metadata {
     pub programmable_config: Option<ProgrammableConfig>,
 }
 
-impl Metadata {
-    pub fn decode(data: &[u8]) -> Option<Self> {
+impl CarbonDeserialize for Metadata {
+    const DISCRIMINATOR: &'static [u8] = &[];
+
+    fn decode(data: &[u8]) -> Option<Self> {
         let mut data_slice = data;
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()

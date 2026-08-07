@@ -99,7 +99,12 @@ impl Datasource for StreamMessageClient {
     async fn consume(
         &self,
         id: DatasourceId,
-        sender: Sender<(Update, DatasourceId)>,
+        #[cfg(feature = "batch")] sender: Sender<(
+            (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+            DatasourceId,
+        )>,
+        #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
+
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_stream_message_metrics();
@@ -139,7 +144,12 @@ impl Datasource for StreamMessageClient {
 pub async fn handle_message_stream(
     mut receiver: Receiver<UnifiedMessage>,
     cancellation_token: CancellationToken,
-    sender: Sender<(Update, DatasourceId)>,
+    #[cfg(feature = "batch")] sender: Sender<(
+        (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+        DatasourceId,
+    )>,
+    #[cfg(not(feature = "batch"))] sender: Sender<(Update, DatasourceId)>,
+
     account_deletions_tracked: &RwLock<HashSet<Pubkey>>,
     id: DatasourceId,
 ) {
@@ -186,7 +196,11 @@ pub async fn handle_message_stream(
 
 async fn send_subscribe_account_update_info(
     account_update: AccountUpdate,
-    sender: &Sender<(Update, DatasourceId)>,
+    #[cfg(feature = "batch")] sender: &Sender<(
+        (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+        DatasourceId,
+    )>,
+    #[cfg(not(feature = "batch"))] sender: &Sender<(Update, DatasourceId)>,
     account_deletions_tracked: &RwLock<HashSet<Pubkey>>,
     id: DatasourceId,
 ) {
@@ -200,15 +214,24 @@ async fn send_subscribe_account_update_info(
     {
         let accounts = account_deletions_tracked.read().await;
         if accounts.contains(&account_pubkey) {
-            let account_deletion = AccountDeletion {
+            let update = Update::AccountDeletion(AccountDeletion {
                 pubkey: account_pubkey,
                 slot: account_update.slot,
                 transaction_signature: account_update.transaction_signature,
-            };
-            if let Err(e) = sender
-                .send((Update::AccountDeletion(account_deletion), id.clone()))
-                .await
-            {
+            });
+
+            #[cfg(feature = "batch")]
+            let result = sender.try_send((
+                (
+                    carbon_core::datasource::BatchUpdateId::new_unique(),
+                    vec![update.clone()],
+                ),
+                id.clone(),
+            ));
+            #[cfg(not(feature = "batch"))]
+            let result = sender.try_send((update.clone(), id.clone()));
+
+            if let Err(e) = result {
                 log::error!(
                     "Failed to send account deletion update for pubkey {:?}, sender capacity {:?} / max_capacity: {:?} : {:?}",
                     account_pubkey,
@@ -218,17 +241,28 @@ async fn send_subscribe_account_update_info(
                 );
             }
         }
-    } else if let Err(e) = sender
-        .send((Update::Account(account_update), id.clone()))
-        .await
-    {
-        log::error!(
+    } else {
+        let update = Update::Account(account_update);
+        #[cfg(feature = "batch")]
+        let result = sender.try_send((
+            (
+                carbon_core::datasource::BatchUpdateId::new_unique(),
+                vec![update.clone()],
+            ),
+            id.clone(),
+        ));
+        #[cfg(not(feature = "batch"))]
+        let result = sender.try_send((update.clone(), id.clone()));
+
+        if let Err(e) = result {
+            log::error!(
             "Failed to send account update for pubkey {:?},  sender capacity {:?} / max_capacity: {:?} : {:?},",
             account_pubkey,
             sender.capacity(),
             sender.max_capacity(),
             e
         );
+        }
     }
 
     ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
@@ -237,17 +271,32 @@ async fn send_subscribe_account_update_info(
 
 async fn send_subscribe_update_transaction_info(
     transaction_info: Box<TransactionUpdate>,
-    sender: &Sender<(Update, DatasourceId)>,
+    #[cfg(feature = "batch")] sender: &Sender<(
+        (carbon_core::datasource::BatchUpdateId, Vec<Update>),
+        DatasourceId,
+    )>,
+    #[cfg(not(feature = "batch"))] sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
 ) {
     let start_time = std::time::Instant::now();
 
     let signature = &transaction_info.signature.clone();
+    let update = Update::Transaction(transaction_info);
 
-    if let Err(e) = sender
-        .send((Update::Transaction(transaction_info), id))
-        .await
-    {
+    #[cfg(feature = "batch")]
+    let result = sender
+        .send((
+            (
+                carbon_core::datasource::BatchUpdateId::new_unique(),
+                vec![update.clone()],
+            ),
+            id,
+        ))
+        .await;
+    #[cfg(not(feature = "batch"))]
+    let result = sender.send((update.clone(), id)).await;
+
+    if let Err(e) = result {
         log::error!(
             "Failed to send transaction update with signature {:?}, sender capacity {:?} / max_capacity: {:?} {:?}",
             signature,

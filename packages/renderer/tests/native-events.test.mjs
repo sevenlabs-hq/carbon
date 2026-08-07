@@ -61,12 +61,14 @@ test('renders native Codama events with their IDL-defined CPI discriminator', ()
 
         const cpiEvent = readFileSync(join(outputDirectory, 'src/instructions/cpi_event.rs'), 'utf8');
         assert.match(cpiEvent, /if data\.len\(\) < 4/);
-        assert.match(cpiEvent, /if discriminator != \[1, 2, 3, 4\]/);
+        assert.match(cpiEvent, /const DISCRIMINATOR: &'static \[u8\] = &\[1, 2, 3, 4\];/);
+        assert.match(cpiEvent, /if discriminator != Self::DISCRIMINATOR/);
         assert.match(cpiEvent, /let event_data = &data\[4\.\.\]/);
 
         const generatedEvent = readFileSync(join(outputDirectory, 'src/events/payment_created.rs'), 'utf8');
         assert.match(generatedEvent, /pub struct PaymentCreatedEvent/);
-        assert.match(generatedEvent, /if discriminator != \[9\]/);
+        assert.match(generatedEvent, /const DISCRIMINATOR: &'static \[u8\] = &\[9\];/);
+        assert.match(generatedEvent, /if discriminator != Self::DISCRIMINATOR/);
 
         const cargoToml = readFileSync(join(outputDirectory, 'Cargo.toml'), 'utf8');
         assert.match(cargoToml, /carbon-core = \{ version = "0\.12\.0"/);
@@ -164,7 +166,8 @@ test('keeps the anchorEvents renderer option backward compatible', () => {
 
         const cpiEvent = readFileSync(join(outputDirectory, 'src/instructions/cpi_event.rs'), 'utf8');
         assert.match(cpiEvent, /if data\.len\(\) < 8/);
-        assert.match(cpiEvent, /if discriminator != \[228, 69, 165, 46, 81, 203, 154, 29\]/);
+        assert.match(cpiEvent, /const DISCRIMINATOR: &'static \[u8\] = &\[228, 69, 165, 46, 81, 203, 154, 29\];/);
+        assert.match(cpiEvent, /if discriminator != Self::DISCRIMINATOR/);
         assert.match(cpiEvent, /let event_data = &data\[8\.\.\]/);
         assert.doesNotMatch(cpiEvent, /NativePaymentCreated/);
     } finally {
