@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_spot_market_margin_weights::UpdateSpotMarketMarginWeights
 {
     fn table() -> &'static str {
-        "update_spot_market_margin_weights_instruction"
+        "drift_v2_update_spot_market_margin_weights_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketMarginWeights
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_spot_market_margin_weights_instruction (
+            INSERT INTO drift_v2_update_spot_market_margin_weights_instruction (
                 "initial_asset_weight",
                 "maintenance_asset_weight",
                 "initial_liability_weight",
@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketMarginWeights
 impl carbon_core::postgres::operations::Upsert for UpdateSpotMarketMarginWeightsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_spot_market_margin_weights_instruction (
+            r#"INSERT INTO drift_v2_update_spot_market_margin_weights_instruction (
                 "initial_asset_weight",
                 "maintenance_asset_weight",
                 "initial_liability_weight",
@@ -182,7 +182,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketMarginWeights
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_spot_market_margin_weights_instruction WHERE
+            r#"DELETE FROM drift_v2_update_spot_market_margin_weights_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -209,7 +209,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketMarginWeights
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_spot_market_margin_weights_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_spot_market_margin_weights_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -232,7 +232,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotMarketMarginWeightsM
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_spot_market_margin_weights_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_spot_market_margin_weights_instruction (
                 -- Instruction data
                 "initial_asset_weight" INT8 NOT NULL,
                 "maintenance_asset_weight" INT8 NOT NULL,
@@ -257,9 +257,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotMarketMarginWeightsM
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_spot_market_margin_weights_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_update_spot_market_margin_weights_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

@@ -47,7 +47,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_lb_pair::InitializeLbPair
 {
     fn table() -> &'static str {
-        "initialize_lb_pair_instruction"
+        "meteora_dlmm_initialize_lb_pair_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Insert for InitializeLbPairRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_lb_pair_instruction (
+            INSERT INTO meteora_dlmm_initialize_lb_pair_instruction (
                 "active_id",
                 "bin_step",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for InitializeLbPairRow {
 impl carbon_core::postgres::operations::Upsert for InitializeLbPairRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_lb_pair_instruction (
+            r#"INSERT INTO meteora_dlmm_initialize_lb_pair_instruction (
                 "active_id",
                 "bin_step",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for InitializeLbPairRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_lb_pair_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_initialize_lb_pair_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeLbPairRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_lb_pair_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_initialize_lb_pair_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -185,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeLbPairMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_lb_pair_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_initialize_lb_pair_instruction (
                 -- Instruction data
                 "active_id" INT4 NOT NULL,
                 "bin_step" INT4 NOT NULL,
@@ -207,7 +207,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeLbPairMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_lb_pair_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_initialize_lb_pair_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

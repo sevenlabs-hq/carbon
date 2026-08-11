@@ -13,7 +13,6 @@ pub struct ObservationStateGraphQL {
     pub observation_index: i32,
     pub pool_id: Pubkey,
     pub observations: Vec<ObservationGraphQL>,
-    pub last_update_timestamp: U64,
     pub padding: Vec<U64>,
 }
 
@@ -31,9 +30,6 @@ impl TryFrom<crate::accounts::postgres::ObservationStateRow> for ObservationStat
                 .into_iter()
                 .map(|item| item.into())
                 .collect(),
-            last_update_timestamp: carbon_core::graphql::primitives::U64(
-                *row.last_update_timestamp,
-            ),
             padding: row
                 .padding
                 .into_iter()

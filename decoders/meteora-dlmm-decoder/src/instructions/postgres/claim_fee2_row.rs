@@ -44,7 +44,7 @@ impl TryFrom<ClaimFee2Row> for crate::instructions::claim_fee2::ClaimFee2 {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::claim_fee2::ClaimFee2 {
     fn table() -> &'static str {
-        "claim_fee2_instruction"
+        "meteora_dlmm_claim_fee2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for ClaimFee2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO claim_fee2_instruction (
+            INSERT INTO meteora_dlmm_claim_fee2_instruction (
                 "min_bin_id",
                 "max_bin_id",
                 "remaining_accounts_info",
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for ClaimFee2Row {
 impl carbon_core::postgres::operations::Upsert for ClaimFee2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO claim_fee2_instruction (
+            r#"INSERT INTO meteora_dlmm_claim_fee2_instruction (
                 "min_bin_id",
                 "max_bin_id",
                 "remaining_accounts_info",
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete for ClaimFee2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM claim_fee2_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_claim_fee2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Lookup for ClaimFee2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM claim_fee2_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_claim_fee2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ClaimFee2MigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS claim_fee2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_claim_fee2_instruction (
                 -- Instruction data
                 "min_bin_id" INT4 NOT NULL,
                 "max_bin_id" INT4 NOT NULL,
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ClaimFee2MigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS claim_fee2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_claim_fee2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

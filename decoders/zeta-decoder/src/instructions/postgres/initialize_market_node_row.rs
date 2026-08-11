@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_market_node::InitializeMarketNode
 {
     fn table() -> &'static str {
-        "initialize_market_node_instruction"
+        "zeta_initialize_market_node_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for InitializeMarketNodeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_market_node_instruction (
+            INSERT INTO zeta_initialize_market_node_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for InitializeMarketNodeRow {
 impl carbon_core::postgres::operations::Upsert for InitializeMarketNodeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_market_node_instruction (
+            r#"INSERT INTO zeta_initialize_market_node_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for InitializeMarketNodeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_market_node_instruction WHERE
+            r#"DELETE FROM zeta_initialize_market_node_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeMarketNodeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_market_node_instruction WHERE
+            r#"SELECT * FROM zeta_initialize_market_node_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMarketNodeMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_market_node_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_initialize_market_node_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMarketNodeMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_market_node_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_initialize_market_node_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

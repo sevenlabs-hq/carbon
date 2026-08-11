@@ -50,7 +50,7 @@ impl TryFrom<VoucherRow> for crate::accounts::voucher::Voucher {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::voucher::Voucher {
     fn table() -> &'static str {
-        "voucher_account"
+        "bubblegum_voucher_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -63,7 +63,7 @@ impl carbon_core::postgres::operations::Insert for VoucherRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO voucher_account (
+            INSERT INTO bubblegum_voucher_account (
                 "leaf_schema",
                 "index",
                 "merkle_tree",
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for VoucherRow {
 impl carbon_core::postgres::operations::Upsert for VoucherRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO voucher_account (
+            r#"INSERT INTO bubblegum_voucher_account (
                 "leaf_schema",
                 "index",
                 "merkle_tree",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for VoucherRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM voucher_account WHERE
+            r#"DELETE FROM bubblegum_voucher_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Lookup for VoucherRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM voucher_account WHERE
+            r#"SELECT * FROM bubblegum_voucher_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -164,7 +164,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VoucherMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS voucher_account (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_voucher_account (
                 -- Account data
                 "leaf_schema" JSONB NOT NULL,
                 "index" INT8 NOT NULL,
@@ -184,7 +184,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VoucherMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS voucher_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_voucher_account"#)
             .execute(connection)
             .await?;
         Ok(())

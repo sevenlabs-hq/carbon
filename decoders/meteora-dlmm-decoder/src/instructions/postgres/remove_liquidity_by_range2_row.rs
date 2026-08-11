@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::remove_liquidity_by_range2::RemoveLiquidityByRange2
 {
     fn table() -> &'static str {
-        "remove_liquidity_by_range2_instruction"
+        "meteora_dlmm_remove_liquidity_by_range2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for RemoveLiquidityByRange2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO remove_liquidity_by_range2_instruction (
+            INSERT INTO meteora_dlmm_remove_liquidity_by_range2_instruction (
                 "from_bin_id",
                 "to_bin_id",
                 "bps_to_remove",
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Insert for RemoveLiquidityByRange2Row {
 impl carbon_core::postgres::operations::Upsert for RemoveLiquidityByRange2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO remove_liquidity_by_range2_instruction (
+            r#"INSERT INTO meteora_dlmm_remove_liquidity_by_range2_instruction (
                 "from_bin_id",
                 "to_bin_id",
                 "bps_to_remove",
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Delete for RemoveLiquidityByRange2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM remove_liquidity_by_range2_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_remove_liquidity_by_range2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -185,7 +185,7 @@ impl carbon_core::postgres::operations::Lookup for RemoveLiquidityByRange2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM remove_liquidity_by_range2_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_remove_liquidity_by_range2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveLiquidityByRange2Migrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS remove_liquidity_by_range2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_remove_liquidity_by_range2_instruction (
                 -- Instruction data
                 "from_bin_id" INT4 NOT NULL,
                 "to_bin_id" INT4 NOT NULL,
@@ -232,7 +232,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveLiquidityByRange2Migrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS remove_liquidity_by_range2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_remove_liquidity_by_range2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

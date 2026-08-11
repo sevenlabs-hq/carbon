@@ -44,6 +44,7 @@ export type GetRenderMapOptions = {
     }[];
     postgresMode?: 'generic' | 'typed';
     withPostgres?: boolean;
+    withClickhouse?: boolean;
     withGraphql?: boolean;
     withSerde?: boolean;
     withBase58?: boolean;
@@ -211,6 +212,18 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 imports: postgresImports.toString(),
                                 flatFields,
                                 isAccount: true,
+                                program: currentProgram,
+                            }),
+                        );
+                    }
+
+                    if (options.withClickhouse === true) {
+                        renderMap.add(
+                            `src/accounts/clickhouse/${snakeCase(node.name)}_row.rs`,
+                            render('clickhouseRowPage.njk', {
+                                entityName: node.name,
+                                isAccount: true,
+                                program: currentProgram,
                             }),
                         );
                     }
@@ -589,6 +602,18 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 imports: postgresImports.toString(),
                                 flatFields,
                                 isAccount: false,
+                                program: currentProgram,
+                            }),
+                        );
+                    }
+
+                    if (options.withClickhouse === true) {
+                        renderMap.add(
+                            `src/instructions/clickhouse/${snakeCase(node.name)}_row.rs`,
+                            render('clickhouseRowPage.njk', {
+                                entityName: node.name,
+                                isAccount: false,
+                                program: currentProgram,
                             }),
                         );
                     }
@@ -689,7 +714,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     };
 
                     // Visit the program first to populate instructionsWithGraphQLSchemas Set
-                    const programRenderMap = visit(program, self);
+                    const programRenderMap = visit(programWithCustomName as ProgramNode, self);
 
                     // Use getAll* functions but they will only process the main program
                     const accountsToExport = getAllAccounts(renderRoot);
@@ -730,6 +755,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         eventDataOffset,
                         postgresMode: options.postgresMode || 'typed',
                         withPostgres: options.withPostgres !== false,
+                        withClickhouse: options.withClickhouse === true,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
                         withBase58: options.withBase58 ?? false,
@@ -759,6 +785,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
                         map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
                     }
+                    if (options.withClickhouse === true) {
+                        map.add('src/accounts/clickhouse/mod.rs', render('accountsClickhouseMod.njk', ctx));
+                    }
                     if (options.withGraphql !== false) {
                         const accountsGraphqlTemplate =
                             options.postgresMode === 'generic' || options.withPostgres === false
@@ -780,6 +809,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         );
                         if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
                             map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
+                        }
+                        if (options.withClickhouse === true) {
+                            map.add('src/instructions/clickhouse/mod.rs', render('instructionsClickhouseMod.njk', ctx));
                         }
                         if (options.withGraphql !== false) {
                             const instructionsGraphqlTemplate =
@@ -821,6 +853,16 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 render('eventInstructionRowPage.njk', {
                                     ...ctx,
                                     imports: eventInstructionRowImports.toString(),
+                                }),
+                            );
+                        }
+                        if (options.withClickhouse === true) {
+                            map.add(
+                                'src/instructions/clickhouse/cpi_event_row.rs',
+                                render('clickhouseRowPage.njk', {
+                                    ...ctx,
+                                    entityName: 'CpiEvent',
+                                    isAccount: false,
                                 }),
                             );
                         }
@@ -914,6 +956,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         version: options.version,
                         versionName: options.versionName,
                         withPostgres: options.withPostgres !== false,
+                        withClickhouse: options.withClickhouse === true,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
                         withBase58: options.withBase58 ?? false,

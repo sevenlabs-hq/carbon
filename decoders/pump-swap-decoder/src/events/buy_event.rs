@@ -36,6 +36,8 @@ pub struct BuyEventEvent {
     pub ix_name: String,
     pub cashback_fee_basis_points: u64,
     pub cashback: u64,
+    pub buyback_fee_basis_points: u64,
+    pub buyback_fee: u64,
 }
 
 impl CarbonDeserialize for BuyEventEvent {

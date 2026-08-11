@@ -31,7 +31,7 @@ impl TryFrom<UnwrapSolRow> for crate::instructions::unwrap_sol::UnwrapSol {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::unwrap_sol::UnwrapSol {
     fn table() -> &'static str {
-        "unwrap_sol_instruction"
+        "dflow_aggregator_v4_unwrap_sol_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for UnwrapSolRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO unwrap_sol_instruction (
+            INSERT INTO dflow_aggregator_v4_unwrap_sol_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for UnwrapSolRow {
 impl carbon_core::postgres::operations::Upsert for UnwrapSolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO unwrap_sol_instruction (
+            r#"INSERT INTO dflow_aggregator_v4_unwrap_sol_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for UnwrapSolRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM unwrap_sol_instruction WHERE
+            r#"DELETE FROM dflow_aggregator_v4_unwrap_sol_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for UnwrapSolRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM unwrap_sol_instruction WHERE
+            r#"SELECT * FROM dflow_aggregator_v4_unwrap_sol_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnwrapSolMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS unwrap_sol_instruction (
+            r#"CREATE TABLE IF NOT EXISTS dflow_aggregator_v4_unwrap_sol_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnwrapSolMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS unwrap_sol_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS dflow_aggregator_v4_unwrap_sol_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

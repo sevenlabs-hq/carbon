@@ -43,7 +43,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::swap_base_input::SwapBaseInput
 {
     fn table() -> &'static str {
-        "swap_base_input_instruction"
+        "raydium_cpmm_swap_base_input_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for SwapBaseInputRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_base_input_instruction (
+            INSERT INTO raydium_cpmm_swap_base_input_instruction (
                 "amount_in",
                 "minimum_amount_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for SwapBaseInputRow {
 impl carbon_core::postgres::operations::Upsert for SwapBaseInputRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_base_input_instruction (
+            r#"INSERT INTO raydium_cpmm_swap_base_input_instruction (
                 "amount_in",
                 "minimum_amount_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Delete for SwapBaseInputRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_base_input_instruction WHERE
+            r#"DELETE FROM raydium_cpmm_swap_base_input_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Lookup for SwapBaseInputRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_base_input_instruction WHERE
+            r#"SELECT * FROM raydium_cpmm_swap_base_input_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapBaseInputMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_base_input_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_cpmm_swap_base_input_instruction (
                 -- Instruction data
                 "amount_in" NUMERIC(20) NOT NULL,
                 "minimum_amount_out" NUMERIC(20) NOT NULL,
@@ -203,7 +203,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapBaseInputMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_base_input_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_cpmm_swap_base_input_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

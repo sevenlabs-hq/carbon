@@ -7,5 +7,4 @@ pub enum OrderBitFlag {
     SafeTriggerOrder,
     NewTriggerReduceOnly,
     HasBuilder,
-    IsIsolatedPosition,
 }

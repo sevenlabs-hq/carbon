@@ -9,6 +9,7 @@ pub struct UpdateDeactivatedRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     pub stake_index: U32,
+    pub validator_index: U32,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -22,6 +23,7 @@ impl UpdateDeactivatedRow {
         Self {
             instruction_metadata: metadata.into(),
             stake_index: source.stake_index.into(),
+            validator_index: source.validator_index.into(),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -36,6 +38,11 @@ impl TryFrom<UpdateDeactivatedRow> for crate::instructions::update_deactivated::
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
+            validator_index: source.validator_index.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
         })
     }
 }
@@ -44,7 +51,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_deactivated::UpdateDeactivated
 {
     fn table() -> &'static str {
-        "update_deactivated_instruction"
+        "marinade_finance_update_deactivated_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,6 +61,7 @@ impl carbon_core::postgres::operations::Table
             "__stack_height",
             "__slot",
             "stake_index",
+            "validator_index",
             "__accounts",
         ]
     }
@@ -64,14 +72,16 @@ impl carbon_core::postgres::operations::Insert for UpdateDeactivatedRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_deactivated_instruction (
+            INSERT INTO marinade_finance_update_deactivated_instruction (
                 "stake_index",
+                "validator_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5, $6, $7
             )"#,
         )
         .bind(self.stake_index)
+        .bind(self.validator_index)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -88,15 +98,17 @@ impl carbon_core::postgres::operations::Insert for UpdateDeactivatedRow {
 impl carbon_core::postgres::operations::Upsert for UpdateDeactivatedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_deactivated_instruction (
+            r#"INSERT INTO marinade_finance_update_deactivated_instruction (
                 "stake_index",
+                "validator_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5, $6, $7
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
                 "stake_index" = EXCLUDED."stake_index",
+                "validator_index" = EXCLUDED."validator_index",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
@@ -104,6 +116,7 @@ impl carbon_core::postgres::operations::Upsert for UpdateDeactivatedRow {
             "#,
         )
         .bind(self.stake_index)
+        .bind(self.validator_index)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -126,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateDeactivatedRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_deactivated_instruction WHERE
+            r#"DELETE FROM marinade_finance_update_deactivated_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -153,7 +166,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateDeactivatedRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_deactivated_instruction WHERE
+            r#"SELECT * FROM marinade_finance_update_deactivated_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,9 +189,10 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateDeactivatedMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_deactivated_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_update_deactivated_instruction (
                 -- Instruction data
                 "stake_index" INT8 NOT NULL,
+                "validator_index" INT8 NOT NULL,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,
@@ -197,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateDeactivatedMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_deactivated_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_update_deactivated_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

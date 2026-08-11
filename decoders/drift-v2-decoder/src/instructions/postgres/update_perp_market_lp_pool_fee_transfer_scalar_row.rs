@@ -45,7 +45,7 @@ impl TryFrom<UpdatePerpMarketLpPoolFeeTransferScalarRow> for crate::instructions
 
 impl carbon_core::postgres::operations::Table for crate::instructions::update_perp_market_lp_pool_fee_transfer_scalar::UpdatePerpMarketLpPoolFeeTransferScalar {
     fn table() -> &'static str {
-        "update_perp_market_lp_pool_fee_transfer_scalar_instruction"
+        "drift_v2_update_perp_market_lp_pool_fee_transfer_scalar_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketLpPoolFeeTran
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_perp_market_lp_pool_fee_transfer_scalar_instruction (
+            INSERT INTO drift_v2_update_perp_market_lp_pool_fee_transfer_scalar_instruction (
                 "optional_lp_fee_transfer_scalar",
                 "optional_lp_net_pnl_transfer_scalar",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -91,7 +91,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketLpPoolFeeTran
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UpdatePerpMarketLpPoolFeeTransferScalarRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO update_perp_market_lp_pool_fee_transfer_scalar_instruction (
+        sqlx::query(r#"INSERT INTO drift_v2_update_perp_market_lp_pool_fee_transfer_scalar_instruction (
                 "optional_lp_fee_transfer_scalar",
                 "optional_lp_net_pnl_transfer_scalar",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -130,7 +130,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketLpPoolFeeTran
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_perp_market_lp_pool_fee_transfer_scalar_instruction WHERE
+            r#"DELETE FROM drift_v2_update_perp_market_lp_pool_fee_transfer_scalar_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -156,16 +156,13 @@ impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketLpPoolFeeTran
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM update_perp_market_lp_pool_fee_transfer_scalar_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM drift_v2_update_perp_market_lp_pool_fee_transfer_scalar_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -181,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS update_perp_market_lp_pool_fee_transfer_scalar_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS drift_v2_update_perp_market_lp_pool_fee_transfer_scalar_instruction (
                 -- Instruction data
                 "optional_lp_fee_transfer_scalar" INT2,
                 "optional_lp_net_pnl_transfer_scalar" INT2,
@@ -200,11 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"DROP TABLE IF EXISTS update_perp_market_lp_pool_fee_transfer_scalar_instruction"#,
-        )
-        .execute(connection)
-        .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_perp_market_lp_pool_fee_transfer_scalar_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

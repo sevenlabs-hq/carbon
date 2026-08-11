@@ -38,7 +38,7 @@ impl TryFrom<DecreasePositionWithTpslAndInternalSwapRow> for crate::instructions
 
 impl carbon_core::postgres::operations::Table for crate::instructions::decrease_position_with_tpsl_and_internal_swap::DecreasePositionWithTpslAndInternalSwap {
     fn table() -> &'static str {
-        "decrease_position_with_tpsl_and_internal_swap_instruction"
+        "jupiter_perpetuals_decrease_position_with_tpsl_and_internal_swap_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -56,23 +56,20 @@ impl carbon_core::postgres::operations::Table for crate::instructions::decrease_
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for DecreasePositionWithTpslAndInternalSwapRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
-            INSERT INTO decrease_position_with_tpsl_and_internal_swap_instruction (
+        sqlx::query(r#"
+            INSERT INTO jupiter_perpetuals_decrease_position_with_tpsl_and_internal_swap_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#,
-        )
+            )"#)
         .bind(&self.params)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -81,8 +78,7 @@ impl carbon_core::postgres::operations::Insert for DecreasePositionWithTpslAndIn
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for DecreasePositionWithTpslAndInternalSwapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO decrease_position_with_tpsl_and_internal_swap_instruction (
+        sqlx::query(r#"INSERT INTO jupiter_perpetuals_decrease_position_with_tpsl_and_internal_swap_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -95,16 +91,14 @@ impl carbon_core::postgres::operations::Upsert for DecreasePositionWithTpslAndIn
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
                 __accounts = EXCLUDED.__accounts
-            "#,
-        )
+            "#)
         .bind(&self.params)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -119,16 +113,13 @@ impl carbon_core::postgres::operations::Delete for DecreasePositionWithTpslAndIn
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM decrease_position_with_tpsl_and_internal_swap_instruction WHERE
+        sqlx::query(r#"DELETE FROM jupiter_perpetuals_decrease_position_with_tpsl_and_internal_swap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -146,16 +137,13 @@ impl carbon_core::postgres::operations::Lookup for DecreasePositionWithTpslAndIn
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM decrease_position_with_tpsl_and_internal_swap_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM jupiter_perpetuals_decrease_position_with_tpsl_and_internal_swap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -171,7 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS decrease_position_with_tpsl_and_internal_swap_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_decrease_position_with_tpsl_and_internal_swap_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -189,11 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"DROP TABLE IF EXISTS decrease_position_with_tpsl_and_internal_swap_instruction"#,
-        )
-        .execute(connection)
-        .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_perpetuals_decrease_position_with_tpsl_and_internal_swap_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

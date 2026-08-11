@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::transfer_fee_sharing_authority::TransferFeeSharingAuthority
 {
     fn table() -> &'static str {
-        "transfer_fee_sharing_authority_instruction"
+        "pump_fees_transfer_fee_sharing_authority_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for TransferFeeSharingAuthorityRo
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO transfer_fee_sharing_authority_instruction (
+            INSERT INTO pump_fees_transfer_fee_sharing_authority_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for TransferFeeSharingAuthorityRo
 impl carbon_core::postgres::operations::Upsert for TransferFeeSharingAuthorityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO transfer_fee_sharing_authority_instruction (
+            r#"INSERT INTO pump_fees_transfer_fee_sharing_authority_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for TransferFeeSharingAuthorityRo
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM transfer_fee_sharing_authority_instruction WHERE
+            r#"DELETE FROM pump_fees_transfer_fee_sharing_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for TransferFeeSharingAuthorityRo
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM transfer_fee_sharing_authority_instruction WHERE
+            r#"SELECT * FROM pump_fees_transfer_fee_sharing_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferFeeSharingAuthorityMig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS transfer_fee_sharing_authority_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_transfer_fee_sharing_authority_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferFeeSharingAuthorityMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS transfer_fee_sharing_authority_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_transfer_fee_sharing_authority_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

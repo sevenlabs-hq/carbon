@@ -52,7 +52,7 @@ impl TryFrom<AmmCacheRow> for crate::accounts::amm_cache::AmmCache {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::amm_cache::AmmCache {
     fn table() -> &'static str {
-        "amm_cache_account"
+        "drift_v2_amm_cache_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -65,7 +65,7 @@ impl carbon_core::postgres::operations::Insert for AmmCacheRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO amm_cache_account (
+            INSERT INTO drift_v2_amm_cache_account (
                 "bump",
                 "padding",
                 "cache",
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for AmmCacheRow {
 impl carbon_core::postgres::operations::Upsert for AmmCacheRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO amm_cache_account (
+            r#"INSERT INTO drift_v2_amm_cache_account (
                 "bump",
                 "padding",
                 "cache",
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for AmmCacheRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM amm_cache_account WHERE
+            r#"DELETE FROM drift_v2_amm_cache_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Lookup for AmmCacheRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM amm_cache_account WHERE
+            r#"SELECT * FROM drift_v2_amm_cache_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -166,7 +166,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmCacheMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS amm_cache_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_amm_cache_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "padding" BYTEA NOT NULL,
@@ -186,7 +186,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmCacheMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS amm_cache_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_amm_cache_account"#)
             .execute(connection)
             .await?;
         Ok(())

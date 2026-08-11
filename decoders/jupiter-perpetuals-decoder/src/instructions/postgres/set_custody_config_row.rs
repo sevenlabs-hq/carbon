@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_custody_config::SetCustodyConfig
 {
     fn table() -> &'static str {
-        "set_custody_config_instruction"
+        "jupiter_perpetuals_set_custody_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for SetCustodyConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_custody_config_instruction (
+            INSERT INTO jupiter_perpetuals_set_custody_config_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for SetCustodyConfigRow {
 impl carbon_core::postgres::operations::Upsert for SetCustodyConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_custody_config_instruction (
+            r#"INSERT INTO jupiter_perpetuals_set_custody_config_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for SetCustodyConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_custody_config_instruction WHERE
+            r#"DELETE FROM jupiter_perpetuals_set_custody_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for SetCustodyConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_custody_config_instruction WHERE
+            r#"SELECT * FROM jupiter_perpetuals_set_custody_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetCustodyConfigMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_custody_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_set_custody_config_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetCustodyConfigMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_custody_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_perpetuals_set_custody_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

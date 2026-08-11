@@ -19,6 +19,7 @@ pub enum CpiEvent {
     SwapEvent(events::swap_event::SwapEventEvent),
     SwapTobV2CpiEvent2(events::swap_tob_v2_cpi_event2::SwapTobV2CpiEvent2Event),
     SwapTocV2CpiEvent2(events::swap_toc_v2_cpi_event2::SwapTocV2CpiEvent2Event),
+    SwapWithFeeCpiEventV3(events::swap_with_fee_cpi_event_v3::SwapWithFeeCpiEventV3Event),
     SwapWithFeesCpiEvent2(events::swap_with_fees_cpi_event2::SwapWithFeesCpiEvent2Event),
     SwapWithFeesCpiEventEnhanced2(
         events::swap_with_fees_cpi_event_enhanced2::SwapWithFeesCpiEventEnhanced2Event,
@@ -62,6 +63,11 @@ impl CarbonDeserialize for CpiEvent {
             events::swap_toc_v2_cpi_event2::SwapTocV2CpiEvent2Event::decode(event_data)
         {
             return Some(CpiEvent::SwapTocV2CpiEvent2(decoded));
+        }
+        if let Some(decoded) =
+            events::swap_with_fee_cpi_event_v3::SwapWithFeeCpiEventV3Event::decode(event_data)
+        {
+            return Some(CpiEvent::SwapWithFeeCpiEventV3(decoded));
         }
         if let Some(decoded) =
             events::swap_with_fees_cpi_event2::SwapWithFeesCpiEvent2Event::decode(event_data)

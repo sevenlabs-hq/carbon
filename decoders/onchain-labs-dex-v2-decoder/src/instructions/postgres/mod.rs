@@ -3,6 +3,7 @@ pub mod claim_cashback_pumpfun_row;
 pub mod claim_cashback_pumpswap_row;
 pub mod claim_row;
 pub mod cpi_event_row;
+pub mod create_ata_with_close_authority_row;
 pub mod create_token_account_row;
 pub mod create_token_account_with_seed_row;
 pub mod init_token_ledger_row;
@@ -12,21 +13,29 @@ pub mod swap_row;
 pub mod swap_tob_enhanced_row;
 pub mod swap_tob_row;
 pub mod swap_tob_v2_row;
+pub mod swap_tob_v3_row;
 pub mod swap_tob_with_receiver_row;
 pub mod swap_tob_with_receiver_token_ledger_row;
+pub mod swap_tob_with_receiver_token_ledger_v3_row;
+pub mod swap_tob_with_receiver_v3_row;
 pub mod swap_tob_with_token_ledger_row;
+pub mod swap_tob_with_token_ledger_v3_row;
 pub mod swap_toc_row;
 pub mod swap_toc_v2_row;
+pub mod swap_toc_v3_row;
 pub mod wrap_unwrap_row;
 pub mod wrap_unwrap_with_receiver_row;
 
 pub use self::{
     claim_cashback_pumpfun_row::*, claim_cashback_pumpswap_row::*, claim_row::*, cpi_event_row::*,
-    create_token_account_row::*, create_token_account_with_seed_row::*, init_token_ledger_row::*,
-    proxy_swap_row::*, set_token_ledger_row::*, swap_row::*, swap_tob_enhanced_row::*,
-    swap_tob_row::*, swap_tob_v2_row::*, swap_tob_with_receiver_row::*,
-    swap_tob_with_receiver_token_ledger_row::*, swap_tob_with_token_ledger_row::*, swap_toc_row::*,
-    swap_toc_v2_row::*, wrap_unwrap_row::*, wrap_unwrap_with_receiver_row::*,
+    create_ata_with_close_authority_row::*, create_token_account_row::*,
+    create_token_account_with_seed_row::*, init_token_ledger_row::*, proxy_swap_row::*,
+    set_token_ledger_row::*, swap_row::*, swap_tob_enhanced_row::*, swap_tob_row::*,
+    swap_tob_v2_row::*, swap_tob_v3_row::*, swap_tob_with_receiver_row::*,
+    swap_tob_with_receiver_token_ledger_row::*, swap_tob_with_receiver_token_ledger_v3_row::*,
+    swap_tob_with_receiver_v3_row::*, swap_tob_with_token_ledger_row::*,
+    swap_tob_with_token_ledger_v3_row::*, swap_toc_row::*, swap_toc_v2_row::*, swap_toc_v3_row::*,
+    wrap_unwrap_row::*, wrap_unwrap_with_receiver_row::*,
 };
 use super::OnchainLabsDexV2Instruction;
 
@@ -46,6 +55,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for OnchainLabsDexV2InstructionsMi
             Box::new(ClaimMigrationOperation),
             Box::new(ClaimCashbackPumpfunMigrationOperation),
             Box::new(ClaimCashbackPumpswapMigrationOperation),
+            Box::new(CreateAtaWithCloseAuthorityMigrationOperation),
             Box::new(CreateTokenAccountMigrationOperation),
             Box::new(CreateTokenAccountWithSeedMigrationOperation),
             Box::new(InitTokenLedgerMigrationOperation),
@@ -55,11 +65,16 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for OnchainLabsDexV2InstructionsMi
             Box::new(SwapTobMigrationOperation),
             Box::new(SwapTobEnhancedMigrationOperation),
             Box::new(SwapTobV2MigrationOperation),
+            Box::new(SwapTobV3MigrationOperation),
             Box::new(SwapTobWithReceiverMigrationOperation),
             Box::new(SwapTobWithReceiverTokenLedgerMigrationOperation),
+            Box::new(SwapTobWithReceiverTokenLedgerV3MigrationOperation),
+            Box::new(SwapTobWithReceiverV3MigrationOperation),
             Box::new(SwapTobWithTokenLedgerMigrationOperation),
+            Box::new(SwapTobWithTokenLedgerV3MigrationOperation),
             Box::new(SwapTocMigrationOperation),
             Box::new(SwapTocV2MigrationOperation),
+            Box::new(SwapTocV3MigrationOperation),
             Box::new(WrapUnwrapMigrationOperation),
             Box::new(WrapUnwrapWithReceiverMigrationOperation),
             Box::new(CpiEventMigrationOperation),
@@ -125,6 +140,16 @@ impl carbon_core::postgres::operations::Insert for OnchainLabsDexV2InstructionWi
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            OnchainLabsDexV2Instruction::CreateAtaWithCloseAuthority { data, .. } => {
+                let row =
+                    create_ata_with_close_authority_row::CreateAtaWithCloseAuthorityRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -210,6 +235,15 @@ impl carbon_core::postgres::operations::Insert for OnchainLabsDexV2InstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
+            OnchainLabsDexV2Instruction::SwapTobV3 { data, .. } => {
+                let row = swap_tob_v3_row::SwapTobV3Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             OnchainLabsDexV2Instruction::SwapTobWithReceiver { data, .. } => {
                 let row = swap_tob_with_receiver_row::SwapTobWithReceiverRow::from_parts(
                     data.clone(),
@@ -224,12 +258,36 @@ impl carbon_core::postgres::operations::Insert for OnchainLabsDexV2InstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
+            OnchainLabsDexV2Instruction::SwapTobWithReceiverTokenLedgerV3 { data, .. } => {
+                let row = swap_tob_with_receiver_token_ledger_v3_row::SwapTobWithReceiverTokenLedgerV3Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            OnchainLabsDexV2Instruction::SwapTobWithReceiverV3 { data, .. } => {
+                let row = swap_tob_with_receiver_v3_row::SwapTobWithReceiverV3Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             OnchainLabsDexV2Instruction::SwapTobWithTokenLedger { data, .. } => {
                 let row = swap_tob_with_token_ledger_row::SwapTobWithTokenLedgerRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            OnchainLabsDexV2Instruction::SwapTobWithTokenLedgerV3 { data, .. } => {
+                let row =
+                    swap_tob_with_token_ledger_v3_row::SwapTobWithTokenLedgerV3Row::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -244,6 +302,15 @@ impl carbon_core::postgres::operations::Insert for OnchainLabsDexV2InstructionWi
             }
             OnchainLabsDexV2Instruction::SwapTocV2 { data, .. } => {
                 let row = swap_toc_v2_row::SwapTocV2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            OnchainLabsDexV2Instruction::SwapTocV3 { data, .. } => {
+                let row = swap_toc_v3_row::SwapTocV3Row::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -315,6 +382,16 @@ impl carbon_core::postgres::operations::Upsert for OnchainLabsDexV2InstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
+            OnchainLabsDexV2Instruction::CreateAtaWithCloseAuthority { data, .. } => {
+                let row =
+                    create_ata_with_close_authority_row::CreateAtaWithCloseAuthorityRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             OnchainLabsDexV2Instruction::CreateTokenAccount { data, .. } => {
                 let row = create_token_account_row::CreateTokenAccountRow::from_parts(
                     data.clone(),
@@ -397,6 +474,15 @@ impl carbon_core::postgres::operations::Upsert for OnchainLabsDexV2InstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
+            OnchainLabsDexV2Instruction::SwapTobV3 { data, .. } => {
+                let row = swap_tob_v3_row::SwapTobV3Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             OnchainLabsDexV2Instruction::SwapTobWithReceiver { data, .. } => {
                 let row = swap_tob_with_receiver_row::SwapTobWithReceiverRow::from_parts(
                     data.clone(),
@@ -411,12 +497,36 @@ impl carbon_core::postgres::operations::Upsert for OnchainLabsDexV2InstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
+            OnchainLabsDexV2Instruction::SwapTobWithReceiverTokenLedgerV3 { data, .. } => {
+                let row = swap_tob_with_receiver_token_ledger_v3_row::SwapTobWithReceiverTokenLedgerV3Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            OnchainLabsDexV2Instruction::SwapTobWithReceiverV3 { data, .. } => {
+                let row = swap_tob_with_receiver_v3_row::SwapTobWithReceiverV3Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             OnchainLabsDexV2Instruction::SwapTobWithTokenLedger { data, .. } => {
                 let row = swap_tob_with_token_ledger_row::SwapTobWithTokenLedgerRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            OnchainLabsDexV2Instruction::SwapTobWithTokenLedgerV3 { data, .. } => {
+                let row =
+                    swap_tob_with_token_ledger_v3_row::SwapTobWithTokenLedgerV3Row::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -431,6 +541,15 @@ impl carbon_core::postgres::operations::Upsert for OnchainLabsDexV2InstructionWi
             }
             OnchainLabsDexV2Instruction::SwapTocV2 { data, .. } => {
                 let row = swap_toc_v2_row::SwapTocV2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            OnchainLabsDexV2Instruction::SwapTocV3 { data, .. } => {
+                let row = swap_toc_v3_row::SwapTocV3Row::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

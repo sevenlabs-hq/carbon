@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::constituent_correlations::ConstituentCorrelations
 {
     fn table() -> &'static str {
-        "constituent_correlations_account"
+        "drift_v2_constituent_correlations_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -79,7 +79,7 @@ impl carbon_core::postgres::operations::Insert for ConstituentCorrelationsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO constituent_correlations_account (
+            INSERT INTO drift_v2_constituent_correlations_account (
                 "lp_pool",
                 "bump",
                 "padding",
@@ -106,7 +106,7 @@ impl carbon_core::postgres::operations::Insert for ConstituentCorrelationsRow {
 impl carbon_core::postgres::operations::Upsert for ConstituentCorrelationsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO constituent_correlations_account (
+            r#"INSERT INTO drift_v2_constituent_correlations_account (
                 "lp_pool",
                 "bump",
                 "padding",
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for ConstituentCorrelationsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM constituent_correlations_account WHERE
+            r#"DELETE FROM drift_v2_constituent_correlations_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Lookup for ConstituentCorrelationsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM constituent_correlations_account WHERE
+            r#"SELECT * FROM drift_v2_constituent_correlations_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -185,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConstituentCorrelationsMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS constituent_correlations_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_constituent_correlations_account (
                 -- Account data
                 "lp_pool" BYTEA NOT NULL,
                 "bump" INT2 NOT NULL,
@@ -206,7 +206,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConstituentCorrelationsMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS constituent_correlations_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_constituent_correlations_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -233,7 +233,7 @@ impl<T: Send, P> InstructionPipe<T, P> {
 pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         nested_instruction: &NestedInstruction,
     ) -> CarbonResult<()>;
 
@@ -248,7 +248,7 @@ where
 {
     async fn run(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         nested_instruction: &NestedInstruction,
     ) -> CarbonResult<()> {
         if let Some(decoded_instruction) = self

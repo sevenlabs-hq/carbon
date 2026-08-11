@@ -79,6 +79,7 @@ pub struct TwoHopSwapInstructionAccounts {
     pub tick_array_two2: solana_pubkey::Pubkey,
     pub oracle_one: solana_pubkey::Pubkey,
     pub oracle_two: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -130,6 +131,7 @@ impl ArrangeAccounts for TwoHopSwap {
         let tick_array_two2 = next_account(&mut iter)?;
         let oracle_one = next_account(&mut iter)?;
         let oracle_two = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -154,6 +156,7 @@ impl ArrangeAccounts for TwoHopSwap {
             tick_array_two2,
             oracle_one,
             oracle_two,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

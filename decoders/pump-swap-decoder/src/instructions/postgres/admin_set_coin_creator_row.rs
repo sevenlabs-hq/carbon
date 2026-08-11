@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::admin_set_coin_creator::AdminSetCoinCreator
 {
     fn table() -> &'static str {
-        "admin_set_coin_creator_instruction"
+        "pump_swap_admin_set_coin_creator_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for AdminSetCoinCreatorRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO admin_set_coin_creator_instruction (
+            INSERT INTO pump_swap_admin_set_coin_creator_instruction (
                 "coin_creator",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for AdminSetCoinCreatorRow {
 impl carbon_core::postgres::operations::Upsert for AdminSetCoinCreatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO admin_set_coin_creator_instruction (
+            r#"INSERT INTO pump_swap_admin_set_coin_creator_instruction (
                 "coin_creator",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for AdminSetCoinCreatorRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM admin_set_coin_creator_instruction WHERE
+            r#"DELETE FROM pump_swap_admin_set_coin_creator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for AdminSetCoinCreatorRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM admin_set_coin_creator_instruction WHERE
+            r#"SELECT * FROM pump_swap_admin_set_coin_creator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdminSetCoinCreatorMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS admin_set_coin_creator_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_admin_set_coin_creator_instruction (
                 -- Instruction data
                 "coin_creator" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdminSetCoinCreatorMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS admin_set_coin_creator_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_admin_set_coin_creator_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

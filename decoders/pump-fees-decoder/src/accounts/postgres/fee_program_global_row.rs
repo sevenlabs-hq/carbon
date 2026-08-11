@@ -16,7 +16,7 @@ pub struct FeeProgramGlobalRow {
     pub disable_flags: U8,
     pub social_claim_authority: Pubkey,
     pub claim_rate_limit: U64,
-    pub reserved: Vec<U8>,
+    pub reserved: Vec<u8>,
 }
 
 impl FeeProgramGlobalRow {
@@ -31,11 +31,7 @@ impl FeeProgramGlobalRow {
             disable_flags: source.disable_flags.into(),
             social_claim_authority: source.social_claim_authority.into(),
             claim_rate_limit: source.claim_rate_limit.into(),
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            reserved: source.reserved.to_vec(),
         }
     }
 }
@@ -57,23 +53,12 @@ impl TryFrom<FeeProgramGlobalRow> for crate::accounts::fee_program_global::FeePr
             })?,
             social_claim_authority: *source.social_claim_authority,
             claim_rate_limit: *source.claim_rate_limit,
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| {
-                    element.try_into().map_err(|_| {
-                        carbon_core::error::Error::Custom(
-                            "Failed to convert value from postgres primitive".to_string(),
-                        )
-                    })
-                })
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            reserved: source.reserved.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 256 bytes"
+                        .to_string(),
+                )
+            })?,
         })
     }
 }
@@ -82,7 +67,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::fee_program_global::FeeProgramGlobal
 {
     fn table() -> &'static str {
-        "fee_program_global_account"
+        "pump_fees_fee_program_global_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -104,7 +89,7 @@ impl carbon_core::postgres::operations::Insert for FeeProgramGlobalRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fee_program_global_account (
+            INSERT INTO pump_fees_fee_program_global_account (
                 "bump",
                 "authority",
                 "disable_flags",
@@ -135,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for FeeProgramGlobalRow {
 impl carbon_core::postgres::operations::Upsert for FeeProgramGlobalRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_program_global_account (
+            r#"INSERT INTO pump_fees_fee_program_global_account (
                 "bump",
                 "authority",
                 "disable_flags",
@@ -178,7 +163,7 @@ impl carbon_core::postgres::operations::Delete for FeeProgramGlobalRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fee_program_global_account WHERE
+            r#"DELETE FROM pump_fees_fee_program_global_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -199,7 +184,7 @@ impl carbon_core::postgres::operations::Lookup for FeeProgramGlobalRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fee_program_global_account WHERE
+            r#"SELECT * FROM pump_fees_fee_program_global_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -220,14 +205,14 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeProgramGlobalMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fee_program_global_account (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_fee_program_global_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "authority" BYTEA NOT NULL,
                 "disable_flags" INT2 NOT NULL,
                 "social_claim_authority" BYTEA NOT NULL,
                 "claim_rate_limit" NUMERIC(20) NOT NULL,
-                "reserved" INT2[] NOT NULL,
+                "reserved" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
@@ -243,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeProgramGlobalMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fee_program_global_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_fee_program_global_account"#)
             .execute(connection)
             .await?;
         Ok(())

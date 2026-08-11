@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_customizable_pool::InitializeCustomizablePool
 {
     fn table() -> &'static str {
-        "initialize_customizable_pool_instruction"
+        "meteora_damm_v2_initialize_customizable_pool_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for InitializeCustomizablePoolRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_customizable_pool_instruction (
+            INSERT INTO meteora_damm_v2_initialize_customizable_pool_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for InitializeCustomizablePoolRow
 impl carbon_core::postgres::operations::Upsert for InitializeCustomizablePoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_customizable_pool_instruction (
+            r#"INSERT INTO meteora_damm_v2_initialize_customizable_pool_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for InitializeCustomizablePoolRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_customizable_pool_instruction WHERE
+            r#"DELETE FROM meteora_damm_v2_initialize_customizable_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeCustomizablePoolRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_customizable_pool_instruction WHERE
+            r#"SELECT * FROM meteora_damm_v2_initialize_customizable_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeCustomizablePoolMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_customizable_pool_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_initialize_customizable_pool_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeCustomizablePoolMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_customizable_pool_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_damm_v2_initialize_customizable_pool_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

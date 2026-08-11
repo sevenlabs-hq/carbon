@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::observation_state::ObservationState
 {
     fn table() -> &'static str {
-        "observation_state_account"
+        "pancake_swap_observation_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Insert for ObservationStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO observation_state_account (
+            INSERT INTO pancake_swap_observation_state_account (
                 "initialized",
                 "recent_epoch",
                 "observation_index",
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Insert for ObservationStateRow {
 impl carbon_core::postgres::operations::Upsert for ObservationStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO observation_state_account (
+            r#"INSERT INTO pancake_swap_observation_state_account (
                 "initialized",
                 "recent_epoch",
                 "observation_index",
@@ -186,7 +186,7 @@ impl carbon_core::postgres::operations::Delete for ObservationStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM observation_state_account WHERE
+            r#"DELETE FROM pancake_swap_observation_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -207,7 +207,7 @@ impl carbon_core::postgres::operations::Lookup for ObservationStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM observation_state_account WHERE
+            r#"SELECT * FROM pancake_swap_observation_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ObservationStateMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS observation_state_account (
+            r#"CREATE TABLE IF NOT EXISTS pancake_swap_observation_state_account (
                 -- Account data
                 "initialized" BOOLEAN NOT NULL,
                 "recent_epoch" NUMERIC(20) NOT NULL,
@@ -251,7 +251,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ObservationStateMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS observation_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pancake_swap_observation_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -69,7 +69,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::open_position_with_token22_nft::OpenPositionWithToken22Nft
 {
     fn table() -> &'static str {
-        "open_position_with_token22_nft_instruction"
+        "raydium_clmm_open_position_with_token22_nft_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for OpenPositionWithToken22NftRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO open_position_with_token22_nft_instruction (
+            INSERT INTO raydium_clmm_open_position_with_token22_nft_instruction (
                 "tick_lower_index",
                 "tick_upper_index",
                 "tick_array_lower_start_index",
@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Insert for OpenPositionWithToken22NftRow
 impl carbon_core::postgres::operations::Upsert for OpenPositionWithToken22NftRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_position_with_token22_nft_instruction (
+            r#"INSERT INTO raydium_clmm_open_position_with_token22_nft_instruction (
                 "tick_lower_index",
                 "tick_upper_index",
                 "tick_array_lower_start_index",
@@ -199,7 +199,7 @@ impl carbon_core::postgres::operations::Delete for OpenPositionWithToken22NftRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM open_position_with_token22_nft_instruction WHERE
+            r#"DELETE FROM raydium_clmm_open_position_with_token22_nft_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -226,7 +226,7 @@ impl carbon_core::postgres::operations::Lookup for OpenPositionWithToken22NftRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM open_position_with_token22_nft_instruction WHERE
+            r#"SELECT * FROM raydium_clmm_open_position_with_token22_nft_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -249,7 +249,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenPositionWithToken22NftMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS open_position_with_token22_nft_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_open_position_with_token22_nft_instruction (
                 -- Instruction data
                 "tick_lower_index" INT4 NOT NULL,
                 "tick_upper_index" INT4 NOT NULL,
@@ -278,9 +278,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenPositionWithToken22NftMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS open_position_with_token22_nft_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS raydium_clmm_open_position_with_token22_nft_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

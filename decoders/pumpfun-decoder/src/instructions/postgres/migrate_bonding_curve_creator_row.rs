@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::migrate_bonding_curve_creator::MigrateBondingCurveCreator
 {
     fn table() -> &'static str {
-        "migrate_bonding_curve_creator_instruction"
+        "pumpfun_migrate_bonding_curve_creator_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for MigrateBondingCurveCreatorRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO migrate_bonding_curve_creator_instruction (
+            INSERT INTO pumpfun_migrate_bonding_curve_creator_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for MigrateBondingCurveCreatorRow
 impl carbon_core::postgres::operations::Upsert for MigrateBondingCurveCreatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO migrate_bonding_curve_creator_instruction (
+            r#"INSERT INTO pumpfun_migrate_bonding_curve_creator_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for MigrateBondingCurveCreatorRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM migrate_bonding_curve_creator_instruction WHERE
+            r#"DELETE FROM pumpfun_migrate_bonding_curve_creator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for MigrateBondingCurveCreatorRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM migrate_bonding_curve_creator_instruction WHERE
+            r#"SELECT * FROM pumpfun_migrate_bonding_curve_creator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MigrateBondingCurveCreatorMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS migrate_bonding_curve_creator_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_migrate_bonding_curve_creator_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MigrateBondingCurveCreatorMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS migrate_bonding_curve_creator_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_migrate_bonding_curve_creator_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

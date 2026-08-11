@@ -70,7 +70,7 @@ impl TryFrom<TokenMessengerRow> for crate::accounts::token_messenger::TokenMesse
 
 impl carbon_core::postgres::operations::Table for crate::accounts::token_messenger::TokenMessenger {
     fn table() -> &'static str {
-        "token_messenger_account"
+        "circle_token_messenger_v2_token_messenger_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for TokenMessengerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO token_messenger_account (
+            INSERT INTO circle_token_messenger_v2_token_messenger_account (
                 "denylister",
                 "owner",
                 "pending_owner",
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Insert for TokenMessengerRow {
 impl carbon_core::postgres::operations::Upsert for TokenMessengerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_messenger_account (
+            r#"INSERT INTO circle_token_messenger_v2_token_messenger_account (
                 "denylister",
                 "owner",
                 "pending_owner",
@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Delete for TokenMessengerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM token_messenger_account WHERE
+            r#"DELETE FROM circle_token_messenger_v2_token_messenger_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -199,7 +199,7 @@ impl carbon_core::postgres::operations::Lookup for TokenMessengerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM token_messenger_account WHERE
+            r#"SELECT * FROM circle_token_messenger_v2_token_messenger_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -220,7 +220,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenMessengerMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS token_messenger_account (
+            r#"CREATE TABLE IF NOT EXISTS circle_token_messenger_v2_token_messenger_account (
                 -- Account data
                 "denylister" BYTEA NOT NULL,
                 "owner" BYTEA NOT NULL,
@@ -245,7 +245,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenMessengerMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS token_messenger_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS circle_token_messenger_v2_token_messenger_account"#)
             .execute(connection)
             .await?;
         Ok(())

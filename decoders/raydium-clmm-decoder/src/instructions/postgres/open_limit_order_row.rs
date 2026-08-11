@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::open_limit_order::OpenLimitOrder
 {
     fn table() -> &'static str {
-        "open_limit_order_instruction"
+        "raydium_clmm_open_limit_order_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -79,7 +79,7 @@ impl carbon_core::postgres::operations::Insert for OpenLimitOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO open_limit_order_instruction (
+            INSERT INTO raydium_clmm_open_limit_order_instruction (
                 "nonce_index",
                 "zero_for_one",
                 "tick_index",
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Insert for OpenLimitOrderRow {
 impl carbon_core::postgres::operations::Upsert for OpenLimitOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_limit_order_instruction (
+            r#"INSERT INTO raydium_clmm_open_limit_order_instruction (
                 "nonce_index",
                 "zero_for_one",
                 "tick_index",
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Delete for OpenLimitOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM open_limit_order_instruction WHERE
+            r#"DELETE FROM raydium_clmm_open_limit_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl carbon_core::postgres::operations::Lookup for OpenLimitOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM open_limit_order_instruction WHERE
+            r#"SELECT * FROM raydium_clmm_open_limit_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -206,7 +206,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenLimitOrderMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS open_limit_order_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_open_limit_order_instruction (
                 -- Instruction data
                 "nonce_index" INT2 NOT NULL,
                 "zero_for_one" BOOLEAN NOT NULL,
@@ -230,7 +230,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenLimitOrderMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS open_limit_order_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_open_limit_order_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

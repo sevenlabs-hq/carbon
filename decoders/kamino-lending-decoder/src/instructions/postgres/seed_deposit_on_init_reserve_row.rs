@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::seed_deposit_on_init_reserve::SeedDepositOnInitReserve
 {
     fn table() -> &'static str {
-        "seed_deposit_on_init_reserve_instruction"
+        "kamino_lending_seed_deposit_on_init_reserve_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for SeedDepositOnInitReserveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO seed_deposit_on_init_reserve_instruction (
+            INSERT INTO kamino_lending_seed_deposit_on_init_reserve_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for SeedDepositOnInitReserveRow {
 impl carbon_core::postgres::operations::Upsert for SeedDepositOnInitReserveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO seed_deposit_on_init_reserve_instruction (
+            r#"INSERT INTO kamino_lending_seed_deposit_on_init_reserve_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for SeedDepositOnInitReserveRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM seed_deposit_on_init_reserve_instruction WHERE
+            r#"DELETE FROM kamino_lending_seed_deposit_on_init_reserve_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for SeedDepositOnInitReserveRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM seed_deposit_on_init_reserve_instruction WHERE
+            r#"SELECT * FROM kamino_lending_seed_deposit_on_init_reserve_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SeedDepositOnInitReserveMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS seed_deposit_on_init_reserve_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_seed_deposit_on_init_reserve_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,9 +181,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SeedDepositOnInitReserveMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS seed_deposit_on_init_reserve_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS kamino_lending_seed_deposit_on_init_reserve_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

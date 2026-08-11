@@ -2,18 +2,11 @@
 name = "carbon-jupiter-swap-decoder"
 version = "1.0.0"
 edition = { workspace = true }
-description = "Jupiter Swap Decoder"
-license = { workspace = true }
-readme = "README.md"
-repository = { workspace = true }
-keywords = ["solana", "decoder", "jupiter"]
-categories = ["encoding"]
-
 [lib]
 crate-type = ["rlib"]
 
 [features]
-default = ["serde"]
+default = []
 
 serde = ["dep:serde"]
 
@@ -23,6 +16,18 @@ postgres = [
     "dep:async-trait",
     "dep:sqlx_migrator",
     "serde",
+]
+
+clickhouse = [
+    "carbon-core/clickhouse",
+    "dep:clickhouse",
+    "dep:async-trait",
+    "serde",
+]
+
+clickhouse-cluster = [
+    "clickhouse",
+    "carbon-core/clickhouse-cluster",
 ]
 
 graphql = [
@@ -46,6 +51,8 @@ async-trait = { workspace = true, optional = true }
 sqlx_migrator = { workspace = true, optional = true }
 
 juniper = { workspace = true, optional = true }
+
+clickhouse = { workspace = true, optional = true }
 
 
 [dev-dependencies]

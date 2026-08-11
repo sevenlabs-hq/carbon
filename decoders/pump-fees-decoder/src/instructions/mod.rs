@@ -8,41 +8,73 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod claim_social_fee_pda;
+pub mod claim_social_fee_pda_v2;
 pub mod cpi_event;
+pub mod crank_donation_fee_pda;
+pub mod create_donation_fee_pda;
 pub mod create_fee_sharing_config;
 pub mod create_social_fee_pda;
+pub mod extend_fee_config;
 pub mod get_fees;
+pub mod initialize_buyback;
 pub mod initialize_fee_config;
 pub mod initialize_fee_program_global;
 pub mod reset_fee_sharing_config;
+pub mod reset_fee_sharing_config_v2;
 pub mod revoke_fee_sharing_authority;
 pub mod set_authority;
 pub mod set_claim_rate_limit;
 pub mod set_disable_flags;
 pub mod set_social_claim_authority;
+pub mod sweep_buyback;
 pub mod transfer_fee_sharing_authority;
 pub mod update_admin;
+pub mod update_buyback_authority;
+pub mod update_buyback_claim_rate_limit;
 pub mod update_fee_config;
 pub mod update_fee_shares;
+pub mod update_fee_shares_v2;
+pub mod update_stable_fee_config;
 pub mod upsert_fee_tiers;
+pub mod upsert_stable_fee_tiers;
 
 pub use self::{
-    claim_social_fee_pda::*, cpi_event::*, create_fee_sharing_config::*, create_social_fee_pda::*,
-    get_fees::*, initialize_fee_config::*, initialize_fee_program_global::*,
-    reset_fee_sharing_config::*, revoke_fee_sharing_authority::*, set_authority::*,
-    set_claim_rate_limit::*, set_disable_flags::*, set_social_claim_authority::*,
-    transfer_fee_sharing_authority::*, update_admin::*, update_fee_config::*, update_fee_shares::*,
-    upsert_fee_tiers::*,
+    claim_social_fee_pda::*, claim_social_fee_pda_v2::*, cpi_event::*, crank_donation_fee_pda::*,
+    create_donation_fee_pda::*, create_fee_sharing_config::*, create_social_fee_pda::*,
+    extend_fee_config::*, get_fees::*, initialize_buyback::*, initialize_fee_config::*,
+    initialize_fee_program_global::*, reset_fee_sharing_config::*, reset_fee_sharing_config_v2::*,
+    revoke_fee_sharing_authority::*, set_authority::*, set_claim_rate_limit::*,
+    set_disable_flags::*, set_social_claim_authority::*, sweep_buyback::*,
+    transfer_fee_sharing_authority::*, update_admin::*, update_buyback_authority::*,
+    update_buyback_claim_rate_limit::*, update_fee_config::*, update_fee_shares::*,
+    update_fee_shares_v2::*, update_stable_fee_config::*, upsert_fee_tiers::*,
+    upsert_stable_fee_tiers::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+#[cfg_attr(feature = "serde", derive(carbon_core::InstructionType))]
 pub enum PumpFeesInstruction {
     ClaimSocialFeePda {
         program_id: solana_pubkey::Pubkey,
         data: ClaimSocialFeePda,
         accounts: ClaimSocialFeePdaInstructionAccounts,
+    },
+    ClaimSocialFeePdaV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimSocialFeePdaV2,
+        accounts: ClaimSocialFeePdaV2InstructionAccounts,
+    },
+    CrankDonationFeePda {
+        program_id: solana_pubkey::Pubkey,
+        data: CrankDonationFeePda,
+        accounts: CrankDonationFeePdaInstructionAccounts,
+    },
+    CreateDonationFeePda {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateDonationFeePda,
+        accounts: CreateDonationFeePdaInstructionAccounts,
     },
     CreateFeeSharingConfig {
         program_id: solana_pubkey::Pubkey,
@@ -54,10 +86,20 @@ pub enum PumpFeesInstruction {
         data: CreateSocialFeePda,
         accounts: CreateSocialFeePdaInstructionAccounts,
     },
+    ExtendFeeConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: ExtendFeeConfig,
+        accounts: ExtendFeeConfigInstructionAccounts,
+    },
     GetFees {
         program_id: solana_pubkey::Pubkey,
         data: GetFees,
         accounts: GetFeesInstructionAccounts,
+    },
+    InitializeBuyback {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeBuyback,
+        accounts: InitializeBuybackInstructionAccounts,
     },
     InitializeFeeConfig {
         program_id: solana_pubkey::Pubkey,
@@ -73,6 +115,11 @@ pub enum PumpFeesInstruction {
         program_id: solana_pubkey::Pubkey,
         data: ResetFeeSharingConfig,
         accounts: ResetFeeSharingConfigInstructionAccounts,
+    },
+    ResetFeeSharingConfigV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: ResetFeeSharingConfigV2,
+        accounts: ResetFeeSharingConfigV2InstructionAccounts,
     },
     RevokeFeeSharingAuthority {
         program_id: solana_pubkey::Pubkey,
@@ -99,6 +146,11 @@ pub enum PumpFeesInstruction {
         data: SetSocialClaimAuthority,
         accounts: SetSocialClaimAuthorityInstructionAccounts,
     },
+    SweepBuyback {
+        program_id: solana_pubkey::Pubkey,
+        data: SweepBuyback,
+        accounts: SweepBuybackInstructionAccounts,
+    },
     TransferFeeSharingAuthority {
         program_id: solana_pubkey::Pubkey,
         data: TransferFeeSharingAuthority,
@@ -108,6 +160,16 @@ pub enum PumpFeesInstruction {
         program_id: solana_pubkey::Pubkey,
         data: UpdateAdmin,
         accounts: UpdateAdminInstructionAccounts,
+    },
+    UpdateBuybackAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateBuybackAuthority,
+        accounts: UpdateBuybackAuthorityInstructionAccounts,
+    },
+    UpdateBuybackClaimRateLimit {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateBuybackClaimRateLimit,
+        accounts: UpdateBuybackClaimRateLimitInstructionAccounts,
     },
     UpdateFeeConfig {
         program_id: solana_pubkey::Pubkey,
@@ -119,10 +181,25 @@ pub enum PumpFeesInstruction {
         data: UpdateFeeShares,
         accounts: UpdateFeeSharesInstructionAccounts,
     },
+    UpdateFeeSharesV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateFeeSharesV2,
+        accounts: UpdateFeeSharesV2InstructionAccounts,
+    },
+    UpdateStableFeeConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateStableFeeConfig,
+        accounts: UpdateStableFeeConfigInstructionAccounts,
+    },
     UpsertFeeTiers {
         program_id: solana_pubkey::Pubkey,
         data: UpsertFeeTiers,
         accounts: UpsertFeeTiersInstructionAccounts,
+    },
+    UpsertStableFeeTiers {
+        program_id: solana_pubkey::Pubkey,
+        data: UpsertStableFeeTiers,
+        accounts: UpsertStableFeeTiersInstructionAccounts,
     },
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
@@ -146,22 +223,34 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpFeesDecoder {
             instruction,
             PROGRAM_ID,
             PumpFeesInstruction::ClaimSocialFeePda => ClaimSocialFeePda,
+            PumpFeesInstruction::ClaimSocialFeePdaV2 => ClaimSocialFeePdaV2,
+            PumpFeesInstruction::CrankDonationFeePda => CrankDonationFeePda,
+            PumpFeesInstruction::CreateDonationFeePda => CreateDonationFeePda,
             PumpFeesInstruction::CreateFeeSharingConfig => CreateFeeSharingConfig,
             PumpFeesInstruction::CreateSocialFeePda => CreateSocialFeePda,
+            PumpFeesInstruction::ExtendFeeConfig => ExtendFeeConfig,
             PumpFeesInstruction::GetFees => GetFees,
+            PumpFeesInstruction::InitializeBuyback => InitializeBuyback,
             PumpFeesInstruction::InitializeFeeConfig => InitializeFeeConfig,
             PumpFeesInstruction::InitializeFeeProgramGlobal => InitializeFeeProgramGlobal,
             PumpFeesInstruction::ResetFeeSharingConfig => ResetFeeSharingConfig,
+            PumpFeesInstruction::ResetFeeSharingConfigV2 => ResetFeeSharingConfigV2,
             PumpFeesInstruction::RevokeFeeSharingAuthority => RevokeFeeSharingAuthority,
             PumpFeesInstruction::SetAuthority => SetAuthority,
             PumpFeesInstruction::SetClaimRateLimit => SetClaimRateLimit,
             PumpFeesInstruction::SetDisableFlags => SetDisableFlags,
             PumpFeesInstruction::SetSocialClaimAuthority => SetSocialClaimAuthority,
+            PumpFeesInstruction::SweepBuyback => SweepBuyback,
             PumpFeesInstruction::TransferFeeSharingAuthority => TransferFeeSharingAuthority,
             PumpFeesInstruction::UpdateAdmin => UpdateAdmin,
+            PumpFeesInstruction::UpdateBuybackAuthority => UpdateBuybackAuthority,
+            PumpFeesInstruction::UpdateBuybackClaimRateLimit => UpdateBuybackClaimRateLimit,
             PumpFeesInstruction::UpdateFeeConfig => UpdateFeeConfig,
             PumpFeesInstruction::UpdateFeeShares => UpdateFeeShares,
+            PumpFeesInstruction::UpdateFeeSharesV2 => UpdateFeeSharesV2,
+            PumpFeesInstruction::UpdateStableFeeConfig => UpdateStableFeeConfig,
             PumpFeesInstruction::UpsertFeeTiers => UpsertFeeTiers,
+            PumpFeesInstruction::UpsertStableFeeTiers => UpsertStableFeeTiers,
             PumpFeesInstruction::CpiEvent => CpiEvent,
         )
     }

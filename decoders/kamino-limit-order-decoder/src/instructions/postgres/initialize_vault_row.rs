@@ -33,7 +33,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_vault::InitializeVault
 {
     fn table() -> &'static str {
-        "initialize_vault_instruction"
+        "kamino_limit_order_initialize_vault_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Insert for InitializeVaultRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_vault_instruction (
+            INSERT INTO kamino_limit_order_initialize_vault_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for InitializeVaultRow {
 impl carbon_core::postgres::operations::Upsert for InitializeVaultRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_vault_instruction (
+            r#"INSERT INTO kamino_limit_order_initialize_vault_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for InitializeVaultRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_vault_instruction WHERE
+            r#"DELETE FROM kamino_limit_order_initialize_vault_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeVaultRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_vault_instruction WHERE
+            r#"SELECT * FROM kamino_limit_order_initialize_vault_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,7 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeVaultMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_vault_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_limit_order_initialize_vault_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeVaultMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_vault_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_limit_order_initialize_vault_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

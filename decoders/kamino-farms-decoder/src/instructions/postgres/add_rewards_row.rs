@@ -41,7 +41,7 @@ impl TryFrom<AddRewardsRow> for crate::instructions::add_rewards::AddRewards {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::add_rewards::AddRewards {
     fn table() -> &'static str {
-        "add_rewards_instruction"
+        "kamino_farms_add_rewards_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for AddRewardsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO add_rewards_instruction (
+            INSERT INTO kamino_farms_add_rewards_instruction (
                 "amount",
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for AddRewardsRow {
 impl carbon_core::postgres::operations::Upsert for AddRewardsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO add_rewards_instruction (
+            r#"INSERT INTO kamino_farms_add_rewards_instruction (
                 "amount",
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Delete for AddRewardsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM add_rewards_instruction WHERE
+            r#"DELETE FROM kamino_farms_add_rewards_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Lookup for AddRewardsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM add_rewards_instruction WHERE
+            r#"SELECT * FROM kamino_farms_add_rewards_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddRewardsMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS add_rewards_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_farms_add_rewards_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 "reward_index" NUMERIC(20) NOT NULL,
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddRewardsMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS add_rewards_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_farms_add_rewards_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -100,7 +100,7 @@ impl TryFrom<StakedSettingsRow> for crate::accounts::staked_settings::StakedSett
 
 impl carbon_core::postgres::operations::Table for crate::accounts::staked_settings::StakedSettings {
     fn table() -> &'static str {
-        "staked_settings_account"
+        "marginfi_v2_staked_settings_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Insert for StakedSettingsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO staked_settings_account (
+            INSERT INTO marginfi_v2_staked_settings_account (
                 "key",
                 "marginfi_group",
                 "oracle",
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Insert for StakedSettingsRow {
 impl carbon_core::postgres::operations::Upsert for StakedSettingsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO staked_settings_account (
+            r#"INSERT INTO marginfi_v2_staked_settings_account (
                 "key",
                 "marginfi_group",
                 "oracle",
@@ -238,7 +238,7 @@ impl carbon_core::postgres::operations::Delete for StakedSettingsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM staked_settings_account WHERE
+            r#"DELETE FROM marginfi_v2_staked_settings_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -259,7 +259,7 @@ impl carbon_core::postgres::operations::Lookup for StakedSettingsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM staked_settings_account WHERE
+            r#"SELECT * FROM marginfi_v2_staked_settings_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -280,7 +280,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StakedSettingsMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS staked_settings_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_staked_settings_account (
                 -- Account data
                 "key" BYTEA NOT NULL,
                 "marginfi_group" BYTEA NOT NULL,
@@ -310,7 +310,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StakedSettingsMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS staked_settings_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_staked_settings_account"#)
             .execute(connection)
             .await?;
         Ok(())

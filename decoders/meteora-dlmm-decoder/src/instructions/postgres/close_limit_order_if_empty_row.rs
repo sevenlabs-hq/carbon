@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::close_limit_order_if_empty::CloseLimitOrderIfEmpty
 {
     fn table() -> &'static str {
-        "close_limit_order_if_empty_instruction"
+        "meteora_dlmm_close_limit_order_if_empty_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for CloseLimitOrderIfEmptyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO close_limit_order_if_empty_instruction (
+            INSERT INTO meteora_dlmm_close_limit_order_if_empty_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for CloseLimitOrderIfEmptyRow {
 impl carbon_core::postgres::operations::Upsert for CloseLimitOrderIfEmptyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO close_limit_order_if_empty_instruction (
+            r#"INSERT INTO meteora_dlmm_close_limit_order_if_empty_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for CloseLimitOrderIfEmptyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM close_limit_order_if_empty_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_close_limit_order_if_empty_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for CloseLimitOrderIfEmptyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM close_limit_order_if_empty_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_close_limit_order_if_empty_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CloseLimitOrderIfEmptyMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS close_limit_order_if_empty_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_close_limit_order_if_empty_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CloseLimitOrderIfEmptyMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS close_limit_order_if_empty_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_close_limit_order_if_empty_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -581,7 +581,7 @@ impl TryFrom<PricingRow> for crate::accounts::pricing::Pricing {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::pricing::Pricing {
     fn table() -> &'static str {
-        "pricing_account"
+        "zeta_pricing_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -629,7 +629,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pricing::Pric
 impl carbon_core::postgres::operations::Insert for PricingRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO pricing_account (
+            INSERT INTO zeta_pricing_account (
                 "nonce",
                 "mark_prices",
                 "mark_prices_padding",
@@ -711,7 +711,7 @@ impl carbon_core::postgres::operations::Insert for PricingRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PricingRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO pricing_account (
+        sqlx::query(r#"INSERT INTO zeta_pricing_account (
                 "nonce",
                 "mark_prices",
                 "mark_prices_padding",
@@ -833,7 +833,7 @@ impl carbon_core::postgres::operations::Delete for PricingRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM pricing_account WHERE
+            r#"DELETE FROM zeta_pricing_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -854,7 +854,7 @@ impl carbon_core::postgres::operations::Lookup for PricingRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM pricing_account WHERE
+            r#"SELECT * FROM zeta_pricing_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -875,7 +875,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PricingMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS pricing_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_pricing_account (
                 -- Account data
                 "nonce" INT2 NOT NULL,
                 "mark_prices" NUMERIC(20)[] NOT NULL,
@@ -925,7 +925,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PricingMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS pricing_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_pricing_account"#)
             .execute(connection)
             .await?;
         Ok(())

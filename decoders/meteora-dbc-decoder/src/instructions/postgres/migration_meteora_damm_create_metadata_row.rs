@@ -32,7 +32,7 @@ impl TryFrom<MigrationMeteoraDammCreateMetadataRow> for crate::instructions::mig
 
 impl carbon_core::postgres::operations::Table for crate::instructions::migration_meteora_damm_create_metadata::MigrationMeteoraDammCreateMetadata {
     fn table() -> &'static str {
-        "migration_meteora_damm_create_metadata_instruction"
+        "meteora_dbc_migration_meteora_damm_create_metadata_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -51,7 +51,7 @@ impl carbon_core::postgres::operations::Insert for MigrationMeteoraDammCreateMet
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO migration_meteora_damm_create_metadata_instruction (
+            INSERT INTO meteora_dbc_migration_meteora_damm_create_metadata_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for MigrationMeteoraDammCreateMet
 impl carbon_core::postgres::operations::Upsert for MigrationMeteoraDammCreateMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO migration_meteora_damm_create_metadata_instruction (
+            r#"INSERT INTO meteora_dbc_migration_meteora_damm_create_metadata_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Delete for MigrationMeteoraDammCreateMet
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM migration_meteora_damm_create_metadata_instruction WHERE
+            r#"DELETE FROM meteora_dbc_migration_meteora_damm_create_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Lookup for MigrationMeteoraDammCreateMet
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM migration_meteora_damm_create_metadata_instruction WHERE
+            r#"SELECT * FROM meteora_dbc_migration_meteora_damm_create_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,8 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS migration_meteora_damm_create_metadata_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS meteora_dbc_migration_meteora_damm_create_metadata_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -169,10 +168,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -180,9 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS migration_meteora_damm_create_metadata_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dbc_migration_meteora_damm_create_metadata_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

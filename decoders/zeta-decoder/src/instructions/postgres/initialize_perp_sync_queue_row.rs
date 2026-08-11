@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_perp_sync_queue::InitializePerpSyncQueue
 {
     fn table() -> &'static str {
-        "initialize_perp_sync_queue_instruction"
+        "zeta_initialize_perp_sync_queue_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for InitializePerpSyncQueueRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_perp_sync_queue_instruction (
+            INSERT INTO zeta_initialize_perp_sync_queue_instruction (
                 "nonce",
                 "asset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for InitializePerpSyncQueueRow {
 impl carbon_core::postgres::operations::Upsert for InitializePerpSyncQueueRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_perp_sync_queue_instruction (
+            r#"INSERT INTO zeta_initialize_perp_sync_queue_instruction (
                 "nonce",
                 "asset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for InitializePerpSyncQueueRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_perp_sync_queue_instruction WHERE
+            r#"DELETE FROM zeta_initialize_perp_sync_queue_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for InitializePerpSyncQueueRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_perp_sync_queue_instruction WHERE
+            r#"SELECT * FROM zeta_initialize_perp_sync_queue_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePerpSyncQueueMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_perp_sync_queue_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_initialize_perp_sync_queue_instruction (
                 -- Instruction data
                 "nonce" INT2 NOT NULL,
                 "asset" JSONB NOT NULL,
@@ -212,7 +212,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePerpSyncQueueMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_perp_sync_queue_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_initialize_perp_sync_queue_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

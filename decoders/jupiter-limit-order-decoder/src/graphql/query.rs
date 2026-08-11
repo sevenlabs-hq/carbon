@@ -29,13 +29,14 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::FeeGraphQL>> {
-        let rows: Vec<crate::accounts::postgres::FeeRow> =
-            sqlx::query_as(r#"SELECT * FROM fee_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        let rows: Vec<crate::accounts::postgres::FeeRow> = sqlx::query_as(
+            r#"SELECT * FROM jupiter_limit_order_fee_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows
             .into_iter()
             .filter_map(|row| row.try_into().ok())
@@ -63,7 +64,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::OrderGraphQL>> {
         let rows: Vec<crate::accounts::postgres::OrderRow> = sqlx::query_as(
-            r#"SELECT * FROM order_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_order_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -83,7 +84,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM jupiter_limit_order_initialize_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -102,7 +103,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_initialize_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -121,7 +122,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::FillOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::FillOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM fill_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM jupiter_limit_order_fill_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -140,7 +141,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::FillOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::FillOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM fill_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_fill_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -159,7 +160,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PreFlashFillOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PreFlashFillOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM pre_flash_fill_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM jupiter_limit_order_pre_flash_fill_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -178,7 +179,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PreFlashFillOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PreFlashFillOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM pre_flash_fill_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_pre_flash_fill_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -197,7 +198,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::FlashFillOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::FlashFillOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM flash_fill_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM jupiter_limit_order_flash_fill_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -216,7 +217,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::FlashFillOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::FlashFillOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM flash_fill_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_flash_fill_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -235,7 +236,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM jupiter_limit_order_cancel_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -254,7 +255,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_cancel_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -273,7 +274,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelExpiredOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelExpiredOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_expired_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM jupiter_limit_order_cancel_expired_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -292,7 +293,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelExpiredOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelExpiredOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_expired_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_cancel_expired_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -311,7 +312,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawFeeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WithdrawFeeRow> = sqlx::query_as(
-            r#"SELECT * FROM withdraw_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM jupiter_limit_order_withdraw_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -330,7 +331,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawFeeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WithdrawFeeRow> = sqlx::query_as(
-            r#"SELECT * FROM withdraw_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_withdraw_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -349,7 +350,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitFeeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitFeeRow> = sqlx::query_as(
-            r#"SELECT * FROM init_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM jupiter_limit_order_init_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -368,7 +369,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitFeeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitFeeRow> = sqlx::query_as(
-            r#"SELECT * FROM init_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_init_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -387,7 +388,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdateFeeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdateFeeRow> = sqlx::query_as(
-            r#"SELECT * FROM update_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM jupiter_limit_order_update_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -406,7 +407,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdateFeeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdateFeeRow> = sqlx::query_as(
-            r#"SELECT * FROM update_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM jupiter_limit_order_update_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -424,13 +425,14 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CpiEventRow> =
-            sqlx::query_as(r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        let rows: Vec<crate::instructions::postgres::CpiEventRow> = sqlx::query_as(
+            r#"SELECT * FROM jupiter_limit_order_cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows
             .into_iter()
             .filter_map(|row| row.try_into().ok())

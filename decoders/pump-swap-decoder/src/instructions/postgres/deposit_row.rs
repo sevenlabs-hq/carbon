@@ -44,7 +44,7 @@ impl TryFrom<DepositRow> for crate::instructions::deposit::Deposit {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::deposit::Deposit {
     fn table() -> &'static str {
-        "deposit_instruction"
+        "pump_swap_deposit_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for DepositRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO deposit_instruction (
+            INSERT INTO pump_swap_deposit_instruction (
                 "lp_token_amount_out",
                 "max_base_amount_in",
                 "max_quote_amount_in",
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for DepositRow {
 impl carbon_core::postgres::operations::Upsert for DepositRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO deposit_instruction (
+            r#"INSERT INTO pump_swap_deposit_instruction (
                 "lp_token_amount_out",
                 "max_base_amount_in",
                 "max_quote_amount_in",
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete for DepositRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM deposit_instruction WHERE
+            r#"DELETE FROM pump_swap_deposit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Lookup for DepositRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM deposit_instruction WHERE
+            r#"SELECT * FROM pump_swap_deposit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS deposit_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_deposit_instruction (
                 -- Instruction data
                 "lp_token_amount_out" NUMERIC(20) NOT NULL,
                 "max_base_amount_in" NUMERIC(20) NOT NULL,
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS deposit_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_deposit_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

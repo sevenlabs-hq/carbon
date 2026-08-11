@@ -59,7 +59,7 @@ impl TryFrom<PermissionRow> for crate::accounts::permission::Permission {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::permission::Permission {
     fn table() -> &'static str {
-        "permission_account"
+        "raydium_cpmm_permission_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for PermissionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO permission_account (
+            INSERT INTO raydium_cpmm_permission_account (
                 "authority",
                 "padding",
                 __pubkey, __slot
@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for PermissionRow {
 impl carbon_core::postgres::operations::Upsert for PermissionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO permission_account (
+            r#"INSERT INTO raydium_cpmm_permission_account (
                 "authority",
                 "padding",
                 __pubkey, __slot
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for PermissionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM permission_account WHERE
+            r#"DELETE FROM raydium_cpmm_permission_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for PermissionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM permission_account WHERE
+            r#"SELECT * FROM raydium_cpmm_permission_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -168,7 +168,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PermissionMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS permission_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_cpmm_permission_account (
                 -- Account data
                 "authority" BYTEA NOT NULL,
                 "padding" NUMERIC(20)[] NOT NULL,
@@ -187,7 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PermissionMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS permission_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_cpmm_permission_account"#)
             .execute(connection)
             .await?;
         Ok(())

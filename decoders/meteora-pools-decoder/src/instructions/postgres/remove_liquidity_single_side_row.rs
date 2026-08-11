@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::remove_liquidity_single_side::RemoveLiquiditySingleSide
 {
     fn table() -> &'static str {
-        "remove_liquidity_single_side_instruction"
+        "meteora_pools_remove_liquidity_single_side_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for RemoveLiquiditySingleSideRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO remove_liquidity_single_side_instruction (
+            INSERT INTO meteora_pools_remove_liquidity_single_side_instruction (
                 "pool_token_amount",
                 "minimum_out_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for RemoveLiquiditySingleSideRow 
 impl carbon_core::postgres::operations::Upsert for RemoveLiquiditySingleSideRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO remove_liquidity_single_side_instruction (
+            r#"INSERT INTO meteora_pools_remove_liquidity_single_side_instruction (
                 "pool_token_amount",
                 "minimum_out_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for RemoveLiquiditySingleSideRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM remove_liquidity_single_side_instruction WHERE
+            r#"DELETE FROM meteora_pools_remove_liquidity_single_side_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for RemoveLiquiditySingleSideRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM remove_liquidity_single_side_instruction WHERE
+            r#"SELECT * FROM meteora_pools_remove_liquidity_single_side_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveLiquiditySingleSideMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS remove_liquidity_single_side_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_pools_remove_liquidity_single_side_instruction (
                 -- Instruction data
                 "pool_token_amount" NUMERIC(20) NOT NULL,
                 "minimum_out_amount" NUMERIC(20) NOT NULL,
@@ -205,9 +205,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveLiquiditySingleSideMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS remove_liquidity_single_side_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_pools_remove_liquidity_single_side_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

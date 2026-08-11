@@ -51,7 +51,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::reposition_liquidity_v2::RepositionLiquidityV2
 {
     fn table() -> &'static str {
-        "reposition_liquidity_v2_instruction"
+        "orca_whirlpool_reposition_liquidity_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for RepositionLiquidityV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO reposition_liquidity_v2_instruction (
+            INSERT INTO orca_whirlpool_reposition_liquidity_v2_instruction (
                 "new_tick_lower_index",
                 "new_tick_upper_index",
                 "method",
@@ -104,7 +104,7 @@ impl carbon_core::postgres::operations::Insert for RepositionLiquidityV2Row {
 impl carbon_core::postgres::operations::Upsert for RepositionLiquidityV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO reposition_liquidity_v2_instruction (
+            r#"INSERT INTO orca_whirlpool_reposition_liquidity_v2_instruction (
                 "new_tick_lower_index",
                 "new_tick_upper_index",
                 "method",
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Delete for RepositionLiquidityV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM reposition_liquidity_v2_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_reposition_liquidity_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Lookup for RepositionLiquidityV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM reposition_liquidity_v2_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_reposition_liquidity_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RepositionLiquidityV2Migration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS reposition_liquidity_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_reposition_liquidity_v2_instruction (
                 -- Instruction data
                 "new_tick_lower_index" INT4 NOT NULL,
                 "new_tick_upper_index" INT4 NOT NULL,
@@ -225,7 +225,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RepositionLiquidityV2Migration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS reposition_liquidity_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_reposition_liquidity_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

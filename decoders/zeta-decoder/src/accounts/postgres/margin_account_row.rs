@@ -142,7 +142,7 @@ impl TryFrom<MarginAccountRow> for crate::accounts::margin_account::MarginAccoun
 
 impl carbon_core::postgres::operations::Table for crate::accounts::margin_account::MarginAccount {
     fn table() -> &'static str {
-        "margin_account_account"
+        "zeta_margin_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Insert for MarginAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO margin_account_account (
+            INSERT INTO zeta_margin_account_account (
                 "authority",
                 "nonce",
                 "balance",
@@ -225,7 +225,7 @@ impl carbon_core::postgres::operations::Insert for MarginAccountRow {
 impl carbon_core::postgres::operations::Upsert for MarginAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO margin_account_account (
+            r#"INSERT INTO zeta_margin_account_account (
                 "authority",
                 "nonce",
                 "balance",
@@ -298,7 +298,7 @@ impl carbon_core::postgres::operations::Delete for MarginAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM margin_account_account WHERE
+            r#"DELETE FROM zeta_margin_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -319,7 +319,7 @@ impl carbon_core::postgres::operations::Lookup for MarginAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM margin_account_account WHERE
+            r#"SELECT * FROM zeta_margin_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -340,7 +340,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginAccountMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS margin_account_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_margin_account_account (
                 -- Account data
                 "authority" BYTEA NOT NULL,
                 "nonce" INT2 NOT NULL,
@@ -373,7 +373,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginAccountMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS margin_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_margin_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

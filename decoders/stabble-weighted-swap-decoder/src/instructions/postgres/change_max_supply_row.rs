@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::change_max_supply::ChangeMaxSupply
 {
     fn table() -> &'static str {
-        "change_max_supply_instruction"
+        "stabble_weighted_swap_change_max_supply_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for ChangeMaxSupplyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO change_max_supply_instruction (
+            INSERT INTO stabble_weighted_swap_change_max_supply_instruction (
                 "new_max_supply",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for ChangeMaxSupplyRow {
 impl carbon_core::postgres::operations::Upsert for ChangeMaxSupplyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO change_max_supply_instruction (
+            r#"INSERT INTO stabble_weighted_swap_change_max_supply_instruction (
                 "new_max_supply",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for ChangeMaxSupplyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM change_max_supply_instruction WHERE
+            r#"DELETE FROM stabble_weighted_swap_change_max_supply_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for ChangeMaxSupplyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM change_max_supply_instruction WHERE
+            r#"SELECT * FROM stabble_weighted_swap_change_max_supply_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeMaxSupplyMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS change_max_supply_instruction (
+            r#"CREATE TABLE IF NOT EXISTS stabble_weighted_swap_change_max_supply_instruction (
                 -- Instruction data
                 "new_max_supply" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeMaxSupplyMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS change_max_supply_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS stabble_weighted_swap_change_max_supply_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

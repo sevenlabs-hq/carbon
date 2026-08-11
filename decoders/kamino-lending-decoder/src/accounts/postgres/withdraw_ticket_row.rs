@@ -122,7 +122,7 @@ impl TryFrom<WithdrawTicketRow> for crate::accounts::withdraw_ticket::WithdrawTi
 
 impl carbon_core::postgres::operations::Table for crate::accounts::withdraw_ticket::WithdrawTicket {
     fn table() -> &'static str {
-        "withdraw_ticket_account"
+        "kamino_lending_withdraw_ticket_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawTicketRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_ticket_account (
+            INSERT INTO kamino_lending_withdraw_ticket_account (
                 "sequence_number",
                 "owner",
                 "reserve",
@@ -190,7 +190,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawTicketRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawTicketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_ticket_account (
+            r#"INSERT INTO kamino_lending_withdraw_ticket_account (
                 "sequence_number",
                 "owner",
                 "reserve",
@@ -248,7 +248,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawTicketRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_ticket_account WHERE
+            r#"DELETE FROM kamino_lending_withdraw_ticket_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -269,7 +269,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawTicketRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_ticket_account WHERE
+            r#"SELECT * FROM kamino_lending_withdraw_ticket_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -290,7 +290,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawTicketMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_ticket_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_withdraw_ticket_account (
                 -- Account data
                 "sequence_number" NUMERIC(20) NOT NULL,
                 "owner" BYTEA NOT NULL,
@@ -318,7 +318,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawTicketMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_ticket_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_withdraw_ticket_account"#)
             .execute(connection)
             .await?;
         Ok(())

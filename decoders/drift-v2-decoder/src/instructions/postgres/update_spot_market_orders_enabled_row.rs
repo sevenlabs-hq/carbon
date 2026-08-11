@@ -39,7 +39,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_spot_market_orders_enabled::UpdateSpotMarketOrdersEnabled
 {
     fn table() -> &'static str {
-        "update_spot_market_orders_enabled_instruction"
+        "drift_v2_update_spot_market_orders_enabled_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketOrdersEnabled
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_spot_market_orders_enabled_instruction (
+            INSERT INTO drift_v2_update_spot_market_orders_enabled_instruction (
                 "orders_enabled",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -83,7 +83,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketOrdersEnabled
 impl carbon_core::postgres::operations::Upsert for UpdateSpotMarketOrdersEnabledRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_spot_market_orders_enabled_instruction (
+            r#"INSERT INTO drift_v2_update_spot_market_orders_enabled_instruction (
                 "orders_enabled",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketOrdersEnabled
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_spot_market_orders_enabled_instruction WHERE
+            r#"DELETE FROM drift_v2_update_spot_market_orders_enabled_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketOrdersEnabled
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_spot_market_orders_enabled_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_spot_market_orders_enabled_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,7 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotMarketOrdersEnabledM
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_spot_market_orders_enabled_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_spot_market_orders_enabled_instruction (
                 -- Instruction data
                 "orders_enabled" BOOLEAN NOT NULL,
                 -- Instruction metadata
@@ -192,9 +192,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotMarketOrdersEnabledM
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_spot_market_orders_enabled_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_update_spot_market_orders_enabled_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

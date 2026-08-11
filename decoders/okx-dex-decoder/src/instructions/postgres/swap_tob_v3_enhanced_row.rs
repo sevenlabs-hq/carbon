@@ -79,7 +79,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::swap_tob_v3_enhanced::SwapTobV3Enhanced
 {
     fn table() -> &'static str {
-        "swap_tob_v3_enhanced_instruction"
+        "okx_dex_swap_tob_v3_enhanced_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -104,7 +104,7 @@ impl carbon_core::postgres::operations::Insert for SwapTobV3EnhancedRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_tob_v3_enhanced_instruction (
+            INSERT INTO okx_dex_swap_tob_v3_enhanced_instruction (
                 "args",
                 "commission_info",
                 "trim_rate",
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Insert for SwapTobV3EnhancedRow {
 impl carbon_core::postgres::operations::Upsert for SwapTobV3EnhancedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_tob_v3_enhanced_instruction (
+            r#"INSERT INTO okx_dex_swap_tob_v3_enhanced_instruction (
                 "args",
                 "commission_info",
                 "trim_rate",
@@ -191,7 +191,7 @@ impl carbon_core::postgres::operations::Delete for SwapTobV3EnhancedRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_tob_v3_enhanced_instruction WHERE
+            r#"DELETE FROM okx_dex_swap_tob_v3_enhanced_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -218,7 +218,7 @@ impl carbon_core::postgres::operations::Lookup for SwapTobV3EnhancedRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_v3_enhanced_instruction WHERE
+            r#"SELECT * FROM okx_dex_swap_tob_v3_enhanced_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -241,7 +241,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapTobV3EnhancedMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_tob_v3_enhanced_instruction (
+            r#"CREATE TABLE IF NOT EXISTS okx_dex_swap_tob_v3_enhanced_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 "commission_info" INT8 NOT NULL,
@@ -267,7 +267,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapTobV3EnhancedMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_tob_v3_enhanced_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS okx_dex_swap_tob_v3_enhanced_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

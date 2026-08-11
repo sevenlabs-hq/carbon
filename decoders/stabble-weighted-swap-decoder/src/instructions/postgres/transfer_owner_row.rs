@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::transfer_owner::TransferOwner
 {
     fn table() -> &'static str {
-        "transfer_owner_instruction"
+        "stabble_weighted_swap_transfer_owner_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for TransferOwnerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO transfer_owner_instruction (
+            INSERT INTO stabble_weighted_swap_transfer_owner_instruction (
                 "new_owner",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for TransferOwnerRow {
 impl carbon_core::postgres::operations::Upsert for TransferOwnerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO transfer_owner_instruction (
+            r#"INSERT INTO stabble_weighted_swap_transfer_owner_instruction (
                 "new_owner",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for TransferOwnerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM transfer_owner_instruction WHERE
+            r#"DELETE FROM stabble_weighted_swap_transfer_owner_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for TransferOwnerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM transfer_owner_instruction WHERE
+            r#"SELECT * FROM stabble_weighted_swap_transfer_owner_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferOwnerMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS transfer_owner_instruction (
+            r#"CREATE TABLE IF NOT EXISTS stabble_weighted_swap_transfer_owner_instruction (
                 -- Instruction data
                 "new_owner" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferOwnerMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS transfer_owner_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS stabble_weighted_swap_transfer_owner_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

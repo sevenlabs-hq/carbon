@@ -52,6 +52,7 @@ pub struct IncreaseLiquidityV2InstructionAccounts {
     pub token_vault_b: solana_pubkey::Pubkey,
     pub tick_array_lower: solana_pubkey::Pubkey,
     pub tick_array_upper: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -98,6 +99,7 @@ impl ArrangeAccounts for IncreaseLiquidityV2 {
         let token_vault_b = next_account(&mut iter)?;
         let tick_array_lower = next_account(&mut iter)?;
         let tick_array_upper = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -117,6 +119,7 @@ impl ArrangeAccounts for IncreaseLiquidityV2 {
             token_vault_b,
             tick_array_lower,
             tick_array_upper,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

@@ -55,7 +55,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::migrate_to_amm::MigrateToAmm
 {
     fn table() -> &'static str {
-        "migrate_to_amm_instruction"
+        "raydium_launchpad_migrate_to_amm_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for MigrateToAmmRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO migrate_to_amm_instruction (
+            INSERT INTO raydium_launchpad_migrate_to_amm_instruction (
                 "base_lot_size",
                 "quote_lot_size",
                 "market_vault_signer_nonce",
@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for MigrateToAmmRow {
 impl carbon_core::postgres::operations::Upsert for MigrateToAmmRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO migrate_to_amm_instruction (
+            r#"INSERT INTO raydium_launchpad_migrate_to_amm_instruction (
                 "base_lot_size",
                 "quote_lot_size",
                 "market_vault_signer_nonce",
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Delete for MigrateToAmmRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM migrate_to_amm_instruction WHERE
+            r#"DELETE FROM raydium_launchpad_migrate_to_amm_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for MigrateToAmmRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM migrate_to_amm_instruction WHERE
+            r#"SELECT * FROM raydium_launchpad_migrate_to_amm_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MigrateToAmmMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS migrate_to_amm_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_launchpad_migrate_to_amm_instruction (
                 -- Instruction data
                 "base_lot_size" NUMERIC(20) NOT NULL,
                 "quote_lot_size" NUMERIC(20) NOT NULL,
@@ -222,7 +222,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MigrateToAmmMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS migrate_to_amm_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_launchpad_migrate_to_amm_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

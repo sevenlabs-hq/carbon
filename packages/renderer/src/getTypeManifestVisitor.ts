@@ -21,6 +21,8 @@ export type TypeManifest = {
     requiredBigArray?: number;
     isPubkey?: boolean;
     isOptionPubkey?: boolean;
+    /** Rust field names emitted by this manifest, used to avoid collisions after flattening. */
+    fieldNames?: string[];
 };
 
 export type DiscriminatorManifest = {
@@ -344,6 +346,7 @@ export function getTypeManifestVisitor(
                             imports: mergedImports,
                             type: fieldTypes, // No wrapper, just the fields
                             borshType: fieldBorshTypes,
+                            fieldNames: nestedFields.flatMap(f => f.fieldNames ?? []),
                         };
                     }
 
@@ -384,11 +387,78 @@ export function getTypeManifestVisitor(
                         imports: fieldManifest.imports,
                         type: `${docComments}${needsBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}${base58Attr}pub ${fieldName}: ${fieldManifest.type},`,
                         borshType: `${fieldName}: ${fieldManifest.borshType},`,
+                        fieldNames: [fieldName],
                     };
                 },
 
                 visitStructType(node, { self }) {
-                    const fields = node.fields.map(field => visit(field, self));
+                    const rawFields = node.fields.map(field => visit(field, self));
+                    const allFieldNames = rawFields.flatMap(f => f.fieldNames ?? []);
+                    const totalByName = new Map<string, number>();
+                    const occurrenceByName = new Map<string, number>();
+                    const usedNames = new Set<string>();
+
+                    for (const name of allFieldNames) {
+                        totalByName.set(name, (totalByName.get(name) ?? 0) + 1);
+                    }
+
+                    const getUniqueName = (fieldName: string): string => {
+                        const total = totalByName.get(fieldName) ?? 0;
+                        const occurrence = occurrenceByName.get(fieldName) ?? 0;
+                        occurrenceByName.set(fieldName, occurrence + 1);
+
+                        let candidate = fieldName;
+                        if (total > 1) {
+                            if (occurrence === 0) {
+                                candidate = `_${fieldName}`;
+                            } else if (occurrence === 1) {
+                                candidate = fieldName;
+                            } else {
+                                candidate = `${fieldName}_${occurrence - 2}`;
+                            }
+                        }
+
+                        if (!usedNames.has(candidate)) {
+                            usedNames.add(candidate);
+                            return candidate;
+                        }
+
+                        let suffix = 0;
+                        let fallback = `${candidate}_${suffix++}`;
+                        while (usedNames.has(fallback)) {
+                            fallback = `${candidate}_${suffix++}`;
+                        }
+                        usedNames.add(fallback);
+                        return fallback;
+                    };
+
+                    const fields = rawFields.map(manifest => {
+                        const fieldNames = manifest.fieldNames ?? [];
+                        const replacements = new Map<string, string>();
+
+                        for (const fieldName of fieldNames) {
+                            const uniqueName = getUniqueName(fieldName);
+                            if (uniqueName !== fieldName) replacements.set(fieldName, uniqueName);
+                        }
+
+                        if (replacements.size === 0) return manifest;
+
+                        let type = manifest.type;
+                        let borshType = manifest.borshType;
+                        for (const [oldName, newName] of replacements) {
+                            const declaration = new RegExp(`\\b${oldName}\\s*:`, 'g');
+                            type = type.replace(declaration, `${newName}:`);
+                            borshType = borshType.replace(declaration, `${newName}:`);
+                        }
+
+                        return {
+                            ...manifest,
+                            type,
+                            borshType,
+                            fieldNames: fieldNames.map(name => replacements.get(name) ?? name),
+                        };
+                    });
+
                     const mergedImports = new ImportMap().mergeWith(...fields.map(f => f.imports));
                     const fieldTypes = fields.map(f => f.type).join('\n');
                     const fieldBorshTypes = fields.map(f => f.borshType).join('\n');
@@ -397,6 +467,7 @@ export function getTypeManifestVisitor(
                         imports: mergedImports,
                         type: `{\n${fieldTypes}\n}`,
                         borshType: `{\n${fieldBorshTypes}\n}`,
+                        fieldNames: fields.flatMap(f => f.fieldNames ?? []),
                     };
                 },
 

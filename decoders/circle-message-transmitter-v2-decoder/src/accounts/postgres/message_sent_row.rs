@@ -40,7 +40,7 @@ impl TryFrom<MessageSentRow> for crate::accounts::message_sent::MessageSent {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::message_sent::MessageSent {
     fn table() -> &'static str {
-        "message_sent_account"
+        "circle_message_transmitter_v2_message_sent_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -53,7 +53,7 @@ impl carbon_core::postgres::operations::Insert for MessageSentRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO message_sent_account (
+            INSERT INTO circle_message_transmitter_v2_message_sent_account (
                 "rent_payer",
                 "created_at",
                 "message",
@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for MessageSentRow {
 impl carbon_core::postgres::operations::Upsert for MessageSentRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO message_sent_account (
+            r#"INSERT INTO circle_message_transmitter_v2_message_sent_account (
                 "rent_payer",
                 "created_at",
                 "message",
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Delete for MessageSentRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM message_sent_account WHERE
+            r#"DELETE FROM circle_message_transmitter_v2_message_sent_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Lookup for MessageSentRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM message_sent_account WHERE
+            r#"SELECT * FROM circle_message_transmitter_v2_message_sent_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -154,7 +154,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MessageSentMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS message_sent_account (
+            r#"CREATE TABLE IF NOT EXISTS circle_message_transmitter_v2_message_sent_account (
                 -- Account data
                 "rent_payer" BYTEA NOT NULL,
                 "created_at" INT8 NOT NULL,
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MessageSentMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS message_sent_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS circle_message_transmitter_v2_message_sent_account"#)
             .execute(connection)
             .await?;
         Ok(())

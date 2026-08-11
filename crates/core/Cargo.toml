@@ -13,8 +13,10 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [features]
-default = ["macros"]
+default = ["macros", "clickhouse", "postgres"]
 batch = []
+clickhouse = ["dep:clickhouse"]
+clickhouse-cluster = ["clickhouse"]
 macros = ["carbon-macros", "carbon-proc-macros"]
 postgres = ["sqlx", "num-traits", "sqlx_migrator", "bigdecimal"]
 graphql = ["juniper", "axum", "juniper_axum"]
@@ -54,6 +56,8 @@ juniper_axum = { workspace = true, optional = true }
 num-traits = { workspace = true, features = ["i128"], optional = true }
 sqlx = { workspace = true, features = ["postgres", "rust_decimal", "bigdecimal"], optional = true }
 sqlx_migrator = { workspace = true, optional = true }
+bincode.workspace = true
+clickhouse = { workspace=true, optional = true }
 
 [dev-dependencies]
 carbon-test-utils = { workspace = true }

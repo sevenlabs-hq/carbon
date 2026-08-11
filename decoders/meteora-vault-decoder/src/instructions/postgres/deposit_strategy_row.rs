@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::deposit_strategy::DepositStrategy
 {
     fn table() -> &'static str {
-        "deposit_strategy_instruction"
+        "meteora_vault_deposit_strategy_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for DepositStrategyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO deposit_strategy_instruction (
+            INSERT INTO meteora_vault_deposit_strategy_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for DepositStrategyRow {
 impl carbon_core::postgres::operations::Upsert for DepositStrategyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO deposit_strategy_instruction (
+            r#"INSERT INTO meteora_vault_deposit_strategy_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for DepositStrategyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM deposit_strategy_instruction WHERE
+            r#"DELETE FROM meteora_vault_deposit_strategy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for DepositStrategyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM deposit_strategy_instruction WHERE
+            r#"SELECT * FROM meteora_vault_deposit_strategy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositStrategyMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS deposit_strategy_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_vault_deposit_strategy_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositStrategyMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS deposit_strategy_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_vault_deposit_strategy_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

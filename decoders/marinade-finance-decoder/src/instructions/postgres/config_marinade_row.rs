@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::config_marinade::ConfigMarinade
 {
     fn table() -> &'static str {
-        "config_marinade_instruction"
+        "marinade_finance_config_marinade_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for ConfigMarinadeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO config_marinade_instruction (
+            INSERT INTO marinade_finance_config_marinade_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for ConfigMarinadeRow {
 impl carbon_core::postgres::operations::Upsert for ConfigMarinadeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO config_marinade_instruction (
+            r#"INSERT INTO marinade_finance_config_marinade_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for ConfigMarinadeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM config_marinade_instruction WHERE
+            r#"DELETE FROM marinade_finance_config_marinade_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for ConfigMarinadeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM config_marinade_instruction WHERE
+            r#"SELECT * FROM marinade_finance_config_marinade_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigMarinadeMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS config_marinade_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_config_marinade_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigMarinadeMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS config_marinade_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_config_marinade_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

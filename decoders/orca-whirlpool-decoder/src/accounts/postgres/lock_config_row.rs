@@ -52,7 +52,7 @@ impl TryFrom<LockConfigRow> for crate::accounts::lock_config::LockConfig {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::lock_config::LockConfig {
     fn table() -> &'static str {
-        "lock_config_account"
+        "orca_whirlpool_lock_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for LockConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lock_config_account (
+            INSERT INTO orca_whirlpool_lock_config_account (
                 "position",
                 "position_owner",
                 "whirlpool",
@@ -102,7 +102,7 @@ impl carbon_core::postgres::operations::Insert for LockConfigRow {
 impl carbon_core::postgres::operations::Upsert for LockConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lock_config_account (
+            r#"INSERT INTO orca_whirlpool_lock_config_account (
                 "position",
                 "position_owner",
                 "whirlpool",
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for LockConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lock_config_account WHERE
+            r#"DELETE FROM orca_whirlpool_lock_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -163,7 +163,7 @@ impl carbon_core::postgres::operations::Lookup for LockConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lock_config_account WHERE
+            r#"SELECT * FROM orca_whirlpool_lock_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -184,7 +184,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockConfigMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lock_config_account (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_lock_config_account (
                 -- Account data
                 "position" BYTEA NOT NULL,
                 "position_owner" BYTEA NOT NULL,
@@ -206,7 +206,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockConfigMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lock_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_lock_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

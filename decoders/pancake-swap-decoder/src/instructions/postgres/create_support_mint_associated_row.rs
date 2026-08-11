@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_support_mint_associated::CreateSupportMintAssociated
 {
     fn table() -> &'static str {
-        "create_support_mint_associated_instruction"
+        "pancake_swap_create_support_mint_associated_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for CreateSupportMintAssociatedRo
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_support_mint_associated_instruction (
+            INSERT INTO pancake_swap_create_support_mint_associated_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for CreateSupportMintAssociatedRo
 impl carbon_core::postgres::operations::Upsert for CreateSupportMintAssociatedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_support_mint_associated_instruction (
+            r#"INSERT INTO pancake_swap_create_support_mint_associated_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for CreateSupportMintAssociatedRo
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_support_mint_associated_instruction WHERE
+            r#"DELETE FROM pancake_swap_create_support_mint_associated_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for CreateSupportMintAssociatedRo
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_support_mint_associated_instruction WHERE
+            r#"SELECT * FROM pancake_swap_create_support_mint_associated_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateSupportMintAssociatedMig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_support_mint_associated_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pancake_swap_create_support_mint_associated_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,9 +181,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateSupportMintAssociatedMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_support_mint_associated_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS pancake_swap_create_support_mint_associated_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

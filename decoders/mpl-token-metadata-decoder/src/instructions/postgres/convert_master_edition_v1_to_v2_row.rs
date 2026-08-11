@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::convert_master_edition_v1_to_v2::ConvertMasterEditionV1ToV2
 {
     fn table() -> &'static str {
-        "convert_master_edition_v1_to_v2_instruction"
+        "mpl_token_metadata_convert_master_edition_v1_to_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for ConvertMasterEditionV1ToV2Row
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO convert_master_edition_v1_to_v2_instruction (
+            INSERT INTO mpl_token_metadata_convert_master_edition_v1_to_v2_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for ConvertMasterEditionV1ToV2Row
 impl carbon_core::postgres::operations::Upsert for ConvertMasterEditionV1ToV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO convert_master_edition_v1_to_v2_instruction (
+            r#"INSERT INTO mpl_token_metadata_convert_master_edition_v1_to_v2_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for ConvertMasterEditionV1ToV2Row
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM convert_master_edition_v1_to_v2_instruction WHERE
+            r#"DELETE FROM mpl_token_metadata_convert_master_edition_v1_to_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for ConvertMasterEditionV1ToV2Row
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM convert_master_edition_v1_to_v2_instruction WHERE
+            r#"SELECT * FROM mpl_token_metadata_convert_master_edition_v1_to_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,8 +160,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConvertMasterEditionV1ToV2Migr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS convert_master_edition_v1_to_v2_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_convert_master_edition_v1_to_v2_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -170,10 +169,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConvertMasterEditionV1ToV2Migr
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -181,9 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConvertMasterEditionV1ToV2Migr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS convert_master_edition_v1_to_v2_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_convert_master_edition_v1_to_v2_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

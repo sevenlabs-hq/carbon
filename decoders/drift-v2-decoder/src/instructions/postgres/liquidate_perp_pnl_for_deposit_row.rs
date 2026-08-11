@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::liquidate_perp_pnl_for_deposit::LiquidatePerpPnlForDeposit
 {
     fn table() -> &'static str {
-        "liquidate_perp_pnl_for_deposit_instruction"
+        "drift_v2_liquidate_perp_pnl_for_deposit_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -85,7 +85,7 @@ impl carbon_core::postgres::operations::Insert for LiquidatePerpPnlForDepositRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO liquidate_perp_pnl_for_deposit_instruction (
+            INSERT INTO drift_v2_liquidate_perp_pnl_for_deposit_instruction (
                 "perp_market_index",
                 "spot_market_index",
                 "liquidator_max_pnl_transfer",
@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Insert for LiquidatePerpPnlForDepositRow
 impl carbon_core::postgres::operations::Upsert for LiquidatePerpPnlForDepositRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO liquidate_perp_pnl_for_deposit_instruction (
+            r#"INSERT INTO drift_v2_liquidate_perp_pnl_for_deposit_instruction (
                 "perp_market_index",
                 "spot_market_index",
                 "liquidator_max_pnl_transfer",
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Delete for LiquidatePerpPnlForDepositRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM liquidate_perp_pnl_for_deposit_instruction WHERE
+            r#"DELETE FROM drift_v2_liquidate_perp_pnl_for_deposit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -189,7 +189,7 @@ impl carbon_core::postgres::operations::Lookup for LiquidatePerpPnlForDepositRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM liquidate_perp_pnl_for_deposit_instruction WHERE
+            r#"SELECT * FROM drift_v2_liquidate_perp_pnl_for_deposit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -212,7 +212,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LiquidatePerpPnlForDepositMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS liquidate_perp_pnl_for_deposit_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_liquidate_perp_pnl_for_deposit_instruction (
                 -- Instruction data
                 "perp_market_index" INT4 NOT NULL,
                 "spot_market_index" INT4 NOT NULL,
@@ -236,7 +236,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LiquidatePerpPnlForDepositMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS liquidate_perp_pnl_for_deposit_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_liquidate_perp_pnl_for_deposit_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

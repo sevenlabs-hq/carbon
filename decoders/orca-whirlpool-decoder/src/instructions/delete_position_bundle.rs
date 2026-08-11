@@ -23,6 +23,7 @@ pub struct DeletePositionBundleInstructionAccounts {
     pub position_bundle_owner: solana_pubkey::Pubkey,
     pub receiver: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -60,6 +61,7 @@ impl ArrangeAccounts for DeletePositionBundle {
         let position_bundle_owner = next_account(&mut iter)?;
         let receiver = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -70,6 +72,7 @@ impl ArrangeAccounts for DeletePositionBundle {
             position_bundle_owner,
             receiver,
             token_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

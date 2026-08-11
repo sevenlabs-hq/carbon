@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::pod_aligned_fee_rate_limiter::PodAlignedFeeRateLimiter
 {
     fn table() -> &'static str {
-        "pod_aligned_fee_rate_limiter_account"
+        "meteora_damm_v2_pod_aligned_fee_rate_limiter_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -103,7 +103,7 @@ impl carbon_core::postgres::operations::Insert for PodAlignedFeeRateLimiterRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO pod_aligned_fee_rate_limiter_account (
+            INSERT INTO meteora_damm_v2_pod_aligned_fee_rate_limiter_account (
                 "cliff_fee_numerator",
                 "base_fee_mode",
                 "padding",
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Insert for PodAlignedFeeRateLimiterRow {
 impl carbon_core::postgres::operations::Upsert for PodAlignedFeeRateLimiterRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO pod_aligned_fee_rate_limiter_account (
+            r#"INSERT INTO meteora_damm_v2_pod_aligned_fee_rate_limiter_account (
                 "cliff_fee_numerator",
                 "base_fee_mode",
                 "padding",
@@ -182,7 +182,7 @@ impl carbon_core::postgres::operations::Delete for PodAlignedFeeRateLimiterRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM pod_aligned_fee_rate_limiter_account WHERE
+            r#"DELETE FROM meteora_damm_v2_pod_aligned_fee_rate_limiter_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -203,7 +203,7 @@ impl carbon_core::postgres::operations::Lookup for PodAlignedFeeRateLimiterRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM pod_aligned_fee_rate_limiter_account WHERE
+            r#"SELECT * FROM meteora_damm_v2_pod_aligned_fee_rate_limiter_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -224,7 +224,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PodAlignedFeeRateLimiterMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS pod_aligned_fee_rate_limiter_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_pod_aligned_fee_rate_limiter_account (
                 -- Account data
                 "cliff_fee_numerator" NUMERIC(20) NOT NULL,
                 "base_fee_mode" INT2 NOT NULL,
@@ -248,7 +248,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PodAlignedFeeRateLimiterMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS pod_aligned_fee_rate_limiter_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_pod_aligned_fee_rate_limiter_account"#)
             .execute(connection)
             .await?;
         Ok(())

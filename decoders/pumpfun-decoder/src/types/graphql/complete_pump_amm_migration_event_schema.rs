@@ -15,6 +15,7 @@ pub struct CompletePumpAmmMigrationEventGraphQL {
     pub bonding_curve: Pubkey,
     pub timestamp: I64,
     pub pool: Pubkey,
+    pub quote_mint: Pubkey,
 }
 
 impl From<crate::types::CompletePumpAmmMigrationEvent> for CompletePumpAmmMigrationEventGraphQL {
@@ -28,6 +29,7 @@ impl From<crate::types::CompletePumpAmmMigrationEvent> for CompletePumpAmmMigrat
             bonding_curve: carbon_core::graphql::primitives::Pubkey(original.bonding_curve),
             timestamp: carbon_core::graphql::primitives::I64(original.timestamp),
             pool: carbon_core::graphql::primitives::Pubkey(original.pool),
+            quote_mint: carbon_core::graphql::primitives::Pubkey(original.quote_mint),
         }
     }
 }

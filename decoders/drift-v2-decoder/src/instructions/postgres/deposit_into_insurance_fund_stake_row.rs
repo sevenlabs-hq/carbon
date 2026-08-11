@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::deposit_into_insurance_fund_stake::DepositIntoInsuranceFundStake
 {
     fn table() -> &'static str {
-        "deposit_into_insurance_fund_stake_instruction"
+        "drift_v2_deposit_into_insurance_fund_stake_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for DepositIntoInsuranceFundStake
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO deposit_into_insurance_fund_stake_instruction (
+            INSERT INTO drift_v2_deposit_into_insurance_fund_stake_instruction (
                 "market_index",
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for DepositIntoInsuranceFundStake
 impl carbon_core::postgres::operations::Upsert for DepositIntoInsuranceFundStakeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO deposit_into_insurance_fund_stake_instruction (
+            r#"INSERT INTO drift_v2_deposit_into_insurance_fund_stake_instruction (
                 "market_index",
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for DepositIntoInsuranceFundStake
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM deposit_into_insurance_fund_stake_instruction WHERE
+            r#"DELETE FROM drift_v2_deposit_into_insurance_fund_stake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for DepositIntoInsuranceFundStake
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM deposit_into_insurance_fund_stake_instruction WHERE
+            r#"SELECT * FROM drift_v2_deposit_into_insurance_fund_stake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositIntoInsuranceFundStakeM
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS deposit_into_insurance_fund_stake_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_deposit_into_insurance_fund_stake_instruction (
                 -- Instruction data
                 "market_index" INT4 NOT NULL,
                 "amount" NUMERIC(20) NOT NULL,
@@ -212,9 +212,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositIntoInsuranceFundStakeM
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS deposit_into_insurance_fund_stake_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_deposit_into_insurance_fund_stake_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

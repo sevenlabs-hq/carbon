@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::init_token_ledger::InitTokenLedger
 {
     fn table() -> &'static str {
-        "init_token_ledger_instruction"
+        "onchain_labs_dex_v2_init_token_ledger_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for InitTokenLedgerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO init_token_ledger_instruction (
+            INSERT INTO onchain_labs_dex_v2_init_token_ledger_instruction (
                 "index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for InitTokenLedgerRow {
 impl carbon_core::postgres::operations::Upsert for InitTokenLedgerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO init_token_ledger_instruction (
+            r#"INSERT INTO onchain_labs_dex_v2_init_token_ledger_instruction (
                 "index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for InitTokenLedgerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM init_token_ledger_instruction WHERE
+            r#"DELETE FROM onchain_labs_dex_v2_init_token_ledger_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Lookup for InitTokenLedgerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM init_token_ledger_instruction WHERE
+            r#"SELECT * FROM onchain_labs_dex_v2_init_token_ledger_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitTokenLedgerMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS init_token_ledger_instruction (
+            r#"CREATE TABLE IF NOT EXISTS onchain_labs_dex_v2_init_token_ledger_instruction (
                 -- Instruction data
                 "index" INT2 NOT NULL,
                 -- Instruction metadata
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitTokenLedgerMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS init_token_ledger_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS onchain_labs_dex_v2_init_token_ledger_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

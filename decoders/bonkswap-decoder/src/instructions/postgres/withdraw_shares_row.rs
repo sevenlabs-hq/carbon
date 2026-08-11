@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::withdraw_shares::WithdrawShares
 {
     fn table() -> &'static str {
-        "withdraw_shares_instruction"
+        "bonkswap_withdraw_shares_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawSharesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_shares_instruction (
+            INSERT INTO bonkswap_withdraw_shares_instruction (
                 "shares",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawSharesRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawSharesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_shares_instruction (
+            r#"INSERT INTO bonkswap_withdraw_shares_instruction (
                 "shares",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawSharesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_shares_instruction WHERE
+            r#"DELETE FROM bonkswap_withdraw_shares_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawSharesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_shares_instruction WHERE
+            r#"SELECT * FROM bonkswap_withdraw_shares_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawSharesMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_shares_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_withdraw_shares_instruction (
                 -- Instruction data
                 "shares" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawSharesMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_shares_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_withdraw_shares_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

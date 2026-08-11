@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::transfer_locked_position::TransferLockedPosition
 {
     fn table() -> &'static str {
-        "transfer_locked_position_instruction"
+        "orca_whirlpool_transfer_locked_position_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for TransferLockedPositionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO transfer_locked_position_instruction (
+            INSERT INTO orca_whirlpool_transfer_locked_position_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for TransferLockedPositionRow {
 impl carbon_core::postgres::operations::Upsert for TransferLockedPositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO transfer_locked_position_instruction (
+            r#"INSERT INTO orca_whirlpool_transfer_locked_position_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for TransferLockedPositionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM transfer_locked_position_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_transfer_locked_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for TransferLockedPositionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM transfer_locked_position_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_transfer_locked_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferLockedPositionMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS transfer_locked_position_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_transfer_locked_position_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferLockedPositionMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS transfer_locked_position_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_transfer_locked_position_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

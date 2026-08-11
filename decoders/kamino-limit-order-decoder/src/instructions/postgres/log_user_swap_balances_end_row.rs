@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::log_user_swap_balances_end::LogUserSwapBalancesEnd
 {
     fn table() -> &'static str {
-        "log_user_swap_balances_end_instruction"
+        "kamino_limit_order_log_user_swap_balances_end_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Insert for LogUserSwapBalancesEndRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO log_user_swap_balances_end_instruction (
+            INSERT INTO kamino_limit_order_log_user_swap_balances_end_instruction (
                 "simulated_swap_amount_out",
                 "simulated_ts",
                 "minimum_amount_out",
@@ -159,7 +159,7 @@ impl carbon_core::postgres::operations::Insert for LogUserSwapBalancesEndRow {
 impl carbon_core::postgres::operations::Upsert for LogUserSwapBalancesEndRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO log_user_swap_balances_end_instruction (
+            r#"INSERT INTO kamino_limit_order_log_user_swap_balances_end_instruction (
                 "simulated_swap_amount_out",
                 "simulated_ts",
                 "minimum_amount_out",
@@ -218,7 +218,7 @@ impl carbon_core::postgres::operations::Delete for LogUserSwapBalancesEndRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM log_user_swap_balances_end_instruction WHERE
+            r#"DELETE FROM kamino_limit_order_log_user_swap_balances_end_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -245,7 +245,7 @@ impl carbon_core::postgres::operations::Lookup for LogUserSwapBalancesEndRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM log_user_swap_balances_end_instruction WHERE
+            r#"SELECT * FROM kamino_limit_order_log_user_swap_balances_end_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -267,8 +267,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LogUserSwapBalancesEndMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS log_user_swap_balances_end_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS kamino_limit_order_log_user_swap_balances_end_instruction (
                 -- Instruction data
                 "simulated_swap_amount_out" NUMERIC(20) NOT NULL,
                 "simulated_ts" NUMERIC(20) NOT NULL,
@@ -285,10 +284,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LogUserSwapBalancesEndMigratio
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -296,9 +292,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LogUserSwapBalancesEndMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS log_user_swap_balances_end_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS kamino_limit_order_log_user_swap_balances_end_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

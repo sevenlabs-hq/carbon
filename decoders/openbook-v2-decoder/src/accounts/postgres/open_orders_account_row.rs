@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::open_orders_account::OpenOrdersAccount
 {
     fn table() -> &'static str {
-        "open_orders_account_account"
+        "openbook_v2_open_orders_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -127,7 +127,7 @@ impl carbon_core::postgres::operations::Insert for OpenOrdersAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO open_orders_account_account (
+            INSERT INTO openbook_v2_open_orders_account_account (
                 "owner",
                 "market",
                 "name",
@@ -166,7 +166,7 @@ impl carbon_core::postgres::operations::Insert for OpenOrdersAccountRow {
 impl carbon_core::postgres::operations::Upsert for OpenOrdersAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_orders_account_account (
+            r#"INSERT INTO openbook_v2_open_orders_account_account (
                 "owner",
                 "market",
                 "name",
@@ -221,7 +221,7 @@ impl carbon_core::postgres::operations::Delete for OpenOrdersAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM open_orders_account_account WHERE
+            r#"DELETE FROM openbook_v2_open_orders_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -242,7 +242,7 @@ impl carbon_core::postgres::operations::Lookup for OpenOrdersAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM open_orders_account_account WHERE
+            r#"SELECT * FROM openbook_v2_open_orders_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -263,7 +263,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenOrdersAccountMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS open_orders_account_account (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_open_orders_account_account (
                 -- Account data
                 "owner" BYTEA NOT NULL,
                 "market" BYTEA NOT NULL,
@@ -290,7 +290,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenOrdersAccountMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS open_orders_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_open_orders_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

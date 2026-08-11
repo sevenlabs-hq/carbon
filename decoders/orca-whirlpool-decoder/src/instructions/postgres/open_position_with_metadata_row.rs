@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::open_position_with_metadata::OpenPositionWithMetadata
 {
     fn table() -> &'static str {
-        "open_position_with_metadata_instruction"
+        "orca_whirlpool_open_position_with_metadata_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for OpenPositionWithMetadataRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO open_position_with_metadata_instruction (
+            INSERT INTO orca_whirlpool_open_position_with_metadata_instruction (
                 "bumps",
                 "tick_lower_index",
                 "tick_upper_index",
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for OpenPositionWithMetadataRow {
 impl carbon_core::postgres::operations::Upsert for OpenPositionWithMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_position_with_metadata_instruction (
+            r#"INSERT INTO orca_whirlpool_open_position_with_metadata_instruction (
                 "bumps",
                 "tick_lower_index",
                 "tick_upper_index",
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for OpenPositionWithMetadataRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM open_position_with_metadata_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_open_position_with_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Lookup for OpenPositionWithMetadataRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM open_position_with_metadata_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_open_position_with_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenPositionWithMetadataMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS open_position_with_metadata_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_open_position_with_metadata_instruction (
                 -- Instruction data
                 "bumps" JSONB NOT NULL,
                 "tick_lower_index" INT4 NOT NULL,
@@ -215,9 +215,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenPositionWithMetadataMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS open_position_with_metadata_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS orca_whirlpool_open_position_with_metadata_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

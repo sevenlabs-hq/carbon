@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_reward::InitializeReward
 {
     fn table() -> &'static str {
-        "initialize_reward_instruction"
+        "orca_whirlpool_initialize_reward_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for InitializeRewardRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_reward_instruction (
+            INSERT INTO orca_whirlpool_initialize_reward_instruction (
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for InitializeRewardRow {
 impl carbon_core::postgres::operations::Upsert for InitializeRewardRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_reward_instruction (
+            r#"INSERT INTO orca_whirlpool_initialize_reward_instruction (
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for InitializeRewardRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_reward_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_initialize_reward_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeRewardRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_reward_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_initialize_reward_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeRewardMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_reward_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_initialize_reward_instruction (
                 -- Instruction data
                 "reward_index" INT2 NOT NULL,
                 -- Instruction metadata
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeRewardMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_reward_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_initialize_reward_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

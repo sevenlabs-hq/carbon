@@ -102,7 +102,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::dynamic_fee_config::DynamicFeeConfig
 {
     fn table() -> &'static str {
-        "dynamic_fee_config_account"
+        "raydium_clmm_dynamic_fee_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -125,7 +125,7 @@ impl carbon_core::postgres::operations::Insert for DynamicFeeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO dynamic_fee_config_account (
+            INSERT INTO raydium_clmm_dynamic_fee_config_account (
                 "index",
                 "filter_period",
                 "decay_period",
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Insert for DynamicFeeConfigRow {
 impl carbon_core::postgres::operations::Upsert for DynamicFeeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO dynamic_fee_config_account (
+            r#"INSERT INTO raydium_clmm_dynamic_fee_config_account (
                 "index",
                 "filter_period",
                 "decay_period",
@@ -204,7 +204,7 @@ impl carbon_core::postgres::operations::Delete for DynamicFeeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM dynamic_fee_config_account WHERE
+            r#"DELETE FROM raydium_clmm_dynamic_fee_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -225,7 +225,7 @@ impl carbon_core::postgres::operations::Lookup for DynamicFeeConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM dynamic_fee_config_account WHERE
+            r#"SELECT * FROM raydium_clmm_dynamic_fee_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -246,7 +246,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DynamicFeeConfigMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS dynamic_fee_config_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_dynamic_fee_config_account (
                 -- Account data
                 "index" INT4 NOT NULL,
                 "filter_period" INT4 NOT NULL,
@@ -270,7 +270,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DynamicFeeConfigMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS dynamic_fee_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_dynamic_fee_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

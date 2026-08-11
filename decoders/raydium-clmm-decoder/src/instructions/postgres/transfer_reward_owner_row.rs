@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::transfer_reward_owner::TransferRewardOwner
 {
     fn table() -> &'static str {
-        "transfer_reward_owner_instruction"
+        "raydium_clmm_transfer_reward_owner_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for TransferRewardOwnerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO transfer_reward_owner_instruction (
+            INSERT INTO raydium_clmm_transfer_reward_owner_instruction (
                 "new_owner",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for TransferRewardOwnerRow {
 impl carbon_core::postgres::operations::Upsert for TransferRewardOwnerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO transfer_reward_owner_instruction (
+            r#"INSERT INTO raydium_clmm_transfer_reward_owner_instruction (
                 "new_owner",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for TransferRewardOwnerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM transfer_reward_owner_instruction WHERE
+            r#"DELETE FROM raydium_clmm_transfer_reward_owner_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for TransferRewardOwnerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM transfer_reward_owner_instruction WHERE
+            r#"SELECT * FROM raydium_clmm_transfer_reward_owner_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferRewardOwnerMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS transfer_reward_owner_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_transfer_reward_owner_instruction (
                 -- Instruction data
                 "new_owner" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferRewardOwnerMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS transfer_reward_owner_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_transfer_reward_owner_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

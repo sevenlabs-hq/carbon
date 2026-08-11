@@ -12,7 +12,6 @@ pub mod add_insurance_fund_stake;
 pub mod add_market_to_amm_cache;
 pub mod admin_deposit;
 pub mod admin_update_user_stats_paused_operations;
-pub mod admin_withdraw_from_insurance_fund_vault;
 pub mod begin_insurance_fund_swap;
 pub mod begin_lp_swap;
 pub mod begin_swap;
@@ -27,14 +26,11 @@ pub mod cpi_event;
 pub mod delete_amm_cache;
 pub mod delete_initialized_perp_market;
 pub mod delete_initialized_spot_market;
-pub mod delete_openbook_v2_fulfillment_config;
 pub mod delete_prelaunch_oracle;
-pub mod delete_serum_fulfillment_config;
 pub mod delete_signed_msg_user_orders;
 pub mod delete_user;
 pub mod deposit;
 pub mod deposit_into_insurance_fund_stake;
-pub mod deposit_into_isolated_perp_position;
 pub mod deposit_into_perp_market_fee_pool;
 pub mod deposit_into_spot_market_revenue_pool;
 pub mod deposit_into_spot_market_vault;
@@ -98,7 +94,6 @@ pub mod place_and_take_perp_order;
 pub mod place_and_take_spot_order;
 pub mod place_orders;
 pub mod place_perp_order;
-pub mod place_scale_orders;
 pub mod place_signed_msg_taker_order;
 pub mod place_spot_order;
 pub mod post_multi_pyth_pull_oracle_updates_atomic;
@@ -129,7 +124,6 @@ pub mod settle_pnl;
 pub mod settle_revenue_to_insurance_fund;
 pub mod sweep_fuel;
 pub mod transfer_deposit;
-pub mod transfer_isolated_perp_position_deposit;
 pub mod transfer_perp_position;
 pub mod transfer_pools;
 pub mod transfer_protocol_if_shares_to_revenue_pool;
@@ -174,7 +168,6 @@ pub mod update_perp_market_amm_spread_adjustment;
 pub mod update_perp_market_amm_summary_stats;
 pub mod update_perp_market_base_spread;
 pub mod update_perp_market_concentration_coef;
-pub mod update_perp_market_config;
 pub mod update_perp_market_contract_tier;
 pub mod update_perp_market_curve_update_intensity;
 pub mod update_perp_market_expiry;
@@ -254,27 +247,23 @@ pub mod view_lp_pool_add_liquidity_fees;
 pub mod view_lp_pool_remove_liquidity_fees;
 pub mod view_lp_pool_swap_fees;
 pub mod withdraw;
-pub mod withdraw_from_isolated_perp_position;
 pub mod withdraw_from_program_vault;
 pub mod zero_mm_oracle_fields;
 
 pub use self::{
     add_amm_constituent_mapping_data::*, add_insurance_fund_stake::*, add_market_to_amm_cache::*,
-    admin_deposit::*, admin_update_user_stats_paused_operations::*,
-    admin_withdraw_from_insurance_fund_vault::*, begin_insurance_fund_swap::*, begin_lp_swap::*,
-    begin_swap::*, cancel_order::*, cancel_order_by_user_id::*, cancel_orders::*,
+    admin_deposit::*, admin_update_user_stats_paused_operations::*, begin_insurance_fund_swap::*,
+    begin_lp_swap::*, begin_swap::*, cancel_order::*, cancel_order_by_user_id::*, cancel_orders::*,
     cancel_orders_by_ids::*, cancel_request_remove_insurance_fund_stake::*,
     change_approved_builder::*, change_signed_msg_ws_delegate_status::*, cpi_event::*,
     delete_amm_cache::*, delete_initialized_perp_market::*, delete_initialized_spot_market::*,
-    delete_openbook_v2_fulfillment_config::*, delete_prelaunch_oracle::*,
-    delete_serum_fulfillment_config::*, delete_signed_msg_user_orders::*, delete_user::*,
-    deposit::*, deposit_into_insurance_fund_stake::*, deposit_into_isolated_perp_position::*,
-    deposit_into_perp_market_fee_pool::*, deposit_into_spot_market_revenue_pool::*,
-    deposit_into_spot_market_vault::*, deposit_to_program_vault::*,
-    disable_user_high_leverage_mode::*, enable_user_high_leverage_mode::*,
-    end_insurance_fund_swap::*, end_lp_swap::*, end_swap::*, fill_perp_order::*,
-    fill_spot_order::*, force_cancel_orders::*, force_delete_user::*, initialize::*,
-    initialize_amm_cache::*, initialize_constituent::*, initialize_fuel_overflow::*,
+    delete_prelaunch_oracle::*, delete_signed_msg_user_orders::*, delete_user::*, deposit::*,
+    deposit_into_insurance_fund_stake::*, deposit_into_perp_market_fee_pool::*,
+    deposit_into_spot_market_revenue_pool::*, deposit_into_spot_market_vault::*,
+    deposit_to_program_vault::*, disable_user_high_leverage_mode::*,
+    enable_user_high_leverage_mode::*, end_insurance_fund_swap::*, end_lp_swap::*, end_swap::*,
+    fill_perp_order::*, fill_spot_order::*, force_cancel_orders::*, force_delete_user::*,
+    initialize::*, initialize_amm_cache::*, initialize_constituent::*, initialize_fuel_overflow::*,
     initialize_high_leverage_mode_config::*, initialize_if_rebalance_config::*,
     initialize_insurance_fund_stake::*, initialize_lp_pool::*,
     initialize_openbook_v2_fulfillment_config::*, initialize_perp_market::*,
@@ -293,25 +282,25 @@ pub use self::{
     phoenix_fulfillment_config_status::*, place_and_make_perp_order::*,
     place_and_make_signed_msg_perp_order::*, place_and_make_spot_order::*,
     place_and_take_perp_order::*, place_and_take_spot_order::*, place_orders::*,
-    place_perp_order::*, place_scale_orders::*, place_signed_msg_taker_order::*,
-    place_spot_order::*, post_multi_pyth_pull_oracle_updates_atomic::*,
-    post_pyth_lazer_oracle_update::*, post_pyth_pull_oracle_update_atomic::*,
-    recenter_perp_market_amm::*, recenter_perp_market_amm_crank::*, reclaim_rent::*,
-    remove_amm_constituent_mapping_data::*, remove_insurance_fund_stake::*, repeg_amm_curve::*,
-    request_remove_insurance_fund_stake::*, reset_fuel_season::*,
-    reset_perp_market_amm_oracle_twap::*, resize_revenue_share_escrow_orders::*,
-    resize_signed_msg_user_orders::*, resolve_perp_bankruptcy::*, resolve_perp_pnl_deficit::*,
-    resolve_spot_bankruptcy::*, revert_fill::*, set_user_status_to_being_liquidated::*,
-    settle_expired_market::*, settle_expired_market_pools_to_revenue_pool::*,
-    settle_funding_payment::*, settle_multiple_pnls::*, settle_perp_to_lp_pool::*, settle_pnl::*,
+    place_perp_order::*, place_signed_msg_taker_order::*, place_spot_order::*,
+    post_multi_pyth_pull_oracle_updates_atomic::*, post_pyth_lazer_oracle_update::*,
+    post_pyth_pull_oracle_update_atomic::*, recenter_perp_market_amm::*,
+    recenter_perp_market_amm_crank::*, reclaim_rent::*, remove_amm_constituent_mapping_data::*,
+    remove_insurance_fund_stake::*, repeg_amm_curve::*, request_remove_insurance_fund_stake::*,
+    reset_fuel_season::*, reset_perp_market_amm_oracle_twap::*,
+    resize_revenue_share_escrow_orders::*, resize_signed_msg_user_orders::*,
+    resolve_perp_bankruptcy::*, resolve_perp_pnl_deficit::*, resolve_spot_bankruptcy::*,
+    revert_fill::*, set_user_status_to_being_liquidated::*, settle_expired_market::*,
+    settle_expired_market_pools_to_revenue_pool::*, settle_funding_payment::*,
+    settle_multiple_pnls::*, settle_perp_to_lp_pool::*, settle_pnl::*,
     settle_revenue_to_insurance_fund::*, sweep_fuel::*, transfer_deposit::*,
-    transfer_isolated_perp_position_deposit::*, transfer_perp_position::*, transfer_pools::*,
-    transfer_protocol_if_shares_to_revenue_pool::*, trigger_order::*, update_admin::*,
-    update_amm_cache::*, update_amm_constituent_mapping_data::*, update_amm_jit_intensity::*,
-    update_amms::*, update_constituent_correlation_data::*, update_constituent_oracle_info::*,
-    update_constituent_params::*, update_constituent_paused_operations::*,
-    update_constituent_status::*, update_delegate_user_gov_token_insurance_stake::*,
-    update_discount_mint::*, update_exchange_status::*, update_feature_bit_flags_builder_codes::*,
+    transfer_perp_position::*, transfer_pools::*, transfer_protocol_if_shares_to_revenue_pool::*,
+    trigger_order::*, update_admin::*, update_amm_cache::*, update_amm_constituent_mapping_data::*,
+    update_amm_jit_intensity::*, update_amms::*, update_constituent_correlation_data::*,
+    update_constituent_oracle_info::*, update_constituent_params::*,
+    update_constituent_paused_operations::*, update_constituent_status::*,
+    update_delegate_user_gov_token_insurance_stake::*, update_discount_mint::*,
+    update_exchange_status::*, update_feature_bit_flags_builder_codes::*,
     update_feature_bit_flags_median_trigger_price::*,
     update_feature_bit_flags_mint_redeem_lp_pool::*, update_feature_bit_flags_mm_oracle::*,
     update_feature_bit_flags_settle_lp_pool::*, update_feature_bit_flags_swap_lp_pool::*,
@@ -323,19 +312,18 @@ pub use self::{
     update_perp_auction_duration::*, update_perp_bid_ask_twap::*, update_perp_fee_structure::*,
     update_perp_market_amm_oracle_twap::*, update_perp_market_amm_spread_adjustment::*,
     update_perp_market_amm_summary_stats::*, update_perp_market_base_spread::*,
-    update_perp_market_concentration_coef::*, update_perp_market_config::*,
-    update_perp_market_contract_tier::*, update_perp_market_curve_update_intensity::*,
-    update_perp_market_expiry::*, update_perp_market_fee_adjustment::*,
-    update_perp_market_funding_period::*, update_perp_market_high_leverage_margin_ratio::*,
-    update_perp_market_imf_factor::*, update_perp_market_liquidation_fee::*,
-    update_perp_market_lp_pool_fee_transfer_scalar::*, update_perp_market_lp_pool_id::*,
-    update_perp_market_lp_pool_paused_operations::*, update_perp_market_lp_pool_status::*,
-    update_perp_market_margin_ratio::*, update_perp_market_max_fill_reserve_fraction::*,
-    update_perp_market_max_imbalances::*, update_perp_market_max_open_interest::*,
-    update_perp_market_max_slippage_ratio::*, update_perp_market_max_spread::*,
-    update_perp_market_min_order_size::*, update_perp_market_name::*,
-    update_perp_market_number_of_users::*, update_perp_market_oracle::*,
-    update_perp_market_oracle_low_risk_slot_delay_override::*,
+    update_perp_market_concentration_coef::*, update_perp_market_contract_tier::*,
+    update_perp_market_curve_update_intensity::*, update_perp_market_expiry::*,
+    update_perp_market_fee_adjustment::*, update_perp_market_funding_period::*,
+    update_perp_market_high_leverage_margin_ratio::*, update_perp_market_imf_factor::*,
+    update_perp_market_liquidation_fee::*, update_perp_market_lp_pool_fee_transfer_scalar::*,
+    update_perp_market_lp_pool_id::*, update_perp_market_lp_pool_paused_operations::*,
+    update_perp_market_lp_pool_status::*, update_perp_market_margin_ratio::*,
+    update_perp_market_max_fill_reserve_fraction::*, update_perp_market_max_imbalances::*,
+    update_perp_market_max_open_interest::*, update_perp_market_max_slippage_ratio::*,
+    update_perp_market_max_spread::*, update_perp_market_min_order_size::*,
+    update_perp_market_name::*, update_perp_market_number_of_users::*,
+    update_perp_market_oracle::*, update_perp_market_oracle_low_risk_slot_delay_override::*,
     update_perp_market_oracle_slot_delay_override::*, update_perp_market_paused_operations::*,
     update_perp_market_pnl_pool::*, update_perp_market_protected_maker_params::*,
     update_perp_market_reference_price_offset_deadband_pct::*, update_perp_market_status::*,
@@ -363,8 +351,7 @@ pub use self::{
     update_user_reduce_only::*, update_user_stats_referrer_status::*,
     update_withdraw_guard_threshold::*, view_lp_pool_add_liquidity_fees::*,
     view_lp_pool_remove_liquidity_fees::*, view_lp_pool_swap_fees::*, withdraw::*,
-    withdraw_from_isolated_perp_position::*, withdraw_from_program_vault::*,
-    zero_mm_oracle_fields::*,
+    withdraw_from_program_vault::*, zero_mm_oracle_fields::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -396,11 +383,6 @@ pub enum DriftV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: AdminUpdateUserStatsPausedOperations,
         accounts: AdminUpdateUserStatsPausedOperationsInstructionAccounts,
-    },
-    AdminWithdrawFromInsuranceFundVault {
-        program_id: solana_pubkey::Pubkey,
-        data: AdminWithdrawFromInsuranceFundVault,
-        accounts: AdminWithdrawFromInsuranceFundVaultInstructionAccounts,
     },
     BeginInsuranceFundSwap {
         program_id: solana_pubkey::Pubkey,
@@ -467,20 +449,10 @@ pub enum DriftV2Instruction {
         data: DeleteInitializedSpotMarket,
         accounts: DeleteInitializedSpotMarketInstructionAccounts,
     },
-    DeleteOpenbookV2FulfillmentConfig {
-        program_id: solana_pubkey::Pubkey,
-        data: DeleteOpenbookV2FulfillmentConfig,
-        accounts: DeleteOpenbookV2FulfillmentConfigInstructionAccounts,
-    },
     DeletePrelaunchOracle {
         program_id: solana_pubkey::Pubkey,
         data: DeletePrelaunchOracle,
         accounts: DeletePrelaunchOracleInstructionAccounts,
-    },
-    DeleteSerumFulfillmentConfig {
-        program_id: solana_pubkey::Pubkey,
-        data: DeleteSerumFulfillmentConfig,
-        accounts: DeleteSerumFulfillmentConfigInstructionAccounts,
     },
     DeleteSignedMsgUserOrders {
         program_id: solana_pubkey::Pubkey,
@@ -501,11 +473,6 @@ pub enum DriftV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: DepositIntoInsuranceFundStake,
         accounts: DepositIntoInsuranceFundStakeInstructionAccounts,
-    },
-    DepositIntoIsolatedPerpPosition {
-        program_id: solana_pubkey::Pubkey,
-        data: DepositIntoIsolatedPerpPosition,
-        accounts: DepositIntoIsolatedPerpPositionInstructionAccounts,
     },
     DepositIntoPerpMarketFeePool {
         program_id: solana_pubkey::Pubkey,
@@ -822,11 +789,6 @@ pub enum DriftV2Instruction {
         data: PlacePerpOrder,
         accounts: PlacePerpOrderInstructionAccounts,
     },
-    PlaceScaleOrders {
-        program_id: solana_pubkey::Pubkey,
-        data: PlaceScaleOrders,
-        accounts: PlaceScaleOrdersInstructionAccounts,
-    },
     PlaceSignedMsgTakerOrder {
         program_id: solana_pubkey::Pubkey,
         data: PlaceSignedMsgTakerOrder,
@@ -976,11 +938,6 @@ pub enum DriftV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: TransferDeposit,
         accounts: TransferDepositInstructionAccounts,
-    },
-    TransferIsolatedPerpPositionDeposit {
-        program_id: solana_pubkey::Pubkey,
-        data: TransferIsolatedPerpPositionDeposit,
-        accounts: TransferIsolatedPerpPositionDepositInstructionAccounts,
     },
     TransferPerpPosition {
         program_id: solana_pubkey::Pubkey,
@@ -1201,11 +1158,6 @@ pub enum DriftV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: UpdatePerpMarketConcentrationCoef,
         accounts: UpdatePerpMarketConcentrationCoefInstructionAccounts,
-    },
-    UpdatePerpMarketConfig {
-        program_id: solana_pubkey::Pubkey,
-        data: UpdatePerpMarketConfig,
-        accounts: UpdatePerpMarketConfigInstructionAccounts,
     },
     UpdatePerpMarketContractTier {
         program_id: solana_pubkey::Pubkey,
@@ -1602,11 +1554,6 @@ pub enum DriftV2Instruction {
         data: Withdraw,
         accounts: WithdrawInstructionAccounts,
     },
-    WithdrawFromIsolatedPerpPosition {
-        program_id: solana_pubkey::Pubkey,
-        data: WithdrawFromIsolatedPerpPosition,
-        accounts: WithdrawFromIsolatedPerpPositionInstructionAccounts,
-    },
     WithdrawFromProgramVault {
         program_id: solana_pubkey::Pubkey,
         data: WithdrawFromProgramVault,
@@ -1643,7 +1590,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DriftV2Decoder {
             DriftV2Instruction::AddMarketToAmmCache => AddMarketToAmmCache,
             DriftV2Instruction::AdminDeposit => AdminDeposit,
             DriftV2Instruction::AdminUpdateUserStatsPausedOperations => AdminUpdateUserStatsPausedOperations,
-            DriftV2Instruction::AdminWithdrawFromInsuranceFundVault => AdminWithdrawFromInsuranceFundVault,
             DriftV2Instruction::BeginInsuranceFundSwap => BeginInsuranceFundSwap,
             DriftV2Instruction::BeginLpSwap => BeginLpSwap,
             DriftV2Instruction::BeginSwap => BeginSwap,
@@ -1657,14 +1603,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DriftV2Decoder {
             DriftV2Instruction::DeleteAmmCache => DeleteAmmCache,
             DriftV2Instruction::DeleteInitializedPerpMarket => DeleteInitializedPerpMarket,
             DriftV2Instruction::DeleteInitializedSpotMarket => DeleteInitializedSpotMarket,
-            DriftV2Instruction::DeleteOpenbookV2FulfillmentConfig => DeleteOpenbookV2FulfillmentConfig,
             DriftV2Instruction::DeletePrelaunchOracle => DeletePrelaunchOracle,
-            DriftV2Instruction::DeleteSerumFulfillmentConfig => DeleteSerumFulfillmentConfig,
             DriftV2Instruction::DeleteSignedMsgUserOrders => DeleteSignedMsgUserOrders,
             DriftV2Instruction::DeleteUser => DeleteUser,
             DriftV2Instruction::Deposit => Deposit,
             DriftV2Instruction::DepositIntoInsuranceFundStake => DepositIntoInsuranceFundStake,
-            DriftV2Instruction::DepositIntoIsolatedPerpPosition => DepositIntoIsolatedPerpPosition,
             DriftV2Instruction::DepositIntoPerpMarketFeePool => DepositIntoPerpMarketFeePool,
             DriftV2Instruction::DepositIntoSpotMarketRevenuePool => DepositIntoSpotMarketRevenuePool,
             DriftV2Instruction::DepositIntoSpotMarketVault => DepositIntoSpotMarketVault,
@@ -1728,7 +1671,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DriftV2Decoder {
             DriftV2Instruction::PlaceAndTakeSpotOrder => PlaceAndTakeSpotOrder,
             DriftV2Instruction::PlaceOrders => PlaceOrders,
             DriftV2Instruction::PlacePerpOrder => PlacePerpOrder,
-            DriftV2Instruction::PlaceScaleOrders => PlaceScaleOrders,
             DriftV2Instruction::PlaceSignedMsgTakerOrder => PlaceSignedMsgTakerOrder,
             DriftV2Instruction::PlaceSpotOrder => PlaceSpotOrder,
             DriftV2Instruction::PostMultiPythPullOracleUpdatesAtomic => PostMultiPythPullOracleUpdatesAtomic,
@@ -1759,7 +1701,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DriftV2Decoder {
             DriftV2Instruction::SetUserStatusToBeingLiquidated => SetUserStatusToBeingLiquidated,
             DriftV2Instruction::SweepFuel => SweepFuel,
             DriftV2Instruction::TransferDeposit => TransferDeposit,
-            DriftV2Instruction::TransferIsolatedPerpPositionDeposit => TransferIsolatedPerpPositionDeposit,
             DriftV2Instruction::TransferPerpPosition => TransferPerpPosition,
             DriftV2Instruction::TransferPools => TransferPools,
             DriftV2Instruction::TransferProtocolIfSharesToRevenuePool => TransferProtocolIfSharesToRevenuePool,
@@ -1804,7 +1745,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DriftV2Decoder {
             DriftV2Instruction::UpdatePerpMarketAmmSummaryStats => UpdatePerpMarketAmmSummaryStats,
             DriftV2Instruction::UpdatePerpMarketBaseSpread => UpdatePerpMarketBaseSpread,
             DriftV2Instruction::UpdatePerpMarketConcentrationCoef => UpdatePerpMarketConcentrationCoef,
-            DriftV2Instruction::UpdatePerpMarketConfig => UpdatePerpMarketConfig,
             DriftV2Instruction::UpdatePerpMarketContractTier => UpdatePerpMarketContractTier,
             DriftV2Instruction::UpdatePerpMarketCurveUpdateIntensity => UpdatePerpMarketCurveUpdateIntensity,
             DriftV2Instruction::UpdatePerpMarketExpiry => UpdatePerpMarketExpiry,
@@ -1884,7 +1824,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DriftV2Decoder {
             DriftV2Instruction::ViewLpPoolRemoveLiquidityFees => ViewLpPoolRemoveLiquidityFees,
             DriftV2Instruction::ViewLpPoolSwapFees => ViewLpPoolSwapFees,
             DriftV2Instruction::Withdraw => Withdraw,
-            DriftV2Instruction::WithdrawFromIsolatedPerpPosition => WithdrawFromIsolatedPerpPosition,
             DriftV2Instruction::WithdrawFromProgramVault => WithdrawFromProgramVault,
             DriftV2Instruction::ZeroMmOracleFields => ZeroMmOracleFields,
             DriftV2Instruction::CpiEvent => CpiEvent,

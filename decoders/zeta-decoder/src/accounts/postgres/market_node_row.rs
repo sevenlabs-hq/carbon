@@ -66,7 +66,7 @@ impl TryFrom<MarketNodeRow> for crate::accounts::market_node::MarketNode {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::market_node::MarketNode {
     fn table() -> &'static str {
-        "market_node_account"
+        "zeta_market_node_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for MarketNodeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO market_node_account (
+            INSERT INTO zeta_market_node_account (
                 "index",
                 "nonce",
                 "node_updates",
@@ -113,7 +113,7 @@ impl carbon_core::postgres::operations::Insert for MarketNodeRow {
 impl carbon_core::postgres::operations::Upsert for MarketNodeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO market_node_account (
+            r#"INSERT INTO zeta_market_node_account (
                 "index",
                 "nonce",
                 "node_updates",
@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Delete for MarketNodeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM market_node_account WHERE
+            r#"DELETE FROM zeta_market_node_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -171,7 +171,7 @@ impl carbon_core::postgres::operations::Lookup for MarketNodeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM market_node_account WHERE
+            r#"SELECT * FROM zeta_market_node_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarketNodeMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS market_node_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_market_node_account (
                 -- Account data
                 "index" INT2 NOT NULL,
                 "nonce" INT2 NOT NULL,
@@ -213,7 +213,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarketNodeMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS market_node_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_market_node_account"#)
             .execute(connection)
             .await?;
         Ok(())

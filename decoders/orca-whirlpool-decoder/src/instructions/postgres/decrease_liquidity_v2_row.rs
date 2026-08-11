@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::decrease_liquidity_v2::DecreaseLiquidityV2
 {
     fn table() -> &'static str {
-        "decrease_liquidity_v2_instruction"
+        "orca_whirlpool_decrease_liquidity_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for DecreaseLiquidityV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO decrease_liquidity_v2_instruction (
+            INSERT INTO orca_whirlpool_decrease_liquidity_v2_instruction (
                 "liquidity_amount",
                 "token_min_a",
                 "token_min_b",
@@ -110,7 +110,7 @@ impl carbon_core::postgres::operations::Insert for DecreaseLiquidityV2Row {
 impl carbon_core::postgres::operations::Upsert for DecreaseLiquidityV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO decrease_liquidity_v2_instruction (
+            r#"INSERT INTO orca_whirlpool_decrease_liquidity_v2_instruction (
                 "liquidity_amount",
                 "token_min_a",
                 "token_min_b",
@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Delete for DecreaseLiquidityV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM decrease_liquidity_v2_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_decrease_liquidity_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -184,7 +184,7 @@ impl carbon_core::postgres::operations::Lookup for DecreaseLiquidityV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM decrease_liquidity_v2_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_decrease_liquidity_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -207,7 +207,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DecreaseLiquidityV2MigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS decrease_liquidity_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_decrease_liquidity_v2_instruction (
                 -- Instruction data
                 "liquidity_amount" NUMERIC(39) NOT NULL,
                 "token_min_a" NUMERIC(20) NOT NULL,
@@ -231,7 +231,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DecreaseLiquidityV2MigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS decrease_liquidity_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_decrease_liquidity_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

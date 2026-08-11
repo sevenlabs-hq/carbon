@@ -9,7 +9,9 @@ pub mod config_lp_event_schema;
 pub mod config_lp_params_schema;
 pub mod config_marinade_event_schema;
 pub mod config_marinade_params_schema;
+pub mod create_canonical_stake_event_schema;
 pub mod deactivate_stake_event_schema;
+pub mod delinquent_upgrader_state_schema;
 pub mod deposit_event_schema;
 pub mod deposit_stake_account_event_schema;
 pub mod emergency_pause_event_schema;
@@ -37,6 +39,7 @@ pub mod split_stake_account_info_schema;
 pub mod stake_list_schema;
 pub mod stake_record_schema;
 pub mod stake_reserve_event_schema;
+pub mod stake_status_schema;
 pub mod stake_system_schema;
 pub mod u32_value_change_schema;
 pub mod u64_value_change_schema;
@@ -51,7 +54,8 @@ pub use {
     add_liquidity_event_schema::*, add_validator_event_schema::*, bool_value_change_schema::*,
     change_authority_data_schema::*, change_authority_event_schema::*, claim_event_schema::*,
     config_lp_event_schema::*, config_lp_params_schema::*, config_marinade_event_schema::*,
-    config_marinade_params_schema::*, deactivate_stake_event_schema::*, deposit_event_schema::*,
+    config_marinade_params_schema::*, create_canonical_stake_event_schema::*,
+    deactivate_stake_event_schema::*, delinquent_upgrader_state_schema::*, deposit_event_schema::*,
     deposit_stake_account_event_schema::*, emergency_pause_event_schema::*, fee_cents_schema::*,
     fee_cents_value_change_schema::*, fee_schema::*, fee_value_change_schema::*,
     initialize_data_schema::*, initialize_event_schema::*, liq_pool_initialize_data_schema::*,
@@ -61,8 +65,8 @@ pub use {
     redelegate_event_schema::*, remove_liquidity_event_schema::*, remove_validator_event_schema::*,
     resume_event_schema::*, set_validator_score_event_schema::*,
     split_stake_account_info_schema::*, stake_list_schema::*, stake_record_schema::*,
-    stake_reserve_event_schema::*, stake_system_schema::*, u32_value_change_schema::*,
-    u64_value_change_schema::*, update_active_event_schema::*, update_deactivated_event_schema::*,
-    validator_list_schema::*, validator_record_schema::*, validator_system_schema::*,
-    withdraw_stake_account_event_schema::*,
+    stake_reserve_event_schema::*, stake_status_schema::*, stake_system_schema::*,
+    u32_value_change_schema::*, u64_value_change_schema::*, update_active_event_schema::*,
+    update_deactivated_event_schema::*, validator_list_schema::*, validator_record_schema::*,
+    validator_system_schema::*, withdraw_stake_account_event_schema::*,
 };

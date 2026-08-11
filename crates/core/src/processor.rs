@@ -32,7 +32,7 @@ where
 {
     fn process(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         data: &T,
     ) -> impl Future<Output = CarbonResult<()>> + Send;
 }

@@ -44,7 +44,7 @@ impl TryFrom<SellExactInRow> for crate::instructions::sell_exact_in::SellExactIn
 
 impl carbon_core::postgres::operations::Table for crate::instructions::sell_exact_in::SellExactIn {
     fn table() -> &'static str {
-        "sell_exact_in_instruction"
+        "raydium_launchpad_sell_exact_in_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for SellExactInRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO sell_exact_in_instruction (
+            INSERT INTO raydium_launchpad_sell_exact_in_instruction (
                 "amount_in",
                 "minimum_amount_out",
                 "share_fee_rate",
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for SellExactInRow {
 impl carbon_core::postgres::operations::Upsert for SellExactInRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO sell_exact_in_instruction (
+            r#"INSERT INTO raydium_launchpad_sell_exact_in_instruction (
                 "amount_in",
                 "minimum_amount_out",
                 "share_fee_rate",
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete for SellExactInRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM sell_exact_in_instruction WHERE
+            r#"DELETE FROM raydium_launchpad_sell_exact_in_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Lookup for SellExactInRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM sell_exact_in_instruction WHERE
+            r#"SELECT * FROM raydium_launchpad_sell_exact_in_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SellExactInMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS sell_exact_in_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_launchpad_sell_exact_in_instruction (
                 -- Instruction data
                 "amount_in" NUMERIC(20) NOT NULL,
                 "minimum_amount_out" NUMERIC(20) NOT NULL,
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SellExactInMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS sell_exact_in_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_launchpad_sell_exact_in_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

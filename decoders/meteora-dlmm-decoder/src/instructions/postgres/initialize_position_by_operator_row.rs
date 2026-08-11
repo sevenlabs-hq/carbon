@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_position_by_operator::InitializePositionByOperator
 {
     fn table() -> &'static str {
-        "initialize_position_by_operator_instruction"
+        "meteora_dlmm_initialize_position_by_operator_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for InitializePositionByOperatorR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_position_by_operator_instruction (
+            INSERT INTO meteora_dlmm_initialize_position_by_operator_instruction (
                 "lower_bin_id",
                 "width",
                 "fee_owner",
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Insert for InitializePositionByOperatorR
 impl carbon_core::postgres::operations::Upsert for InitializePositionByOperatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_position_by_operator_instruction (
+            r#"INSERT INTO meteora_dlmm_initialize_position_by_operator_instruction (
                 "lower_bin_id",
                 "width",
                 "fee_owner",
@@ -154,7 +154,7 @@ impl carbon_core::postgres::operations::Delete for InitializePositionByOperatorR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_position_by_operator_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_initialize_position_by_operator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -181,7 +181,7 @@ impl carbon_core::postgres::operations::Lookup for InitializePositionByOperatorR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_position_by_operator_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_initialize_position_by_operator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -204,7 +204,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePositionByOperatorMi
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_position_by_operator_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_initialize_position_by_operator_instruction (
                 -- Instruction data
                 "lower_bin_id" INT4 NOT NULL,
                 "width" INT4 NOT NULL,
@@ -228,9 +228,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePositionByOperatorMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_position_by_operator_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_dlmm_initialize_position_by_operator_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

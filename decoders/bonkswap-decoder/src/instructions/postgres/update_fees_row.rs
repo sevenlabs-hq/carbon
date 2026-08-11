@@ -47,7 +47,7 @@ impl TryFrom<UpdateFeesRow> for crate::instructions::update_fees::UpdateFees {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::update_fees::UpdateFees {
     fn table() -> &'static str {
-        "update_fees_instruction"
+        "bonkswap_update_fees_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFeesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_fees_instruction (
+            INSERT INTO bonkswap_update_fees_instruction (
                 "new_buyback_fee",
                 "new_project_fee",
                 "new_provider_fee",
@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFeesRow {
 impl carbon_core::postgres::operations::Upsert for UpdateFeesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_fees_instruction (
+            r#"INSERT INTO bonkswap_update_fees_instruction (
                 "new_buyback_fee",
                 "new_project_fee",
                 "new_provider_fee",
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFeesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_fees_instruction WHERE
+            r#"DELETE FROM bonkswap_update_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateFeesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_fees_instruction WHERE
+            r#"SELECT * FROM bonkswap_update_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFeesMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_fees_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_update_fees_instruction (
                 -- Instruction data
                 "new_buyback_fee" JSONB NOT NULL,
                 "new_project_fee" JSONB NOT NULL,
@@ -221,7 +221,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFeesMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_fees_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_update_fees_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

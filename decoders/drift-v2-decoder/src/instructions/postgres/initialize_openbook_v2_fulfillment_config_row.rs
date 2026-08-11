@@ -38,7 +38,7 @@ impl TryFrom<InitializeOpenbookV2FulfillmentConfigRow> for crate::instructions::
 
 impl carbon_core::postgres::operations::Table for crate::instructions::initialize_openbook_v2_fulfillment_config::InitializeOpenbookV2FulfillmentConfig {
     fn table() -> &'static str {
-        "initialize_openbook_v2_fulfillment_config_instruction"
+        "drift_v2_initialize_openbook_v2_fulfillment_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for InitializeOpenbookV2Fulfillme
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_openbook_v2_fulfillment_config_instruction (
+            INSERT INTO drift_v2_initialize_openbook_v2_fulfillment_config_instruction (
                 "market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for InitializeOpenbookV2Fulfillme
 impl carbon_core::postgres::operations::Upsert for InitializeOpenbookV2FulfillmentConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_openbook_v2_fulfillment_config_instruction (
+            r#"INSERT INTO drift_v2_initialize_openbook_v2_fulfillment_config_instruction (
                 "market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for InitializeOpenbookV2Fulfillme
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_openbook_v2_fulfillment_config_instruction WHERE
+            r#"DELETE FROM drift_v2_initialize_openbook_v2_fulfillment_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeOpenbookV2Fulfillme
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_openbook_v2_fulfillment_config_instruction WHERE
+            r#"SELECT * FROM drift_v2_initialize_openbook_v2_fulfillment_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,8 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_openbook_v2_fulfillment_config_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS drift_v2_initialize_openbook_v2_fulfillment_config_instruction (
                 -- Instruction data
                 "market_index" INT4 NOT NULL,
                 -- Instruction metadata
@@ -182,10 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -193,11 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"DROP TABLE IF EXISTS initialize_openbook_v2_fulfillment_config_instruction"#,
-        )
-        .execute(connection)
-        .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_initialize_openbook_v2_fulfillment_config_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

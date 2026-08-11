@@ -85,7 +85,7 @@ impl TryFrom<CurveAccountRow> for crate::accounts::curve_account::CurveAccount {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::curve_account::CurveAccount {
     fn table() -> &'static str {
-        "curve_account_account"
+        "moonshot_curve_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -113,7 +113,7 @@ impl carbon_core::postgres::operations::Insert for CurveAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO curve_account_account (
+            INSERT INTO moonshot_curve_account_account (
                 "total_supply",
                 "curve_amount",
                 "mint",
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Insert for CurveAccountRow {
 impl carbon_core::postgres::operations::Upsert for CurveAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO curve_account_account (
+            r#"INSERT INTO moonshot_curve_account_account (
                 "total_supply",
                 "curve_amount",
                 "mint",
@@ -217,7 +217,7 @@ impl carbon_core::postgres::operations::Delete for CurveAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM curve_account_account WHERE
+            r#"DELETE FROM moonshot_curve_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -238,7 +238,7 @@ impl carbon_core::postgres::operations::Lookup for CurveAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM curve_account_account WHERE
+            r#"SELECT * FROM moonshot_curve_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -259,7 +259,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CurveAccountMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS curve_account_account (
+            r#"CREATE TABLE IF NOT EXISTS moonshot_curve_account_account (
                 -- Account data
                 "total_supply" NUMERIC(20) NOT NULL,
                 "curve_amount" NUMERIC(20) NOT NULL,
@@ -288,7 +288,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CurveAccountMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS curve_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS moonshot_curve_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

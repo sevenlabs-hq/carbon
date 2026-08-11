@@ -53,7 +53,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_provider::CreateProvider
 {
     fn table() -> &'static str {
-        "create_provider_instruction"
+        "bonkswap_create_provider_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -75,7 +75,7 @@ impl carbon_core::postgres::operations::Insert for CreateProviderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_provider_instruction (
+            INSERT INTO bonkswap_create_provider_instruction (
                 "token_x_amount",
                 "token_y_amount",
                 "bump",
@@ -103,7 +103,7 @@ impl carbon_core::postgres::operations::Insert for CreateProviderRow {
 impl carbon_core::postgres::operations::Upsert for CreateProviderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_provider_instruction (
+            r#"INSERT INTO bonkswap_create_provider_instruction (
                 "token_x_amount",
                 "token_y_amount",
                 "bump",
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Delete for CreateProviderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_provider_instruction WHERE
+            r#"DELETE FROM bonkswap_create_provider_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Lookup for CreateProviderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_provider_instruction WHERE
+            r#"SELECT * FROM bonkswap_create_provider_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateProviderMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_provider_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_create_provider_instruction (
                 -- Instruction data
                 "token_x_amount" JSONB NOT NULL,
                 "token_y_amount" JSONB NOT NULL,
@@ -220,7 +220,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateProviderMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_provider_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_create_provider_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

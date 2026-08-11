@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::reclaim_event_account::ReclaimEventAccount
 {
     fn table() -> &'static str {
-        "reclaim_event_account_instruction"
+        "circle_message_transmitter_v2_reclaim_event_account_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for ReclaimEventAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO reclaim_event_account_instruction (
+            INSERT INTO circle_message_transmitter_v2_reclaim_event_account_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for ReclaimEventAccountRow {
 impl carbon_core::postgres::operations::Upsert for ReclaimEventAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO reclaim_event_account_instruction (
+            r#"INSERT INTO circle_message_transmitter_v2_reclaim_event_account_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ReclaimEventAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM reclaim_event_account_instruction WHERE
+            r#"DELETE FROM circle_message_transmitter_v2_reclaim_event_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for ReclaimEventAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM reclaim_event_account_instruction WHERE
+            r#"SELECT * FROM circle_message_transmitter_v2_reclaim_event_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -173,8 +173,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReclaimEventAccountMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS reclaim_event_account_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS circle_message_transmitter_v2_reclaim_event_account_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -184,10 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReclaimEventAccountMigrationOp
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -195,9 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReclaimEventAccountMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS reclaim_event_account_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS circle_message_transmitter_v2_reclaim_event_account_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

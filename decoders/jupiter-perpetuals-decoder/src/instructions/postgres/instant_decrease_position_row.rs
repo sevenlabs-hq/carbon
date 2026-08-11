@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::instant_decrease_position::InstantDecreasePosition
 {
     fn table() -> &'static str {
-        "instant_decrease_position_instruction"
+        "jupiter_perpetuals_instant_decrease_position_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for InstantDecreasePositionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO instant_decrease_position_instruction (
+            INSERT INTO jupiter_perpetuals_instant_decrease_position_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for InstantDecreasePositionRow {
 impl carbon_core::postgres::operations::Upsert for InstantDecreasePositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO instant_decrease_position_instruction (
+            r#"INSERT INTO jupiter_perpetuals_instant_decrease_position_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for InstantDecreasePositionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM instant_decrease_position_instruction WHERE
+            r#"DELETE FROM jupiter_perpetuals_instant_decrease_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for InstantDecreasePositionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM instant_decrease_position_instruction WHERE
+            r#"SELECT * FROM jupiter_perpetuals_instant_decrease_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InstantDecreasePositionMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS instant_decrease_position_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_instant_decrease_position_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InstantDecreasePositionMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS instant_decrease_position_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS jupiter_perpetuals_instant_decrease_position_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

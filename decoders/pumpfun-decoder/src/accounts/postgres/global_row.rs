@@ -182,7 +182,7 @@ impl TryFrom<GlobalRow> for crate::accounts::global::Global {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::global::Global {
     fn table() -> &'static str {
-        "global_account"
+        "pumpfun_global_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -222,7 +222,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global::Globa
 impl carbon_core::postgres::operations::Insert for GlobalRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO global_account (
+            INSERT INTO pumpfun_global_account (
                 "initialized",
                 "authority",
                 "fee_recipient",
@@ -288,7 +288,7 @@ impl carbon_core::postgres::operations::Insert for GlobalRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for GlobalRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO global_account (
+        sqlx::query(r#"INSERT INTO pumpfun_global_account (
                 "initialized",
                 "authority",
                 "fee_recipient",
@@ -386,7 +386,7 @@ impl carbon_core::postgres::operations::Delete for GlobalRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM global_account WHERE
+            r#"DELETE FROM pumpfun_global_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -407,7 +407,7 @@ impl carbon_core::postgres::operations::Lookup for GlobalRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM global_account WHERE
+            r#"SELECT * FROM pumpfun_global_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -428,7 +428,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS global_account (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_global_account (
                 -- Account data
                 "initialized" BOOLEAN NOT NULL,
                 "authority" BYTEA NOT NULL,
@@ -470,7 +470,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS global_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_global_account"#)
             .execute(connection)
             .await?;
         Ok(())

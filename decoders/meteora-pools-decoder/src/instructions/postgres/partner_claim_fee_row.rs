@@ -43,7 +43,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::partner_claim_fee::PartnerClaimFee
 {
     fn table() -> &'static str {
-        "partner_claim_fee_instruction"
+        "meteora_pools_partner_claim_fee_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for PartnerClaimFeeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO partner_claim_fee_instruction (
+            INSERT INTO meteora_pools_partner_claim_fee_instruction (
                 "max_amount_a",
                 "max_amount_b",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for PartnerClaimFeeRow {
 impl carbon_core::postgres::operations::Upsert for PartnerClaimFeeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO partner_claim_fee_instruction (
+            r#"INSERT INTO meteora_pools_partner_claim_fee_instruction (
                 "max_amount_a",
                 "max_amount_b",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Delete for PartnerClaimFeeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM partner_claim_fee_instruction WHERE
+            r#"DELETE FROM meteora_pools_partner_claim_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Lookup for PartnerClaimFeeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM partner_claim_fee_instruction WHERE
+            r#"SELECT * FROM meteora_pools_partner_claim_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PartnerClaimFeeMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS partner_claim_fee_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_pools_partner_claim_fee_instruction (
                 -- Instruction data
                 "max_amount_a" NUMERIC(20) NOT NULL,
                 "max_amount_b" NUMERIC(20) NOT NULL,
@@ -203,7 +203,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PartnerClaimFeeMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS partner_claim_fee_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_pools_partner_claim_fee_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

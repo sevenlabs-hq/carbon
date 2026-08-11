@@ -39,7 +39,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::post_pyth_lazer_oracle_update::PostPythLazerOracleUpdate
 {
     fn table() -> &'static str {
-        "post_pyth_lazer_oracle_update_instruction"
+        "drift_v2_post_pyth_lazer_oracle_update_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Insert for PostPythLazerOracleUpdateRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO post_pyth_lazer_oracle_update_instruction (
+            INSERT INTO drift_v2_post_pyth_lazer_oracle_update_instruction (
                 "pyth_message",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -83,7 +83,7 @@ impl carbon_core::postgres::operations::Insert for PostPythLazerOracleUpdateRow 
 impl carbon_core::postgres::operations::Upsert for PostPythLazerOracleUpdateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO post_pyth_lazer_oracle_update_instruction (
+            r#"INSERT INTO drift_v2_post_pyth_lazer_oracle_update_instruction (
                 "pyth_message",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Delete for PostPythLazerOracleUpdateRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM post_pyth_lazer_oracle_update_instruction WHERE
+            r#"DELETE FROM drift_v2_post_pyth_lazer_oracle_update_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Lookup for PostPythLazerOracleUpdateRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM post_pyth_lazer_oracle_update_instruction WHERE
+            r#"SELECT * FROM drift_v2_post_pyth_lazer_oracle_update_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,7 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PostPythLazerOracleUpdateMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS post_pyth_lazer_oracle_update_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_post_pyth_lazer_oracle_update_instruction (
                 -- Instruction data
                 "pyth_message" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PostPythLazerOracleUpdateMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS post_pyth_lazer_oracle_update_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_post_pyth_lazer_oracle_update_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

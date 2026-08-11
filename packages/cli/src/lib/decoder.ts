@@ -73,6 +73,7 @@ export type DecoderGenerationOptions = {
     packageName?: string;
     postgresMode?: 'generic' | 'typed';
     withPostgres?: boolean;
+    withClickhouse?: boolean;
     withGraphql?: boolean;
     withSerde?: boolean;
     withBase58?: boolean;
@@ -230,6 +231,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         packageName,
         postgresMode,
         withPostgres,
+        withClickhouse,
         withGraphql,
         withSerde,
         withBase58,
@@ -250,6 +252,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         packageName,
         postgresMode,
         withPostgres,
+        withClickhouse,
         withGraphql,
         withSerde,
         withBase58,
@@ -323,6 +326,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 anchorEvents: idlJson.events,
                 postgresMode,
                 withPostgres,
+                withClickhouse,
                 withGraphql,
                 withSerde,
                 withBase58,

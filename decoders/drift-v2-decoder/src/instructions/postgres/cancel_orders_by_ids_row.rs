@@ -55,7 +55,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::cancel_orders_by_ids::CancelOrdersByIds
 {
     fn table() -> &'static str {
-        "cancel_orders_by_ids_instruction"
+        "drift_v2_cancel_orders_by_ids_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -75,7 +75,7 @@ impl carbon_core::postgres::operations::Insert for CancelOrdersByIdsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO cancel_orders_by_ids_instruction (
+            INSERT INTO drift_v2_cancel_orders_by_ids_instruction (
                 "order_ids",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for CancelOrdersByIdsRow {
 impl carbon_core::postgres::operations::Upsert for CancelOrdersByIdsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO cancel_orders_by_ids_instruction (
+            r#"INSERT INTO drift_v2_cancel_orders_by_ids_instruction (
                 "order_ids",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for CancelOrdersByIdsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM cancel_orders_by_ids_instruction WHERE
+            r#"DELETE FROM drift_v2_cancel_orders_by_ids_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Lookup for CancelOrdersByIdsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM cancel_orders_by_ids_instruction WHERE
+            r#"SELECT * FROM drift_v2_cancel_orders_by_ids_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -187,7 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelOrdersByIdsMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS cancel_orders_by_ids_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_cancel_orders_by_ids_instruction (
                 -- Instruction data
                 "order_ids" INT8[] NOT NULL,
                 -- Instruction metadata
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelOrdersByIdsMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS cancel_orders_by_ids_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_cancel_orders_by_ids_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

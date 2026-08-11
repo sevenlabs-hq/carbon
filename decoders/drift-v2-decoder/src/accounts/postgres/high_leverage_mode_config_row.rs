@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::high_leverage_mode_config::HighLeverageModeConfig
 {
     fn table() -> &'static str {
-        "high_leverage_mode_config_account"
+        "drift_v2_high_leverage_mode_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -106,7 +106,7 @@ impl carbon_core::postgres::operations::Insert for HighLeverageModeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO high_leverage_mode_config_account (
+            INSERT INTO drift_v2_high_leverage_mode_config_account (
                 "max_users",
                 "current_users",
                 "reduce_only",
@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Insert for HighLeverageModeConfigRow {
 impl carbon_core::postgres::operations::Upsert for HighLeverageModeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO high_leverage_mode_config_account (
+            r#"INSERT INTO drift_v2_high_leverage_mode_config_account (
                 "max_users",
                 "current_users",
                 "reduce_only",
@@ -180,7 +180,7 @@ impl carbon_core::postgres::operations::Delete for HighLeverageModeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM high_leverage_mode_config_account WHERE
+            r#"DELETE FROM drift_v2_high_leverage_mode_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -201,7 +201,7 @@ impl carbon_core::postgres::operations::Lookup for HighLeverageModeConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM high_leverage_mode_config_account WHERE
+            r#"SELECT * FROM drift_v2_high_leverage_mode_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -222,7 +222,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for HighLeverageModeConfigMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS high_leverage_mode_config_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_high_leverage_mode_config_account (
                 -- Account data
                 "max_users" INT8 NOT NULL,
                 "current_users" INT8 NOT NULL,
@@ -245,7 +245,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for HighLeverageModeConfigMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS high_leverage_mode_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_high_leverage_mode_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

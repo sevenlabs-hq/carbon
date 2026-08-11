@@ -38,7 +38,7 @@ impl TryFrom<QuoteBuyRow> for crate::instructions::quote_buy::QuoteBuy {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::quote_buy::QuoteBuy {
     fn table() -> &'static str {
-        "quote_buy_instruction"
+        "vertigo_quote_buy_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for QuoteBuyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO quote_buy_instruction (
+            INSERT INTO vertigo_quote_buy_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for QuoteBuyRow {
 impl carbon_core::postgres::operations::Upsert for QuoteBuyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO quote_buy_instruction (
+            r#"INSERT INTO vertigo_quote_buy_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for QuoteBuyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM quote_buy_instruction WHERE
+            r#"DELETE FROM vertigo_quote_buy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for QuoteBuyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM quote_buy_instruction WHERE
+            r#"SELECT * FROM vertigo_quote_buy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for QuoteBuyMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS quote_buy_instruction (
+            r#"CREATE TABLE IF NOT EXISTS vertigo_quote_buy_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for QuoteBuyMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS quote_buy_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS vertigo_quote_buy_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

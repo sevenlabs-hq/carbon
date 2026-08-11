@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::transfer_ownership::TransferOwnership
 {
     fn table() -> &'static str {
-        "transfer_ownership_instruction"
+        "circle_message_transmitter_v2_transfer_ownership_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for TransferOwnershipRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO transfer_ownership_instruction (
+            INSERT INTO circle_message_transmitter_v2_transfer_ownership_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for TransferOwnershipRow {
 impl carbon_core::postgres::operations::Upsert for TransferOwnershipRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO transfer_ownership_instruction (
+            r#"INSERT INTO circle_message_transmitter_v2_transfer_ownership_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for TransferOwnershipRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM transfer_ownership_instruction WHERE
+            r#"DELETE FROM circle_message_transmitter_v2_transfer_ownership_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for TransferOwnershipRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM transfer_ownership_instruction WHERE
+            r#"SELECT * FROM circle_message_transmitter_v2_transfer_ownership_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,8 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferOwnershipMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS transfer_ownership_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS circle_message_transmitter_v2_transfer_ownership_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -182,10 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferOwnershipMigrationOper
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -193,9 +189,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferOwnershipMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS transfer_ownership_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS circle_message_transmitter_v2_transfer_ownership_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

@@ -19,6 +19,8 @@ pub struct SwapEventGraphQL {
     pub sqrt_price_x64: U128,
     pub liquidity: U128,
     pub tick: i32,
+    pub trade_fee0: U64,
+    pub trade_fee1: U64,
 }
 
 impl From<crate::types::SwapEvent> for SwapEventGraphQL {
@@ -36,6 +38,8 @@ impl From<crate::types::SwapEvent> for SwapEventGraphQL {
             sqrt_price_x64: carbon_core::graphql::primitives::U128(original.sqrt_price_x64),
             liquidity: carbon_core::graphql::primitives::U128(original.liquidity),
             tick: original.tick,
+            trade_fee0: carbon_core::graphql::primitives::U64(original.trade_fee0),
+            trade_fee1: carbon_core::graphql::primitives::U64(original.trade_fee1),
         }
     }
 }

@@ -16,7 +16,7 @@ pub struct MeteoraDammMigrationMetadataGraphQL {
     pub partner_liquidity: U64,
     pub creator_locked_liquidity: U64,
     pub creator_liquidity: U64,
-    pub padding0_1: U8,
+    pub padding0_0: U8,
     pub creator_locked_status: U8,
     pub partner_locked_status: U8,
     pub creator_claim_status: U8,
@@ -35,7 +35,7 @@ impl TryFrom<crate::accounts::postgres::MeteoraDammMigrationMetadataRow>
             account_metadata: row.account_metadata.into(),
             virtual_pool: carbon_core::graphql::primitives::Pubkey(row.virtual_pool.0),
             padding0: row
-                .padding0
+                ._padding0
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),
@@ -49,7 +49,7 @@ impl TryFrom<crate::accounts::postgres::MeteoraDammMigrationMetadataRow>
                 *row.creator_locked_liquidity,
             ),
             creator_liquidity: carbon_core::graphql::primitives::U64(*row.creator_liquidity),
-            padding0_1: carbon_core::graphql::primitives::U8((*row.padding0_1) as u8),
+            padding0_0: carbon_core::graphql::primitives::U8((*row.padding0) as u8),
             creator_locked_status: carbon_core::graphql::primitives::U8(
                 (*row.creator_locked_status) as u8,
             ),

@@ -37,7 +37,7 @@ impl Processor<InstructionProcessorInputType<'_, MeteoraDlmmInstruction>>
 {
     async fn process(
         &mut self,
-        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
+        #[cfg(feature = "batch")] _update_id: &carbon_core::datasource::BatchUpdateId,
         input: &InstructionProcessorInputType<'_, MeteoraDlmmInstruction>,
     ) -> CarbonResult<()> {
         let signature = input.metadata.transaction_metadata.signature;

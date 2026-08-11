@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_max_global_sizes::SetMaxGlobalSizes
 {
     fn table() -> &'static str {
-        "set_max_global_sizes_instruction"
+        "jupiter_perpetuals_set_max_global_sizes_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SetMaxGlobalSizesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_max_global_sizes_instruction (
+            INSERT INTO jupiter_perpetuals_set_max_global_sizes_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for SetMaxGlobalSizesRow {
 impl carbon_core::postgres::operations::Upsert for SetMaxGlobalSizesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_max_global_sizes_instruction (
+            r#"INSERT INTO jupiter_perpetuals_set_max_global_sizes_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SetMaxGlobalSizesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_max_global_sizes_instruction WHERE
+            r#"DELETE FROM jupiter_perpetuals_set_max_global_sizes_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for SetMaxGlobalSizesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_max_global_sizes_instruction WHERE
+            r#"SELECT * FROM jupiter_perpetuals_set_max_global_sizes_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMaxGlobalSizesMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_max_global_sizes_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_set_max_global_sizes_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMaxGlobalSizesMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_max_global_sizes_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_perpetuals_set_max_global_sizes_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

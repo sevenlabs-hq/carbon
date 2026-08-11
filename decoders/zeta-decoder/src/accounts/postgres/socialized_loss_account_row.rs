@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::socialized_loss_account::SocializedLossAccount
 {
     fn table() -> &'static str {
-        "socialized_loss_account_account"
+        "zeta_socialized_loss_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -61,7 +61,7 @@ impl carbon_core::postgres::operations::Insert for SocializedLossAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO socialized_loss_account_account (
+            INSERT INTO zeta_socialized_loss_account_account (
                 "nonce",
                 "overbankrupt_amount",
                 __pubkey, __slot
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for SocializedLossAccountRow {
 impl carbon_core::postgres::operations::Upsert for SocializedLossAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO socialized_loss_account_account (
+            r#"INSERT INTO zeta_socialized_loss_account_account (
                 "nonce",
                 "overbankrupt_amount",
                 __pubkey, __slot
@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Delete for SocializedLossAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM socialized_loss_account_account WHERE
+            r#"DELETE FROM zeta_socialized_loss_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for SocializedLossAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM socialized_loss_account_account WHERE
+            r#"SELECT * FROM zeta_socialized_loss_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SocializedLossAccountMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS socialized_loss_account_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_socialized_loss_account_account (
                 -- Account data
                 "nonce" INT2 NOT NULL,
                 "overbankrupt_amount" NUMERIC(20) NOT NULL,
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SocializedLossAccountMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS socialized_loss_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_socialized_loss_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

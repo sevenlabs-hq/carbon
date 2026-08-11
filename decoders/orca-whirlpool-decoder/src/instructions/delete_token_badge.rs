@@ -23,6 +23,7 @@ pub struct DeleteTokenBadgeInstructionAccounts {
     pub token_mint: solana_pubkey::Pubkey,
     pub token_badge: solana_pubkey::Pubkey,
     pub receiver: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -60,6 +61,7 @@ impl ArrangeAccounts for DeleteTokenBadge {
         let token_mint = next_account(&mut iter)?;
         let token_badge = next_account(&mut iter)?;
         let receiver = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -70,6 +72,7 @@ impl ArrangeAccounts for DeleteTokenBadge {
             token_mint,
             token_badge,
             receiver,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

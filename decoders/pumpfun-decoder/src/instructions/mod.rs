@@ -20,10 +20,12 @@ pub mod claim_cashback_v2;
 pub mod claim_token_incentives;
 pub mod close_user_volume_accumulator;
 pub mod collect_creator_fee;
+pub mod collect_creator_fee_v2;
 pub mod cpi_event;
 pub mod create;
 pub mod create_v2;
 pub mod distribute_creator_fees;
+pub mod distribute_creator_fees_v2;
 pub mod extend_account;
 pub mod get_minimum_distributable_fee;
 pub mod init_user_volume_accumulator;
@@ -51,8 +53,9 @@ pub use self::{
     add_quote_mint::*, admin_set_creator::*, admin_set_idl_authority::*,
     admin_update_token_incentives::*, buy::*, buy_exact_quote_in_v2::*, buy_exact_sol_in::*,
     buy_v2::*, claim_cashback::*, claim_cashback_v2::*, claim_token_incentives::*,
-    close_user_volume_accumulator::*, collect_creator_fee::*, cpi_event::*, create::*,
-    create_v2::*, distribute_creator_fees::*, extend_account::*, get_minimum_distributable_fee::*,
+    close_user_volume_accumulator::*, collect_creator_fee::*, collect_creator_fee_v2::*,
+    cpi_event::*, create::*, create_v2::*, distribute_creator_fees::*,
+    distribute_creator_fees_v2::*, extend_account::*, get_minimum_distributable_fee::*,
     init_user_volume_accumulator::*, initialize::*, migrate::*, migrate_bonding_curve_creator::*,
     migrate_v2::*, remove_quote_mint::*, sell::*, sell_v2::*, set_creator::*,
     set_mayhem_virtual_params::*, set_metaplex_creator::*, set_params::*,
@@ -131,6 +134,11 @@ pub enum PumpfunInstruction {
         data: CollectCreatorFee,
         accounts: CollectCreatorFeeInstructionAccounts,
     },
+    CollectCreatorFeeV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: CollectCreatorFeeV2,
+        accounts: CollectCreatorFeeV2InstructionAccounts,
+    },
     Create {
         program_id: solana_pubkey::Pubkey,
         data: Create,
@@ -145,6 +153,11 @@ pub enum PumpfunInstruction {
         program_id: solana_pubkey::Pubkey,
         data: DistributeCreatorFees,
         accounts: DistributeCreatorFeesInstructionAccounts,
+    },
+    DistributeCreatorFeesV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: DistributeCreatorFeesV2,
+        accounts: DistributeCreatorFeesV2InstructionAccounts,
     },
     ExtendAccount {
         program_id: solana_pubkey::Pubkey,
@@ -290,9 +303,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
             PumpfunInstruction::ClaimTokenIncentives => ClaimTokenIncentives,
             PumpfunInstruction::CloseUserVolumeAccumulator => CloseUserVolumeAccumulator,
             PumpfunInstruction::CollectCreatorFee => CollectCreatorFee,
+            PumpfunInstruction::CollectCreatorFeeV2 => CollectCreatorFeeV2,
             PumpfunInstruction::Create => Create,
             PumpfunInstruction::CreateV2 => CreateV2,
             PumpfunInstruction::DistributeCreatorFees => DistributeCreatorFees,
+            PumpfunInstruction::DistributeCreatorFeesV2 => DistributeCreatorFeesV2,
             PumpfunInstruction::ExtendAccount => ExtendAccount,
             PumpfunInstruction::GetMinimumDistributableFee => GetMinimumDistributableFee,
             PumpfunInstruction::Initialize => Initialize,

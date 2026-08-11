@@ -54,7 +54,7 @@ impl TryFrom<WithdrawRow> for crate::instructions::withdraw::Withdraw {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::withdraw::Withdraw {
     fn table() -> &'static str {
-        "withdraw_instruction"
+        "stabble_weighted_swap_withdraw_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -75,7 +75,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_instruction (
+            INSERT INTO stabble_weighted_swap_withdraw_instruction (
                 "amount",
                 "minimum_amounts_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_instruction (
+            r#"INSERT INTO stabble_weighted_swap_withdraw_instruction (
                 "amount",
                 "minimum_amounts_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_instruction WHERE
+            r#"DELETE FROM stabble_weighted_swap_withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_instruction WHERE
+            r#"SELECT * FROM stabble_weighted_swap_withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_instruction (
+            r#"CREATE TABLE IF NOT EXISTS stabble_weighted_swap_withdraw_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 "minimum_amounts_out" NUMERIC(20)[] NOT NULL,
@@ -214,7 +214,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS stabble_weighted_swap_withdraw_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

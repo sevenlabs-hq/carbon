@@ -41,7 +41,7 @@ impl TryFrom<MintNewEditionFromMasterEditionViaTokenRow> for crate::instructions
 
 impl carbon_core::postgres::operations::Table for crate::instructions::mint_new_edition_from_master_edition_via_token::MintNewEditionFromMasterEditionViaToken {
     fn table() -> &'static str {
-        "mint_new_edition_from_master_edition_via_token_instruction"
+        "mpl_token_metadata_mint_new_edition_from_master_edition_via_token_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,23 +59,20 @@ impl carbon_core::postgres::operations::Table for crate::instructions::mint_new_
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for MintNewEditionFromMasterEditionViaTokenRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
-            INSERT INTO mint_new_edition_from_master_edition_via_token_instruction (
+        sqlx::query(r#"
+            INSERT INTO mpl_token_metadata_mint_new_edition_from_master_edition_via_token_instruction (
                 "mint_new_edition_from_master_edition_via_token_args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#,
-        )
+            )"#)
         .bind(&self.mint_new_edition_from_master_edition_via_token_args)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -84,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for MintNewEditionFromMasterEditi
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MintNewEditionFromMasterEditionViaTokenRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO mint_new_edition_from_master_edition_via_token_instruction (
+        sqlx::query(r#"INSERT INTO mpl_token_metadata_mint_new_edition_from_master_edition_via_token_instruction (
                 "mint_new_edition_from_master_edition_via_token_args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -119,16 +116,13 @@ impl carbon_core::postgres::operations::Delete for MintNewEditionFromMasterEditi
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM mint_new_edition_from_master_edition_via_token_instruction WHERE
+        sqlx::query(r#"DELETE FROM mpl_token_metadata_mint_new_edition_from_master_edition_via_token_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -146,16 +140,13 @@ impl carbon_core::postgres::operations::Lookup for MintNewEditionFromMasterEditi
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM mint_new_edition_from_master_edition_via_token_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM mpl_token_metadata_mint_new_edition_from_master_edition_via_token_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -171,7 +162,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS mint_new_edition_from_master_edition_via_token_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_mint_new_edition_from_master_edition_via_token_instruction (
                 -- Instruction data
                 "mint_new_edition_from_master_edition_via_token_args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -189,11 +180,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"DROP TABLE IF EXISTS mint_new_edition_from_master_edition_via_token_instruction"#,
-        )
-        .execute(connection)
-        .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_mint_new_edition_from_master_edition_via_token_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::collect_meteora_trading_fees_v2::CollectMeteoraTradingFeesV2
 {
     fn table() -> &'static str {
-        "collect_meteora_trading_fees_v2_instruction"
+        "boop_collect_meteora_trading_fees_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for CollectMeteoraTradingFeesV2Ro
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO collect_meteora_trading_fees_v2_instruction (
+            INSERT INTO boop_collect_meteora_trading_fees_v2_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for CollectMeteoraTradingFeesV2Ro
 impl carbon_core::postgres::operations::Upsert for CollectMeteoraTradingFeesV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO collect_meteora_trading_fees_v2_instruction (
+            r#"INSERT INTO boop_collect_meteora_trading_fees_v2_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for CollectMeteoraTradingFeesV2Ro
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM collect_meteora_trading_fees_v2_instruction WHERE
+            r#"DELETE FROM boop_collect_meteora_trading_fees_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for CollectMeteoraTradingFeesV2Ro
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM collect_meteora_trading_fees_v2_instruction WHERE
+            r#"SELECT * FROM boop_collect_meteora_trading_fees_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectMeteoraTradingFeesV2Mig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS collect_meteora_trading_fees_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS boop_collect_meteora_trading_fees_v2_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectMeteoraTradingFeesV2Mig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS collect_meteora_trading_fees_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS boop_collect_meteora_trading_fees_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

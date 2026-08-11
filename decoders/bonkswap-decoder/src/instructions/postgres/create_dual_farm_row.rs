@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_dual_farm::CreateDualFarm
 {
     fn table() -> &'static str {
-        "create_dual_farm_instruction"
+        "bonkswap_create_dual_farm_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for CreateDualFarmRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_dual_farm_instruction (
+            INSERT INTO bonkswap_create_dual_farm_instruction (
                 "supply_marco",
                 "supply_project_first",
                 "duration",
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Insert for CreateDualFarmRow {
 impl carbon_core::postgres::operations::Upsert for CreateDualFarmRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_dual_farm_instruction (
+            r#"INSERT INTO bonkswap_create_dual_farm_instruction (
                 "supply_marco",
                 "supply_project_first",
                 "duration",
@@ -159,7 +159,7 @@ impl carbon_core::postgres::operations::Delete for CreateDualFarmRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_dual_farm_instruction WHERE
+            r#"DELETE FROM bonkswap_create_dual_farm_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -186,7 +186,7 @@ impl carbon_core::postgres::operations::Lookup for CreateDualFarmRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_dual_farm_instruction WHERE
+            r#"SELECT * FROM bonkswap_create_dual_farm_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -209,7 +209,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateDualFarmMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_dual_farm_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_create_dual_farm_instruction (
                 -- Instruction data
                 "supply_marco" JSONB NOT NULL,
                 "supply_project_first" JSONB NOT NULL,
@@ -233,7 +233,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateDualFarmMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_dual_farm_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_create_dual_farm_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

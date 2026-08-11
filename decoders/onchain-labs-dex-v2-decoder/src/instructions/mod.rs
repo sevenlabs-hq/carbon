@@ -11,6 +11,7 @@ pub mod claim;
 pub mod claim_cashback_pumpfun;
 pub mod claim_cashback_pumpswap;
 pub mod cpi_event;
+pub mod create_ata_with_close_authority;
 pub mod create_token_account;
 pub mod create_token_account_with_seed;
 pub mod init_token_ledger;
@@ -20,21 +21,27 @@ pub mod swap;
 pub mod swap_tob;
 pub mod swap_tob_enhanced;
 pub mod swap_tob_v2;
+pub mod swap_tob_v3;
 pub mod swap_tob_with_receiver;
 pub mod swap_tob_with_receiver_token_ledger;
+pub mod swap_tob_with_receiver_token_ledger_v3;
+pub mod swap_tob_with_receiver_v3;
 pub mod swap_tob_with_token_ledger;
+pub mod swap_tob_with_token_ledger_v3;
 pub mod swap_toc;
 pub mod swap_toc_v2;
+pub mod swap_toc_v3;
 pub mod wrap_unwrap;
 pub mod wrap_unwrap_with_receiver;
 
 pub use self::{
     claim::*, claim_cashback_pumpfun::*, claim_cashback_pumpswap::*, cpi_event::*,
-    create_token_account::*, create_token_account_with_seed::*, init_token_ledger::*,
-    proxy_swap::*, set_token_ledger::*, swap::*, swap_tob::*, swap_tob_enhanced::*, swap_tob_v2::*,
-    swap_tob_with_receiver::*, swap_tob_with_receiver_token_ledger::*,
-    swap_tob_with_token_ledger::*, swap_toc::*, swap_toc_v2::*, wrap_unwrap::*,
-    wrap_unwrap_with_receiver::*,
+    create_ata_with_close_authority::*, create_token_account::*, create_token_account_with_seed::*,
+    init_token_ledger::*, proxy_swap::*, set_token_ledger::*, swap::*, swap_tob::*,
+    swap_tob_enhanced::*, swap_tob_v2::*, swap_tob_v3::*, swap_tob_with_receiver::*,
+    swap_tob_with_receiver_token_ledger::*, swap_tob_with_receiver_token_ledger_v3::*,
+    swap_tob_with_receiver_v3::*, swap_tob_with_token_ledger::*, swap_tob_with_token_ledger_v3::*,
+    swap_toc::*, swap_toc_v2::*, swap_toc_v3::*, wrap_unwrap::*, wrap_unwrap_with_receiver::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -56,6 +63,11 @@ pub enum OnchainLabsDexV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: ClaimCashbackPumpswap,
         accounts: ClaimCashbackPumpswapInstructionAccounts,
+    },
+    CreateAtaWithCloseAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateAtaWithCloseAuthority,
+        accounts: CreateAtaWithCloseAuthorityInstructionAccounts,
     },
     CreateTokenAccount {
         program_id: solana_pubkey::Pubkey,
@@ -102,6 +114,11 @@ pub enum OnchainLabsDexV2Instruction {
         data: SwapTobV2,
         accounts: SwapTobV2InstructionAccounts,
     },
+    SwapTobV3 {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTobV3,
+        accounts: SwapTobV3InstructionAccounts,
+    },
     SwapTobWithReceiver {
         program_id: solana_pubkey::Pubkey,
         data: SwapTobWithReceiver,
@@ -112,10 +129,25 @@ pub enum OnchainLabsDexV2Instruction {
         data: SwapTobWithReceiverTokenLedger,
         accounts: SwapTobWithReceiverTokenLedgerInstructionAccounts,
     },
+    SwapTobWithReceiverTokenLedgerV3 {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTobWithReceiverTokenLedgerV3,
+        accounts: SwapTobWithReceiverTokenLedgerV3InstructionAccounts,
+    },
+    SwapTobWithReceiverV3 {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTobWithReceiverV3,
+        accounts: SwapTobWithReceiverV3InstructionAccounts,
+    },
     SwapTobWithTokenLedger {
         program_id: solana_pubkey::Pubkey,
         data: SwapTobWithTokenLedger,
         accounts: SwapTobWithTokenLedgerInstructionAccounts,
+    },
+    SwapTobWithTokenLedgerV3 {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTobWithTokenLedgerV3,
+        accounts: SwapTobWithTokenLedgerV3InstructionAccounts,
     },
     SwapToc {
         program_id: solana_pubkey::Pubkey,
@@ -126,6 +158,11 @@ pub enum OnchainLabsDexV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: SwapTocV2,
         accounts: SwapTocV2InstructionAccounts,
+    },
+    SwapTocV3 {
+        program_id: solana_pubkey::Pubkey,
+        data: SwapTocV3,
+        accounts: SwapTocV3InstructionAccounts,
     },
     WrapUnwrap {
         program_id: solana_pubkey::Pubkey,
@@ -161,6 +198,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OnchainLabsDexV2Decode
             OnchainLabsDexV2Instruction::Claim => Claim,
             OnchainLabsDexV2Instruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
             OnchainLabsDexV2Instruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
+            OnchainLabsDexV2Instruction::CreateAtaWithCloseAuthority => CreateAtaWithCloseAuthority,
             OnchainLabsDexV2Instruction::CreateTokenAccount => CreateTokenAccount,
             OnchainLabsDexV2Instruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
             OnchainLabsDexV2Instruction::InitTokenLedger => InitTokenLedger,
@@ -170,11 +208,16 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OnchainLabsDexV2Decode
             OnchainLabsDexV2Instruction::SwapTob => SwapTob,
             OnchainLabsDexV2Instruction::SwapTobEnhanced => SwapTobEnhanced,
             OnchainLabsDexV2Instruction::SwapTobV2 => SwapTobV2,
+            OnchainLabsDexV2Instruction::SwapTobV3 => SwapTobV3,
             OnchainLabsDexV2Instruction::SwapTobWithReceiver => SwapTobWithReceiver,
             OnchainLabsDexV2Instruction::SwapTobWithReceiverTokenLedger => SwapTobWithReceiverTokenLedger,
+            OnchainLabsDexV2Instruction::SwapTobWithReceiverTokenLedgerV3 => SwapTobWithReceiverTokenLedgerV3,
+            OnchainLabsDexV2Instruction::SwapTobWithReceiverV3 => SwapTobWithReceiverV3,
             OnchainLabsDexV2Instruction::SwapTobWithTokenLedger => SwapTobWithTokenLedger,
+            OnchainLabsDexV2Instruction::SwapTobWithTokenLedgerV3 => SwapTobWithTokenLedgerV3,
             OnchainLabsDexV2Instruction::SwapToc => SwapToc,
             OnchainLabsDexV2Instruction::SwapTocV2 => SwapTocV2,
+            OnchainLabsDexV2Instruction::SwapTocV3 => SwapTocV3,
             OnchainLabsDexV2Instruction::WrapUnwrap => WrapUnwrap,
             OnchainLabsDexV2Instruction::WrapUnwrapWithReceiver => WrapUnwrapWithReceiver,
             OnchainLabsDexV2Instruction::CpiEvent => CpiEvent,

@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::add_liquidity_one_side_precise2::AddLiquidityOneSidePrecise2
 {
     fn table() -> &'static str {
-        "add_liquidity_one_side_precise2_instruction"
+        "meteora_dlmm_add_liquidity_one_side_precise2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for AddLiquidityOneSidePrecise2Ro
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO add_liquidity_one_side_precise2_instruction (
+            INSERT INTO meteora_dlmm_add_liquidity_one_side_precise2_instruction (
                 "liquidity_parameter",
                 "remaining_accounts_info",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for AddLiquidityOneSidePrecise2Ro
 impl carbon_core::postgres::operations::Upsert for AddLiquidityOneSidePrecise2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO add_liquidity_one_side_precise2_instruction (
+            r#"INSERT INTO meteora_dlmm_add_liquidity_one_side_precise2_instruction (
                 "liquidity_parameter",
                 "remaining_accounts_info",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for AddLiquidityOneSidePrecise2Ro
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM add_liquidity_one_side_precise2_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_add_liquidity_one_side_precise2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for AddLiquidityOneSidePrecise2Ro
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM add_liquidity_one_side_precise2_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_add_liquidity_one_side_precise2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddLiquidityOneSidePrecise2Mig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS add_liquidity_one_side_precise2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_add_liquidity_one_side_precise2_instruction (
                 -- Instruction data
                 "liquidity_parameter" JSONB NOT NULL,
                 "remaining_accounts_info" JSONB NOT NULL,
@@ -205,9 +205,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddLiquidityOneSidePrecise2Mig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS add_liquidity_one_side_precise2_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_dlmm_add_liquidity_one_side_precise2_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

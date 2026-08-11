@@ -16,6 +16,8 @@ pub struct FeeConfig {
     pub flat_fees: Fees,
     /// The fee tiers
     pub fee_tiers: Vec<FeeTier>,
+    /// The fee tiers
+    pub stable_fee_tiers: Vec<FeeTier>,
 }
 
 impl CarbonDeserialize for FeeConfig {

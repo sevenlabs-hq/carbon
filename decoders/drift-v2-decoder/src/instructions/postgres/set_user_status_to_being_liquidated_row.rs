@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_user_status_to_being_liquidated::SetUserStatusToBeingLiquidated
 {
     fn table() -> &'static str {
-        "set_user_status_to_being_liquidated_instruction"
+        "drift_v2_set_user_status_to_being_liquidated_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for SetUserStatusToBeingLiquidate
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_user_status_to_being_liquidated_instruction (
+            INSERT INTO drift_v2_set_user_status_to_being_liquidated_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for SetUserStatusToBeingLiquidate
 impl carbon_core::postgres::operations::Upsert for SetUserStatusToBeingLiquidatedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_user_status_to_being_liquidated_instruction (
+            r#"INSERT INTO drift_v2_set_user_status_to_being_liquidated_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for SetUserStatusToBeingLiquidate
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_user_status_to_being_liquidated_instruction WHERE
+            r#"DELETE FROM drift_v2_set_user_status_to_being_liquidated_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for SetUserStatusToBeingLiquidate
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_user_status_to_being_liquidated_instruction WHERE
+            r#"SELECT * FROM drift_v2_set_user_status_to_being_liquidated_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetUserStatusToBeingLiquidated
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_user_status_to_being_liquidated_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_set_user_status_to_being_liquidated_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,9 +181,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetUserStatusToBeingLiquidated
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_user_status_to_being_liquidated_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_set_user_status_to_being_liquidated_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

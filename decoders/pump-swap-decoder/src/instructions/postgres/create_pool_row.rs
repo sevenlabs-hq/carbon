@@ -63,7 +63,7 @@ impl TryFrom<CreatePoolRow> for crate::instructions::create_pool::CreatePool {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::create_pool::CreatePool {
     fn table() -> &'static str {
-        "create_pool_instruction"
+        "pump_swap_create_pool_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for CreatePoolRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_pool_instruction (
+            INSERT INTO pump_swap_create_pool_instruction (
                 "index",
                 "base_amount_in",
                 "quote_amount_in",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for CreatePoolRow {
 impl carbon_core::postgres::operations::Upsert for CreatePoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_pool_instruction (
+            r#"INSERT INTO pump_swap_create_pool_instruction (
                 "index",
                 "base_amount_in",
                 "quote_amount_in",
@@ -175,7 +175,7 @@ impl carbon_core::postgres::operations::Delete for CreatePoolRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_pool_instruction WHERE
+            r#"DELETE FROM pump_swap_create_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -202,7 +202,7 @@ impl carbon_core::postgres::operations::Lookup for CreatePoolRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_pool_instruction WHERE
+            r#"SELECT * FROM pump_swap_create_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -225,7 +225,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreatePoolMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_pool_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_create_pool_instruction (
                 -- Instruction data
                 "index" INT4 NOT NULL,
                 "base_amount_in" NUMERIC(20) NOT NULL,
@@ -251,7 +251,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreatePoolMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_pool_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_create_pool_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

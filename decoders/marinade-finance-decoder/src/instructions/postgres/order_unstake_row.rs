@@ -38,7 +38,7 @@ impl TryFrom<OrderUnstakeRow> for crate::instructions::order_unstake::OrderUnsta
 
 impl carbon_core::postgres::operations::Table for crate::instructions::order_unstake::OrderUnstake {
     fn table() -> &'static str {
-        "order_unstake_instruction"
+        "marinade_finance_order_unstake_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for OrderUnstakeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO order_unstake_instruction (
+            INSERT INTO marinade_finance_order_unstake_instruction (
                 "msol_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for OrderUnstakeRow {
 impl carbon_core::postgres::operations::Upsert for OrderUnstakeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO order_unstake_instruction (
+            r#"INSERT INTO marinade_finance_order_unstake_instruction (
                 "msol_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for OrderUnstakeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM order_unstake_instruction WHERE
+            r#"DELETE FROM marinade_finance_order_unstake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for OrderUnstakeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM order_unstake_instruction WHERE
+            r#"SELECT * FROM marinade_finance_order_unstake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OrderUnstakeMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS order_unstake_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_order_unstake_instruction (
                 -- Instruction data
                 "msol_amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OrderUnstakeMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS order_unstake_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_order_unstake_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

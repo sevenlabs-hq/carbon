@@ -53,7 +53,7 @@ impl TryFrom<TickArrayRow> for crate::accounts::tick_array::TickArray {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::tick_array::TickArray {
     fn table() -> &'static str {
-        "tick_array_account"
+        "orca_whirlpool_tick_array_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for TickArrayRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO tick_array_account (
+            INSERT INTO orca_whirlpool_tick_array_account (
                 "start_tick_index",
                 "ticks",
                 "whirlpool",
@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for TickArrayRow {
 impl carbon_core::postgres::operations::Upsert for TickArrayRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO tick_array_account (
+            r#"INSERT INTO orca_whirlpool_tick_array_account (
                 "start_tick_index",
                 "ticks",
                 "whirlpool",
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Delete for TickArrayRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM tick_array_account WHERE
+            r#"DELETE FROM orca_whirlpool_tick_array_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -152,7 +152,7 @@ impl carbon_core::postgres::operations::Lookup for TickArrayRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM tick_array_account WHERE
+            r#"SELECT * FROM orca_whirlpool_tick_array_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -173,7 +173,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TickArrayMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS tick_array_account (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_tick_array_account (
                 -- Account data
                 "start_tick_index" INT4 NOT NULL,
                 "ticks" JSONB NOT NULL,
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TickArrayMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS tick_array_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_tick_array_account"#)
             .execute(connection)
             .await?;
         Ok(())

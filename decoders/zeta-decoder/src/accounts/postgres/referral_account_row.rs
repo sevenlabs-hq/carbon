@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::referral_account::ReferralAccount
 {
     fn table() -> &'static str {
-        "referral_account_account"
+        "zeta_referral_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for ReferralAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO referral_account_account (
+            INSERT INTO zeta_referral_account_account (
                 "nonce",
                 "referrer",
                 "user",
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Insert for ReferralAccountRow {
 impl carbon_core::postgres::operations::Upsert for ReferralAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO referral_account_account (
+            r#"INSERT INTO zeta_referral_account_account (
                 "nonce",
                 "referrer",
                 "user",
@@ -154,7 +154,7 @@ impl carbon_core::postgres::operations::Delete for ReferralAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM referral_account_account WHERE
+            r#"DELETE FROM zeta_referral_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -175,7 +175,7 @@ impl carbon_core::postgres::operations::Lookup for ReferralAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM referral_account_account WHERE
+            r#"SELECT * FROM zeta_referral_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -196,7 +196,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReferralAccountMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS referral_account_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_referral_account_account (
                 -- Account data
                 "nonce" INT2 NOT NULL,
                 "referrer" BYTEA NOT NULL,
@@ -219,7 +219,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReferralAccountMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS referral_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_referral_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

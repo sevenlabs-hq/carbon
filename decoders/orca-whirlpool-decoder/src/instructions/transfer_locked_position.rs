@@ -21,6 +21,7 @@ pub struct TransferLockedPositionInstructionAccounts {
     pub destination_token_account: solana_pubkey::Pubkey,
     pub lock_config: solana_pubkey::Pubkey,
     pub token2022_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -60,6 +61,7 @@ impl ArrangeAccounts for TransferLockedPosition {
         let destination_token_account = next_account(&mut iter)?;
         let lock_config = next_account(&mut iter)?;
         let token2022_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -72,6 +74,7 @@ impl ArrangeAccounts for TransferLockedPosition {
             destination_token_account,
             lock_config,
             token2022_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

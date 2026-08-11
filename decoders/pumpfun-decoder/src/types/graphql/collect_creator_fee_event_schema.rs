@@ -10,6 +10,7 @@ pub struct CollectCreatorFeeEventGraphQL {
     pub timestamp: I64,
     pub creator: Pubkey,
     pub creator_fee: U64,
+    pub quote_mint: Pubkey,
 }
 
 impl From<crate::types::CollectCreatorFeeEvent> for CollectCreatorFeeEventGraphQL {
@@ -18,6 +19,7 @@ impl From<crate::types::CollectCreatorFeeEvent> for CollectCreatorFeeEventGraphQ
             timestamp: carbon_core::graphql::primitives::I64(original.timestamp),
             creator: carbon_core::graphql::primitives::Pubkey(original.creator),
             creator_fee: carbon_core::graphql::primitives::U64(original.creator_fee),
+            quote_mint: carbon_core::graphql::primitives::Pubkey(original.quote_mint),
         }
     }
 }

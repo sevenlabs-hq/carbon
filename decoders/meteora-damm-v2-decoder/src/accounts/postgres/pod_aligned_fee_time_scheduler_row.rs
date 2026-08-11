@@ -69,7 +69,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::pod_aligned_fee_time_scheduler::PodAlignedFeeTimeScheduler
 {
     fn table() -> &'static str {
-        "pod_aligned_fee_time_scheduler_account"
+        "meteora_damm_v2_pod_aligned_fee_time_scheduler_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -91,7 +91,7 @@ impl carbon_core::postgres::operations::Insert for PodAlignedFeeTimeSchedulerRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO pod_aligned_fee_time_scheduler_account (
+            INSERT INTO meteora_damm_v2_pod_aligned_fee_time_scheduler_account (
                 "cliff_fee_numerator",
                 "base_fee_mode",
                 "padding",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for PodAlignedFeeTimeSchedulerRow
 impl carbon_core::postgres::operations::Upsert for PodAlignedFeeTimeSchedulerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO pod_aligned_fee_time_scheduler_account (
+            r#"INSERT INTO meteora_damm_v2_pod_aligned_fee_time_scheduler_account (
                 "cliff_fee_numerator",
                 "base_fee_mode",
                 "padding",
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Delete for PodAlignedFeeTimeSchedulerRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM pod_aligned_fee_time_scheduler_account WHERE
+            r#"DELETE FROM meteora_damm_v2_pod_aligned_fee_time_scheduler_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -186,7 +186,7 @@ impl carbon_core::postgres::operations::Lookup for PodAlignedFeeTimeSchedulerRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM pod_aligned_fee_time_scheduler_account WHERE
+            r#"SELECT * FROM meteora_damm_v2_pod_aligned_fee_time_scheduler_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -207,7 +207,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PodAlignedFeeTimeSchedulerMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS pod_aligned_fee_time_scheduler_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_pod_aligned_fee_time_scheduler_account (
                 -- Account data
                 "cliff_fee_numerator" NUMERIC(20) NOT NULL,
                 "base_fee_mode" INT2 NOT NULL,
@@ -230,9 +230,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PodAlignedFeeTimeSchedulerMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS pod_aligned_fee_time_scheduler_account"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_damm_v2_pod_aligned_fee_time_scheduler_account"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

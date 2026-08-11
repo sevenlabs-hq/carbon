@@ -51,7 +51,6 @@ pub mod liquidate_borrow_for_perp_pnl_record_schema;
 pub mod liquidate_perp_pnl_for_deposit_record_schema;
 pub mod liquidate_perp_record_schema;
 pub mod liquidate_spot_record_schema;
-pub mod liquidation_bit_flag_schema;
 pub mod liquidation_multiplier_type_schema;
 pub mod liquidation_record_schema;
 pub mod liquidation_type_schema;
@@ -62,8 +61,6 @@ pub mod lp_status_schema;
 pub mod margin_calculation_mode_schema;
 pub mod margin_mode_schema;
 pub mod margin_requirement_type_schema;
-pub mod margin_type_config_schema;
-pub mod market_config_flag_schema;
 pub mod market_identifier_schema;
 pub mod market_status_schema;
 pub mod market_type_schema;
@@ -95,7 +92,6 @@ pub mod perp_position_schema;
 pub mod place_and_take_order_success_condition_schema;
 pub mod pool_balance_schema;
 pub mod position_direction_schema;
-pub mod position_flag_schema;
 pub mod position_update_type_schema;
 pub mod post_only_param_schema;
 pub mod prelaunch_oracle_params_schema;
@@ -105,7 +101,6 @@ pub mod revenue_share_escrow_fixed_schema;
 pub mod revenue_share_order_bit_flag_schema;
 pub mod revenue_share_order_schema;
 pub mod revenue_share_settle_record_schema;
-pub mod scale_order_params_schema;
 pub mod settle_pnl_explanation_schema;
 pub mod settle_pnl_mode_schema;
 pub mod settle_pnl_record_schema;
@@ -117,7 +112,6 @@ pub mod signed_msg_order_params_message_schema;
 pub mod signed_msg_order_record_schema;
 pub mod signed_msg_trigger_order_params_schema;
 pub mod signed_msg_user_orders_fixed_schema;
-pub mod size_distribution_schema;
 pub mod spot_balance_type_schema;
 pub mod spot_bankruptcy_record_schema;
 pub mod spot_fulfillment_config_status_schema;
@@ -162,33 +156,30 @@ pub use {
     l_p_record_schema::*, l_p_settle_record_schema::*, l_p_swap_record_schema::*,
     liquidate_borrow_for_perp_pnl_record_schema::*,
     liquidate_perp_pnl_for_deposit_record_schema::*, liquidate_perp_record_schema::*,
-    liquidate_spot_record_schema::*, liquidation_bit_flag_schema::*,
-    liquidation_multiplier_type_schema::*, liquidation_record_schema::*,
-    liquidation_type_schema::*, log_mode_schema::*, lp_pool_feature_bit_flags_schema::*,
-    lp_pool_params_schema::*, lp_status_schema::*, margin_calculation_mode_schema::*,
-    margin_mode_schema::*, margin_requirement_type_schema::*, margin_type_config_schema::*,
-    market_config_flag_schema::*, market_identifier_schema::*, market_status_schema::*,
-    market_type_schema::*, modify_order_id_schema::*, modify_order_params_schema::*,
-    modify_order_policy_schema::*, new_user_record_schema::*, oracle_guard_rails_schema::*,
-    oracle_source_schema::*, oracle_validity_schema::*, order_action_explanation_schema::*,
-    order_action_record_schema::*, order_action_schema::*, order_bit_flag_schema::*,
-    order_filler_reward_structure_schema::*, order_params_bit_flag_schema::*,
-    order_params_schema::*, order_record_schema::*, order_schema::*, order_status_schema::*,
-    order_trigger_condition_schema::*, order_type_schema::*, override_amm_cache_params_schema::*,
-    perp_bankruptcy_record_schema::*, perp_fulfillment_method_schema::*,
-    perp_lp_operation_schema::*, perp_operation_schema::*, perp_position_schema::*,
-    place_and_take_order_success_condition_schema::*, pool_balance_schema::*,
-    position_direction_schema::*, position_flag_schema::*, position_update_type_schema::*,
+    liquidate_spot_record_schema::*, liquidation_multiplier_type_schema::*,
+    liquidation_record_schema::*, liquidation_type_schema::*, log_mode_schema::*,
+    lp_pool_feature_bit_flags_schema::*, lp_pool_params_schema::*, lp_status_schema::*,
+    margin_calculation_mode_schema::*, margin_mode_schema::*, margin_requirement_type_schema::*,
+    market_identifier_schema::*, market_status_schema::*, market_type_schema::*,
+    modify_order_id_schema::*, modify_order_params_schema::*, modify_order_policy_schema::*,
+    new_user_record_schema::*, oracle_guard_rails_schema::*, oracle_source_schema::*,
+    oracle_validity_schema::*, order_action_explanation_schema::*, order_action_record_schema::*,
+    order_action_schema::*, order_bit_flag_schema::*, order_filler_reward_structure_schema::*,
+    order_params_bit_flag_schema::*, order_params_schema::*, order_record_schema::*,
+    order_schema::*, order_status_schema::*, order_trigger_condition_schema::*,
+    order_type_schema::*, override_amm_cache_params_schema::*, perp_bankruptcy_record_schema::*,
+    perp_fulfillment_method_schema::*, perp_lp_operation_schema::*, perp_operation_schema::*,
+    perp_position_schema::*, place_and_take_order_success_condition_schema::*,
+    pool_balance_schema::*, position_direction_schema::*, position_update_type_schema::*,
     post_only_param_schema::*, prelaunch_oracle_params_schema::*,
     price_divergence_guard_rails_schema::*, referrer_status_schema::*,
     revenue_share_escrow_fixed_schema::*, revenue_share_order_bit_flag_schema::*,
     revenue_share_order_schema::*, revenue_share_settle_record_schema::*,
-    scale_order_params_schema::*, settle_pnl_explanation_schema::*, settle_pnl_mode_schema::*,
-    settle_pnl_record_schema::*, settlement_direction_schema::*,
-    signature_verification_error_schema::*, signed_msg_order_id_schema::*,
-    signed_msg_order_params_delegate_message_schema::*, signed_msg_order_params_message_schema::*,
-    signed_msg_order_record_schema::*, signed_msg_trigger_order_params_schema::*,
-    signed_msg_user_orders_fixed_schema::*, size_distribution_schema::*,
+    settle_pnl_explanation_schema::*, settle_pnl_mode_schema::*, settle_pnl_record_schema::*,
+    settlement_direction_schema::*, signature_verification_error_schema::*,
+    signed_msg_order_id_schema::*, signed_msg_order_params_delegate_message_schema::*,
+    signed_msg_order_params_message_schema::*, signed_msg_order_record_schema::*,
+    signed_msg_trigger_order_params_schema::*, signed_msg_user_orders_fixed_schema::*,
     spot_balance_type_schema::*, spot_bankruptcy_record_schema::*,
     spot_fulfillment_config_status_schema::*, spot_fulfillment_method_schema::*,
     spot_fulfillment_type_schema::*, spot_interest_record_schema::*,

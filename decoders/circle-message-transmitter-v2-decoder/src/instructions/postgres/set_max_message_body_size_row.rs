@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_max_message_body_size::SetMaxMessageBodySize
 {
     fn table() -> &'static str {
-        "set_max_message_body_size_instruction"
+        "circle_message_transmitter_v2_set_max_message_body_size_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SetMaxMessageBodySizeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_max_message_body_size_instruction (
+            INSERT INTO circle_message_transmitter_v2_set_max_message_body_size_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for SetMaxMessageBodySizeRow {
 impl carbon_core::postgres::operations::Upsert for SetMaxMessageBodySizeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_max_message_body_size_instruction (
+            r#"INSERT INTO circle_message_transmitter_v2_set_max_message_body_size_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SetMaxMessageBodySizeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_max_message_body_size_instruction WHERE
+            r#"DELETE FROM circle_message_transmitter_v2_set_max_message_body_size_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -150,16 +150,13 @@ impl carbon_core::postgres::operations::Lookup for SetMaxMessageBodySizeRow {
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM set_max_message_body_size_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM circle_message_transmitter_v2_set_max_message_body_size_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -173,8 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMaxMessageBodySizeMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_max_message_body_size_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS circle_message_transmitter_v2_set_max_message_body_size_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -184,10 +180,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMaxMessageBodySizeMigration
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -195,9 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMaxMessageBodySizeMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_max_message_body_size_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS circle_message_transmitter_v2_set_max_message_body_size_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

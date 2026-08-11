@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_adaptive_fee_tier::InitializeAdaptiveFeeTier
 {
     fn table() -> &'static str {
-        "initialize_adaptive_fee_tier_instruction"
+        "orca_whirlpool_initialize_adaptive_fee_tier_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Insert for InitializeAdaptiveFeeTierRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_adaptive_fee_tier_instruction (
+            INSERT INTO orca_whirlpool_initialize_adaptive_fee_tier_instruction (
                 "fee_tier_index",
                 "tick_spacing",
                 "initialize_pool_authority",
@@ -201,7 +201,7 @@ impl carbon_core::postgres::operations::Insert for InitializeAdaptiveFeeTierRow 
 impl carbon_core::postgres::operations::Upsert for InitializeAdaptiveFeeTierRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_adaptive_fee_tier_instruction (
+            r#"INSERT INTO orca_whirlpool_initialize_adaptive_fee_tier_instruction (
                 "fee_tier_index",
                 "tick_spacing",
                 "initialize_pool_authority",
@@ -272,7 +272,7 @@ impl carbon_core::postgres::operations::Delete for InitializeAdaptiveFeeTierRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_adaptive_fee_tier_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_initialize_adaptive_fee_tier_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -299,7 +299,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeAdaptiveFeeTierRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_adaptive_fee_tier_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_initialize_adaptive_fee_tier_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -322,7 +322,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeAdaptiveFeeTierMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_adaptive_fee_tier_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_initialize_adaptive_fee_tier_instruction (
                 -- Instruction data
                 "fee_tier_index" INT4 NOT NULL,
                 "tick_spacing" INT4 NOT NULL,
@@ -354,9 +354,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeAdaptiveFeeTierMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_adaptive_fee_tier_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS orca_whirlpool_initialize_adaptive_fee_tier_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

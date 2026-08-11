@@ -37,7 +37,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::lock_clmm_position::LockClmmPosition
 {
     fn table() -> &'static str {
-        "lock_clmm_position_instruction"
+        "raydium_liquidity_locking_lock_clmm_position_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Insert for LockClmmPositionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lock_clmm_position_instruction (
+            INSERT INTO raydium_liquidity_locking_lock_clmm_position_instruction (
                 "with_metadata",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for LockClmmPositionRow {
 impl carbon_core::postgres::operations::Upsert for LockClmmPositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lock_clmm_position_instruction (
+            r#"INSERT INTO raydium_liquidity_locking_lock_clmm_position_instruction (
                 "with_metadata",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Delete for LockClmmPositionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lock_clmm_position_instruction WHERE
+            r#"DELETE FROM raydium_liquidity_locking_lock_clmm_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Lookup for LockClmmPositionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lock_clmm_position_instruction WHERE
+            r#"SELECT * FROM raydium_liquidity_locking_lock_clmm_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockClmmPositionMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lock_clmm_position_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_liquidity_locking_lock_clmm_position_instruction (
                 -- Instruction data
                 "with_metadata" BOOLEAN NOT NULL,
                 -- Instruction metadata
@@ -190,9 +190,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockClmmPositionMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lock_clmm_position_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS raydium_liquidity_locking_lock_clmm_position_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

@@ -69,7 +69,7 @@ impl TryFrom<LocalTokenRow> for crate::accounts::local_token::LocalToken {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::local_token::LocalToken {
     fn table() -> &'static str {
-        "local_token_account"
+        "circle_token_messenger_v2_local_token_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for LocalTokenRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO local_token_account (
+            INSERT INTO circle_token_messenger_v2_local_token_account (
                 "custody",
                 "mint",
                 "burn_limit_per_message",
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Insert for LocalTokenRow {
 impl carbon_core::postgres::operations::Upsert for LocalTokenRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO local_token_account (
+            r#"INSERT INTO circle_token_messenger_v2_local_token_account (
                 "custody",
                 "mint",
                 "burn_limit_per_message",
@@ -183,7 +183,7 @@ impl carbon_core::postgres::operations::Delete for LocalTokenRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM local_token_account WHERE
+            r#"DELETE FROM circle_token_messenger_v2_local_token_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -204,7 +204,7 @@ impl carbon_core::postgres::operations::Lookup for LocalTokenRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM local_token_account WHERE
+            r#"SELECT * FROM circle_token_messenger_v2_local_token_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -225,7 +225,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LocalTokenMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS local_token_account (
+            r#"CREATE TABLE IF NOT EXISTS circle_token_messenger_v2_local_token_account (
                 -- Account data
                 "custody" BYTEA NOT NULL,
                 "mint" BYTEA NOT NULL,
@@ -251,7 +251,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LocalTokenMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS local_token_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS circle_token_messenger_v2_local_token_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::preset_parameter::PresetParameter
 {
     fn table() -> &'static str {
-        "preset_parameter_account"
+        "meteora_dlmm_preset_parameter_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Insert for PresetParameterRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO preset_parameter_account (
+            INSERT INTO meteora_dlmm_preset_parameter_account (
                 "bin_step",
                 "base_factor",
                 "filter_period",
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Insert for PresetParameterRow {
 impl carbon_core::postgres::operations::Upsert for PresetParameterRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO preset_parameter_account (
+            r#"INSERT INTO meteora_dlmm_preset_parameter_account (
                 "bin_step",
                 "base_factor",
                 "filter_period",
@@ -220,7 +220,7 @@ impl carbon_core::postgres::operations::Delete for PresetParameterRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM preset_parameter_account WHERE
+            r#"DELETE FROM meteora_dlmm_preset_parameter_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -241,7 +241,7 @@ impl carbon_core::postgres::operations::Lookup for PresetParameterRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM preset_parameter_account WHERE
+            r#"SELECT * FROM meteora_dlmm_preset_parameter_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -262,7 +262,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PresetParameterMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS preset_parameter_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_preset_parameter_account (
                 -- Account data
                 "bin_step" INT4 NOT NULL,
                 "base_factor" INT4 NOT NULL,
@@ -289,7 +289,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PresetParameterMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS preset_parameter_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_preset_parameter_account"#)
             .execute(connection)
             .await?;
         Ok(())

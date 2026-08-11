@@ -12,6 +12,7 @@ export type ParseOptions = {
     clean?: boolean;
     asCrate?: boolean;
     programId?: string;
+    withClickhouse?: boolean;
     postgresMode?: 'generic' | 'typed';
 };
 
@@ -157,6 +158,7 @@ export type ScaffoldOptions = {
     dataSource?: string;
     metrics?: string;
     withPostgres?: boolean;
+    withClickhouse?: boolean;
     withGraphql?: boolean;
     force?: boolean;
     programId?: string;

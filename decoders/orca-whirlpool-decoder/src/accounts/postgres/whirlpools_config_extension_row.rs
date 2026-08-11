@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::whirlpools_config_extension::WhirlpoolsConfigExtension
 {
     fn table() -> &'static str {
-        "whirlpools_config_extension_account"
+        "orca_whirlpool_whirlpools_config_extension_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -63,7 +63,7 @@ impl carbon_core::postgres::operations::Insert for WhirlpoolsConfigExtensionRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO whirlpools_config_extension_account (
+            INSERT INTO orca_whirlpool_whirlpools_config_extension_account (
                 "whirlpools_config",
                 "config_extension_authority",
                 "token_badge_authority",
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for WhirlpoolsConfigExtensionRow 
 impl carbon_core::postgres::operations::Upsert for WhirlpoolsConfigExtensionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO whirlpools_config_extension_account (
+            r#"INSERT INTO orca_whirlpool_whirlpools_config_extension_account (
                 "whirlpools_config",
                 "config_extension_authority",
                 "token_badge_authority",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for WhirlpoolsConfigExtensionRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM whirlpools_config_extension_account WHERE
+            r#"DELETE FROM orca_whirlpool_whirlpools_config_extension_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Lookup for WhirlpoolsConfigExtensionRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM whirlpools_config_extension_account WHERE
+            r#"SELECT * FROM orca_whirlpool_whirlpools_config_extension_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -164,7 +164,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WhirlpoolsConfigExtensionMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS whirlpools_config_extension_account (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_whirlpools_config_extension_account (
                 -- Account data
                 "whirlpools_config" BYTEA NOT NULL,
                 "config_extension_authority" BYTEA NOT NULL,
@@ -184,7 +184,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WhirlpoolsConfigExtensionMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS whirlpools_config_extension_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_whirlpools_config_extension_account"#)
             .execute(connection)
             .await?;
         Ok(())

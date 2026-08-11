@@ -30,7 +30,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::MessageSentGraphQL>> {
         let rows: Vec<crate::accounts::postgres::MessageSentRow> = sqlx::query_as(
-            r#"SELECT * FROM message_sent_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_message_sent_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -64,7 +64,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::MessageTransmitterGraphQL>> {
         let rows: Vec<crate::accounts::postgres::MessageTransmitterRow> = sqlx::query_as(
-            r#"SELECT * FROM message_transmitter_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_message_transmitter_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -98,7 +98,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::UsedNonceGraphQL>> {
         let rows: Vec<crate::accounts::postgres::UsedNonceRow> = sqlx::query_as(
-            r#"SELECT * FROM used_nonce_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_used_nonce_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -118,7 +118,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::AcceptOwnershipGraphQL>> {
         let rows: Vec<crate::instructions::postgres::AcceptOwnershipRow> = sqlx::query_as(
-            r#"SELECT * FROM accept_ownership_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_accept_ownership_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -137,7 +137,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::AcceptOwnershipGraphQL>> {
         let rows: Vec<crate::instructions::postgres::AcceptOwnershipRow> = sqlx::query_as(
-            r#"SELECT * FROM accept_ownership_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_accept_ownership_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -156,7 +156,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DisableAttesterGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DisableAttesterRow> = sqlx::query_as(
-            r#"SELECT * FROM disable_attester_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_disable_attester_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -175,7 +175,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DisableAttesterGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DisableAttesterRow> = sqlx::query_as(
-            r#"SELECT * FROM disable_attester_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_disable_attester_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -194,7 +194,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::EnableAttesterGraphQL>> {
         let rows: Vec<crate::instructions::postgres::EnableAttesterRow> = sqlx::query_as(
-            r#"SELECT * FROM enable_attester_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_enable_attester_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -213,7 +213,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::EnableAttesterGraphQL>> {
         let rows: Vec<crate::instructions::postgres::EnableAttesterRow> = sqlx::query_as(
-            r#"SELECT * FROM enable_attester_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_enable_attester_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -232,7 +232,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_initialize_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -251,7 +251,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_initialize_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -270,7 +270,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::IsNonceUsedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::IsNonceUsedRow> = sqlx::query_as(
-            r#"SELECT * FROM is_nonce_used_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_is_nonce_used_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -289,7 +289,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::IsNonceUsedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::IsNonceUsedRow> = sqlx::query_as(
-            r#"SELECT * FROM is_nonce_used_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_is_nonce_used_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -308,7 +308,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PauseGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PauseRow> = sqlx::query_as(
-            r#"SELECT * FROM pause_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_pause_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -327,7 +327,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PauseGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PauseRow> = sqlx::query_as(
-            r#"SELECT * FROM pause_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_pause_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -346,7 +346,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ReceiveMessageGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ReceiveMessageRow> = sqlx::query_as(
-            r#"SELECT * FROM receive_message_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_receive_message_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -365,7 +365,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ReceiveMessageGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ReceiveMessageRow> = sqlx::query_as(
-            r#"SELECT * FROM receive_message_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_receive_message_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -384,7 +384,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ReclaimEventAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ReclaimEventAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM reclaim_event_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_reclaim_event_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -403,7 +403,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ReclaimEventAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ReclaimEventAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM reclaim_event_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_reclaim_event_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -422,7 +422,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SendMessageGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SendMessageRow> = sqlx::query_as(
-            r#"SELECT * FROM send_message_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_send_message_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -441,7 +441,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SendMessageGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SendMessageRow> = sqlx::query_as(
-            r#"SELECT * FROM send_message_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_send_message_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -460,7 +460,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetMaxMessageBodySizeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetMaxMessageBodySizeRow> = sqlx::query_as(
-            r#"SELECT * FROM set_max_message_body_size_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_set_max_message_body_size_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -479,7 +479,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetMaxMessageBodySizeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetMaxMessageBodySizeRow> = sqlx::query_as(
-            r#"SELECT * FROM set_max_message_body_size_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_set_max_message_body_size_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -498,7 +498,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetSignatureThresholdGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetSignatureThresholdRow> = sqlx::query_as(
-            r#"SELECT * FROM set_signature_threshold_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_set_signature_threshold_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -517,7 +517,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetSignatureThresholdGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetSignatureThresholdRow> = sqlx::query_as(
-            r#"SELECT * FROM set_signature_threshold_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_set_signature_threshold_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -536,7 +536,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferOwnershipGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferOwnershipRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_ownership_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_transfer_ownership_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -555,7 +555,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferOwnershipGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferOwnershipRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_ownership_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_transfer_ownership_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -574,7 +574,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UnpauseGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UnpauseRow> = sqlx::query_as(
-            r#"SELECT * FROM unpause_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_unpause_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -593,7 +593,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UnpauseGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UnpauseRow> = sqlx::query_as(
-            r#"SELECT * FROM unpause_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_unpause_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -612,7 +612,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdateAttesterManagerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdateAttesterManagerRow> = sqlx::query_as(
-            r#"SELECT * FROM update_attester_manager_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_update_attester_manager_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -631,7 +631,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdateAttesterManagerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdateAttesterManagerRow> = sqlx::query_as(
-            r#"SELECT * FROM update_attester_manager_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_update_attester_manager_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -650,7 +650,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdatePauserGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdatePauserRow> = sqlx::query_as(
-            r#"SELECT * FROM update_pauser_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_update_pauser_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -669,7 +669,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdatePauserGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdatePauserRow> = sqlx::query_as(
-            r#"SELECT * FROM update_pauser_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM circle_message_transmitter_v2_update_pauser_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -687,13 +687,14 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CpiEventRow> =
-            sqlx::query_as(r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        let rows: Vec<crate::instructions::postgres::CpiEventRow> = sqlx::query_as(
+            r#"SELECT * FROM circle_message_transmitter_v2_cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows
             .into_iter()
             .filter_map(|row| row.try_into().ok())

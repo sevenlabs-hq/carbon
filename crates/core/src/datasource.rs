@@ -20,6 +20,7 @@ use {
     crate::error::CarbonResult,
     async_trait::async_trait,
     chrono::{DateTime, Utc},
+    serde::{Deserialize, Serialize},
     solana_account::Account,
     solana_clock::Slot,
     solana_hash::Hash,
@@ -86,6 +87,12 @@ impl DatasourceId {
     }
 }
 
+impl std::fmt::Display for DatasourceId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 /// Unique identifier for batch updates.
 ///
 /// Used for sending processed updates notifications upstream.
@@ -112,7 +119,7 @@ impl std::fmt::Display for BatchUpdateId {
 }
 
 /// Unified payload emitted by datasources into the pipeline.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Update {
     Account(AccountUpdate),
     Transaction(Box<TransactionUpdate>),
@@ -143,7 +150,7 @@ impl Update {
 }
 
 /// Account state update emitted by streaming or snapshot sources.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccountUpdate {
     pub pubkey: Pubkey,
     pub account: Account,
@@ -152,10 +159,16 @@ pub struct AccountUpdate {
 }
 
 /// Full transaction payload with execution metadata.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransactionUpdate {
     pub signature: Signature,
+    #[serde(
+        serialize_with = "crate::convert::serialize_transaction",
+        deserialize_with = "crate::convert::deserialize_transaction"
+    )]
     pub transaction: VersionedTransaction,
+    #[serde(serialize_with = "crate::convert::serialize_meta")]
+    #[serde(deserialize_with = "crate::convert::deserialize_meta")]
     pub meta: TransactionStatusMeta,
     pub is_vote: bool,
     pub slot: u64,
@@ -165,7 +178,7 @@ pub struct TransactionUpdate {
 }
 
 /// Account closure event (lamports drained to zero).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccountDeletion {
     pub pubkey: Pubkey,
     pub slot: u64,
@@ -173,7 +186,7 @@ pub struct AccountDeletion {
 }
 
 /// Block-level metadata emitted by block-aware datasources.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BlockDetails {
     pub slot: u64,
     pub block_hash: Option<Hash>,

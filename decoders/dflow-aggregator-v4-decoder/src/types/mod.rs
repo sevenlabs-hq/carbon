@@ -8,18 +8,24 @@ pub mod alpha_q_dynamic_route_v1_options;
 pub mod alpha_q_swap_options;
 pub mod bison_fi_dynamic_route_v1_options;
 pub mod bison_fi_swap_options;
+pub mod byreal_clmm_swap_v3_dyn_options;
 pub mod c;
 pub mod clearpools_swap_options;
 pub mod d_flow_dynamic_route_v1_options;
 pub mod deriverse_swap_options;
+pub mod doppler_cpmm_swap_options;
+pub mod doppler_launch_swap_options;
 pub mod dynamic_route_v1_candidate_action;
 pub mod fee_event;
 pub mod fill_order_params;
 pub mod gamma_swap_options;
+pub mod gator_swap_swap_options;
 pub mod ghost_swap_options;
 pub mod heaven_swap_options;
 pub mod humidi_fi_dynamic_route_v1_options;
 pub mod humidi_fi_swap_options;
+pub mod j;
+pub mod jup_lend_amm_swap_options;
 pub mod k_d_e_x_swap_options;
 pub mod leg_price;
 pub mod lemmings_fi_dynamic_route_v1_options;
@@ -47,7 +53,9 @@ pub mod phoenix_swap_options;
 pub mod pump_fun_amm_buy_options;
 pub mod pump_fun_amm_sell_options;
 pub mod pump_fun_buy_options;
+pub mod pump_fun_buy_v2_options;
 pub mod pump_fun_sell_options;
+pub mod pump_fun_sell_v2_options;
 pub mod raydium_amm_swap_options;
 pub mod raydium_clmm_swap_options;
 pub mod raydium_clmm_swap_v2_options;
@@ -59,6 +67,10 @@ pub mod rubicon_dynamic_route_v1_options;
 pub mod rubicon_swap_options;
 pub mod sanctum_infinity_liquidity_options;
 pub mod sanctum_infinity_swap_options;
+pub mod sanctum_stakedex_prefund_options;
+pub mod sanctum_stakedex_reserve_options;
+pub mod sanctum_stakedex_stake_w_s_o_l_options;
+pub mod sanctum_stakedex_withdraw_w_s_o_l_options;
 pub mod saros_dlmm_swap_options;
 pub mod scorch_swap_options;
 pub mod set_max_underconsumption_bps_options;
@@ -71,9 +83,11 @@ pub mod sol_fi_v2_dynamic_route_v1_options;
 pub mod sol_fi_v2_swap_options;
 pub mod stabble_stable_swap_options;
 pub mod stabble_weighted_swap_options;
+pub mod superis_swap_options;
 pub mod swap2_params;
 pub mod swap_event;
 pub mod swap_params;
+pub mod t;
 pub mod tessera_v_dynamic_route_v1_options;
 pub mod tessera_v_swap_options;
 pub mod token_swap_options;
@@ -89,12 +103,14 @@ pub mod zero_fi_swap_options;
 
 pub use self::{
     a::*, action::*, alpha_q_dynamic_route_v1_options::*, alpha_q_swap_options::*,
-    bison_fi_dynamic_route_v1_options::*, bison_fi_swap_options::*, c::*,
-    clearpools_swap_options::*, d_flow_dynamic_route_v1_options::*, deriverse_swap_options::*,
-    dynamic_route_v1_candidate_action::*, fee_event::*, fill_order_params::*,
-    gamma_swap_options::*, ghost_swap_options::*, heaven_swap_options::*,
-    humidi_fi_dynamic_route_v1_options::*, humidi_fi_swap_options::*, k_d_e_x_swap_options::*,
-    leg_price::*, lemmings_fi_dynamic_route_v1_options::*, lemmings_fi_swap_options::*,
+    bison_fi_dynamic_route_v1_options::*, bison_fi_swap_options::*,
+    byreal_clmm_swap_v3_dyn_options::*, c::*, clearpools_swap_options::*,
+    d_flow_dynamic_route_v1_options::*, deriverse_swap_options::*, doppler_cpmm_swap_options::*,
+    doppler_launch_swap_options::*, dynamic_route_v1_candidate_action::*, fee_event::*,
+    fill_order_params::*, gamma_swap_options::*, gator_swap_swap_options::*, ghost_swap_options::*,
+    heaven_swap_options::*, humidi_fi_dynamic_route_v1_options::*, humidi_fi_swap_options::*, j::*,
+    jup_lend_amm_swap_options::*, k_d_e_x_swap_options::*, leg_price::*,
+    lemmings_fi_dynamic_route_v1_options::*, lemmings_fi_swap_options::*,
     lifinity_v2_swap_options::*, manifest_dynamic_route_v1_options::*, manifest_swap_options::*,
     meta_dao_swap_options::*, meteora_damm_v1_swap_options::*, meteora_damm_v2_swap_options::*,
     meteora_dbc_swap_options::*, meteora_dlmm_swap_options::*, meteora_dlmm_swap_v2_options::*,
@@ -102,17 +118,20 @@ pub use self::{
     nexus_swap_options::*, o::*, obric_v2_dynamic_route_v1_options::*, obric_v2_swap_options::*,
     open_order_params::*, open_predictions_order_options::*, orchestrator_flags::*,
     phoenix_swap_options::*, pump_fun_amm_buy_options::*, pump_fun_amm_sell_options::*,
-    pump_fun_buy_options::*, pump_fun_sell_options::*, raydium_amm_swap_options::*,
-    raydium_clmm_swap_options::*, raydium_clmm_swap_v2_options::*, raydium_cp_swap_options::*,
-    raydium_launchlab_swap_options::*, record_id2_options::*, record_id_options::*,
-    rubicon_dynamic_route_v1_options::*, rubicon_swap_options::*,
-    sanctum_infinity_liquidity_options::*, sanctum_infinity_swap_options::*,
-    saros_dlmm_swap_options::*, scorch_swap_options::*, set_max_underconsumption_bps_options::*,
+    pump_fun_buy_options::*, pump_fun_buy_v2_options::*, pump_fun_sell_options::*,
+    pump_fun_sell_v2_options::*, raydium_amm_swap_options::*, raydium_clmm_swap_options::*,
+    raydium_clmm_swap_v2_options::*, raydium_cp_swap_options::*, raydium_launchlab_swap_options::*,
+    record_id2_options::*, record_id_options::*, rubicon_dynamic_route_v1_options::*,
+    rubicon_swap_options::*, sanctum_infinity_liquidity_options::*,
+    sanctum_infinity_swap_options::*, sanctum_stakedex_prefund_options::*,
+    sanctum_stakedex_reserve_options::*, sanctum_stakedex_stake_w_s_o_l_options::*,
+    sanctum_stakedex_withdraw_w_s_o_l_options::*, saros_dlmm_swap_options::*,
+    scorch_swap_options::*, set_max_underconsumption_bps_options::*,
     set_minimum_leg_outputs_options::*, set_minimum_leg_prices_options::*, side::*,
     sol_fi_dynamic_route_v1_options::*, sol_fi_swap_options::*,
     sol_fi_v2_dynamic_route_v1_options::*, sol_fi_v2_swap_options::*,
-    stabble_stable_swap_options::*, stabble_weighted_swap_options::*, swap2_params::*,
-    swap_event::*, swap_params::*, tessera_v_dynamic_route_v1_options::*,
+    stabble_stable_swap_options::*, stabble_weighted_swap_options::*, superis_swap_options::*,
+    swap2_params::*, swap_event::*, swap_params::*, t::*, tessera_v_dynamic_route_v1_options::*,
     tessera_v_swap_options::*, token_swap_options::*, transfer_fee_options::*,
     vault_swap_options::*, vertigo_swap_options::*, whirlpools_swap_options::*,
     whirlpools_swap_v2_options::*, wrap_sol_options::*, xo_cash_exchange_swap_options::*,

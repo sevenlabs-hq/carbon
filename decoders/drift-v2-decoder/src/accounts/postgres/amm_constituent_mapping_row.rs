@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::amm_constituent_mapping::AmmConstituentMapping
 {
     fn table() -> &'static str {
-        "amm_constituent_mapping_account"
+        "drift_v2_amm_constituent_mapping_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for AmmConstituentMappingRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO amm_constituent_mapping_account (
+            INSERT INTO drift_v2_amm_constituent_mapping_account (
                 "lp_pool",
                 "bump",
                 "padding",
@@ -104,7 +104,7 @@ impl carbon_core::postgres::operations::Insert for AmmConstituentMappingRow {
 impl carbon_core::postgres::operations::Upsert for AmmConstituentMappingRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO amm_constituent_mapping_account (
+            r#"INSERT INTO drift_v2_amm_constituent_mapping_account (
                 "lp_pool",
                 "bump",
                 "padding",
@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for AmmConstituentMappingRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM amm_constituent_mapping_account WHERE
+            r#"DELETE FROM drift_v2_amm_constituent_mapping_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Lookup for AmmConstituentMappingRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM amm_constituent_mapping_account WHERE
+            r#"SELECT * FROM drift_v2_amm_constituent_mapping_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -183,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmConstituentMappingMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS amm_constituent_mapping_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_amm_constituent_mapping_account (
                 -- Account data
                 "lp_pool" BYTEA NOT NULL,
                 "bump" INT2 NOT NULL,
@@ -204,7 +204,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmConstituentMappingMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS amm_constituent_mapping_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_amm_constituent_mapping_account"#)
             .execute(connection)
             .await?;
         Ok(())

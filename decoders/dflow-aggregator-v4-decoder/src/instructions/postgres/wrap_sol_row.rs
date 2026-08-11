@@ -38,7 +38,7 @@ impl TryFrom<WrapSolRow> for crate::instructions::wrap_sol::WrapSol {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::wrap_sol::WrapSol {
     fn table() -> &'static str {
-        "wrap_sol_instruction"
+        "dflow_aggregator_v4_wrap_sol_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for WrapSolRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO wrap_sol_instruction (
+            INSERT INTO dflow_aggregator_v4_wrap_sol_instruction (
                 "lamports",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for WrapSolRow {
 impl carbon_core::postgres::operations::Upsert for WrapSolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO wrap_sol_instruction (
+            r#"INSERT INTO dflow_aggregator_v4_wrap_sol_instruction (
                 "lamports",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for WrapSolRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM wrap_sol_instruction WHERE
+            r#"DELETE FROM dflow_aggregator_v4_wrap_sol_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for WrapSolRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM wrap_sol_instruction WHERE
+            r#"SELECT * FROM dflow_aggregator_v4_wrap_sol_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WrapSolMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS wrap_sol_instruction (
+            r#"CREATE TABLE IF NOT EXISTS dflow_aggregator_v4_wrap_sol_instruction (
                 -- Instruction data
                 "lamports" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WrapSolMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS wrap_sol_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS dflow_aggregator_v4_wrap_sol_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

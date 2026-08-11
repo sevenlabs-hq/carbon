@@ -31,7 +31,7 @@ impl TryFrom<UpdateAdminRow> for crate::instructions::update_admin::UpdateAdmin 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::update_admin::UpdateAdmin {
     fn table() -> &'static str {
-        "update_admin_instruction"
+        "pump_fees_update_admin_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for UpdateAdminRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_admin_instruction (
+            INSERT INTO pump_fees_update_admin_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for UpdateAdminRow {
 impl carbon_core::postgres::operations::Upsert for UpdateAdminRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_admin_instruction (
+            r#"INSERT INTO pump_fees_update_admin_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for UpdateAdminRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_admin_instruction WHERE
+            r#"DELETE FROM pump_fees_update_admin_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateAdminRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_admin_instruction WHERE
+            r#"SELECT * FROM pump_fees_update_admin_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateAdminMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_admin_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_update_admin_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateAdminMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_admin_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_update_admin_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

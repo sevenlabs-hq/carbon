@@ -63,7 +63,7 @@ impl TryFrom<VaultRow> for crate::accounts::vault::Vault {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::vault::Vault {
     fn table() -> &'static str {
-        "vault_account"
+        "stabble_weighted_swap_vault_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -87,7 +87,7 @@ impl carbon_core::postgres::operations::Insert for VaultRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO vault_account (
+            INSERT INTO stabble_weighted_swap_vault_account (
                 "admin",
                 "withdraw_authority",
                 "withdraw_authority_bump",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for VaultRow {
 impl carbon_core::postgres::operations::Upsert for VaultRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO vault_account (
+            r#"INSERT INTO stabble_weighted_swap_vault_account (
                 "admin",
                 "withdraw_authority",
                 "withdraw_authority_bump",
@@ -171,7 +171,7 @@ impl carbon_core::postgres::operations::Delete for VaultRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM vault_account WHERE
+            r#"DELETE FROM stabble_weighted_swap_vault_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Lookup for VaultRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM vault_account WHERE
+            r#"SELECT * FROM stabble_weighted_swap_vault_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -213,7 +213,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VaultMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS vault_account (
+            r#"CREATE TABLE IF NOT EXISTS stabble_weighted_swap_vault_account (
                 -- Account data
                 "admin" BYTEA NOT NULL,
                 "withdraw_authority" BYTEA NOT NULL,
@@ -238,7 +238,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VaultMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS vault_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS stabble_weighted_swap_vault_account"#)
             .execute(connection)
             .await?;
         Ok(())

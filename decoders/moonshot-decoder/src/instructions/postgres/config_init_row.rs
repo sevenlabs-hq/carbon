@@ -38,7 +38,7 @@ impl TryFrom<ConfigInitRow> for crate::instructions::config_init::ConfigInit {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::config_init::ConfigInit {
     fn table() -> &'static str {
-        "config_init_instruction"
+        "moonshot_config_init_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for ConfigInitRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO config_init_instruction (
+            INSERT INTO moonshot_config_init_instruction (
                 "data",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for ConfigInitRow {
 impl carbon_core::postgres::operations::Upsert for ConfigInitRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO config_init_instruction (
+            r#"INSERT INTO moonshot_config_init_instruction (
                 "data",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for ConfigInitRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM config_init_instruction WHERE
+            r#"DELETE FROM moonshot_config_init_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for ConfigInitRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM config_init_instruction WHERE
+            r#"SELECT * FROM moonshot_config_init_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigInitMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS config_init_instruction (
+            r#"CREATE TABLE IF NOT EXISTS moonshot_config_init_instruction (
                 -- Instruction data
                 "data" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigInitMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS config_init_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS moonshot_config_init_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -77,7 +77,7 @@ impl TryFrom<PositionRow> for crate::accounts::position::Position {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::position::Position {
     fn table() -> &'static str {
-        "position_account"
+        "orca_whirlpool_position_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -103,7 +103,7 @@ impl carbon_core::postgres::operations::Insert for PositionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO position_account (
+            INSERT INTO orca_whirlpool_position_account (
                 "whirlpool",
                 "position_mint",
                 "liquidity",
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Insert for PositionRow {
 impl carbon_core::postgres::operations::Upsert for PositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO position_account (
+            r#"INSERT INTO orca_whirlpool_position_account (
                 "whirlpool",
                 "position_mint",
                 "liquidity",
@@ -197,7 +197,7 @@ impl carbon_core::postgres::operations::Delete for PositionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM position_account WHERE
+            r#"DELETE FROM orca_whirlpool_position_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -218,7 +218,7 @@ impl carbon_core::postgres::operations::Lookup for PositionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM position_account WHERE
+            r#"SELECT * FROM orca_whirlpool_position_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -239,7 +239,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS position_account (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_position_account (
                 -- Account data
                 "whirlpool" BYTEA NOT NULL,
                 "position_mint" BYTEA NOT NULL,
@@ -266,7 +266,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS position_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_position_account"#)
             .execute(connection)
             .await?;
         Ok(())

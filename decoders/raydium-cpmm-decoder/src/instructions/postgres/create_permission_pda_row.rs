@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_permission_pda::CreatePermissionPda
 {
     fn table() -> &'static str {
-        "create_permission_pda_instruction"
+        "raydium_cpmm_create_permission_pda_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for CreatePermissionPdaRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_permission_pda_instruction (
+            INSERT INTO raydium_cpmm_create_permission_pda_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for CreatePermissionPdaRow {
 impl carbon_core::postgres::operations::Upsert for CreatePermissionPdaRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_permission_pda_instruction (
+            r#"INSERT INTO raydium_cpmm_create_permission_pda_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for CreatePermissionPdaRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_permission_pda_instruction WHERE
+            r#"DELETE FROM raydium_cpmm_create_permission_pda_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for CreatePermissionPdaRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_permission_pda_instruction WHERE
+            r#"SELECT * FROM raydium_cpmm_create_permission_pda_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreatePermissionPdaMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_permission_pda_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_cpmm_create_permission_pda_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreatePermissionPdaMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_permission_pda_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_cpmm_create_permission_pda_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

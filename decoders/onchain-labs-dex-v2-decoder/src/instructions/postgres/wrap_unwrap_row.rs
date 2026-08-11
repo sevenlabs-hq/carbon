@@ -38,7 +38,7 @@ impl TryFrom<WrapUnwrapRow> for crate::instructions::wrap_unwrap::WrapUnwrap {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::wrap_unwrap::WrapUnwrap {
     fn table() -> &'static str {
-        "wrap_unwrap_instruction"
+        "onchain_labs_dex_v2_wrap_unwrap_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for WrapUnwrapRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO wrap_unwrap_instruction (
+            INSERT INTO onchain_labs_dex_v2_wrap_unwrap_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for WrapUnwrapRow {
 impl carbon_core::postgres::operations::Upsert for WrapUnwrapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO wrap_unwrap_instruction (
+            r#"INSERT INTO onchain_labs_dex_v2_wrap_unwrap_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for WrapUnwrapRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM wrap_unwrap_instruction WHERE
+            r#"DELETE FROM onchain_labs_dex_v2_wrap_unwrap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for WrapUnwrapRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM wrap_unwrap_instruction WHERE
+            r#"SELECT * FROM onchain_labs_dex_v2_wrap_unwrap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WrapUnwrapMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS wrap_unwrap_instruction (
+            r#"CREATE TABLE IF NOT EXISTS onchain_labs_dex_v2_wrap_unwrap_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WrapUnwrapMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS wrap_unwrap_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS onchain_labs_dex_v2_wrap_unwrap_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

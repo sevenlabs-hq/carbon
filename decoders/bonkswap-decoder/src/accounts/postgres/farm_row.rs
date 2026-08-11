@@ -132,7 +132,7 @@ impl TryFrom<FarmRow> for crate::accounts::farm::Farm {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::farm::Farm {
     fn table() -> &'static str {
-        "farm_account"
+        "bonkswap_farm_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Insert for FarmRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO farm_account (
+            INSERT INTO bonkswap_farm_account (
                 "pool",
                 "tokens",
                 "token_accounts",
@@ -203,7 +203,7 @@ impl carbon_core::postgres::operations::Insert for FarmRow {
 impl carbon_core::postgres::operations::Upsert for FarmRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO farm_account (
+            r#"INSERT INTO bonkswap_farm_account (
                 "pool",
                 "tokens",
                 "token_accounts",
@@ -264,7 +264,7 @@ impl carbon_core::postgres::operations::Delete for FarmRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM farm_account WHERE
+            r#"DELETE FROM bonkswap_farm_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -285,7 +285,7 @@ impl carbon_core::postgres::operations::Lookup for FarmRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM farm_account WHERE
+            r#"SELECT * FROM bonkswap_farm_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -306,7 +306,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FarmMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS farm_account (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_farm_account (
                 -- Account data
                 "pool" BYTEA NOT NULL,
                 "tokens" BYTEA[] NOT NULL,
@@ -335,7 +335,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FarmMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS farm_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_farm_account"#)
             .execute(connection)
             .await?;
         Ok(())

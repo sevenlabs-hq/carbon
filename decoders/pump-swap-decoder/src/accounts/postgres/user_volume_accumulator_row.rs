@@ -65,7 +65,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::user_volume_accumulator::UserVolumeAccumulator
 {
     fn table() -> &'static str {
-        "user_volume_accumulator_account"
+        "pump_swap_user_volume_accumulator_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for UserVolumeAccumulatorRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO user_volume_accumulator_account (
+            INSERT INTO pump_swap_user_volume_accumulator_account (
                 "user",
                 "needs_claim",
                 "total_unclaimed_tokens",
@@ -127,7 +127,7 @@ impl carbon_core::postgres::operations::Insert for UserVolumeAccumulatorRow {
 impl carbon_core::postgres::operations::Upsert for UserVolumeAccumulatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO user_volume_accumulator_account (
+            r#"INSERT INTO pump_swap_user_volume_accumulator_account (
                 "user",
                 "needs_claim",
                 "total_unclaimed_tokens",
@@ -179,7 +179,7 @@ impl carbon_core::postgres::operations::Delete for UserVolumeAccumulatorRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM user_volume_accumulator_account WHERE
+            r#"DELETE FROM pump_swap_user_volume_accumulator_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -200,7 +200,7 @@ impl carbon_core::postgres::operations::Lookup for UserVolumeAccumulatorRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM user_volume_accumulator_account WHERE
+            r#"SELECT * FROM pump_swap_user_volume_accumulator_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -221,7 +221,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserVolumeAccumulatorMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS user_volume_accumulator_account (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_user_volume_accumulator_account (
                 -- Account data
                 "user" BYTEA NOT NULL,
                 "needs_claim" BOOLEAN NOT NULL,
@@ -247,7 +247,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserVolumeAccumulatorMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS user_volume_accumulator_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_user_volume_accumulator_account"#)
             .execute(connection)
             .await?;
         Ok(())

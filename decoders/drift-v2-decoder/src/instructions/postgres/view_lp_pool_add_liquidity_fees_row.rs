@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::view_lp_pool_add_liquidity_fees::ViewLpPoolAddLiquidityFees
 {
     fn table() -> &'static str {
-        "view_lp_pool_add_liquidity_fees_instruction"
+        "drift_v2_view_lp_pool_add_liquidity_fees_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for ViewLpPoolAddLiquidityFeesRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO view_lp_pool_add_liquidity_fees_instruction (
+            INSERT INTO drift_v2_view_lp_pool_add_liquidity_fees_instruction (
                 "in_market_index",
                 "in_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for ViewLpPoolAddLiquidityFeesRow
 impl carbon_core::postgres::operations::Upsert for ViewLpPoolAddLiquidityFeesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO view_lp_pool_add_liquidity_fees_instruction (
+            r#"INSERT INTO drift_v2_view_lp_pool_add_liquidity_fees_instruction (
                 "in_market_index",
                 "in_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for ViewLpPoolAddLiquidityFeesRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM view_lp_pool_add_liquidity_fees_instruction WHERE
+            r#"DELETE FROM drift_v2_view_lp_pool_add_liquidity_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for ViewLpPoolAddLiquidityFeesRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM view_lp_pool_add_liquidity_fees_instruction WHERE
+            r#"SELECT * FROM drift_v2_view_lp_pool_add_liquidity_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ViewLpPoolAddLiquidityFeesMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS view_lp_pool_add_liquidity_fees_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_view_lp_pool_add_liquidity_fees_instruction (
                 -- Instruction data
                 "in_market_index" INT4 NOT NULL,
                 "in_amount" NUMERIC(39) NOT NULL,
@@ -212,7 +212,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ViewLpPoolAddLiquidityFeesMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS view_lp_pool_add_liquidity_fees_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_view_lp_pool_add_liquidity_fees_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

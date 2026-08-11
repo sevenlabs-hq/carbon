@@ -40,7 +40,7 @@ impl TryFrom<FeeRow> for crate::accounts::fee::Fee {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::fee::Fee {
     fn table() -> &'static str {
-        "fee_account"
+        "jupiter_limit_order_fee_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for FeeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fee_account (
+            INSERT INTO jupiter_limit_order_fee_account (
                 "maker_fee",
                 "maker_stable_fee",
                 "taker_fee",
@@ -87,7 +87,7 @@ impl carbon_core::postgres::operations::Insert for FeeRow {
 impl carbon_core::postgres::operations::Upsert for FeeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_account (
+            r#"INSERT INTO jupiter_limit_order_fee_account (
                 "maker_fee",
                 "maker_stable_fee",
                 "taker_fee",
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for FeeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fee_account WHERE
+            r#"DELETE FROM jupiter_limit_order_fee_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Lookup for FeeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fee_account WHERE
+            r#"SELECT * FROM jupiter_limit_order_fee_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -166,7 +166,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fee_account (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_limit_order_fee_account (
                 -- Account data
                 "maker_fee" NUMERIC(20) NOT NULL,
                 "maker_stable_fee" NUMERIC(20) NOT NULL,
@@ -187,7 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fee_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_limit_order_fee_account"#)
             .execute(connection)
             .await?;
         Ok(())

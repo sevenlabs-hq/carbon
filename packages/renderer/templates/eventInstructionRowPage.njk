@@ -39,7 +39,7 @@ impl TryFrom<CpiEventRow> for CpiEvent {
 
 impl carbon_core::postgres::operations::Table for CpiEvent {
     fn table() -> &'static str {
-        "cpi_events"
+        "{{ program.name | snakeCase }}_cpi_events"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Table for CpiEvent {
 impl carbon_core::postgres::operations::Insert for CpiEventRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO cpi_events (
+            INSERT INTO {{ program.name | snakeCase }}_cpi_events (
             __signature, __instruction_index, __stack_height, __slot, "name", "data", __accounts
             ) VALUES (
             $1, $2, $3, $4, $5, $6, $7
@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for CpiEventRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for CpiEventRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO cpi_events (
+        sqlx::query(r#"INSERT INTO {{ program.name | snakeCase }}_cpi_events (
             __signature, __instruction_index, __stack_height, __slot, "name", "data", __accounts
         ) VALUES (
             $1, $2, $3, $4, $5, $6, $7
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Delete for CpiEventRow {
     type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM cpi_events WHERE
+        sqlx::query(r#"DELETE FROM {{ program.name | snakeCase }}_cpi_events WHERE
             __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
         "#)
         .bind(key.0)
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Lookup for CpiEventRow {
     type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM cpi_events WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM {{ program.name | snakeCase }}_cpi_events WHERE
             __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
         "#)
         .bind(key.0)
@@ -145,7 +145,7 @@ pub struct CpiEventMigrationOperation;
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for CpiEventMigrationOperation {
     async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS cpi_events (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS {{ program.name | snakeCase }}_cpi_events (
             -- Instruction data
             "name" TEXT NOT NULL,
             "data" JSONB NOT NULL,
@@ -163,7 +163,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CpiEventMigrationOperation {
     }
 
     async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS cpi_events"#).execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS {{ program.name | snakeCase }}_cpi_events"#).execute(connection).await?;
         Ok(())
     }
 }

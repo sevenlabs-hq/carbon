@@ -4,6 +4,8 @@ use {
     carbon_core::deserialize::CarbonDeserialize,
 };
 
+#[cfg(feature = "clickhouse")]
+pub mod clickhouse;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 

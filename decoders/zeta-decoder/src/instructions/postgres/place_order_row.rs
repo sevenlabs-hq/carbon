@@ -50,7 +50,7 @@ impl TryFrom<PlaceOrderRow> for crate::instructions::place_order::PlaceOrder {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::place_order::PlaceOrder {
     fn table() -> &'static str {
-        "place_order_instruction"
+        "zeta_place_order_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for PlaceOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO place_order_instruction (
+            INSERT INTO zeta_place_order_instruction (
                 "price",
                 "size",
                 "side",
@@ -103,7 +103,7 @@ impl carbon_core::postgres::operations::Insert for PlaceOrderRow {
 impl carbon_core::postgres::operations::Upsert for PlaceOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO place_order_instruction (
+            r#"INSERT INTO zeta_place_order_instruction (
                 "price",
                 "size",
                 "side",
@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Delete for PlaceOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM place_order_instruction WHERE
+            r#"DELETE FROM zeta_place_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -177,7 +177,7 @@ impl carbon_core::postgres::operations::Lookup for PlaceOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM place_order_instruction WHERE
+            r#"SELECT * FROM zeta_place_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -200,7 +200,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PlaceOrderMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS place_order_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_place_order_instruction (
                 -- Instruction data
                 "price" NUMERIC(20) NOT NULL,
                 "size" NUMERIC(20) NOT NULL,
@@ -224,7 +224,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PlaceOrderMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS place_order_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_place_order_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

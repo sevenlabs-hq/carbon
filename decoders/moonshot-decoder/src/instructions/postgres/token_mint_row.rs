@@ -38,7 +38,7 @@ impl TryFrom<TokenMintRow> for crate::instructions::token_mint::TokenMint {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::token_mint::TokenMint {
     fn table() -> &'static str {
-        "token_mint_instruction"
+        "moonshot_token_mint_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for TokenMintRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO token_mint_instruction (
+            INSERT INTO moonshot_token_mint_instruction (
                 "mint_params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for TokenMintRow {
 impl carbon_core::postgres::operations::Upsert for TokenMintRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_mint_instruction (
+            r#"INSERT INTO moonshot_token_mint_instruction (
                 "mint_params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for TokenMintRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM token_mint_instruction WHERE
+            r#"DELETE FROM moonshot_token_mint_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for TokenMintRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM token_mint_instruction WHERE
+            r#"SELECT * FROM moonshot_token_mint_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenMintMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS token_mint_instruction (
+            r#"CREATE TABLE IF NOT EXISTS moonshot_token_mint_instruction (
                 -- Instruction data
                 "mint_params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenMintMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS token_mint_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS moonshot_token_mint_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

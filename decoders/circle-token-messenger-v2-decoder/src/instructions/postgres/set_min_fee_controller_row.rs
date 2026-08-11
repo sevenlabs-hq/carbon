@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_min_fee_controller::SetMinFeeController
 {
     fn table() -> &'static str {
-        "set_min_fee_controller_instruction"
+        "circle_token_messenger_v2_set_min_fee_controller_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SetMinFeeControllerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_min_fee_controller_instruction (
+            INSERT INTO circle_token_messenger_v2_set_min_fee_controller_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for SetMinFeeControllerRow {
 impl carbon_core::postgres::operations::Upsert for SetMinFeeControllerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_min_fee_controller_instruction (
+            r#"INSERT INTO circle_token_messenger_v2_set_min_fee_controller_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SetMinFeeControllerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_min_fee_controller_instruction WHERE
+            r#"DELETE FROM circle_token_messenger_v2_set_min_fee_controller_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for SetMinFeeControllerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_min_fee_controller_instruction WHERE
+            r#"SELECT * FROM circle_token_messenger_v2_set_min_fee_controller_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -173,8 +173,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMinFeeControllerMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_min_fee_controller_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS circle_token_messenger_v2_set_min_fee_controller_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -184,10 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMinFeeControllerMigrationOp
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -195,9 +191,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMinFeeControllerMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_min_fee_controller_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS circle_token_messenger_v2_set_min_fee_controller_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

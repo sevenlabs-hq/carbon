@@ -31,7 +31,7 @@ impl TryFrom<GetPoolInfoRow> for crate::instructions::get_pool_info::GetPoolInfo
 
 impl carbon_core::postgres::operations::Table for crate::instructions::get_pool_info::GetPoolInfo {
     fn table() -> &'static str {
-        "get_pool_info_instruction"
+        "meteora_pools_get_pool_info_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for GetPoolInfoRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO get_pool_info_instruction (
+            INSERT INTO meteora_pools_get_pool_info_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for GetPoolInfoRow {
 impl carbon_core::postgres::operations::Upsert for GetPoolInfoRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO get_pool_info_instruction (
+            r#"INSERT INTO meteora_pools_get_pool_info_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for GetPoolInfoRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM get_pool_info_instruction WHERE
+            r#"DELETE FROM meteora_pools_get_pool_info_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for GetPoolInfoRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM get_pool_info_instruction WHERE
+            r#"SELECT * FROM meteora_pools_get_pool_info_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GetPoolInfoMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS get_pool_info_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_pools_get_pool_info_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GetPoolInfoMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS get_pool_info_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_pools_get_pool_info_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::limit_order_nonce::LimitOrderNonce
 {
     fn table() -> &'static str {
-        "limit_order_nonce_account"
+        "raydium_clmm_limit_order_nonce_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -91,7 +91,7 @@ impl carbon_core::postgres::operations::Insert for LimitOrderNonceRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO limit_order_nonce_account (
+            INSERT INTO raydium_clmm_limit_order_nonce_account (
                 "user_wallet",
                 "nonce_index",
                 "order_nonce",
@@ -118,7 +118,7 @@ impl carbon_core::postgres::operations::Insert for LimitOrderNonceRow {
 impl carbon_core::postgres::operations::Upsert for LimitOrderNonceRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO limit_order_nonce_account (
+            r#"INSERT INTO raydium_clmm_limit_order_nonce_account (
                 "user_wallet",
                 "nonce_index",
                 "order_nonce",
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for LimitOrderNonceRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM limit_order_nonce_account WHERE
+            r#"DELETE FROM raydium_clmm_limit_order_nonce_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for LimitOrderNonceRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM limit_order_nonce_account WHERE
+            r#"SELECT * FROM raydium_clmm_limit_order_nonce_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LimitOrderNonceMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS limit_order_nonce_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_limit_order_nonce_account (
                 -- Account data
                 "user_wallet" BYTEA NOT NULL,
                 "nonce_index" INT2 NOT NULL,
@@ -218,7 +218,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LimitOrderNonceMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS limit_order_nonce_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_limit_order_nonce_account"#)
             .execute(connection)
             .await?;
         Ok(())

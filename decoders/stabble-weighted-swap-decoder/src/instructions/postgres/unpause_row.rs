@@ -31,7 +31,7 @@ impl TryFrom<UnpauseRow> for crate::instructions::unpause::Unpause {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::unpause::Unpause {
     fn table() -> &'static str {
-        "unpause_instruction"
+        "stabble_weighted_swap_unpause_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for UnpauseRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO unpause_instruction (
+            INSERT INTO stabble_weighted_swap_unpause_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for UnpauseRow {
 impl carbon_core::postgres::operations::Upsert for UnpauseRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO unpause_instruction (
+            r#"INSERT INTO stabble_weighted_swap_unpause_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for UnpauseRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM unpause_instruction WHERE
+            r#"DELETE FROM stabble_weighted_swap_unpause_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for UnpauseRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM unpause_instruction WHERE
+            r#"SELECT * FROM stabble_weighted_swap_unpause_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnpauseMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS unpause_instruction (
+            r#"CREATE TABLE IF NOT EXISTS stabble_weighted_swap_unpause_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnpauseMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS unpause_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS stabble_weighted_swap_unpause_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

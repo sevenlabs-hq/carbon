@@ -38,7 +38,7 @@ impl TryFrom<ClaimRewardRow> for crate::instructions::claim_reward::ClaimReward 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::claim_reward::ClaimReward {
     fn table() -> &'static str {
-        "claim_reward_instruction"
+        "meteora_dlmm_claim_reward_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for ClaimRewardRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO claim_reward_instruction (
+            INSERT INTO meteora_dlmm_claim_reward_instruction (
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for ClaimRewardRow {
 impl carbon_core::postgres::operations::Upsert for ClaimRewardRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO claim_reward_instruction (
+            r#"INSERT INTO meteora_dlmm_claim_reward_instruction (
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for ClaimRewardRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM claim_reward_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_claim_reward_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for ClaimRewardRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM claim_reward_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_claim_reward_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ClaimRewardMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS claim_reward_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_claim_reward_instruction (
                 -- Instruction data
                 "reward_index" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ClaimRewardMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS claim_reward_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_claim_reward_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

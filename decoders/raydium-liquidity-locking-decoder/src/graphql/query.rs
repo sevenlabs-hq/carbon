@@ -30,7 +30,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::LockedCpLiquidityStateGraphQL>> {
         let rows: Vec<crate::accounts::postgres::LockedCpLiquidityStateRow> = sqlx::query_as(
-            r#"SELECT * FROM locked_cp_liquidity_state_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM raydium_liquidity_locking_locked_cp_liquidity_state_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -64,7 +64,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::LockedClmmPositionStateGraphQL>> {
         let rows: Vec<crate::accounts::postgres::LockedClmmPositionStateRow> = sqlx::query_as(
-            r#"SELECT * FROM locked_clmm_position_state_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM raydium_liquidity_locking_locked_clmm_position_state_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -84,7 +84,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::LockClmmPositionGraphQL>> {
         let rows: Vec<crate::instructions::postgres::LockClmmPositionRow> = sqlx::query_as(
-            r#"SELECT * FROM lock_clmm_position_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM raydium_liquidity_locking_lock_clmm_position_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -103,7 +103,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::LockClmmPositionGraphQL>> {
         let rows: Vec<crate::instructions::postgres::LockClmmPositionRow> = sqlx::query_as(
-            r#"SELECT * FROM lock_clmm_position_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM raydium_liquidity_locking_lock_clmm_position_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -122,7 +122,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectClmmFeesAndRewardsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectClmmFeesAndRewardsRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_clmm_fees_and_rewards_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM raydium_liquidity_locking_collect_clmm_fees_and_rewards_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -141,7 +141,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectClmmFeesAndRewardsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectClmmFeesAndRewardsRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_clmm_fees_and_rewards_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM raydium_liquidity_locking_collect_clmm_fees_and_rewards_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -160,7 +160,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::LockCpLiquidityGraphQL>> {
         let rows: Vec<crate::instructions::postgres::LockCpLiquidityRow> = sqlx::query_as(
-            r#"SELECT * FROM lock_cp_liquidity_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM raydium_liquidity_locking_lock_cp_liquidity_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -179,7 +179,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::LockCpLiquidityGraphQL>> {
         let rows: Vec<crate::instructions::postgres::LockCpLiquidityRow> = sqlx::query_as(
-            r#"SELECT * FROM lock_cp_liquidity_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM raydium_liquidity_locking_lock_cp_liquidity_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -198,7 +198,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectCpFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectCpFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_cp_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM raydium_liquidity_locking_collect_cp_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -217,7 +217,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectCpFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectCpFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_cp_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM raydium_liquidity_locking_collect_cp_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -235,13 +235,14 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CpiEventRow> =
-            sqlx::query_as(r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        let rows: Vec<crate::instructions::postgres::CpiEventRow> = sqlx::query_as(
+            r#"SELECT * FROM raydium_liquidity_locking_cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows
             .into_iter()
             .filter_map(|row| row.try_into().ok())

@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::kamino_deposit::KaminoDeposit
 {
     fn table() -> &'static str {
-        "kamino_deposit_instruction"
+        "marginfi_v2_kamino_deposit_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for KaminoDepositRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO kamino_deposit_instruction (
+            INSERT INTO marginfi_v2_kamino_deposit_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for KaminoDepositRow {
 impl carbon_core::postgres::operations::Upsert for KaminoDepositRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO kamino_deposit_instruction (
+            r#"INSERT INTO marginfi_v2_kamino_deposit_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for KaminoDepositRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM kamino_deposit_instruction WHERE
+            r#"DELETE FROM marginfi_v2_kamino_deposit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for KaminoDepositRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM kamino_deposit_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_kamino_deposit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for KaminoDepositMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS kamino_deposit_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_kamino_deposit_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for KaminoDepositMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS kamino_deposit_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_kamino_deposit_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

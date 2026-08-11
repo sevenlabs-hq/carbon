@@ -104,6 +104,7 @@ SlotRangeFilter::between(from_slot, Some(from_tx_index), to_slot, Some(to_tx_ind
 ```
 
 Boundary semantics:
+
 - At `from_slot`: accepts `tx_index >= from_tx_index`
 - At `to_slot`: accepts `tx_index < to_tx_index`
 - Pass `None` for tx_index to match any transaction in that slot

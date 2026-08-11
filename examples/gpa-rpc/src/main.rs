@@ -38,7 +38,7 @@ pub struct MarginfiAccountProcessor;
 impl Processor<AccountProcessorInputType<'_, MarginfiV2Account>> for MarginfiAccountProcessor {
     async fn process(
         &mut self,
-        #[cfg(feature = "batch")] _update_id: carbon_core::datasource::BatchUpdateId,
+        #[cfg(feature = "batch")] _update_id: &carbon_core::datasource::BatchUpdateId,
         input: &AccountProcessorInputType<'_, MarginfiV2Account>,
     ) -> CarbonResult<()> {
         let pubkey = input.metadata.pubkey;

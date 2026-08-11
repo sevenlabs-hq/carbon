@@ -41,7 +41,7 @@ impl TryFrom<SellV2Row> for crate::instructions::sell_v2::SellV2 {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::sell_v2::SellV2 {
     fn table() -> &'static str {
-        "sell_v2_instruction"
+        "pumpfun_sell_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SellV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO sell_v2_instruction (
+            INSERT INTO pumpfun_sell_v2_instruction (
                 "amount",
                 "min_sol_output",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for SellV2Row {
 impl carbon_core::postgres::operations::Upsert for SellV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO sell_v2_instruction (
+            r#"INSERT INTO pumpfun_sell_v2_instruction (
                 "amount",
                 "min_sol_output",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Delete for SellV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM sell_v2_instruction WHERE
+            r#"DELETE FROM pumpfun_sell_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Lookup for SellV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM sell_v2_instruction WHERE
+            r#"SELECT * FROM pumpfun_sell_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SellV2MigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS sell_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_sell_v2_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 "min_sol_output" NUMERIC(20) NOT NULL,
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SellV2MigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS sell_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_sell_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::support_mint_associated::SupportMintAssociated
 {
     fn table() -> &'static str {
-        "support_mint_associated_account"
+        "pancake_swap_support_mint_associated_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -83,7 +83,7 @@ impl carbon_core::postgres::operations::Insert for SupportMintAssociatedRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO support_mint_associated_account (
+            INSERT INTO pancake_swap_support_mint_associated_account (
                 "bump",
                 "mint",
                 "padding",
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Insert for SupportMintAssociatedRow {
 impl carbon_core::postgres::operations::Upsert for SupportMintAssociatedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO support_mint_associated_account (
+            r#"INSERT INTO pancake_swap_support_mint_associated_account (
                 "bump",
                 "mint",
                 "padding",
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for SupportMintAssociatedRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM support_mint_associated_account WHERE
+            r#"DELETE FROM pancake_swap_support_mint_associated_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -163,7 +163,7 @@ impl carbon_core::postgres::operations::Lookup for SupportMintAssociatedRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM support_mint_associated_account WHERE
+            r#"SELECT * FROM pancake_swap_support_mint_associated_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -184,7 +184,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SupportMintAssociatedMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS support_mint_associated_account (
+            r#"CREATE TABLE IF NOT EXISTS pancake_swap_support_mint_associated_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "mint" BYTEA NOT NULL,
@@ -204,7 +204,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SupportMintAssociatedMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS support_mint_associated_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pancake_swap_support_mint_associated_account"#)
             .execute(connection)
             .await?;
         Ok(())

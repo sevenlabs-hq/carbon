@@ -32,7 +32,7 @@ impl TryFrom<InitializeCrossMarginAccountManagerRow> for crate::instructions::in
 
 impl carbon_core::postgres::operations::Table for crate::instructions::initialize_cross_margin_account_manager::InitializeCrossMarginAccountManager {
     fn table() -> &'static str {
-        "initialize_cross_margin_account_manager_instruction"
+        "zeta_initialize_cross_margin_account_manager_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -51,7 +51,7 @@ impl carbon_core::postgres::operations::Insert for InitializeCrossMarginAccountM
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_cross_margin_account_manager_instruction (
+            INSERT INTO zeta_initialize_cross_margin_account_manager_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for InitializeCrossMarginAccountM
 impl carbon_core::postgres::operations::Upsert for InitializeCrossMarginAccountManagerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_cross_margin_account_manager_instruction (
+            r#"INSERT INTO zeta_initialize_cross_margin_account_manager_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Delete for InitializeCrossMarginAccountM
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_cross_margin_account_manager_instruction WHERE
+            r#"DELETE FROM zeta_initialize_cross_margin_account_manager_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeCrossMarginAccountM
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_cross_margin_account_manager_instruction WHERE
+            r#"SELECT * FROM zeta_initialize_cross_margin_account_manager_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_cross_margin_account_manager_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_initialize_cross_margin_account_manager_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -180,9 +180,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_cross_margin_account_manager_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS zeta_initialize_cross_margin_account_manager_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

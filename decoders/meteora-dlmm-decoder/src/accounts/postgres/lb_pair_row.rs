@@ -242,7 +242,7 @@ impl TryFrom<LbPairRow> for crate::accounts::lb_pair::LbPair {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::lb_pair::LbPair {
     fn table() -> &'static str {
-        "lb_pair_account"
+        "meteora_dlmm_lb_pair_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -291,7 +291,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::lb_pair::LbPa
 impl carbon_core::postgres::operations::Insert for LbPairRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO lb_pair_account (
+            INSERT INTO meteora_dlmm_lb_pair_account (
                 "parameters",
                 "v_parameters",
                 "bump_seed",
@@ -375,7 +375,7 @@ impl carbon_core::postgres::operations::Insert for LbPairRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for LbPairRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO lb_pair_account (
+        sqlx::query(r#"INSERT INTO meteora_dlmm_lb_pair_account (
                 "parameters",
                 "v_parameters",
                 "bump_seed",
@@ -500,7 +500,7 @@ impl carbon_core::postgres::operations::Delete for LbPairRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lb_pair_account WHERE
+            r#"DELETE FROM meteora_dlmm_lb_pair_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -521,7 +521,7 @@ impl carbon_core::postgres::operations::Lookup for LbPairRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lb_pair_account WHERE
+            r#"SELECT * FROM meteora_dlmm_lb_pair_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -542,7 +542,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LbPairMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lb_pair_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_lb_pair_account (
                 -- Account data
                 "parameters" JSONB NOT NULL,
                 "v_parameters" JSONB NOT NULL,
@@ -593,7 +593,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LbPairMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lb_pair_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_lb_pair_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -32,7 +32,7 @@ impl TryFrom<InitializeBinArrayBitmapExtensionRow> for crate::instructions::init
 
 impl carbon_core::postgres::operations::Table for crate::instructions::initialize_bin_array_bitmap_extension::InitializeBinArrayBitmapExtension {
     fn table() -> &'static str {
-        "initialize_bin_array_bitmap_extension_instruction"
+        "meteora_dlmm_initialize_bin_array_bitmap_extension_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -51,7 +51,7 @@ impl carbon_core::postgres::operations::Insert for InitializeBinArrayBitmapExten
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_bin_array_bitmap_extension_instruction (
+            INSERT INTO meteora_dlmm_initialize_bin_array_bitmap_extension_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for InitializeBinArrayBitmapExten
 impl carbon_core::postgres::operations::Upsert for InitializeBinArrayBitmapExtensionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_bin_array_bitmap_extension_instruction (
+            r#"INSERT INTO meteora_dlmm_initialize_bin_array_bitmap_extension_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Delete for InitializeBinArrayBitmapExten
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_bin_array_bitmap_extension_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_initialize_bin_array_bitmap_extension_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeBinArrayBitmapExten
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_bin_array_bitmap_extension_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_initialize_bin_array_bitmap_extension_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,8 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_bin_array_bitmap_extension_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_initialize_bin_array_bitmap_extension_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -169,10 +168,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -180,9 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_bin_array_bitmap_extension_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_initialize_bin_array_bitmap_extension_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

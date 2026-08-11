@@ -12,14 +12,14 @@ pub struct MeteoraDammMigrationMetadataRow {
     #[sqlx(flatten)]
     pub account_metadata: AccountRowMetadata,
     pub virtual_pool: Pubkey,
-    pub padding0: Vec<u8>,
+    pub _padding0: Vec<u8>,
     pub partner: Pubkey,
     pub lp_mint: Pubkey,
     pub partner_locked_liquidity: U64,
     pub partner_liquidity: U64,
     pub creator_locked_liquidity: U64,
     pub creator_liquidity: U64,
-    pub padding0_1: U8,
+    pub padding0: U8,
     pub creator_locked_status: U8,
     pub partner_locked_status: U8,
     pub creator_claim_status: U8,
@@ -35,14 +35,14 @@ impl MeteoraDammMigrationMetadataRow {
         Self {
             account_metadata: metadata.into(),
             virtual_pool: source.virtual_pool.into(),
-            padding0: source._padding0.to_vec(),
+            _padding0: source._padding0.to_vec(),
             partner: source.partner.into(),
             lp_mint: source.lp_mint.into(),
             partner_locked_liquidity: source.partner_locked_liquidity.into(),
             partner_liquidity: source.partner_liquidity.into(),
             creator_locked_liquidity: source.creator_locked_liquidity.into(),
             creator_liquidity: source.creator_liquidity.into(),
-            padding0_1: source.padding0.into(),
+            padding0: source.padding0.into(),
             creator_locked_status: source.creator_locked_status.into(),
             partner_locked_status: source.partner_locked_status.into(),
             creator_claim_status: source.creator_claim_status.into(),
@@ -59,7 +59,7 @@ impl TryFrom<MeteoraDammMigrationMetadataRow>
     fn try_from(source: MeteoraDammMigrationMetadataRow) -> Result<Self, Self::Error> {
         Ok(Self {
             virtual_pool: *source.virtual_pool,
-            _padding0: source.padding0.as_slice().try_into().map_err(|_| {
+            _padding0: source._padding0.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert padding from postgres primitive: expected 32 bytes"
                         .to_string(),
@@ -71,7 +71,7 @@ impl TryFrom<MeteoraDammMigrationMetadataRow>
             partner_liquidity: *source.partner_liquidity,
             creator_locked_liquidity: *source.creator_locked_liquidity,
             creator_liquidity: *source.creator_liquidity,
-            padding0: source.padding0_1.try_into().map_err(|_| {
+            padding0: source.padding0.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
                 )
@@ -110,7 +110,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::meteora_damm_migration_metadata::MeteoraDammMigrationMetadata
 {
     fn table() -> &'static str {
-        "meteora_damm_migration_metadata_account"
+        "meteora_dbc_meteora_damm_migration_metadata_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -118,14 +118,14 @@ impl carbon_core::postgres::operations::Table
             "__pubkey",
             "__slot",
             "virtual_pool",
-            "padding0",
+            "_padding0",
             "partner",
             "lp_mint",
             "partner_locked_liquidity",
             "partner_liquidity",
             "creator_locked_liquidity",
             "creator_liquidity",
-            "padding0_1",
+            "padding0",
             "creator_locked_status",
             "partner_locked_status",
             "creator_claim_status",
@@ -140,16 +140,16 @@ impl carbon_core::postgres::operations::Insert for MeteoraDammMigrationMetadataR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO meteora_damm_migration_metadata_account (
+            INSERT INTO meteora_dbc_meteora_damm_migration_metadata_account (
                 "virtual_pool",
-                "padding0",
+                "_padding0",
                 "partner",
                 "lp_mint",
                 "partner_locked_liquidity",
                 "partner_liquidity",
                 "creator_locked_liquidity",
                 "creator_liquidity",
-                "padding0_1",
+                "padding0",
                 "creator_locked_status",
                 "partner_locked_status",
                 "creator_claim_status",
@@ -161,14 +161,14 @@ impl carbon_core::postgres::operations::Insert for MeteoraDammMigrationMetadataR
             )"#,
         )
         .bind(self.virtual_pool)
-        .bind(&self.padding0)
+        .bind(&self._padding0)
         .bind(self.partner)
         .bind(self.lp_mint)
         .bind(&self.partner_locked_liquidity)
         .bind(&self.partner_liquidity)
         .bind(&self.creator_locked_liquidity)
         .bind(&self.creator_liquidity)
-        .bind(self.padding0_1)
+        .bind(self.padding0)
         .bind(self.creator_locked_status)
         .bind(self.partner_locked_status)
         .bind(self.creator_claim_status)
@@ -187,16 +187,16 @@ impl carbon_core::postgres::operations::Insert for MeteoraDammMigrationMetadataR
 impl carbon_core::postgres::operations::Upsert for MeteoraDammMigrationMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO meteora_damm_migration_metadata_account (
+            r#"INSERT INTO meteora_dbc_meteora_damm_migration_metadata_account (
                 "virtual_pool",
-                "padding0",
+                "_padding0",
                 "partner",
                 "lp_mint",
                 "partner_locked_liquidity",
                 "partner_liquidity",
                 "creator_locked_liquidity",
                 "creator_liquidity",
-                "padding0_1",
+                "padding0",
                 "creator_locked_status",
                 "partner_locked_status",
                 "creator_claim_status",
@@ -209,14 +209,14 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDammMigrationMetadataR
                 __pubkey
             ) DO UPDATE SET
                 "virtual_pool" = EXCLUDED."virtual_pool",
-                "padding0" = EXCLUDED."padding0",
+                "_padding0" = EXCLUDED."_padding0",
                 "partner" = EXCLUDED."partner",
                 "lp_mint" = EXCLUDED."lp_mint",
                 "partner_locked_liquidity" = EXCLUDED."partner_locked_liquidity",
                 "partner_liquidity" = EXCLUDED."partner_liquidity",
                 "creator_locked_liquidity" = EXCLUDED."creator_locked_liquidity",
                 "creator_liquidity" = EXCLUDED."creator_liquidity",
-                "padding0_1" = EXCLUDED."padding0_1",
+                "padding0" = EXCLUDED."padding0",
                 "creator_locked_status" = EXCLUDED."creator_locked_status",
                 "partner_locked_status" = EXCLUDED."partner_locked_status",
                 "creator_claim_status" = EXCLUDED."creator_claim_status",
@@ -226,14 +226,14 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDammMigrationMetadataR
             "#,
         )
         .bind(self.virtual_pool)
-        .bind(&self.padding0)
+        .bind(&self._padding0)
         .bind(self.partner)
         .bind(self.lp_mint)
         .bind(&self.partner_locked_liquidity)
         .bind(&self.partner_liquidity)
         .bind(&self.creator_locked_liquidity)
         .bind(&self.creator_liquidity)
-        .bind(self.padding0_1)
+        .bind(self.padding0)
         .bind(self.creator_locked_status)
         .bind(self.partner_locked_status)
         .bind(self.creator_claim_status)
@@ -254,7 +254,7 @@ impl carbon_core::postgres::operations::Delete for MeteoraDammMigrationMetadataR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM meteora_damm_migration_metadata_account WHERE
+            r#"DELETE FROM meteora_dbc_meteora_damm_migration_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -275,7 +275,7 @@ impl carbon_core::postgres::operations::Lookup for MeteoraDammMigrationMetadataR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM meteora_damm_migration_metadata_account WHERE
+            r#"SELECT * FROM meteora_dbc_meteora_damm_migration_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -296,17 +296,17 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MeteoraDammMigrationMetadataMi
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS meteora_damm_migration_metadata_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dbc_meteora_damm_migration_metadata_account (
                 -- Account data
                 "virtual_pool" BYTEA NOT NULL,
-                "padding0" BYTEA NOT NULL,
+                "_padding0" BYTEA NOT NULL,
                 "partner" BYTEA NOT NULL,
                 "lp_mint" BYTEA NOT NULL,
                 "partner_locked_liquidity" NUMERIC(20) NOT NULL,
                 "partner_liquidity" NUMERIC(20) NOT NULL,
                 "creator_locked_liquidity" NUMERIC(20) NOT NULL,
                 "creator_liquidity" NUMERIC(20) NOT NULL,
-                "padding0_1" INT2 NOT NULL,
+                "padding0" INT2 NOT NULL,
                 "creator_locked_status" INT2 NOT NULL,
                 "partner_locked_status" INT2 NOT NULL,
                 "creator_claim_status" INT2 NOT NULL,
@@ -327,7 +327,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MeteoraDammMigrationMetadataMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_migration_metadata_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dbc_meteora_damm_migration_metadata_account"#)
             .execute(connection)
             .await?;
         Ok(())

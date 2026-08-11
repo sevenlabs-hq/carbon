@@ -14,4 +14,6 @@ pub struct ConfigMarinadeParams {
     pub delayed_unstake_fee: Option<FeeCents>,
     pub withdraw_stake_account_fee: Option<FeeCents>,
     pub max_stake_moved_per_epoch: Option<Fee>,
+    pub deposit_sol_fee: Option<FeeCents>,
+    pub deposit_stake_account_fee: Option<FeeCents>,
 }

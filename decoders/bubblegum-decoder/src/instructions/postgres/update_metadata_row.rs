@@ -67,7 +67,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_metadata::UpdateMetadata
 {
     fn table() -> &'static str {
-        "update_metadata_instruction"
+        "bubblegum_update_metadata_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -91,7 +91,7 @@ impl carbon_core::postgres::operations::Insert for UpdateMetadataRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_metadata_instruction (
+            INSERT INTO bubblegum_update_metadata_instruction (
                 "root",
                 "nonce",
                 "index",
@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Insert for UpdateMetadataRow {
 impl carbon_core::postgres::operations::Upsert for UpdateMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_metadata_instruction (
+            r#"INSERT INTO bubblegum_update_metadata_instruction (
                 "root",
                 "nonce",
                 "index",
@@ -173,7 +173,7 @@ impl carbon_core::postgres::operations::Delete for UpdateMetadataRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_metadata_instruction WHERE
+            r#"DELETE FROM bubblegum_update_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -200,7 +200,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateMetadataRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_metadata_instruction WHERE
+            r#"SELECT * FROM bubblegum_update_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -223,7 +223,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateMetadataMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_metadata_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_update_metadata_instruction (
                 -- Instruction data
                 "root" BYTEA NOT NULL,
                 "nonce" NUMERIC(20) NOT NULL,
@@ -248,7 +248,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateMetadataMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_metadata_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_update_metadata_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

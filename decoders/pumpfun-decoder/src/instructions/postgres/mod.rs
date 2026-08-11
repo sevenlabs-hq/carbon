@@ -12,10 +12,12 @@ pub mod claim_cashback_v2_row;
 pub mod claim_token_incentives_row;
 pub mod close_user_volume_accumulator_row;
 pub mod collect_creator_fee_row;
+pub mod collect_creator_fee_v2_row;
 pub mod cpi_event_row;
 pub mod create_row;
 pub mod create_v2_row;
 pub mod distribute_creator_fees_row;
+pub mod distribute_creator_fees_v2_row;
 pub mod extend_account_row;
 pub mod get_minimum_distributable_fee_row;
 pub mod init_user_volume_accumulator_row;
@@ -44,8 +46,9 @@ pub use self::{
     admin_update_token_incentives_row::*, buy_exact_quote_in_v2_row::*, buy_exact_sol_in_row::*,
     buy_row::*, buy_v2_row::*, claim_cashback_row::*, claim_cashback_v2_row::*,
     claim_token_incentives_row::*, close_user_volume_accumulator_row::*,
-    collect_creator_fee_row::*, cpi_event_row::*, create_row::*, create_v2_row::*,
-    distribute_creator_fees_row::*, extend_account_row::*, get_minimum_distributable_fee_row::*,
+    collect_creator_fee_row::*, collect_creator_fee_v2_row::*, cpi_event_row::*, create_row::*,
+    create_v2_row::*, distribute_creator_fees_row::*, distribute_creator_fees_v2_row::*,
+    extend_account_row::*, get_minimum_distributable_fee_row::*,
     init_user_volume_accumulator_row::*, initialize_row::*, migrate_bonding_curve_creator_row::*,
     migrate_row::*, migrate_v2_row::*, remove_quote_mint_row::*, sell_row::*, sell_v2_row::*,
     set_creator_row::*, set_mayhem_virtual_params_row::*, set_metaplex_creator_row::*,
@@ -81,9 +84,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for PumpfunInstructionsMigration {
             Box::new(ClaimTokenIncentivesMigrationOperation),
             Box::new(CloseUserVolumeAccumulatorMigrationOperation),
             Box::new(CollectCreatorFeeMigrationOperation),
+            Box::new(CollectCreatorFeeV2MigrationOperation),
             Box::new(CreateMigrationOperation),
             Box::new(CreateV2MigrationOperation),
             Box::new(DistributeCreatorFeesMigrationOperation),
+            Box::new(DistributeCreatorFeesV2MigrationOperation),
             Box::new(ExtendAccountMigrationOperation),
             Box::new(GetMinimumDistributableFeeMigrationOperation),
             Box::new(InitializeMigrationOperation),
@@ -263,6 +268,15 @@ impl carbon_core::postgres::operations::Insert for PumpfunInstructionWithMetadat
                 row.insert(pool).await?;
                 Ok(())
             }
+            PumpfunInstruction::CollectCreatorFeeV2 { data, .. } => {
+                let row = collect_creator_fee_v2_row::CollectCreatorFeeV2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             PumpfunInstruction::Create { data, .. } => {
                 let row = create_row::CreateRow::from_parts(
                     data.clone(),
@@ -283,6 +297,15 @@ impl carbon_core::postgres::operations::Insert for PumpfunInstructionWithMetadat
             }
             PumpfunInstruction::DistributeCreatorFees { data, .. } => {
                 let row = distribute_creator_fees_row::DistributeCreatorFeesRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            PumpfunInstruction::DistributeCreatorFeesV2 { data, .. } => {
+                let row = distribute_creator_fees_v2_row::DistributeCreatorFeesV2Row::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -629,6 +652,15 @@ impl carbon_core::postgres::operations::Upsert for PumpfunInstructionWithMetadat
                 row.upsert(pool).await?;
                 Ok(())
             }
+            PumpfunInstruction::CollectCreatorFeeV2 { data, .. } => {
+                let row = collect_creator_fee_v2_row::CollectCreatorFeeV2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             PumpfunInstruction::Create { data, .. } => {
                 let row = create_row::CreateRow::from_parts(
                     data.clone(),
@@ -649,6 +681,15 @@ impl carbon_core::postgres::operations::Upsert for PumpfunInstructionWithMetadat
             }
             PumpfunInstruction::DistributeCreatorFees { data, .. } => {
                 let row = distribute_creator_fees_row::DistributeCreatorFeesRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            PumpfunInstruction::DistributeCreatorFeesV2 { data, .. } => {
+                let row = distribute_creator_fees_v2_row::DistributeCreatorFeesV2Row::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

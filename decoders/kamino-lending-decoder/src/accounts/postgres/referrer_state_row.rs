@@ -37,7 +37,7 @@ impl TryFrom<ReferrerStateRow> for crate::accounts::referrer_state::ReferrerStat
 
 impl carbon_core::postgres::operations::Table for crate::accounts::referrer_state::ReferrerState {
     fn table() -> &'static str {
-        "referrer_state_account"
+        "kamino_lending_referrer_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for ReferrerStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO referrer_state_account (
+            INSERT INTO kamino_lending_referrer_state_account (
                 "short_url",
                 "owner",
                 __pubkey, __slot
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for ReferrerStateRow {
 impl carbon_core::postgres::operations::Upsert for ReferrerStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO referrer_state_account (
+            r#"INSERT INTO kamino_lending_referrer_state_account (
                 "short_url",
                 "owner",
                 __pubkey, __slot
@@ -104,7 +104,7 @@ impl carbon_core::postgres::operations::Delete for ReferrerStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM referrer_state_account WHERE
+            r#"DELETE FROM kamino_lending_referrer_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -125,7 +125,7 @@ impl carbon_core::postgres::operations::Lookup for ReferrerStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM referrer_state_account WHERE
+            r#"SELECT * FROM kamino_lending_referrer_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -146,7 +146,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReferrerStateMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS referrer_state_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_referrer_state_account (
                 -- Account data
                 "short_url" BYTEA NOT NULL,
                 "owner" BYTEA NOT NULL,
@@ -165,7 +165,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReferrerStateMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS referrer_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_referrer_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

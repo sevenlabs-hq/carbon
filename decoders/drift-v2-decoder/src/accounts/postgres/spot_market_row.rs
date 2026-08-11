@@ -338,7 +338,7 @@ impl TryFrom<SpotMarketRow> for crate::accounts::spot_market::SpotMarket {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::spot_market::SpotMarket {
     fn table() -> &'static str {
-        "spot_market_account"
+        "drift_v2_spot_market_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -417,7 +417,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::spot_market::
 impl carbon_core::postgres::operations::Insert for SpotMarketRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO spot_market_account (
+            INSERT INTO drift_v2_spot_market_account (
                 "pubkey",
                 "oracle",
                 "mint",
@@ -561,7 +561,7 @@ impl carbon_core::postgres::operations::Insert for SpotMarketRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SpotMarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO spot_market_account (
+        sqlx::query(r#"INSERT INTO drift_v2_spot_market_account (
                 "pubkey",
                 "oracle",
                 "mint",
@@ -776,7 +776,7 @@ impl carbon_core::postgres::operations::Delete for SpotMarketRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM spot_market_account WHERE
+            r#"DELETE FROM drift_v2_spot_market_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -797,7 +797,7 @@ impl carbon_core::postgres::operations::Lookup for SpotMarketRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM spot_market_account WHERE
+            r#"SELECT * FROM drift_v2_spot_market_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -818,7 +818,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SpotMarketMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS spot_market_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_spot_market_account (
                 -- Account data
                 "pubkey" BYTEA NOT NULL,
                 "oracle" BYTEA NOT NULL,
@@ -899,7 +899,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SpotMarketMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS spot_market_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_spot_market_account"#)
             .execute(connection)
             .await?;
         Ok(())

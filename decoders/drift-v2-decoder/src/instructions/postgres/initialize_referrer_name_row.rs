@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_referrer_name::InitializeReferrerName
 {
     fn table() -> &'static str {
-        "initialize_referrer_name_instruction"
+        "drift_v2_initialize_referrer_name_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for InitializeReferrerNameRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_referrer_name_instruction (
+            INSERT INTO drift_v2_initialize_referrer_name_instruction (
                 "name",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for InitializeReferrerNameRow {
 impl carbon_core::postgres::operations::Upsert for InitializeReferrerNameRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_referrer_name_instruction (
+            r#"INSERT INTO drift_v2_initialize_referrer_name_instruction (
                 "name",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for InitializeReferrerNameRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_referrer_name_instruction WHERE
+            r#"DELETE FROM drift_v2_initialize_referrer_name_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeReferrerNameRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_referrer_name_instruction WHERE
+            r#"SELECT * FROM drift_v2_initialize_referrer_name_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeReferrerNameMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_referrer_name_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_initialize_referrer_name_instruction (
                 -- Instruction data
                 "name" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeReferrerNameMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_referrer_name_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_initialize_referrer_name_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

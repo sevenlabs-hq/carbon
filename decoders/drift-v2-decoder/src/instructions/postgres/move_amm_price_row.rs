@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::move_amm_price::MoveAmmPrice
 {
     fn table() -> &'static str {
-        "move_amm_price_instruction"
+        "drift_v2_move_amm_price_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Insert for MoveAmmPriceRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO move_amm_price_instruction (
+            INSERT INTO drift_v2_move_amm_price_instruction (
                 "base_asset_reserve",
                 "quote_asset_reserve",
                 "sqrt_k",
@@ -96,7 +96,7 @@ impl carbon_core::postgres::operations::Insert for MoveAmmPriceRow {
 impl carbon_core::postgres::operations::Upsert for MoveAmmPriceRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO move_amm_price_instruction (
+            r#"INSERT INTO drift_v2_move_amm_price_instruction (
                 "base_asset_reserve",
                 "quote_asset_reserve",
                 "sqrt_k",
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for MoveAmmPriceRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM move_amm_price_instruction WHERE
+            r#"DELETE FROM drift_v2_move_amm_price_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for MoveAmmPriceRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM move_amm_price_instruction WHERE
+            r#"SELECT * FROM drift_v2_move_amm_price_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MoveAmmPriceMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS move_amm_price_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_move_amm_price_instruction (
                 -- Instruction data
                 "base_asset_reserve" NUMERIC(39) NOT NULL,
                 "quote_asset_reserve" NUMERIC(39) NOT NULL,
@@ -213,7 +213,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MoveAmmPriceMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS move_amm_price_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_move_amm_price_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

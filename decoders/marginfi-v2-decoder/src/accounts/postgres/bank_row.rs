@@ -17,7 +17,7 @@ pub struct BankRow {
     pub mint: Pubkey,
     pub mint_decimals: U8,
     pub group: Pubkey,
-    pub pad0: Vec<u8>,
+    pub _pad0: Vec<u8>,
     pub asset_share_value: sqlx::types::Json<WrappedI80F48>,
     pub liability_share_value: sqlx::types::Json<WrappedI80F48>,
     pub liquidity_vault: Pubkey,
@@ -52,7 +52,7 @@ pub struct BankRow {
     pub integration_acc2: Pubkey,
     pub integration_acc3: Pubkey,
     pub rate_limiter: sqlx::types::Json<BankRateLimiter>,
-    pub pad0_1: Vec<u8>,
+    pub pad0: Vec<u8>,
     pub padding1: sqlx::types::Json<Vec<Vec<U64>>>,
 }
 
@@ -63,7 +63,7 @@ impl BankRow {
             mint: source.mint.into(),
             mint_decimals: source.mint_decimals.into(),
             group: source.group.into(),
-            pad0: source._pad0.to_vec(),
+            _pad0: source._pad0.to_vec(),
             asset_share_value: sqlx::types::Json(source.asset_share_value),
             liability_share_value: sqlx::types::Json(source.liability_share_value),
             liquidity_vault: source.liquidity_vault.into(),
@@ -104,7 +104,7 @@ impl BankRow {
             integration_acc2: source.integration_acc2.into(),
             integration_acc3: source.integration_acc3.into(),
             rate_limiter: sqlx::types::Json(source.rate_limiter),
-            pad0_1: source.pad0.to_vec(),
+            pad0: source.pad0.to_vec(),
             padding1: sqlx::types::Json(
                 source
                     .padding1
@@ -127,7 +127,7 @@ impl TryFrom<BankRow> for crate::accounts::bank::Bank {
                 )
             })?,
             group: *source.group,
-            _pad0: source.pad0.as_slice().try_into().map_err(|_| {
+            _pad0: source._pad0.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert padding from postgres primitive: expected 7 bytes"
                         .to_string(),
@@ -252,7 +252,7 @@ impl TryFrom<BankRow> for crate::accounts::bank::Bank {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::bank::Bank {
     fn table() -> &'static str {
-        "bank_account"
+        "marginfi_v2_bank_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -262,7 +262,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bank::Bank {
             "mint",
             "mint_decimals",
             "group",
-            "pad0",
+            "_pad0",
             "asset_share_value",
             "liability_share_value",
             "liquidity_vault",
@@ -297,7 +297,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bank::Bank {
             "integration_acc2",
             "integration_acc3",
             "rate_limiter",
-            "pad0_1",
+            "pad0",
             "padding1",
         ]
     }
@@ -307,11 +307,11 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bank::Bank {
 impl carbon_core::postgres::operations::Insert for BankRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO bank_account (
+            INSERT INTO marginfi_v2_bank_account (
                 "mint",
                 "mint_decimals",
                 "group",
-                "pad0",
+                "_pad0",
                 "asset_share_value",
                 "liability_share_value",
                 "liquidity_vault",
@@ -346,7 +346,7 @@ impl carbon_core::postgres::operations::Insert for BankRow {
                 "integration_acc2",
                 "integration_acc3",
                 "rate_limiter",
-                "pad0_1",
+                "pad0",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
@@ -355,7 +355,7 @@ impl carbon_core::postgres::operations::Insert for BankRow {
         .bind(self.mint)
         .bind(self.mint_decimals)
         .bind(self.group)
-        .bind(&self.pad0)
+        .bind(&self._pad0)
         .bind(&self.asset_share_value)
         .bind(&self.liability_share_value)
         .bind(self.liquidity_vault)
@@ -390,7 +390,7 @@ impl carbon_core::postgres::operations::Insert for BankRow {
         .bind(self.integration_acc2)
         .bind(self.integration_acc3)
         .bind(&self.rate_limiter)
-        .bind(&self.pad0_1)
+        .bind(&self.pad0)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -403,11 +403,11 @@ impl carbon_core::postgres::operations::Insert for BankRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for BankRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO bank_account (
+        sqlx::query(r#"INSERT INTO marginfi_v2_bank_account (
                 "mint",
                 "mint_decimals",
                 "group",
-                "pad0",
+                "_pad0",
                 "asset_share_value",
                 "liability_share_value",
                 "liquidity_vault",
@@ -442,7 +442,7 @@ impl carbon_core::postgres::operations::Upsert for BankRow {
                 "integration_acc2",
                 "integration_acc3",
                 "rate_limiter",
-                "pad0_1",
+                "pad0",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
@@ -453,7 +453,7 @@ impl carbon_core::postgres::operations::Upsert for BankRow {
                 "mint" = EXCLUDED."mint",
                 "mint_decimals" = EXCLUDED."mint_decimals",
                 "group" = EXCLUDED."group",
-                "pad0" = EXCLUDED."pad0",
+                "_pad0" = EXCLUDED."_pad0",
                 "asset_share_value" = EXCLUDED."asset_share_value",
                 "liability_share_value" = EXCLUDED."liability_share_value",
                 "liquidity_vault" = EXCLUDED."liquidity_vault",
@@ -488,14 +488,14 @@ impl carbon_core::postgres::operations::Upsert for BankRow {
                 "integration_acc2" = EXCLUDED."integration_acc2",
                 "integration_acc3" = EXCLUDED."integration_acc3",
                 "rate_limiter" = EXCLUDED."rate_limiter",
-                "pad0_1" = EXCLUDED."pad0_1",
+                "pad0" = EXCLUDED."pad0",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
             "#)
         .bind(self.mint)
         .bind(self.mint_decimals)
         .bind(self.group)
-        .bind(&self.pad0)
+        .bind(&self._pad0)
         .bind(&self.asset_share_value)
         .bind(&self.liability_share_value)
         .bind(self.liquidity_vault)
@@ -530,7 +530,7 @@ impl carbon_core::postgres::operations::Upsert for BankRow {
         .bind(self.integration_acc2)
         .bind(self.integration_acc3)
         .bind(&self.rate_limiter)
-        .bind(&self.pad0_1)
+        .bind(&self.pad0)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -546,7 +546,7 @@ impl carbon_core::postgres::operations::Delete for BankRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM bank_account WHERE
+            r#"DELETE FROM marginfi_v2_bank_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -567,7 +567,7 @@ impl carbon_core::postgres::operations::Lookup for BankRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM bank_account WHERE
+            r#"SELECT * FROM marginfi_v2_bank_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -588,12 +588,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BankMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS bank_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_bank_account (
                 -- Account data
                 "mint" BYTEA NOT NULL,
                 "mint_decimals" INT2 NOT NULL,
                 "group" BYTEA NOT NULL,
-                "pad0" BYTEA NOT NULL,
+                "_pad0" BYTEA NOT NULL,
                 "asset_share_value" JSONB NOT NULL,
                 "liability_share_value" JSONB NOT NULL,
                 "liquidity_vault" BYTEA NOT NULL,
@@ -628,7 +628,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BankMigrationOperation {
                 "integration_acc2" BYTEA NOT NULL,
                 "integration_acc3" BYTEA NOT NULL,
                 "rate_limiter" JSONB NOT NULL,
-                "pad0_1" BYTEA NOT NULL,
+                "pad0" BYTEA NOT NULL,
                 "padding1" JSONB NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
@@ -645,7 +645,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BankMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS bank_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_bank_account"#)
             .execute(connection)
             .await?;
         Ok(())

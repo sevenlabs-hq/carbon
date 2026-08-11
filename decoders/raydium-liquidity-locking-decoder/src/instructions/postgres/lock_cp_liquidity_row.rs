@@ -43,7 +43,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::lock_cp_liquidity::LockCpLiquidity
 {
     fn table() -> &'static str {
-        "lock_cp_liquidity_instruction"
+        "raydium_liquidity_locking_lock_cp_liquidity_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for LockCpLiquidityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lock_cp_liquidity_instruction (
+            INSERT INTO raydium_liquidity_locking_lock_cp_liquidity_instruction (
                 "lp_amount",
                 "with_metadata",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for LockCpLiquidityRow {
 impl carbon_core::postgres::operations::Upsert for LockCpLiquidityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lock_cp_liquidity_instruction (
+            r#"INSERT INTO raydium_liquidity_locking_lock_cp_liquidity_instruction (
                 "lp_amount",
                 "with_metadata",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Delete for LockCpLiquidityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lock_cp_liquidity_instruction WHERE
+            r#"DELETE FROM raydium_liquidity_locking_lock_cp_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Lookup for LockCpLiquidityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lock_cp_liquidity_instruction WHERE
+            r#"SELECT * FROM raydium_liquidity_locking_lock_cp_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockCpLiquidityMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lock_cp_liquidity_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_liquidity_locking_lock_cp_liquidity_instruction (
                 -- Instruction data
                 "lp_amount" NUMERIC(20) NOT NULL,
                 "with_metadata" BOOLEAN NOT NULL,
@@ -203,9 +203,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockCpLiquidityMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lock_cp_liquidity_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS raydium_liquidity_locking_lock_cp_liquidity_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

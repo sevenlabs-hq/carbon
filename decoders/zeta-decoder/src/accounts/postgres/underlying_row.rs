@@ -32,7 +32,7 @@ impl TryFrom<UnderlyingRow> for crate::accounts::underlying::Underlying {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::underlying::Underlying {
     fn table() -> &'static str {
-        "underlying_account"
+        "zeta_underlying_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Insert for UnderlyingRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO underlying_account (
+            INSERT INTO zeta_underlying_account (
                 "mint",
                 __pubkey, __slot
             ) VALUES (
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for UnderlyingRow {
 impl carbon_core::postgres::operations::Upsert for UnderlyingRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO underlying_account (
+            r#"INSERT INTO zeta_underlying_account (
                 "mint",
                 __pubkey, __slot
             ) VALUES (
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Delete for UnderlyingRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM underlying_account WHERE
+            r#"DELETE FROM zeta_underlying_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Lookup for UnderlyingRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM underlying_account WHERE
+            r#"SELECT * FROM zeta_underlying_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -136,7 +136,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnderlyingMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS underlying_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_underlying_account (
                 -- Account data
                 "mint" BYTEA NOT NULL,
                 -- Account metadata
@@ -154,7 +154,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnderlyingMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS underlying_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_underlying_account"#)
             .execute(connection)
             .await?;
         Ok(())

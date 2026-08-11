@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::increase_liquidity_v2::IncreaseLiquidityV2
 {
     fn table() -> &'static str {
-        "increase_liquidity_v2_instruction"
+        "raydium_clmm_increase_liquidity_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for IncreaseLiquidityV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO increase_liquidity_v2_instruction (
+            INSERT INTO raydium_clmm_increase_liquidity_v2_instruction (
                 "liquidity",
                 "amount0_max",
                 "amount1_max",
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Insert for IncreaseLiquidityV2Row {
 impl carbon_core::postgres::operations::Upsert for IncreaseLiquidityV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO increase_liquidity_v2_instruction (
+            r#"INSERT INTO raydium_clmm_increase_liquidity_v2_instruction (
                 "liquidity",
                 "amount0_max",
                 "amount1_max",
@@ -154,7 +154,7 @@ impl carbon_core::postgres::operations::Delete for IncreaseLiquidityV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM increase_liquidity_v2_instruction WHERE
+            r#"DELETE FROM raydium_clmm_increase_liquidity_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -181,7 +181,7 @@ impl carbon_core::postgres::operations::Lookup for IncreaseLiquidityV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM increase_liquidity_v2_instruction WHERE
+            r#"SELECT * FROM raydium_clmm_increase_liquidity_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -204,7 +204,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IncreaseLiquidityV2MigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS increase_liquidity_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_increase_liquidity_v2_instruction (
                 -- Instruction data
                 "liquidity" NUMERIC(39) NOT NULL,
                 "amount0_max" NUMERIC(20) NOT NULL,
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IncreaseLiquidityV2MigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS increase_liquidity_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_increase_liquidity_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initiate_authority_transfer::InitiateAuthorityTransfer
 {
     fn table() -> &'static str {
-        "initiate_authority_transfer_instruction"
+        "boop_initiate_authority_transfer_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for InitiateAuthorityTransferRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initiate_authority_transfer_instruction (
+            INSERT INTO boop_initiate_authority_transfer_instruction (
                 "new_authority",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for InitiateAuthorityTransferRow 
 impl carbon_core::postgres::operations::Upsert for InitiateAuthorityTransferRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initiate_authority_transfer_instruction (
+            r#"INSERT INTO boop_initiate_authority_transfer_instruction (
                 "new_authority",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for InitiateAuthorityTransferRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initiate_authority_transfer_instruction WHERE
+            r#"DELETE FROM boop_initiate_authority_transfer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for InitiateAuthorityTransferRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initiate_authority_transfer_instruction WHERE
+            r#"SELECT * FROM boop_initiate_authority_transfer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitiateAuthorityTransferMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initiate_authority_transfer_instruction (
+            r#"CREATE TABLE IF NOT EXISTS boop_initiate_authority_transfer_instruction (
                 -- Instruction data
                 "new_authority" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitiateAuthorityTransferMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initiate_authority_transfer_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS boop_initiate_authority_transfer_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

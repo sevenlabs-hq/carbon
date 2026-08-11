@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::marginfi_account_init_liq_record::MarginfiAccountInitLiqRecord
 {
     fn table() -> &'static str {
-        "marginfi_account_init_liq_record_instruction"
+        "marginfi_v2_marginfi_account_init_liq_record_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiAccountInitLiqRecordR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO marginfi_account_init_liq_record_instruction (
+            INSERT INTO marginfi_v2_marginfi_account_init_liq_record_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiAccountInitLiqRecordR
 impl carbon_core::postgres::operations::Upsert for MarginfiAccountInitLiqRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO marginfi_account_init_liq_record_instruction (
+            r#"INSERT INTO marginfi_v2_marginfi_account_init_liq_record_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for MarginfiAccountInitLiqRecordR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM marginfi_account_init_liq_record_instruction WHERE
+            r#"DELETE FROM marginfi_v2_marginfi_account_init_liq_record_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for MarginfiAccountInitLiqRecordR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM marginfi_account_init_liq_record_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_marginfi_account_init_liq_record_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginfiAccountInitLiqRecordMi
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS marginfi_account_init_liq_record_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_marginfi_account_init_liq_record_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,9 +181,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginfiAccountInitLiqRecordMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_account_init_liq_record_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS marginfi_v2_marginfi_account_init_liq_record_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

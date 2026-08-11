@@ -44,7 +44,7 @@ impl TryFrom<ProxySwapRow> for crate::instructions::proxy_swap::ProxySwap {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::proxy_swap::ProxySwap {
     fn table() -> &'static str {
-        "proxy_swap_instruction"
+        "okx_dex_proxy_swap_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -65,7 +65,7 @@ impl carbon_core::postgres::operations::Insert for ProxySwapRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO proxy_swap_instruction (
+            INSERT INTO okx_dex_proxy_swap_instruction (
                 "data",
                 "order_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -91,7 +91,7 @@ impl carbon_core::postgres::operations::Insert for ProxySwapRow {
 impl carbon_core::postgres::operations::Upsert for ProxySwapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO proxy_swap_instruction (
+            r#"INSERT INTO okx_dex_proxy_swap_instruction (
                 "data",
                 "order_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for ProxySwapRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM proxy_swap_instruction WHERE
+            r#"DELETE FROM okx_dex_proxy_swap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,7 +159,7 @@ impl carbon_core::postgres::operations::Lookup for ProxySwapRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM proxy_swap_instruction WHERE
+            r#"SELECT * FROM okx_dex_proxy_swap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -182,7 +182,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProxySwapMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS proxy_swap_instruction (
+            r#"CREATE TABLE IF NOT EXISTS okx_dex_proxy_swap_instruction (
                 -- Instruction data
                 "data" JSONB NOT NULL,
                 "order_id" NUMERIC(20) NOT NULL,
@@ -204,7 +204,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProxySwapMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS proxy_swap_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS okx_dex_proxy_swap_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

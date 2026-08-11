@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::liquidation_record::LiquidationRecord
 {
     fn table() -> &'static str {
-        "liquidation_record_account"
+        "marginfi_v2_liquidation_record_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -113,7 +113,7 @@ impl carbon_core::postgres::operations::Insert for LiquidationRecordRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO liquidation_record_account (
+            INSERT INTO marginfi_v2_liquidation_record_account (
                 "key",
                 "marginfi_account",
                 "record_payer",
@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Insert for LiquidationRecordRow {
 impl carbon_core::postgres::operations::Upsert for LiquidationRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO liquidation_record_account (
+            r#"INSERT INTO marginfi_v2_liquidation_record_account (
                 "key",
                 "marginfi_account",
                 "record_payer",
@@ -202,7 +202,7 @@ impl carbon_core::postgres::operations::Delete for LiquidationRecordRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM liquidation_record_account WHERE
+            r#"DELETE FROM marginfi_v2_liquidation_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -223,7 +223,7 @@ impl carbon_core::postgres::operations::Lookup for LiquidationRecordRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM liquidation_record_account WHERE
+            r#"SELECT * FROM marginfi_v2_liquidation_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -244,7 +244,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LiquidationRecordMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS liquidation_record_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_liquidation_record_account (
                 -- Account data
                 "key" BYTEA NOT NULL,
                 "marginfi_account" BYTEA NOT NULL,
@@ -270,7 +270,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LiquidationRecordMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS liquidation_record_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_liquidation_record_account"#)
             .execute(connection)
             .await?;
         Ok(())

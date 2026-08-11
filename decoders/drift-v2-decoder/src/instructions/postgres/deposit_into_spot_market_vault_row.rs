@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::deposit_into_spot_market_vault::DepositIntoSpotMarketVault
 {
     fn table() -> &'static str {
-        "deposit_into_spot_market_vault_instruction"
+        "drift_v2_deposit_into_spot_market_vault_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for DepositIntoSpotMarketVaultRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO deposit_into_spot_market_vault_instruction (
+            INSERT INTO drift_v2_deposit_into_spot_market_vault_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for DepositIntoSpotMarketVaultRow
 impl carbon_core::postgres::operations::Upsert for DepositIntoSpotMarketVaultRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO deposit_into_spot_market_vault_instruction (
+            r#"INSERT INTO drift_v2_deposit_into_spot_market_vault_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for DepositIntoSpotMarketVaultRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM deposit_into_spot_market_vault_instruction WHERE
+            r#"DELETE FROM drift_v2_deposit_into_spot_market_vault_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for DepositIntoSpotMarketVaultRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM deposit_into_spot_market_vault_instruction WHERE
+            r#"SELECT * FROM drift_v2_deposit_into_spot_market_vault_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositIntoSpotMarketVaultMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS deposit_into_spot_market_vault_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_deposit_into_spot_market_vault_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositIntoSpotMarketVaultMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS deposit_into_spot_market_vault_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_deposit_into_spot_market_vault_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

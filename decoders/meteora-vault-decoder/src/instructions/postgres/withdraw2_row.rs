@@ -41,7 +41,7 @@ impl TryFrom<Withdraw2Row> for crate::instructions::withdraw2::Withdraw2 {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::withdraw2::Withdraw2 {
     fn table() -> &'static str {
-        "withdraw2_instruction"
+        "meteora_vault_withdraw2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for Withdraw2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw2_instruction (
+            INSERT INTO meteora_vault_withdraw2_instruction (
                 "unmint_amount",
                 "min_out_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for Withdraw2Row {
 impl carbon_core::postgres::operations::Upsert for Withdraw2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw2_instruction (
+            r#"INSERT INTO meteora_vault_withdraw2_instruction (
                 "unmint_amount",
                 "min_out_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Delete for Withdraw2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw2_instruction WHERE
+            r#"DELETE FROM meteora_vault_withdraw2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Lookup for Withdraw2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw2_instruction WHERE
+            r#"SELECT * FROM meteora_vault_withdraw2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for Withdraw2MigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_vault_withdraw2_instruction (
                 -- Instruction data
                 "unmint_amount" NUMERIC(20) NOT NULL,
                 "min_out_amount" NUMERIC(20) NOT NULL,
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for Withdraw2MigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_vault_withdraw2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

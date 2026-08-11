@@ -22,7 +22,9 @@ pub mod sync_user_volume_accumulator_row;
 pub mod toggle_cashback_enabled_row;
 pub mod toggle_mayhem_mode_row;
 pub mod transfer_creator_fees_to_pump_row;
+pub mod transfer_creator_fees_to_pump_v2_row;
 pub mod update_admin_row;
+pub mod update_buyback_config_row;
 pub mod update_fee_config_row;
 pub mod withdraw_row;
 
@@ -34,8 +36,8 @@ pub use self::{
     extend_account_row::*, init_user_volume_accumulator_row::*, migrate_pool_coin_creator_row::*,
     sell_row::*, set_coin_creator_row::*, set_reserved_fee_recipients_row::*,
     sync_user_volume_accumulator_row::*, toggle_cashback_enabled_row::*, toggle_mayhem_mode_row::*,
-    transfer_creator_fees_to_pump_row::*, update_admin_row::*, update_fee_config_row::*,
-    withdraw_row::*,
+    transfer_creator_fees_to_pump_row::*, transfer_creator_fees_to_pump_v2_row::*,
+    update_admin_row::*, update_buyback_config_row::*, update_fee_config_row::*, withdraw_row::*,
 };
 use super::PumpSwapInstruction;
 
@@ -74,7 +76,9 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for PumpSwapInstructionsMigration 
             Box::new(ToggleCashbackEnabledMigrationOperation),
             Box::new(ToggleMayhemModeMigrationOperation),
             Box::new(TransferCreatorFeesToPumpMigrationOperation),
+            Box::new(TransferCreatorFeesToPumpV2MigrationOperation),
             Box::new(UpdateAdminMigrationOperation),
+            Box::new(UpdateBuybackConfigMigrationOperation),
             Box::new(UpdateFeeConfigMigrationOperation),
             Box::new(WithdrawMigrationOperation),
             Box::new(CpiEventMigrationOperation),
@@ -318,8 +322,22 @@ impl carbon_core::postgres::operations::Insert for PumpSwapInstructionWithMetada
                 row.insert(pool).await?;
                 Ok(())
             }
+            PumpSwapInstruction::TransferCreatorFeesToPumpV2 { data, .. } => {
+                let row = transfer_creator_fees_to_pump_v2_row::TransferCreatorFeesToPumpV2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
             PumpSwapInstruction::UpdateAdmin { data, .. } => {
                 let row = update_admin_row::UpdateAdminRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            PumpSwapInstruction::UpdateBuybackConfig { data, .. } => {
+                let row = update_buyback_config_row::UpdateBuybackConfigRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -566,8 +584,22 @@ impl carbon_core::postgres::operations::Upsert for PumpSwapInstructionWithMetada
                 row.upsert(pool).await?;
                 Ok(())
             }
+            PumpSwapInstruction::TransferCreatorFeesToPumpV2 { data, .. } => {
+                let row = transfer_creator_fees_to_pump_v2_row::TransferCreatorFeesToPumpV2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
             PumpSwapInstruction::UpdateAdmin { data, .. } => {
                 let row = update_admin_row::UpdateAdminRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            PumpSwapInstruction::UpdateBuybackConfig { data, .. } => {
+                let row = update_buyback_config_row::UpdateBuybackConfigRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

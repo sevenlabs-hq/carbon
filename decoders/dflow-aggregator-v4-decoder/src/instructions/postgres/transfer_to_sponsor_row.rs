@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::transfer_to_sponsor::TransferToSponsor
 {
     fn table() -> &'static str {
-        "transfer_to_sponsor_instruction"
+        "dflow_aggregator_v4_transfer_to_sponsor_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for TransferToSponsorRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO transfer_to_sponsor_instruction (
+            INSERT INTO dflow_aggregator_v4_transfer_to_sponsor_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for TransferToSponsorRow {
 impl carbon_core::postgres::operations::Upsert for TransferToSponsorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO transfer_to_sponsor_instruction (
+            r#"INSERT INTO dflow_aggregator_v4_transfer_to_sponsor_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for TransferToSponsorRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM transfer_to_sponsor_instruction WHERE
+            r#"DELETE FROM dflow_aggregator_v4_transfer_to_sponsor_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for TransferToSponsorRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM transfer_to_sponsor_instruction WHERE
+            r#"SELECT * FROM dflow_aggregator_v4_transfer_to_sponsor_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferToSponsorMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS transfer_to_sponsor_instruction (
+            r#"CREATE TABLE IF NOT EXISTS dflow_aggregator_v4_transfer_to_sponsor_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferToSponsorMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS transfer_to_sponsor_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS dflow_aggregator_v4_transfer_to_sponsor_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

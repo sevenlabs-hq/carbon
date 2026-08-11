@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::referrer_token_state::ReferrerTokenState
 {
     fn table() -> &'static str {
-        "referrer_token_state_account"
+        "kamino_lending_referrer_token_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for ReferrerTokenStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO referrer_token_state_account (
+            INSERT INTO kamino_lending_referrer_token_state_account (
                 "referrer",
                 "mint",
                 "amount_unclaimed_sf",
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Insert for ReferrerTokenStateRow {
 impl carbon_core::postgres::operations::Upsert for ReferrerTokenStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO referrer_token_state_account (
+            r#"INSERT INTO kamino_lending_referrer_token_state_account (
                 "referrer",
                 "mint",
                 "amount_unclaimed_sf",
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Delete for ReferrerTokenStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM referrer_token_state_account WHERE
+            r#"DELETE FROM kamino_lending_referrer_token_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -190,7 +190,7 @@ impl carbon_core::postgres::operations::Lookup for ReferrerTokenStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM referrer_token_state_account WHERE
+            r#"SELECT * FROM kamino_lending_referrer_token_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReferrerTokenStateMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS referrer_token_state_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_referrer_token_state_account (
                 -- Account data
                 "referrer" BYTEA NOT NULL,
                 "mint" BYTEA NOT NULL,
@@ -234,7 +234,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReferrerTokenStateMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS referrer_token_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_referrer_token_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

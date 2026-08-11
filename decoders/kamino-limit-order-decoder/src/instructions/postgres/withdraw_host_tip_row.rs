@@ -33,7 +33,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::withdraw_host_tip::WithdrawHostTip
 {
     fn table() -> &'static str {
-        "withdraw_host_tip_instruction"
+        "kamino_limit_order_withdraw_host_tip_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawHostTipRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_host_tip_instruction (
+            INSERT INTO kamino_limit_order_withdraw_host_tip_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawHostTipRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawHostTipRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_host_tip_instruction (
+            r#"INSERT INTO kamino_limit_order_withdraw_host_tip_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawHostTipRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_host_tip_instruction WHERE
+            r#"DELETE FROM kamino_limit_order_withdraw_host_tip_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawHostTipRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_host_tip_instruction WHERE
+            r#"SELECT * FROM kamino_limit_order_withdraw_host_tip_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,7 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawHostTipMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_host_tip_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_limit_order_withdraw_host_tip_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawHostTipMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_host_tip_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_limit_order_withdraw_host_tip_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

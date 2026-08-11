@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_pool_status::UpdatePoolStatus
 {
     fn table() -> &'static str {
-        "update_pool_status_instruction"
+        "raydium_cpmm_update_pool_status_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePoolStatusRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_pool_status_instruction (
+            INSERT INTO raydium_cpmm_update_pool_status_instruction (
                 "status",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePoolStatusRow {
 impl carbon_core::postgres::operations::Upsert for UpdatePoolStatusRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_pool_status_instruction (
+            r#"INSERT INTO raydium_cpmm_update_pool_status_instruction (
                 "status",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePoolStatusRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_pool_status_instruction WHERE
+            r#"DELETE FROM raydium_cpmm_update_pool_status_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Lookup for UpdatePoolStatusRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_pool_status_instruction WHERE
+            r#"SELECT * FROM raydium_cpmm_update_pool_status_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdatePoolStatusMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_pool_status_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_cpmm_update_pool_status_instruction (
                 -- Instruction data
                 "status" INT2 NOT NULL,
                 -- Instruction metadata
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdatePoolStatusMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_pool_status_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_cpmm_update_pool_status_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

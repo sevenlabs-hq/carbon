@@ -50,7 +50,7 @@ impl TryFrom<OraclePricesRow> for crate::accounts::oracle_prices::OraclePrices {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::oracle_prices::OraclePrices {
     fn table() -> &'static str {
-        "oracle_prices_account"
+        "kamino_farms_oracle_prices_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -63,7 +63,7 @@ impl carbon_core::postgres::operations::Insert for OraclePricesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO oracle_prices_account (
+            INSERT INTO kamino_farms_oracle_prices_account (
                 "oracle_mappings",
                 "prices",
                 __pubkey, __slot
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for OraclePricesRow {
 impl carbon_core::postgres::operations::Upsert for OraclePricesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO oracle_prices_account (
+            r#"INSERT INTO kamino_farms_oracle_prices_account (
                 "oracle_mappings",
                 "prices",
                 __pubkey, __slot
@@ -117,7 +117,7 @@ impl carbon_core::postgres::operations::Delete for OraclePricesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM oracle_prices_account WHERE
+            r#"DELETE FROM kamino_farms_oracle_prices_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for OraclePricesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM oracle_prices_account WHERE
+            r#"SELECT * FROM kamino_farms_oracle_prices_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -159,7 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OraclePricesMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS oracle_prices_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_farms_oracle_prices_account (
                 -- Account data
                 "oracle_mappings" BYTEA NOT NULL,
                 "prices" JSONB NOT NULL,
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OraclePricesMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS oracle_prices_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_farms_oracle_prices_account"#)
             .execute(connection)
             .await?;
         Ok(())

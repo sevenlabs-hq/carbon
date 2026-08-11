@@ -39,6 +39,8 @@ pub struct BuyEventGraphQL {
     pub ix_name: String,
     pub cashback_fee_basis_points: U64,
     pub cashback: U64,
+    pub buyback_fee_basis_points: U64,
+    pub buyback_fee: U64,
 }
 
 impl From<crate::types::BuyEvent> for BuyEventGraphQL {
@@ -114,6 +116,10 @@ impl From<crate::types::BuyEvent> for BuyEventGraphQL {
                 original.cashback_fee_basis_points,
             ),
             cashback: carbon_core::graphql::primitives::U64(original.cashback),
+            buyback_fee_basis_points: carbon_core::graphql::primitives::U64(
+                original.buyback_fee_basis_points,
+            ),
+            buyback_fee: carbon_core::graphql::primitives::U64(original.buyback_fee),
         }
     }
 }

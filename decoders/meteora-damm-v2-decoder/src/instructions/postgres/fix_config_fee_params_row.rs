@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::fix_config_fee_params::FixConfigFeeParams
 {
     fn table() -> &'static str {
-        "fix_config_fee_params_instruction"
+        "meteora_damm_v2_fix_config_fee_params_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for FixConfigFeeParamsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fix_config_fee_params_instruction (
+            INSERT INTO meteora_damm_v2_fix_config_fee_params_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for FixConfigFeeParamsRow {
 impl carbon_core::postgres::operations::Upsert for FixConfigFeeParamsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fix_config_fee_params_instruction (
+            r#"INSERT INTO meteora_damm_v2_fix_config_fee_params_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for FixConfigFeeParamsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fix_config_fee_params_instruction WHERE
+            r#"DELETE FROM meteora_damm_v2_fix_config_fee_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for FixConfigFeeParamsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fix_config_fee_params_instruction WHERE
+            r#"SELECT * FROM meteora_damm_v2_fix_config_fee_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FixConfigFeeParamsMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fix_config_fee_params_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_fix_config_fee_params_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FixConfigFeeParamsMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fix_config_fee_params_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_fix_config_fee_params_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

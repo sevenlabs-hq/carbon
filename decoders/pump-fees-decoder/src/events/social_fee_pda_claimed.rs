@@ -15,6 +15,7 @@ pub struct SocialFeePdaClaimedEvent {
     pub lifetime_claimed: u64,
     pub recipient_balance_before: u64,
     pub recipient_balance_after: u64,
+    pub quote_mint: Pubkey,
 }
 
 impl CarbonDeserialize for SocialFeePdaClaimedEvent {

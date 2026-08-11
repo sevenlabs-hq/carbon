@@ -268,7 +268,7 @@ impl Pipeline {
                             for update in updates {
                               let process_result = self.process(
                                   #[cfg(feature="batch")]
-                                  update_id.clone(),
+                                  &update_id,
                                   update.clone(),
                                   datasource_id.clone()
                               ).await;
@@ -334,7 +334,7 @@ impl Pipeline {
 
     async fn process(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         update: Update,
         datasource_id: DatasourceId,
     ) -> CarbonResult<()> {
@@ -363,7 +363,7 @@ impl Pipeline {
                     }) {
                         pipe.run(
                             #[cfg(feature = "batch")]
-                            update_id.clone(),
+                            update_id,
                             (account_metadata.clone(), account_update.account.clone()),
                         )
                         .await?;
@@ -400,7 +400,7 @@ impl Pipeline {
                         }) {
                             pipe.run(
                                 #[cfg(feature = "batch")]
-                                update_id.clone(),
+                                update_id,
                                 nested_instruction,
                             )
                             .await?;
@@ -421,7 +421,7 @@ impl Pipeline {
                     }) {
                         pipe.run(
                             #[cfg(feature = "batch")]
-                            update_id.clone(),
+                            update_id,
                             transaction_metadata.clone(),
                             &instructions_with_metadata,
                         )
@@ -445,7 +445,7 @@ impl Pipeline {
                     }) {
                         pipe.run(
                             #[cfg(feature = "batch")]
-                            update_id.clone(),
+                            update_id,
                             account_deletion.clone(),
                         )
                         .await?;
@@ -468,7 +468,7 @@ impl Pipeline {
                     }) {
                         pipe.run(
                             #[cfg(feature = "batch")]
-                            update_id.clone(),
+                            update_id,
                             block_details.clone(),
                         )
                         .await?;

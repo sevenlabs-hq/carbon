@@ -19,6 +19,7 @@ pub struct SetTokenBadgeAuthorityInstructionAccounts {
     pub whirlpools_config_extension: solana_pubkey::Pubkey,
     pub config_extension_authority: solana_pubkey::Pubkey,
     pub new_token_badge_authority: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -54,6 +55,7 @@ impl ArrangeAccounts for SetTokenBadgeAuthority {
         let whirlpools_config_extension = next_account(&mut iter)?;
         let config_extension_authority = next_account(&mut iter)?;
         let new_token_badge_authority = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -62,6 +64,7 @@ impl ArrangeAccounts for SetTokenBadgeAuthority {
             whirlpools_config_extension,
             config_extension_authority,
             new_token_badge_authority,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

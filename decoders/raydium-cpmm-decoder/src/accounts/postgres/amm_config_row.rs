@@ -94,7 +94,7 @@ impl TryFrom<AmmConfigRow> for crate::accounts::amm_config::AmmConfig {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::amm_config::AmmConfig {
     fn table() -> &'static str {
-        "amm_config_account"
+        "raydium_cpmm_amm_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Insert for AmmConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO amm_config_account (
+            INSERT INTO raydium_cpmm_amm_config_account (
                 "bump",
                 "disable_create_pool",
                 "index",
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Insert for AmmConfigRow {
 impl carbon_core::postgres::operations::Upsert for AmmConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO amm_config_account (
+            r#"INSERT INTO raydium_cpmm_amm_config_account (
                 "bump",
                 "disable_create_pool",
                 "index",
@@ -220,7 +220,7 @@ impl carbon_core::postgres::operations::Delete for AmmConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM amm_config_account WHERE
+            r#"DELETE FROM raydium_cpmm_amm_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -241,7 +241,7 @@ impl carbon_core::postgres::operations::Lookup for AmmConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM amm_config_account WHERE
+            r#"SELECT * FROM raydium_cpmm_amm_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -262,7 +262,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmConfigMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS amm_config_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_cpmm_amm_config_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "disable_create_pool" BOOLEAN NOT NULL,
@@ -290,7 +290,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmConfigMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS amm_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_cpmm_amm_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

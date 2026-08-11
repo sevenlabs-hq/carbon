@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::migration_damm_v2_create_metadata::MigrationDammV2CreateMetadata
 {
     fn table() -> &'static str {
-        "migration_damm_v2_create_metadata_instruction"
+        "meteora_dbc_migration_damm_v2_create_metadata_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for MigrationDammV2CreateMetadata
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO migration_damm_v2_create_metadata_instruction (
+            INSERT INTO meteora_dbc_migration_damm_v2_create_metadata_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for MigrationDammV2CreateMetadata
 impl carbon_core::postgres::operations::Upsert for MigrationDammV2CreateMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO migration_damm_v2_create_metadata_instruction (
+            r#"INSERT INTO meteora_dbc_migration_damm_v2_create_metadata_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for MigrationDammV2CreateMetadata
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM migration_damm_v2_create_metadata_instruction WHERE
+            r#"DELETE FROM meteora_dbc_migration_damm_v2_create_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for MigrationDammV2CreateMetadata
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM migration_damm_v2_create_metadata_instruction WHERE
+            r#"SELECT * FROM meteora_dbc_migration_damm_v2_create_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,8 +160,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MigrationDammV2CreateMetadataM
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS migration_damm_v2_create_metadata_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS meteora_dbc_migration_damm_v2_create_metadata_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -170,10 +169,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MigrationDammV2CreateMetadataM
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -181,9 +177,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MigrationDammV2CreateMetadataM
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS migration_damm_v2_create_metadata_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_dbc_migration_damm_v2_create_metadata_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

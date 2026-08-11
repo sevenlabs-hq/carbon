@@ -53,8 +53,11 @@ pub struct PoolState {
     pub status: u8,
     /// Fee on which token (0 = FromInput, 1 = Token0Only, 2 = Token1Only)
     pub fee_on: u8,
+    /// Client-supplied index seed (u16 LE) for permissioned pools; [0,0] =
+    /// legacy pool.
+    pub seed_index: [u8; 2],
     /// Leave blank for future use
-    pub padding: [u8; 6],
+    pub padding: [u8; 4],
     pub reward_infos: [RewardInfo; 3],
     /// Packed initialized tick array state
     pub tick_array_bitmap: [u64; 16],

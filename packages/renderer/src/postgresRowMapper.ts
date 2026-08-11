@@ -1,6 +1,6 @@
-import { isNode, resolveNestedTypeNode, snakeCase, SnakeCaseString, TypeNode } from '@codama/nodes';
+import { isNode, resolveNestedTypeNode, type SnakeCaseString, snakeCase, type TypeNode } from '@codama/nodes';
 import { visit } from '@codama/visitors-core';
-import { PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
+import type { PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { isCopyType, isPostgresPrimitiveType, typesMatch } from './utils/postgresHelpers';
 
 export type FlattenedField = {
@@ -57,9 +57,13 @@ export class PostgresRowMapper {
         const { inOption } = opts;
 
         const makeName = (nameParts: string[]): string => {
-            let col = snakeCase(nameParts.join('_'));
+            const joined = nameParts.join('_');
+            let col = snakeCase(joined);
+            if (joined.startsWith('_') && !col.startsWith('_')) {
+                col = `_${col}` as SnakeCaseString;
+            }
             if (seen.has(col)) {
-                let i = 1;
+                let i = 0;
                 while (seen.has(`${col}_${i}`)) i++;
                 col = `${col}_${i}` as SnakeCaseString;
             }
@@ -147,8 +151,49 @@ export class PostgresRowMapper {
         };
 
         if (isNode(typeNode, 'structTypeNode')) {
-            for (const field of typeNode.fields) {
-                out.push(...this.flattenType(field.type, [...prefix, snakeCase(field.name)], [], seen, { inOption }));
+            const baseNames = typeNode.fields.map(field => snakeCase(field.name));
+            const totalByName = new Map<string, number>();
+            const occurrenceByName = new Map<string, number>();
+            const usedFieldNames = new Set<string>();
+
+            for (const name of baseNames) {
+                totalByName.set(name, (totalByName.get(name) ?? 0) + 1);
+            }
+
+            const getUniqueFieldName = (baseFieldName: SnakeCaseString): SnakeCaseString => {
+                const total = totalByName.get(baseFieldName) ?? 0;
+                const occurrence = occurrenceByName.get(baseFieldName) ?? 0;
+                occurrenceByName.set(baseFieldName, occurrence + 1);
+
+                let candidate = baseFieldName as string;
+                if (total > 1) {
+                    if (occurrence === 0) {
+                        candidate = `_${baseFieldName}`;
+                    } else if (occurrence === 1) {
+                        candidate = baseFieldName;
+                    } else {
+                        candidate = `${baseFieldName}_${occurrence - 2}`;
+                    }
+                }
+
+                if (!usedFieldNames.has(candidate)) {
+                    usedFieldNames.add(candidate);
+                    return candidate as SnakeCaseString;
+                }
+
+                let suffix = 0;
+                let fallback = `${candidate}_${suffix++}`;
+                while (usedFieldNames.has(fallback)) {
+                    fallback = `${candidate}_${suffix++}`;
+                }
+                usedFieldNames.add(fallback);
+                return fallback as SnakeCaseString;
+            };
+
+            for (let i = 0; i < typeNode.fields.length; i++) {
+                const field = typeNode.fields[i];
+                const uniqueFieldName = getUniqueFieldName(baseNames[i]);
+                out.push(...this.flattenType(field.type, [...prefix, uniqueFieldName], [], seen, { inOption }));
             }
             return out;
         }
@@ -418,7 +463,6 @@ export class PostgresRowMapper {
                             return `${prefix}.into_iter().map(${mapExpr}).collect::<Result<Vec<_>, carbon_core::error::Error>>().map_err(|_| carbon_core::error::Error::Custom("Failed to collect array elements".to_string()))?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
                         }
                     }
-                    break;
                 case 'prefixedCountNode':
                     if (isJson) {
                         if (
@@ -447,7 +491,6 @@ export class PostgresRowMapper {
 
                         return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
                     }
-                    break;
                 case 'remainderCountNode':
                     if (isJson) {
                         if (
@@ -477,7 +520,6 @@ export class PostgresRowMapper {
                         }
                         return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
                     }
-                    break;
             }
         }
         if (isNode(typeNode, 'fixedSizeTypeNode')) {

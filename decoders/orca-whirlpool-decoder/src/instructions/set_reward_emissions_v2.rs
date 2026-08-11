@@ -40,6 +40,7 @@ pub struct SetRewardEmissionsV2InstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub reward_authority: solana_pubkey::Pubkey,
     pub reward_vault: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -74,6 +75,7 @@ impl ArrangeAccounts for SetRewardEmissionsV2 {
         let whirlpool = next_account(&mut iter)?;
         let reward_authority = next_account(&mut iter)?;
         let reward_vault = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -81,6 +83,7 @@ impl ArrangeAccounts for SetRewardEmissionsV2 {
             whirlpool,
             reward_authority,
             reward_vault,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

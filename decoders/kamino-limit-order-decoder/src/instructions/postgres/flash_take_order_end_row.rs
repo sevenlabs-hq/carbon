@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::flash_take_order_end::FlashTakeOrderEnd
 {
     fn table() -> &'static str {
-        "flash_take_order_end_instruction"
+        "kamino_limit_order_flash_take_order_end_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for FlashTakeOrderEndRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO flash_take_order_end_instruction (
+            INSERT INTO kamino_limit_order_flash_take_order_end_instruction (
                 "input_amount",
                 "min_output_amount",
                 "tip_amount_permissionless_taking",
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for FlashTakeOrderEndRow {
 impl carbon_core::postgres::operations::Upsert for FlashTakeOrderEndRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO flash_take_order_end_instruction (
+            r#"INSERT INTO kamino_limit_order_flash_take_order_end_instruction (
                 "input_amount",
                 "min_output_amount",
                 "tip_amount_permissionless_taking",
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for FlashTakeOrderEndRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM flash_take_order_end_instruction WHERE
+            r#"DELETE FROM kamino_limit_order_flash_take_order_end_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Lookup for FlashTakeOrderEndRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM flash_take_order_end_instruction WHERE
+            r#"SELECT * FROM kamino_limit_order_flash_take_order_end_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FlashTakeOrderEndMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS flash_take_order_end_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_limit_order_flash_take_order_end_instruction (
                 -- Instruction data
                 "input_amount" NUMERIC(20) NOT NULL,
                 "min_output_amount" NUMERIC(20) NOT NULL,
@@ -215,7 +215,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FlashTakeOrderEndMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS flash_take_order_end_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_limit_order_flash_take_order_end_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

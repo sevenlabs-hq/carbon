@@ -4,7 +4,6 @@ pub mod add_insurance_fund_stake_row;
 pub mod add_market_to_amm_cache_row;
 pub mod admin_deposit_row;
 pub mod admin_update_user_stats_paused_operations_row;
-pub mod admin_withdraw_from_insurance_fund_vault_row;
 pub mod begin_insurance_fund_swap_row;
 pub mod begin_lp_swap_row;
 pub mod begin_swap_row;
@@ -19,13 +18,10 @@ pub mod cpi_event_row;
 pub mod delete_amm_cache_row;
 pub mod delete_initialized_perp_market_row;
 pub mod delete_initialized_spot_market_row;
-pub mod delete_openbook_v2_fulfillment_config_row;
 pub mod delete_prelaunch_oracle_row;
-pub mod delete_serum_fulfillment_config_row;
 pub mod delete_signed_msg_user_orders_row;
 pub mod delete_user_row;
 pub mod deposit_into_insurance_fund_stake_row;
-pub mod deposit_into_isolated_perp_position_row;
 pub mod deposit_into_perp_market_fee_pool_row;
 pub mod deposit_into_spot_market_revenue_pool_row;
 pub mod deposit_into_spot_market_vault_row;
@@ -90,7 +86,6 @@ pub mod place_and_take_perp_order_row;
 pub mod place_and_take_spot_order_row;
 pub mod place_orders_row;
 pub mod place_perp_order_row;
-pub mod place_scale_orders_row;
 pub mod place_signed_msg_taker_order_row;
 pub mod place_spot_order_row;
 pub mod post_multi_pyth_pull_oracle_updates_atomic_row;
@@ -121,7 +116,6 @@ pub mod settle_pnl_row;
 pub mod settle_revenue_to_insurance_fund_row;
 pub mod sweep_fuel_row;
 pub mod transfer_deposit_row;
-pub mod transfer_isolated_perp_position_deposit_row;
 pub mod transfer_perp_position_row;
 pub mod transfer_pools_row;
 pub mod transfer_protocol_if_shares_to_revenue_pool_row;
@@ -166,7 +160,6 @@ pub mod update_perp_market_amm_spread_adjustment_row;
 pub mod update_perp_market_amm_summary_stats_row;
 pub mod update_perp_market_base_spread_row;
 pub mod update_perp_market_concentration_coef_row;
-pub mod update_perp_market_config_row;
 pub mod update_perp_market_contract_tier_row;
 pub mod update_perp_market_curve_update_intensity_row;
 pub mod update_perp_market_expiry_row;
@@ -245,7 +238,6 @@ pub mod update_withdraw_guard_threshold_row;
 pub mod view_lp_pool_add_liquidity_fees_row;
 pub mod view_lp_pool_remove_liquidity_fees_row;
 pub mod view_lp_pool_swap_fees_row;
-pub mod withdraw_from_isolated_perp_position_row;
 pub mod withdraw_from_program_vault_row;
 pub mod withdraw_row;
 pub mod zero_mm_oracle_fields_row;
@@ -253,17 +245,14 @@ pub mod zero_mm_oracle_fields_row;
 pub use self::{
     add_amm_constituent_mapping_data_row::*, add_insurance_fund_stake_row::*,
     add_market_to_amm_cache_row::*, admin_deposit_row::*,
-    admin_update_user_stats_paused_operations_row::*,
-    admin_withdraw_from_insurance_fund_vault_row::*, begin_insurance_fund_swap_row::*,
+    admin_update_user_stats_paused_operations_row::*, begin_insurance_fund_swap_row::*,
     begin_lp_swap_row::*, begin_swap_row::*, cancel_order_by_user_id_row::*, cancel_order_row::*,
     cancel_orders_by_ids_row::*, cancel_orders_row::*,
     cancel_request_remove_insurance_fund_stake_row::*, change_approved_builder_row::*,
     change_signed_msg_ws_delegate_status_row::*, cpi_event_row::*, delete_amm_cache_row::*,
     delete_initialized_perp_market_row::*, delete_initialized_spot_market_row::*,
-    delete_openbook_v2_fulfillment_config_row::*, delete_prelaunch_oracle_row::*,
-    delete_serum_fulfillment_config_row::*, delete_signed_msg_user_orders_row::*,
-    delete_user_row::*, deposit_into_insurance_fund_stake_row::*,
-    deposit_into_isolated_perp_position_row::*, deposit_into_perp_market_fee_pool_row::*,
+    delete_prelaunch_oracle_row::*, delete_signed_msg_user_orders_row::*, delete_user_row::*,
+    deposit_into_insurance_fund_stake_row::*, deposit_into_perp_market_fee_pool_row::*,
     deposit_into_spot_market_revenue_pool_row::*, deposit_into_spot_market_vault_row::*,
     deposit_row::*, deposit_to_program_vault_row::*, disable_user_high_leverage_mode_row::*,
     enable_user_high_leverage_mode_row::*, end_insurance_fund_swap_row::*, end_lp_swap_row::*,
@@ -289,10 +278,10 @@ pub use self::{
     phoenix_fulfillment_config_status_row::*, place_and_make_perp_order_row::*,
     place_and_make_signed_msg_perp_order_row::*, place_and_make_spot_order_row::*,
     place_and_take_perp_order_row::*, place_and_take_spot_order_row::*, place_orders_row::*,
-    place_perp_order_row::*, place_scale_orders_row::*, place_signed_msg_taker_order_row::*,
-    place_spot_order_row::*, post_multi_pyth_pull_oracle_updates_atomic_row::*,
-    post_pyth_lazer_oracle_update_row::*, post_pyth_pull_oracle_update_atomic_row::*,
-    recenter_perp_market_amm_crank_row::*, recenter_perp_market_amm_row::*, reclaim_rent_row::*,
+    place_perp_order_row::*, place_signed_msg_taker_order_row::*, place_spot_order_row::*,
+    post_multi_pyth_pull_oracle_updates_atomic_row::*, post_pyth_lazer_oracle_update_row::*,
+    post_pyth_pull_oracle_update_atomic_row::*, recenter_perp_market_amm_crank_row::*,
+    recenter_perp_market_amm_row::*, reclaim_rent_row::*,
     remove_amm_constituent_mapping_data_row::*, remove_insurance_fund_stake_row::*,
     repeg_amm_curve_row::*, request_remove_insurance_fund_stake_row::*, reset_fuel_season_row::*,
     reset_perp_market_amm_oracle_twap_row::*, resize_revenue_share_escrow_orders_row::*,
@@ -301,16 +290,15 @@ pub use self::{
     set_user_status_to_being_liquidated_row::*, settle_expired_market_pools_to_revenue_pool_row::*,
     settle_expired_market_row::*, settle_funding_payment_row::*, settle_multiple_pnls_row::*,
     settle_perp_to_lp_pool_row::*, settle_pnl_row::*, settle_revenue_to_insurance_fund_row::*,
-    sweep_fuel_row::*, transfer_deposit_row::*, transfer_isolated_perp_position_deposit_row::*,
-    transfer_perp_position_row::*, transfer_pools_row::*,
-    transfer_protocol_if_shares_to_revenue_pool_row::*, trigger_order_row::*, update_admin_row::*,
-    update_amm_cache_row::*, update_amm_constituent_mapping_data_row::*,
-    update_amm_jit_intensity_row::*, update_amms_row::*,
-    update_constituent_correlation_data_row::*, update_constituent_oracle_info_row::*,
-    update_constituent_params_row::*, update_constituent_paused_operations_row::*,
-    update_constituent_status_row::*, update_delegate_user_gov_token_insurance_stake_row::*,
-    update_discount_mint_row::*, update_exchange_status_row::*,
-    update_feature_bit_flags_builder_codes_row::*,
+    sweep_fuel_row::*, transfer_deposit_row::*, transfer_perp_position_row::*,
+    transfer_pools_row::*, transfer_protocol_if_shares_to_revenue_pool_row::*,
+    trigger_order_row::*, update_admin_row::*, update_amm_cache_row::*,
+    update_amm_constituent_mapping_data_row::*, update_amm_jit_intensity_row::*,
+    update_amms_row::*, update_constituent_correlation_data_row::*,
+    update_constituent_oracle_info_row::*, update_constituent_params_row::*,
+    update_constituent_paused_operations_row::*, update_constituent_status_row::*,
+    update_delegate_user_gov_token_insurance_stake_row::*, update_discount_mint_row::*,
+    update_exchange_status_row::*, update_feature_bit_flags_builder_codes_row::*,
     update_feature_bit_flags_median_trigger_price_row::*,
     update_feature_bit_flags_mint_redeem_lp_pool_row::*, update_feature_bit_flags_mm_oracle_row::*,
     update_feature_bit_flags_settle_lp_pool_row::*, update_feature_bit_flags_swap_lp_pool_row::*,
@@ -324,11 +312,10 @@ pub use self::{
     update_perp_fee_structure_row::*, update_perp_market_amm_oracle_twap_row::*,
     update_perp_market_amm_spread_adjustment_row::*, update_perp_market_amm_summary_stats_row::*,
     update_perp_market_base_spread_row::*, update_perp_market_concentration_coef_row::*,
-    update_perp_market_config_row::*, update_perp_market_contract_tier_row::*,
-    update_perp_market_curve_update_intensity_row::*, update_perp_market_expiry_row::*,
-    update_perp_market_fee_adjustment_row::*, update_perp_market_funding_period_row::*,
-    update_perp_market_high_leverage_margin_ratio_row::*, update_perp_market_imf_factor_row::*,
-    update_perp_market_liquidation_fee_row::*,
+    update_perp_market_contract_tier_row::*, update_perp_market_curve_update_intensity_row::*,
+    update_perp_market_expiry_row::*, update_perp_market_fee_adjustment_row::*,
+    update_perp_market_funding_period_row::*, update_perp_market_high_leverage_margin_ratio_row::*,
+    update_perp_market_imf_factor_row::*, update_perp_market_liquidation_fee_row::*,
     update_perp_market_lp_pool_fee_transfer_scalar_row::*, update_perp_market_lp_pool_id_row::*,
     update_perp_market_lp_pool_paused_operations_row::*, update_perp_market_lp_pool_status_row::*,
     update_perp_market_margin_ratio_row::*, update_perp_market_max_fill_reserve_fraction_row::*,
@@ -366,8 +353,7 @@ pub use self::{
     update_user_reduce_only_row::*, update_user_stats_referrer_status_row::*,
     update_withdraw_guard_threshold_row::*, view_lp_pool_add_liquidity_fees_row::*,
     view_lp_pool_remove_liquidity_fees_row::*, view_lp_pool_swap_fees_row::*,
-    withdraw_from_isolated_perp_position_row::*, withdraw_from_program_vault_row::*,
-    withdraw_row::*, zero_mm_oracle_fields_row::*,
+    withdraw_from_program_vault_row::*, withdraw_row::*, zero_mm_oracle_fields_row::*,
 };
 use super::DriftV2Instruction;
 
@@ -389,7 +375,6 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DriftV2InstructionsMigration {
             Box::new(AddMarketToAmmCacheMigrationOperation),
             Box::new(AdminDepositMigrationOperation),
             Box::new(AdminUpdateUserStatsPausedOperationsMigrationOperation),
-            Box::new(AdminWithdrawFromInsuranceFundVaultMigrationOperation),
             Box::new(BeginInsuranceFundSwapMigrationOperation),
             Box::new(BeginLpSwapMigrationOperation),
             Box::new(BeginSwapMigrationOperation),
@@ -403,14 +388,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DriftV2InstructionsMigration {
             Box::new(DeleteAmmCacheMigrationOperation),
             Box::new(DeleteInitializedPerpMarketMigrationOperation),
             Box::new(DeleteInitializedSpotMarketMigrationOperation),
-            Box::new(DeleteOpenbookV2FulfillmentConfigMigrationOperation),
             Box::new(DeletePrelaunchOracleMigrationOperation),
-            Box::new(DeleteSerumFulfillmentConfigMigrationOperation),
             Box::new(DeleteSignedMsgUserOrdersMigrationOperation),
             Box::new(DeleteUserMigrationOperation),
             Box::new(DepositMigrationOperation),
             Box::new(DepositIntoInsuranceFundStakeMigrationOperation),
-            Box::new(DepositIntoIsolatedPerpPositionMigrationOperation),
             Box::new(DepositIntoPerpMarketFeePoolMigrationOperation),
             Box::new(DepositIntoSpotMarketRevenuePoolMigrationOperation),
             Box::new(DepositIntoSpotMarketVaultMigrationOperation),
@@ -474,7 +456,6 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DriftV2InstructionsMigration {
             Box::new(PlaceAndTakeSpotOrderMigrationOperation),
             Box::new(PlaceOrdersMigrationOperation),
             Box::new(PlacePerpOrderMigrationOperation),
-            Box::new(PlaceScaleOrdersMigrationOperation),
             Box::new(PlaceSignedMsgTakerOrderMigrationOperation),
             Box::new(PlaceSpotOrderMigrationOperation),
             Box::new(PostMultiPythPullOracleUpdatesAtomicMigrationOperation),
@@ -505,7 +486,6 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DriftV2InstructionsMigration {
             Box::new(SetUserStatusToBeingLiquidatedMigrationOperation),
             Box::new(SweepFuelMigrationOperation),
             Box::new(TransferDepositMigrationOperation),
-            Box::new(TransferIsolatedPerpPositionDepositMigrationOperation),
             Box::new(TransferPerpPositionMigrationOperation),
             Box::new(TransferPoolsMigrationOperation),
             Box::new(TransferProtocolIfSharesToRevenuePoolMigrationOperation),
@@ -550,7 +530,6 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DriftV2InstructionsMigration {
             Box::new(UpdatePerpMarketAmmSummaryStatsMigrationOperation),
             Box::new(UpdatePerpMarketBaseSpreadMigrationOperation),
             Box::new(UpdatePerpMarketConcentrationCoefMigrationOperation),
-            Box::new(UpdatePerpMarketConfigMigrationOperation),
             Box::new(UpdatePerpMarketContractTierMigrationOperation),
             Box::new(UpdatePerpMarketCurveUpdateIntensityMigrationOperation),
             Box::new(UpdatePerpMarketExpiryMigrationOperation),
@@ -630,7 +609,6 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DriftV2InstructionsMigration {
             Box::new(ViewLpPoolRemoveLiquidityFeesMigrationOperation),
             Box::new(ViewLpPoolSwapFeesMigrationOperation),
             Box::new(WithdrawMigrationOperation),
-            Box::new(WithdrawFromIsolatedPerpPositionMigrationOperation),
             Box::new(WithdrawFromProgramVaultMigrationOperation),
             Box::new(ZeroMmOracleFieldsMigrationOperation),
             Box::new(CpiEventMigrationOperation),
@@ -795,21 +773,6 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
                 row.insert(pool).await?;
                 Ok(())
             }
-            DriftV2Instruction::DepositIntoIsolatedPerpPosition { data, .. } => {
-                let row = deposit_into_isolated_perp_position_row::DepositIntoIsolatedPerpPositionRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::TransferIsolatedPerpPositionDeposit { data, .. } => {
-                let row = transfer_isolated_perp_position_deposit_row::TransferIsolatedPerpPositionDepositRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::WithdrawFromIsolatedPerpPosition { data, .. } => {
-                let row = withdraw_from_isolated_perp_position_row::WithdrawFromIsolatedPerpPositionRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
             DriftV2Instruction::PlacePerpOrder { data, .. } => {
                 let row = place_perp_order_row::PlacePerpOrderRow::from_parts(
                     data.clone(),
@@ -934,15 +897,6 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::PlaceOrders { data, .. } => {
                 let row = place_orders_row::PlaceOrdersRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::PlaceScaleOrders { data, .. } => {
-                let row = place_scale_orders_row::PlaceScaleOrdersRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -1419,11 +1373,6 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
                 row.insert(pool).await?;
                 Ok(())
             }
-            DriftV2Instruction::AdminWithdrawFromInsuranceFundVault { data, .. } => {
-                let row = admin_withdraw_from_insurance_fund_vault_row::AdminWithdrawFromInsuranceFundVaultRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
             DriftV2Instruction::DepositIntoInsuranceFundStake { data, .. } => {
                 let row = deposit_into_insurance_fund_stake_row::DepositIntoInsuranceFundStakeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
@@ -1491,11 +1440,6 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
                 row.insert(pool).await?;
                 Ok(())
             }
-            DriftV2Instruction::DeleteSerumFulfillmentConfig { data, .. } => {
-                let row = delete_serum_fulfillment_config_row::DeleteSerumFulfillmentConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
             DriftV2Instruction::InitializeOpenbookV2FulfillmentConfig { data, .. } => {
                 let row = initialize_openbook_v2_fulfillment_config_row::InitializeOpenbookV2FulfillmentConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
@@ -1503,11 +1447,6 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::OpenbookV2FulfillmentConfigStatus { data, .. } => {
                 let row = openbook_v2_fulfillment_config_status_row::OpenbookV2FulfillmentConfigStatusRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::DeleteOpenbookV2FulfillmentConfig { data, .. } => {
-                let row = delete_openbook_v2_fulfillment_config_row::DeleteOpenbookV2FulfillmentConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -2520,15 +2459,6 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::SettlePerpToLpPool { data, .. } => {
                 let row = settle_perp_to_lp_pool_row::SettlePerpToLpPoolRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::UpdatePerpMarketConfig { data, .. } => {
-                let row = update_perp_market_config_row::UpdatePerpMarketConfigRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -2678,21 +2608,6 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
                 row.upsert(pool).await?;
                 Ok(())
             }
-            DriftV2Instruction::DepositIntoIsolatedPerpPosition { data, .. } => {
-                let row = deposit_into_isolated_perp_position_row::DepositIntoIsolatedPerpPositionRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::TransferIsolatedPerpPositionDeposit { data, .. } => {
-                let row = transfer_isolated_perp_position_deposit_row::TransferIsolatedPerpPositionDepositRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::WithdrawFromIsolatedPerpPosition { data, .. } => {
-                let row = withdraw_from_isolated_perp_position_row::WithdrawFromIsolatedPerpPositionRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
             DriftV2Instruction::PlacePerpOrder { data, .. } => {
                 let row = place_perp_order_row::PlacePerpOrderRow::from_parts(
                     data.clone(),
@@ -2817,15 +2732,6 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::PlaceOrders { data, .. } => {
                 let row = place_orders_row::PlaceOrdersRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::PlaceScaleOrders { data, .. } => {
-                let row = place_scale_orders_row::PlaceScaleOrdersRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -3302,11 +3208,6 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
                 row.upsert(pool).await?;
                 Ok(())
             }
-            DriftV2Instruction::AdminWithdrawFromInsuranceFundVault { data, .. } => {
-                let row = admin_withdraw_from_insurance_fund_vault_row::AdminWithdrawFromInsuranceFundVaultRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
             DriftV2Instruction::DepositIntoInsuranceFundStake { data, .. } => {
                 let row = deposit_into_insurance_fund_stake_row::DepositIntoInsuranceFundStakeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
@@ -3374,11 +3275,6 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
                 row.upsert(pool).await?;
                 Ok(())
             }
-            DriftV2Instruction::DeleteSerumFulfillmentConfig { data, .. } => {
-                let row = delete_serum_fulfillment_config_row::DeleteSerumFulfillmentConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
             DriftV2Instruction::InitializeOpenbookV2FulfillmentConfig { data, .. } => {
                 let row = initialize_openbook_v2_fulfillment_config_row::InitializeOpenbookV2FulfillmentConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
@@ -3386,11 +3282,6 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::OpenbookV2FulfillmentConfigStatus { data, .. } => {
                 let row = openbook_v2_fulfillment_config_status_row::OpenbookV2FulfillmentConfigStatusRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::DeleteOpenbookV2FulfillmentConfig { data, .. } => {
-                let row = delete_openbook_v2_fulfillment_config_row::DeleteOpenbookV2FulfillmentConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -4403,15 +4294,6 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::SettlePerpToLpPool { data, .. } => {
                 let row = settle_perp_to_lp_pool_row::SettlePerpToLpPoolRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            DriftV2Instruction::UpdatePerpMarketConfig { data, .. } => {
-                let row = update_perp_market_config_row::UpdatePerpMarketConfigRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

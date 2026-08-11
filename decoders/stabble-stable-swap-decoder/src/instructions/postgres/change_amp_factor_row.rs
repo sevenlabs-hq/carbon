@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::change_amp_factor::ChangeAmpFactor
 {
     fn table() -> &'static str {
-        "change_amp_factor_instruction"
+        "stabble_stable_swap_change_amp_factor_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -75,7 +75,7 @@ impl carbon_core::postgres::operations::Insert for ChangeAmpFactorRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO change_amp_factor_instruction (
+            INSERT INTO stabble_stable_swap_change_amp_factor_instruction (
                 "new_amp_factor",
                 "ramp_duration",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for ChangeAmpFactorRow {
 impl carbon_core::postgres::operations::Upsert for ChangeAmpFactorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO change_amp_factor_instruction (
+            r#"INSERT INTO stabble_stable_swap_change_amp_factor_instruction (
                 "new_amp_factor",
                 "ramp_duration",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for ChangeAmpFactorRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM change_amp_factor_instruction WHERE
+            r#"DELETE FROM stabble_stable_swap_change_amp_factor_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Lookup for ChangeAmpFactorRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM change_amp_factor_instruction WHERE
+            r#"SELECT * FROM stabble_stable_swap_change_amp_factor_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeAmpFactorMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS change_amp_factor_instruction (
+            r#"CREATE TABLE IF NOT EXISTS stabble_stable_swap_change_amp_factor_instruction (
                 -- Instruction data
                 "new_amp_factor" INT4 NOT NULL,
                 "ramp_duration" INT8 NOT NULL,
@@ -214,7 +214,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeAmpFactorMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS change_amp_factor_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS stabble_stable_swap_change_amp_factor_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

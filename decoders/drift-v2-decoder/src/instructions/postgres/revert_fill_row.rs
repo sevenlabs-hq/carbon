@@ -31,7 +31,7 @@ impl TryFrom<RevertFillRow> for crate::instructions::revert_fill::RevertFill {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::revert_fill::RevertFill {
     fn table() -> &'static str {
-        "revert_fill_instruction"
+        "drift_v2_revert_fill_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for RevertFillRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO revert_fill_instruction (
+            INSERT INTO drift_v2_revert_fill_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for RevertFillRow {
 impl carbon_core::postgres::operations::Upsert for RevertFillRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO revert_fill_instruction (
+            r#"INSERT INTO drift_v2_revert_fill_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for RevertFillRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM revert_fill_instruction WHERE
+            r#"DELETE FROM drift_v2_revert_fill_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for RevertFillRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM revert_fill_instruction WHERE
+            r#"SELECT * FROM drift_v2_revert_fill_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RevertFillMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS revert_fill_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_revert_fill_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RevertFillMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS revert_fill_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_revert_fill_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

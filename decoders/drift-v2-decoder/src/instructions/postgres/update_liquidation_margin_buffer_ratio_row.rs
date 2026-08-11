@@ -38,7 +38,7 @@ impl TryFrom<UpdateLiquidationMarginBufferRatioRow> for crate::instructions::upd
 
 impl carbon_core::postgres::operations::Table for crate::instructions::update_liquidation_margin_buffer_ratio::UpdateLiquidationMarginBufferRatio {
     fn table() -> &'static str {
-        "update_liquidation_margin_buffer_ratio_instruction"
+        "drift_v2_update_liquidation_margin_buffer_ratio_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for UpdateLiquidationMarginBuffer
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_liquidation_margin_buffer_ratio_instruction (
+            INSERT INTO drift_v2_update_liquidation_margin_buffer_ratio_instruction (
                 "liquidation_margin_buffer_ratio",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for UpdateLiquidationMarginBuffer
 impl carbon_core::postgres::operations::Upsert for UpdateLiquidationMarginBufferRatioRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_liquidation_margin_buffer_ratio_instruction (
+            r#"INSERT INTO drift_v2_update_liquidation_margin_buffer_ratio_instruction (
                 "liquidation_margin_buffer_ratio",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for UpdateLiquidationMarginBuffer
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_liquidation_margin_buffer_ratio_instruction WHERE
+            r#"DELETE FROM drift_v2_update_liquidation_margin_buffer_ratio_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateLiquidationMarginBuffer
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_liquidation_margin_buffer_ratio_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_liquidation_margin_buffer_ratio_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,8 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_liquidation_margin_buffer_ratio_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS drift_v2_update_liquidation_margin_buffer_ratio_instruction (
                 -- Instruction data
                 "liquidation_margin_buffer_ratio" INT8 NOT NULL,
                 -- Instruction metadata
@@ -182,10 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -193,9 +189,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_liquidation_margin_buffer_ratio_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_update_liquidation_margin_buffer_ratio_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

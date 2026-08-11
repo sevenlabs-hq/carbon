@@ -112,7 +112,7 @@ impl TryFrom<SpreadAccountRow> for crate::accounts::spread_account::SpreadAccoun
 
 impl carbon_core::postgres::operations::Table for crate::accounts::spread_account::SpreadAccount {
     fn table() -> &'static str {
-        "spread_account_account"
+        "zeta_spread_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Insert for SpreadAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO spread_account_account (
+            INSERT INTO zeta_spread_account_account (
                 "authority",
                 "nonce",
                 "balance",
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Insert for SpreadAccountRow {
 impl carbon_core::postgres::operations::Upsert for SpreadAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO spread_account_account (
+            r#"INSERT INTO zeta_spread_account_account (
                 "authority",
                 "nonce",
                 "balance",
@@ -226,7 +226,7 @@ impl carbon_core::postgres::operations::Delete for SpreadAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM spread_account_account WHERE
+            r#"DELETE FROM zeta_spread_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -247,7 +247,7 @@ impl carbon_core::postgres::operations::Lookup for SpreadAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM spread_account_account WHERE
+            r#"SELECT * FROM zeta_spread_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -268,7 +268,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SpreadAccountMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS spread_account_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_spread_account_account (
                 -- Account data
                 "authority" BYTEA NOT NULL,
                 "nonce" INT2 NOT NULL,
@@ -294,7 +294,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SpreadAccountMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS spread_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_spread_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

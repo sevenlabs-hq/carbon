@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::reset_perp_market_amm_oracle_twap::ResetPerpMarketAmmOracleTwap
 {
     fn table() -> &'static str {
-        "reset_perp_market_amm_oracle_twap_instruction"
+        "drift_v2_reset_perp_market_amm_oracle_twap_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for ResetPerpMarketAmmOracleTwapR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO reset_perp_market_amm_oracle_twap_instruction (
+            INSERT INTO drift_v2_reset_perp_market_amm_oracle_twap_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for ResetPerpMarketAmmOracleTwapR
 impl carbon_core::postgres::operations::Upsert for ResetPerpMarketAmmOracleTwapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO reset_perp_market_amm_oracle_twap_instruction (
+            r#"INSERT INTO drift_v2_reset_perp_market_amm_oracle_twap_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for ResetPerpMarketAmmOracleTwapR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM reset_perp_market_amm_oracle_twap_instruction WHERE
+            r#"DELETE FROM drift_v2_reset_perp_market_amm_oracle_twap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for ResetPerpMarketAmmOracleTwapR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM reset_perp_market_amm_oracle_twap_instruction WHERE
+            r#"SELECT * FROM drift_v2_reset_perp_market_amm_oracle_twap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ResetPerpMarketAmmOracleTwapMi
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS reset_perp_market_amm_oracle_twap_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_reset_perp_market_amm_oracle_twap_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,9 +181,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ResetPerpMarketAmmOracleTwapMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS reset_perp_market_amm_oracle_twap_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_reset_perp_market_amm_oracle_twap_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

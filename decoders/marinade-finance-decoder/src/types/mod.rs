@@ -12,7 +12,9 @@ pub mod config_lp_event;
 pub mod config_lp_params;
 pub mod config_marinade_event;
 pub mod config_marinade_params;
+pub mod create_canonical_stake_event;
 pub mod deactivate_stake_event;
+pub mod delinquent_upgrader_state;
 pub mod deposit_event;
 pub mod deposit_stake_account_event;
 pub mod emergency_pause_event;
@@ -40,6 +42,7 @@ pub mod split_stake_account_info;
 pub mod stake_list;
 pub mod stake_record;
 pub mod stake_reserve_event;
+pub mod stake_status;
 pub mod stake_system;
 pub mod u32_value_change;
 pub mod u64_value_change;
@@ -53,15 +56,16 @@ pub mod withdraw_stake_account_event;
 pub use self::{
     add_liquidity_event::*, add_validator_event::*, bool_value_change::*, change_authority_data::*,
     change_authority_event::*, claim_event::*, config_lp_event::*, config_lp_params::*,
-    config_marinade_event::*, config_marinade_params::*, deactivate_stake_event::*,
-    deposit_event::*, deposit_stake_account_event::*, emergency_pause_event::*, fee::*,
-    fee_cents::*, fee_cents_value_change::*, fee_value_change::*, initialize_data::*,
-    initialize_event::*, liq_pool::*, liq_pool_initialize_data::*, liquid_unstake_event::*,
-    list::*, merge_stakes_event::*, order_unstake_event::*, pubkey_value_change::*,
+    config_marinade_event::*, config_marinade_params::*, create_canonical_stake_event::*,
+    deactivate_stake_event::*, delinquent_upgrader_state::*, deposit_event::*,
+    deposit_stake_account_event::*, emergency_pause_event::*, fee::*, fee_cents::*,
+    fee_cents_value_change::*, fee_value_change::*, initialize_data::*, initialize_event::*,
+    liq_pool::*, liq_pool_initialize_data::*, liquid_unstake_event::*, list::*,
+    merge_stakes_event::*, order_unstake_event::*, pubkey_value_change::*,
     realloc_stake_list_event::*, realloc_validator_list_event::*, redelegate_event::*,
     remove_liquidity_event::*, remove_validator_event::*, resume_event::*,
     set_validator_score_event::*, split_stake_account_info::*, stake_list::*, stake_record::*,
-    stake_reserve_event::*, stake_system::*, u32_value_change::*, u64_value_change::*,
-    update_active_event::*, update_deactivated_event::*, validator_list::*, validator_record::*,
-    validator_system::*, withdraw_stake_account_event::*,
+    stake_reserve_event::*, stake_status::*, stake_system::*, u32_value_change::*,
+    u64_value_change::*, update_active_event::*, update_deactivated_event::*, validator_list::*,
+    validator_record::*, validator_system::*, withdraw_stake_account_event::*,
 };

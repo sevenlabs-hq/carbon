@@ -14,6 +14,7 @@ pub struct MigrateRepurposeRewardAuthoritySpace {}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MigrateRepurposeRewardAuthoritySpaceInstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -46,11 +47,13 @@ impl ArrangeAccounts for MigrateRepurposeRewardAuthoritySpace {
         let mut iter = accounts.iter();
 
         let whirlpool = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(MigrateRepurposeRewardAuthoritySpaceInstructionAccounts {
             whirlpool,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

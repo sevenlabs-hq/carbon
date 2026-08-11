@@ -67,7 +67,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::two_hop_swap_v2::TwoHopSwapV2
 {
     fn table() -> &'static str {
-        "two_hop_swap_v2_instruction"
+        "orca_whirlpool_two_hop_swap_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for TwoHopSwapV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO two_hop_swap_v2_instruction (
+            INSERT INTO orca_whirlpool_two_hop_swap_v2_instruction (
                 "amount",
                 "other_amount_threshold",
                 "amount_specified_is_input",
@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Insert for TwoHopSwapV2Row {
 impl carbon_core::postgres::operations::Upsert for TwoHopSwapV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO two_hop_swap_v2_instruction (
+            r#"INSERT INTO orca_whirlpool_two_hop_swap_v2_instruction (
                 "amount",
                 "other_amount_threshold",
                 "amount_specified_is_input",
@@ -191,7 +191,7 @@ impl carbon_core::postgres::operations::Delete for TwoHopSwapV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM two_hop_swap_v2_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_two_hop_swap_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -218,7 +218,7 @@ impl carbon_core::postgres::operations::Lookup for TwoHopSwapV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM two_hop_swap_v2_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_two_hop_swap_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -241,7 +241,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TwoHopSwapV2MigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS two_hop_swap_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_two_hop_swap_v2_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 "other_amount_threshold" NUMERIC(20) NOT NULL,
@@ -269,7 +269,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TwoHopSwapV2MigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS two_hop_swap_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_two_hop_swap_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

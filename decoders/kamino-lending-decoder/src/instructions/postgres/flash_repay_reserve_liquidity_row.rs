@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::flash_repay_reserve_liquidity::FlashRepayReserveLiquidity
 {
     fn table() -> &'static str {
-        "flash_repay_reserve_liquidity_instruction"
+        "kamino_lending_flash_repay_reserve_liquidity_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for FlashRepayReserveLiquidityRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO flash_repay_reserve_liquidity_instruction (
+            INSERT INTO kamino_lending_flash_repay_reserve_liquidity_instruction (
                 "liquidity_amount",
                 "borrow_instruction_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for FlashRepayReserveLiquidityRow
 impl carbon_core::postgres::operations::Upsert for FlashRepayReserveLiquidityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO flash_repay_reserve_liquidity_instruction (
+            r#"INSERT INTO kamino_lending_flash_repay_reserve_liquidity_instruction (
                 "liquidity_amount",
                 "borrow_instruction_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for FlashRepayReserveLiquidityRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM flash_repay_reserve_liquidity_instruction WHERE
+            r#"DELETE FROM kamino_lending_flash_repay_reserve_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for FlashRepayReserveLiquidityRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM flash_repay_reserve_liquidity_instruction WHERE
+            r#"SELECT * FROM kamino_lending_flash_repay_reserve_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FlashRepayReserveLiquidityMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS flash_repay_reserve_liquidity_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_flash_repay_reserve_liquidity_instruction (
                 -- Instruction data
                 "liquidity_amount" NUMERIC(20) NOT NULL,
                 "borrow_instruction_index" INT2 NOT NULL,
@@ -212,9 +212,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FlashRepayReserveLiquidityMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS flash_repay_reserve_liquidity_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS kamino_lending_flash_repay_reserve_liquidity_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

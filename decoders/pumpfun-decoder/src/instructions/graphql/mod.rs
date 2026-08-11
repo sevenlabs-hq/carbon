@@ -12,10 +12,12 @@ pub mod claim_cashback_v2_schema;
 pub mod claim_token_incentives_schema;
 pub mod close_user_volume_accumulator_schema;
 pub mod collect_creator_fee_schema;
+pub mod collect_creator_fee_v2_schema;
 pub mod cpi_event_schema;
 pub mod create_schema;
 pub mod create_v2_schema;
 pub mod distribute_creator_fees_schema;
+pub mod distribute_creator_fees_v2_schema;
 pub mod extend_account_schema;
 pub mod get_minimum_distributable_fee_schema;
 pub mod init_user_volume_accumulator_schema;
@@ -45,8 +47,9 @@ pub use {
     admin_update_token_incentives_schema::*, buy_exact_quote_in_v2_schema::*,
     buy_exact_sol_in_schema::*, buy_schema::*, buy_v2_schema::*, claim_cashback_schema::*,
     claim_cashback_v2_schema::*, claim_token_incentives_schema::*,
-    close_user_volume_accumulator_schema::*, collect_creator_fee_schema::*, cpi_event_schema::*,
-    create_schema::*, create_v2_schema::*, distribute_creator_fees_schema::*,
+    close_user_volume_accumulator_schema::*, collect_creator_fee_schema::*,
+    collect_creator_fee_v2_schema::*, cpi_event_schema::*, create_schema::*, create_v2_schema::*,
+    distribute_creator_fees_schema::*, distribute_creator_fees_v2_schema::*,
     extend_account_schema::*, get_minimum_distributable_fee_schema::*,
     init_user_volume_accumulator_schema::*, initialize_schema::*,
     migrate_bonding_curve_creator_schema::*, migrate_schema::*, migrate_v2_schema::*,

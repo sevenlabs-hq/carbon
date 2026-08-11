@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::topup_reserve_rewards::TopupReserveRewards
 {
     fn table() -> &'static str {
-        "topup_reserve_rewards_instruction"
+        "kamino_lending_topup_reserve_rewards_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for TopupReserveRewardsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO topup_reserve_rewards_instruction (
+            INSERT INTO kamino_lending_topup_reserve_rewards_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for TopupReserveRewardsRow {
 impl carbon_core::postgres::operations::Upsert for TopupReserveRewardsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO topup_reserve_rewards_instruction (
+            r#"INSERT INTO kamino_lending_topup_reserve_rewards_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for TopupReserveRewardsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM topup_reserve_rewards_instruction WHERE
+            r#"DELETE FROM kamino_lending_topup_reserve_rewards_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for TopupReserveRewardsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM topup_reserve_rewards_instruction WHERE
+            r#"SELECT * FROM kamino_lending_topup_reserve_rewards_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TopupReserveRewardsMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS topup_reserve_rewards_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_topup_reserve_rewards_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TopupReserveRewardsMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS topup_reserve_rewards_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_topup_reserve_rewards_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

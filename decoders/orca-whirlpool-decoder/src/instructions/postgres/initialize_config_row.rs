@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_config::InitializeConfig
 {
     fn table() -> &'static str {
-        "initialize_config_instruction"
+        "orca_whirlpool_initialize_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for InitializeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_config_instruction (
+            INSERT INTO orca_whirlpool_initialize_config_instruction (
                 "fee_authority",
                 "collect_protocol_fees_authority",
                 "reward_emissions_super_authority",
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Insert for InitializeConfigRow {
 impl carbon_core::postgres::operations::Upsert for InitializeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_config_instruction (
+            r#"INSERT INTO orca_whirlpool_initialize_config_instruction (
                 "fee_authority",
                 "collect_protocol_fees_authority",
                 "reward_emissions_super_authority",
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Delete for InitializeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_config_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_initialize_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -185,7 +185,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_config_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_initialize_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeConfigMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_initialize_config_instruction (
                 -- Instruction data
                 "fee_authority" BYTEA NOT NULL,
                 "collect_protocol_fees_authority" BYTEA NOT NULL,
@@ -232,7 +232,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeConfigMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_initialize_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

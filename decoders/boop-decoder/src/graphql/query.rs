@@ -30,7 +30,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::AmmConfigGraphQL>> {
         let rows: Vec<crate::accounts::postgres::AmmConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM amm_config_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_amm_config_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -64,7 +64,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::BondingCurveGraphQL>> {
         let rows: Vec<crate::accounts::postgres::BondingCurveRow> = sqlx::query_as(
-            r#"SELECT * FROM bonding_curve_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_bonding_curve_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -98,7 +98,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::ConfigGraphQL>> {
         let rows: Vec<crate::accounts::postgres::ConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM config_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_config_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -132,7 +132,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::LockedCpLiquidityStateGraphQL>> {
         let rows: Vec<crate::accounts::postgres::LockedCpLiquidityStateRow> = sqlx::query_as(
-            r#"SELECT * FROM locked_cp_liquidity_state_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_locked_cp_liquidity_state_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -152,7 +152,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::AddOperatorsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::AddOperatorsRow> = sqlx::query_as(
-            r#"SELECT * FROM add_operators_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_add_operators_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -171,7 +171,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::AddOperatorsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::AddOperatorsRow> = sqlx::query_as(
-            r#"SELECT * FROM add_operators_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_add_operators_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -190,7 +190,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::BuyTokenGraphQL>> {
         let rows: Vec<crate::instructions::postgres::BuyTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM buy_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_buy_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -209,7 +209,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::BuyTokenGraphQL>> {
         let rows: Vec<crate::instructions::postgres::BuyTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM buy_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_buy_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -228,7 +228,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelAuthorityTransferGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelAuthorityTransferRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_authority_transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_cancel_authority_transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -247,7 +247,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelAuthorityTransferGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelAuthorityTransferRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_authority_transfer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_cancel_authority_transfer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -266,7 +266,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseBondingCurveVaultGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseBondingCurveVaultRow> = sqlx::query_as(
-            r#"SELECT * FROM close_bonding_curve_vault_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_close_bonding_curve_vault_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -285,7 +285,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseBondingCurveVaultGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseBondingCurveVaultRow> = sqlx::query_as(
-            r#"SELECT * FROM close_bonding_curve_vault_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_close_bonding_curve_vault_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -304,7 +304,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectMeteoraTradingFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectMeteoraTradingFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_meteora_trading_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_collect_meteora_trading_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -323,7 +323,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectMeteoraTradingFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectMeteoraTradingFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_meteora_trading_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_collect_meteora_trading_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -342,7 +342,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectMeteoraTradingFeesV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectMeteoraTradingFeesV2Row> = sqlx::query_as(
-            r#"SELECT * FROM collect_meteora_trading_fees_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_collect_meteora_trading_fees_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -361,7 +361,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectMeteoraTradingFeesV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectMeteoraTradingFeesV2Row> = sqlx::query_as(
-            r#"SELECT * FROM collect_meteora_trading_fees_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_collect_meteora_trading_fees_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -380,7 +380,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectTradingFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectTradingFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_trading_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_collect_trading_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -399,7 +399,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectTradingFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectTradingFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_trading_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_collect_trading_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -418,7 +418,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectTradingFeesV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectTradingFeesV2Row> = sqlx::query_as(
-            r#"SELECT * FROM collect_trading_fees_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_collect_trading_fees_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -437,7 +437,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectTradingFeesV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectTradingFeesV2Row> = sqlx::query_as(
-            r#"SELECT * FROM collect_trading_fees_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_collect_trading_fees_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -456,7 +456,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CompleteAuthorityTransferGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CompleteAuthorityTransferRow> = sqlx::query_as(
-            r#"SELECT * FROM complete_authority_transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_complete_authority_transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -475,7 +475,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CompleteAuthorityTransferGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CompleteAuthorityTransferRow> = sqlx::query_as(
-            r#"SELECT * FROM complete_authority_transfer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_complete_authority_transfer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -494,7 +494,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateMeteoraPoolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateMeteoraPoolRow> = sqlx::query_as(
-            r#"SELECT * FROM create_meteora_pool_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_create_meteora_pool_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -513,7 +513,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateMeteoraPoolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateMeteoraPoolRow> = sqlx::query_as(
-            r#"SELECT * FROM create_meteora_pool_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_create_meteora_pool_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -532,7 +532,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateRaydiumPoolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateRaydiumPoolRow> = sqlx::query_as(
-            r#"SELECT * FROM create_raydium_pool_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_create_raydium_pool_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -551,7 +551,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateRaydiumPoolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateRaydiumPoolRow> = sqlx::query_as(
-            r#"SELECT * FROM create_raydium_pool_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_create_raydium_pool_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -570,7 +570,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateRaydiumRandomPoolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateRaydiumRandomPoolRow> = sqlx::query_as(
-            r#"SELECT * FROM create_raydium_random_pool_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_create_raydium_random_pool_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -589,7 +589,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateRaydiumRandomPoolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateRaydiumRandomPoolRow> = sqlx::query_as(
-            r#"SELECT * FROM create_raydium_random_pool_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_create_raydium_random_pool_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -608,7 +608,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_create_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -627,7 +627,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_create_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -646,7 +646,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenFallbackGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenFallbackRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_fallback_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_create_token_fallback_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -665,7 +665,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenFallbackGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenFallbackRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_fallback_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_create_token_fallback_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -684,7 +684,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DeployBondingCurveGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DeployBondingCurveRow> = sqlx::query_as(
-            r#"SELECT * FROM deploy_bonding_curve_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_deploy_bonding_curve_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -703,7 +703,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DeployBondingCurveGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DeployBondingCurveRow> = sqlx::query_as(
-            r#"SELECT * FROM deploy_bonding_curve_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_deploy_bonding_curve_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -722,7 +722,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DeployBondingCurveFallbackGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DeployBondingCurveFallbackRow> = sqlx::query_as(
-            r#"SELECT * FROM deploy_bonding_curve_fallback_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_deploy_bonding_curve_fallback_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -741,7 +741,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DeployBondingCurveFallbackGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DeployBondingCurveFallbackRow> = sqlx::query_as(
-            r#"SELECT * FROM deploy_bonding_curve_fallback_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_deploy_bonding_curve_fallback_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -760,7 +760,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DepositIntoRaydiumGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DepositIntoRaydiumRow> = sqlx::query_as(
-            r#"SELECT * FROM deposit_into_raydium_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_deposit_into_raydium_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -779,7 +779,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DepositIntoRaydiumGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DepositIntoRaydiumRow> = sqlx::query_as(
-            r#"SELECT * FROM deposit_into_raydium_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_deposit_into_raydium_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -798,7 +798,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::GraduateGraphQL>> {
         let rows: Vec<crate::instructions::postgres::GraduateRow> = sqlx::query_as(
-            r#"SELECT * FROM graduate_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_graduate_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -817,7 +817,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::GraduateGraphQL>> {
         let rows: Vec<crate::instructions::postgres::GraduateRow> = sqlx::query_as(
-            r#"SELECT * FROM graduate_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_graduate_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -836,7 +836,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_initialize_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -855,7 +855,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_initialize_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -874,7 +874,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitiateAuthorityTransferGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitiateAuthorityTransferRow> = sqlx::query_as(
-            r#"SELECT * FROM initiate_authority_transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_initiate_authority_transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -893,7 +893,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitiateAuthorityTransferGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitiateAuthorityTransferRow> = sqlx::query_as(
-            r#"SELECT * FROM initiate_authority_transfer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_initiate_authority_transfer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -912,7 +912,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::LockRaydiumLiquidityGraphQL>> {
         let rows: Vec<crate::instructions::postgres::LockRaydiumLiquidityRow> = sqlx::query_as(
-            r#"SELECT * FROM lock_raydium_liquidity_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_lock_raydium_liquidity_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -931,7 +931,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::LockRaydiumLiquidityGraphQL>> {
         let rows: Vec<crate::instructions::postgres::LockRaydiumLiquidityRow> = sqlx::query_as(
-            r#"SELECT * FROM lock_raydium_liquidity_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_lock_raydium_liquidity_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -950,7 +950,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::RemoveOperatorsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::RemoveOperatorsRow> = sqlx::query_as(
-            r#"SELECT * FROM remove_operators_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_remove_operators_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -969,7 +969,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::RemoveOperatorsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::RemoveOperatorsRow> = sqlx::query_as(
-            r#"SELECT * FROM remove_operators_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_remove_operators_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -988,7 +988,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SellTokenGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SellTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM sell_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_sell_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1007,7 +1007,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SellTokenGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SellTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM sell_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_sell_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1026,7 +1026,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SplitPostGraduationTradingFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SplitPostGraduationTradingFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM split_post_graduation_trading_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_split_post_graduation_trading_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1045,7 +1045,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SplitPostGraduationTradingFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SplitPostGraduationTradingFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM split_post_graduation_trading_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_split_post_graduation_trading_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1064,7 +1064,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SplitTradingFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SplitTradingFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM split_trading_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_split_trading_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1083,7 +1083,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SplitTradingFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SplitTradingFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM split_trading_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_split_trading_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1102,7 +1102,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapSolForTokensOnRaydiumGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapSolForTokensOnRaydiumRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_sol_for_tokens_on_raydium_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_swap_sol_for_tokens_on_raydium_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1121,7 +1121,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapSolForTokensOnRaydiumGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapSolForTokensOnRaydiumRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_sol_for_tokens_on_raydium_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_swap_sol_for_tokens_on_raydium_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1140,7 +1140,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTokensForSolOnRaydiumGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTokensForSolOnRaydiumRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tokens_for_sol_on_raydium_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_swap_tokens_for_sol_on_raydium_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1159,7 +1159,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTokensForSolOnRaydiumGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTokensForSolOnRaydiumRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tokens_for_sol_on_raydium_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_swap_tokens_for_sol_on_raydium_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1178,7 +1178,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TogglePausedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TogglePausedRow> = sqlx::query_as(
-            r#"SELECT * FROM toggle_paused_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_toggle_paused_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1197,7 +1197,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TogglePausedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TogglePausedRow> = sqlx::query_as(
-            r#"SELECT * FROM toggle_paused_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_toggle_paused_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1216,7 +1216,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdateConfigGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdateConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM update_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM boop_update_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1235,7 +1235,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdateConfigGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdateConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM update_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM boop_update_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1253,13 +1253,14 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CpiEventRow> =
-            sqlx::query_as(r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        let rows: Vec<crate::instructions::postgres::CpiEventRow> = sqlx::query_as(
+            r#"SELECT * FROM boop_cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows
             .into_iter()
             .filter_map(|row| row.try_into().ok())

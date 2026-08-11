@@ -42,7 +42,7 @@ impl TryFrom<EditionMarkerRow> for crate::accounts::edition_marker::EditionMarke
 
 impl carbon_core::postgres::operations::Table for crate::accounts::edition_marker::EditionMarker {
     fn table() -> &'static str {
-        "edition_marker_account"
+        "mpl_token_metadata_edition_marker_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -55,7 +55,7 @@ impl carbon_core::postgres::operations::Insert for EditionMarkerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO edition_marker_account (
+            INSERT INTO mpl_token_metadata_edition_marker_account (
                 "key",
                 "ledger",
                 __pubkey, __slot
@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for EditionMarkerRow {
 impl carbon_core::postgres::operations::Upsert for EditionMarkerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO edition_marker_account (
+            r#"INSERT INTO mpl_token_metadata_edition_marker_account (
                 "key",
                 "ledger",
                 __pubkey, __slot
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for EditionMarkerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM edition_marker_account WHERE
+            r#"DELETE FROM mpl_token_metadata_edition_marker_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -130,7 +130,7 @@ impl carbon_core::postgres::operations::Lookup for EditionMarkerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM edition_marker_account WHERE
+            r#"SELECT * FROM mpl_token_metadata_edition_marker_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -151,7 +151,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EditionMarkerMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS edition_marker_account (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_edition_marker_account (
                 -- Account data
                 "key" JSONB NOT NULL,
                 "ledger" BYTEA NOT NULL,
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EditionMarkerMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS edition_marker_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_edition_marker_account"#)
             .execute(connection)
             .await?;
         Ok(())

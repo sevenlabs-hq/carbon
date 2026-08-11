@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::minimal_obligation::MinimalObligation
 {
     fn table() -> &'static str {
-        "minimal_obligation_account"
+        "marginfi_v2_minimal_obligation_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -187,7 +187,7 @@ impl carbon_core::postgres::operations::Insert for MinimalObligationRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO minimal_obligation_account (
+            INSERT INTO marginfi_v2_minimal_obligation_account (
                 "tag",
                 "last_update_slot",
                 "last_update_stale",
@@ -237,7 +237,7 @@ impl carbon_core::postgres::operations::Insert for MinimalObligationRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MinimalObligationRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO minimal_obligation_account (
+        sqlx::query(r#"INSERT INTO marginfi_v2_minimal_obligation_account (
                 "tag",
                 "last_update_slot",
                 "last_update_stale",
@@ -308,7 +308,7 @@ impl carbon_core::postgres::operations::Delete for MinimalObligationRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM minimal_obligation_account WHERE
+            r#"DELETE FROM marginfi_v2_minimal_obligation_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -329,7 +329,7 @@ impl carbon_core::postgres::operations::Lookup for MinimalObligationRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM minimal_obligation_account WHERE
+            r#"SELECT * FROM marginfi_v2_minimal_obligation_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -350,7 +350,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MinimalObligationMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS minimal_obligation_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_minimal_obligation_account (
                 -- Account data
                 "tag" NUMERIC(20) NOT NULL,
                 "last_update_slot" NUMERIC(20) NOT NULL,
@@ -383,7 +383,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MinimalObligationMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS minimal_obligation_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_minimal_obligation_account"#)
             .execute(connection)
             .await?;
         Ok(())

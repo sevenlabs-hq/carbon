@@ -61,7 +61,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::settle_multiple_pnls::SettleMultiplePnls
 {
     fn table() -> &'static str {
-        "settle_multiple_pnls_instruction"
+        "drift_v2_settle_multiple_pnls_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for SettleMultiplePnlsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO settle_multiple_pnls_instruction (
+            INSERT INTO drift_v2_settle_multiple_pnls_instruction (
                 "market_indexes",
                 "mode",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Insert for SettleMultiplePnlsRow {
 impl carbon_core::postgres::operations::Upsert for SettleMultiplePnlsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO settle_multiple_pnls_instruction (
+            r#"INSERT INTO drift_v2_settle_multiple_pnls_instruction (
                 "market_indexes",
                 "mode",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Delete for SettleMultiplePnlsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM settle_multiple_pnls_instruction WHERE
+            r#"DELETE FROM drift_v2_settle_multiple_pnls_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for SettleMultiplePnlsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM settle_multiple_pnls_instruction WHERE
+            r#"SELECT * FROM drift_v2_settle_multiple_pnls_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SettleMultiplePnlsMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS settle_multiple_pnls_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_settle_multiple_pnls_instruction (
                 -- Instruction data
                 "market_indexes" INT4[] NOT NULL,
                 "mode" JSONB NOT NULL,
@@ -221,7 +221,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SettleMultiplePnlsMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS settle_multiple_pnls_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_settle_multiple_pnls_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

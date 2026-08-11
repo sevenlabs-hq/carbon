@@ -31,7 +31,7 @@ impl TryFrom<MigrateCurveRow> for crate::instructions::migrate_curve::MigrateCur
 
 impl carbon_core::postgres::operations::Table for crate::instructions::migrate_curve::MigrateCurve {
     fn table() -> &'static str {
-        "migrate_curve_instruction"
+        "marginfi_v2_migrate_curve_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for MigrateCurveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO migrate_curve_instruction (
+            INSERT INTO marginfi_v2_migrate_curve_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for MigrateCurveRow {
 impl carbon_core::postgres::operations::Upsert for MigrateCurveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO migrate_curve_instruction (
+            r#"INSERT INTO marginfi_v2_migrate_curve_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for MigrateCurveRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM migrate_curve_instruction WHERE
+            r#"DELETE FROM marginfi_v2_migrate_curve_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for MigrateCurveRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM migrate_curve_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_migrate_curve_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MigrateCurveMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS migrate_curve_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_migrate_curve_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MigrateCurveMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS migrate_curve_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_migrate_curve_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

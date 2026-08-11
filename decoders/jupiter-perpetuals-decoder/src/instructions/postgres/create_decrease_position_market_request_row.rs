@@ -38,7 +38,7 @@ impl TryFrom<CreateDecreasePositionMarketRequestRow> for crate::instructions::cr
 
 impl carbon_core::postgres::operations::Table for crate::instructions::create_decrease_position_market_request::CreateDecreasePositionMarketRequest {
     fn table() -> &'static str {
-        "create_decrease_position_market_request_instruction"
+        "jupiter_perpetuals_create_decrease_position_market_request_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for CreateDecreasePositionMarketR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_decrease_position_market_request_instruction (
+            INSERT INTO jupiter_perpetuals_create_decrease_position_market_request_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for CreateDecreasePositionMarketR
 impl carbon_core::postgres::operations::Upsert for CreateDecreasePositionMarketRequestRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_decrease_position_market_request_instruction (
+            r#"INSERT INTO jupiter_perpetuals_create_decrease_position_market_request_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -119,16 +119,13 @@ impl carbon_core::postgres::operations::Delete for CreateDecreasePositionMarketR
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM create_decrease_position_market_request_instruction WHERE
+        sqlx::query(r#"DELETE FROM jupiter_perpetuals_create_decrease_position_market_request_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -146,16 +143,13 @@ impl carbon_core::postgres::operations::Lookup for CreateDecreasePositionMarketR
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM create_decrease_position_market_request_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM jupiter_perpetuals_create_decrease_position_market_request_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -171,8 +165,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_decrease_position_market_request_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_create_decrease_position_market_request_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -182,10 +175,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -193,9 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_decrease_position_market_request_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_perpetuals_create_decrease_position_market_request_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

@@ -38,7 +38,7 @@ impl TryFrom<InitializeRow> for crate::instructions::initialize::Initialize {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::initialize::Initialize {
     fn table() -> &'static str {
-        "initialize_instruction"
+        "circle_token_messenger_v2_initialize_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for InitializeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_instruction (
+            INSERT INTO circle_token_messenger_v2_initialize_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for InitializeRow {
 impl carbon_core::postgres::operations::Upsert for InitializeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_instruction (
+            r#"INSERT INTO circle_token_messenger_v2_initialize_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for InitializeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_instruction WHERE
+            r#"DELETE FROM circle_token_messenger_v2_initialize_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_instruction WHERE
+            r#"SELECT * FROM circle_token_messenger_v2_initialize_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_instruction (
+            r#"CREATE TABLE IF NOT EXISTS circle_token_messenger_v2_initialize_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS circle_token_messenger_v2_initialize_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

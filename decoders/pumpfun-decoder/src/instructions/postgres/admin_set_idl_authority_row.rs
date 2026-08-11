@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::admin_set_idl_authority::AdminSetIdlAuthority
 {
     fn table() -> &'static str {
-        "admin_set_idl_authority_instruction"
+        "pumpfun_admin_set_idl_authority_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for AdminSetIdlAuthorityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO admin_set_idl_authority_instruction (
+            INSERT INTO pumpfun_admin_set_idl_authority_instruction (
                 "idl_authority",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for AdminSetIdlAuthorityRow {
 impl carbon_core::postgres::operations::Upsert for AdminSetIdlAuthorityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO admin_set_idl_authority_instruction (
+            r#"INSERT INTO pumpfun_admin_set_idl_authority_instruction (
                 "idl_authority",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for AdminSetIdlAuthorityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM admin_set_idl_authority_instruction WHERE
+            r#"DELETE FROM pumpfun_admin_set_idl_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for AdminSetIdlAuthorityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM admin_set_idl_authority_instruction WHERE
+            r#"SELECT * FROM pumpfun_admin_set_idl_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdminSetIdlAuthorityMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS admin_set_idl_authority_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_admin_set_idl_authority_instruction (
                 -- Instruction data
                 "idl_authority" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdminSetIdlAuthorityMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS admin_set_idl_authority_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_admin_set_idl_authority_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

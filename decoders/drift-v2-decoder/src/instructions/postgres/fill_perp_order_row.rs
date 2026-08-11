@@ -61,7 +61,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::fill_perp_order::FillPerpOrder
 {
     fn table() -> &'static str {
-        "fill_perp_order_instruction"
+        "drift_v2_fill_perp_order_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for FillPerpOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fill_perp_order_instruction (
+            INSERT INTO drift_v2_fill_perp_order_instruction (
                 "order_id",
                 "maker_order_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Insert for FillPerpOrderRow {
 impl carbon_core::postgres::operations::Upsert for FillPerpOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fill_perp_order_instruction (
+            r#"INSERT INTO drift_v2_fill_perp_order_instruction (
                 "order_id",
                 "maker_order_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Delete for FillPerpOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fill_perp_order_instruction WHERE
+            r#"DELETE FROM drift_v2_fill_perp_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for FillPerpOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fill_perp_order_instruction WHERE
+            r#"SELECT * FROM drift_v2_fill_perp_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FillPerpOrderMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fill_perp_order_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_fill_perp_order_instruction (
                 -- Instruction data
                 "order_id" INT8,
                 "maker_order_id" INT8,
@@ -221,7 +221,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FillPerpOrderMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fill_perp_order_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_fill_perp_order_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

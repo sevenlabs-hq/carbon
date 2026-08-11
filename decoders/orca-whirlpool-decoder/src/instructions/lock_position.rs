@@ -32,6 +32,7 @@ pub struct LockPositionInstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub token2022_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -72,6 +73,7 @@ impl ArrangeAccounts for LockPosition {
         let whirlpool = next_account(&mut iter)?;
         let token2022_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -85,6 +87,7 @@ impl ArrangeAccounts for LockPosition {
             whirlpool,
             token2022_program,
             system_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

@@ -42,7 +42,7 @@ impl TryFrom<CreateStateRow> for crate::instructions::create_state::CreateState 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::create_state::CreateState {
     fn table() -> &'static str {
-        "create_state_instruction"
+        "bonkswap_create_state_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for CreateStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_state_instruction (
+            INSERT INTO bonkswap_create_state_instruction (
                 "nonce",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for CreateStateRow {
 impl carbon_core::postgres::operations::Upsert for CreateStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_state_instruction (
+            r#"INSERT INTO bonkswap_create_state_instruction (
                 "nonce",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for CreateStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_state_instruction WHERE
+            r#"DELETE FROM bonkswap_create_state_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for CreateStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_state_instruction WHERE
+            r#"SELECT * FROM bonkswap_create_state_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateStateMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_state_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_create_state_instruction (
                 -- Instruction data
                 "nonce" INT2 NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateStateMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_state_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_create_state_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -41,7 +41,7 @@ impl TryFrom<SwapV2Row> for crate::instructions::swap_v2::SwapV2 {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::swap_v2::SwapV2 {
     fn table() -> &'static str {
-        "swap_v2_instruction"
+        "stabble_weighted_swap_swap_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SwapV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_v2_instruction (
+            INSERT INTO stabble_weighted_swap_swap_v2_instruction (
                 "amount_in",
                 "minimum_amount_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for SwapV2Row {
 impl carbon_core::postgres::operations::Upsert for SwapV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_v2_instruction (
+            r#"INSERT INTO stabble_weighted_swap_swap_v2_instruction (
                 "amount_in",
                 "minimum_amount_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Delete for SwapV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_v2_instruction WHERE
+            r#"DELETE FROM stabble_weighted_swap_swap_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Lookup for SwapV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_v2_instruction WHERE
+            r#"SELECT * FROM stabble_weighted_swap_swap_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapV2MigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS stabble_weighted_swap_swap_v2_instruction (
                 -- Instruction data
                 "amount_in" NUMERIC(20),
                 "minimum_amount_out" NUMERIC(20) NOT NULL,
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapV2MigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS stabble_weighted_swap_swap_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

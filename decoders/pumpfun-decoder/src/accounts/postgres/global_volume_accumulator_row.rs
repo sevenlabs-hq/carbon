@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::global_volume_accumulator::GlobalVolumeAccumulator
 {
     fn table() -> &'static str {
-        "global_volume_accumulator_account"
+        "pumpfun_global_volume_accumulator_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -116,7 +116,7 @@ impl carbon_core::postgres::operations::Insert for GlobalVolumeAccumulatorRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO global_volume_accumulator_account (
+            INSERT INTO pumpfun_global_volume_accumulator_account (
                 "start_time",
                 "end_time",
                 "seconds_in_a_day",
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Insert for GlobalVolumeAccumulatorRow {
 impl carbon_core::postgres::operations::Upsert for GlobalVolumeAccumulatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO global_volume_accumulator_account (
+            r#"INSERT INTO pumpfun_global_volume_accumulator_account (
                 "start_time",
                 "end_time",
                 "seconds_in_a_day",
@@ -190,7 +190,7 @@ impl carbon_core::postgres::operations::Delete for GlobalVolumeAccumulatorRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM global_volume_accumulator_account WHERE
+            r#"DELETE FROM pumpfun_global_volume_accumulator_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -211,7 +211,7 @@ impl carbon_core::postgres::operations::Lookup for GlobalVolumeAccumulatorRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM global_volume_accumulator_account WHERE
+            r#"SELECT * FROM pumpfun_global_volume_accumulator_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -232,7 +232,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalVolumeAccumulatorMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS global_volume_accumulator_account (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_global_volume_accumulator_account (
                 -- Account data
                 "start_time" INT8 NOT NULL,
                 "end_time" INT8 NOT NULL,
@@ -255,7 +255,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalVolumeAccumulatorMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS global_volume_accumulator_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_global_volume_accumulator_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -1,0 +1,93 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
+{% for account in accountsToExport | sort(false, false, 'name') %}
+pub mod {{ macros.escapeRustKeyword(account.name | snakeCase) }}_row;
+{% endfor %}
+
+{% for account in accountsToExport | sort(false, false, 'name') %}
+pub use self::{{ macros.escapeRustKeyword(account.name | snakeCase) }}_row::*;
+{% endfor %}
+
+use super::{{ program.name | pascalCase }}Account;
+
+pub struct {{ program.name | pascalCase }}AccountsMigration;
+
+impl carbon_core::clickhouse::Migration for {{ program.name | pascalCase }}AccountsMigration {
+    fn app(&self) -> &str {
+        "{{ program.name | kebabCase }}"
+    }
+    fn name(&self) -> &str {
+        "{{ program.name | snakeCase }}_accounts"
+    }
+    fn operations(&self) -> Vec<Box<dyn carbon_core::clickhouse::operations::Operation>> {
+        vec![{% for account in accountsToExport | sort(false, false, 'name') %}
+            Box::new({{ account.name | pascalCase }}MigrationOperation),{% endfor %}
+        ]
+    }
+}
+
+pub enum {{ program.name | pascalCase }}AccountRow {
+{% for account in accountsToExport | sort(false, false, 'name') %}    {{ account.name | pascalCase }}({{ account.name | pascalCase }}Row),
+{% endfor %}}
+
+pub struct {{ program.name | pascalCase }}AccountMetadata(
+    pub carbon_core::account::AccountMetadata,
+    pub {{ program.name | pascalCase }}Account,
+);
+
+#[async_trait::async_trait]
+impl carbon_core::clickhouse::BatchInsert for {{ program.name | pascalCase }}AccountMetadata {
+     type Row = {{ program.name | pascalCase }}AccountRow;
+     
+    async fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+{% if accountsToExport | length == 0 %}        let _ = rows;
+        let Self(_metadata, _account) = self;
+        unreachable!("BatchInsert called for program with no account row variants");
+{% else %}        let Self(metadata, account) = self;
+
+        match account {
+{% for account in accountsToExport | sort(false, false, 'name') %}            {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {
+                rows.push({{ program.name | pascalCase }}AccountRow::{{ account.name | pascalCase }}((*account.clone(), metadata.clone()).try_into()?));
+            }
+{% endfor %}        }
+
+        Ok(())
+{% endif %}    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::clickhouse::BatchCommit for {{ program.name | pascalCase }}AccountRow {
+    async fn batch_commit(
+        &self,
+        client: &clickhouse::Client,
+        rows: &[Self],
+    ) -> carbon_core::error::CarbonResult<()> {
+{% if accountsToExport | length == 0 %}        let _ = (client, rows);
+        unreachable!("BatchCommit called for program with no account row variants");
+{% else %}        macro_rules! commit_branch {
+            ($variant:ident, $row:ty) => {
+                if let Self::$variant(source) = self {
+                    let branch_rows: Vec<$row> = rows
+                        .iter()
+                        .filter_map(|row| match row {
+                            Self::$variant(row) => Some(row.clone()),
+                            _ => None,
+                        })
+                        .collect();
+                    return <$row as carbon_core::clickhouse::Insert>::insert(
+                        source,
+                        client,
+                        &branch_rows,
+                    )
+                    .await;
+                }
+            };
+        }
+
+{% for account in accountsToExport | sort(false, false, 'name') %}        commit_branch!({{ account.name | pascalCase }}, {{ account.name | pascalCase }}Row);
+{% endfor %}        Ok(())
+{% endif %}    }
+}
+{% endblock %}

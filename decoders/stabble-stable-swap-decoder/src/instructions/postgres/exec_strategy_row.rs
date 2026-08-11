@@ -52,7 +52,7 @@ impl TryFrom<ExecStrategyRow> for crate::instructions::exec_strategy::ExecStrate
 
 impl carbon_core::postgres::operations::Table for crate::instructions::exec_strategy::ExecStrategy {
     fn table() -> &'static str {
-        "exec_strategy_instruction"
+        "stabble_stable_swap_exec_strategy_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for ExecStrategyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO exec_strategy_instruction (
+            INSERT INTO stabble_stable_swap_exec_strategy_instruction (
                 "ramp_step",
                 "ramp_duration",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for ExecStrategyRow {
 impl carbon_core::postgres::operations::Upsert for ExecStrategyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO exec_strategy_instruction (
+            r#"INSERT INTO stabble_stable_swap_exec_strategy_instruction (
                 "ramp_step",
                 "ramp_duration",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for ExecStrategyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM exec_strategy_instruction WHERE
+            r#"DELETE FROM stabble_stable_swap_exec_strategy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for ExecStrategyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM exec_strategy_instruction WHERE
+            r#"SELECT * FROM stabble_stable_swap_exec_strategy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ExecStrategyMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS exec_strategy_instruction (
+            r#"CREATE TABLE IF NOT EXISTS stabble_stable_swap_exec_strategy_instruction (
                 -- Instruction data
                 "ramp_step" INT4 NOT NULL,
                 "ramp_duration" INT8 NOT NULL,
@@ -212,7 +212,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ExecStrategyMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS exec_strategy_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS stabble_stable_swap_exec_strategy_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

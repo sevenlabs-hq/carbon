@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::change_authority::ChangeAuthority
 {
     fn table() -> &'static str {
-        "change_authority_instruction"
+        "marinade_finance_change_authority_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for ChangeAuthorityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO change_authority_instruction (
+            INSERT INTO marinade_finance_change_authority_instruction (
                 "data",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for ChangeAuthorityRow {
 impl carbon_core::postgres::operations::Upsert for ChangeAuthorityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO change_authority_instruction (
+            r#"INSERT INTO marinade_finance_change_authority_instruction (
                 "data",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for ChangeAuthorityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM change_authority_instruction WHERE
+            r#"DELETE FROM marinade_finance_change_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for ChangeAuthorityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM change_authority_instruction WHERE
+            r#"SELECT * FROM marinade_finance_change_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeAuthorityMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS change_authority_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_change_authority_instruction (
                 -- Instruction data
                 "data" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeAuthorityMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS change_authority_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_change_authority_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

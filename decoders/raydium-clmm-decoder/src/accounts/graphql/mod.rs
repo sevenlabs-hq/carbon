@@ -5,6 +5,7 @@ pub mod limit_order_nonce_schema;
 pub mod limit_order_state_schema;
 pub mod observation_state_schema;
 pub mod operation_state_schema;
+pub mod permission_schema;
 pub mod personal_position_state_schema;
 pub mod pool_state_schema;
 pub mod protocol_position_state_schema;
@@ -16,9 +17,9 @@ use juniper::GraphQLObject;
 pub use {
     amm_config_schema::*, dynamic_fee_config_schema::*, limit_order_nonce_schema::*,
     limit_order_state_schema::*, observation_state_schema::*, operation_state_schema::*,
-    personal_position_state_schema::*, pool_state_schema::*, protocol_position_state_schema::*,
-    support_mint_associated_schema::*, tick_array_bitmap_extension_schema::*,
-    tick_array_state_schema::*,
+    permission_schema::*, personal_position_state_schema::*, pool_state_schema::*,
+    protocol_position_state_schema::*, support_mint_associated_schema::*,
+    tick_array_bitmap_extension_schema::*, tick_array_state_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

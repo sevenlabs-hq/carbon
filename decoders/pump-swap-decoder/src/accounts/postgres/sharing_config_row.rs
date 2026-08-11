@@ -66,7 +66,7 @@ impl TryFrom<SharingConfigRow> for crate::accounts::sharing_config::SharingConfi
 
 impl carbon_core::postgres::operations::Table for crate::accounts::sharing_config::SharingConfig {
     fn table() -> &'static str {
-        "sharing_config_account"
+        "pump_swap_sharing_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -89,7 +89,7 @@ impl carbon_core::postgres::operations::Insert for SharingConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO sharing_config_account (
+            INSERT INTO pump_swap_sharing_config_account (
                 "bump",
                 "version",
                 "status",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for SharingConfigRow {
 impl carbon_core::postgres::operations::Upsert for SharingConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO sharing_config_account (
+            r#"INSERT INTO pump_swap_sharing_config_account (
                 "bump",
                 "version",
                 "status",
@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for SharingConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM sharing_config_account WHERE
+            r#"DELETE FROM pump_swap_sharing_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -189,7 +189,7 @@ impl carbon_core::postgres::operations::Lookup for SharingConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM sharing_config_account WHERE
+            r#"SELECT * FROM pump_swap_sharing_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -210,7 +210,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SharingConfigMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS sharing_config_account (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_sharing_config_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "version" INT2 NOT NULL,
@@ -234,7 +234,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SharingConfigMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS sharing_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_sharing_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

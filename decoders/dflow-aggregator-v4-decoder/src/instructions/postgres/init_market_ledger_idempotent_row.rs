@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::init_market_ledger_idempotent::InitMarketLedgerIdempotent
 {
     fn table() -> &'static str {
-        "init_market_ledger_idempotent_instruction"
+        "dflow_aggregator_v4_init_market_ledger_idempotent_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for InitMarketLedgerIdempotentRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO init_market_ledger_idempotent_instruction (
+            INSERT INTO dflow_aggregator_v4_init_market_ledger_idempotent_instruction (
                 "market_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for InitMarketLedgerIdempotentRow
 impl carbon_core::postgres::operations::Upsert for InitMarketLedgerIdempotentRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO init_market_ledger_idempotent_instruction (
+            r#"INSERT INTO dflow_aggregator_v4_init_market_ledger_idempotent_instruction (
                 "market_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for InitMarketLedgerIdempotentRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM init_market_ledger_idempotent_instruction WHERE
+            r#"DELETE FROM dflow_aggregator_v4_init_market_ledger_idempotent_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Lookup for InitMarketLedgerIdempotentRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM init_market_ledger_idempotent_instruction WHERE
+            r#"SELECT * FROM dflow_aggregator_v4_init_market_ledger_idempotent_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -175,8 +175,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitMarketLedgerIdempotentMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS init_market_ledger_idempotent_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS dflow_aggregator_v4_init_market_ledger_idempotent_instruction (
                 -- Instruction data
                 "market_id" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -186,10 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitMarketLedgerIdempotentMigr
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -197,9 +193,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitMarketLedgerIdempotentMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS init_market_ledger_idempotent_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS dflow_aggregator_v4_init_market_ledger_idempotent_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

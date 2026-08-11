@@ -75,7 +75,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_spot_market_borrow_rate::UpdateSpotMarketBorrowRate
 {
     fn table() -> &'static str {
-        "update_spot_market_borrow_rate_instruction"
+        "drift_v2_update_spot_market_borrow_rate_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketBorrowRateRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_spot_market_borrow_rate_instruction (
+            INSERT INTO drift_v2_update_spot_market_borrow_rate_instruction (
                 "optimal_utilization",
                 "optimal_borrow_rate",
                 "max_borrow_rate",
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketBorrowRateRow
 impl carbon_core::postgres::operations::Upsert for UpdateSpotMarketBorrowRateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_spot_market_borrow_rate_instruction (
+            r#"INSERT INTO drift_v2_update_spot_market_borrow_rate_instruction (
                 "optimal_utilization",
                 "optimal_borrow_rate",
                 "max_borrow_rate",
@@ -175,7 +175,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketBorrowRateRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_spot_market_borrow_rate_instruction WHERE
+            r#"DELETE FROM drift_v2_update_spot_market_borrow_rate_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -202,7 +202,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketBorrowRateRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_spot_market_borrow_rate_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_spot_market_borrow_rate_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -225,7 +225,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotMarketBorrowRateMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_spot_market_borrow_rate_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_spot_market_borrow_rate_instruction (
                 -- Instruction data
                 "optimal_utilization" INT8 NOT NULL,
                 "optimal_borrow_rate" INT8 NOT NULL,
@@ -249,7 +249,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotMarketBorrowRateMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_spot_market_borrow_rate_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_spot_market_borrow_rate_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

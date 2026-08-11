@@ -24,6 +24,7 @@ export type DecoderCargoTomlOptions = {
     version?: string;
     versionName?: string;
     withPostgres: boolean;
+    withClickhouse?: boolean;
     withGraphQL: boolean;
     withSerde: boolean;
     withBase58?: boolean;
@@ -174,6 +175,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         useWorkspace,
     );
     const juniperDep = getCrateDependencyString('juniper', VERSIONS['juniper'], undefined, true, useWorkspace);
+    const clickhouseDep = getCrateDependencyString('clickhouse', VERSIONS['clickhouse'], undefined, true, useWorkspace);
 
     const features: string[] = ['default = []'];
 
@@ -191,6 +193,21 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         features.push('    "dep:async-trait",');
         features.push('    "dep:sqlx_migrator",');
         features.push('    "serde",');
+        features.push(']');
+    }
+
+    if (options.withClickhouse) {
+        features.push('');
+        features.push('clickhouse = [');
+        features.push('    "carbon-core/clickhouse",');
+        features.push('    "dep:clickhouse",');
+        features.push('    "dep:async-trait",');
+        features.push('    "serde",');
+        features.push(']');
+        features.push('');
+        features.push('clickhouse-cluster = [');
+        features.push('    "clickhouse",');
+        features.push('    "carbon-core/clickhouse-cluster",');
         features.push(']');
     }
 
@@ -217,7 +234,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         serdeJsonDep,
     ];
 
-    if (withSerde || withPostgres || withGraphQL || withBase58) {
+    if (withSerde || withPostgres || withGraphQL || withBase58 || options.withClickhouse) {
         dependencies.push('');
         dependencies.push(serdeDep);
         if (withSerdeBigArray) {
@@ -225,16 +242,23 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         }
     }
 
-    if (withPostgres || withGraphQL) {
+    if (withPostgres || withGraphQL || options.withClickhouse) {
         dependencies.push('');
         dependencies.push(sqlxDep);
         dependencies.push(asyncTraitDep);
-        dependencies.push(sqlxMigratorDep);
+        if (withPostgres || withGraphQL) {
+            dependencies.push(sqlxMigratorDep);
+        }
     }
 
     if (withGraphQL) {
         dependencies.push('');
         dependencies.push(juniperDep);
+    }
+
+    if (options.withClickhouse) {
+        dependencies.push('');
+        dependencies.push(clickhouseDep);
     }
 
     // Add SPL Token 2022 dependencies for token-2022 program

@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::edit_global_fee_state::EditGlobalFeeState
 {
     fn table() -> &'static str {
-        "edit_global_fee_state_instruction"
+        "marginfi_v2_edit_global_fee_state_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Insert for EditGlobalFeeStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO edit_global_fee_state_instruction (
+            INSERT INTO marginfi_v2_edit_global_fee_state_instruction (
                 "admin",
                 "fee_wallet",
                 "bank_init_flat_sol_fee",
@@ -152,7 +152,7 @@ impl carbon_core::postgres::operations::Insert for EditGlobalFeeStateRow {
 impl carbon_core::postgres::operations::Upsert for EditGlobalFeeStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO edit_global_fee_state_instruction (
+            r#"INSERT INTO marginfi_v2_edit_global_fee_state_instruction (
                 "admin",
                 "fee_wallet",
                 "bank_init_flat_sol_fee",
@@ -214,7 +214,7 @@ impl carbon_core::postgres::operations::Delete for EditGlobalFeeStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM edit_global_fee_state_instruction WHERE
+            r#"DELETE FROM marginfi_v2_edit_global_fee_state_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -241,7 +241,7 @@ impl carbon_core::postgres::operations::Lookup for EditGlobalFeeStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM edit_global_fee_state_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_edit_global_fee_state_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -264,7 +264,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EditGlobalFeeStateMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS edit_global_fee_state_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_edit_global_fee_state_instruction (
                 -- Instruction data
                 "admin" BYTEA NOT NULL,
                 "fee_wallet" BYTEA NOT NULL,
@@ -293,7 +293,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EditGlobalFeeStateMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS edit_global_fee_state_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_edit_global_fee_state_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

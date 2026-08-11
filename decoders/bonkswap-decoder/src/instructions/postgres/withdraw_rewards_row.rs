@@ -33,7 +33,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::withdraw_rewards::WithdrawRewards
 {
     fn table() -> &'static str {
-        "withdraw_rewards_instruction"
+        "bonkswap_withdraw_rewards_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawRewardsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_rewards_instruction (
+            INSERT INTO bonkswap_withdraw_rewards_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawRewardsRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawRewardsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_rewards_instruction (
+            r#"INSERT INTO bonkswap_withdraw_rewards_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawRewardsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_rewards_instruction WHERE
+            r#"DELETE FROM bonkswap_withdraw_rewards_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawRewardsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_rewards_instruction WHERE
+            r#"SELECT * FROM bonkswap_withdraw_rewards_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,7 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawRewardsMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_rewards_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_withdraw_rewards_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawRewardsMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_rewards_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_withdraw_rewards_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -12,6 +12,7 @@ pub struct ValidatorRecordGraphQL {
     pub score: U32,
     pub last_stake_delta_epoch: U64,
     pub duplication_flag_bump_seed: U8,
+    pub delinquent_upgrader_active_balance: U64,
 }
 
 impl From<crate::types::ValidatorRecord> for ValidatorRecordGraphQL {
@@ -25,6 +26,9 @@ impl From<crate::types::ValidatorRecord> for ValidatorRecordGraphQL {
             ),
             duplication_flag_bump_seed: carbon_core::graphql::primitives::U8(
                 original.duplication_flag_bump_seed,
+            ),
+            delinquent_upgrader_active_balance: carbon_core::graphql::primitives::U64(
+                original.delinquent_upgrader_active_balance,
             ),
         }
     }

@@ -46,7 +46,7 @@ impl TryFrom<LiquidateObligationAndRedeemReserveCollateralV2Row> for crate::inst
 
 impl carbon_core::postgres::operations::Table for crate::instructions::liquidate_obligation_and_redeem_reserve_collateral_v2::LiquidateObligationAndRedeemReserveCollateralV2 {
     fn table() -> &'static str {
-        "liquidate_obligation_and_redeem_reserve_collateral_v2_instruction"
+        "kamino_lending_liquidate_obligation_and_redeem_reserve_collateral_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -68,17 +68,15 @@ impl carbon_core::postgres::operations::Insert
     for LiquidateObligationAndRedeemReserveCollateralV2Row
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
-            INSERT INTO liquidate_obligation_and_redeem_reserve_collateral_v2_instruction (
+        sqlx::query(r#"
+            INSERT INTO kamino_lending_liquidate_obligation_and_redeem_reserve_collateral_v2_instruction (
                 "liquidity_amount",
                 "min_acceptable_received_liquidity_amount",
                 "max_allowed_ltv_override_percent",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8
-            )"#,
-        )
+            )"#)
         .bind(&self.liquidity_amount)
         .bind(&self.min_acceptable_received_liquidity_amount)
         .bind(&self.max_allowed_ltv_override_percent)
@@ -87,8 +85,7 @@ impl carbon_core::postgres::operations::Insert
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -99,7 +96,7 @@ impl carbon_core::postgres::operations::Upsert
     for LiquidateObligationAndRedeemReserveCollateralV2Row
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO liquidate_obligation_and_redeem_reserve_collateral_v2_instruction (
+        sqlx::query(r#"INSERT INTO kamino_lending_liquidate_obligation_and_redeem_reserve_collateral_v2_instruction (
                 "liquidity_amount",
                 "min_acceptable_received_liquidity_amount",
                 "max_allowed_ltv_override_percent",
@@ -142,16 +139,13 @@ impl carbon_core::postgres::operations::Delete
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM liquidate_obligation_and_redeem_reserve_collateral_v2_instruction WHERE
+        sqlx::query(r#"DELETE FROM kamino_lending_liquidate_obligation_and_redeem_reserve_collateral_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -171,16 +165,13 @@ impl carbon_core::postgres::operations::Lookup
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM liquidate_obligation_and_redeem_reserve_collateral_v2_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM kamino_lending_liquidate_obligation_and_redeem_reserve_collateral_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -196,7 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS liquidate_obligation_and_redeem_reserve_collateral_v2_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS kamino_lending_liquidate_obligation_and_redeem_reserve_collateral_v2_instruction (
                 -- Instruction data
                 "liquidity_amount" NUMERIC(20) NOT NULL,
                 "min_acceptable_received_liquidity_amount" NUMERIC(20) NOT NULL,
@@ -216,7 +207,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS liquidate_obligation_and_redeem_reserve_collateral_v2_instruction"#).execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_liquidate_obligation_and_redeem_reserve_collateral_v2_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

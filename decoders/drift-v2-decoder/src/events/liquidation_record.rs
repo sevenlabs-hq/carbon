@@ -27,7 +27,6 @@ pub struct LiquidationRecordEvent {
     pub liquidate_perp_pnl_for_deposit: LiquidatePerpPnlForDepositRecord,
     pub perp_bankruptcy: PerpBankruptcyRecord,
     pub spot_bankruptcy: SpotBankruptcyRecord,
-    pub bit_flags: u8,
 }
 
 impl CarbonDeserialize for LiquidationRecordEvent {

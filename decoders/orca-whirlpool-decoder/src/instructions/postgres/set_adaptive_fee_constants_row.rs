@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_adaptive_fee_constants::SetAdaptiveFeeConstants
 {
     fn table() -> &'static str {
-        "set_adaptive_fee_constants_instruction"
+        "orca_whirlpool_set_adaptive_fee_constants_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -154,7 +154,7 @@ impl carbon_core::postgres::operations::Insert for SetAdaptiveFeeConstantsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_adaptive_fee_constants_instruction (
+            INSERT INTO orca_whirlpool_set_adaptive_fee_constants_instruction (
                 "filter_period",
                 "decay_period",
                 "reduction_factor",
@@ -190,7 +190,7 @@ impl carbon_core::postgres::operations::Insert for SetAdaptiveFeeConstantsRow {
 impl carbon_core::postgres::operations::Upsert for SetAdaptiveFeeConstantsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_adaptive_fee_constants_instruction (
+            r#"INSERT INTO orca_whirlpool_set_adaptive_fee_constants_instruction (
                 "filter_period",
                 "decay_period",
                 "reduction_factor",
@@ -246,7 +246,7 @@ impl carbon_core::postgres::operations::Delete for SetAdaptiveFeeConstantsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_adaptive_fee_constants_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_set_adaptive_fee_constants_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -273,7 +273,7 @@ impl carbon_core::postgres::operations::Lookup for SetAdaptiveFeeConstantsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_adaptive_fee_constants_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_set_adaptive_fee_constants_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -296,7 +296,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetAdaptiveFeeConstantsMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_adaptive_fee_constants_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_set_adaptive_fee_constants_instruction (
                 -- Instruction data
                 "filter_period" INT4,
                 "decay_period" INT4,
@@ -323,9 +323,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetAdaptiveFeeConstantsMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_adaptive_fee_constants_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS orca_whirlpool_set_adaptive_fee_constants_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

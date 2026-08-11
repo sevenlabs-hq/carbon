@@ -3,7 +3,9 @@ use crate::types::MarketIdentifier;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum MarginCalculationMode {
-    Standard,
+    Standard {
+        track_open_orders_fraction: bool,
+    },
     Liquidation {
         market_to_track_margin_requirement: Option<MarketIdentifier>,
     },

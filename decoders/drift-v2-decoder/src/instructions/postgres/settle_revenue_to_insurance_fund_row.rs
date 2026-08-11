@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::settle_revenue_to_insurance_fund::SettleRevenueToInsuranceFund
 {
     fn table() -> &'static str {
-        "settle_revenue_to_insurance_fund_instruction"
+        "drift_v2_settle_revenue_to_insurance_fund_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for SettleRevenueToInsuranceFundR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO settle_revenue_to_insurance_fund_instruction (
+            INSERT INTO drift_v2_settle_revenue_to_insurance_fund_instruction (
                 "spot_market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for SettleRevenueToInsuranceFundR
 impl carbon_core::postgres::operations::Upsert for SettleRevenueToInsuranceFundRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO settle_revenue_to_insurance_fund_instruction (
+            r#"INSERT INTO drift_v2_settle_revenue_to_insurance_fund_instruction (
                 "spot_market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for SettleRevenueToInsuranceFundR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM settle_revenue_to_insurance_fund_instruction WHERE
+            r#"DELETE FROM drift_v2_settle_revenue_to_insurance_fund_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for SettleRevenueToInsuranceFundR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM settle_revenue_to_insurance_fund_instruction WHERE
+            r#"SELECT * FROM drift_v2_settle_revenue_to_insurance_fund_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SettleRevenueToInsuranceFundMi
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS settle_revenue_to_insurance_fund_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_settle_revenue_to_insurance_fund_instruction (
                 -- Instruction data
                 "spot_market_index" INT4 NOT NULL,
                 -- Instruction metadata
@@ -199,9 +199,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SettleRevenueToInsuranceFundMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS settle_revenue_to_insurance_fund_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_settle_revenue_to_insurance_fund_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

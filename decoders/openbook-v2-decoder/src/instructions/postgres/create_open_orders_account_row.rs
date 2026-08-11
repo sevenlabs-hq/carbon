@@ -37,7 +37,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_open_orders_account::CreateOpenOrdersAccount
 {
     fn table() -> &'static str {
-        "create_open_orders_account_instruction"
+        "openbook_v2_create_open_orders_account_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Insert for CreateOpenOrdersAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_open_orders_account_instruction (
+            INSERT INTO openbook_v2_create_open_orders_account_instruction (
                 "name",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for CreateOpenOrdersAccountRow {
 impl carbon_core::postgres::operations::Upsert for CreateOpenOrdersAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_open_orders_account_instruction (
+            r#"INSERT INTO openbook_v2_create_open_orders_account_instruction (
                 "name",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Delete for CreateOpenOrdersAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_open_orders_account_instruction WHERE
+            r#"DELETE FROM openbook_v2_create_open_orders_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Lookup for CreateOpenOrdersAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_open_orders_account_instruction WHERE
+            r#"SELECT * FROM openbook_v2_create_open_orders_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateOpenOrdersAccountMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_open_orders_account_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_create_open_orders_account_instruction (
                 -- Instruction data
                 "name" TEXT NOT NULL,
                 -- Instruction metadata
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateOpenOrdersAccountMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_open_orders_account_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_create_open_orders_account_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::marginfi_account::MarginfiAccount
 {
     fn table() -> &'static str {
-        "marginfi_account_account"
+        "marginfi_v2_marginfi_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO marginfi_account_account (
+            INSERT INTO marginfi_v2_marginfi_account_account (
                 "group",
                 "authority",
                 "lending_account",
@@ -200,7 +200,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiAccountRow {
 impl carbon_core::postgres::operations::Upsert for MarginfiAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO marginfi_account_account (
+            r#"INSERT INTO marginfi_v2_marginfi_account_account (
                 "group",
                 "authority",
                 "lending_account",
@@ -270,7 +270,7 @@ impl carbon_core::postgres::operations::Delete for MarginfiAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM marginfi_account_account WHERE
+            r#"DELETE FROM marginfi_v2_marginfi_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -291,7 +291,7 @@ impl carbon_core::postgres::operations::Lookup for MarginfiAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM marginfi_account_account WHERE
+            r#"SELECT * FROM marginfi_v2_marginfi_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -312,7 +312,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginfiAccountMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS marginfi_account_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_marginfi_account_account (
                 -- Account data
                 "group" BYTEA NOT NULL,
                 "authority" BYTEA NOT NULL,
@@ -344,7 +344,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginfiAccountMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_marginfi_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

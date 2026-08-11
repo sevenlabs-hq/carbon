@@ -113,7 +113,7 @@ impl TryFrom<ConfigAccountRow> for crate::accounts::config_account::ConfigAccoun
 
 impl carbon_core::postgres::operations::Table for crate::accounts::config_account::ConfigAccount {
     fn table() -> &'static str {
-        "config_account_account"
+        "moonshot_config_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Insert for ConfigAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO config_account_account (
+            INSERT INTO moonshot_config_account_account (
                 "migration_authority",
                 "backend_authority",
                 "config_authority",
@@ -196,7 +196,7 @@ impl carbon_core::postgres::operations::Insert for ConfigAccountRow {
 impl carbon_core::postgres::operations::Upsert for ConfigAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO config_account_account (
+            r#"INSERT INTO moonshot_config_account_account (
                 "migration_authority",
                 "backend_authority",
                 "config_authority",
@@ -269,7 +269,7 @@ impl carbon_core::postgres::operations::Delete for ConfigAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM config_account_account WHERE
+            r#"DELETE FROM moonshot_config_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -290,7 +290,7 @@ impl carbon_core::postgres::operations::Lookup for ConfigAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM config_account_account WHERE
+            r#"SELECT * FROM moonshot_config_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -311,7 +311,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigAccountMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS config_account_account (
+            r#"CREATE TABLE IF NOT EXISTS moonshot_config_account_account (
                 -- Account data
                 "migration_authority" BYTEA NOT NULL,
                 "backend_authority" BYTEA NOT NULL,
@@ -344,7 +344,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigAccountMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS config_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS moonshot_config_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

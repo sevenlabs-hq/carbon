@@ -23,6 +23,7 @@ pub struct SetConfigFeatureFlag {
 pub struct SetConfigFeatureFlagInstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -56,12 +57,14 @@ impl ArrangeAccounts for SetConfigFeatureFlag {
 
         let whirlpools_config = next_account(&mut iter)?;
         let authority = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(SetConfigFeatureFlagInstructionAccounts {
             whirlpools_config,
             authority,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

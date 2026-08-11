@@ -29,7 +29,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::{{ account.name | pascalCase }}GraphQL>> {
         let rows: Vec<crate::accounts::postgres::{{ account.name | pascalCase }}Row> = sqlx::query_as(
-            r#"SELECT * FROM {{ account.name | snakeCase }}_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM {{ program.name | snakeCase }}_{{ account.name | snakeCase }}_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -52,7 +52,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL>> {
         let rows: Vec<crate::instructions::postgres::{{ instruction.name | pascalCase }}Row> = sqlx::query_as(
-            r#"SELECT * FROM {{ instruction.name | snakeCase }}_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM {{ program.name | snakeCase }}_{{ instruction.name | snakeCase }}_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -68,7 +68,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL>> {
         let rows: Vec<crate::instructions::postgres::{{ instruction.name | pascalCase }}Row> = sqlx::query_as(
-            r#"SELECT * FROM {{ instruction.name | snakeCase }}_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM {{ program.name | snakeCase }}_{{ instruction.name | snakeCase }}_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -89,7 +89,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CpiEventRow> = sqlx::query_as(
-            r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM {{ program.name | snakeCase }}_cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

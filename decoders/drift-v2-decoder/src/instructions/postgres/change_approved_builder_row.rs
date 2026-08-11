@@ -55,7 +55,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::change_approved_builder::ChangeApprovedBuilder
 {
     fn table() -> &'static str {
-        "change_approved_builder_instruction"
+        "drift_v2_change_approved_builder_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for ChangeApprovedBuilderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO change_approved_builder_instruction (
+            INSERT INTO drift_v2_change_approved_builder_instruction (
                 "builder",
                 "max_fee_bps",
                 "add",
@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for ChangeApprovedBuilderRow {
 impl carbon_core::postgres::operations::Upsert for ChangeApprovedBuilderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO change_approved_builder_instruction (
+            r#"INSERT INTO drift_v2_change_approved_builder_instruction (
                 "builder",
                 "max_fee_bps",
                 "add",
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Delete for ChangeApprovedBuilderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM change_approved_builder_instruction WHERE
+            r#"DELETE FROM drift_v2_change_approved_builder_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for ChangeApprovedBuilderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM change_approved_builder_instruction WHERE
+            r#"SELECT * FROM drift_v2_change_approved_builder_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeApprovedBuilderMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS change_approved_builder_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_change_approved_builder_instruction (
                 -- Instruction data
                 "builder" BYTEA NOT NULL,
                 "max_fee_bps" INT4 NOT NULL,
@@ -222,7 +222,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeApprovedBuilderMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS change_approved_builder_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_change_approved_builder_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

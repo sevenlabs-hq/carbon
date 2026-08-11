@@ -39,7 +39,7 @@ pub struct UserStats {
     /// First bit (LSB): 1 if user is a referrer, 0 otherwise
     /// Second bit: 1 if user was referred, 0 otherwise
     pub referrer_status: u8,
-    pub disable_update_perp_bid_ask_twap: u8,
+    pub disable_update_perp_bid_ask_twap: bool,
     pub paused_operations: u8,
     /// whether the user has a FuelOverflow account
     pub fuel_overflow_status: u8,

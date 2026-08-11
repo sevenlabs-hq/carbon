@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::permissionless_farm_switch::PermissionlessFarmSwitch
 {
     fn table() -> &'static str {
-        "permissionless_farm_switch_account"
+        "pancake_swap_permissionless_farm_switch_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for PermissionlessFarmSwitchRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO permissionless_farm_switch_account (
+            INSERT INTO pancake_swap_permissionless_farm_switch_account (
                 "bump",
                 "is_on",
                 __pubkey, __slot
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for PermissionlessFarmSwitchRow {
 impl carbon_core::postgres::operations::Upsert for PermissionlessFarmSwitchRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO permissionless_farm_switch_account (
+            r#"INSERT INTO pancake_swap_permissionless_farm_switch_account (
                 "bump",
                 "is_on",
                 __pubkey, __slot
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Delete for PermissionlessFarmSwitchRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM permissionless_farm_switch_account WHERE
+            r#"DELETE FROM pancake_swap_permissionless_farm_switch_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Lookup for PermissionlessFarmSwitchRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM permissionless_farm_switch_account WHERE
+            r#"SELECT * FROM pancake_swap_permissionless_farm_switch_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -154,7 +154,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PermissionlessFarmSwitchMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS permissionless_farm_switch_account (
+            r#"CREATE TABLE IF NOT EXISTS pancake_swap_permissionless_farm_switch_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "is_on" BOOLEAN NOT NULL,
@@ -173,7 +173,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PermissionlessFarmSwitchMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS permissionless_farm_switch_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pancake_swap_permissionless_farm_switch_account"#)
             .execute(connection)
             .await?;
         Ok(())

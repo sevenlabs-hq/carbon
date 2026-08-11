@@ -41,7 +41,7 @@ impl TryFrom<BuyRow> for crate::instructions::buy::Buy {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::buy::Buy {
     fn table() -> &'static str {
-        "buy_instruction"
+        "virtuals_buy_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for BuyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO buy_instruction (
+            INSERT INTO virtuals_buy_instruction (
                 "amount",
                 "max_amount_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for BuyRow {
 impl carbon_core::postgres::operations::Upsert for BuyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO buy_instruction (
+            r#"INSERT INTO virtuals_buy_instruction (
                 "amount",
                 "max_amount_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Delete for BuyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM buy_instruction WHERE
+            r#"DELETE FROM virtuals_buy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Lookup for BuyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM buy_instruction WHERE
+            r#"SELECT * FROM virtuals_buy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS buy_instruction (
+            r#"CREATE TABLE IF NOT EXISTS virtuals_buy_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 "max_amount_out" NUMERIC(20) NOT NULL,
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS buy_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS virtuals_buy_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

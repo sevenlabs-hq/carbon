@@ -191,7 +191,7 @@ impl TryFrom<VaultStateRow> for crate::accounts::vault_state::VaultState {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::vault_state::VaultState {
     fn table() -> &'static str {
-        "vault_state_account"
+        "kamino_vault_vault_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -241,7 +241,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::vault_state::
 impl carbon_core::postgres::operations::Insert for VaultStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO vault_state_account (
+            INSERT INTO kamino_vault_vault_state_account (
                 "vault_admin_authority",
                 "base_vault_authority",
                 "base_vault_authority_bump",
@@ -327,7 +327,7 @@ impl carbon_core::postgres::operations::Insert for VaultStateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for VaultStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO vault_state_account (
+        sqlx::query(r#"INSERT INTO kamino_vault_vault_state_account (
                 "vault_admin_authority",
                 "base_vault_authority",
                 "base_vault_authority_bump",
@@ -455,7 +455,7 @@ impl carbon_core::postgres::operations::Delete for VaultStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM vault_state_account WHERE
+            r#"DELETE FROM kamino_vault_vault_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -476,7 +476,7 @@ impl carbon_core::postgres::operations::Lookup for VaultStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM vault_state_account WHERE
+            r#"SELECT * FROM kamino_vault_vault_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -497,7 +497,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VaultStateMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS vault_state_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_vault_vault_state_account (
                 -- Account data
                 "vault_admin_authority" BYTEA NOT NULL,
                 "base_vault_authority" BYTEA NOT NULL,
@@ -549,7 +549,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VaultStateMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS vault_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_vault_vault_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

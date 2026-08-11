@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_reward_params::SetRewardParams
 {
     fn table() -> &'static str {
-        "set_reward_params_instruction"
+        "pancake_swap_set_reward_params_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -79,7 +79,7 @@ impl carbon_core::postgres::operations::Insert for SetRewardParamsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_reward_params_instruction (
+            INSERT INTO pancake_swap_set_reward_params_instruction (
                 "reward_index",
                 "emissions_per_second_x64",
                 "open_time",
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Insert for SetRewardParamsRow {
 impl carbon_core::postgres::operations::Upsert for SetRewardParamsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_reward_params_instruction (
+            r#"INSERT INTO pancake_swap_set_reward_params_instruction (
                 "reward_index",
                 "emissions_per_second_x64",
                 "open_time",
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Delete for SetRewardParamsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_reward_params_instruction WHERE
+            r#"DELETE FROM pancake_swap_set_reward_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl carbon_core::postgres::operations::Lookup for SetRewardParamsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_reward_params_instruction WHERE
+            r#"SELECT * FROM pancake_swap_set_reward_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -206,7 +206,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetRewardParamsMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_reward_params_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pancake_swap_set_reward_params_instruction (
                 -- Instruction data
                 "reward_index" INT2 NOT NULL,
                 "emissions_per_second_x64" NUMERIC(39) NOT NULL,
@@ -230,7 +230,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetRewardParamsMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_reward_params_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pancake_swap_set_reward_params_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

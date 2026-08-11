@@ -69,7 +69,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::swap_tob_with_receiver::SwapTobWithReceiver
 {
     fn table() -> &'static str {
-        "swap_tob_with_receiver_instruction"
+        "onchain_labs_dex_v2_swap_tob_with_receiver_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for SwapTobWithReceiverRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_tob_with_receiver_instruction (
+            INSERT INTO onchain_labs_dex_v2_swap_tob_with_receiver_instruction (
                 "args",
                 "commission_info",
                 "platform_fee_rate",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for SwapTobWithReceiverRow {
 impl carbon_core::postgres::operations::Upsert for SwapTobWithReceiverRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_tob_with_receiver_instruction (
+            r#"INSERT INTO onchain_labs_dex_v2_swap_tob_with_receiver_instruction (
                 "args",
                 "commission_info",
                 "platform_fee_rate",
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Delete for SwapTobWithReceiverRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_tob_with_receiver_instruction WHERE
+            r#"DELETE FROM onchain_labs_dex_v2_swap_tob_with_receiver_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -196,7 +196,7 @@ impl carbon_core::postgres::operations::Lookup for SwapTobWithReceiverRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_with_receiver_instruction WHERE
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_receiver_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -219,7 +219,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapTobWithReceiverMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_tob_with_receiver_instruction (
+            r#"CREATE TABLE IF NOT EXISTS onchain_labs_dex_v2_swap_tob_with_receiver_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 "commission_info" INT8 NOT NULL,
@@ -243,9 +243,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapTobWithReceiverMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_tob_with_receiver_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS onchain_labs_dex_v2_swap_tob_with_receiver_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

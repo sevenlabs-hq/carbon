@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::increase_limit_order::IncreaseLimitOrder
 {
     fn table() -> &'static str {
-        "increase_limit_order_instruction"
+        "raydium_clmm_increase_limit_order_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for IncreaseLimitOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO increase_limit_order_instruction (
+            INSERT INTO raydium_clmm_increase_limit_order_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for IncreaseLimitOrderRow {
 impl carbon_core::postgres::operations::Upsert for IncreaseLimitOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO increase_limit_order_instruction (
+            r#"INSERT INTO raydium_clmm_increase_limit_order_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for IncreaseLimitOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM increase_limit_order_instruction WHERE
+            r#"DELETE FROM raydium_clmm_increase_limit_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for IncreaseLimitOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM increase_limit_order_instruction WHERE
+            r#"SELECT * FROM raydium_clmm_increase_limit_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IncreaseLimitOrderMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS increase_limit_order_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_increase_limit_order_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IncreaseLimitOrderMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS increase_limit_order_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_increase_limit_order_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

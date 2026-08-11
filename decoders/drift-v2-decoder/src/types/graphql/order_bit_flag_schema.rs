@@ -9,7 +9,6 @@ pub enum OrderBitFlagGraphQL {
     SafeTriggerOrder,
     NewTriggerReduceOnly,
     HasBuilder,
-    IsIsolatedPosition,
 }
 
 impl From<crate::types::OrderBitFlag> for OrderBitFlagGraphQL {
@@ -20,7 +19,6 @@ impl From<crate::types::OrderBitFlag> for OrderBitFlagGraphQL {
             crate::types::OrderBitFlag::SafeTriggerOrder => Self::SafeTriggerOrder,
             crate::types::OrderBitFlag::NewTriggerReduceOnly => Self::NewTriggerReduceOnly,
             crate::types::OrderBitFlag::HasBuilder => Self::HasBuilder,
-            crate::types::OrderBitFlag::IsIsolatedPosition => Self::IsIsolatedPosition,
         }
     }
 }

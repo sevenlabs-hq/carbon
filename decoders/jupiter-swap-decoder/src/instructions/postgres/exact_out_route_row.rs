@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::exact_out_route::ExactOutRoute
 {
     fn table() -> &'static str {
-        "exact_out_route_instruction"
+        "jupiter_swap_exact_out_route_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for ExactOutRouteRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO exact_out_route_instruction (
+            INSERT INTO jupiter_swap_exact_out_route_instruction (
                 "route_plan",
                 "out_amount",
                 "quoted_in_amount",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for ExactOutRouteRow {
 impl carbon_core::postgres::operations::Upsert for ExactOutRouteRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO exact_out_route_instruction (
+            r#"INSERT INTO jupiter_swap_exact_out_route_instruction (
                 "route_plan",
                 "out_amount",
                 "quoted_in_amount",
@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Delete for ExactOutRouteRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM exact_out_route_instruction WHERE
+            r#"DELETE FROM jupiter_swap_exact_out_route_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -199,7 +199,7 @@ impl carbon_core::postgres::operations::Lookup for ExactOutRouteRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM exact_out_route_instruction WHERE
+            r#"SELECT * FROM jupiter_swap_exact_out_route_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -222,7 +222,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ExactOutRouteMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS exact_out_route_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_swap_exact_out_route_instruction (
                 -- Instruction data
                 "route_plan" JSONB NOT NULL,
                 "out_amount" NUMERIC(20) NOT NULL,
@@ -247,7 +247,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ExactOutRouteMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS exact_out_route_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_swap_exact_out_route_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

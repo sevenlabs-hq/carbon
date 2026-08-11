@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::fulfill_dlmm_fill::FulfillDlmmFill
 {
     fn table() -> &'static str {
-        "fulfill_dlmm_fill_instruction"
+        "jupiter_dca_fulfill_dlmm_fill_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for FulfillDlmmFillRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fulfill_dlmm_fill_instruction (
+            INSERT INTO jupiter_dca_fulfill_dlmm_fill_instruction (
                 "repay_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for FulfillDlmmFillRow {
 impl carbon_core::postgres::operations::Upsert for FulfillDlmmFillRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fulfill_dlmm_fill_instruction (
+            r#"INSERT INTO jupiter_dca_fulfill_dlmm_fill_instruction (
                 "repay_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for FulfillDlmmFillRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fulfill_dlmm_fill_instruction WHERE
+            r#"DELETE FROM jupiter_dca_fulfill_dlmm_fill_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for FulfillDlmmFillRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fulfill_dlmm_fill_instruction WHERE
+            r#"SELECT * FROM jupiter_dca_fulfill_dlmm_fill_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FulfillDlmmFillMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fulfill_dlmm_fill_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_dca_fulfill_dlmm_fill_instruction (
                 -- Instruction data
                 "repay_amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FulfillDlmmFillMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fulfill_dlmm_fill_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_dca_fulfill_dlmm_fill_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

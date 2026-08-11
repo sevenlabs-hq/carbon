@@ -17,7 +17,7 @@ pub struct SocialFeePdaRow {
     pub platform: U8,
     pub total_claimed: U64,
     pub last_claimed: U64,
-    pub reserved: Vec<U8>,
+    pub reserved: Vec<u8>,
 }
 
 impl SocialFeePdaRow {
@@ -33,11 +33,7 @@ impl SocialFeePdaRow {
             platform: source.platform.into(),
             total_claimed: source.total_claimed.into(),
             last_claimed: source.last_claimed.into(),
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            reserved: source.reserved.to_vec(),
         }
     }
 }
@@ -64,30 +60,19 @@ impl TryFrom<SocialFeePdaRow> for crate::accounts::social_fee_pda::SocialFeePda 
             })?,
             total_claimed: *source.total_claimed,
             last_claimed: *source.last_claimed,
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| {
-                    element.try_into().map_err(|_| {
-                        carbon_core::error::Error::Custom(
-                            "Failed to convert value from postgres primitive".to_string(),
-                        )
-                    })
-                })
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            reserved: source.reserved.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 128 bytes"
+                        .to_string(),
+                )
+            })?,
         })
     }
 }
 
 impl carbon_core::postgres::operations::Table for crate::accounts::social_fee_pda::SocialFeePda {
     fn table() -> &'static str {
-        "social_fee_pda_account"
+        "pump_fees_social_fee_pda_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -110,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for SocialFeePdaRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO social_fee_pda_account (
+            INSERT INTO pump_fees_social_fee_pda_account (
                 "bump",
                 "version",
                 "user_id",
@@ -143,7 +128,7 @@ impl carbon_core::postgres::operations::Insert for SocialFeePdaRow {
 impl carbon_core::postgres::operations::Upsert for SocialFeePdaRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO social_fee_pda_account (
+            r#"INSERT INTO pump_fees_social_fee_pda_account (
                 "bump",
                 "version",
                 "user_id",
@@ -189,7 +174,7 @@ impl carbon_core::postgres::operations::Delete for SocialFeePdaRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM social_fee_pda_account WHERE
+            r#"DELETE FROM pump_fees_social_fee_pda_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -210,7 +195,7 @@ impl carbon_core::postgres::operations::Lookup for SocialFeePdaRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM social_fee_pda_account WHERE
+            r#"SELECT * FROM pump_fees_social_fee_pda_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -231,7 +216,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SocialFeePdaMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS social_fee_pda_account (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_social_fee_pda_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "version" INT2 NOT NULL,
@@ -239,7 +224,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SocialFeePdaMigrationOperation
                 "platform" INT2 NOT NULL,
                 "total_claimed" NUMERIC(20) NOT NULL,
                 "last_claimed" NUMERIC(20) NOT NULL,
-                "reserved" INT2[] NOT NULL,
+                "reserved" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
@@ -255,7 +240,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SocialFeePdaMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS social_fee_pda_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_social_fee_pda_account"#)
             .execute(connection)
             .await?;
         Ok(())

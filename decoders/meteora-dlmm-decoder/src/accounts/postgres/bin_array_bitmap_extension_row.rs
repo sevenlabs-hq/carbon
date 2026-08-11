@@ -113,7 +113,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::bin_array_bitmap_extension::BinArrayBitmapExtension
 {
     fn table() -> &'static str {
-        "bin_array_bitmap_extension_account"
+        "meteora_dlmm_bin_array_bitmap_extension_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Insert for BinArrayBitmapExtensionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO bin_array_bitmap_extension_account (
+            INSERT INTO meteora_dlmm_bin_array_bitmap_extension_account (
                 "lb_pair",
                 "positive_bin_array_bitmap",
                 "negative_bin_array_bitmap",
@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Insert for BinArrayBitmapExtensionRow {
 impl carbon_core::postgres::operations::Upsert for BinArrayBitmapExtensionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO bin_array_bitmap_extension_account (
+            r#"INSERT INTO meteora_dlmm_bin_array_bitmap_extension_account (
                 "lb_pair",
                 "positive_bin_array_bitmap",
                 "negative_bin_array_bitmap",
@@ -191,7 +191,7 @@ impl carbon_core::postgres::operations::Delete for BinArrayBitmapExtensionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM bin_array_bitmap_extension_account WHERE
+            r#"DELETE FROM meteora_dlmm_bin_array_bitmap_extension_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -212,7 +212,7 @@ impl carbon_core::postgres::operations::Lookup for BinArrayBitmapExtensionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM bin_array_bitmap_extension_account WHERE
+            r#"SELECT * FROM meteora_dlmm_bin_array_bitmap_extension_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -233,7 +233,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BinArrayBitmapExtensionMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS bin_array_bitmap_extension_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_bin_array_bitmap_extension_account (
                 -- Account data
                 "lb_pair" BYTEA NOT NULL,
                 "positive_bin_array_bitmap" JSONB NOT NULL,
@@ -253,7 +253,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BinArrayBitmapExtensionMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS bin_array_bitmap_extension_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_bin_array_bitmap_extension_account"#)
             .execute(connection)
             .await?;
         Ok(())

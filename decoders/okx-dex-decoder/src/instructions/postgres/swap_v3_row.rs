@@ -61,7 +61,7 @@ impl TryFrom<SwapV3Row> for crate::instructions::swap_v3::SwapV3 {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::swap_v3::SwapV3 {
     fn table() -> &'static str {
-        "swap_v3_instruction"
+        "okx_dex_swap_v3_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for SwapV3Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_v3_instruction (
+            INSERT INTO okx_dex_swap_v3_instruction (
                 "args",
                 "commission_info",
                 "platform_fee_rate",
@@ -114,7 +114,7 @@ impl carbon_core::postgres::operations::Insert for SwapV3Row {
 impl carbon_core::postgres::operations::Upsert for SwapV3Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_v3_instruction (
+            r#"INSERT INTO okx_dex_swap_v3_instruction (
                 "args",
                 "commission_info",
                 "platform_fee_rate",
@@ -161,7 +161,7 @@ impl carbon_core::postgres::operations::Delete for SwapV3Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_v3_instruction WHERE
+            r#"DELETE FROM okx_dex_swap_v3_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl carbon_core::postgres::operations::Lookup for SwapV3Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_v3_instruction WHERE
+            r#"SELECT * FROM okx_dex_swap_v3_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapV3MigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_v3_instruction (
+            r#"CREATE TABLE IF NOT EXISTS okx_dex_swap_v3_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 "commission_info" INT8 NOT NULL,
@@ -235,7 +235,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapV3MigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_v3_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS okx_dex_swap_v3_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

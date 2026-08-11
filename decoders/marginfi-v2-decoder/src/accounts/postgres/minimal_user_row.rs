@@ -237,7 +237,7 @@ impl TryFrom<MinimalUserRow> for crate::accounts::minimal_user::MinimalUser {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::minimal_user::MinimalUser {
     fn table() -> &'static str {
-        "minimal_user_account"
+        "marginfi_v2_minimal_user_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -267,7 +267,7 @@ impl carbon_core::postgres::operations::Insert for MinimalUserRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO minimal_user_account (
+            INSERT INTO marginfi_v2_minimal_user_account (
                 "authority",
                 "delegate",
                 "name",
@@ -314,7 +314,7 @@ impl carbon_core::postgres::operations::Insert for MinimalUserRow {
 impl carbon_core::postgres::operations::Upsert for MinimalUserRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO minimal_user_account (
+            r#"INSERT INTO marginfi_v2_minimal_user_account (
                 "authority",
                 "delegate",
                 "name",
@@ -381,7 +381,7 @@ impl carbon_core::postgres::operations::Delete for MinimalUserRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM minimal_user_account WHERE
+            r#"DELETE FROM marginfi_v2_minimal_user_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -402,7 +402,7 @@ impl carbon_core::postgres::operations::Lookup for MinimalUserRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM minimal_user_account WHERE
+            r#"SELECT * FROM marginfi_v2_minimal_user_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -423,7 +423,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MinimalUserMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS minimal_user_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_minimal_user_account (
                 -- Account data
                 "authority" BYTEA NOT NULL,
                 "delegate" BYTEA NOT NULL,
@@ -454,7 +454,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MinimalUserMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS minimal_user_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_minimal_user_account"#)
             .execute(connection)
             .await?;
         Ok(())

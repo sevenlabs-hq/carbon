@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_shares_metadata::UpdateSharesMetadata
 {
     fn table() -> &'static str {
-        "update_shares_metadata_instruction"
+        "kamino_vault_update_shares_metadata_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -67,7 +67,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSharesMetadataRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_shares_metadata_instruction (
+            INSERT INTO kamino_vault_update_shares_metadata_instruction (
                 "name",
                 "symbol",
                 "uri",
@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSharesMetadataRow {
 impl carbon_core::postgres::operations::Upsert for UpdateSharesMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_shares_metadata_instruction (
+            r#"INSERT INTO kamino_vault_update_shares_metadata_instruction (
                 "name",
                 "symbol",
                 "uri",
@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSharesMetadataRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_shares_metadata_instruction WHERE
+            r#"DELETE FROM kamino_vault_update_shares_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -166,7 +166,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateSharesMetadataRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_shares_metadata_instruction WHERE
+            r#"SELECT * FROM kamino_vault_update_shares_metadata_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -189,7 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSharesMetadataMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_shares_metadata_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_vault_update_shares_metadata_instruction (
                 -- Instruction data
                 "name" TEXT NOT NULL,
                 "symbol" TEXT NOT NULL,
@@ -212,7 +212,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSharesMetadataMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_shares_metadata_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_vault_update_shares_metadata_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

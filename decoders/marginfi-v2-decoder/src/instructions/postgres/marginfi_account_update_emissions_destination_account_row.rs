@@ -32,7 +32,7 @@ impl TryFrom<MarginfiAccountUpdateEmissionsDestinationAccountRow> for crate::ins
 
 impl carbon_core::postgres::operations::Table for crate::instructions::marginfi_account_update_emissions_destination_account::MarginfiAccountUpdateEmissionsDestinationAccount {
     fn table() -> &'static str {
-        "marginfi_account_update_emissions_destination_account_instruction"
+        "marginfi_v2_marginfi_account_update_emissions_destination_account_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -51,21 +51,18 @@ impl carbon_core::postgres::operations::Insert
     for MarginfiAccountUpdateEmissionsDestinationAccountRow
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
-            INSERT INTO marginfi_account_update_emissions_destination_account_instruction (
+        sqlx::query(r#"
+            INSERT INTO marginfi_v2_marginfi_account_update_emissions_destination_account_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
-            )"#,
-        )
+            )"#)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -76,8 +73,7 @@ impl carbon_core::postgres::operations::Upsert
     for MarginfiAccountUpdateEmissionsDestinationAccountRow
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO marginfi_account_update_emissions_destination_account_instruction (
+        sqlx::query(r#"INSERT INTO marginfi_v2_marginfi_account_update_emissions_destination_account_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -88,15 +84,13 @@ impl carbon_core::postgres::operations::Upsert
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
                 __accounts = EXCLUDED.__accounts
-            "#,
-        )
+            "#)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -113,16 +107,13 @@ impl carbon_core::postgres::operations::Delete
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM marginfi_account_update_emissions_destination_account_instruction WHERE
+        sqlx::query(r#"DELETE FROM marginfi_v2_marginfi_account_update_emissions_destination_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -142,16 +133,13 @@ impl carbon_core::postgres::operations::Lookup
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM marginfi_account_update_emissions_destination_account_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM marginfi_v2_marginfi_account_update_emissions_destination_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -167,7 +155,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS marginfi_account_update_emissions_destination_account_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS marginfi_v2_marginfi_account_update_emissions_destination_account_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -184,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_account_update_emissions_destination_account_instruction"#).execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_marginfi_account_update_emissions_destination_account_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

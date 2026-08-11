@@ -33,7 +33,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::close_accounts::CloseAccounts
 {
     fn table() -> &'static str {
-        "close_accounts_instruction"
+        "mpl_token_metadata_close_accounts_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Insert for CloseAccountsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO close_accounts_instruction (
+            INSERT INTO mpl_token_metadata_close_accounts_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for CloseAccountsRow {
 impl carbon_core::postgres::operations::Upsert for CloseAccountsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO close_accounts_instruction (
+            r#"INSERT INTO mpl_token_metadata_close_accounts_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for CloseAccountsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM close_accounts_instruction WHERE
+            r#"DELETE FROM mpl_token_metadata_close_accounts_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for CloseAccountsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM close_accounts_instruction WHERE
+            r#"SELECT * FROM mpl_token_metadata_close_accounts_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,7 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CloseAccountsMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS close_accounts_instruction (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_close_accounts_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CloseAccountsMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS close_accounts_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_close_accounts_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -61,7 +61,7 @@ impl TryFrom<BondingCurveRow> for crate::accounts::bonding_curve::BondingCurve {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::bonding_curve::BondingCurve {
     fn table() -> &'static str {
-        "bonding_curve_account"
+        "pump_swap_bonding_curve_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO bonding_curve_account (
+            INSERT INTO pump_swap_bonding_curve_account (
                 "virtual_token_reserves",
                 "virtual_sol_reserves",
                 "real_token_reserves",
@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
 impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO bonding_curve_account (
+            r#"INSERT INTO pump_swap_bonding_curve_account (
                 "virtual_token_reserves",
                 "virtual_sol_reserves",
                 "real_token_reserves",
@@ -175,7 +175,7 @@ impl carbon_core::postgres::operations::Delete for BondingCurveRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM bonding_curve_account WHERE
+            r#"DELETE FROM pump_swap_bonding_curve_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -196,7 +196,7 @@ impl carbon_core::postgres::operations::Lookup for BondingCurveRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM bonding_curve_account WHERE
+            r#"SELECT * FROM pump_swap_bonding_curve_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -217,7 +217,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS bonding_curve_account (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_bonding_curve_account (
                 -- Account data
                 "virtual_token_reserves" NUMERIC(20) NOT NULL,
                 "virtual_sol_reserves" NUMERIC(20) NOT NULL,
@@ -243,7 +243,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS bonding_curve_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_bonding_curve_account"#)
             .execute(connection)
             .await?;
         Ok(())

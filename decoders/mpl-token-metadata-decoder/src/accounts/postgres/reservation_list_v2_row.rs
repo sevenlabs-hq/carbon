@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::reservation_list_v2::ReservationListV2
 {
     fn table() -> &'static str {
-        "reservation_list_v2_account"
+        "mpl_token_metadata_reservation_list_v2_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -79,7 +79,7 @@ impl carbon_core::postgres::operations::Insert for ReservationListV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO reservation_list_v2_account (
+            INSERT INTO mpl_token_metadata_reservation_list_v2_account (
                 "key",
                 "master_edition",
                 "supply_snapshot",
@@ -110,7 +110,7 @@ impl carbon_core::postgres::operations::Insert for ReservationListV2Row {
 impl carbon_core::postgres::operations::Upsert for ReservationListV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO reservation_list_v2_account (
+            r#"INSERT INTO mpl_token_metadata_reservation_list_v2_account (
                 "key",
                 "master_edition",
                 "supply_snapshot",
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Delete for ReservationListV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM reservation_list_v2_account WHERE
+            r#"DELETE FROM mpl_token_metadata_reservation_list_v2_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Lookup for ReservationListV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM reservation_list_v2_account WHERE
+            r#"SELECT * FROM mpl_token_metadata_reservation_list_v2_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReservationListV2MigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS reservation_list_v2_account (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_reservation_list_v2_account (
                 -- Account data
                 "key" JSONB NOT NULL,
                 "master_edition" BYTEA NOT NULL,
@@ -218,7 +218,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReservationListV2MigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS reservation_list_v2_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_reservation_list_v2_account"#)
             .execute(connection)
             .await?;
         Ok(())

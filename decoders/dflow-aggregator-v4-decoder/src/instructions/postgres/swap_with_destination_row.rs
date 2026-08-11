@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::swap_with_destination::SwapWithDestination
 {
     fn table() -> &'static str {
-        "swap_with_destination_instruction"
+        "dflow_aggregator_v4_swap_with_destination_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SwapWithDestinationRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_with_destination_instruction (
+            INSERT INTO dflow_aggregator_v4_swap_with_destination_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for SwapWithDestinationRow {
 impl carbon_core::postgres::operations::Upsert for SwapWithDestinationRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_with_destination_instruction (
+            r#"INSERT INTO dflow_aggregator_v4_swap_with_destination_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SwapWithDestinationRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_with_destination_instruction WHERE
+            r#"DELETE FROM dflow_aggregator_v4_swap_with_destination_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for SwapWithDestinationRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_with_destination_instruction WHERE
+            r#"SELECT * FROM dflow_aggregator_v4_swap_with_destination_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapWithDestinationMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_with_destination_instruction (
+            r#"CREATE TABLE IF NOT EXISTS dflow_aggregator_v4_swap_with_destination_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapWithDestinationMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_with_destination_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS dflow_aggregator_v4_swap_with_destination_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

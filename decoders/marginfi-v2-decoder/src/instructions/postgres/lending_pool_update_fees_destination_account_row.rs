@@ -32,7 +32,7 @@ impl TryFrom<LendingPoolUpdateFeesDestinationAccountRow> for crate::instructions
 
 impl carbon_core::postgres::operations::Table for crate::instructions::lending_pool_update_fees_destination_account::LendingPoolUpdateFeesDestinationAccount {
     fn table() -> &'static str {
-        "lending_pool_update_fees_destination_account_instruction"
+        "marginfi_v2_lending_pool_update_fees_destination_account_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -51,7 +51,7 @@ impl carbon_core::postgres::operations::Insert for LendingPoolUpdateFeesDestinat
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lending_pool_update_fees_destination_account_instruction (
+            INSERT INTO marginfi_v2_lending_pool_update_fees_destination_account_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for LendingPoolUpdateFeesDestinat
 impl carbon_core::postgres::operations::Upsert for LendingPoolUpdateFeesDestinationAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lending_pool_update_fees_destination_account_instruction (
+            r#"INSERT INTO marginfi_v2_lending_pool_update_fees_destination_account_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,16 +107,13 @@ impl carbon_core::postgres::operations::Delete for LendingPoolUpdateFeesDestinat
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM lending_pool_update_fees_destination_account_instruction WHERE
+        sqlx::query(r#"DELETE FROM marginfi_v2_lending_pool_update_fees_destination_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -134,16 +131,13 @@ impl carbon_core::postgres::operations::Lookup for LendingPoolUpdateFeesDestinat
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM lending_pool_update_fees_destination_account_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM marginfi_v2_lending_pool_update_fees_destination_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -159,8 +153,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lending_pool_update_fees_destination_account_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS marginfi_v2_lending_pool_update_fees_destination_account_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -169,10 +162,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -180,11 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"DROP TABLE IF EXISTS lending_pool_update_fees_destination_account_instruction"#,
-        )
-        .execute(connection)
-        .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_lending_pool_update_fees_destination_account_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

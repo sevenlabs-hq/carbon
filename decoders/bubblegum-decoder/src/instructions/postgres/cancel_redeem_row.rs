@@ -40,7 +40,7 @@ impl TryFrom<CancelRedeemRow> for crate::instructions::cancel_redeem::CancelRede
 
 impl carbon_core::postgres::operations::Table for crate::instructions::cancel_redeem::CancelRedeem {
     fn table() -> &'static str {
-        "cancel_redeem_instruction"
+        "bubblegum_cancel_redeem_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for CancelRedeemRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO cancel_redeem_instruction (
+            INSERT INTO bubblegum_cancel_redeem_instruction (
                 "root",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for CancelRedeemRow {
 impl carbon_core::postgres::operations::Upsert for CancelRedeemRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO cancel_redeem_instruction (
+            r#"INSERT INTO bubblegum_cancel_redeem_instruction (
                 "root",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for CancelRedeemRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM cancel_redeem_instruction WHERE
+            r#"DELETE FROM bubblegum_cancel_redeem_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for CancelRedeemRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM cancel_redeem_instruction WHERE
+            r#"SELECT * FROM bubblegum_cancel_redeem_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelRedeemMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS cancel_redeem_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_cancel_redeem_instruction (
                 -- Instruction data
                 "root" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelRedeemMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS cancel_redeem_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_cancel_redeem_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

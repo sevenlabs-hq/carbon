@@ -44,7 +44,7 @@ impl TryFrom<TakeOrderRow> for crate::instructions::take_order::TakeOrder {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::take_order::TakeOrder {
     fn table() -> &'static str {
-        "take_order_instruction"
+        "kamino_limit_order_take_order_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for TakeOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO take_order_instruction (
+            INSERT INTO kamino_limit_order_take_order_instruction (
                 "input_amount",
                 "min_output_amount",
                 "tip_amount_permissionless_taking",
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for TakeOrderRow {
 impl carbon_core::postgres::operations::Upsert for TakeOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO take_order_instruction (
+            r#"INSERT INTO kamino_limit_order_take_order_instruction (
                 "input_amount",
                 "min_output_amount",
                 "tip_amount_permissionless_taking",
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete for TakeOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM take_order_instruction WHERE
+            r#"DELETE FROM kamino_limit_order_take_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Lookup for TakeOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM take_order_instruction WHERE
+            r#"SELECT * FROM kamino_limit_order_take_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TakeOrderMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS take_order_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_limit_order_take_order_instruction (
                 -- Instruction data
                 "input_amount" NUMERIC(20) NOT NULL,
                 "min_output_amount" NUMERIC(20) NOT NULL,
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TakeOrderMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS take_order_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_limit_order_take_order_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

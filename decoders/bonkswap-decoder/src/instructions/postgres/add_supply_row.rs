@@ -50,7 +50,7 @@ impl TryFrom<AddSupplyRow> for crate::instructions::add_supply::AddSupply {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::add_supply::AddSupply {
     fn table() -> &'static str {
-        "add_supply_instruction"
+        "bonkswap_add_supply_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for AddSupplyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO add_supply_instruction (
+            INSERT INTO bonkswap_add_supply_instruction (
                 "supply_marco",
                 "supply_project_first",
                 "supply_project_second",
@@ -103,7 +103,7 @@ impl carbon_core::postgres::operations::Insert for AddSupplyRow {
 impl carbon_core::postgres::operations::Upsert for AddSupplyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO add_supply_instruction (
+            r#"INSERT INTO bonkswap_add_supply_instruction (
                 "supply_marco",
                 "supply_project_first",
                 "supply_project_second",
@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Delete for AddSupplyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM add_supply_instruction WHERE
+            r#"DELETE FROM bonkswap_add_supply_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -177,7 +177,7 @@ impl carbon_core::postgres::operations::Lookup for AddSupplyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM add_supply_instruction WHERE
+            r#"SELECT * FROM bonkswap_add_supply_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -200,7 +200,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddSupplyMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS add_supply_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_add_supply_instruction (
                 -- Instruction data
                 "supply_marco" JSONB NOT NULL,
                 "supply_project_first" JSONB NOT NULL,
@@ -224,7 +224,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddSupplyMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS add_supply_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_add_supply_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

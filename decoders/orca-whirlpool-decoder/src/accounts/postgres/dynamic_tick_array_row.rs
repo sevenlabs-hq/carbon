@@ -61,7 +61,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::dynamic_tick_array::DynamicTickArray
 {
     fn table() -> &'static str {
-        "dynamic_tick_array_account"
+        "orca_whirlpool_dynamic_tick_array_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for DynamicTickArrayRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO dynamic_tick_array_account (
+            INSERT INTO orca_whirlpool_dynamic_tick_array_account (
                 "start_tick_index",
                 "whirlpool",
                 "tick_bitmap",
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Insert for DynamicTickArrayRow {
 impl carbon_core::postgres::operations::Upsert for DynamicTickArrayRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO dynamic_tick_array_account (
+            r#"INSERT INTO orca_whirlpool_dynamic_tick_array_account (
                 "start_tick_index",
                 "whirlpool",
                 "tick_bitmap",
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Delete for DynamicTickArrayRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM dynamic_tick_array_account WHERE
+            r#"DELETE FROM orca_whirlpool_dynamic_tick_array_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -166,7 +166,7 @@ impl carbon_core::postgres::operations::Lookup for DynamicTickArrayRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM dynamic_tick_array_account WHERE
+            r#"SELECT * FROM orca_whirlpool_dynamic_tick_array_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -187,7 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DynamicTickArrayMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS dynamic_tick_array_account (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_dynamic_tick_array_account (
                 -- Account data
                 "start_tick_index" INT4 NOT NULL,
                 "whirlpool" BYTEA NOT NULL,
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DynamicTickArrayMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS dynamic_tick_array_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_dynamic_tick_array_account"#)
             .execute(connection)
             .await?;
         Ok(())

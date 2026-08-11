@@ -31,7 +31,7 @@ impl TryFrom<CloseDcaRow> for crate::instructions::close_dca::CloseDca {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::close_dca::CloseDca {
     fn table() -> &'static str {
-        "close_dca_instruction"
+        "jupiter_dca_close_dca_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for CloseDcaRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO close_dca_instruction (
+            INSERT INTO jupiter_dca_close_dca_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for CloseDcaRow {
 impl carbon_core::postgres::operations::Upsert for CloseDcaRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO close_dca_instruction (
+            r#"INSERT INTO jupiter_dca_close_dca_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for CloseDcaRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM close_dca_instruction WHERE
+            r#"DELETE FROM jupiter_dca_close_dca_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for CloseDcaRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM close_dca_instruction WHERE
+            r#"SELECT * FROM jupiter_dca_close_dca_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CloseDcaMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS close_dca_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_dca_close_dca_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CloseDcaMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS close_dca_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_dca_close_dca_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

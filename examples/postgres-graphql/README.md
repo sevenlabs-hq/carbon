@@ -61,12 +61,12 @@ Open the bundled GraphiQL playground at [http://localhost:8080/graphiql](http://
 
 ```graphql
 {
-  mints(limit: 5) {
-    pubkey
-    slot
-    decimals
-    supply
-  }
+    mints(limit: 5) {
+        pubkey
+        slot
+        decimals
+        supply
+    }
 }
 ```
 
@@ -74,12 +74,12 @@ Or look up a specific mint by pubkey:
 
 ```graphql
 {
-  mint(pubkey: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v") {
-    pubkey
-    slot
-    decimals
-    supply
-  }
+    mint(pubkey: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v") {
+        pubkey
+        slot
+        decimals
+        supply
+    }
 }
 ```
 

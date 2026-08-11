@@ -159,7 +159,7 @@ impl TryFrom<CustodyRow> for crate::accounts::custody::Custody {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::custody::Custody {
     fn table() -> &'static str {
-        "custody_account"
+        "jupiter_perpetuals_custody_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -209,7 +209,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::custody::Cust
 impl carbon_core::postgres::operations::Insert for CustodyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO custody_account (
+            INSERT INTO jupiter_perpetuals_custody_account (
                 "pool",
                 "mint",
                 "token_account",
@@ -295,7 +295,7 @@ impl carbon_core::postgres::operations::Insert for CustodyRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for CustodyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO custody_account (
+        sqlx::query(r#"INSERT INTO jupiter_perpetuals_custody_account (
                 "pool",
                 "mint",
                 "token_account",
@@ -423,7 +423,7 @@ impl carbon_core::postgres::operations::Delete for CustodyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM custody_account WHERE
+            r#"DELETE FROM jupiter_perpetuals_custody_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -444,7 +444,7 @@ impl carbon_core::postgres::operations::Lookup for CustodyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM custody_account WHERE
+            r#"SELECT * FROM jupiter_perpetuals_custody_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -465,7 +465,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CustodyMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS custody_account (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_custody_account (
                 -- Account data
                 "pool" BYTEA NOT NULL,
                 "mint" BYTEA NOT NULL,
@@ -517,7 +517,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CustodyMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS custody_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_perpetuals_custody_account"#)
             .execute(connection)
             .await?;
         Ok(())

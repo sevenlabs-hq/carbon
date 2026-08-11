@@ -43,6 +43,7 @@ build/
 .next/
 .nuxt/
 .cache/
+.idl-cache/
 
 # Environment variables
 .env.local
@@ -111,3 +112,6 @@ jspm_packages/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+.idl-cache/
+__pycache__

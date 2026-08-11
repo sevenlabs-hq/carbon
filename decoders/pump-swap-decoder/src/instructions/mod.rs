@@ -30,7 +30,9 @@ pub mod sync_user_volume_accumulator;
 pub mod toggle_cashback_enabled;
 pub mod toggle_mayhem_mode;
 pub mod transfer_creator_fees_to_pump;
+pub mod transfer_creator_fees_to_pump_v2;
 pub mod update_admin;
+pub mod update_buyback_config;
 pub mod update_fee_config;
 pub mod withdraw;
 
@@ -41,7 +43,8 @@ pub use self::{
     disable::*, extend_account::*, init_user_volume_accumulator::*, migrate_pool_coin_creator::*,
     sell::*, set_coin_creator::*, set_reserved_fee_recipients::*, sync_user_volume_accumulator::*,
     toggle_cashback_enabled::*, toggle_mayhem_mode::*, transfer_creator_fees_to_pump::*,
-    update_admin::*, update_fee_config::*, withdraw::*,
+    transfer_creator_fees_to_pump_v2::*, update_admin::*, update_buyback_config::*,
+    update_fee_config::*, withdraw::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -159,10 +162,20 @@ pub enum PumpSwapInstruction {
         data: TransferCreatorFeesToPump,
         accounts: TransferCreatorFeesToPumpInstructionAccounts,
     },
+    TransferCreatorFeesToPumpV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: TransferCreatorFeesToPumpV2,
+        accounts: TransferCreatorFeesToPumpV2InstructionAccounts,
+    },
     UpdateAdmin {
         program_id: solana_pubkey::Pubkey,
         data: UpdateAdmin,
         accounts: UpdateAdminInstructionAccounts,
+    },
+    UpdateBuybackConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateBuybackConfig,
+        accounts: UpdateBuybackConfigInstructionAccounts,
     },
     UpdateFeeConfig {
         program_id: solana_pubkey::Pubkey,
@@ -217,7 +230,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpSwapDecoder {
             PumpSwapInstruction::ToggleCashbackEnabled => ToggleCashbackEnabled,
             PumpSwapInstruction::ToggleMayhemMode => ToggleMayhemMode,
             PumpSwapInstruction::TransferCreatorFeesToPump => TransferCreatorFeesToPump,
+            PumpSwapInstruction::TransferCreatorFeesToPumpV2 => TransferCreatorFeesToPumpV2,
             PumpSwapInstruction::UpdateAdmin => UpdateAdmin,
+            PumpSwapInstruction::UpdateBuybackConfig => UpdateBuybackConfig,
             PumpSwapInstruction::UpdateFeeConfig => UpdateFeeConfig,
             PumpSwapInstruction::Withdraw => Withdraw,
             PumpSwapInstruction::CpiEvent => CpiEvent,

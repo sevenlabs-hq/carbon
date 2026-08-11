@@ -91,7 +91,7 @@ impl TryFrom<FuelOverflowRow> for crate::accounts::fuel_overflow::FuelOverflow {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::fuel_overflow::FuelOverflow {
     fn table() -> &'static str {
-        "fuel_overflow_account"
+        "drift_v2_fuel_overflow_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -117,7 +117,7 @@ impl carbon_core::postgres::operations::Insert for FuelOverflowRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fuel_overflow_account (
+            INSERT INTO drift_v2_fuel_overflow_account (
                 "authority",
                 "fuel_insurance",
                 "fuel_deposits",
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Insert for FuelOverflowRow {
 impl carbon_core::postgres::operations::Upsert for FuelOverflowRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fuel_overflow_account (
+            r#"INSERT INTO drift_v2_fuel_overflow_account (
                 "authority",
                 "fuel_insurance",
                 "fuel_deposits",
@@ -211,7 +211,7 @@ impl carbon_core::postgres::operations::Delete for FuelOverflowRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fuel_overflow_account WHERE
+            r#"DELETE FROM drift_v2_fuel_overflow_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -232,7 +232,7 @@ impl carbon_core::postgres::operations::Lookup for FuelOverflowRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fuel_overflow_account WHERE
+            r#"SELECT * FROM drift_v2_fuel_overflow_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -253,7 +253,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FuelOverflowMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fuel_overflow_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_fuel_overflow_account (
                 -- Account data
                 "authority" BYTEA NOT NULL,
                 "fuel_insurance" NUMERIC(39) NOT NULL,
@@ -280,7 +280,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FuelOverflowMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fuel_overflow_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_fuel_overflow_account"#)
             .execute(connection)
             .await?;
         Ok(())

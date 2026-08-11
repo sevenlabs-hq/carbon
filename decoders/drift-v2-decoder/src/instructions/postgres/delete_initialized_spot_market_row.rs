@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::delete_initialized_spot_market::DeleteInitializedSpotMarket
 {
     fn table() -> &'static str {
-        "delete_initialized_spot_market_instruction"
+        "drift_v2_delete_initialized_spot_market_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for DeleteInitializedSpotMarketRo
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO delete_initialized_spot_market_instruction (
+            INSERT INTO drift_v2_delete_initialized_spot_market_instruction (
                 "market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for DeleteInitializedSpotMarketRo
 impl carbon_core::postgres::operations::Upsert for DeleteInitializedSpotMarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO delete_initialized_spot_market_instruction (
+            r#"INSERT INTO drift_v2_delete_initialized_spot_market_instruction (
                 "market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for DeleteInitializedSpotMarketRo
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM delete_initialized_spot_market_instruction WHERE
+            r#"DELETE FROM drift_v2_delete_initialized_spot_market_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for DeleteInitializedSpotMarketRo
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM delete_initialized_spot_market_instruction WHERE
+            r#"SELECT * FROM drift_v2_delete_initialized_spot_market_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DeleteInitializedSpotMarketMig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS delete_initialized_spot_market_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_delete_initialized_spot_market_instruction (
                 -- Instruction data
                 "market_index" INT4 NOT NULL,
                 -- Instruction metadata
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DeleteInitializedSpotMarketMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS delete_initialized_spot_market_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_delete_initialized_spot_market_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

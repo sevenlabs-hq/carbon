@@ -12,6 +12,7 @@ pub struct CompletePumpAmmMigrationEventEvent {
     pub bonding_curve: Pubkey,
     pub timestamp: i64,
     pub pool: Pubkey,
+    pub quote_mint: Pubkey,
 }
 
 impl CarbonDeserialize for CompletePumpAmmMigrationEventEvent {

@@ -69,7 +69,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::swap_tob_with_token_ledger::SwapTobWithTokenLedger
 {
     fn table() -> &'static str {
-        "swap_tob_with_token_ledger_instruction"
+        "onchain_labs_dex_v2_swap_tob_with_token_ledger_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for SwapTobWithTokenLedgerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_tob_with_token_ledger_instruction (
+            INSERT INTO onchain_labs_dex_v2_swap_tob_with_token_ledger_instruction (
                 "args",
                 "commission_info",
                 "platform_fee_rate",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for SwapTobWithTokenLedgerRow {
 impl carbon_core::postgres::operations::Upsert for SwapTobWithTokenLedgerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_tob_with_token_ledger_instruction (
+            r#"INSERT INTO onchain_labs_dex_v2_swap_tob_with_token_ledger_instruction (
                 "args",
                 "commission_info",
                 "platform_fee_rate",
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Delete for SwapTobWithTokenLedgerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_tob_with_token_ledger_instruction WHERE
+            r#"DELETE FROM onchain_labs_dex_v2_swap_tob_with_token_ledger_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -196,7 +196,7 @@ impl carbon_core::postgres::operations::Lookup for SwapTobWithTokenLedgerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_with_token_ledger_instruction WHERE
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_token_ledger_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -218,8 +218,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapTobWithTokenLedgerMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_tob_with_token_ledger_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS onchain_labs_dex_v2_swap_tob_with_token_ledger_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 "commission_info" INT8 NOT NULL,
@@ -232,10 +231,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapTobWithTokenLedgerMigratio
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -243,9 +239,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapTobWithTokenLedgerMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_tob_with_token_ledger_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS onchain_labs_dex_v2_swap_tob_with_token_ledger_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_spot_fee_structure::UpdateSpotFeeStructure
 {
     fn table() -> &'static str {
-        "update_spot_fee_structure_instruction"
+        "drift_v2_update_spot_fee_structure_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotFeeStructureRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_spot_fee_structure_instruction (
+            INSERT INTO drift_v2_update_spot_fee_structure_instruction (
                 "fee_structure",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotFeeStructureRow {
 impl carbon_core::postgres::operations::Upsert for UpdateSpotFeeStructureRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_spot_fee_structure_instruction (
+            r#"INSERT INTO drift_v2_update_spot_fee_structure_instruction (
                 "fee_structure",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotFeeStructureRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_spot_fee_structure_instruction WHERE
+            r#"DELETE FROM drift_v2_update_spot_fee_structure_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateSpotFeeStructureRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_spot_fee_structure_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_spot_fee_structure_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotFeeStructureMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_spot_fee_structure_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_spot_fee_structure_instruction (
                 -- Instruction data
                 "fee_structure" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotFeeStructureMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_spot_fee_structure_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_spot_fee_structure_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

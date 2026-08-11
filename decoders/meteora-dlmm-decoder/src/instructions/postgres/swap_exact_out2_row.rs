@@ -49,7 +49,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::swap_exact_out2::SwapExactOut2
 {
     fn table() -> &'static str {
-        "swap_exact_out2_instruction"
+        "meteora_dlmm_swap_exact_out2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Insert for SwapExactOut2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_exact_out2_instruction (
+            INSERT INTO meteora_dlmm_swap_exact_out2_instruction (
                 "max_in_amount",
                 "out_amount",
                 "remaining_accounts_info",
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for SwapExactOut2Row {
 impl carbon_core::postgres::operations::Upsert for SwapExactOut2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_exact_out2_instruction (
+            r#"INSERT INTO meteora_dlmm_swap_exact_out2_instruction (
                 "max_in_amount",
                 "out_amount",
                 "remaining_accounts_info",
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for SwapExactOut2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_exact_out2_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_swap_exact_out2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl carbon_core::postgres::operations::Lookup for SwapExactOut2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_exact_out2_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_swap_exact_out2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapExactOut2MigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_exact_out2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_swap_exact_out2_instruction (
                 -- Instruction data
                 "max_in_amount" NUMERIC(20) NOT NULL,
                 "out_amount" NUMERIC(20) NOT NULL,
@@ -216,7 +216,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapExactOut2MigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_exact_out2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_swap_exact_out2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

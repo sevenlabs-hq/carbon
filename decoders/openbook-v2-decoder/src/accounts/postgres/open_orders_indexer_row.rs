@@ -61,7 +61,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::open_orders_indexer::OpenOrdersIndexer
 {
     fn table() -> &'static str {
-        "open_orders_indexer_account"
+        "openbook_v2_open_orders_indexer_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for OpenOrdersIndexerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO open_orders_indexer_account (
+            INSERT INTO openbook_v2_open_orders_indexer_account (
                 "bump",
                 "created_counter",
                 "addresses",
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for OpenOrdersIndexerRow {
 impl carbon_core::postgres::operations::Upsert for OpenOrdersIndexerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_orders_indexer_account (
+            r#"INSERT INTO openbook_v2_open_orders_indexer_account (
                 "bump",
                 "created_counter",
                 "addresses",
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for OpenOrdersIndexerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM open_orders_indexer_account WHERE
+            r#"DELETE FROM openbook_v2_open_orders_indexer_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -154,7 +154,7 @@ impl carbon_core::postgres::operations::Lookup for OpenOrdersIndexerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM open_orders_indexer_account WHERE
+            r#"SELECT * FROM openbook_v2_open_orders_indexer_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -175,7 +175,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenOrdersIndexerMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS open_orders_indexer_account (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_open_orders_indexer_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "created_counter" INT8 NOT NULL,
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenOrdersIndexerMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS open_orders_indexer_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_open_orders_indexer_account"#)
             .execute(connection)
             .await?;
         Ok(())

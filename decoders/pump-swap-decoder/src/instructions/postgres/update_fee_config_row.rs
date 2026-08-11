@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_fee_config::UpdateFeeConfig
 {
     fn table() -> &'static str {
-        "update_fee_config_instruction"
+        "pump_swap_update_fee_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFeeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_fee_config_instruction (
+            INSERT INTO pump_swap_update_fee_config_instruction (
                 "lp_fee_basis_points",
                 "protocol_fee_basis_points",
                 "protocol_fee_recipients",
@@ -130,7 +130,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFeeConfigRow {
 impl carbon_core::postgres::operations::Upsert for UpdateFeeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_fee_config_instruction (
+            r#"INSERT INTO pump_swap_update_fee_config_instruction (
                 "lp_fee_basis_points",
                 "protocol_fee_basis_points",
                 "protocol_fee_recipients",
@@ -180,7 +180,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFeeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_fee_config_instruction WHERE
+            r#"DELETE FROM pump_swap_update_fee_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -207,7 +207,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateFeeConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_fee_config_instruction WHERE
+            r#"SELECT * FROM pump_swap_update_fee_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -230,7 +230,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFeeConfigMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_fee_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_update_fee_config_instruction (
                 -- Instruction data
                 "lp_fee_basis_points" NUMERIC(20) NOT NULL,
                 "protocol_fee_basis_points" NUMERIC(20) NOT NULL,
@@ -255,7 +255,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFeeConfigMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_fee_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_update_fee_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

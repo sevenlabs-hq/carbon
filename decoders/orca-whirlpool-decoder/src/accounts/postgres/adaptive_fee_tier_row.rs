@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::adaptive_fee_tier::AdaptiveFeeTier
 {
     fn table() -> &'static str {
-        "adaptive_fee_tier_account"
+        "orca_whirlpool_adaptive_fee_tier_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Insert for AdaptiveFeeTierRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO adaptive_fee_tier_account (
+            INSERT INTO orca_whirlpool_adaptive_fee_tier_account (
                 "whirlpools_config",
                 "fee_tier_index",
                 "tick_spacing",
@@ -195,7 +195,7 @@ impl carbon_core::postgres::operations::Insert for AdaptiveFeeTierRow {
 impl carbon_core::postgres::operations::Upsert for AdaptiveFeeTierRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO adaptive_fee_tier_account (
+            r#"INSERT INTO orca_whirlpool_adaptive_fee_tier_account (
                 "whirlpools_config",
                 "fee_tier_index",
                 "tick_spacing",
@@ -259,7 +259,7 @@ impl carbon_core::postgres::operations::Delete for AdaptiveFeeTierRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM adaptive_fee_tier_account WHERE
+            r#"DELETE FROM orca_whirlpool_adaptive_fee_tier_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -280,7 +280,7 @@ impl carbon_core::postgres::operations::Lookup for AdaptiveFeeTierRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM adaptive_fee_tier_account WHERE
+            r#"SELECT * FROM orca_whirlpool_adaptive_fee_tier_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -301,7 +301,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdaptiveFeeTierMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS adaptive_fee_tier_account (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_adaptive_fee_tier_account (
                 -- Account data
                 "whirlpools_config" BYTEA NOT NULL,
                 "fee_tier_index" INT4 NOT NULL,
@@ -331,7 +331,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdaptiveFeeTierMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS adaptive_fee_tier_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_adaptive_fee_tier_account"#)
             .execute(connection)
             .await?;
         Ok(())

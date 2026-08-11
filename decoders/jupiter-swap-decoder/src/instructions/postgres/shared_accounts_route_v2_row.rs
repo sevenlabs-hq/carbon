@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::shared_accounts_route_v2::SharedAccountsRouteV2
 {
     fn table() -> &'static str {
-        "shared_accounts_route_v2_instruction"
+        "jupiter_swap_shared_accounts_route_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Insert for SharedAccountsRouteV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO shared_accounts_route_v2_instruction (
+            INSERT INTO jupiter_swap_shared_accounts_route_v2_instruction (
                 "id",
                 "in_amount",
                 "quoted_out_amount",
@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Insert for SharedAccountsRouteV2Row {
 impl carbon_core::postgres::operations::Upsert for SharedAccountsRouteV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO shared_accounts_route_v2_instruction (
+            r#"INSERT INTO jupiter_swap_shared_accounts_route_v2_instruction (
                 "id",
                 "in_amount",
                 "quoted_out_amount",
@@ -200,7 +200,7 @@ impl carbon_core::postgres::operations::Delete for SharedAccountsRouteV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM shared_accounts_route_v2_instruction WHERE
+            r#"DELETE FROM jupiter_swap_shared_accounts_route_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -227,7 +227,7 @@ impl carbon_core::postgres::operations::Lookup for SharedAccountsRouteV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM shared_accounts_route_v2_instruction WHERE
+            r#"SELECT * FROM jupiter_swap_shared_accounts_route_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -250,7 +250,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SharedAccountsRouteV2Migration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS shared_accounts_route_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_swap_shared_accounts_route_v2_instruction (
                 -- Instruction data
                 "id" INT2 NOT NULL,
                 "in_amount" NUMERIC(20) NOT NULL,
@@ -277,7 +277,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SharedAccountsRouteV2Migration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS shared_accounts_route_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_swap_shared_accounts_route_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -34,9 +34,10 @@ pub struct PerpPosition {
     /// market LP shares allow users to provide liquidity via the AMM
     /// precision: BASE_PRECISION
     pub lp_shares: u64,
-    /// The scaled balance of the isolated position
-    /// precision: SPOT_BALANCE_PRECISION
-    pub isolated_position_scaled_balance: u64,
+    /// The last base asset amount per lp the amm had
+    /// Used to settle the users lp position
+    /// precision: BASE_PRECISION
+    pub last_base_asset_amount_per_lp: i64,
     /// The last quote asset amount per lp the amm had
     /// Used to settle the users lp position
     /// precision: QUOTE_PRECISION
@@ -47,5 +48,5 @@ pub struct PerpPosition {
     pub market_index: u16,
     /// The number of open orders
     pub open_orders: u8,
-    pub position_flag: u8,
+    pub per_lp_base: i8,
 }

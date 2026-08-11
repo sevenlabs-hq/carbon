@@ -24,6 +24,7 @@ pub struct InitializeTokenBadgeInstructionAccounts {
     pub token_badge: solana_pubkey::Pubkey,
     pub funder: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -62,6 +63,7 @@ impl ArrangeAccounts for InitializeTokenBadge {
         let token_badge = next_account(&mut iter)?;
         let funder = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -73,6 +75,7 @@ impl ArrangeAccounts for InitializeTokenBadge {
             token_badge,
             funder,
             system_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::upsert_fee_tiers::UpsertFeeTiers
 {
     fn table() -> &'static str {
-        "upsert_fee_tiers_instruction"
+        "pump_fees_upsert_fee_tiers_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Insert for UpsertFeeTiersRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO upsert_fee_tiers_instruction (
+            INSERT INTO pump_fees_upsert_fee_tiers_instruction (
                 "fee_tiers",
                 "offset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for UpsertFeeTiersRow {
 impl carbon_core::postgres::operations::Upsert for UpsertFeeTiersRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO upsert_fee_tiers_instruction (
+            r#"INSERT INTO pump_fees_upsert_fee_tiers_instruction (
                 "fee_tiers",
                 "offset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete for UpsertFeeTiersRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM upsert_fee_tiers_instruction WHERE
+            r#"DELETE FROM pump_fees_upsert_fee_tiers_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Lookup for UpsertFeeTiersRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM upsert_fee_tiers_instruction WHERE
+            r#"SELECT * FROM pump_fees_upsert_fee_tiers_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpsertFeeTiersMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS upsert_fee_tiers_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_upsert_fee_tiers_instruction (
                 -- Instruction data
                 "fee_tiers" JSONB NOT NULL,
                 "offset" INT2 NOT NULL,
@@ -210,7 +210,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpsertFeeTiersMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS upsert_fee_tiers_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_upsert_fee_tiers_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

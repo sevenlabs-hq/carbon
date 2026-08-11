@@ -42,7 +42,7 @@ impl TryFrom<PositionBundleRow> for crate::accounts::position_bundle::PositionBu
 
 impl carbon_core::postgres::operations::Table for crate::accounts::position_bundle::PositionBundle {
     fn table() -> &'static str {
-        "position_bundle_account"
+        "orca_whirlpool_position_bundle_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for PositionBundleRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO position_bundle_account (
+            INSERT INTO orca_whirlpool_position_bundle_account (
                 "position_bundle_mint",
                 "position_bitmap",
                 __pubkey, __slot
@@ -83,7 +83,7 @@ impl carbon_core::postgres::operations::Insert for PositionBundleRow {
 impl carbon_core::postgres::operations::Upsert for PositionBundleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO position_bundle_account (
+            r#"INSERT INTO orca_whirlpool_position_bundle_account (
                 "position_bundle_mint",
                 "position_bitmap",
                 __pubkey, __slot
@@ -114,7 +114,7 @@ impl carbon_core::postgres::operations::Delete for PositionBundleRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM position_bundle_account WHERE
+            r#"DELETE FROM orca_whirlpool_position_bundle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Lookup for PositionBundleRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM position_bundle_account WHERE
+            r#"SELECT * FROM orca_whirlpool_position_bundle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -156,7 +156,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionBundleMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS position_bundle_account (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_position_bundle_account (
                 -- Account data
                 "position_bundle_mint" BYTEA NOT NULL,
                 "position_bitmap" BYTEA NOT NULL,
@@ -175,7 +175,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionBundleMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS position_bundle_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_position_bundle_account"#)
             .execute(connection)
             .await?;
         Ok(())

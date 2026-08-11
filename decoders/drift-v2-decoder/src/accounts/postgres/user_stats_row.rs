@@ -28,7 +28,7 @@ pub struct UserStatsRow {
     pub number_of_sub_accounts: U16,
     pub number_of_sub_accounts_created: U16,
     pub referrer_status: U8,
-    pub disable_update_perp_bid_ask_twap: U8,
+    pub disable_update_perp_bid_ask_twap: bool,
     pub paused_operations: U8,
     pub fuel_overflow_status: U8,
     pub fuel_insurance: U32,
@@ -63,7 +63,7 @@ impl UserStatsRow {
             number_of_sub_accounts: source.number_of_sub_accounts.into(),
             number_of_sub_accounts_created: source.number_of_sub_accounts_created.into(),
             referrer_status: source.referrer_status.into(),
-            disable_update_perp_bid_ask_twap: source.disable_update_perp_bid_ask_twap.into(),
+            disable_update_perp_bid_ask_twap: source.disable_update_perp_bid_ask_twap,
             paused_operations: source.paused_operations.into(),
             fuel_overflow_status: source.fuel_overflow_status.into(),
             fuel_insurance: source.fuel_insurance.into(),
@@ -112,14 +112,7 @@ impl TryFrom<UserStatsRow> for crate::accounts::user_stats::UserStats {
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            disable_update_perp_bid_ask_twap: source
-                .disable_update_perp_bid_ask_twap
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert value from postgres primitive".to_string(),
-                    )
-                })?,
+            disable_update_perp_bid_ask_twap: source.disable_update_perp_bid_ask_twap,
             paused_operations: source.paused_operations.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
@@ -180,7 +173,7 @@ impl TryFrom<UserStatsRow> for crate::accounts::user_stats::UserStats {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::user_stats::UserStats {
     fn table() -> &'static str {
-        "user_stats_account"
+        "drift_v2_user_stats_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -221,7 +214,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::user_stats::U
 impl carbon_core::postgres::operations::Insert for UserStatsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO user_stats_account (
+            INSERT INTO drift_v2_user_stats_account (
                 "authority",
                 "referrer",
                 "fees",
@@ -289,7 +282,7 @@ impl carbon_core::postgres::operations::Insert for UserStatsRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UserStatsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO user_stats_account (
+        sqlx::query(r#"INSERT INTO drift_v2_user_stats_account (
                 "authority",
                 "referrer",
                 "fees",
@@ -390,7 +383,7 @@ impl carbon_core::postgres::operations::Delete for UserStatsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM user_stats_account WHERE
+            r#"DELETE FROM drift_v2_user_stats_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -411,7 +404,7 @@ impl carbon_core::postgres::operations::Lookup for UserStatsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM user_stats_account WHERE
+            r#"SELECT * FROM drift_v2_user_stats_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -432,7 +425,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserStatsMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS user_stats_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_user_stats_account (
                 -- Account data
                 "authority" BYTEA NOT NULL,
                 "referrer" BYTEA NOT NULL,
@@ -448,7 +441,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserStatsMigrationOperation {
                 "number_of_sub_accounts" INT4 NOT NULL,
                 "number_of_sub_accounts_created" INT4 NOT NULL,
                 "referrer_status" INT2 NOT NULL,
-                "disable_update_perp_bid_ask_twap" INT2 NOT NULL,
+                "disable_update_perp_bid_ask_twap" BOOLEAN NOT NULL,
                 "paused_operations" INT2 NOT NULL,
                 "fuel_overflow_status" INT2 NOT NULL,
                 "fuel_insurance" INT8 NOT NULL,
@@ -475,7 +468,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserStatsMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS user_stats_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_user_stats_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -55,7 +55,7 @@ impl TryFrom<BeginSwapRow> for crate::instructions::begin_swap::BeginSwap {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::begin_swap::BeginSwap {
     fn table() -> &'static str {
-        "begin_swap_instruction"
+        "drift_v2_begin_swap_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for BeginSwapRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO begin_swap_instruction (
+            INSERT INTO drift_v2_begin_swap_instruction (
                 "in_market_index",
                 "out_market_index",
                 "amount_in",
@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for BeginSwapRow {
 impl carbon_core::postgres::operations::Upsert for BeginSwapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO begin_swap_instruction (
+            r#"INSERT INTO drift_v2_begin_swap_instruction (
                 "in_market_index",
                 "out_market_index",
                 "amount_in",
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Delete for BeginSwapRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM begin_swap_instruction WHERE
+            r#"DELETE FROM drift_v2_begin_swap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for BeginSwapRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM begin_swap_instruction WHERE
+            r#"SELECT * FROM drift_v2_begin_swap_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BeginSwapMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS begin_swap_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_begin_swap_instruction (
                 -- Instruction data
                 "in_market_index" INT4 NOT NULL,
                 "out_market_index" INT4 NOT NULL,
@@ -222,7 +222,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BeginSwapMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS begin_swap_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_begin_swap_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

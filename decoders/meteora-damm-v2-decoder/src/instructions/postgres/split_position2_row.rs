@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::split_position2::SplitPosition2
 {
     fn table() -> &'static str {
-        "split_position2_instruction"
+        "meteora_damm_v2_split_position2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for SplitPosition2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO split_position2_instruction (
+            INSERT INTO meteora_damm_v2_split_position2_instruction (
                 "numerator",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for SplitPosition2Row {
 impl carbon_core::postgres::operations::Upsert for SplitPosition2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO split_position2_instruction (
+            r#"INSERT INTO meteora_damm_v2_split_position2_instruction (
                 "numerator",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for SplitPosition2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM split_position2_instruction WHERE
+            r#"DELETE FROM meteora_damm_v2_split_position2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Lookup for SplitPosition2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM split_position2_instruction WHERE
+            r#"SELECT * FROM meteora_damm_v2_split_position2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SplitPosition2MigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS split_position2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_split_position2_instruction (
                 -- Instruction data
                 "numerator" INT8 NOT NULL,
                 -- Instruction metadata
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SplitPosition2MigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS split_position2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_split_position2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

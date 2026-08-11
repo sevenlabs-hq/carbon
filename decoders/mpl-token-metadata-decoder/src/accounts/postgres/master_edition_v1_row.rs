@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::master_edition_v1::MasterEditionV1
 {
     fn table() -> &'static str {
-        "master_edition_v1_account"
+        "mpl_token_metadata_master_edition_v1_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for MasterEditionV1Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO master_edition_v1_account (
+            INSERT INTO mpl_token_metadata_master_edition_v1_account (
                 "key",
                 "supply",
                 "max_supply",
@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for MasterEditionV1Row {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MasterEditionV1Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO master_edition_v1_account (
+        sqlx::query(r#"INSERT INTO mpl_token_metadata_master_edition_v1_account (
                 "key",
                 "supply",
                 "max_supply",
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for MasterEditionV1Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM master_edition_v1_account WHERE
+            r#"DELETE FROM mpl_token_metadata_master_edition_v1_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Lookup for MasterEditionV1Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM master_edition_v1_account WHERE
+            r#"SELECT * FROM mpl_token_metadata_master_edition_v1_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -185,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MasterEditionV1MigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS master_edition_v1_account (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_master_edition_v1_account (
                 -- Account data
                 "key" JSONB NOT NULL,
                 "supply" NUMERIC(20) NOT NULL,
@@ -207,7 +207,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MasterEditionV1MigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS master_edition_v1_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_master_edition_v1_account"#)
             .execute(connection)
             .await?;
         Ok(())

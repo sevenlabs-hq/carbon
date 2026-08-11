@@ -50,7 +50,7 @@ pub struct BankGraphQL {
     pub integration_acc2: Pubkey,
     pub integration_acc3: Pubkey,
     pub rate_limiter: BankRateLimiterGraphQL,
-    pub pad0_1: Vec<U8>,
+    pub pad0_0: Vec<U8>,
     pub padding1: Vec<Vec<U64>>,
 }
 
@@ -63,7 +63,7 @@ impl TryFrom<crate::accounts::postgres::BankRow> for BankGraphQL {
             mint_decimals: carbon_core::graphql::primitives::U8((*row.mint_decimals) as u8),
             group: carbon_core::graphql::primitives::Pubkey(row.group.0),
             pad0: row
-                .pad0
+                ._pad0
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),
@@ -125,8 +125,8 @@ impl TryFrom<crate::accounts::postgres::BankRow> for BankGraphQL {
             integration_acc2: carbon_core::graphql::primitives::Pubkey(row.integration_acc2.0),
             integration_acc3: carbon_core::graphql::primitives::Pubkey(row.integration_acc3.0),
             rate_limiter: row.rate_limiter.0.into(),
-            pad0_1: row
-                .pad0_1
+            pad0_0: row
+                .pad0
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),

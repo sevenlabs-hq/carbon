@@ -19,6 +19,7 @@ pub struct SetRewardEmissionsSuperAuthorityInstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub reward_emissions_super_authority: solana_pubkey::Pubkey,
     pub new_reward_emissions_super_authority: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -53,6 +54,7 @@ impl ArrangeAccounts for SetRewardEmissionsSuperAuthority {
         let whirlpools_config = next_account(&mut iter)?;
         let reward_emissions_super_authority = next_account(&mut iter)?;
         let new_reward_emissions_super_authority = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -60,6 +62,7 @@ impl ArrangeAccounts for SetRewardEmissionsSuperAuthority {
             whirlpools_config,
             reward_emissions_super_authority,
             new_reward_emissions_super_authority,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

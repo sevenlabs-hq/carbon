@@ -25,6 +25,8 @@ pub struct GlobalConfig {
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: [Pubkey; 7],
     pub is_cashback_enabled: bool,
+    pub buyback_fee_recipients: [Pubkey; 8],
+    pub buyback_basis_points: u64,
 }
 
 impl CarbonDeserialize for GlobalConfig {

@@ -44,7 +44,7 @@ impl TryFrom<InitializePermissionlessConstantProductPoolWithConfig2Row> for crat
 
 impl carbon_core::postgres::operations::Table for crate::instructions::initialize_permissionless_constant_product_pool_with_config2::InitializePermissionlessConstantProductPoolWithConfig2 {
     fn table() -> &'static str {
-        "initialize_permissionless_constant_product_pool_with_config2_instruction"
+        "meteora_pools_initialize_permissionless_constant_product_pool_with_config2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,17 +66,15 @@ impl carbon_core::postgres::operations::Insert
     for InitializePermissionlessConstantProductPoolWithConfig2Row
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
-            INSERT INTO initialize_permissionless_constant_product_pool_with_config2_instruction (
+        sqlx::query(r#"
+            INSERT INTO meteora_pools_initialize_permissionless_constant_product_pool_with_config2_instruction (
                 "token_a_amount",
                 "token_b_amount",
                 "activation_point",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8
-            )"#,
-        )
+            )"#)
         .bind(&self.token_a_amount)
         .bind(&self.token_b_amount)
         .bind(&self.activation_point)
@@ -85,8 +83,7 @@ impl carbon_core::postgres::operations::Insert
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -97,7 +94,7 @@ impl carbon_core::postgres::operations::Upsert
     for InitializePermissionlessConstantProductPoolWithConfig2Row
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO initialize_permissionless_constant_product_pool_with_config2_instruction (
+        sqlx::query(r#"INSERT INTO meteora_pools_initialize_permissionless_constant_product_pool_with_config2_instruction (
                 "token_a_amount",
                 "token_b_amount",
                 "activation_point",
@@ -140,7 +137,7 @@ impl carbon_core::postgres::operations::Delete
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM initialize_permissionless_constant_product_pool_with_config2_instruction WHERE
+        sqlx::query(r#"DELETE FROM meteora_pools_initialize_permissionless_constant_product_pool_with_config2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
         .bind(key.0)
@@ -166,7 +163,7 @@ impl carbon_core::postgres::operations::Lookup
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM initialize_permissionless_constant_product_pool_with_config2_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM meteora_pools_initialize_permissionless_constant_product_pool_with_config2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
         .bind(key.0)
@@ -188,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_permissionless_constant_product_pool_with_config2_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS meteora_pools_initialize_permissionless_constant_product_pool_with_config2_instruction (
                 -- Instruction data
                 "token_a_amount" NUMERIC(20) NOT NULL,
                 "token_b_amount" NUMERIC(20) NOT NULL,
@@ -208,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_permissionless_constant_product_pool_with_config2_instruction"#).execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_pools_initialize_permissionless_constant_product_pool_with_config2_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

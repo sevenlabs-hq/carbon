@@ -43,7 +43,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::position_movement::PositionMovement
 {
     fn table() -> &'static str {
-        "position_movement_instruction"
+        "zeta_position_movement_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for PositionMovementRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO position_movement_instruction (
+            INSERT INTO zeta_position_movement_instruction (
                 "movement_type",
                 "movements",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for PositionMovementRow {
 impl carbon_core::postgres::operations::Upsert for PositionMovementRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO position_movement_instruction (
+            r#"INSERT INTO zeta_position_movement_instruction (
                 "movement_type",
                 "movements",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Delete for PositionMovementRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM position_movement_instruction WHERE
+            r#"DELETE FROM zeta_position_movement_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Lookup for PositionMovementRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM position_movement_instruction WHERE
+            r#"SELECT * FROM zeta_position_movement_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionMovementMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS position_movement_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_position_movement_instruction (
                 -- Instruction data
                 "movement_type" JSONB NOT NULL,
                 "movements" JSONB NOT NULL,
@@ -203,7 +203,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionMovementMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS position_movement_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_position_movement_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

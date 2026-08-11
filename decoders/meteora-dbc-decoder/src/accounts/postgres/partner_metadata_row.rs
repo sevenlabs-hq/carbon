@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::partner_metadata::PartnerMetadata
 {
     fn table() -> &'static str {
-        "partner_metadata_account"
+        "meteora_dbc_partner_metadata_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -91,7 +91,7 @@ impl carbon_core::postgres::operations::Insert for PartnerMetadataRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO partner_metadata_account (
+            INSERT INTO meteora_dbc_partner_metadata_account (
                 "fee_claimer",
                 "padding",
                 "name",
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for PartnerMetadataRow {
 impl carbon_core::postgres::operations::Upsert for PartnerMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO partner_metadata_account (
+            r#"INSERT INTO meteora_dbc_partner_metadata_account (
                 "fee_claimer",
                 "padding",
                 "name",
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Delete for PartnerMetadataRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM partner_metadata_account WHERE
+            r#"DELETE FROM meteora_dbc_partner_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -181,7 +181,7 @@ impl carbon_core::postgres::operations::Lookup for PartnerMetadataRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM partner_metadata_account WHERE
+            r#"SELECT * FROM meteora_dbc_partner_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -202,7 +202,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PartnerMetadataMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS partner_metadata_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dbc_partner_metadata_account (
                 -- Account data
                 "fee_claimer" BYTEA NOT NULL,
                 "padding" NUMERIC(39)[] NOT NULL,
@@ -224,7 +224,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PartnerMetadataMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS partner_metadata_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dbc_partner_metadata_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -33,7 +33,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::refresh_reserve::RefreshReserve
 {
     fn table() -> &'static str {
-        "refresh_reserve_instruction"
+        "kamino_lending_refresh_reserve_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Insert for RefreshReserveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO refresh_reserve_instruction (
+            INSERT INTO kamino_lending_refresh_reserve_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for RefreshReserveRow {
 impl carbon_core::postgres::operations::Upsert for RefreshReserveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO refresh_reserve_instruction (
+            r#"INSERT INTO kamino_lending_refresh_reserve_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for RefreshReserveRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM refresh_reserve_instruction WHERE
+            r#"DELETE FROM kamino_lending_refresh_reserve_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for RefreshReserveRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM refresh_reserve_instruction WHERE
+            r#"SELECT * FROM kamino_lending_refresh_reserve_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,7 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RefreshReserveMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS refresh_reserve_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_refresh_reserve_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RefreshReserveMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS refresh_reserve_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_refresh_reserve_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

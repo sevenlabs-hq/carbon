@@ -31,7 +31,7 @@ impl TryFrom<AcceptOwnerRow> for crate::instructions::accept_owner::AcceptOwner 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::accept_owner::AcceptOwner {
     fn table() -> &'static str {
-        "accept_owner_instruction"
+        "stabble_stable_swap_accept_owner_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for AcceptOwnerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO accept_owner_instruction (
+            INSERT INTO stabble_stable_swap_accept_owner_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for AcceptOwnerRow {
 impl carbon_core::postgres::operations::Upsert for AcceptOwnerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO accept_owner_instruction (
+            r#"INSERT INTO stabble_stable_swap_accept_owner_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for AcceptOwnerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM accept_owner_instruction WHERE
+            r#"DELETE FROM stabble_stable_swap_accept_owner_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for AcceptOwnerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM accept_owner_instruction WHERE
+            r#"SELECT * FROM stabble_stable_swap_accept_owner_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AcceptOwnerMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS accept_owner_instruction (
+            r#"CREATE TABLE IF NOT EXISTS stabble_stable_swap_accept_owner_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AcceptOwnerMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS accept_owner_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS stabble_stable_swap_accept_owner_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

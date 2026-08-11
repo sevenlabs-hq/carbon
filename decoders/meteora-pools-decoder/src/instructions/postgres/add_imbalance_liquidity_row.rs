@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::add_imbalance_liquidity::AddImbalanceLiquidity
 {
     fn table() -> &'static str {
-        "add_imbalance_liquidity_instruction"
+        "meteora_pools_add_imbalance_liquidity_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for AddImbalanceLiquidityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO add_imbalance_liquidity_instruction (
+            INSERT INTO meteora_pools_add_imbalance_liquidity_instruction (
                 "minimum_pool_token_amount",
                 "token_a_amount",
                 "token_b_amount",
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for AddImbalanceLiquidityRow {
 impl carbon_core::postgres::operations::Upsert for AddImbalanceLiquidityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO add_imbalance_liquidity_instruction (
+            r#"INSERT INTO meteora_pools_add_imbalance_liquidity_instruction (
                 "minimum_pool_token_amount",
                 "token_a_amount",
                 "token_b_amount",
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for AddImbalanceLiquidityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM add_imbalance_liquidity_instruction WHERE
+            r#"DELETE FROM meteora_pools_add_imbalance_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Lookup for AddImbalanceLiquidityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM add_imbalance_liquidity_instruction WHERE
+            r#"SELECT * FROM meteora_pools_add_imbalance_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddImbalanceLiquidityMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS add_imbalance_liquidity_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_pools_add_imbalance_liquidity_instruction (
                 -- Instruction data
                 "minimum_pool_token_amount" NUMERIC(20) NOT NULL,
                 "token_a_amount" NUMERIC(20) NOT NULL,
@@ -215,7 +215,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddImbalanceLiquidityMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS add_imbalance_liquidity_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_pools_add_imbalance_liquidity_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

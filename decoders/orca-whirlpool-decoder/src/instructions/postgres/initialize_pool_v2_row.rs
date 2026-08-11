@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_pool_v2::InitializePoolV2
 {
     fn table() -> &'static str {
-        "initialize_pool_v2_instruction"
+        "orca_whirlpool_initialize_pool_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Insert for InitializePoolV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_pool_v2_instruction (
+            INSERT INTO orca_whirlpool_initialize_pool_v2_instruction (
                 "tick_spacing",
                 "initial_sqrt_price",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for InitializePoolV2Row {
 impl carbon_core::postgres::operations::Upsert for InitializePoolV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_pool_v2_instruction (
+            r#"INSERT INTO orca_whirlpool_initialize_pool_v2_instruction (
                 "tick_spacing",
                 "initial_sqrt_price",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete for InitializePoolV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_pool_v2_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_initialize_pool_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Lookup for InitializePoolV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_pool_v2_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_initialize_pool_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePoolV2MigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_pool_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_initialize_pool_v2_instruction (
                 -- Instruction data
                 "tick_spacing" INT4 NOT NULL,
                 "initial_sqrt_price" NUMERIC(39) NOT NULL,
@@ -210,7 +210,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePoolV2MigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_pool_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_initialize_pool_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

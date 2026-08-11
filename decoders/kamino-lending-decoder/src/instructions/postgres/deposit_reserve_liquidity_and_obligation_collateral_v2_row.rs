@@ -38,7 +38,7 @@ impl TryFrom<DepositReserveLiquidityAndObligationCollateralV2Row> for crate::ins
 
 impl carbon_core::postgres::operations::Table for crate::instructions::deposit_reserve_liquidity_and_obligation_collateral_v2::DepositReserveLiquidityAndObligationCollateralV2 {
     fn table() -> &'static str {
-        "deposit_reserve_liquidity_and_obligation_collateral_v2_instruction"
+        "kamino_lending_deposit_reserve_liquidity_and_obligation_collateral_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,23 +58,20 @@ impl carbon_core::postgres::operations::Insert
     for DepositReserveLiquidityAndObligationCollateralV2Row
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
-            INSERT INTO deposit_reserve_liquidity_and_obligation_collateral_v2_instruction (
+        sqlx::query(r#"
+            INSERT INTO kamino_lending_deposit_reserve_liquidity_and_obligation_collateral_v2_instruction (
                 "liquidity_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#,
-        )
+            )"#)
         .bind(&self.liquidity_amount)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -85,8 +82,7 @@ impl carbon_core::postgres::operations::Upsert
     for DepositReserveLiquidityAndObligationCollateralV2Row
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO deposit_reserve_liquidity_and_obligation_collateral_v2_instruction (
+        sqlx::query(r#"INSERT INTO kamino_lending_deposit_reserve_liquidity_and_obligation_collateral_v2_instruction (
                 "liquidity_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -99,16 +95,14 @@ impl carbon_core::postgres::operations::Upsert
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
                 __accounts = EXCLUDED.__accounts
-            "#,
-        )
+            "#)
         .bind(&self.liquidity_amount)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -125,16 +119,13 @@ impl carbon_core::postgres::operations::Delete
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM deposit_reserve_liquidity_and_obligation_collateral_v2_instruction WHERE
+        sqlx::query(r#"DELETE FROM kamino_lending_deposit_reserve_liquidity_and_obligation_collateral_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -154,7 +145,7 @@ impl carbon_core::postgres::operations::Lookup
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM deposit_reserve_liquidity_and_obligation_collateral_v2_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM kamino_lending_deposit_reserve_liquidity_and_obligation_collateral_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
         .bind(key.0)
@@ -176,7 +167,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS deposit_reserve_liquidity_and_obligation_collateral_v2_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS kamino_lending_deposit_reserve_liquidity_and_obligation_collateral_v2_instruction (
                 -- Instruction data
                 "liquidity_amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -194,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS deposit_reserve_liquidity_and_obligation_collateral_v2_instruction"#).execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_deposit_reserve_liquidity_and_obligation_collateral_v2_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

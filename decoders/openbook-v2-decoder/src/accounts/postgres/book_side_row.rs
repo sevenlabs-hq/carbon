@@ -68,7 +68,7 @@ impl TryFrom<BookSideRow> for crate::accounts::book_side::BookSide {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::book_side::BookSide {
     fn table() -> &'static str {
-        "book_side_account"
+        "openbook_v2_book_side_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for BookSideRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO book_side_account (
+            INSERT INTO openbook_v2_book_side_account (
                 "roots",
                 "reserved_roots",
                 "reserved",
@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Insert for BookSideRow {
 impl carbon_core::postgres::operations::Upsert for BookSideRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO book_side_account (
+            r#"INSERT INTO openbook_v2_book_side_account (
                 "roots",
                 "reserved_roots",
                 "reserved",
@@ -152,7 +152,7 @@ impl carbon_core::postgres::operations::Delete for BookSideRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM book_side_account WHERE
+            r#"DELETE FROM openbook_v2_book_side_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -173,7 +173,7 @@ impl carbon_core::postgres::operations::Lookup for BookSideRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM book_side_account WHERE
+            r#"SELECT * FROM openbook_v2_book_side_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -194,7 +194,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BookSideMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS book_side_account (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_book_side_account (
                 -- Account data
                 "roots" JSONB NOT NULL,
                 "reserved_roots" JSONB NOT NULL,
@@ -215,7 +215,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BookSideMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS book_side_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_book_side_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -46,7 +46,7 @@ impl TryFrom<EditionRow> for crate::accounts::edition::Edition {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::edition::Edition {
     fn table() -> &'static str {
-        "edition_account"
+        "mpl_token_metadata_edition_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Insert for EditionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO edition_account (
+            INSERT INTO mpl_token_metadata_edition_account (
                 "key",
                 "parent",
                 "edition",
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for EditionRow {
 impl carbon_core::postgres::operations::Upsert for EditionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO edition_account (
+            r#"INSERT INTO mpl_token_metadata_edition_account (
                 "key",
                 "parent",
                 "edition",
@@ -118,7 +118,7 @@ impl carbon_core::postgres::operations::Delete for EditionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM edition_account WHERE
+            r#"DELETE FROM mpl_token_metadata_edition_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Lookup for EditionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM edition_account WHERE
+            r#"SELECT * FROM mpl_token_metadata_edition_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -160,7 +160,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EditionMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS edition_account (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_edition_account (
                 -- Account data
                 "key" JSONB NOT NULL,
                 "parent" BYTEA NOT NULL,
@@ -180,7 +180,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EditionMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS edition_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_edition_account"#)
             .execute(connection)
             .await?;
         Ok(())

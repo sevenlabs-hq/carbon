@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::withdraw_treasury::WithdrawTreasury
 {
     fn table() -> &'static str {
-        "withdraw_treasury_instruction"
+        "kamino_farms_withdraw_treasury_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawTreasuryRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_treasury_instruction (
+            INSERT INTO kamino_farms_withdraw_treasury_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawTreasuryRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawTreasuryRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_treasury_instruction (
+            r#"INSERT INTO kamino_farms_withdraw_treasury_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawTreasuryRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_treasury_instruction WHERE
+            r#"DELETE FROM kamino_farms_withdraw_treasury_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawTreasuryRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_treasury_instruction WHERE
+            r#"SELECT * FROM kamino_farms_withdraw_treasury_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawTreasuryMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_treasury_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_farms_withdraw_treasury_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawTreasuryMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_treasury_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_farms_withdraw_treasury_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

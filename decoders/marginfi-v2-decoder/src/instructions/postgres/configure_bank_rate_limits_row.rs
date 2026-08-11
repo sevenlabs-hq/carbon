@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::configure_bank_rate_limits::ConfigureBankRateLimits
 {
     fn table() -> &'static str {
-        "configure_bank_rate_limits_instruction"
+        "marginfi_v2_configure_bank_rate_limits_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for ConfigureBankRateLimitsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO configure_bank_rate_limits_instruction (
+            INSERT INTO marginfi_v2_configure_bank_rate_limits_instruction (
                 "hourly_max_outflow",
                 "daily_max_outflow",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for ConfigureBankRateLimitsRow {
 impl carbon_core::postgres::operations::Upsert for ConfigureBankRateLimitsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO configure_bank_rate_limits_instruction (
+            r#"INSERT INTO marginfi_v2_configure_bank_rate_limits_instruction (
                 "hourly_max_outflow",
                 "daily_max_outflow",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for ConfigureBankRateLimitsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM configure_bank_rate_limits_instruction WHERE
+            r#"DELETE FROM marginfi_v2_configure_bank_rate_limits_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for ConfigureBankRateLimitsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM configure_bank_rate_limits_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_configure_bank_rate_limits_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigureBankRateLimitsMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS configure_bank_rate_limits_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_configure_bank_rate_limits_instruction (
                 -- Instruction data
                 "hourly_max_outflow" NUMERIC(20),
                 "daily_max_outflow" NUMERIC(20),
@@ -205,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigureBankRateLimitsMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS configure_bank_rate_limits_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_configure_bank_rate_limits_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -62,6 +62,7 @@ pub enum UpdateConfigModeGraphQL {
     UpdateEarlyRepayRemainingInterestPct,
     UpdateReserveEmergencyMode,
     UpdateRewardsAmountPerSlot,
+    UpdateReservePermissionedOps,
 }
 
 impl From<crate::types::UpdateConfigMode> for UpdateConfigModeGraphQL {
@@ -125,6 +126,7 @@ impl From<crate::types::UpdateConfigMode> for UpdateConfigModeGraphQL {
             crate::types::UpdateConfigMode::UpdateEarlyRepayRemainingInterestPct => Self::UpdateEarlyRepayRemainingInterestPct,
             crate::types::UpdateConfigMode::UpdateReserveEmergencyMode => Self::UpdateReserveEmergencyMode,
             crate::types::UpdateConfigMode::UpdateRewardsAmountPerSlot => Self::UpdateRewardsAmountPerSlot,
+            crate::types::UpdateConfigMode::UpdateReservePermissionedOps => Self::UpdateReservePermissionedOps,
         }
     }
 }

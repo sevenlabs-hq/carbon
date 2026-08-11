@@ -51,7 +51,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_permissionless_pool::InitializePermissionlessPool
 {
     fn table() -> &'static str {
-        "initialize_permissionless_pool_instruction"
+        "meteora_pools_initialize_permissionless_pool_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for InitializePermissionlessPoolR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_permissionless_pool_instruction (
+            INSERT INTO meteora_pools_initialize_permissionless_pool_instruction (
                 "curve_type",
                 "token_a_amount",
                 "token_b_amount",
@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for InitializePermissionlessPoolR
 impl carbon_core::postgres::operations::Upsert for InitializePermissionlessPoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_permissionless_pool_instruction (
+            r#"INSERT INTO meteora_pools_initialize_permissionless_pool_instruction (
                 "curve_type",
                 "token_a_amount",
                 "token_b_amount",
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Delete for InitializePermissionlessPoolR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_permissionless_pool_instruction WHERE
+            r#"DELETE FROM meteora_pools_initialize_permissionless_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Lookup for InitializePermissionlessPoolR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_permissionless_pool_instruction WHERE
+            r#"SELECT * FROM meteora_pools_initialize_permissionless_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePermissionlessPoolMi
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_permissionless_pool_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_pools_initialize_permissionless_pool_instruction (
                 -- Instruction data
                 "curve_type" JSONB NOT NULL,
                 "token_a_amount" NUMERIC(20) NOT NULL,
@@ -218,9 +218,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePermissionlessPoolMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_permissionless_pool_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_pools_initialize_permissionless_pool_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

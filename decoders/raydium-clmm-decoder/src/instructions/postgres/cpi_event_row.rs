@@ -57,7 +57,7 @@ impl TryFrom<CpiEventRow> for CpiEvent {
 
 impl carbon_core::postgres::operations::Table for CpiEvent {
     fn table() -> &'static str {
-        "cpi_events"
+        "raydium_clmm_cpi_events"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for CpiEventRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO cpi_events (
+            INSERT INTO raydium_clmm_cpi_events (
             __signature, __instruction_index, __stack_height, __slot, "name", "data", __accounts
             ) VALUES (
             $1, $2, $3, $4, $5, $6, $7
@@ -102,7 +102,7 @@ impl carbon_core::postgres::operations::Insert for CpiEventRow {
 impl carbon_core::postgres::operations::Upsert for CpiEventRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO cpi_events (
+            r#"INSERT INTO raydium_clmm_cpi_events (
             __signature, __instruction_index, __stack_height, __slot, "name", "data", __accounts
         ) VALUES (
             $1, $2, $3, $4, $5, $6, $7
@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for CpiEventRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM cpi_events WHERE
+            r#"DELETE FROM raydium_clmm_cpi_events WHERE
             __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
         "#,
         )
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Lookup for CpiEventRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM cpi_events WHERE
+            r#"SELECT * FROM raydium_clmm_cpi_events WHERE
             __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
         "#,
         )
@@ -189,7 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CpiEventMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS cpi_events (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_cpi_events (
             -- Instruction data
             "name" TEXT NOT NULL,
             "data" JSONB NOT NULL,
@@ -213,7 +213,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CpiEventMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS cpi_events"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_cpi_events"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -44,6 +44,7 @@ pub struct OpenPositionWithMetadataInstructionAccounts {
     pub associated_token_program: solana_pubkey::Pubkey,
     pub metadata_program: solana_pubkey::Pubkey,
     pub metadata_update_auth: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -88,6 +89,7 @@ impl ArrangeAccounts for OpenPositionWithMetadata {
         let associated_token_program = next_account(&mut iter)?;
         let metadata_program = next_account(&mut iter)?;
         let metadata_update_auth = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -105,6 +107,7 @@ impl ArrangeAccounts for OpenPositionWithMetadata {
             associated_token_program,
             metadata_program,
             metadata_update_auth,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

@@ -10,6 +10,7 @@ export type RenderOptions = GetRenderMapOptions & {
         discriminator: number[];
     }[];
     postgresMode?: 'generic' | 'typed';
+    withClickhouse?: boolean;
     versionName?: string;
 };
 

@@ -38,7 +38,7 @@ impl TryFrom<TransferRow> for crate::instructions::transfer::Transfer {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::transfer::Transfer {
     fn table() -> &'static str {
-        "transfer_instruction"
+        "mpl_token_metadata_transfer_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for TransferRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO transfer_instruction (
+            INSERT INTO mpl_token_metadata_transfer_instruction (
                 "transfer_args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for TransferRow {
 impl carbon_core::postgres::operations::Upsert for TransferRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO transfer_instruction (
+            r#"INSERT INTO mpl_token_metadata_transfer_instruction (
                 "transfer_args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for TransferRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM transfer_instruction WHERE
+            r#"DELETE FROM mpl_token_metadata_transfer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for TransferRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM transfer_instruction WHERE
+            r#"SELECT * FROM mpl_token_metadata_transfer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS transfer_instruction (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_transfer_instruction (
                 -- Instruction data
                 "transfer_args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS transfer_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_transfer_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

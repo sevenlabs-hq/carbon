@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::admin_update_token_incentives::AdminUpdateTokenIncentives
 {
     fn table() -> &'static str {
-        "admin_update_token_incentives_instruction"
+        "pump_swap_admin_update_token_incentives_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for AdminUpdateTokenIncentivesRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO admin_update_token_incentives_instruction (
+            INSERT INTO pump_swap_admin_update_token_incentives_instruction (
                 "start_time",
                 "end_time",
                 "seconds_in_a_day",
@@ -110,7 +110,7 @@ impl carbon_core::postgres::operations::Insert for AdminUpdateTokenIncentivesRow
 impl carbon_core::postgres::operations::Upsert for AdminUpdateTokenIncentivesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO admin_update_token_incentives_instruction (
+            r#"INSERT INTO pump_swap_admin_update_token_incentives_instruction (
                 "start_time",
                 "end_time",
                 "seconds_in_a_day",
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Delete for AdminUpdateTokenIncentivesRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM admin_update_token_incentives_instruction WHERE
+            r#"DELETE FROM pump_swap_admin_update_token_incentives_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -187,7 +187,7 @@ impl carbon_core::postgres::operations::Lookup for AdminUpdateTokenIncentivesRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM admin_update_token_incentives_instruction WHERE
+            r#"SELECT * FROM pump_swap_admin_update_token_incentives_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -210,7 +210,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdminUpdateTokenIncentivesMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS admin_update_token_incentives_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_admin_update_token_incentives_instruction (
                 -- Instruction data
                 "start_time" INT8 NOT NULL,
                 "end_time" INT8 NOT NULL,
@@ -235,7 +235,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdminUpdateTokenIncentivesMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS admin_update_token_incentives_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_admin_update_token_incentives_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -4,6 +4,8 @@ use {
     solana_program_pack::Pack,
 };
 
+#[cfg(feature = "clickhouse")]
+pub mod clickhouse;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 

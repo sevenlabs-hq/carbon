@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::add_market_to_amm_cache::AddMarketToAmmCache
 {
     fn table() -> &'static str {
-        "add_market_to_amm_cache_instruction"
+        "drift_v2_add_market_to_amm_cache_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for AddMarketToAmmCacheRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO add_market_to_amm_cache_instruction (
+            INSERT INTO drift_v2_add_market_to_amm_cache_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for AddMarketToAmmCacheRow {
 impl carbon_core::postgres::operations::Upsert for AddMarketToAmmCacheRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO add_market_to_amm_cache_instruction (
+            r#"INSERT INTO drift_v2_add_market_to_amm_cache_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for AddMarketToAmmCacheRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM add_market_to_amm_cache_instruction WHERE
+            r#"DELETE FROM drift_v2_add_market_to_amm_cache_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for AddMarketToAmmCacheRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM add_market_to_amm_cache_instruction WHERE
+            r#"SELECT * FROM drift_v2_add_market_to_amm_cache_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddMarketToAmmCacheMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS add_market_to_amm_cache_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_add_market_to_amm_cache_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddMarketToAmmCacheMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS add_market_to_amm_cache_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_add_market_to_amm_cache_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

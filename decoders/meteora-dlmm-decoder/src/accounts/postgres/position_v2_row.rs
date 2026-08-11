@@ -169,7 +169,7 @@ impl TryFrom<PositionV2Row> for crate::accounts::position_v2::PositionV2 {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::position_v2::PositionV2 {
     fn table() -> &'static str {
-        "position_v2_account"
+        "meteora_dlmm_position_v2_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -202,7 +202,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::position_v2::
 impl carbon_core::postgres::operations::Insert for PositionV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO position_v2_account (
+            INSERT INTO meteora_dlmm_position_v2_account (
                 "lb_pair",
                 "owner",
                 "liquidity_shares",
@@ -254,7 +254,7 @@ impl carbon_core::postgres::operations::Insert for PositionV2Row {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PositionV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO position_v2_account (
+        sqlx::query(r#"INSERT INTO meteora_dlmm_position_v2_account (
                 "lb_pair",
                 "owner",
                 "liquidity_shares",
@@ -331,7 +331,7 @@ impl carbon_core::postgres::operations::Delete for PositionV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM position_v2_account WHERE
+            r#"DELETE FROM meteora_dlmm_position_v2_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -352,7 +352,7 @@ impl carbon_core::postgres::operations::Lookup for PositionV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM position_v2_account WHERE
+            r#"SELECT * FROM meteora_dlmm_position_v2_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -373,7 +373,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionV2MigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS position_v2_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_position_v2_account (
                 -- Account data
                 "lb_pair" BYTEA NOT NULL,
                 "owner" BYTEA NOT NULL,
@@ -408,7 +408,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionV2MigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS position_v2_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_position_v2_account"#)
             .execute(connection)
             .await?;
         Ok(())

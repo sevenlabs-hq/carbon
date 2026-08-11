@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_reward_funder::UpdateRewardFunder
 {
     fn table() -> &'static str {
-        "update_reward_funder_instruction"
+        "meteora_dlmm_update_reward_funder_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -69,7 +69,7 @@ impl carbon_core::postgres::operations::Insert for UpdateRewardFunderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_reward_funder_instruction (
+            INSERT INTO meteora_dlmm_update_reward_funder_instruction (
                 "reward_index",
                 "new_funder",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for UpdateRewardFunderRow {
 impl carbon_core::postgres::operations::Upsert for UpdateRewardFunderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_reward_funder_instruction (
+            r#"INSERT INTO meteora_dlmm_update_reward_funder_instruction (
                 "reward_index",
                 "new_funder",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for UpdateRewardFunderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_reward_funder_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_update_reward_funder_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -163,7 +163,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateRewardFunderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_reward_funder_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_update_reward_funder_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -186,7 +186,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateRewardFunderMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_reward_funder_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_update_reward_funder_instruction (
                 -- Instruction data
                 "reward_index" NUMERIC(20) NOT NULL,
                 "new_funder" BYTEA NOT NULL,
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateRewardFunderMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_reward_funder_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_update_reward_funder_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

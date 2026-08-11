@@ -42,7 +42,7 @@ impl TryFrom<PruneOrdersRow> for crate::instructions::prune_orders::PruneOrders 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::prune_orders::PruneOrders {
     fn table() -> &'static str {
-        "prune_orders_instruction"
+        "openbook_v2_prune_orders_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for PruneOrdersRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO prune_orders_instruction (
+            INSERT INTO openbook_v2_prune_orders_instruction (
                 "limit",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for PruneOrdersRow {
 impl carbon_core::postgres::operations::Upsert for PruneOrdersRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO prune_orders_instruction (
+            r#"INSERT INTO openbook_v2_prune_orders_instruction (
                 "limit",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for PruneOrdersRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM prune_orders_instruction WHERE
+            r#"DELETE FROM openbook_v2_prune_orders_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for PruneOrdersRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM prune_orders_instruction WHERE
+            r#"SELECT * FROM openbook_v2_prune_orders_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PruneOrdersMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS prune_orders_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_prune_orders_instruction (
                 -- Instruction data
                 "limit" INT2 NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PruneOrdersMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS prune_orders_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_prune_orders_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

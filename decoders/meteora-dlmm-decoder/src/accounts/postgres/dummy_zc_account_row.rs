@@ -36,7 +36,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::dummy_zc_account::DummyZcAccount
 {
     fn table() -> &'static str {
-        "dummy_zc_account_account"
+        "meteora_dlmm_dummy_zc_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -49,7 +49,7 @@ impl carbon_core::postgres::operations::Insert for DummyZcAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO dummy_zc_account_account (
+            INSERT INTO meteora_dlmm_dummy_zc_account_account (
                 "position_bin_data",
                 __pubkey, __slot
             ) VALUES (
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for DummyZcAccountRow {
 impl carbon_core::postgres::operations::Upsert for DummyZcAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO dummy_zc_account_account (
+            r#"INSERT INTO meteora_dlmm_dummy_zc_account_account (
                 "position_bin_data",
                 __pubkey, __slot
             ) VALUES (
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Delete for DummyZcAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM dummy_zc_account_account WHERE
+            r#"DELETE FROM meteora_dlmm_dummy_zc_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Lookup for DummyZcAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM dummy_zc_account_account WHERE
+            r#"SELECT * FROM meteora_dlmm_dummy_zc_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -140,7 +140,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DummyZcAccountMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS dummy_zc_account_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_dummy_zc_account_account (
                 -- Account data
                 "position_bin_data" JSONB NOT NULL,
                 -- Account metadata
@@ -158,7 +158,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DummyZcAccountMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS dummy_zc_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_dummy_zc_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

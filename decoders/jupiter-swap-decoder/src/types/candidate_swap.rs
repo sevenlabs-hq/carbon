@@ -33,4 +33,5 @@ pub enum CandidateSwap {
         a_to_b: bool,
         remaining_accounts_info: Option<RemainingAccountsInfo>,
     },
+    ZeroFiSwapV2,
 }

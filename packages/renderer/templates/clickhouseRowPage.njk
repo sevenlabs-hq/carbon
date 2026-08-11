@@ -1,0 +1,297 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% set table_name = (program.name | snakeCase) ~ "_" ~ (entityName | snakeCase) ~ "_" %}
+{% if isAccount %}
+    {% set table_name = table_name ~ "account" %}
+{% else %}
+    {% set table_name = table_name ~ "instruction" %}
+{% endif %}
+{% set local_table = table_name ~ "_local" %}
+
+{% block main %}
+#[derive(clickhouse::Row, serde::Serialize, serde::Deserialize, Debug, Clone)]
+pub struct {{ entityName | pascalCase }}Row {
+{% if isAccount %}
+    pub __pubkey: String,
+    pub __slot: u64,
+{% else %}
+    pub __signature: String,
+    pub __instruction_index: u32,
+    pub __stack_height: u32,
+    pub __slot: u64,
+    pub __accounts: String,
+{% endif %}
+    pub data: String,
+}
+
+impl
+    TryFrom<(
+        {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }},
+        carbon_core::account::AccountMetadata,{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }},
+        carbon_core::instruction::InstructionMetadata,
+        crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}InstructionAccounts,{% endif %}
+    )> for {{ entityName | pascalCase }}Row
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(
+        (source, metadata{% if not isAccount %}, accounts{% endif %}): (
+            {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }},
+            carbon_core::account::AccountMetadata,{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }},
+            carbon_core::instruction::InstructionMetadata,
+            crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}InstructionAccounts,{% endif %}
+        ),
+    ) -> Result<Self, Self::Error> {
+{% if isAccount %}
+        let data = serde_json::to_string(&source)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok(Self {
+            __pubkey: metadata.pubkey.to_string(),
+            __slot: metadata.slot,
+            data,
+        })
+{% else %}
+        let accounts = serde_json::to_string(&accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let data = serde_json::to_string(&source)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok(Self {
+            __signature: metadata.transaction_metadata.signature.to_string(),
+            __instruction_index: metadata.index,
+            __stack_height: metadata.stack_height,
+            __slot: metadata.transaction_metadata.slot,
+            __accounts: accounts,
+            data,
+        })
+{% endif %}
+    }
+}
+
+{% if isAccount %}impl
+    TryFrom<{{ entityName | pascalCase }}Row> for (
+        crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }},
+        carbon_core::account::AccountMetadata,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: {{ entityName | pascalCase }}Row) -> Result<Self, Self::Error> {
+        let pubkey = value
+            .__pubkey
+            .parse::<solana_pubkey::Pubkey>()
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let source: crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }} = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            carbon_core::account::AccountMetadata {
+                slot: value.__slot,
+                pubkey,
+                transaction_signature: None,
+            },
+        ))
+    }
+}
+{% else %}
+impl
+    TryFrom<{{ entityName | pascalCase }}Row> for (
+        crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }},
+        crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}InstructionAccounts,
+       {{ entityName | pascalCase }}Row,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: {{ entityName | pascalCase }}Row) -> Result<Self, Self::Error> {
+        let pubkey = value
+            .__pubkey
+            .parse::<solana_pubkey::Pubkey>()
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let source: crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }} = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}InstructionAccounts = serde_json::from_str(&value.__accounts);
+
+        Ok((
+            source,
+            accounts,
+            {{ entityName | pascalCase }}Row {
+                signature: value.__signature,
+                instruction_index: value.__instruction_index,
+                stack_height: value.__stack_height,
+                slot: value.__slot
+            }
+        ))
+    }
+}
+
+
+{% endif %}
+impl carbon_core::clickhouse::ClusterTable for {{ entityName | pascalCase }}Row {
+    fn local_table() -> &'static str {
+        "{{ table_name }}_local"
+    }
+
+    fn distributed_table() -> &'static str {
+        "{{ table_name }}"
+    }
+}
+
+#[cfg(not(feature = "clickhouse-cluster"))]
+impl carbon_core::clickhouse::Table for {{ entityName | pascalCase }}Row {
+    fn table() -> &'static str {
+        "{{ table_name }}"
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::clickhouse::Insert for {{ entityName | pascalCase }}Row {
+    async fn insert(
+        &self,
+        client: &clickhouse::Client,
+        rows: &[Self],
+    ) -> carbon_core::error::CarbonResult<()> {
+        if rows.is_empty() {
+            return Ok(());
+        }
+
+        let mut insert = client
+            .insert::<Self>("{{ table_name }}")
+            .await
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        for row in rows {
+            insert
+                .write(row)
+                .await
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        }
+
+        insert
+            .end()
+            .await
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        Ok(())
+    }
+}
+
+pub struct {{ entityName | pascalCase }}MigrationOperation;
+
+#[cfg(feature = "clickhouse-cluster")]
+#[async_trait::async_trait]
+impl carbon_core::clickhouse::Operation for {{ entityName | pascalCase }}MigrationOperation {
+    async fn up(
+        &self,
+        client: &clickhouse::Client,
+        config: &carbon_core::clickhouse::MigrationConfig,
+    ) -> clickhouse::error::Result<()> {
+        let cluster_name = &config.cluster_name;
+        let replica_path = format!(
+            "/clickhouse/tables/{}/{{ table_name }}_local",
+            config.shard_name,
+        );
+
+        client
+            .query(&format!(
+                r#"
+                    CREATE TABLE IF NOT EXISTS {{ local_table }} ON CLUSTER {cluster} (
+                    {% if isAccount %}    __pubkey String,
+                        __slot UInt64,
+                    {% else %}     __signature String,
+                        __instruction_index UInt32,
+                        __stack_height UInt32,
+                        __slot UInt64,
+                        __accounts String,
+                    {% endif %}    data String
+                    )
+                    ENGINE = ReplicatedReplacingMergeTree('{replica_path}', '{% raw %}{{replica}}{% endraw %}')
+                    ORDER BY ({% if isAccount %}__pubkey{% else %}__signature, __instruction_index, __stack_height{% endif %})
+                "#,
+                cluster = cluster_name,
+                replica_path = replica_path,
+            ))
+            .execute()
+            .await?;
+
+        client
+            .query(&format!(
+                r#"
+                    CREATE TABLE IF NOT EXISTS {{ table_name }} ON CLUSTER {cluster} AS {{ local_table }}
+                    ENGINE = Distributed({cluster}, currentDatabase(), {{ local_table }}, rand())
+                "#,
+                cluster = cluster_name,
+            ))
+            .execute()
+            .await?;
+
+        Ok(())
+    }
+
+    async fn down(
+        &self,
+        client: &clickhouse::Client,
+        config: &carbon_core::clickhouse::MigrationConfig,
+    ) -> clickhouse::error::Result<()> {
+        let cluster_name = &config.cluster_name;
+
+        client
+            .query(&format!(
+                "DROP TABLE IF EXISTS {{ table_name }} ON CLUSTER {cluster}",
+                cluster = cluster_name,
+            ))
+            .execute()
+            .await?;
+
+        client
+            .query(&format!(
+                "DROP TABLE IF EXISTS {{ local_table }} ON CLUSTER {cluster}",
+                cluster = cluster_name,
+            ))
+            .execute()
+            .await?;
+
+        Ok(())
+    }
+}
+
+
+#[cfg(not(feature = "clickhouse-cluster"))]
+#[async_trait::async_trait]
+impl carbon_core::clickhouse::Operation for {{ entityName | pascalCase }}MigrationOperation {
+    async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
+        client
+            .query(
+                r#"
+                    CREATE TABLE IF NOT EXISTS {{ table_name }} (
+                    {% if isAccount %}    __pubkey String,
+                        __slot UInt64,
+                    {% else %}    __signature String,
+                        __instruction_index UInt32,
+                        __stack_height UInt32,
+                        __slot UInt64,
+                        __accounts String,
+                    {% endif %}    data String
+                    )
+                    ENGINE = ReplacingMergeTree()
+                    ORDER BY ({% if isAccount %}__pubkey{% else %}__signature, __instruction_index, __stack_height{% endif %})
+                "#
+            )
+            .execute()
+            .await?;
+
+        Ok(())
+    }
+
+    async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
+        client
+            .query("DROP TABLE IF EXISTS {{ table_name }}")
+            .execute()
+            .await?;
+
+        Ok(())
+    }
+}
+{% endblock %}

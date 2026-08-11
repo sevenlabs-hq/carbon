@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::get_minimum_distributable_fee::GetMinimumDistributableFee
 {
     fn table() -> &'static str {
-        "get_minimum_distributable_fee_instruction"
+        "pumpfun_get_minimum_distributable_fee_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for GetMinimumDistributableFeeRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO get_minimum_distributable_fee_instruction (
+            INSERT INTO pumpfun_get_minimum_distributable_fee_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for GetMinimumDistributableFeeRow
 impl carbon_core::postgres::operations::Upsert for GetMinimumDistributableFeeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO get_minimum_distributable_fee_instruction (
+            r#"INSERT INTO pumpfun_get_minimum_distributable_fee_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for GetMinimumDistributableFeeRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM get_minimum_distributable_fee_instruction WHERE
+            r#"DELETE FROM pumpfun_get_minimum_distributable_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for GetMinimumDistributableFeeRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM get_minimum_distributable_fee_instruction WHERE
+            r#"SELECT * FROM pumpfun_get_minimum_distributable_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GetMinimumDistributableFeeMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS get_minimum_distributable_fee_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_get_minimum_distributable_fee_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GetMinimumDistributableFeeMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS get_minimum_distributable_fee_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_get_minimum_distributable_fee_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

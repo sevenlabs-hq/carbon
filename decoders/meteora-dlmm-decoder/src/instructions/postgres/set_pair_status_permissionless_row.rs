@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_pair_status_permissionless::SetPairStatusPermissionless
 {
     fn table() -> &'static str {
-        "set_pair_status_permissionless_instruction"
+        "meteora_dlmm_set_pair_status_permissionless_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for SetPairStatusPermissionlessRo
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_pair_status_permissionless_instruction (
+            INSERT INTO meteora_dlmm_set_pair_status_permissionless_instruction (
                 "status",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for SetPairStatusPermissionlessRo
 impl carbon_core::postgres::operations::Upsert for SetPairStatusPermissionlessRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_pair_status_permissionless_instruction (
+            r#"INSERT INTO meteora_dlmm_set_pair_status_permissionless_instruction (
                 "status",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for SetPairStatusPermissionlessRo
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_pair_status_permissionless_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_set_pair_status_permissionless_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for SetPairStatusPermissionlessRo
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_pair_status_permissionless_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_set_pair_status_permissionless_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetPairStatusPermissionlessMig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_pair_status_permissionless_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_set_pair_status_permissionless_instruction (
                 -- Instruction data
                 "status" INT2 NOT NULL,
                 -- Instruction metadata
@@ -199,9 +199,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetPairStatusPermissionlessMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_pair_status_permissionless_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_dlmm_set_pair_status_permissionless_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

@@ -55,7 +55,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::token_owned_escrow::TokenOwnedEscrow
 {
     fn table() -> &'static str {
-        "token_owned_escrow_account"
+        "mpl_token_metadata_token_owned_escrow_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -75,7 +75,7 @@ impl carbon_core::postgres::operations::Insert for TokenOwnedEscrowRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO token_owned_escrow_account (
+            INSERT INTO mpl_token_metadata_token_owned_escrow_account (
                 "key",
                 "base_token",
                 "authority",
@@ -102,7 +102,7 @@ impl carbon_core::postgres::operations::Insert for TokenOwnedEscrowRow {
 impl carbon_core::postgres::operations::Upsert for TokenOwnedEscrowRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_owned_escrow_account (
+            r#"INSERT INTO mpl_token_metadata_token_owned_escrow_account (
                 "key",
                 "base_token",
                 "authority",
@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for TokenOwnedEscrowRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM token_owned_escrow_account WHERE
+            r#"DELETE FROM mpl_token_metadata_token_owned_escrow_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for TokenOwnedEscrowRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM token_owned_escrow_account WHERE
+            r#"SELECT * FROM mpl_token_metadata_token_owned_escrow_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenOwnedEscrowMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS token_owned_escrow_account (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_token_owned_escrow_account (
                 -- Account data
                 "key" JSONB NOT NULL,
                 "base_token" BYTEA NOT NULL,
@@ -202,7 +202,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenOwnedEscrowMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS token_owned_escrow_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_token_owned_escrow_account"#)
             .execute(connection)
             .await?;
         Ok(())

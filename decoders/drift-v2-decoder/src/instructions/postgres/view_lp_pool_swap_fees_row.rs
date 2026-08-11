@@ -65,7 +65,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::view_lp_pool_swap_fees::ViewLpPoolSwapFees
 {
     fn table() -> &'static str {
-        "view_lp_pool_swap_fees_instruction"
+        "drift_v2_view_lp_pool_swap_fees_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -89,7 +89,7 @@ impl carbon_core::postgres::operations::Insert for ViewLpPoolSwapFeesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO view_lp_pool_swap_fees_instruction (
+            INSERT INTO drift_v2_view_lp_pool_swap_fees_instruction (
                 "in_market_index",
                 "out_market_index",
                 "in_amount",
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Insert for ViewLpPoolSwapFeesRow {
 impl carbon_core::postgres::operations::Upsert for ViewLpPoolSwapFeesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO view_lp_pool_swap_fees_instruction (
+            r#"INSERT INTO drift_v2_view_lp_pool_swap_fees_instruction (
                 "in_market_index",
                 "out_market_index",
                 "in_amount",
@@ -171,7 +171,7 @@ impl carbon_core::postgres::operations::Delete for ViewLpPoolSwapFeesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM view_lp_pool_swap_fees_instruction WHERE
+            r#"DELETE FROM drift_v2_view_lp_pool_swap_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -198,7 +198,7 @@ impl carbon_core::postgres::operations::Lookup for ViewLpPoolSwapFeesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM view_lp_pool_swap_fees_instruction WHERE
+            r#"SELECT * FROM drift_v2_view_lp_pool_swap_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -221,7 +221,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ViewLpPoolSwapFeesMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS view_lp_pool_swap_fees_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_view_lp_pool_swap_fees_instruction (
                 -- Instruction data
                 "in_market_index" INT4 NOT NULL,
                 "out_market_index" INT4 NOT NULL,
@@ -246,7 +246,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ViewLpPoolSwapFeesMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS view_lp_pool_swap_fees_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_view_lp_pool_swap_fees_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

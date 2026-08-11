@@ -65,7 +65,7 @@ impl TryFrom<LockEscrowRow> for crate::accounts::lock_escrow::LockEscrow {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::lock_escrow::LockEscrow {
     fn table() -> &'static str {
-        "lock_escrow_account"
+        "meteora_pools_lock_escrow_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for LockEscrowRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lock_escrow_account (
+            INSERT INTO meteora_pools_lock_escrow_account (
                 "pool",
                 "owner",
                 "escrow_vault",
@@ -127,7 +127,7 @@ impl carbon_core::postgres::operations::Insert for LockEscrowRow {
 impl carbon_core::postgres::operations::Upsert for LockEscrowRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lock_escrow_account (
+            r#"INSERT INTO meteora_pools_lock_escrow_account (
                 "pool",
                 "owner",
                 "escrow_vault",
@@ -179,7 +179,7 @@ impl carbon_core::postgres::operations::Delete for LockEscrowRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lock_escrow_account WHERE
+            r#"DELETE FROM meteora_pools_lock_escrow_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -200,7 +200,7 @@ impl carbon_core::postgres::operations::Lookup for LockEscrowRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lock_escrow_account WHERE
+            r#"SELECT * FROM meteora_pools_lock_escrow_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -221,7 +221,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockEscrowMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lock_escrow_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_pools_lock_escrow_account (
                 -- Account data
                 "pool" BYTEA NOT NULL,
                 "owner" BYTEA NOT NULL,
@@ -247,7 +247,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockEscrowMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lock_escrow_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_pools_lock_escrow_account"#)
             .execute(connection)
             .await?;
         Ok(())

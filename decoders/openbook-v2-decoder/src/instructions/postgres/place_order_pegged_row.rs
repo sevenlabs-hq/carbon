@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::place_order_pegged::PlaceOrderPegged
 {
     fn table() -> &'static str {
-        "place_order_pegged_instruction"
+        "openbook_v2_place_order_pegged_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for PlaceOrderPeggedRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO place_order_pegged_instruction (
+            INSERT INTO openbook_v2_place_order_pegged_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for PlaceOrderPeggedRow {
 impl carbon_core::postgres::operations::Upsert for PlaceOrderPeggedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO place_order_pegged_instruction (
+            r#"INSERT INTO openbook_v2_place_order_pegged_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for PlaceOrderPeggedRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM place_order_pegged_instruction WHERE
+            r#"DELETE FROM openbook_v2_place_order_pegged_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for PlaceOrderPeggedRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM place_order_pegged_instruction WHERE
+            r#"SELECT * FROM openbook_v2_place_order_pegged_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PlaceOrderPeggedMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS place_order_pegged_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_place_order_pegged_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PlaceOrderPeggedMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS place_order_pegged_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_place_order_pegged_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

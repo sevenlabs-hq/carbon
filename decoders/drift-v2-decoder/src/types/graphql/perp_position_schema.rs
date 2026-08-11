@@ -16,13 +16,13 @@ pub struct PerpPositionGraphQL {
     pub open_asks: I64,
     pub settled_pnl: I64,
     pub lp_shares: U64,
-    pub isolated_position_scaled_balance: U64,
+    pub last_base_asset_amount_per_lp: I64,
     pub last_quote_asset_amount_per_lp: I64,
     pub padding: Vec<U8>,
     pub max_margin_ratio: i32,
     pub market_index: i32,
     pub open_orders: U8,
-    pub position_flag: U8,
+    pub per_lp_base: i32,
 }
 
 impl From<crate::types::PerpPosition> for PerpPositionGraphQL {
@@ -41,8 +41,8 @@ impl From<crate::types::PerpPosition> for PerpPositionGraphQL {
             open_asks: carbon_core::graphql::primitives::I64(original.open_asks),
             settled_pnl: carbon_core::graphql::primitives::I64(original.settled_pnl),
             lp_shares: carbon_core::graphql::primitives::U64(original.lp_shares),
-            isolated_position_scaled_balance: carbon_core::graphql::primitives::U64(
-                original.isolated_position_scaled_balance,
+            last_base_asset_amount_per_lp: carbon_core::graphql::primitives::I64(
+                original.last_base_asset_amount_per_lp,
             ),
             last_quote_asset_amount_per_lp: carbon_core::graphql::primitives::I64(
                 original.last_quote_asset_amount_per_lp,
@@ -55,7 +55,7 @@ impl From<crate::types::PerpPosition> for PerpPositionGraphQL {
             max_margin_ratio: original.max_margin_ratio as i32,
             market_index: original.market_index as i32,
             open_orders: carbon_core::graphql::primitives::U8(original.open_orders),
-            position_flag: carbon_core::graphql::primitives::U8(original.position_flag),
+            per_lp_base: original.per_lp_base as i32,
         }
     }
 }

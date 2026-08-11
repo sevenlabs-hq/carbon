@@ -44,7 +44,7 @@ impl TryFrom<InitializeRow> for crate::instructions::initialize::Initialize {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::initialize::Initialize {
     fn table() -> &'static str {
-        "initialize_instruction"
+        "raydium_launchpad_initialize_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for InitializeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_instruction (
+            INSERT INTO raydium_launchpad_initialize_instruction (
                 "base_mint_param",
                 "curve_param",
                 "vesting_param",
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for InitializeRow {
 impl carbon_core::postgres::operations::Upsert for InitializeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_instruction (
+            r#"INSERT INTO raydium_launchpad_initialize_instruction (
                 "base_mint_param",
                 "curve_param",
                 "vesting_param",
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete for InitializeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_instruction WHERE
+            r#"DELETE FROM raydium_launchpad_initialize_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_instruction WHERE
+            r#"SELECT * FROM raydium_launchpad_initialize_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_launchpad_initialize_instruction (
                 -- Instruction data
                 "base_mint_param" JSONB NOT NULL,
                 "curve_param" JSONB NOT NULL,
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_launchpad_initialize_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

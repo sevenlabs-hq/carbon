@@ -59,7 +59,7 @@ impl TryFrom<OpenPositionRow> for crate::instructions::open_position::OpenPositi
 
 impl carbon_core::postgres::operations::Table for crate::instructions::open_position::OpenPosition {
     fn table() -> &'static str {
-        "open_position_instruction"
+        "pancake_swap_open_position_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -85,7 +85,7 @@ impl carbon_core::postgres::operations::Insert for OpenPositionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO open_position_instruction (
+            INSERT INTO pancake_swap_open_position_instruction (
                 "tick_lower_index",
                 "tick_upper_index",
                 "tick_array_lower_start_index",
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Insert for OpenPositionRow {
 impl carbon_core::postgres::operations::Upsert for OpenPositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_position_instruction (
+            r#"INSERT INTO pancake_swap_open_position_instruction (
                 "tick_lower_index",
                 "tick_upper_index",
                 "tick_array_lower_start_index",
@@ -177,7 +177,7 @@ impl carbon_core::postgres::operations::Delete for OpenPositionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM open_position_instruction WHERE
+            r#"DELETE FROM pancake_swap_open_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -204,7 +204,7 @@ impl carbon_core::postgres::operations::Lookup for OpenPositionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM open_position_instruction WHERE
+            r#"SELECT * FROM pancake_swap_open_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -227,7 +227,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenPositionMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS open_position_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pancake_swap_open_position_instruction (
                 -- Instruction data
                 "tick_lower_index" INT4 NOT NULL,
                 "tick_upper_index" INT4 NOT NULL,
@@ -254,7 +254,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenPositionMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS open_position_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pancake_swap_open_position_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

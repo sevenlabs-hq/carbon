@@ -15,6 +15,7 @@ export type ScaffoldOptions = {
     dataSource: string;
     metrics: 'log' | 'prometheus';
     withPostgres: boolean;
+    withClickhouse?: boolean;
     withGraphql: boolean;
     withSerde: boolean;
     withBase58?: boolean;

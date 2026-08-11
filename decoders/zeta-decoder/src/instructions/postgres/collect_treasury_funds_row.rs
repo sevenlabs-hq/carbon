@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::collect_treasury_funds::CollectTreasuryFunds
 {
     fn table() -> &'static str {
-        "collect_treasury_funds_instruction"
+        "zeta_collect_treasury_funds_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for CollectTreasuryFundsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO collect_treasury_funds_instruction (
+            INSERT INTO zeta_collect_treasury_funds_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for CollectTreasuryFundsRow {
 impl carbon_core::postgres::operations::Upsert for CollectTreasuryFundsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO collect_treasury_funds_instruction (
+            r#"INSERT INTO zeta_collect_treasury_funds_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for CollectTreasuryFundsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM collect_treasury_funds_instruction WHERE
+            r#"DELETE FROM zeta_collect_treasury_funds_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for CollectTreasuryFundsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM collect_treasury_funds_instruction WHERE
+            r#"SELECT * FROM zeta_collect_treasury_funds_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectTreasuryFundsMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS collect_treasury_funds_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_collect_treasury_funds_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectTreasuryFundsMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS collect_treasury_funds_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_collect_treasury_funds_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

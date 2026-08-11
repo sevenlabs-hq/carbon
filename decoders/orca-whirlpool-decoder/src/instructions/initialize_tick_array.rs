@@ -26,6 +26,7 @@ pub struct InitializeTickArrayInstructionAccounts {
     pub funder: solana_pubkey::Pubkey,
     pub tick_array: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -61,6 +62,7 @@ impl ArrangeAccounts for InitializeTickArray {
         let funder = next_account(&mut iter)?;
         let tick_array = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -69,6 +71,7 @@ impl ArrangeAccounts for InitializeTickArray {
             funder,
             tick_array,
             system_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

@@ -148,7 +148,7 @@ impl TryFrom<PoolV2Row> for crate::accounts::pool_v2::PoolV2 {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::pool_v2::PoolV2 {
     fn table() -> &'static str {
-        "pool_v2_account"
+        "bonkswap_pool_v2_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool_v2::Pool
 impl carbon_core::postgres::operations::Insert for PoolV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO pool_v2_account (
+            INSERT INTO bonkswap_pool_v2_account (
                 "token_x",
                 "token_y",
                 "pool_x_account",
@@ -266,7 +266,7 @@ impl carbon_core::postgres::operations::Insert for PoolV2Row {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PoolV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO pool_v2_account (
+        sqlx::query(r#"INSERT INTO bonkswap_pool_v2_account (
                 "token_x",
                 "token_y",
                 "pool_x_account",
@@ -376,7 +376,7 @@ impl carbon_core::postgres::operations::Delete for PoolV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM pool_v2_account WHERE
+            r#"DELETE FROM bonkswap_pool_v2_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -397,7 +397,7 @@ impl carbon_core::postgres::operations::Lookup for PoolV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM pool_v2_account WHERE
+            r#"SELECT * FROM bonkswap_pool_v2_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -418,7 +418,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolV2MigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS pool_v2_account (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_pool_v2_account (
                 -- Account data
                 "token_x" BYTEA NOT NULL,
                 "token_y" BYTEA NOT NULL,
@@ -464,7 +464,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolV2MigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS pool_v2_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_pool_v2_account"#)
             .execute(connection)
             .await?;
         Ok(())

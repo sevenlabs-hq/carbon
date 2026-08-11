@@ -23,6 +23,7 @@ pub struct CollectRewardInstructionAccounts {
     pub reward_owner_account: solana_pubkey::Pubkey,
     pub reward_vault: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -61,6 +62,7 @@ impl ArrangeAccounts for CollectReward {
         let reward_owner_account = next_account(&mut iter)?;
         let reward_vault = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -72,6 +74,7 @@ impl ArrangeAccounts for CollectReward {
             reward_owner_account,
             reward_vault,
             token_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

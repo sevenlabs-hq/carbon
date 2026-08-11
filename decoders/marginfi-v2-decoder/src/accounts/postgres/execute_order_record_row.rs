@@ -83,7 +83,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::execute_order_record::ExecuteOrderRecord
 {
     fn table() -> &'static str {
-        "execute_order_record_account"
+        "marginfi_v2_execute_order_record_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -106,7 +106,7 @@ impl carbon_core::postgres::operations::Insert for ExecuteOrderRecordRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO execute_order_record_account (
+            INSERT INTO marginfi_v2_execute_order_record_account (
                 "order",
                 "executor",
                 "balance_states",
@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Insert for ExecuteOrderRecordRow {
 impl carbon_core::postgres::operations::Upsert for ExecuteOrderRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO execute_order_record_account (
+            r#"INSERT INTO marginfi_v2_execute_order_record_account (
                 "order",
                 "executor",
                 "balance_states",
@@ -185,7 +185,7 @@ impl carbon_core::postgres::operations::Delete for ExecuteOrderRecordRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM execute_order_record_account WHERE
+            r#"DELETE FROM marginfi_v2_execute_order_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -206,7 +206,7 @@ impl carbon_core::postgres::operations::Lookup for ExecuteOrderRecordRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM execute_order_record_account WHERE
+            r#"SELECT * FROM marginfi_v2_execute_order_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -227,7 +227,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ExecuteOrderRecordMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS execute_order_record_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_execute_order_record_account (
                 -- Account data
                 "order" BYTEA NOT NULL,
                 "executor" BYTEA NOT NULL,
@@ -251,7 +251,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ExecuteOrderRecordMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS execute_order_record_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_execute_order_record_account"#)
             .execute(connection)
             .await?;
         Ok(())

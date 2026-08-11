@@ -43,7 +43,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::swap_router_base_in::SwapRouterBaseIn
 {
     fn table() -> &'static str {
-        "swap_router_base_in_instruction"
+        "pancake_swap_swap_router_base_in_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for SwapRouterBaseInRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_router_base_in_instruction (
+            INSERT INTO pancake_swap_swap_router_base_in_instruction (
                 "amount_in",
                 "amount_out_minimum",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for SwapRouterBaseInRow {
 impl carbon_core::postgres::operations::Upsert for SwapRouterBaseInRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_router_base_in_instruction (
+            r#"INSERT INTO pancake_swap_swap_router_base_in_instruction (
                 "amount_in",
                 "amount_out_minimum",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Delete for SwapRouterBaseInRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_router_base_in_instruction WHERE
+            r#"DELETE FROM pancake_swap_swap_router_base_in_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Lookup for SwapRouterBaseInRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_router_base_in_instruction WHERE
+            r#"SELECT * FROM pancake_swap_swap_router_base_in_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapRouterBaseInMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_router_base_in_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pancake_swap_swap_router_base_in_instruction (
                 -- Instruction data
                 "amount_in" NUMERIC(20) NOT NULL,
                 "amount_out_minimum" NUMERIC(20) NOT NULL,
@@ -203,7 +203,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapRouterBaseInMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_router_base_in_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pancake_swap_swap_router_base_in_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

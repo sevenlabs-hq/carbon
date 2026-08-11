@@ -43,7 +43,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_vault_config::UpdateVaultConfig
 {
     fn table() -> &'static str {
-        "update_vault_config_instruction"
+        "kamino_vault_update_vault_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for UpdateVaultConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_vault_config_instruction (
+            INSERT INTO kamino_vault_update_vault_config_instruction (
                 "entry",
                 "data",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for UpdateVaultConfigRow {
 impl carbon_core::postgres::operations::Upsert for UpdateVaultConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_vault_config_instruction (
+            r#"INSERT INTO kamino_vault_update_vault_config_instruction (
                 "entry",
                 "data",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Delete for UpdateVaultConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_vault_config_instruction WHERE
+            r#"DELETE FROM kamino_vault_update_vault_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateVaultConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_vault_config_instruction WHERE
+            r#"SELECT * FROM kamino_vault_update_vault_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateVaultConfigMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_vault_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_vault_update_vault_config_instruction (
                 -- Instruction data
                 "entry" JSONB NOT NULL,
                 "data" BYTEA NOT NULL,
@@ -203,7 +203,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateVaultConfigMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_vault_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_vault_update_vault_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

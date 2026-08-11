@@ -177,7 +177,7 @@ impl TryFrom<ReserveRow> for crate::accounts::reserve::Reserve {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::reserve::Reserve {
     fn table() -> &'static str {
-        "reserve_account"
+        "kamino_vault_reserve_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -207,7 +207,7 @@ impl carbon_core::postgres::operations::Insert for ReserveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO reserve_account (
+            INSERT INTO kamino_vault_reserve_account (
                 "version",
                 "last_update",
                 "lending_market",
@@ -253,7 +253,7 @@ impl carbon_core::postgres::operations::Insert for ReserveRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ReserveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO reserve_account (
+        sqlx::query(r#"INSERT INTO kamino_vault_reserve_account (
                 "version",
                 "last_update",
                 "lending_market",
@@ -318,7 +318,7 @@ impl carbon_core::postgres::operations::Delete for ReserveRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM reserve_account WHERE
+            r#"DELETE FROM kamino_vault_reserve_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -339,7 +339,7 @@ impl carbon_core::postgres::operations::Lookup for ReserveRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM reserve_account WHERE
+            r#"SELECT * FROM kamino_vault_reserve_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -360,7 +360,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReserveMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS reserve_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_vault_reserve_account (
                 -- Account data
                 "version" NUMERIC(20) NOT NULL,
                 "last_update" JSONB NOT NULL,
@@ -391,7 +391,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ReserveMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS reserve_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_vault_reserve_account"#)
             .execute(connection)
             .await?;
         Ok(())

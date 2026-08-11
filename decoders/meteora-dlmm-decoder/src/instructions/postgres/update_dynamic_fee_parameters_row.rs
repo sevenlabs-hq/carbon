@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_dynamic_fee_parameters::UpdateDynamicFeeParameters
 {
     fn table() -> &'static str {
-        "update_dynamic_fee_parameters_instruction"
+        "meteora_dlmm_update_dynamic_fee_parameters_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for UpdateDynamicFeeParametersRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_dynamic_fee_parameters_instruction (
+            INSERT INTO meteora_dlmm_update_dynamic_fee_parameters_instruction (
                 "fee_parameter",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for UpdateDynamicFeeParametersRow
 impl carbon_core::postgres::operations::Upsert for UpdateDynamicFeeParametersRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_dynamic_fee_parameters_instruction (
+            r#"INSERT INTO meteora_dlmm_update_dynamic_fee_parameters_instruction (
                 "fee_parameter",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for UpdateDynamicFeeParametersRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_dynamic_fee_parameters_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_update_dynamic_fee_parameters_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateDynamicFeeParametersRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_dynamic_fee_parameters_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_update_dynamic_fee_parameters_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateDynamicFeeParametersMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_dynamic_fee_parameters_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_update_dynamic_fee_parameters_instruction (
                 -- Instruction data
                 "fee_parameter" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateDynamicFeeParametersMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_dynamic_fee_parameters_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_dlmm_update_dynamic_fee_parameters_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

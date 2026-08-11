@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::recenter_perp_market_amm::RecenterPerpMarketAmm
 {
     fn table() -> &'static str {
-        "recenter_perp_market_amm_instruction"
+        "drift_v2_recenter_perp_market_amm_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for RecenterPerpMarketAmmRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO recenter_perp_market_amm_instruction (
+            INSERT INTO drift_v2_recenter_perp_market_amm_instruction (
                 "peg_multiplier",
                 "sqrt_k",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for RecenterPerpMarketAmmRow {
 impl carbon_core::postgres::operations::Upsert for RecenterPerpMarketAmmRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO recenter_perp_market_amm_instruction (
+            r#"INSERT INTO drift_v2_recenter_perp_market_amm_instruction (
                 "peg_multiplier",
                 "sqrt_k",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for RecenterPerpMarketAmmRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM recenter_perp_market_amm_instruction WHERE
+            r#"DELETE FROM drift_v2_recenter_perp_market_amm_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for RecenterPerpMarketAmmRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM recenter_perp_market_amm_instruction WHERE
+            r#"SELECT * FROM drift_v2_recenter_perp_market_amm_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RecenterPerpMarketAmmMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS recenter_perp_market_amm_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_recenter_perp_market_amm_instruction (
                 -- Instruction data
                 "peg_multiplier" NUMERIC(39) NOT NULL,
                 "sqrt_k" NUMERIC(39) NOT NULL,
@@ -205,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RecenterPerpMarketAmmMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS recenter_perp_market_amm_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_recenter_perp_market_amm_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

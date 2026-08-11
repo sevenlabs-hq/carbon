@@ -18,7 +18,6 @@ pub struct ObservationStateRow {
     pub observation_index: U16,
     pub pool_id: Pubkey,
     pub observations: sqlx::types::Json<Vec<Observation>>,
-    pub last_update_timestamp: U64,
     pub padding: Vec<U64>,
 }
 
@@ -33,7 +32,6 @@ impl ObservationStateRow {
             observation_index: source.observation_index.into(),
             pool_id: source.pool_id.into(),
             observations: sqlx::types::Json(source.observations.to_vec()),
-            last_update_timestamp: source.last_update_timestamp.into(),
             padding: source
                 .padding
                 .into_iter()
@@ -65,7 +63,6 @@ impl TryFrom<ObservationStateRow> for crate::accounts::observation_state::Observ
                         "Failed to convert value from postgres primitive".to_string(),
                     )
                 })?,
-            last_update_timestamp: *source.last_update_timestamp,
             padding: source
                 .padding
                 .into_iter()
@@ -90,7 +87,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::observation_state::ObservationState
 {
     fn table() -> &'static str {
-        "observation_state_account"
+        "raydium_cpmm_observation_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -101,7 +98,6 @@ impl carbon_core::postgres::operations::Table
             "observation_index",
             "pool_id",
             "observations",
-            "last_update_timestamp",
             "padding",
         ]
     }
@@ -112,23 +108,21 @@ impl carbon_core::postgres::operations::Insert for ObservationStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO observation_state_account (
+            INSERT INTO raydium_cpmm_observation_state_account (
                 "initialized",
                 "observation_index",
                 "pool_id",
                 "observations",
-                "last_update_timestamp",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7
             )"#,
         )
         .bind(self.initialized)
         .bind(self.observation_index)
         .bind(self.pool_id)
         .bind(&self.observations)
-        .bind(&self.last_update_timestamp)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -143,16 +137,15 @@ impl carbon_core::postgres::operations::Insert for ObservationStateRow {
 impl carbon_core::postgres::operations::Upsert for ObservationStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO observation_state_account (
+            r#"INSERT INTO raydium_cpmm_observation_state_account (
                 "initialized",
                 "observation_index",
                 "pool_id",
                 "observations",
-                "last_update_timestamp",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -160,7 +153,6 @@ impl carbon_core::postgres::operations::Upsert for ObservationStateRow {
                 "observation_index" = EXCLUDED."observation_index",
                 "pool_id" = EXCLUDED."pool_id",
                 "observations" = EXCLUDED."observations",
-                "last_update_timestamp" = EXCLUDED."last_update_timestamp",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
             "#,
@@ -169,7 +161,6 @@ impl carbon_core::postgres::operations::Upsert for ObservationStateRow {
         .bind(self.observation_index)
         .bind(self.pool_id)
         .bind(&self.observations)
-        .bind(&self.last_update_timestamp)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -186,7 +177,7 @@ impl carbon_core::postgres::operations::Delete for ObservationStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM observation_state_account WHERE
+            r#"DELETE FROM raydium_cpmm_observation_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -207,7 +198,7 @@ impl carbon_core::postgres::operations::Lookup for ObservationStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM observation_state_account WHERE
+            r#"SELECT * FROM raydium_cpmm_observation_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -228,13 +219,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ObservationStateMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS observation_state_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_cpmm_observation_state_account (
                 -- Account data
                 "initialized" BOOLEAN NOT NULL,
                 "observation_index" INT4 NOT NULL,
                 "pool_id" BYTEA NOT NULL,
                 "observations" JSONB NOT NULL,
-                "last_update_timestamp" NUMERIC(20) NOT NULL,
                 "padding" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
@@ -251,7 +241,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ObservationStateMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS observation_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_cpmm_observation_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

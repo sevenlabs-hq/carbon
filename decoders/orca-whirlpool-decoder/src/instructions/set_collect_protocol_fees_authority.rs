@@ -18,6 +18,7 @@ pub struct SetCollectProtocolFeesAuthorityInstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub collect_protocol_fees_authority: solana_pubkey::Pubkey,
     pub new_collect_protocol_fees_authority: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -52,6 +53,7 @@ impl ArrangeAccounts for SetCollectProtocolFeesAuthority {
         let whirlpools_config = next_account(&mut iter)?;
         let collect_protocol_fees_authority = next_account(&mut iter)?;
         let new_collect_protocol_fees_authority = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -59,6 +61,7 @@ impl ArrangeAccounts for SetCollectProtocolFeesAuthority {
             whirlpools_config,
             collect_protocol_fees_authority,
             new_collect_protocol_fees_authority,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

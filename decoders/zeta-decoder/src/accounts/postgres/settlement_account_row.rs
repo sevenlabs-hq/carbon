@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::settlement_account::SettlementAccount
 {
     fn table() -> &'static str {
-        "settlement_account_account"
+        "zeta_settlement_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Insert for SettlementAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO settlement_account_account (
+            INSERT INTO zeta_settlement_account_account (
                 "settlement_price",
                 "strikes",
                 __pubkey, __slot
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for SettlementAccountRow {
 impl carbon_core::postgres::operations::Upsert for SettlementAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO settlement_account_account (
+            r#"INSERT INTO zeta_settlement_account_account (
                 "settlement_price",
                 "strikes",
                 __pubkey, __slot
@@ -125,7 +125,7 @@ impl carbon_core::postgres::operations::Delete for SettlementAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM settlement_account_account WHERE
+            r#"DELETE FROM zeta_settlement_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Lookup for SettlementAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM settlement_account_account WHERE
+            r#"SELECT * FROM zeta_settlement_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -167,7 +167,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SettlementAccountMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS settlement_account_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_settlement_account_account (
                 -- Account data
                 "settlement_price" NUMERIC(20) NOT NULL,
                 "strikes" NUMERIC(20)[] NOT NULL,
@@ -186,7 +186,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SettlementAccountMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS settlement_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_settlement_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

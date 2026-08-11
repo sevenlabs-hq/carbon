@@ -47,7 +47,7 @@ impl TryFrom<InitFeeRow> for crate::instructions::init_fee::InitFee {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::init_fee::InitFee {
     fn table() -> &'static str {
-        "init_fee_instruction"
+        "jupiter_limit_order_init_fee_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for InitFeeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO init_fee_instruction (
+            INSERT INTO jupiter_limit_order_init_fee_instruction (
                 "maker_fee",
                 "maker_stable_fee",
                 "taker_fee",
@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Insert for InitFeeRow {
 impl carbon_core::postgres::operations::Upsert for InitFeeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO init_fee_instruction (
+            r#"INSERT INTO jupiter_limit_order_init_fee_instruction (
                 "maker_fee",
                 "maker_stable_fee",
                 "taker_fee",
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Delete for InitFeeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM init_fee_instruction WHERE
+            r#"DELETE FROM jupiter_limit_order_init_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Lookup for InitFeeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM init_fee_instruction WHERE
+            r#"SELECT * FROM jupiter_limit_order_init_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitFeeMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS init_fee_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_limit_order_init_fee_instruction (
                 -- Instruction data
                 "maker_fee" NUMERIC(20) NOT NULL,
                 "maker_stable_fee" NUMERIC(20) NOT NULL,
@@ -221,7 +221,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitFeeMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS init_fee_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_limit_order_init_fee_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

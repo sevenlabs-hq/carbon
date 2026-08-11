@@ -201,7 +201,7 @@ impl TryFrom<ZetaGroupRow> for crate::accounts::zeta_group::ZetaGroup {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::zeta_group::ZetaGroup {
     fn table() -> &'static str {
-        "zeta_group_account"
+        "zeta_zeta_group_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -241,7 +241,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::zeta_group::Z
 impl carbon_core::postgres::operations::Insert for ZetaGroupRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO zeta_group_account (
+            INSERT INTO zeta_zeta_group_account (
                 "nonce",
                 "nonce_padding",
                 "front_expiry_index",
@@ -307,7 +307,7 @@ impl carbon_core::postgres::operations::Insert for ZetaGroupRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ZetaGroupRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO zeta_group_account (
+        sqlx::query(r#"INSERT INTO zeta_zeta_group_account (
                 "nonce",
                 "nonce_padding",
                 "front_expiry_index",
@@ -405,7 +405,7 @@ impl carbon_core::postgres::operations::Delete for ZetaGroupRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM zeta_group_account WHERE
+            r#"DELETE FROM zeta_zeta_group_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -426,7 +426,7 @@ impl carbon_core::postgres::operations::Lookup for ZetaGroupRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM zeta_group_account WHERE
+            r#"SELECT * FROM zeta_zeta_group_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -447,7 +447,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ZetaGroupMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS zeta_group_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_zeta_group_account (
                 -- Account data
                 "nonce" INT2 NOT NULL,
                 "nonce_padding" BYTEA NOT NULL,
@@ -489,7 +489,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ZetaGroupMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS zeta_group_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_zeta_group_account"#)
             .execute(connection)
             .await?;
         Ok(())

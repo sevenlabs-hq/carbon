@@ -47,7 +47,7 @@ impl TryFrom<DisableRow> for crate::instructions::disable::Disable {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::disable::Disable {
     fn table() -> &'static str {
-        "disable_instruction"
+        "pump_swap_disable_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Insert for DisableRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO disable_instruction (
+            INSERT INTO pump_swap_disable_instruction (
                 "disable_create_pool",
                 "disable_deposit",
                 "disable_withdraw",
@@ -103,7 +103,7 @@ impl carbon_core::postgres::operations::Insert for DisableRow {
 impl carbon_core::postgres::operations::Upsert for DisableRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO disable_instruction (
+            r#"INSERT INTO pump_swap_disable_instruction (
                 "disable_create_pool",
                 "disable_deposit",
                 "disable_withdraw",
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Delete for DisableRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM disable_instruction WHERE
+            r#"DELETE FROM pump_swap_disable_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -180,7 +180,7 @@ impl carbon_core::postgres::operations::Lookup for DisableRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM disable_instruction WHERE
+            r#"SELECT * FROM pump_swap_disable_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -203,7 +203,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DisableMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS disable_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_disable_instruction (
                 -- Instruction data
                 "disable_create_pool" BOOLEAN NOT NULL,
                 "disable_deposit" BOOLEAN NOT NULL,
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DisableMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS disable_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_disable_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_deleverage_withdrawals::UpdateDeleverageWithdrawals
 {
     fn table() -> &'static str {
-        "update_deleverage_withdrawals_instruction"
+        "marginfi_v2_update_deleverage_withdrawals_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for UpdateDeleverageWithdrawalsRo
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_deleverage_withdrawals_instruction (
+            INSERT INTO marginfi_v2_update_deleverage_withdrawals_instruction (
                 "outflow_usd",
                 "update_seq",
                 "event_start_slot",
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Insert for UpdateDeleverageWithdrawalsRo
 impl carbon_core::postgres::operations::Upsert for UpdateDeleverageWithdrawalsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_deleverage_withdrawals_instruction (
+            r#"INSERT INTO marginfi_v2_update_deleverage_withdrawals_instruction (
                 "outflow_usd",
                 "update_seq",
                 "event_start_slot",
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Delete for UpdateDeleverageWithdrawalsRo
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_deleverage_withdrawals_instruction WHERE
+            r#"DELETE FROM marginfi_v2_update_deleverage_withdrawals_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -185,7 +185,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateDeleverageWithdrawalsRo
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_deleverage_withdrawals_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_update_deleverage_withdrawals_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateDeleverageWithdrawalsMig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_deleverage_withdrawals_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_update_deleverage_withdrawals_instruction (
                 -- Instruction data
                 "outflow_usd" INT8 NOT NULL,
                 "update_seq" NUMERIC(20) NOT NULL,
@@ -232,9 +232,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateDeleverageWithdrawalsMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_deleverage_withdrawals_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS marginfi_v2_update_deleverage_withdrawals_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

@@ -6,8 +6,6 @@ use {
         deserialize::{ArrangeAccounts, CarbonDeserialize},
     },
 };
-/// Used to support commission distribution between parent and child nodes in
-/// TOC business
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SwapTocV2 {

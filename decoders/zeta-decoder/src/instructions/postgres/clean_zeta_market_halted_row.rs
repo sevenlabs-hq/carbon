@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::clean_zeta_market_halted::CleanZetaMarketHalted
 {
     fn table() -> &'static str {
-        "clean_zeta_market_halted_instruction"
+        "zeta_clean_zeta_market_halted_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for CleanZetaMarketHaltedRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO clean_zeta_market_halted_instruction (
+            INSERT INTO zeta_clean_zeta_market_halted_instruction (
                 "asset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for CleanZetaMarketHaltedRow {
 impl carbon_core::postgres::operations::Upsert for CleanZetaMarketHaltedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO clean_zeta_market_halted_instruction (
+            r#"INSERT INTO zeta_clean_zeta_market_halted_instruction (
                 "asset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for CleanZetaMarketHaltedRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM clean_zeta_market_halted_instruction WHERE
+            r#"DELETE FROM zeta_clean_zeta_market_halted_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for CleanZetaMarketHaltedRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM clean_zeta_market_halted_instruction WHERE
+            r#"SELECT * FROM zeta_clean_zeta_market_halted_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CleanZetaMarketHaltedMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS clean_zeta_market_halted_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_clean_zeta_market_halted_instruction (
                 -- Instruction data
                 "asset" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CleanZetaMarketHaltedMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS clean_zeta_market_halted_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_clean_zeta_market_halted_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

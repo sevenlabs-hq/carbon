@@ -55,7 +55,7 @@ impl TryFrom<TreeConfigRow> for crate::accounts::tree_config::TreeConfig {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::tree_config::TreeConfig {
     fn table() -> &'static str {
-        "tree_config_account"
+        "bubblegum_tree_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for TreeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO tree_config_account (
+            INSERT INTO bubblegum_tree_config_account (
                 "tree_creator",
                 "tree_delegate",
                 "total_mint_capacity",
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Insert for TreeConfigRow {
 impl carbon_core::postgres::operations::Upsert for TreeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO tree_config_account (
+            r#"INSERT INTO bubblegum_tree_config_account (
                 "tree_creator",
                 "tree_delegate",
                 "total_mint_capacity",
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Delete for TreeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM tree_config_account WHERE
+            r#"DELETE FROM bubblegum_tree_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Lookup for TreeConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM tree_config_account WHERE
+            r#"SELECT * FROM bubblegum_tree_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TreeConfigMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS tree_config_account (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_tree_config_account (
                 -- Account data
                 "tree_creator" BYTEA NOT NULL,
                 "tree_delegate" BYTEA NOT NULL,
@@ -216,7 +216,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TreeConfigMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS tree_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_tree_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

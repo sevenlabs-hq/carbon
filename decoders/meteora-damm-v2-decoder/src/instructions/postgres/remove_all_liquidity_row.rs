@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::remove_all_liquidity::RemoveAllLiquidity
 {
     fn table() -> &'static str {
-        "remove_all_liquidity_instruction"
+        "meteora_damm_v2_remove_all_liquidity_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for RemoveAllLiquidityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO remove_all_liquidity_instruction (
+            INSERT INTO meteora_damm_v2_remove_all_liquidity_instruction (
                 "token_a_amount_threshold",
                 "token_b_amount_threshold",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for RemoveAllLiquidityRow {
 impl carbon_core::postgres::operations::Upsert for RemoveAllLiquidityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO remove_all_liquidity_instruction (
+            r#"INSERT INTO meteora_damm_v2_remove_all_liquidity_instruction (
                 "token_a_amount_threshold",
                 "token_b_amount_threshold",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for RemoveAllLiquidityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM remove_all_liquidity_instruction WHERE
+            r#"DELETE FROM meteora_damm_v2_remove_all_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for RemoveAllLiquidityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM remove_all_liquidity_instruction WHERE
+            r#"SELECT * FROM meteora_damm_v2_remove_all_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveAllLiquidityMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS remove_all_liquidity_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_remove_all_liquidity_instruction (
                 -- Instruction data
                 "token_a_amount_threshold" NUMERIC(20) NOT NULL,
                 "token_b_amount_threshold" NUMERIC(20) NOT NULL,
@@ -205,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveAllLiquidityMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS remove_all_liquidity_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_remove_all_liquidity_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

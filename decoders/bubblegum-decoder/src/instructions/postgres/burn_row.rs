@@ -72,7 +72,7 @@ impl TryFrom<BurnRow> for crate::instructions::burn::Burn {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::burn::Burn {
     fn table() -> &'static str {
-        "burn_instruction"
+        "bubblegum_burn_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -96,7 +96,7 @@ impl carbon_core::postgres::operations::Insert for BurnRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO burn_instruction (
+            INSERT INTO bubblegum_burn_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Insert for BurnRow {
 impl carbon_core::postgres::operations::Upsert for BurnRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO burn_instruction (
+            r#"INSERT INTO bubblegum_burn_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Delete for BurnRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM burn_instruction WHERE
+            r#"DELETE FROM bubblegum_burn_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -205,7 +205,7 @@ impl carbon_core::postgres::operations::Lookup for BurnRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM burn_instruction WHERE
+            r#"SELECT * FROM bubblegum_burn_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BurnMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS burn_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_burn_instruction (
                 -- Instruction data
                 "root" BYTEA NOT NULL,
                 "data_hash" BYTEA NOT NULL,
@@ -253,7 +253,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BurnMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS burn_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_burn_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

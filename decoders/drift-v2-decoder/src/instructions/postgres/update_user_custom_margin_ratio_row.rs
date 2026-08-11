@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_user_custom_margin_ratio::UpdateUserCustomMarginRatio
 {
     fn table() -> &'static str {
-        "update_user_custom_margin_ratio_instruction"
+        "drift_v2_update_user_custom_margin_ratio_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for UpdateUserCustomMarginRatioRo
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_user_custom_margin_ratio_instruction (
+            INSERT INTO drift_v2_update_user_custom_margin_ratio_instruction (
                 "sub_account_id",
                 "margin_ratio",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -103,7 +103,7 @@ impl carbon_core::postgres::operations::Insert for UpdateUserCustomMarginRatioRo
 impl carbon_core::postgres::operations::Upsert for UpdateUserCustomMarginRatioRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_user_custom_margin_ratio_instruction (
+            r#"INSERT INTO drift_v2_update_user_custom_margin_ratio_instruction (
                 "sub_account_id",
                 "margin_ratio",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Delete for UpdateUserCustomMarginRatioRo
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_user_custom_margin_ratio_instruction WHERE
+            r#"DELETE FROM drift_v2_update_user_custom_margin_ratio_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,7 +171,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateUserCustomMarginRatioRo
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_user_custom_margin_ratio_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_user_custom_margin_ratio_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -194,7 +194,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateUserCustomMarginRatioMig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_user_custom_margin_ratio_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_user_custom_margin_ratio_instruction (
                 -- Instruction data
                 "sub_account_id" INT4 NOT NULL,
                 "margin_ratio" INT8 NOT NULL,
@@ -216,7 +216,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateUserCustomMarginRatioMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_user_custom_margin_ratio_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_user_custom_margin_ratio_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

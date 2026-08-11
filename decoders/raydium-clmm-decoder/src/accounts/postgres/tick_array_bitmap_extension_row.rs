@@ -113,7 +113,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::tick_array_bitmap_extension::TickArrayBitmapExtension
 {
     fn table() -> &'static str {
-        "tick_array_bitmap_extension_account"
+        "raydium_clmm_tick_array_bitmap_extension_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Insert for TickArrayBitmapExtensionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO tick_array_bitmap_extension_account (
+            INSERT INTO raydium_clmm_tick_array_bitmap_extension_account (
                 "pool_id",
                 "positive_tick_array_bitmap",
                 "negative_tick_array_bitmap",
@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Insert for TickArrayBitmapExtensionRow {
 impl carbon_core::postgres::operations::Upsert for TickArrayBitmapExtensionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO tick_array_bitmap_extension_account (
+            r#"INSERT INTO raydium_clmm_tick_array_bitmap_extension_account (
                 "pool_id",
                 "positive_tick_array_bitmap",
                 "negative_tick_array_bitmap",
@@ -191,7 +191,7 @@ impl carbon_core::postgres::operations::Delete for TickArrayBitmapExtensionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM tick_array_bitmap_extension_account WHERE
+            r#"DELETE FROM raydium_clmm_tick_array_bitmap_extension_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -212,7 +212,7 @@ impl carbon_core::postgres::operations::Lookup for TickArrayBitmapExtensionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM tick_array_bitmap_extension_account WHERE
+            r#"SELECT * FROM raydium_clmm_tick_array_bitmap_extension_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -233,7 +233,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TickArrayBitmapExtensionMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS tick_array_bitmap_extension_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_tick_array_bitmap_extension_account (
                 -- Account data
                 "pool_id" BYTEA NOT NULL,
                 "positive_tick_array_bitmap" JSONB NOT NULL,
@@ -253,7 +253,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TickArrayBitmapExtensionMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS tick_array_bitmap_extension_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_tick_array_bitmap_extension_account"#)
             .execute(connection)
             .await?;
         Ok(())

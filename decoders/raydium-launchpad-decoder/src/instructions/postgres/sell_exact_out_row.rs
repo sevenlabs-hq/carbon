@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::sell_exact_out::SellExactOut
 {
     fn table() -> &'static str {
-        "sell_exact_out_instruction"
+        "raydium_launchpad_sell_exact_out_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Insert for SellExactOutRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO sell_exact_out_instruction (
+            INSERT INTO raydium_launchpad_sell_exact_out_instruction (
                 "amount_out",
                 "maximum_amount_in",
                 "share_fee_rate",
@@ -96,7 +96,7 @@ impl carbon_core::postgres::operations::Insert for SellExactOutRow {
 impl carbon_core::postgres::operations::Upsert for SellExactOutRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO sell_exact_out_instruction (
+            r#"INSERT INTO raydium_launchpad_sell_exact_out_instruction (
                 "amount_out",
                 "maximum_amount_in",
                 "share_fee_rate",
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for SellExactOutRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM sell_exact_out_instruction WHERE
+            r#"DELETE FROM raydium_launchpad_sell_exact_out_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for SellExactOutRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM sell_exact_out_instruction WHERE
+            r#"SELECT * FROM raydium_launchpad_sell_exact_out_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SellExactOutMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS sell_exact_out_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_launchpad_sell_exact_out_instruction (
                 -- Instruction data
                 "amount_out" NUMERIC(20) NOT NULL,
                 "maximum_amount_in" NUMERIC(20) NOT NULL,
@@ -213,7 +213,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SellExactOutMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS sell_exact_out_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_launchpad_sell_exact_out_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

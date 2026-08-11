@@ -41,7 +41,7 @@ impl TryFrom<BuyTokenRow> for crate::instructions::buy_token::BuyToken {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::buy_token::BuyToken {
     fn table() -> &'static str {
-        "buy_token_instruction"
+        "boop_buy_token_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for BuyTokenRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO buy_token_instruction (
+            INSERT INTO boop_buy_token_instruction (
                 "buy_amount",
                 "amount_out_min",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for BuyTokenRow {
 impl carbon_core::postgres::operations::Upsert for BuyTokenRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO buy_token_instruction (
+            r#"INSERT INTO boop_buy_token_instruction (
                 "buy_amount",
                 "amount_out_min",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Delete for BuyTokenRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM buy_token_instruction WHERE
+            r#"DELETE FROM boop_buy_token_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Lookup for BuyTokenRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM buy_token_instruction WHERE
+            r#"SELECT * FROM boop_buy_token_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyTokenMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS buy_token_instruction (
+            r#"CREATE TABLE IF NOT EXISTS boop_buy_token_instruction (
                 -- Instruction data
                 "buy_amount" NUMERIC(20) NOT NULL,
                 "amount_out_min" NUMERIC(20) NOT NULL,
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyTokenMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS buy_token_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS boop_buy_token_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

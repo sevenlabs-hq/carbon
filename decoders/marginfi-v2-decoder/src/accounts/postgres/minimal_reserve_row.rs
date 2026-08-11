@@ -323,7 +323,7 @@ impl TryFrom<MinimalReserveRow> for crate::accounts::minimal_reserve::MinimalRes
 
 impl carbon_core::postgres::operations::Table for crate::accounts::minimal_reserve::MinimalReserve {
     fn table() -> &'static str {
-        "minimal_reserve_account"
+        "marginfi_v2_minimal_reserve_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -381,7 +381,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::minimal_reser
 impl carbon_core::postgres::operations::Insert for MinimalReserveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO minimal_reserve_account (
+            INSERT INTO marginfi_v2_minimal_reserve_account (
                 "version",
                 "slot",
                 "stale",
@@ -483,7 +483,7 @@ impl carbon_core::postgres::operations::Insert for MinimalReserveRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MinimalReserveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO minimal_reserve_account (
+        sqlx::query(r#"INSERT INTO marginfi_v2_minimal_reserve_account (
                 "version",
                 "slot",
                 "stale",
@@ -635,7 +635,7 @@ impl carbon_core::postgres::operations::Delete for MinimalReserveRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM minimal_reserve_account WHERE
+            r#"DELETE FROM marginfi_v2_minimal_reserve_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -656,7 +656,7 @@ impl carbon_core::postgres::operations::Lookup for MinimalReserveRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM minimal_reserve_account WHERE
+            r#"SELECT * FROM marginfi_v2_minimal_reserve_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -677,7 +677,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MinimalReserveMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS minimal_reserve_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_minimal_reserve_account (
                 -- Account data
                 "version" NUMERIC(20) NOT NULL,
                 "slot" NUMERIC(20) NOT NULL,
@@ -737,7 +737,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MinimalReserveMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS minimal_reserve_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_minimal_reserve_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::change_swap_fee_privileged::ChangeSwapFeePrivileged
 {
     fn table() -> &'static str {
-        "change_swap_fee_privileged_instruction"
+        "stabble_stable_swap_change_swap_fee_privileged_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for ChangeSwapFeePrivilegedRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO change_swap_fee_privileged_instruction (
+            INSERT INTO stabble_stable_swap_change_swap_fee_privileged_instruction (
                 "new_swap_fee",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for ChangeSwapFeePrivilegedRow {
 impl carbon_core::postgres::operations::Upsert for ChangeSwapFeePrivilegedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO change_swap_fee_privileged_instruction (
+            r#"INSERT INTO stabble_stable_swap_change_swap_fee_privileged_instruction (
                 "new_swap_fee",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ChangeSwapFeePrivilegedRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM change_swap_fee_privileged_instruction WHERE
+            r#"DELETE FROM stabble_stable_swap_change_swap_fee_privileged_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for ChangeSwapFeePrivilegedRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM change_swap_fee_privileged_instruction WHERE
+            r#"SELECT * FROM stabble_stable_swap_change_swap_fee_privileged_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -173,8 +173,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeSwapFeePrivilegedMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS change_swap_fee_privileged_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS stabble_stable_swap_change_swap_fee_privileged_instruction (
                 -- Instruction data
                 "new_swap_fee" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -184,10 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeSwapFeePrivilegedMigrati
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -195,9 +191,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ChangeSwapFeePrivilegedMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS change_swap_fee_privileged_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS stabble_stable_swap_change_swap_fee_privileged_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

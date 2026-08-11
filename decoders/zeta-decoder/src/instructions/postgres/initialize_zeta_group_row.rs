@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_zeta_group::InitializeZetaGroup
 {
     fn table() -> &'static str {
-        "initialize_zeta_group_instruction"
+        "zeta_initialize_zeta_group_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for InitializeZetaGroupRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_zeta_group_instruction (
+            INSERT INTO zeta_initialize_zeta_group_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for InitializeZetaGroupRow {
 impl carbon_core::postgres::operations::Upsert for InitializeZetaGroupRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_zeta_group_instruction (
+            r#"INSERT INTO zeta_initialize_zeta_group_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for InitializeZetaGroupRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_zeta_group_instruction WHERE
+            r#"DELETE FROM zeta_initialize_zeta_group_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeZetaGroupRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_zeta_group_instruction WHERE
+            r#"SELECT * FROM zeta_initialize_zeta_group_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeZetaGroupMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_zeta_group_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_initialize_zeta_group_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeZetaGroupMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_zeta_group_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_initialize_zeta_group_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

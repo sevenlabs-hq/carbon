@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::remove_platform_curve_param::RemovePlatformCurveParam
 {
     fn table() -> &'static str {
-        "remove_platform_curve_param_instruction"
+        "raydium_launchpad_remove_platform_curve_param_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for RemovePlatformCurveParamRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO remove_platform_curve_param_instruction (
+            INSERT INTO raydium_launchpad_remove_platform_curve_param_instruction (
                 "index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for RemovePlatformCurveParamRow {
 impl carbon_core::postgres::operations::Upsert for RemovePlatformCurveParamRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO remove_platform_curve_param_instruction (
+            r#"INSERT INTO raydium_launchpad_remove_platform_curve_param_instruction (
                 "index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for RemovePlatformCurveParamRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM remove_platform_curve_param_instruction WHERE
+            r#"DELETE FROM raydium_launchpad_remove_platform_curve_param_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for RemovePlatformCurveParamRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM remove_platform_curve_param_instruction WHERE
+            r#"SELECT * FROM raydium_launchpad_remove_platform_curve_param_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -177,8 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemovePlatformCurveParamMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS remove_platform_curve_param_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS raydium_launchpad_remove_platform_curve_param_instruction (
                 -- Instruction data
                 "index" INT2 NOT NULL,
                 -- Instruction metadata
@@ -188,10 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemovePlatformCurveParamMigrat
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -199,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemovePlatformCurveParamMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS remove_platform_curve_param_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS raydium_launchpad_remove_platform_curve_param_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

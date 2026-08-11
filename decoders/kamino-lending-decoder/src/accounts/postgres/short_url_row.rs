@@ -37,7 +37,7 @@ impl TryFrom<ShortUrlRow> for crate::accounts::short_url::ShortUrl {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::short_url::ShortUrl {
     fn table() -> &'static str {
-        "short_url_account"
+        "kamino_lending_short_url_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for ShortUrlRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO short_url_account (
+            INSERT INTO kamino_lending_short_url_account (
                 "referrer",
                 "short_url",
                 __pubkey, __slot
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for ShortUrlRow {
 impl carbon_core::postgres::operations::Upsert for ShortUrlRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO short_url_account (
+            r#"INSERT INTO kamino_lending_short_url_account (
                 "referrer",
                 "short_url",
                 __pubkey, __slot
@@ -104,7 +104,7 @@ impl carbon_core::postgres::operations::Delete for ShortUrlRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM short_url_account WHERE
+            r#"DELETE FROM kamino_lending_short_url_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -125,7 +125,7 @@ impl carbon_core::postgres::operations::Lookup for ShortUrlRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM short_url_account WHERE
+            r#"SELECT * FROM kamino_lending_short_url_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -146,7 +146,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ShortUrlMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS short_url_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_short_url_account (
                 -- Account data
                 "referrer" BYTEA NOT NULL,
                 "short_url" TEXT NOT NULL,
@@ -165,7 +165,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ShortUrlMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS short_url_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_short_url_account"#)
             .execute(connection)
             .await?;
         Ok(())

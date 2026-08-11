@@ -253,7 +253,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::minimal_spot_market::MinimalSpotMarket
 {
     fn table() -> &'static str {
-        "minimal_spot_market_account"
+        "marginfi_v2_minimal_spot_market_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -287,7 +287,7 @@ impl carbon_core::postgres::operations::Table
 impl carbon_core::postgres::operations::Insert for MinimalSpotMarketRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO minimal_spot_market_account (
+            INSERT INTO marginfi_v2_minimal_spot_market_account (
                 "pubkey",
                 "oracle",
                 "mint",
@@ -341,7 +341,7 @@ impl carbon_core::postgres::operations::Insert for MinimalSpotMarketRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MinimalSpotMarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO minimal_spot_market_account (
+        sqlx::query(r#"INSERT INTO marginfi_v2_minimal_spot_market_account (
                 "pubkey",
                 "oracle",
                 "mint",
@@ -421,7 +421,7 @@ impl carbon_core::postgres::operations::Delete for MinimalSpotMarketRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM minimal_spot_market_account WHERE
+            r#"DELETE FROM marginfi_v2_minimal_spot_market_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -442,7 +442,7 @@ impl carbon_core::postgres::operations::Lookup for MinimalSpotMarketRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM minimal_spot_market_account WHERE
+            r#"SELECT * FROM marginfi_v2_minimal_spot_market_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -463,7 +463,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MinimalSpotMarketMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS minimal_spot_market_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_minimal_spot_market_account (
                 -- Account data
                 "pubkey" BYTEA NOT NULL,
                 "oracle" BYTEA NOT NULL,
@@ -499,7 +499,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MinimalSpotMarketMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS minimal_spot_market_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_minimal_spot_market_account"#)
             .execute(connection)
             .await?;
         Ok(())

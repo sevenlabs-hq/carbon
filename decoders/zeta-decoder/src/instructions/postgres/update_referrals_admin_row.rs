@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_referrals_admin::UpdateReferralsAdmin
 {
     fn table() -> &'static str {
-        "update_referrals_admin_instruction"
+        "zeta_update_referrals_admin_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for UpdateReferralsAdminRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_referrals_admin_instruction (
+            INSERT INTO zeta_update_referrals_admin_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for UpdateReferralsAdminRow {
 impl carbon_core::postgres::operations::Upsert for UpdateReferralsAdminRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_referrals_admin_instruction (
+            r#"INSERT INTO zeta_update_referrals_admin_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for UpdateReferralsAdminRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_referrals_admin_instruction WHERE
+            r#"DELETE FROM zeta_update_referrals_admin_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateReferralsAdminRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_referrals_admin_instruction WHERE
+            r#"SELECT * FROM zeta_update_referrals_admin_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateReferralsAdminMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_referrals_admin_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_update_referrals_admin_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateReferralsAdminMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_referrals_admin_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_update_referrals_admin_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::unverify_collection::UnverifyCollection
 {
     fn table() -> &'static str {
-        "unverify_collection_instruction"
+        "bubblegum_unverify_collection_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Insert for UnverifyCollectionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO unverify_collection_instruction (
+            INSERT INTO bubblegum_unverify_collection_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Insert for UnverifyCollectionRow {
 impl carbon_core::postgres::operations::Upsert for UnverifyCollectionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO unverify_collection_instruction (
+            r#"INSERT INTO bubblegum_unverify_collection_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -194,7 +194,7 @@ impl carbon_core::postgres::operations::Delete for UnverifyCollectionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM unverify_collection_instruction WHERE
+            r#"DELETE FROM bubblegum_unverify_collection_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -221,7 +221,7 @@ impl carbon_core::postgres::operations::Lookup for UnverifyCollectionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM unverify_collection_instruction WHERE
+            r#"SELECT * FROM bubblegum_unverify_collection_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -244,7 +244,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnverifyCollectionMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS unverify_collection_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_unverify_collection_instruction (
                 -- Instruction data
                 "root" BYTEA NOT NULL,
                 "data_hash" BYTEA NOT NULL,
@@ -270,7 +270,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnverifyCollectionMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS unverify_collection_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_unverify_collection_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

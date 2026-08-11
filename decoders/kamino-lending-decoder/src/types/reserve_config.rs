@@ -134,4 +134,9 @@ pub struct ReserveConfig {
     /// will eventually cross the cap and arm the autodeleverage countdown. Size
     /// `deposit_limit` and RPS together.
     pub rewards_amount_per_slot: u64,
+    /// Bitmask of [PermissionedOp]s gated by the parent market's
+    /// `permissioning_authority` when this reserve is the operation's
+    /// target. `0` = no operation is restricted at the reserve level. Use
+    /// [Reserve::get_permissioned_ops] for a typed view.
+    pub permissioned_ops: u64,
 }

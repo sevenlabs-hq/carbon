@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_user::InitializeUser
 {
     fn table() -> &'static str {
-        "initialize_user_instruction"
+        "drift_v2_initialize_user_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for InitializeUserRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_user_instruction (
+            INSERT INTO drift_v2_initialize_user_instruction (
                 "sub_account_id",
                 "name",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for InitializeUserRow {
 impl carbon_core::postgres::operations::Upsert for InitializeUserRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_user_instruction (
+            r#"INSERT INTO drift_v2_initialize_user_instruction (
                 "sub_account_id",
                 "name",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for InitializeUserRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_user_instruction WHERE
+            r#"DELETE FROM drift_v2_initialize_user_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeUserRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_user_instruction WHERE
+            r#"SELECT * FROM drift_v2_initialize_user_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeUserMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_user_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_initialize_user_instruction (
                 -- Instruction data
                 "sub_account_id" INT4 NOT NULL,
                 "name" BYTEA NOT NULL,
@@ -212,7 +212,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeUserMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_user_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_initialize_user_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

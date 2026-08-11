@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_virtual_quote_reserves::SetVirtualQuoteReserves
 {
     fn table() -> &'static str {
-        "set_virtual_quote_reserves_instruction"
+        "pumpfun_set_virtual_quote_reserves_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SetVirtualQuoteReservesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_virtual_quote_reserves_instruction (
+            INSERT INTO pumpfun_set_virtual_quote_reserves_instruction (
                 "initial_virtual_quote_reserves",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for SetVirtualQuoteReservesRow {
 impl carbon_core::postgres::operations::Upsert for SetVirtualQuoteReservesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_virtual_quote_reserves_instruction (
+            r#"INSERT INTO pumpfun_set_virtual_quote_reserves_instruction (
                 "initial_virtual_quote_reserves",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SetVirtualQuoteReservesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_virtual_quote_reserves_instruction WHERE
+            r#"DELETE FROM pumpfun_set_virtual_quote_reserves_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for SetVirtualQuoteReservesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_virtual_quote_reserves_instruction WHERE
+            r#"SELECT * FROM pumpfun_set_virtual_quote_reserves_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetVirtualQuoteReservesMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_virtual_quote_reserves_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_set_virtual_quote_reserves_instruction (
                 -- Instruction data
                 "initial_virtual_quote_reserves" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetVirtualQuoteReservesMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_virtual_quote_reserves_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_set_virtual_quote_reserves_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

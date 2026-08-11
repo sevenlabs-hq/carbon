@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_strategy::InitializeStrategy
 {
     fn table() -> &'static str {
-        "initialize_strategy_instruction"
+        "meteora_vault_initialize_strategy_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for InitializeStrategyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_strategy_instruction (
+            INSERT INTO meteora_vault_initialize_strategy_instruction (
                 "bumps",
                 "strategy_type",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for InitializeStrategyRow {
 impl carbon_core::postgres::operations::Upsert for InitializeStrategyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_strategy_instruction (
+            r#"INSERT INTO meteora_vault_initialize_strategy_instruction (
                 "bumps",
                 "strategy_type",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for InitializeStrategyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_strategy_instruction WHERE
+            r#"DELETE FROM meteora_vault_initialize_strategy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeStrategyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_strategy_instruction WHERE
+            r#"SELECT * FROM meteora_vault_initialize_strategy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeStrategyMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_strategy_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_vault_initialize_strategy_instruction (
                 -- Instruction data
                 "bumps" JSONB NOT NULL,
                 "strategy_type" JSONB NOT NULL,
@@ -205,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeStrategyMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_strategy_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_vault_initialize_strategy_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

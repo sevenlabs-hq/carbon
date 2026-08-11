@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::increase_oracle_length::IncreaseOracleLength
 {
     fn table() -> &'static str {
-        "increase_oracle_length_instruction"
+        "meteora_dlmm_increase_oracle_length_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for IncreaseOracleLengthRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO increase_oracle_length_instruction (
+            INSERT INTO meteora_dlmm_increase_oracle_length_instruction (
                 "length_to_add",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for IncreaseOracleLengthRow {
 impl carbon_core::postgres::operations::Upsert for IncreaseOracleLengthRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO increase_oracle_length_instruction (
+            r#"INSERT INTO meteora_dlmm_increase_oracle_length_instruction (
                 "length_to_add",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for IncreaseOracleLengthRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM increase_oracle_length_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_increase_oracle_length_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for IncreaseOracleLengthRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM increase_oracle_length_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_increase_oracle_length_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IncreaseOracleLengthMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS increase_oracle_length_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_increase_oracle_length_instruction (
                 -- Instruction data
                 "length_to_add" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IncreaseOracleLengthMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS increase_oracle_length_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_increase_oracle_length_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -71,7 +71,7 @@ impl TryFrom<GlobalConfigRow> for crate::accounts::global_config::GlobalConfig {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::global_config::GlobalConfig {
     fn table() -> &'static str {
-        "global_config_account"
+        "kamino_farms_global_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -93,7 +93,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO global_config_account (
+            INSERT INTO kamino_farms_global_config_account (
                 "global_admin",
                 "treasury_fee_bps",
                 "treasury_vaults_authority",
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
 impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO global_config_account (
+            r#"INSERT INTO kamino_farms_global_config_account (
                 "global_admin",
                 "treasury_fee_bps",
                 "treasury_vaults_authority",
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Delete for GlobalConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM global_config_account WHERE
+            r#"DELETE FROM kamino_farms_global_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -188,7 +188,7 @@ impl carbon_core::postgres::operations::Lookup for GlobalConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM global_config_account WHERE
+            r#"SELECT * FROM kamino_farms_global_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -209,7 +209,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS global_config_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_farms_global_config_account (
                 -- Account data
                 "global_admin" BYTEA NOT NULL,
                 "treasury_fee_bps" NUMERIC(20) NOT NULL,
@@ -232,7 +232,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS global_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_farms_global_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

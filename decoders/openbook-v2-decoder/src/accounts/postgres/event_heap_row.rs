@@ -55,7 +55,7 @@ impl TryFrom<EventHeapRow> for crate::accounts::event_heap::EventHeap {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::event_heap::EventHeap {
     fn table() -> &'static str {
-        "event_heap_account"
+        "openbook_v2_event_heap_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Insert for EventHeapRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO event_heap_account (
+            INSERT INTO openbook_v2_event_heap_account (
                 "header",
                 "nodes",
                 "reserved",
@@ -93,7 +93,7 @@ impl carbon_core::postgres::operations::Insert for EventHeapRow {
 impl carbon_core::postgres::operations::Upsert for EventHeapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO event_heap_account (
+            r#"INSERT INTO openbook_v2_event_heap_account (
                 "header",
                 "nodes",
                 "reserved",
@@ -127,7 +127,7 @@ impl carbon_core::postgres::operations::Delete for EventHeapRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM event_heap_account WHERE
+            r#"DELETE FROM openbook_v2_event_heap_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Lookup for EventHeapRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM event_heap_account WHERE
+            r#"SELECT * FROM openbook_v2_event_heap_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -169,7 +169,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EventHeapMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS event_heap_account (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_event_heap_account (
                 -- Account data
                 "header" JSONB NOT NULL,
                 "nodes" JSONB NOT NULL,
@@ -189,7 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EventHeapMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS event_heap_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_event_heap_account"#)
             .execute(connection)
             .await?;
         Ok(())

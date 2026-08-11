@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_fee_sharing_config::CreateFeeSharingConfig
 {
     fn table() -> &'static str {
-        "create_fee_sharing_config_instruction"
+        "pump_fees_create_fee_sharing_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for CreateFeeSharingConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_fee_sharing_config_instruction (
+            INSERT INTO pump_fees_create_fee_sharing_config_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for CreateFeeSharingConfigRow {
 impl carbon_core::postgres::operations::Upsert for CreateFeeSharingConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_fee_sharing_config_instruction (
+            r#"INSERT INTO pump_fees_create_fee_sharing_config_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for CreateFeeSharingConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_fee_sharing_config_instruction WHERE
+            r#"DELETE FROM pump_fees_create_fee_sharing_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for CreateFeeSharingConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_fee_sharing_config_instruction WHERE
+            r#"SELECT * FROM pump_fees_create_fee_sharing_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateFeeSharingConfigMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_fee_sharing_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_create_fee_sharing_config_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateFeeSharingConfigMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_fee_sharing_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_create_fee_sharing_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

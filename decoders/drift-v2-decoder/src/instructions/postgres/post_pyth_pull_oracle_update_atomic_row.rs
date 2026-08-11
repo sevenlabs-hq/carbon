@@ -47,7 +47,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::post_pyth_pull_oracle_update_atomic::PostPythPullOracleUpdateAtomic
 {
     fn table() -> &'static str {
-        "post_pyth_pull_oracle_update_atomic_instruction"
+        "drift_v2_post_pyth_pull_oracle_update_atomic_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Insert for PostPythPullOracleUpdateAtomi
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO post_pyth_pull_oracle_update_atomic_instruction (
+            INSERT INTO drift_v2_post_pyth_pull_oracle_update_atomic_instruction (
                 "feed_id",
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for PostPythPullOracleUpdateAtomi
 impl carbon_core::postgres::operations::Upsert for PostPythPullOracleUpdateAtomicRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO post_pyth_pull_oracle_update_atomic_instruction (
+            r#"INSERT INTO drift_v2_post_pyth_pull_oracle_update_atomic_instruction (
                 "feed_id",
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for PostPythPullOracleUpdateAtomi
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM post_pyth_pull_oracle_update_atomic_instruction WHERE
+            r#"DELETE FROM drift_v2_post_pyth_pull_oracle_update_atomic_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Lookup for PostPythPullOracleUpdateAtomi
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM post_pyth_pull_oracle_update_atomic_instruction WHERE
+            r#"SELECT * FROM drift_v2_post_pyth_pull_oracle_update_atomic_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -185,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PostPythPullOracleUpdateAtomic
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS post_pyth_pull_oracle_update_atomic_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_post_pyth_pull_oracle_update_atomic_instruction (
                 -- Instruction data
                 "feed_id" BYTEA NOT NULL,
                 "params" BYTEA NOT NULL,
@@ -207,9 +207,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PostPythPullOracleUpdateAtomic
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS post_pyth_pull_oracle_update_atomic_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_post_pyth_pull_oracle_update_atomic_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

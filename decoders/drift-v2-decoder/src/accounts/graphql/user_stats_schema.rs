@@ -23,7 +23,7 @@ pub struct UserStatsGraphQL {
     pub number_of_sub_accounts: i32,
     pub number_of_sub_accounts_created: i32,
     pub referrer_status: U8,
-    pub disable_update_perp_bid_ask_twap: U8,
+    pub disable_update_perp_bid_ask_twap: bool,
     pub paused_operations: U8,
     pub fuel_overflow_status: U8,
     pub fuel_insurance: U32,
@@ -64,9 +64,7 @@ impl TryFrom<crate::accounts::postgres::UserStatsRow> for UserStatsGraphQL {
             number_of_sub_accounts: *row.number_of_sub_accounts,
             number_of_sub_accounts_created: *row.number_of_sub_accounts_created,
             referrer_status: carbon_core::graphql::primitives::U8((*row.referrer_status) as u8),
-            disable_update_perp_bid_ask_twap: carbon_core::graphql::primitives::U8(
-                (*row.disable_update_perp_bid_ask_twap) as u8,
-            ),
+            disable_update_perp_bid_ask_twap: row.disable_update_perp_bid_ask_twap,
             paused_operations: carbon_core::graphql::primitives::U8((*row.paused_operations) as u8),
             fuel_overflow_status: carbon_core::graphql::primitives::U8(
                 (*row.fuel_overflow_status) as u8,

@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::borrow_obligation_liquidity_v2::BorrowObligationLiquidityV2
 {
     fn table() -> &'static str {
-        "borrow_obligation_liquidity_v2_instruction"
+        "kamino_lending_borrow_obligation_liquidity_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for BorrowObligationLiquidityV2Ro
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO borrow_obligation_liquidity_v2_instruction (
+            INSERT INTO kamino_lending_borrow_obligation_liquidity_v2_instruction (
                 "liquidity_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for BorrowObligationLiquidityV2Ro
 impl carbon_core::postgres::operations::Upsert for BorrowObligationLiquidityV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO borrow_obligation_liquidity_v2_instruction (
+            r#"INSERT INTO kamino_lending_borrow_obligation_liquidity_v2_instruction (
                 "liquidity_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for BorrowObligationLiquidityV2Ro
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM borrow_obligation_liquidity_v2_instruction WHERE
+            r#"DELETE FROM kamino_lending_borrow_obligation_liquidity_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for BorrowObligationLiquidityV2Ro
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM borrow_obligation_liquidity_v2_instruction WHERE
+            r#"SELECT * FROM kamino_lending_borrow_obligation_liquidity_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -173,8 +173,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BorrowObligationLiquidityV2Mig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS borrow_obligation_liquidity_v2_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS kamino_lending_borrow_obligation_liquidity_v2_instruction (
                 -- Instruction data
                 "liquidity_amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -184,10 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BorrowObligationLiquidityV2Mig
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -195,9 +191,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BorrowObligationLiquidityV2Mig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS borrow_obligation_liquidity_v2_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS kamino_lending_borrow_obligation_liquidity_v2_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

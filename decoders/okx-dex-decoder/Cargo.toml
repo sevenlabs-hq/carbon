@@ -2,13 +2,6 @@
 name = "carbon-okx-dex-decoder"
 version = "1.0.0"
 edition = { workspace = true }
-description = "OKX DEX Decoder"
-license = { workspace = true }
-readme = "README.md"
-repository = { workspace = true }
-keywords = ["solana", "decoder", "okx"]
-categories = ["encoding"]
-
 [lib]
 crate-type = ["rlib"]
 
@@ -23,6 +16,18 @@ postgres = [
     "dep:async-trait",
     "dep:sqlx_migrator",
     "serde",
+]
+
+clickhouse = [
+    "carbon-core/clickhouse",
+    "dep:clickhouse",
+    "dep:async-trait",
+    "serde",
+]
+
+clickhouse-cluster = [
+    "clickhouse",
+    "carbon-core/clickhouse-cluster",
 ]
 
 graphql = [
@@ -47,6 +52,8 @@ async-trait = { workspace = true, optional = true }
 sqlx_migrator = { workspace = true, optional = true }
 
 juniper = { workspace = true, optional = true }
+
+clickhouse = { workspace = true, optional = true }
 
 
 [dev-dependencies]

@@ -62,7 +62,7 @@ impl TryFrom<StakeInfoRow> for crate::accounts::stake_info::StakeInfo {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::stake_info::StakeInfo {
     fn table() -> &'static str {
-        "stake_info_account"
+        "jupiter_perpetuals_stake_info_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for StakeInfoRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO stake_info_account (
+            INSERT INTO jupiter_perpetuals_stake_info_account (
                 "pool",
                 "stake_account",
                 "current_staked_amount_lamports",
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Insert for StakeInfoRow {
 impl carbon_core::postgres::operations::Upsert for StakeInfoRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO stake_info_account (
+            r#"INSERT INTO jupiter_perpetuals_stake_info_account (
                 "pool",
                 "stake_account",
                 "current_staked_amount_lamports",
@@ -170,7 +170,7 @@ impl carbon_core::postgres::operations::Delete for StakeInfoRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM stake_info_account WHERE
+            r#"DELETE FROM jupiter_perpetuals_stake_info_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -191,7 +191,7 @@ impl carbon_core::postgres::operations::Lookup for StakeInfoRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM stake_info_account WHERE
+            r#"SELECT * FROM jupiter_perpetuals_stake_info_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -212,7 +212,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StakeInfoMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS stake_info_account (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_stake_info_account (
                 -- Account data
                 "pool" BYTEA NOT NULL,
                 "stake_account" BYTEA NOT NULL,
@@ -237,7 +237,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StakeInfoMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS stake_info_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_perpetuals_stake_info_account"#)
             .execute(connection)
             .await?;
         Ok(())

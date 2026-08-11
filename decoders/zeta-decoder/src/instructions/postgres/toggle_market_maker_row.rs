@@ -37,7 +37,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::toggle_market_maker::ToggleMarketMaker
 {
     fn table() -> &'static str {
-        "toggle_market_maker_instruction"
+        "zeta_toggle_market_maker_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Insert for ToggleMarketMakerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO toggle_market_maker_instruction (
+            INSERT INTO zeta_toggle_market_maker_instruction (
                 "is_market_maker",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for ToggleMarketMakerRow {
 impl carbon_core::postgres::operations::Upsert for ToggleMarketMakerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO toggle_market_maker_instruction (
+            r#"INSERT INTO zeta_toggle_market_maker_instruction (
                 "is_market_maker",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Delete for ToggleMarketMakerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM toggle_market_maker_instruction WHERE
+            r#"DELETE FROM zeta_toggle_market_maker_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Lookup for ToggleMarketMakerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM toggle_market_maker_instruction WHERE
+            r#"SELECT * FROM zeta_toggle_market_maker_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ToggleMarketMakerMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS toggle_market_maker_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_toggle_market_maker_instruction (
                 -- Instruction data
                 "is_market_maker" BOOLEAN NOT NULL,
                 -- Instruction metadata
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ToggleMarketMakerMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS toggle_market_maker_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_toggle_market_maker_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

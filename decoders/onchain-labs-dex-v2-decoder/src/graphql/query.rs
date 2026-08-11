@@ -30,7 +30,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::TokenLedgerGraphQL>> {
         let rows: Vec<crate::accounts::postgres::TokenLedgerRow> = sqlx::query_as(
-            r#"SELECT * FROM token_ledger_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_token_ledger_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -50,7 +50,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ClaimGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ClaimRow> = sqlx::query_as(
-            r#"SELECT * FROM claim_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_claim_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -69,7 +69,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ClaimGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ClaimRow> = sqlx::query_as(
-            r#"SELECT * FROM claim_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_claim_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -88,7 +88,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpfunGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpfunRow> = sqlx::query_as(
-            r#"SELECT * FROM claim_cashback_pumpfun_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_claim_cashback_pumpfun_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -107,7 +107,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpfunGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpfunRow> = sqlx::query_as(
-            r#"SELECT * FROM claim_cashback_pumpfun_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_claim_cashback_pumpfun_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -126,7 +126,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpswapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpswapRow> = sqlx::query_as(
-            r#"SELECT * FROM claim_cashback_pumpswap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_claim_cashback_pumpswap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -145,7 +145,45 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpswapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpswapRow> = sqlx::query_as(
-            r#"SELECT * FROM claim_cashback_pumpswap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_claim_cashback_pumpswap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn create_ata_with_close_authority(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAtaWithCloseAuthorityGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateAtaWithCloseAuthorityRow> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_create_ata_with_close_authority_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_create_ata_with_close_authority(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAtaWithCloseAuthorityGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateAtaWithCloseAuthorityRow> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_create_ata_with_close_authority_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -164,7 +202,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_create_token_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -183,7 +221,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_create_token_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -202,7 +240,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenAccountWithSeedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenAccountWithSeedRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_account_with_seed_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_create_token_account_with_seed_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -221,7 +259,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenAccountWithSeedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenAccountWithSeedRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_account_with_seed_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_create_token_account_with_seed_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -240,7 +278,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitTokenLedgerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitTokenLedgerRow> = sqlx::query_as(
-            r#"SELECT * FROM init_token_ledger_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_init_token_ledger_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -259,7 +297,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitTokenLedgerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitTokenLedgerRow> = sqlx::query_as(
-            r#"SELECT * FROM init_token_ledger_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_init_token_ledger_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -278,7 +316,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ProxySwapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ProxySwapRow> = sqlx::query_as(
-            r#"SELECT * FROM proxy_swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_proxy_swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -297,7 +335,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ProxySwapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ProxySwapRow> = sqlx::query_as(
-            r#"SELECT * FROM proxy_swap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_proxy_swap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -316,7 +354,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetTokenLedgerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetTokenLedgerRow> = sqlx::query_as(
-            r#"SELECT * FROM set_token_ledger_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_set_token_ledger_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -335,7 +373,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetTokenLedgerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetTokenLedgerRow> = sqlx::query_as(
-            r#"SELECT * FROM set_token_ledger_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_set_token_ledger_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -354,7 +392,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -373,7 +411,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -392,7 +430,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -411,7 +449,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -430,7 +468,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobEnhancedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobEnhancedRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_enhanced_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_enhanced_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -449,7 +487,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobEnhancedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobEnhancedRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_enhanced_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_enhanced_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -468,7 +506,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobV2Row> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -487,7 +525,45 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobV2Row> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_tob_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_tob_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -506,7 +582,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_with_receiver_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_receiver_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -525,7 +601,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_with_receiver_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_receiver_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -544,7 +620,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverTokenLedgerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverTokenLedgerRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_with_receiver_token_ledger_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_receiver_token_ledger_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -563,7 +639,85 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverTokenLedgerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverTokenLedgerRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_with_receiver_token_ledger_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_receiver_token_ledger_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_tob_with_receiver_token_ledger_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverTokenLedgerV3GraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverTokenLedgerV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_receiver_token_ledger_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_tob_with_receiver_token_ledger_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverTokenLedgerV3GraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverTokenLedgerV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_receiver_token_ledger_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_tob_with_receiver_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_receiver_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_tob_with_receiver_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_receiver_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -582,7 +736,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithTokenLedgerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobWithTokenLedgerRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_with_token_ledger_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_token_ledger_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -601,7 +755,45 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithTokenLedgerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobWithTokenLedgerRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_with_token_ledger_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_token_ledger_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_tob_with_token_ledger_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithTokenLedgerV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithTokenLedgerV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_token_ledger_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_tob_with_token_ledger_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithTokenLedgerV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithTokenLedgerV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_tob_with_token_ledger_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -620,7 +812,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTocGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTocRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_toc_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_toc_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -639,7 +831,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTocGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTocRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_toc_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_toc_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -658,7 +850,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTocV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTocV2Row> = sqlx::query_as(
-            r#"SELECT * FROM swap_toc_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_toc_v2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -677,7 +869,45 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTocV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTocV2Row> = sqlx::query_as(
-            r#"SELECT * FROM swap_toc_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_toc_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_toc_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTocV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTocV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_toc_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_toc_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTocV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTocV3Row> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_swap_toc_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -696,7 +926,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WrapUnwrapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WrapUnwrapRow> = sqlx::query_as(
-            r#"SELECT * FROM wrap_unwrap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_wrap_unwrap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -715,7 +945,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WrapUnwrapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WrapUnwrapRow> = sqlx::query_as(
-            r#"SELECT * FROM wrap_unwrap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_wrap_unwrap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -734,7 +964,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WrapUnwrapWithReceiverGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WrapUnwrapWithReceiverRow> = sqlx::query_as(
-            r#"SELECT * FROM wrap_unwrap_with_receiver_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_wrap_unwrap_with_receiver_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -753,7 +983,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WrapUnwrapWithReceiverGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WrapUnwrapWithReceiverRow> = sqlx::query_as(
-            r#"SELECT * FROM wrap_unwrap_with_receiver_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM onchain_labs_dex_v2_wrap_unwrap_with_receiver_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -771,13 +1001,14 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CpiEventRow> =
-            sqlx::query_as(r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        let rows: Vec<crate::instructions::postgres::CpiEventRow> = sqlx::query_as(
+            r#"SELECT * FROM onchain_labs_dex_v2_cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows
             .into_iter()
             .filter_map(|row| row.try_into().ok())

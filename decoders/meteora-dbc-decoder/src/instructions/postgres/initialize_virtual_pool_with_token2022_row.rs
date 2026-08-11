@@ -38,7 +38,7 @@ impl TryFrom<InitializeVirtualPoolWithToken2022Row> for crate::instructions::ini
 
 impl carbon_core::postgres::operations::Table for crate::instructions::initialize_virtual_pool_with_token2022::InitializeVirtualPoolWithToken2022 {
     fn table() -> &'static str {
-        "initialize_virtual_pool_with_token2022_instruction"
+        "meteora_dbc_initialize_virtual_pool_with_token2022_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for InitializeVirtualPoolWithToke
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_virtual_pool_with_token2022_instruction (
+            INSERT INTO meteora_dbc_initialize_virtual_pool_with_token2022_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for InitializeVirtualPoolWithToke
 impl carbon_core::postgres::operations::Upsert for InitializeVirtualPoolWithToken2022Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_virtual_pool_with_token2022_instruction (
+            r#"INSERT INTO meteora_dbc_initialize_virtual_pool_with_token2022_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for InitializeVirtualPoolWithToke
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_virtual_pool_with_token2022_instruction WHERE
+            r#"DELETE FROM meteora_dbc_initialize_virtual_pool_with_token2022_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeVirtualPoolWithToke
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_virtual_pool_with_token2022_instruction WHERE
+            r#"SELECT * FROM meteora_dbc_initialize_virtual_pool_with_token2022_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,8 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_virtual_pool_with_token2022_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS meteora_dbc_initialize_virtual_pool_with_token2022_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -182,10 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -193,9 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_virtual_pool_with_token2022_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dbc_initialize_virtual_pool_with_token2022_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::marginfi_account_initialize_pda::MarginfiAccountInitializePda
 {
     fn table() -> &'static str {
-        "marginfi_account_initialize_pda_instruction"
+        "marginfi_v2_marginfi_account_initialize_pda_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -79,7 +79,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiAccountInitializePdaR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO marginfi_account_initialize_pda_instruction (
+            INSERT INTO marginfi_v2_marginfi_account_initialize_pda_instruction (
                 "account_index",
                 "third_party_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiAccountInitializePdaR
 impl carbon_core::postgres::operations::Upsert for MarginfiAccountInitializePdaRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO marginfi_account_initialize_pda_instruction (
+            r#"INSERT INTO marginfi_v2_marginfi_account_initialize_pda_instruction (
                 "account_index",
                 "third_party_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for MarginfiAccountInitializePdaR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM marginfi_account_initialize_pda_instruction WHERE
+            r#"DELETE FROM marginfi_v2_marginfi_account_initialize_pda_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -173,7 +173,7 @@ impl carbon_core::postgres::operations::Lookup for MarginfiAccountInitializePdaR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM marginfi_account_initialize_pda_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_marginfi_account_initialize_pda_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -196,7 +196,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginfiAccountInitializePdaMi
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS marginfi_account_initialize_pda_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_marginfi_account_initialize_pda_instruction (
                 -- Instruction data
                 "account_index" INT4 NOT NULL,
                 "third_party_id" INT4,
@@ -218,9 +218,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginfiAccountInitializePdaMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_account_initialize_pda_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS marginfi_v2_marginfi_account_initialize_pda_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

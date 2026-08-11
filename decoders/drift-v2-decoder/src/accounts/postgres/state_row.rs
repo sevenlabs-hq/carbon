@@ -195,7 +195,7 @@ impl TryFrom<StateRow> for crate::accounts::state::State {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::state::State {
     fn table() -> &'static str {
-        "state_account"
+        "drift_v2_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -237,7 +237,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::state::State 
 impl carbon_core::postgres::operations::Insert for StateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO state_account (
+            INSERT INTO drift_v2_state_account (
                 "admin",
                 "whitelist_mint",
                 "discount_mint",
@@ -307,7 +307,7 @@ impl carbon_core::postgres::operations::Insert for StateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for StateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO state_account (
+        sqlx::query(r#"INSERT INTO drift_v2_state_account (
                 "admin",
                 "whitelist_mint",
                 "discount_mint",
@@ -411,7 +411,7 @@ impl carbon_core::postgres::operations::Delete for StateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM state_account WHERE
+            r#"DELETE FROM drift_v2_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -432,7 +432,7 @@ impl carbon_core::postgres::operations::Lookup for StateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM state_account WHERE
+            r#"SELECT * FROM drift_v2_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -453,7 +453,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StateMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS state_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_state_account (
                 -- Account data
                 "admin" BYTEA NOT NULL,
                 "whitelist_mint" BYTEA NOT NULL,
@@ -497,7 +497,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StateMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

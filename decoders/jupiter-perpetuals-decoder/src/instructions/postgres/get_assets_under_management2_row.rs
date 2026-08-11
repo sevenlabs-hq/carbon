@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::get_assets_under_management2::GetAssetsUnderManagement2
 {
     fn table() -> &'static str {
-        "get_assets_under_management2_instruction"
+        "jupiter_perpetuals_get_assets_under_management2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for GetAssetsUnderManagement2Row 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO get_assets_under_management2_instruction (
+            INSERT INTO jupiter_perpetuals_get_assets_under_management2_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for GetAssetsUnderManagement2Row 
 impl carbon_core::postgres::operations::Upsert for GetAssetsUnderManagement2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO get_assets_under_management2_instruction (
+            r#"INSERT INTO jupiter_perpetuals_get_assets_under_management2_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for GetAssetsUnderManagement2Row 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM get_assets_under_management2_instruction WHERE
+            r#"DELETE FROM jupiter_perpetuals_get_assets_under_management2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for GetAssetsUnderManagement2Row 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM get_assets_under_management2_instruction WHERE
+            r#"SELECT * FROM jupiter_perpetuals_get_assets_under_management2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -173,8 +173,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GetAssetsUnderManagement2Migra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS get_assets_under_management2_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_get_assets_under_management2_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -184,10 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GetAssetsUnderManagement2Migra
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -195,9 +191,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GetAssetsUnderManagement2Migra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS get_assets_under_management2_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS jupiter_perpetuals_get_assets_under_management2_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

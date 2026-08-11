@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::cancel_dust_order::CancelDustOrder
 {
     fn table() -> &'static str {
-        "cancel_dust_order_instruction"
+        "jupiter_limit_order_2_cancel_dust_order_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for CancelDustOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO cancel_dust_order_instruction (
+            INSERT INTO jupiter_limit_order_2_cancel_dust_order_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for CancelDustOrderRow {
 impl carbon_core::postgres::operations::Upsert for CancelDustOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO cancel_dust_order_instruction (
+            r#"INSERT INTO jupiter_limit_order_2_cancel_dust_order_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for CancelDustOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM cancel_dust_order_instruction WHERE
+            r#"DELETE FROM jupiter_limit_order_2_cancel_dust_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for CancelDustOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM cancel_dust_order_instruction WHERE
+            r#"SELECT * FROM jupiter_limit_order_2_cancel_dust_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelDustOrderMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS cancel_dust_order_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_limit_order_2_cancel_dust_order_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelDustOrderMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS cancel_dust_order_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_limit_order_2_cancel_dust_order_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

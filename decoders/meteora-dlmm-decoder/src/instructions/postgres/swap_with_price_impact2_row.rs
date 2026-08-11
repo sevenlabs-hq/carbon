@@ -61,7 +61,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::swap_with_price_impact2::SwapWithPriceImpact2
 {
     fn table() -> &'static str {
-        "swap_with_price_impact2_instruction"
+        "meteora_dlmm_swap_with_price_impact2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for SwapWithPriceImpact2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_with_price_impact2_instruction (
+            INSERT INTO meteora_dlmm_swap_with_price_impact2_instruction (
                 "amount_in",
                 "active_id",
                 "max_price_impact_bps",
@@ -114,7 +114,7 @@ impl carbon_core::postgres::operations::Insert for SwapWithPriceImpact2Row {
 impl carbon_core::postgres::operations::Upsert for SwapWithPriceImpact2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_with_price_impact2_instruction (
+            r#"INSERT INTO meteora_dlmm_swap_with_price_impact2_instruction (
                 "amount_in",
                 "active_id",
                 "max_price_impact_bps",
@@ -161,7 +161,7 @@ impl carbon_core::postgres::operations::Delete for SwapWithPriceImpact2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_with_price_impact2_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_swap_with_price_impact2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl carbon_core::postgres::operations::Lookup for SwapWithPriceImpact2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_with_price_impact2_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_swap_with_price_impact2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapWithPriceImpact2MigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_with_price_impact2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_swap_with_price_impact2_instruction (
                 -- Instruction data
                 "amount_in" NUMERIC(20) NOT NULL,
                 "active_id" INT4,
@@ -235,7 +235,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapWithPriceImpact2MigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_with_price_impact2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_swap_with_price_impact2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

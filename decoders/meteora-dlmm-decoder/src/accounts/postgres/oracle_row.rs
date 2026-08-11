@@ -37,7 +37,7 @@ impl TryFrom<OracleRow> for crate::accounts::oracle::Oracle {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::oracle::Oracle {
     fn table() -> &'static str {
-        "oracle_account"
+        "meteora_dlmm_oracle_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for OracleRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO oracle_account (
+            INSERT INTO meteora_dlmm_oracle_account (
                 "idx",
                 "active_size",
                 "length",
@@ -75,7 +75,7 @@ impl carbon_core::postgres::operations::Insert for OracleRow {
 impl carbon_core::postgres::operations::Upsert for OracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO oracle_account (
+            r#"INSERT INTO meteora_dlmm_oracle_account (
                 "idx",
                 "active_size",
                 "length",
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for OracleRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM oracle_account WHERE
+            r#"DELETE FROM meteora_dlmm_oracle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -130,7 +130,7 @@ impl carbon_core::postgres::operations::Lookup for OracleRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM oracle_account WHERE
+            r#"SELECT * FROM meteora_dlmm_oracle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -151,7 +151,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OracleMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS oracle_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_oracle_account (
                 -- Account data
                 "idx" NUMERIC(20) NOT NULL,
                 "active_size" NUMERIC(20) NOT NULL,
@@ -171,7 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OracleMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS oracle_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_oracle_account"#)
             .execute(connection)
             .await?;
         Ok(())

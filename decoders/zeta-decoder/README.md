@@ -1,1 +1,0 @@
-# Carbon Zeta Program Decoder

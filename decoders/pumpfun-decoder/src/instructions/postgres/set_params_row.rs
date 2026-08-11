@@ -71,7 +71,7 @@ impl TryFrom<SetParamsRow> for crate::instructions::set_params::SetParams {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::set_params::SetParams {
     fn table() -> &'static str {
-        "set_params_instruction"
+        "pumpfun_set_params_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for SetParamsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_params_instruction (
+            INSERT INTO pumpfun_set_params_instruction (
                 "initial_virtual_token_reserves",
                 "initial_virtual_sol_reserves",
                 "initial_real_token_reserves",
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Insert for SetParamsRow {
 impl carbon_core::postgres::operations::Upsert for SetParamsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_params_instruction (
+            r#"INSERT INTO pumpfun_set_params_instruction (
                 "initial_virtual_token_reserves",
                 "initial_virtual_sol_reserves",
                 "initial_real_token_reserves",
@@ -213,7 +213,7 @@ impl carbon_core::postgres::operations::Delete for SetParamsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_params_instruction WHERE
+            r#"DELETE FROM pumpfun_set_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -240,7 +240,7 @@ impl carbon_core::postgres::operations::Lookup for SetParamsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_params_instruction WHERE
+            r#"SELECT * FROM pumpfun_set_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -263,7 +263,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetParamsMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_params_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_set_params_instruction (
                 -- Instruction data
                 "initial_virtual_token_reserves" NUMERIC(20) NOT NULL,
                 "initial_virtual_sol_reserves" NUMERIC(20) NOT NULL,
@@ -294,7 +294,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetParamsMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_params_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_set_params_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

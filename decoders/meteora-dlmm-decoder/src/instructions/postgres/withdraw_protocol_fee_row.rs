@@ -51,7 +51,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::withdraw_protocol_fee::WithdrawProtocolFee
 {
     fn table() -> &'static str {
-        "withdraw_protocol_fee_instruction"
+        "meteora_dlmm_withdraw_protocol_fee_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawProtocolFeeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_protocol_fee_instruction (
+            INSERT INTO meteora_dlmm_withdraw_protocol_fee_instruction (
                 "max_amount_x",
                 "max_amount_y",
                 "remaining_accounts_info",
@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawProtocolFeeRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawProtocolFeeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_protocol_fee_instruction (
+            r#"INSERT INTO meteora_dlmm_withdraw_protocol_fee_instruction (
                 "max_amount_x",
                 "max_amount_y",
                 "remaining_accounts_info",
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawProtocolFeeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_protocol_fee_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_withdraw_protocol_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawProtocolFeeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_protocol_fee_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_withdraw_protocol_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawProtocolFeeMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_protocol_fee_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_withdraw_protocol_fee_instruction (
                 -- Instruction data
                 "max_amount_x" NUMERIC(20) NOT NULL,
                 "max_amount_y" NUMERIC(20) NOT NULL,
@@ -218,7 +218,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawProtocolFeeMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_protocol_fee_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_withdraw_protocol_fee_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

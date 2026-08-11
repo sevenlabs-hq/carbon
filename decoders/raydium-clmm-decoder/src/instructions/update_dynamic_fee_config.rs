@@ -18,8 +18,6 @@ use carbon_core::{
 /// * `dynamic_fee_control` - Factor used to scale the dynamic fee component
 /// * `max_volatility_accumulator` - Maximum value for the volatility
 ///   accumulator
-/// * `create_pool_authority` - The new authority pubkey that can use this
-///   dynamic fee config to create pools
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateDynamicFeeConfig {

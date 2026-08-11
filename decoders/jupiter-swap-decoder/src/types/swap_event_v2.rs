@@ -7,4 +7,5 @@ pub struct SwapEventV2 {
     pub input_amount: u64,
     pub output_mint: Pubkey,
     pub output_amount: u64,
+    pub amm: Pubkey,
 }

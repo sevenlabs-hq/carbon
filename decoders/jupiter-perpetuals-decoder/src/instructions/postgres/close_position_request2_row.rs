@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::close_position_request2::ClosePositionRequest2
 {
     fn table() -> &'static str {
-        "close_position_request2_instruction"
+        "jupiter_perpetuals_close_position_request2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for ClosePositionRequest2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO close_position_request2_instruction (
+            INSERT INTO jupiter_perpetuals_close_position_request2_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for ClosePositionRequest2Row {
 impl carbon_core::postgres::operations::Upsert for ClosePositionRequest2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO close_position_request2_instruction (
+            r#"INSERT INTO jupiter_perpetuals_close_position_request2_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for ClosePositionRequest2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM close_position_request2_instruction WHERE
+            r#"DELETE FROM jupiter_perpetuals_close_position_request2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for ClosePositionRequest2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM close_position_request2_instruction WHERE
+            r#"SELECT * FROM jupiter_perpetuals_close_position_request2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ClosePositionRequest2Migration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS close_position_request2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_close_position_request2_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,9 +181,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ClosePositionRequest2Migration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS close_position_request2_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS jupiter_perpetuals_close_position_request2_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

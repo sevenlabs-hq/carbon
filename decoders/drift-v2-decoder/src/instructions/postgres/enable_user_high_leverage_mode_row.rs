@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::enable_user_high_leverage_mode::EnableUserHighLeverageMode
 {
     fn table() -> &'static str {
-        "enable_user_high_leverage_mode_instruction"
+        "drift_v2_enable_user_high_leverage_mode_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for EnableUserHighLeverageModeRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO enable_user_high_leverage_mode_instruction (
+            INSERT INTO drift_v2_enable_user_high_leverage_mode_instruction (
                 "sub_account_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for EnableUserHighLeverageModeRow
 impl carbon_core::postgres::operations::Upsert for EnableUserHighLeverageModeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO enable_user_high_leverage_mode_instruction (
+            r#"INSERT INTO drift_v2_enable_user_high_leverage_mode_instruction (
                 "sub_account_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for EnableUserHighLeverageModeRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM enable_user_high_leverage_mode_instruction WHERE
+            r#"DELETE FROM drift_v2_enable_user_high_leverage_mode_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for EnableUserHighLeverageModeRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM enable_user_high_leverage_mode_instruction WHERE
+            r#"SELECT * FROM drift_v2_enable_user_high_leverage_mode_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EnableUserHighLeverageModeMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS enable_user_high_leverage_mode_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_enable_user_high_leverage_mode_instruction (
                 -- Instruction data
                 "sub_account_id" INT4 NOT NULL,
                 -- Instruction metadata
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EnableUserHighLeverageModeMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS enable_user_high_leverage_mode_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_enable_user_high_leverage_mode_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

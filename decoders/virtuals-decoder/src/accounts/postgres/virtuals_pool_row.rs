@@ -59,7 +59,7 @@ impl TryFrom<VirtualsPoolRow> for crate::accounts::virtuals_pool::VirtualsPool {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::virtuals_pool::VirtualsPool {
     fn table() -> &'static str {
-        "virtuals_pool_account"
+        "virtuals_virtuals_pool_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for VirtualsPoolRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO virtuals_pool_account (
+            INSERT INTO virtuals_virtuals_pool_account (
                 "creator",
                 "mint",
                 "virtual_y",
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Insert for VirtualsPoolRow {
 impl carbon_core::postgres::operations::Upsert for VirtualsPoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO virtuals_pool_account (
+            r#"INSERT INTO virtuals_virtuals_pool_account (
                 "creator",
                 "mint",
                 "virtual_y",
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for VirtualsPoolRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM virtuals_pool_account WHERE
+            r#"DELETE FROM virtuals_virtuals_pool_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for VirtualsPoolRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM virtuals_pool_account WHERE
+            r#"SELECT * FROM virtuals_virtuals_pool_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VirtualsPoolMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS virtuals_pool_account (
+            r#"CREATE TABLE IF NOT EXISTS virtuals_virtuals_pool_account (
                 -- Account data
                 "creator" BYTEA NOT NULL,
                 "mint" BYTEA NOT NULL,
@@ -220,7 +220,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VirtualsPoolMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS virtuals_pool_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS virtuals_virtuals_pool_account"#)
             .execute(connection)
             .await?;
         Ok(())

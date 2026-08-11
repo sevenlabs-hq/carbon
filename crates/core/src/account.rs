@@ -87,7 +87,7 @@ impl<T, P> AccountPipe<T, P> {
 pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         account_with_metadata: (AccountMetadata, solana_account::Account),
     ) -> CarbonResult<()>;
 
@@ -102,7 +102,7 @@ where
 {
     async fn run(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         account_with_metadata: (AccountMetadata, solana_account::Account),
     ) -> CarbonResult<()> {
         let (account_metadata, account) = account_with_metadata;

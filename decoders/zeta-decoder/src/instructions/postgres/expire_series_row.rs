@@ -42,7 +42,7 @@ impl TryFrom<ExpireSeriesRow> for crate::instructions::expire_series::ExpireSeri
 
 impl carbon_core::postgres::operations::Table for crate::instructions::expire_series::ExpireSeries {
     fn table() -> &'static str {
-        "expire_series_instruction"
+        "zeta_expire_series_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for ExpireSeriesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO expire_series_instruction (
+            INSERT INTO zeta_expire_series_instruction (
                 "settlement_nonce",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for ExpireSeriesRow {
 impl carbon_core::postgres::operations::Upsert for ExpireSeriesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO expire_series_instruction (
+            r#"INSERT INTO zeta_expire_series_instruction (
                 "settlement_nonce",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ExpireSeriesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM expire_series_instruction WHERE
+            r#"DELETE FROM zeta_expire_series_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for ExpireSeriesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM expire_series_instruction WHERE
+            r#"SELECT * FROM zeta_expire_series_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ExpireSeriesMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS expire_series_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_expire_series_instruction (
                 -- Instruction data
                 "settlement_nonce" INT2 NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ExpireSeriesMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS expire_series_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_expire_series_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

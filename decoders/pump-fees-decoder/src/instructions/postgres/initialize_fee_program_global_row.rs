@@ -55,7 +55,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_fee_program_global::InitializeFeeProgramGlobal
 {
     fn table() -> &'static str {
-        "initialize_fee_program_global_instruction"
+        "pump_fees_initialize_fee_program_global_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for InitializeFeeProgramGlobalRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_fee_program_global_instruction (
+            INSERT INTO pump_fees_initialize_fee_program_global_instruction (
                 "social_claim_authority",
                 "disable_flags",
                 "claim_rate_limit",
@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for InitializeFeeProgramGlobalRow
 impl carbon_core::postgres::operations::Upsert for InitializeFeeProgramGlobalRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_fee_program_global_instruction (
+            r#"INSERT INTO pump_fees_initialize_fee_program_global_instruction (
                 "social_claim_authority",
                 "disable_flags",
                 "claim_rate_limit",
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Delete for InitializeFeeProgramGlobalRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_fee_program_global_instruction WHERE
+            r#"DELETE FROM pump_fees_initialize_fee_program_global_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeFeeProgramGlobalRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_fee_program_global_instruction WHERE
+            r#"SELECT * FROM pump_fees_initialize_fee_program_global_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeFeeProgramGlobalMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_fee_program_global_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_initialize_fee_program_global_instruction (
                 -- Instruction data
                 "social_claim_authority" BYTEA NOT NULL,
                 "disable_flags" INT2 NOT NULL,
@@ -222,7 +222,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeFeeProgramGlobalMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_fee_program_global_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_initialize_fee_program_global_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -34,7 +34,7 @@ impl TryFrom<OpenOrdersMapRow> for crate::accounts::open_orders_map::OpenOrdersM
 
 impl carbon_core::postgres::operations::Table for crate::accounts::open_orders_map::OpenOrdersMap {
     fn table() -> &'static str {
-        "open_orders_map_account"
+        "zeta_open_orders_map_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -47,7 +47,7 @@ impl carbon_core::postgres::operations::Insert for OpenOrdersMapRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO open_orders_map_account (
+            INSERT INTO zeta_open_orders_map_account (
                 "user_key",
                 __pubkey, __slot
             ) VALUES (
@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Insert for OpenOrdersMapRow {
 impl carbon_core::postgres::operations::Upsert for OpenOrdersMapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_orders_map_account (
+            r#"INSERT INTO zeta_open_orders_map_account (
                 "user_key",
                 __pubkey, __slot
             ) VALUES (
@@ -96,7 +96,7 @@ impl carbon_core::postgres::operations::Delete for OpenOrdersMapRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM open_orders_map_account WHERE
+            r#"DELETE FROM zeta_open_orders_map_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -117,7 +117,7 @@ impl carbon_core::postgres::operations::Lookup for OpenOrdersMapRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM open_orders_map_account WHERE
+            r#"SELECT * FROM zeta_open_orders_map_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -138,7 +138,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenOrdersMapMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS open_orders_map_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_open_orders_map_account (
                 -- Account data
                 "user_key" BYTEA NOT NULL,
                 -- Account metadata
@@ -156,7 +156,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenOrdersMapMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS open_orders_map_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_open_orders_map_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -6,13 +6,6 @@ use {
         deserialize::{ArrangeAccounts, CarbonDeserialize},
     },
 };
-/// Wrap/Unwrap with optional specified receiver
-/// - Wrap (SOL -> WSOL): receiver is WSOL token account (ATA)
-/// - Unwrap (WSOL -> SOL): receiver is system account (EOA)
-///
-/// Transfer amount:
-/// - From fee: amount_in
-/// - To fee: amount_in - fees
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct WrapUnwrapWithReceiver {

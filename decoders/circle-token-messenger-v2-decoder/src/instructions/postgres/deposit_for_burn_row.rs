@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::deposit_for_burn::DepositForBurn
 {
     fn table() -> &'static str {
-        "deposit_for_burn_instruction"
+        "circle_token_messenger_v2_deposit_for_burn_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for DepositForBurnRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO deposit_for_burn_instruction (
+            INSERT INTO circle_token_messenger_v2_deposit_for_burn_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for DepositForBurnRow {
 impl carbon_core::postgres::operations::Upsert for DepositForBurnRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO deposit_for_burn_instruction (
+            r#"INSERT INTO circle_token_messenger_v2_deposit_for_burn_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for DepositForBurnRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM deposit_for_burn_instruction WHERE
+            r#"DELETE FROM circle_token_messenger_v2_deposit_for_burn_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for DepositForBurnRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM deposit_for_burn_instruction WHERE
+            r#"SELECT * FROM circle_token_messenger_v2_deposit_for_burn_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositForBurnMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS deposit_for_burn_instruction (
+            r#"CREATE TABLE IF NOT EXISTS circle_token_messenger_v2_deposit_for_burn_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,9 +193,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositForBurnMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS deposit_for_burn_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS circle_token_messenger_v2_deposit_for_burn_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

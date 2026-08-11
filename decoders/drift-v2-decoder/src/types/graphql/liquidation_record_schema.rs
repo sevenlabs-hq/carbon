@@ -5,7 +5,7 @@ use {
         LiquidatePerpRecordGraphQL, LiquidateSpotRecordGraphQL, LiquidationTypeGraphQL,
         PerpBankruptcyRecordGraphQL, SpotBankruptcyRecordGraphQL,
     },
-    carbon_core::graphql::primitives::{Pubkey, I128, I64, U128, U32, U64, U8},
+    carbon_core::graphql::primitives::{Pubkey, I128, I64, U128, U32, U64},
     juniper::GraphQLObject,
 };
 
@@ -28,7 +28,6 @@ pub struct LiquidationRecordGraphQL {
     pub liquidate_perp_pnl_for_deposit: LiquidatePerpPnlForDepositRecordGraphQL,
     pub perp_bankruptcy: PerpBankruptcyRecordGraphQL,
     pub spot_bankruptcy: SpotBankruptcyRecordGraphQL,
-    pub bit_flags: U8,
 }
 
 impl From<crate::types::LiquidationRecord> for LiquidationRecordGraphQL {
@@ -54,7 +53,6 @@ impl From<crate::types::LiquidationRecord> for LiquidationRecordGraphQL {
             liquidate_perp_pnl_for_deposit: original.liquidate_perp_pnl_for_deposit.into(),
             perp_bankruptcy: original.perp_bankruptcy.into(),
             spot_bankruptcy: original.spot_bankruptcy.into(),
-            bit_flags: carbon_core::graphql::primitives::U8(original.bit_flags),
         }
     }
 }

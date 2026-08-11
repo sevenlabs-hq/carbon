@@ -37,6 +37,7 @@ pub struct SetPresetAdaptiveFeeConstantsInstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub adaptive_fee_tier: solana_pubkey::Pubkey,
     pub fee_authority: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -71,6 +72,7 @@ impl ArrangeAccounts for SetPresetAdaptiveFeeConstants {
         let whirlpools_config = next_account(&mut iter)?;
         let adaptive_fee_tier = next_account(&mut iter)?;
         let fee_authority = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -78,6 +80,7 @@ impl ArrangeAccounts for SetPresetAdaptiveFeeConstants {
             whirlpools_config,
             adaptive_fee_tier,
             fee_authority,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

@@ -47,6 +47,7 @@ pub struct ReserveConfigGraphQL {
     pub debt_maturity_timestamp: U64,
     pub debt_term_seconds: U64,
     pub rewards_amount_per_slot: U64,
+    pub permissioned_ops: U64,
 }
 
 impl From<crate::types::ReserveConfig> for ReserveConfigGraphQL {
@@ -133,6 +134,7 @@ impl From<crate::types::ReserveConfig> for ReserveConfigGraphQL {
             rewards_amount_per_slot: carbon_core::graphql::primitives::U64(
                 original.rewards_amount_per_slot,
             ),
+            permissioned_ops: carbon_core::graphql::primitives::U64(original.permissioned_ops),
         }
     }
 }

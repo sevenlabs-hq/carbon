@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_perp_market_max_imbalances::UpdatePerpMarketMaxImbalances
 {
     fn table() -> &'static str {
-        "update_perp_market_max_imbalances_instruction"
+        "drift_v2_update_perp_market_max_imbalances_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketMaxImbalances
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_perp_market_max_imbalances_instruction (
+            INSERT INTO drift_v2_update_perp_market_max_imbalances_instruction (
                 "unrealized_max_imbalance",
                 "max_revenue_withdraw_per_period",
                 "quote_max_insurance",
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketMaxImbalances
 impl carbon_core::postgres::operations::Upsert for UpdatePerpMarketMaxImbalancesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_perp_market_max_imbalances_instruction (
+            r#"INSERT INTO drift_v2_update_perp_market_max_imbalances_instruction (
                 "unrealized_max_imbalance",
                 "max_revenue_withdraw_per_period",
                 "quote_max_insurance",
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketMaxImbalances
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_perp_market_max_imbalances_instruction WHERE
+            r#"DELETE FROM drift_v2_update_perp_market_max_imbalances_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketMaxImbalances
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_perp_market_max_imbalances_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_perp_market_max_imbalances_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdatePerpMarketMaxImbalancesM
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_perp_market_max_imbalances_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_perp_market_max_imbalances_instruction (
                 -- Instruction data
                 "unrealized_max_imbalance" NUMERIC(20) NOT NULL,
                 "max_revenue_withdraw_per_period" NUMERIC(20) NOT NULL,
@@ -215,9 +215,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdatePerpMarketMaxImbalancesM
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_perp_market_max_imbalances_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_update_perp_market_max_imbalances_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

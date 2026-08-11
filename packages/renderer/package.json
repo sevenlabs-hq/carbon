@@ -1,6 +1,6 @@
 {
     "name": "@sevenlabs-hq/carbon-codama-renderer",
-    "version": "0.12.0",
+    "version": "1.0.0",
     "description": "Carbon codama renderer for Codama IDL",
     "keywords": [
         "solana",
@@ -38,7 +38,7 @@
         "build": "tsup && cp -r templates dist/",
         "dev": "tsup --watch",
         "type-check": "tsc --noEmit",
-        "lint": "echo 'No linting configured'",
+        "lint": "biome lint src",
         "test": "tsup && cp -r templates dist/ && node --test tests/*.test.mjs",
         "clean": "rimraf dist"
     },

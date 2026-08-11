@@ -71,7 +71,7 @@ impl TryFrom<PerpSyncQueueRow> for crate::accounts::perp_sync_queue::PerpSyncQue
 
 impl carbon_core::postgres::operations::Table for crate::accounts::perp_sync_queue::PerpSyncQueue {
     fn table() -> &'static str {
-        "perp_sync_queue_account"
+        "zeta_perp_sync_queue_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for PerpSyncQueueRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO perp_sync_queue_account (
+            INSERT INTO zeta_perp_sync_queue_account (
                 "nonce",
                 "head",
                 "length",
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Insert for PerpSyncQueueRow {
 impl carbon_core::postgres::operations::Upsert for PerpSyncQueueRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO perp_sync_queue_account (
+            r#"INSERT INTO zeta_perp_sync_queue_account (
                 "nonce",
                 "head",
                 "length",
@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Delete for PerpSyncQueueRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM perp_sync_queue_account WHERE
+            r#"DELETE FROM zeta_perp_sync_queue_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Lookup for PerpSyncQueueRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM perp_sync_queue_account WHERE
+            r#"SELECT * FROM zeta_perp_sync_queue_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PerpSyncQueueMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS perp_sync_queue_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_perp_sync_queue_account (
                 -- Account data
                 "nonce" INT2 NOT NULL,
                 "head" INT4 NOT NULL,
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PerpSyncQueueMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS perp_sync_queue_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_perp_sync_queue_account"#)
             .execute(connection)
             .await?;
         Ok(())

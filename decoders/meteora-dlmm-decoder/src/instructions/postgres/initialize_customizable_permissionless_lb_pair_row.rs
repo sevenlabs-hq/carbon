@@ -38,7 +38,7 @@ impl TryFrom<InitializeCustomizablePermissionlessLbPairRow> for crate::instructi
 
 impl carbon_core::postgres::operations::Table for crate::instructions::initialize_customizable_permissionless_lb_pair::InitializeCustomizablePermissionlessLbPair {
     fn table() -> &'static str {
-        "initialize_customizable_permissionless_lb_pair_instruction"
+        "meteora_dlmm_initialize_customizable_permissionless_lb_pair_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for InitializeCustomizablePermiss
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_customizable_permissionless_lb_pair_instruction (
+            INSERT INTO meteora_dlmm_initialize_customizable_permissionless_lb_pair_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for InitializeCustomizablePermiss
 impl carbon_core::postgres::operations::Upsert for InitializeCustomizablePermissionlessLbPairRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_customizable_permissionless_lb_pair_instruction (
+            r#"INSERT INTO meteora_dlmm_initialize_customizable_permissionless_lb_pair_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -119,16 +119,13 @@ impl carbon_core::postgres::operations::Delete for InitializeCustomizablePermiss
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM initialize_customizable_permissionless_lb_pair_instruction WHERE
+        sqlx::query(r#"DELETE FROM meteora_dlmm_initialize_customizable_permissionless_lb_pair_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -146,16 +143,13 @@ impl carbon_core::postgres::operations::Lookup for InitializeCustomizablePermiss
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_customizable_permissionless_lb_pair_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM meteora_dlmm_initialize_customizable_permissionless_lb_pair_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -171,7 +165,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_customizable_permissionless_lb_pair_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_initialize_customizable_permissionless_lb_pair_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -189,11 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"DROP TABLE IF EXISTS initialize_customizable_permissionless_lb_pair_instruction"#,
-        )
-        .execute(connection)
-        .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_initialize_customizable_permissionless_lb_pair_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

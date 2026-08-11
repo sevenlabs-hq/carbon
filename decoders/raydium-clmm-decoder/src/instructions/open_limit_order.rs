@@ -31,8 +31,11 @@ pub struct OpenLimitOrderInstructionAccounts {
     pub limit_order_nonce: solana_pubkey::Pubkey,
     pub limit_order: solana_pubkey::Pubkey,
     pub input_token_account: solana_pubkey::Pubkey,
+    pub output_token_account: solana_pubkey::Pubkey,
     pub input_vault: solana_pubkey::Pubkey,
+    pub output_vault: solana_pubkey::Pubkey,
     pub input_vault_mint: solana_pubkey::Pubkey,
+    pub output_vault_mint: solana_pubkey::Pubkey,
     pub input_token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -72,8 +75,11 @@ impl ArrangeAccounts for OpenLimitOrder {
         let limit_order_nonce = next_account(&mut iter)?;
         let limit_order = next_account(&mut iter)?;
         let input_token_account = next_account(&mut iter)?;
+        let output_token_account = next_account(&mut iter)?;
         let input_vault = next_account(&mut iter)?;
+        let output_vault = next_account(&mut iter)?;
         let input_vault_mint = next_account(&mut iter)?;
+        let output_vault_mint = next_account(&mut iter)?;
         let input_token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
 
@@ -86,8 +92,11 @@ impl ArrangeAccounts for OpenLimitOrder {
             limit_order_nonce,
             limit_order,
             input_token_account,
+            output_token_account,
             input_vault,
+            output_vault,
             input_vault_mint,
+            output_vault_mint,
             input_token_program,
             system_program,
             remaining: remaining.to_vec(),

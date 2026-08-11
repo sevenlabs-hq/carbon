@@ -22,6 +22,7 @@ pub struct InitializePositionBundleInstructionAccounts {
     pub system_program: solana_pubkey::Pubkey,
     pub rent: solana_pubkey::Pubkey,
     pub associated_token_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -62,6 +63,7 @@ impl ArrangeAccounts for InitializePositionBundle {
         let system_program = next_account(&mut iter)?;
         let rent = next_account(&mut iter)?;
         let associated_token_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -75,6 +77,7 @@ impl ArrangeAccounts for InitializePositionBundle {
             system_program,
             rent,
             associated_token_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

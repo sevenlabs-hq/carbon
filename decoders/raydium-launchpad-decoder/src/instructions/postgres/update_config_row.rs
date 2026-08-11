@@ -48,7 +48,7 @@ impl TryFrom<UpdateConfigRow> for crate::instructions::update_config::UpdateConf
 
 impl carbon_core::postgres::operations::Table for crate::instructions::update_config::UpdateConfig {
     fn table() -> &'static str {
-        "update_config_instruction"
+        "raydium_launchpad_update_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -69,7 +69,7 @@ impl carbon_core::postgres::operations::Insert for UpdateConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_config_instruction (
+            INSERT INTO raydium_launchpad_update_config_instruction (
                 "param",
                 "value",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for UpdateConfigRow {
 impl carbon_core::postgres::operations::Upsert for UpdateConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_config_instruction (
+            r#"INSERT INTO raydium_launchpad_update_config_instruction (
                 "param",
                 "value",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Delete for UpdateConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_config_instruction WHERE
+            r#"DELETE FROM raydium_launchpad_update_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -163,7 +163,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_config_instruction WHERE
+            r#"SELECT * FROM raydium_launchpad_update_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -186,7 +186,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateConfigMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_launchpad_update_config_instruction (
                 -- Instruction data
                 "param" INT2 NOT NULL,
                 "value" NUMERIC(20) NOT NULL,
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateConfigMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_launchpad_update_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

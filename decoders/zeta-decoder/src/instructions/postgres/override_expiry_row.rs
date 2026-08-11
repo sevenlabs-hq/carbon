@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::override_expiry::OverrideExpiry
 {
     fn table() -> &'static str {
-        "override_expiry_instruction"
+        "zeta_override_expiry_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for OverrideExpiryRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO override_expiry_instruction (
+            INSERT INTO zeta_override_expiry_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for OverrideExpiryRow {
 impl carbon_core::postgres::operations::Upsert for OverrideExpiryRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO override_expiry_instruction (
+            r#"INSERT INTO zeta_override_expiry_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for OverrideExpiryRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM override_expiry_instruction WHERE
+            r#"DELETE FROM zeta_override_expiry_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for OverrideExpiryRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM override_expiry_instruction WHERE
+            r#"SELECT * FROM zeta_override_expiry_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OverrideExpiryMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS override_expiry_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_override_expiry_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OverrideExpiryMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS override_expiry_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_override_expiry_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

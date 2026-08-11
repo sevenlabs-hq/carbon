@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_amm_cache::InitializeAmmCache
 {
     fn table() -> &'static str {
-        "initialize_amm_cache_instruction"
+        "drift_v2_initialize_amm_cache_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for InitializeAmmCacheRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_amm_cache_instruction (
+            INSERT INTO drift_v2_initialize_amm_cache_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for InitializeAmmCacheRow {
 impl carbon_core::postgres::operations::Upsert for InitializeAmmCacheRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_amm_cache_instruction (
+            r#"INSERT INTO drift_v2_initialize_amm_cache_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for InitializeAmmCacheRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_amm_cache_instruction WHERE
+            r#"DELETE FROM drift_v2_initialize_amm_cache_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeAmmCacheRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_amm_cache_instruction WHERE
+            r#"SELECT * FROM drift_v2_initialize_amm_cache_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeAmmCacheMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_amm_cache_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_initialize_amm_cache_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeAmmCacheMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_amm_cache_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_initialize_amm_cache_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

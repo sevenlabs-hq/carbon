@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_reserve_config::UpdateReserveConfig
 {
     fn table() -> &'static str {
-        "update_reserve_config_instruction"
+        "kamino_lending_update_reserve_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for UpdateReserveConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_reserve_config_instruction (
+            INSERT INTO kamino_lending_update_reserve_config_instruction (
                 "mode",
                 "value",
                 "skip_config_integrity_validation",
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for UpdateReserveConfigRow {
 impl carbon_core::postgres::operations::Upsert for UpdateReserveConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_reserve_config_instruction (
+            r#"INSERT INTO kamino_lending_update_reserve_config_instruction (
                 "mode",
                 "value",
                 "skip_config_integrity_validation",
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for UpdateReserveConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_reserve_config_instruction WHERE
+            r#"DELETE FROM kamino_lending_update_reserve_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateReserveConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_reserve_config_instruction WHERE
+            r#"SELECT * FROM kamino_lending_update_reserve_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateReserveConfigMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_reserve_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_update_reserve_config_instruction (
                 -- Instruction data
                 "mode" JSONB NOT NULL,
                 "value" BYTEA NOT NULL,
@@ -215,7 +215,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateReserveConfigMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_reserve_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_update_reserve_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -93,7 +93,7 @@ impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
 pub trait TransactionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()>;
@@ -109,7 +109,7 @@ where
 {
     async fn run(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()> {

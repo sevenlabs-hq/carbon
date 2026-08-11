@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_social_claim_authority::SetSocialClaimAuthority
 {
     fn table() -> &'static str {
-        "set_social_claim_authority_instruction"
+        "pump_fees_set_social_claim_authority_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SetSocialClaimAuthorityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_social_claim_authority_instruction (
+            INSERT INTO pump_fees_set_social_claim_authority_instruction (
                 "social_claim_authority",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for SetSocialClaimAuthorityRow {
 impl carbon_core::postgres::operations::Upsert for SetSocialClaimAuthorityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_social_claim_authority_instruction (
+            r#"INSERT INTO pump_fees_set_social_claim_authority_instruction (
                 "social_claim_authority",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SetSocialClaimAuthorityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_social_claim_authority_instruction WHERE
+            r#"DELETE FROM pump_fees_set_social_claim_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for SetSocialClaimAuthorityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_social_claim_authority_instruction WHERE
+            r#"SELECT * FROM pump_fees_set_social_claim_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetSocialClaimAuthorityMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_social_claim_authority_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_set_social_claim_authority_instruction (
                 -- Instruction data
                 "social_claim_authority" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetSocialClaimAuthorityMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_social_claim_authority_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_set_social_claim_authority_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

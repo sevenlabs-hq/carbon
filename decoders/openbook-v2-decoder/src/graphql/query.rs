@@ -30,7 +30,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::MarketGraphQL>> {
         let rows: Vec<crate::accounts::postgres::MarketRow> = sqlx::query_as(
-            r#"SELECT * FROM market_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_market_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -64,7 +64,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::OpenOrdersAccountGraphQL>> {
         let rows: Vec<crate::accounts::postgres::OpenOrdersAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM open_orders_account_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_open_orders_account_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -98,7 +98,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::OpenOrdersIndexerGraphQL>> {
         let rows: Vec<crate::accounts::postgres::OpenOrdersIndexerRow> = sqlx::query_as(
-            r#"SELECT * FROM open_orders_indexer_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_open_orders_indexer_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -132,7 +132,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::StubOracleGraphQL>> {
         let rows: Vec<crate::accounts::postgres::StubOracleRow> = sqlx::query_as(
-            r#"SELECT * FROM stub_oracle_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_stub_oracle_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -166,7 +166,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::BookSideGraphQL>> {
         let rows: Vec<crate::accounts::postgres::BookSideRow> = sqlx::query_as(
-            r#"SELECT * FROM book_side_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_book_side_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -200,7 +200,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::EventHeapGraphQL>> {
         let rows: Vec<crate::accounts::postgres::EventHeapRow> = sqlx::query_as(
-            r#"SELECT * FROM event_heap_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_event_heap_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -220,7 +220,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateMarketGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateMarketRow> = sqlx::query_as(
-            r#"SELECT * FROM create_market_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_create_market_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -239,7 +239,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateMarketGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateMarketRow> = sqlx::query_as(
-            r#"SELECT * FROM create_market_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_create_market_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -258,7 +258,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseMarketGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseMarketRow> = sqlx::query_as(
-            r#"SELECT * FROM close_market_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_close_market_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -277,7 +277,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseMarketGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseMarketRow> = sqlx::query_as(
-            r#"SELECT * FROM close_market_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_close_market_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -296,7 +296,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateOpenOrdersIndexerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateOpenOrdersIndexerRow> = sqlx::query_as(
-            r#"SELECT * FROM create_open_orders_indexer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_create_open_orders_indexer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -315,7 +315,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateOpenOrdersIndexerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateOpenOrdersIndexerRow> = sqlx::query_as(
-            r#"SELECT * FROM create_open_orders_indexer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_create_open_orders_indexer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -334,7 +334,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseOpenOrdersIndexerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseOpenOrdersIndexerRow> = sqlx::query_as(
-            r#"SELECT * FROM close_open_orders_indexer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_close_open_orders_indexer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -353,7 +353,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseOpenOrdersIndexerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseOpenOrdersIndexerRow> = sqlx::query_as(
-            r#"SELECT * FROM close_open_orders_indexer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_close_open_orders_indexer_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -372,7 +372,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateOpenOrdersAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateOpenOrdersAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM create_open_orders_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_create_open_orders_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -391,7 +391,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateOpenOrdersAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateOpenOrdersAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM create_open_orders_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_create_open_orders_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -410,7 +410,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseOpenOrdersAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseOpenOrdersAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM close_open_orders_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_close_open_orders_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -429,7 +429,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseOpenOrdersAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseOpenOrdersAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM close_open_orders_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_close_open_orders_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -448,7 +448,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PlaceOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PlaceOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM place_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_place_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -467,7 +467,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PlaceOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PlaceOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM place_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_place_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -486,7 +486,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::EditOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::EditOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM edit_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_edit_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -505,7 +505,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::EditOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::EditOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM edit_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_edit_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -524,7 +524,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::EditOrderPeggedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::EditOrderPeggedRow> = sqlx::query_as(
-            r#"SELECT * FROM edit_order_pegged_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_edit_order_pegged_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -543,7 +543,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::EditOrderPeggedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::EditOrderPeggedRow> = sqlx::query_as(
-            r#"SELECT * FROM edit_order_pegged_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_edit_order_pegged_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -562,7 +562,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PlaceOrdersGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PlaceOrdersRow> = sqlx::query_as(
-            r#"SELECT * FROM place_orders_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_place_orders_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -581,7 +581,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PlaceOrdersGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PlaceOrdersRow> = sqlx::query_as(
-            r#"SELECT * FROM place_orders_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_place_orders_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -600,7 +600,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelAllAndPlaceOrdersGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelAllAndPlaceOrdersRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_all_and_place_orders_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_cancel_all_and_place_orders_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -619,7 +619,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelAllAndPlaceOrdersGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelAllAndPlaceOrdersRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_all_and_place_orders_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_cancel_all_and_place_orders_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -638,7 +638,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PlaceOrderPeggedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PlaceOrderPeggedRow> = sqlx::query_as(
-            r#"SELECT * FROM place_order_pegged_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_place_order_pegged_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -657,7 +657,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PlaceOrderPeggedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PlaceOrderPeggedRow> = sqlx::query_as(
-            r#"SELECT * FROM place_order_pegged_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_place_order_pegged_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -676,7 +676,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PlaceTakeOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PlaceTakeOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM place_take_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_place_take_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -695,7 +695,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PlaceTakeOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PlaceTakeOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM place_take_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_place_take_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -714,7 +714,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ConsumeEventsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ConsumeEventsRow> = sqlx::query_as(
-            r#"SELECT * FROM consume_events_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_consume_events_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -733,7 +733,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ConsumeEventsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ConsumeEventsRow> = sqlx::query_as(
-            r#"SELECT * FROM consume_events_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_consume_events_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -752,7 +752,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ConsumeGivenEventsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ConsumeGivenEventsRow> = sqlx::query_as(
-            r#"SELECT * FROM consume_given_events_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_consume_given_events_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -771,7 +771,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ConsumeGivenEventsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ConsumeGivenEventsRow> = sqlx::query_as(
-            r#"SELECT * FROM consume_given_events_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_consume_given_events_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -790,7 +790,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_cancel_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -809,7 +809,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_cancel_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -828,7 +828,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelOrderByClientOrderIdGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelOrderByClientOrderIdRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_order_by_client_order_id_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_cancel_order_by_client_order_id_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -847,7 +847,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelOrderByClientOrderIdGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelOrderByClientOrderIdRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_order_by_client_order_id_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_cancel_order_by_client_order_id_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -866,7 +866,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelAllOrdersGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelAllOrdersRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_all_orders_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_cancel_all_orders_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -885,7 +885,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CancelAllOrdersGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CancelAllOrdersRow> = sqlx::query_as(
-            r#"SELECT * FROM cancel_all_orders_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_cancel_all_orders_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -904,7 +904,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DepositGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DepositRow> = sqlx::query_as(
-            r#"SELECT * FROM deposit_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_deposit_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -923,7 +923,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DepositGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DepositRow> = sqlx::query_as(
-            r#"SELECT * FROM deposit_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_deposit_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -942,7 +942,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::RefillGraphQL>> {
         let rows: Vec<crate::instructions::postgres::RefillRow> = sqlx::query_as(
-            r#"SELECT * FROM refill_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_refill_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -961,7 +961,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::RefillGraphQL>> {
         let rows: Vec<crate::instructions::postgres::RefillRow> = sqlx::query_as(
-            r#"SELECT * FROM refill_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_refill_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -980,7 +980,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SettleFundsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SettleFundsRow> = sqlx::query_as(
-            r#"SELECT * FROM settle_funds_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_settle_funds_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -999,7 +999,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SettleFundsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SettleFundsRow> = sqlx::query_as(
-            r#"SELECT * FROM settle_funds_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_settle_funds_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1018,7 +1018,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SettleFundsExpiredGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SettleFundsExpiredRow> = sqlx::query_as(
-            r#"SELECT * FROM settle_funds_expired_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_settle_funds_expired_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1037,7 +1037,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SettleFundsExpiredGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SettleFundsExpiredRow> = sqlx::query_as(
-            r#"SELECT * FROM settle_funds_expired_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_settle_funds_expired_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1056,7 +1056,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SweepFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SweepFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM sweep_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_sweep_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1075,7 +1075,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SweepFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SweepFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM sweep_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_sweep_fees_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1094,7 +1094,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetDelegateGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetDelegateRow> = sqlx::query_as(
-            r#"SELECT * FROM set_delegate_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_set_delegate_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1113,7 +1113,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetDelegateGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetDelegateRow> = sqlx::query_as(
-            r#"SELECT * FROM set_delegate_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_set_delegate_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1132,7 +1132,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetMarketExpiredGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetMarketExpiredRow> = sqlx::query_as(
-            r#"SELECT * FROM set_market_expired_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_set_market_expired_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1151,7 +1151,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetMarketExpiredGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetMarketExpiredRow> = sqlx::query_as(
-            r#"SELECT * FROM set_market_expired_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_set_market_expired_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1170,7 +1170,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PruneOrdersGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PruneOrdersRow> = sqlx::query_as(
-            r#"SELECT * FROM prune_orders_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_prune_orders_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1189,7 +1189,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::PruneOrdersGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PruneOrdersRow> = sqlx::query_as(
-            r#"SELECT * FROM prune_orders_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_prune_orders_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1208,7 +1208,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::StubOracleCreateGraphQL>> {
         let rows: Vec<crate::instructions::postgres::StubOracleCreateRow> = sqlx::query_as(
-            r#"SELECT * FROM stub_oracle_create_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_stub_oracle_create_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1227,7 +1227,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::StubOracleCreateGraphQL>> {
         let rows: Vec<crate::instructions::postgres::StubOracleCreateRow> = sqlx::query_as(
-            r#"SELECT * FROM stub_oracle_create_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_stub_oracle_create_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1246,7 +1246,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::StubOracleCloseGraphQL>> {
         let rows: Vec<crate::instructions::postgres::StubOracleCloseRow> = sqlx::query_as(
-            r#"SELECT * FROM stub_oracle_close_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_stub_oracle_close_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1265,7 +1265,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::StubOracleCloseGraphQL>> {
         let rows: Vec<crate::instructions::postgres::StubOracleCloseRow> = sqlx::query_as(
-            r#"SELECT * FROM stub_oracle_close_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_stub_oracle_close_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1284,7 +1284,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::StubOracleSetGraphQL>> {
         let rows: Vec<crate::instructions::postgres::StubOracleSetRow> = sqlx::query_as(
-            r#"SELECT * FROM stub_oracle_set_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM openbook_v2_stub_oracle_set_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1303,7 +1303,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::StubOracleSetGraphQL>> {
         let rows: Vec<crate::instructions::postgres::StubOracleSetRow> = sqlx::query_as(
-            r#"SELECT * FROM stub_oracle_set_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM openbook_v2_stub_oracle_set_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1321,13 +1321,14 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CpiEventRow> =
-            sqlx::query_as(r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        let rows: Vec<crate::instructions::postgres::CpiEventRow> = sqlx::query_as(
+            r#"SELECT * FROM openbook_v2_cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows
             .into_iter()
             .filter_map(|row| row.try_into().ok())

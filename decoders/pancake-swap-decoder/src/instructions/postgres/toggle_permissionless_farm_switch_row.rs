@@ -39,7 +39,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::toggle_permissionless_farm_switch::TogglePermissionlessFarmSwitch
 {
     fn table() -> &'static str {
-        "toggle_permissionless_farm_switch_instruction"
+        "pancake_swap_toggle_permissionless_farm_switch_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Insert for TogglePermissionlessFarmSwitc
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO toggle_permissionless_farm_switch_instruction (
+            INSERT INTO pancake_swap_toggle_permissionless_farm_switch_instruction (
                 "is_on",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -83,7 +83,7 @@ impl carbon_core::postgres::operations::Insert for TogglePermissionlessFarmSwitc
 impl carbon_core::postgres::operations::Upsert for TogglePermissionlessFarmSwitchRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO toggle_permissionless_farm_switch_instruction (
+            r#"INSERT INTO pancake_swap_toggle_permissionless_farm_switch_instruction (
                 "is_on",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Delete for TogglePermissionlessFarmSwitc
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM toggle_permissionless_farm_switch_instruction WHERE
+            r#"DELETE FROM pancake_swap_toggle_permissionless_farm_switch_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Lookup for TogglePermissionlessFarmSwitc
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM toggle_permissionless_farm_switch_instruction WHERE
+            r#"SELECT * FROM pancake_swap_toggle_permissionless_farm_switch_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,8 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TogglePermissionlessFarmSwitch
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS toggle_permissionless_farm_switch_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS pancake_swap_toggle_permissionless_farm_switch_instruction (
                 -- Instruction data
                 "is_on" BOOLEAN NOT NULL,
                 -- Instruction metadata
@@ -181,10 +180,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TogglePermissionlessFarmSwitch
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -192,9 +188,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TogglePermissionlessFarmSwitch
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS toggle_permissionless_farm_switch_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS pancake_swap_toggle_permissionless_farm_switch_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

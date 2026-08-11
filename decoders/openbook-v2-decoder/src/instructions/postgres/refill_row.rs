@@ -41,7 +41,7 @@ impl TryFrom<RefillRow> for crate::instructions::refill::Refill {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::refill::Refill {
     fn table() -> &'static str {
-        "refill_instruction"
+        "openbook_v2_refill_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for RefillRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO refill_instruction (
+            INSERT INTO openbook_v2_refill_instruction (
                 "base_amount",
                 "quote_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for RefillRow {
 impl carbon_core::postgres::operations::Upsert for RefillRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO refill_instruction (
+            r#"INSERT INTO openbook_v2_refill_instruction (
                 "base_amount",
                 "quote_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Delete for RefillRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM refill_instruction WHERE
+            r#"DELETE FROM openbook_v2_refill_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Lookup for RefillRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM refill_instruction WHERE
+            r#"SELECT * FROM openbook_v2_refill_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RefillMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS refill_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_refill_instruction (
                 -- Instruction data
                 "base_amount" NUMERIC(20) NOT NULL,
                 "quote_amount" NUMERIC(20) NOT NULL,
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RefillMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS refill_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_refill_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_amm_config::CreateAmmConfig
 {
     fn table() -> &'static str {
-        "create_amm_config_instruction"
+        "raydium_cpmm_create_amm_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -87,7 +87,7 @@ impl carbon_core::postgres::operations::Insert for CreateAmmConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_amm_config_instruction (
+            INSERT INTO raydium_cpmm_create_amm_config_instruction (
                 "index",
                 "trade_fee_rate",
                 "protocol_fee_rate",
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Insert for CreateAmmConfigRow {
 impl carbon_core::postgres::operations::Upsert for CreateAmmConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_amm_config_instruction (
+            r#"INSERT INTO raydium_cpmm_create_amm_config_instruction (
                 "index",
                 "trade_fee_rate",
                 "protocol_fee_rate",
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Delete for CreateAmmConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_amm_config_instruction WHERE
+            r#"DELETE FROM raydium_cpmm_create_amm_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -201,7 +201,7 @@ impl carbon_core::postgres::operations::Lookup for CreateAmmConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_amm_config_instruction WHERE
+            r#"SELECT * FROM raydium_cpmm_create_amm_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -224,7 +224,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateAmmConfigMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_amm_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_cpmm_create_amm_config_instruction (
                 -- Instruction data
                 "index" INT4 NOT NULL,
                 "trade_fee_rate" NUMERIC(20) NOT NULL,
@@ -250,7 +250,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateAmmConfigMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_amm_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_cpmm_create_amm_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

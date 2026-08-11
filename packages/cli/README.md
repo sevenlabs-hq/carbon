@@ -35,6 +35,12 @@ carbon-cli parse [OPTIONS]
 - `-s, --standard <anchor|codama>` - Specify the IDL standard to parse (default: anchor)
 - `--event-hints <csv>` - Comma-separated names of defined types to parse as CPI Events (Codama only)
 - `-u, --url <rpcUrl>` - RPC URL for fetching IDL when using a program address
+- `--with-postgres <boolean>` - Include Postgres wiring and deps (default: true)
+- `--with-clickhouse <boolean>` - Include ClickHouse wiring and deps (default: false)
+- `--with-graphql <boolean>` - Include GraphQL wiring and deps (default: true)
+- `--with-serde <boolean>` - Include serde feature for decoder (default: false)
+- `--with-base58 <boolean>` - Include base58 feature for decoder (default: false)
+- `--postgres-mode <generic|typed>` - Postgres table storage mode (default: typed)
 - `--no-clean` - Do not delete output directory before rendering (default: false)
 
 #### Examples
@@ -81,6 +87,7 @@ carbon-cli scaffold [OPTIONS]
 - `-s, --data-source <name>` - Name of data source
 - `-m, --metrics <log|prometheus>` - Metrics to use (default: log)
 - `--with-postgres <boolean>` - Include Postgres wiring and deps (default: true)
+- `--with-clickhouse <boolean>` - Include ClickHouse wiring and deps (default: false)
 - `--with-graphql <boolean>` - Include GraphQL wiring and deps (default: true)
 - `--with-serde <boolean>` - Include serde feature for decoder (default: false)
 - `--force` - Overwrite output directory if it exists (default: false)

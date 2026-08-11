@@ -14,10 +14,8 @@ pub struct ObservationState {
     /// observation array
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub observations: [Observation; 100],
-    /// the last update timestamp
-    pub last_update_timestamp: u64,
     /// padding for feature update
-    pub padding: [u64; 3],
+    pub padding: [u64; 4],
 }
 
 impl CarbonDeserialize for ObservationState {

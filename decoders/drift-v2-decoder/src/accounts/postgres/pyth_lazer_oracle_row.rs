@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::pyth_lazer_oracle::PythLazerOracle
 {
     fn table() -> &'static str {
-        "pyth_lazer_oracle_account"
+        "drift_v2_pyth_lazer_oracle_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for PythLazerOracleRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO pyth_lazer_oracle_account (
+            INSERT INTO drift_v2_pyth_lazer_oracle_account (
                 "price",
                 "publish_time",
                 "posted_slot",
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Insert for PythLazerOracleRow {
 impl carbon_core::postgres::operations::Upsert for PythLazerOracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO pyth_lazer_oracle_account (
+            r#"INSERT INTO drift_v2_pyth_lazer_oracle_account (
                 "price",
                 "publish_time",
                 "posted_slot",
@@ -152,7 +152,7 @@ impl carbon_core::postgres::operations::Delete for PythLazerOracleRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM pyth_lazer_oracle_account WHERE
+            r#"DELETE FROM drift_v2_pyth_lazer_oracle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -173,7 +173,7 @@ impl carbon_core::postgres::operations::Lookup for PythLazerOracleRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM pyth_lazer_oracle_account WHERE
+            r#"SELECT * FROM drift_v2_pyth_lazer_oracle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -194,7 +194,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PythLazerOracleMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS pyth_lazer_oracle_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_pyth_lazer_oracle_account (
                 -- Account data
                 "price" INT8 NOT NULL,
                 "publish_time" NUMERIC(20) NOT NULL,
@@ -217,7 +217,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PythLazerOracleMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS pyth_lazer_oracle_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_pyth_lazer_oracle_account"#)
             .execute(connection)
             .await?;
         Ok(())

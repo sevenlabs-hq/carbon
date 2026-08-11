@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::permanent_lock_position::PermanentLockPosition
 {
     fn table() -> &'static str {
-        "permanent_lock_position_instruction"
+        "meteora_damm_v2_permanent_lock_position_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for PermanentLockPositionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO permanent_lock_position_instruction (
+            INSERT INTO meteora_damm_v2_permanent_lock_position_instruction (
                 "permanent_lock_liquidity",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for PermanentLockPositionRow {
 impl carbon_core::postgres::operations::Upsert for PermanentLockPositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO permanent_lock_position_instruction (
+            r#"INSERT INTO meteora_damm_v2_permanent_lock_position_instruction (
                 "permanent_lock_liquidity",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for PermanentLockPositionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM permanent_lock_position_instruction WHERE
+            r#"DELETE FROM meteora_damm_v2_permanent_lock_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for PermanentLockPositionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM permanent_lock_position_instruction WHERE
+            r#"SELECT * FROM meteora_damm_v2_permanent_lock_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PermanentLockPositionMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS permanent_lock_position_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_permanent_lock_position_instruction (
                 -- Instruction data
                 "permanent_lock_liquidity" NUMERIC(39) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PermanentLockPositionMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS permanent_lock_position_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_permanent_lock_position_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

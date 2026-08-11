@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_pre_activation_swap_address::SetPreActivationSwapAddress
 {
     fn table() -> &'static str {
-        "set_pre_activation_swap_address_instruction"
+        "meteora_dlmm_set_pre_activation_swap_address_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SetPreActivationSwapAddressRo
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_pre_activation_swap_address_instruction (
+            INSERT INTO meteora_dlmm_set_pre_activation_swap_address_instruction (
                 "pre_activation_swap_address",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for SetPreActivationSwapAddressRo
 impl carbon_core::postgres::operations::Upsert for SetPreActivationSwapAddressRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_pre_activation_swap_address_instruction (
+            r#"INSERT INTO meteora_dlmm_set_pre_activation_swap_address_instruction (
                 "pre_activation_swap_address",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SetPreActivationSwapAddressRo
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_pre_activation_swap_address_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_set_pre_activation_swap_address_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for SetPreActivationSwapAddressRo
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_pre_activation_swap_address_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_set_pre_activation_swap_address_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetPreActivationSwapAddressMig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_pre_activation_swap_address_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_set_pre_activation_swap_address_instruction (
                 -- Instruction data
                 "pre_activation_swap_address" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -195,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetPreActivationSwapAddressMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_pre_activation_swap_address_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_dlmm_set_pre_activation_swap_address_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

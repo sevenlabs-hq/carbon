@@ -62,7 +62,7 @@ impl TryFrom<OperatorRow> for crate::accounts::operator::Operator {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::operator::Operator {
     fn table() -> &'static str {
-        "operator_account"
+        "meteora_dbc_operator_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for OperatorRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO operator_account (
+            INSERT INTO meteora_dbc_operator_account (
                 "whitelisted_address",
                 "permission",
                 "padding",
@@ -106,7 +106,7 @@ impl carbon_core::postgres::operations::Insert for OperatorRow {
 impl carbon_core::postgres::operations::Upsert for OperatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO operator_account (
+            r#"INSERT INTO meteora_dbc_operator_account (
                 "whitelisted_address",
                 "permission",
                 "padding",
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for OperatorRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM operator_account WHERE
+            r#"DELETE FROM meteora_dbc_operator_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -161,7 +161,7 @@ impl carbon_core::postgres::operations::Lookup for OperatorRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM operator_account WHERE
+            r#"SELECT * FROM meteora_dbc_operator_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -182,7 +182,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OperatorMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS operator_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dbc_operator_account (
                 -- Account data
                 "whitelisted_address" BYTEA NOT NULL,
                 "permission" NUMERIC(39) NOT NULL,
@@ -202,7 +202,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OperatorMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS operator_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dbc_operator_account"#)
             .execute(connection)
             .await?;
         Ok(())

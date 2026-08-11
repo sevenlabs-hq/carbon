@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::lending_pool_configure_bank_oracle::LendingPoolConfigureBankOracle
 {
     fn table() -> &'static str {
-        "lending_pool_configure_bank_oracle_instruction"
+        "marginfi_v2_lending_pool_configure_bank_oracle_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for LendingPoolConfigureBankOracl
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lending_pool_configure_bank_oracle_instruction (
+            INSERT INTO marginfi_v2_lending_pool_configure_bank_oracle_instruction (
                 "setup",
                 "oracle",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for LendingPoolConfigureBankOracl
 impl carbon_core::postgres::operations::Upsert for LendingPoolConfigureBankOracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lending_pool_configure_bank_oracle_instruction (
+            r#"INSERT INTO marginfi_v2_lending_pool_configure_bank_oracle_instruction (
                 "setup",
                 "oracle",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Delete for LendingPoolConfigureBankOracl
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lending_pool_configure_bank_oracle_instruction WHERE
+            r#"DELETE FROM marginfi_v2_lending_pool_configure_bank_oracle_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for LendingPoolConfigureBankOracl
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lending_pool_configure_bank_oracle_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_lending_pool_configure_bank_oracle_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -189,8 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingPoolConfigureBankOracle
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lending_pool_configure_bank_oracle_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS marginfi_v2_lending_pool_configure_bank_oracle_instruction (
                 -- Instruction data
                 "setup" INT2 NOT NULL,
                 "oracle" BYTEA NOT NULL,
@@ -201,10 +200,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingPoolConfigureBankOracle
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -212,9 +208,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingPoolConfigureBankOracle
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lending_pool_configure_bank_oracle_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS marginfi_v2_lending_pool_configure_bank_oracle_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

@@ -53,7 +53,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::resolve_perp_bankruptcy::ResolvePerpBankruptcy
 {
     fn table() -> &'static str {
-        "resolve_perp_bankruptcy_instruction"
+        "drift_v2_resolve_perp_bankruptcy_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for ResolvePerpBankruptcyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO resolve_perp_bankruptcy_instruction (
+            INSERT INTO drift_v2_resolve_perp_bankruptcy_instruction (
                 "quote_spot_market_index",
                 "market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Insert for ResolvePerpBankruptcyRow {
 impl carbon_core::postgres::operations::Upsert for ResolvePerpBankruptcyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO resolve_perp_bankruptcy_instruction (
+            r#"INSERT INTO drift_v2_resolve_perp_bankruptcy_instruction (
                 "quote_spot_market_index",
                 "market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for ResolvePerpBankruptcyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM resolve_perp_bankruptcy_instruction WHERE
+            r#"DELETE FROM drift_v2_resolve_perp_bankruptcy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Lookup for ResolvePerpBankruptcyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM resolve_perp_bankruptcy_instruction WHERE
+            r#"SELECT * FROM drift_v2_resolve_perp_bankruptcy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ResolvePerpBankruptcyMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS resolve_perp_bankruptcy_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_resolve_perp_bankruptcy_instruction (
                 -- Instruction data
                 "quote_spot_market_index" INT4 NOT NULL,
                 "market_index" INT4 NOT NULL,
@@ -213,7 +213,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ResolvePerpBankruptcyMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS resolve_perp_bankruptcy_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_resolve_perp_bankruptcy_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

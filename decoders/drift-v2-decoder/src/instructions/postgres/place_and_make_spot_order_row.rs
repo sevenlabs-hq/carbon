@@ -55,7 +55,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::place_and_make_spot_order::PlaceAndMakeSpotOrder
 {
     fn table() -> &'static str {
-        "place_and_make_spot_order_instruction"
+        "drift_v2_place_and_make_spot_order_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for PlaceAndMakeSpotOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO place_and_make_spot_order_instruction (
+            INSERT INTO drift_v2_place_and_make_spot_order_instruction (
                 "params",
                 "taker_order_id",
                 "fulfillment_type",
@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for PlaceAndMakeSpotOrderRow {
 impl carbon_core::postgres::operations::Upsert for PlaceAndMakeSpotOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO place_and_make_spot_order_instruction (
+            r#"INSERT INTO drift_v2_place_and_make_spot_order_instruction (
                 "params",
                 "taker_order_id",
                 "fulfillment_type",
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Delete for PlaceAndMakeSpotOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM place_and_make_spot_order_instruction WHERE
+            r#"DELETE FROM drift_v2_place_and_make_spot_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for PlaceAndMakeSpotOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM place_and_make_spot_order_instruction WHERE
+            r#"SELECT * FROM drift_v2_place_and_make_spot_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PlaceAndMakeSpotOrderMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS place_and_make_spot_order_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_place_and_make_spot_order_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 "taker_order_id" INT8 NOT NULL,
@@ -222,7 +222,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PlaceAndMakeSpotOrderMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS place_and_make_spot_order_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_place_and_make_spot_order_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

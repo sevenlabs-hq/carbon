@@ -38,7 +38,7 @@ impl TryFrom<WithdrawObligationCollateralAndRedeemReserveCollateralV2Row> for cr
 
 impl carbon_core::postgres::operations::Table for crate::instructions::withdraw_obligation_collateral_and_redeem_reserve_collateral_v2::WithdrawObligationCollateralAndRedeemReserveCollateralV2 {
     fn table() -> &'static str {
-        "withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction"
+        "kamino_lending_withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Insert
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction (
+            INSERT INTO kamino_lending_withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction (
                 "collateral_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Upsert
     for WithdrawObligationCollateralAndRedeemReserveCollateralV2Row
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction (
+        sqlx::query(r#"INSERT INTO kamino_lending_withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction (
                 "collateral_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Delete
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction WHERE
+        sqlx::query(r#"DELETE FROM kamino_lending_withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
         .bind(key.0)
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Lookup
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM kamino_lending_withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
         .bind(key.0)
@@ -167,7 +167,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS kamino_lending_withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction (
                 -- Instruction data
                 "collateral_amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -185,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction"#).execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

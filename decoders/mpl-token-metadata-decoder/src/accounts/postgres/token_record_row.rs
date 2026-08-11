@@ -62,7 +62,7 @@ impl TryFrom<TokenRecordRow> for crate::accounts::token_record::TokenRecord {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::token_record::TokenRecord {
     fn table() -> &'static str {
-        "token_record_account"
+        "mpl_token_metadata_token_record_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -85,7 +85,7 @@ impl carbon_core::postgres::operations::Insert for TokenRecordRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO token_record_account (
+            INSERT INTO mpl_token_metadata_token_record_account (
                 "key",
                 "bump",
                 "state",
@@ -118,7 +118,7 @@ impl carbon_core::postgres::operations::Insert for TokenRecordRow {
 impl carbon_core::postgres::operations::Upsert for TokenRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_record_account (
+            r#"INSERT INTO mpl_token_metadata_token_record_account (
                 "key",
                 "bump",
                 "state",
@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Delete for TokenRecordRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM token_record_account WHERE
+            r#"DELETE FROM mpl_token_metadata_token_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -185,7 +185,7 @@ impl carbon_core::postgres::operations::Lookup for TokenRecordRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM token_record_account WHERE
+            r#"SELECT * FROM mpl_token_metadata_token_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -206,7 +206,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenRecordMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS token_record_account (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_token_record_account (
                 -- Account data
                 "key" JSONB NOT NULL,
                 "bump" INT2 NOT NULL,
@@ -230,7 +230,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenRecordMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS token_record_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_token_record_account"#)
             .execute(connection)
             .await?;
         Ok(())

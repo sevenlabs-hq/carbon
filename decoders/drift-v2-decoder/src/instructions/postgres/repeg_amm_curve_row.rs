@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::repeg_amm_curve::RepegAmmCurve
 {
     fn table() -> &'static str {
-        "repeg_amm_curve_instruction"
+        "drift_v2_repeg_amm_curve_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for RepegAmmCurveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO repeg_amm_curve_instruction (
+            INSERT INTO drift_v2_repeg_amm_curve_instruction (
                 "new_peg_candidate",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for RepegAmmCurveRow {
 impl carbon_core::postgres::operations::Upsert for RepegAmmCurveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO repeg_amm_curve_instruction (
+            r#"INSERT INTO drift_v2_repeg_amm_curve_instruction (
                 "new_peg_candidate",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for RepegAmmCurveRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM repeg_amm_curve_instruction WHERE
+            r#"DELETE FROM drift_v2_repeg_amm_curve_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for RepegAmmCurveRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM repeg_amm_curve_instruction WHERE
+            r#"SELECT * FROM drift_v2_repeg_amm_curve_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RepegAmmCurveMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS repeg_amm_curve_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_repeg_amm_curve_instruction (
                 -- Instruction data
                 "new_peg_candidate" NUMERIC(39) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RepegAmmCurveMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS repeg_amm_curve_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_repeg_amm_curve_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

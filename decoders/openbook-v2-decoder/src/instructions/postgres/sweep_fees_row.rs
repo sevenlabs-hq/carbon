@@ -31,7 +31,7 @@ impl TryFrom<SweepFeesRow> for crate::instructions::sweep_fees::SweepFees {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::sweep_fees::SweepFees {
     fn table() -> &'static str {
-        "sweep_fees_instruction"
+        "openbook_v2_sweep_fees_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for SweepFeesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO sweep_fees_instruction (
+            INSERT INTO openbook_v2_sweep_fees_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for SweepFeesRow {
 impl carbon_core::postgres::operations::Upsert for SweepFeesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO sweep_fees_instruction (
+            r#"INSERT INTO openbook_v2_sweep_fees_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for SweepFeesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM sweep_fees_instruction WHERE
+            r#"DELETE FROM openbook_v2_sweep_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for SweepFeesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM sweep_fees_instruction WHERE
+            r#"SELECT * FROM openbook_v2_sweep_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SweepFeesMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS sweep_fees_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_sweep_fees_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SweepFeesMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS sweep_fees_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_sweep_fees_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

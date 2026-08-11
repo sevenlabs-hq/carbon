@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::locked_cp_liquidity_state::LockedCpLiquidityState
 {
     fn table() -> &'static str {
-        "locked_cp_liquidity_state_account"
+        "raydium_liquidity_locking_locked_cp_liquidity_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -117,7 +117,7 @@ impl carbon_core::postgres::operations::Insert for LockedCpLiquidityStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO locked_cp_liquidity_state_account (
+            INSERT INTO raydium_liquidity_locking_locked_cp_liquidity_state_account (
                 "locked_lp_amount",
                 "claimed_lp_amount",
                 "unclaimed_lp_amount",
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Insert for LockedCpLiquidityStateRow {
 impl carbon_core::postgres::operations::Upsert for LockedCpLiquidityStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO locked_cp_liquidity_state_account (
+            r#"INSERT INTO raydium_liquidity_locking_locked_cp_liquidity_state_account (
                 "locked_lp_amount",
                 "claimed_lp_amount",
                 "unclaimed_lp_amount",
@@ -216,7 +216,7 @@ impl carbon_core::postgres::operations::Delete for LockedCpLiquidityStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM locked_cp_liquidity_state_account WHERE
+            r#"DELETE FROM raydium_liquidity_locking_locked_cp_liquidity_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -237,7 +237,7 @@ impl carbon_core::postgres::operations::Lookup for LockedCpLiquidityStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM locked_cp_liquidity_state_account WHERE
+            r#"SELECT * FROM raydium_liquidity_locking_locked_cp_liquidity_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -257,8 +257,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockedCpLiquidityStateMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS locked_cp_liquidity_state_account (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS raydium_liquidity_locking_locked_cp_liquidity_state_account (
                 -- Account data
                 "locked_lp_amount" NUMERIC(20) NOT NULL,
                 "claimed_lp_amount" NUMERIC(20) NOT NULL,
@@ -275,10 +274,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockedCpLiquidityStateMigratio
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -286,9 +282,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockedCpLiquidityStateMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS locked_cp_liquidity_state_account"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS raydium_liquidity_locking_locked_cp_liquidity_state_account"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

@@ -60,7 +60,7 @@ impl TryFrom<StubOracleRow> for crate::accounts::stub_oracle::StubOracle {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::stub_oracle::StubOracle {
     fn table() -> &'static str {
-        "stub_oracle_account"
+        "openbook_v2_stub_oracle_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -83,7 +83,7 @@ impl carbon_core::postgres::operations::Insert for StubOracleRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO stub_oracle_account (
+            INSERT INTO openbook_v2_stub_oracle_account (
                 "owner",
                 "mint",
                 "price",
@@ -116,7 +116,7 @@ impl carbon_core::postgres::operations::Insert for StubOracleRow {
 impl carbon_core::postgres::operations::Upsert for StubOracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO stub_oracle_account (
+            r#"INSERT INTO openbook_v2_stub_oracle_account (
                 "owner",
                 "mint",
                 "price",
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Delete for StubOracleRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM stub_oracle_account WHERE
+            r#"DELETE FROM openbook_v2_stub_oracle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -183,7 +183,7 @@ impl carbon_core::postgres::operations::Lookup for StubOracleRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM stub_oracle_account WHERE
+            r#"SELECT * FROM openbook_v2_stub_oracle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -204,7 +204,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StubOracleMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS stub_oracle_account (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_stub_oracle_account (
                 -- Account data
                 "owner" BYTEA NOT NULL,
                 "mint" BYTEA NOT NULL,
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StubOracleMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS stub_oracle_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_stub_oracle_account"#)
             .execute(connection)
             .await?;
         Ok(())

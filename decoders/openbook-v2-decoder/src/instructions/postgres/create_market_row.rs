@@ -56,7 +56,7 @@ impl TryFrom<CreateMarketRow> for crate::instructions::create_market::CreateMark
 
 impl carbon_core::postgres::operations::Table for crate::instructions::create_market::CreateMarket {
     fn table() -> &'static str {
-        "create_market_instruction"
+        "openbook_v2_create_market_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for CreateMarketRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_market_instruction (
+            INSERT INTO openbook_v2_create_market_instruction (
                 "name",
                 "oracle_config",
                 "quote_lot_size",
@@ -118,7 +118,7 @@ impl carbon_core::postgres::operations::Insert for CreateMarketRow {
 impl carbon_core::postgres::operations::Upsert for CreateMarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_market_instruction (
+            r#"INSERT INTO openbook_v2_create_market_instruction (
                 "name",
                 "oracle_config",
                 "quote_lot_size",
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Delete for CreateMarketRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_market_instruction WHERE
+            r#"DELETE FROM openbook_v2_create_market_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -201,7 +201,7 @@ impl carbon_core::postgres::operations::Lookup for CreateMarketRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_market_instruction WHERE
+            r#"SELECT * FROM openbook_v2_create_market_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -224,7 +224,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateMarketMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_market_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_create_market_instruction (
                 -- Instruction data
                 "name" TEXT NOT NULL,
                 "oracle_config" JSONB NOT NULL,
@@ -251,7 +251,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateMarketMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_market_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_create_market_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

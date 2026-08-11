@@ -56,7 +56,7 @@ impl TryFrom<CreateV2Row> for crate::instructions::create_v2::CreateV2 {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::create_v2::CreateV2 {
     fn table() -> &'static str {
-        "create_v2_instruction"
+        "pumpfun_create_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for CreateV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_v2_instruction (
+            INSERT INTO pumpfun_create_v2_instruction (
                 "name",
                 "symbol",
                 "uri",
@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Insert for CreateV2Row {
 impl carbon_core::postgres::operations::Upsert for CreateV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_v2_instruction (
+            r#"INSERT INTO pumpfun_create_v2_instruction (
                 "name",
                 "symbol",
                 "uri",
@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for CreateV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_v2_instruction WHERE
+            r#"DELETE FROM pumpfun_create_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -195,7 +195,7 @@ impl carbon_core::postgres::operations::Lookup for CreateV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_v2_instruction WHERE
+            r#"SELECT * FROM pumpfun_create_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -218,7 +218,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateV2MigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_create_v2_instruction (
                 -- Instruction data
                 "name" TEXT NOT NULL,
                 "symbol" TEXT NOT NULL,
@@ -244,7 +244,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateV2MigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_create_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

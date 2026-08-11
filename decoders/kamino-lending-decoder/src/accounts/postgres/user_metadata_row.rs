@@ -90,7 +90,7 @@ impl TryFrom<UserMetadataRow> for crate::accounts::user_metadata::UserMetadata {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::user_metadata::UserMetadata {
     fn table() -> &'static str {
-        "user_metadata_account"
+        "kamino_lending_user_metadata_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Insert for UserMetadataRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO user_metadata_account (
+            INSERT INTO kamino_lending_user_metadata_account (
                 "referrer",
                 "bump",
                 "user_lookup_table",
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Insert for UserMetadataRow {
 impl carbon_core::postgres::operations::Upsert for UserMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO user_metadata_account (
+            r#"INSERT INTO kamino_lending_user_metadata_account (
                 "referrer",
                 "bump",
                 "user_lookup_table",
@@ -186,7 +186,7 @@ impl carbon_core::postgres::operations::Delete for UserMetadataRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM user_metadata_account WHERE
+            r#"DELETE FROM kamino_lending_user_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -207,7 +207,7 @@ impl carbon_core::postgres::operations::Lookup for UserMetadataRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM user_metadata_account WHERE
+            r#"SELECT * FROM kamino_lending_user_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserMetadataMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS user_metadata_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_user_metadata_account (
                 -- Account data
                 "referrer" BYTEA NOT NULL,
                 "bump" NUMERIC(20) NOT NULL,
@@ -251,7 +251,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserMetadataMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS user_metadata_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_user_metadata_account"#)
             .execute(connection)
             .await?;
         Ok(())

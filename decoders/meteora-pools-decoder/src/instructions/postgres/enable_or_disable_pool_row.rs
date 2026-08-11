@@ -39,7 +39,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::enable_or_disable_pool::EnableOrDisablePool
 {
     fn table() -> &'static str {
-        "enable_or_disable_pool_instruction"
+        "meteora_pools_enable_or_disable_pool_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Insert for EnableOrDisablePoolRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO enable_or_disable_pool_instruction (
+            INSERT INTO meteora_pools_enable_or_disable_pool_instruction (
                 "enable",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -83,7 +83,7 @@ impl carbon_core::postgres::operations::Insert for EnableOrDisablePoolRow {
 impl carbon_core::postgres::operations::Upsert for EnableOrDisablePoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO enable_or_disable_pool_instruction (
+            r#"INSERT INTO meteora_pools_enable_or_disable_pool_instruction (
                 "enable",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Delete for EnableOrDisablePoolRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM enable_or_disable_pool_instruction WHERE
+            r#"DELETE FROM meteora_pools_enable_or_disable_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Lookup for EnableOrDisablePoolRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM enable_or_disable_pool_instruction WHERE
+            r#"SELECT * FROM meteora_pools_enable_or_disable_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,7 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EnableOrDisablePoolMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS enable_or_disable_pool_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_pools_enable_or_disable_pool_instruction (
                 -- Instruction data
                 "enable" BOOLEAN NOT NULL,
                 -- Instruction metadata
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EnableOrDisablePoolMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS enable_or_disable_pool_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_pools_enable_or_disable_pool_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

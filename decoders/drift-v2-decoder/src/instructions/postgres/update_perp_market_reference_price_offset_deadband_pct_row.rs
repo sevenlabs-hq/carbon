@@ -38,7 +38,7 @@ impl TryFrom<UpdatePerpMarketReferencePriceOffsetDeadbandPctRow> for crate::inst
 
 impl carbon_core::postgres::operations::Table for crate::instructions::update_perp_market_reference_price_offset_deadband_pct::UpdatePerpMarketReferencePriceOffsetDeadbandPct {
     fn table() -> &'static str {
-        "update_perp_market_reference_price_offset_deadband_pct_instruction"
+        "drift_v2_update_perp_market_reference_price_offset_deadband_pct_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,23 +58,20 @@ impl carbon_core::postgres::operations::Insert
     for UpdatePerpMarketReferencePriceOffsetDeadbandPctRow
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
-            INSERT INTO update_perp_market_reference_price_offset_deadband_pct_instruction (
+        sqlx::query(r#"
+            INSERT INTO drift_v2_update_perp_market_reference_price_offset_deadband_pct_instruction (
                 "reference_price_offset_deadband_pct",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#,
-        )
+            )"#)
         .bind(self.reference_price_offset_deadband_pct)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -85,7 +82,7 @@ impl carbon_core::postgres::operations::Upsert
     for UpdatePerpMarketReferencePriceOffsetDeadbandPctRow
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO update_perp_market_reference_price_offset_deadband_pct_instruction (
+        sqlx::query(r#"INSERT INTO drift_v2_update_perp_market_reference_price_offset_deadband_pct_instruction (
                 "reference_price_offset_deadband_pct",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,16 +119,13 @@ impl carbon_core::postgres::operations::Delete
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM update_perp_market_reference_price_offset_deadband_pct_instruction WHERE
+        sqlx::query(r#"DELETE FROM drift_v2_update_perp_market_reference_price_offset_deadband_pct_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -151,7 +145,7 @@ impl carbon_core::postgres::operations::Lookup
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM update_perp_market_reference_price_offset_deadband_pct_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM drift_v2_update_perp_market_reference_price_offset_deadband_pct_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
         .bind(key.0)
@@ -173,7 +167,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS update_perp_market_reference_price_offset_deadband_pct_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS drift_v2_update_perp_market_reference_price_offset_deadband_pct_instruction (
                 -- Instruction data
                 "reference_price_offset_deadband_pct" INT2 NOT NULL,
                 -- Instruction metadata
@@ -191,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_perp_market_reference_price_offset_deadband_pct_instruction"#).execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_perp_market_reference_price_offset_deadband_pct_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

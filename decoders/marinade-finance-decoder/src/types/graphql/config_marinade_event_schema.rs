@@ -23,6 +23,8 @@ pub struct ConfigMarinadeEventGraphQL {
     pub delayed_unstake_fee_change: Option<FeeCentsValueChangeGraphQL>,
     pub withdraw_stake_account_fee_change: Option<FeeCentsValueChangeGraphQL>,
     pub max_stake_moved_per_epoch_change: Option<FeeValueChangeGraphQL>,
+    pub deposit_sol_fee_change: Option<FeeCentsValueChangeGraphQL>,
+    pub deposit_stake_account_fee_change: Option<FeeCentsValueChangeGraphQL>,
 }
 
 impl From<crate::types::ConfigMarinadeEvent> for ConfigMarinadeEventGraphQL {
@@ -45,6 +47,10 @@ impl From<crate::types::ConfigMarinadeEvent> for ConfigMarinadeEventGraphQL {
                 .map(|v| v.into()),
             max_stake_moved_per_epoch_change: original
                 .max_stake_moved_per_epoch_change
+                .map(|v| v.into()),
+            deposit_sol_fee_change: original.deposit_sol_fee_change.map(|v| v.into()),
+            deposit_stake_account_fee_change: original
+                .deposit_stake_account_fee_change
                 .map(|v| v.into()),
         }
     }

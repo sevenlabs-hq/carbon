@@ -25,6 +25,7 @@ pub struct InitializePositionBundleWithMetadataInstructionAccounts {
     pub rent: solana_pubkey::Pubkey,
     pub associated_token_program: solana_pubkey::Pubkey,
     pub metadata_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -68,6 +69,7 @@ impl ArrangeAccounts for InitializePositionBundleWithMetadata {
         let rent = next_account(&mut iter)?;
         let associated_token_program = next_account(&mut iter)?;
         let metadata_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -84,6 +86,7 @@ impl ArrangeAccounts for InitializePositionBundleWithMetadata {
             rent,
             associated_token_program,
             metadata_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

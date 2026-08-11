@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::partial_unstake::PartialUnstake
 {
     fn table() -> &'static str {
-        "partial_unstake_instruction"
+        "marinade_finance_partial_unstake_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -79,7 +79,7 @@ impl carbon_core::postgres::operations::Insert for PartialUnstakeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO partial_unstake_instruction (
+            INSERT INTO marinade_finance_partial_unstake_instruction (
                 "stake_index",
                 "validator_index",
                 "desired_unstake_amount",
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Insert for PartialUnstakeRow {
 impl carbon_core::postgres::operations::Upsert for PartialUnstakeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO partial_unstake_instruction (
+            r#"INSERT INTO marinade_finance_partial_unstake_instruction (
                 "stake_index",
                 "validator_index",
                 "desired_unstake_amount",
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Delete for PartialUnstakeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM partial_unstake_instruction WHERE
+            r#"DELETE FROM marinade_finance_partial_unstake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Lookup for PartialUnstakeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM partial_unstake_instruction WHERE
+            r#"SELECT * FROM marinade_finance_partial_unstake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PartialUnstakeMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS partial_unstake_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_partial_unstake_instruction (
                 -- Instruction data
                 "stake_index" INT8 NOT NULL,
                 "validator_index" INT8 NOT NULL,
@@ -224,7 +224,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PartialUnstakeMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS partial_unstake_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_partial_unstake_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

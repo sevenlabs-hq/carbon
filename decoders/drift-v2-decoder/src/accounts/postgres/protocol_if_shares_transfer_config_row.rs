@@ -91,7 +91,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::protocol_if_shares_transfer_config::ProtocolIfSharesTransferConfig
 {
     fn table() -> &'static str {
-        "protocol_if_shares_transfer_config_account"
+        "drift_v2_protocol_if_shares_transfer_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Insert for ProtocolIfSharesTransferConfi
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO protocol_if_shares_transfer_config_account (
+            INSERT INTO drift_v2_protocol_if_shares_transfer_config_account (
                 "whitelisted_signers",
                 "max_transfer_per_epoch",
                 "current_epoch_transfer",
@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Insert for ProtocolIfSharesTransferConfi
 impl carbon_core::postgres::operations::Upsert for ProtocolIfSharesTransferConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO protocol_if_shares_transfer_config_account (
+            r#"INSERT INTO drift_v2_protocol_if_shares_transfer_config_account (
                 "whitelisted_signers",
                 "max_transfer_per_epoch",
                 "current_epoch_transfer",
@@ -181,7 +181,7 @@ impl carbon_core::postgres::operations::Delete for ProtocolIfSharesTransferConfi
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM protocol_if_shares_transfer_config_account WHERE
+            r#"DELETE FROM drift_v2_protocol_if_shares_transfer_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -202,7 +202,7 @@ impl carbon_core::postgres::operations::Lookup for ProtocolIfSharesTransferConfi
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM protocol_if_shares_transfer_config_account WHERE
+            r#"SELECT * FROM drift_v2_protocol_if_shares_transfer_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -223,7 +223,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProtocolIfSharesTransferConfig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS protocol_if_shares_transfer_config_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_protocol_if_shares_transfer_config_account (
                 -- Account data
                 "whitelisted_signers" BYTEA[] NOT NULL,
                 "max_transfer_per_epoch" NUMERIC(39) NOT NULL,
@@ -245,7 +245,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProtocolIfSharesTransferConfig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS protocol_if_shares_transfer_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_protocol_if_shares_transfer_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

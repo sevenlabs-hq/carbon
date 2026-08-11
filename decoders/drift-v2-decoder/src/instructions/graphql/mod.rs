@@ -4,7 +4,6 @@ pub mod add_insurance_fund_stake_schema;
 pub mod add_market_to_amm_cache_schema;
 pub mod admin_deposit_schema;
 pub mod admin_update_user_stats_paused_operations_schema;
-pub mod admin_withdraw_from_insurance_fund_vault_schema;
 pub mod begin_insurance_fund_swap_schema;
 pub mod begin_lp_swap_schema;
 pub mod begin_swap_schema;
@@ -19,13 +18,10 @@ pub mod cpi_event_schema;
 pub mod delete_amm_cache_schema;
 pub mod delete_initialized_perp_market_schema;
 pub mod delete_initialized_spot_market_schema;
-pub mod delete_openbook_v2_fulfillment_config_schema;
 pub mod delete_prelaunch_oracle_schema;
-pub mod delete_serum_fulfillment_config_schema;
 pub mod delete_signed_msg_user_orders_schema;
 pub mod delete_user_schema;
 pub mod deposit_into_insurance_fund_stake_schema;
-pub mod deposit_into_isolated_perp_position_schema;
 pub mod deposit_into_perp_market_fee_pool_schema;
 pub mod deposit_into_spot_market_revenue_pool_schema;
 pub mod deposit_into_spot_market_vault_schema;
@@ -90,7 +86,6 @@ pub mod place_and_take_perp_order_schema;
 pub mod place_and_take_spot_order_schema;
 pub mod place_orders_schema;
 pub mod place_perp_order_schema;
-pub mod place_scale_orders_schema;
 pub mod place_signed_msg_taker_order_schema;
 pub mod place_spot_order_schema;
 pub mod post_multi_pyth_pull_oracle_updates_atomic_schema;
@@ -121,7 +116,6 @@ pub mod settle_pnl_schema;
 pub mod settle_revenue_to_insurance_fund_schema;
 pub mod sweep_fuel_schema;
 pub mod transfer_deposit_schema;
-pub mod transfer_isolated_perp_position_deposit_schema;
 pub mod transfer_perp_position_schema;
 pub mod transfer_pools_schema;
 pub mod transfer_protocol_if_shares_to_revenue_pool_schema;
@@ -166,7 +160,6 @@ pub mod update_perp_market_amm_spread_adjustment_schema;
 pub mod update_perp_market_amm_summary_stats_schema;
 pub mod update_perp_market_base_spread_schema;
 pub mod update_perp_market_concentration_coef_schema;
-pub mod update_perp_market_config_schema;
 pub mod update_perp_market_contract_tier_schema;
 pub mod update_perp_market_curve_update_intensity_schema;
 pub mod update_perp_market_expiry_schema;
@@ -245,7 +238,6 @@ pub mod update_withdraw_guard_threshold_schema;
 pub mod view_lp_pool_add_liquidity_fees_schema;
 pub mod view_lp_pool_remove_liquidity_fees_schema;
 pub mod view_lp_pool_swap_fees_schema;
-pub mod withdraw_from_isolated_perp_position_schema;
 pub mod withdraw_from_program_vault_schema;
 pub mod withdraw_schema;
 pub mod zero_mm_oracle_fields_schema;
@@ -254,24 +246,21 @@ use juniper::GraphQLObject;
 pub use {
     add_amm_constituent_mapping_data_schema::*, add_insurance_fund_stake_schema::*,
     add_market_to_amm_cache_schema::*, admin_deposit_schema::*,
-    admin_update_user_stats_paused_operations_schema::*,
-    admin_withdraw_from_insurance_fund_vault_schema::*, begin_insurance_fund_swap_schema::*,
+    admin_update_user_stats_paused_operations_schema::*, begin_insurance_fund_swap_schema::*,
     begin_lp_swap_schema::*, begin_swap_schema::*, cancel_order_by_user_id_schema::*,
     cancel_order_schema::*, cancel_orders_by_ids_schema::*, cancel_orders_schema::*,
     cancel_request_remove_insurance_fund_stake_schema::*, change_approved_builder_schema::*,
     change_signed_msg_ws_delegate_status_schema::*, cpi_event_schema::*,
     delete_amm_cache_schema::*, delete_initialized_perp_market_schema::*,
-    delete_initialized_spot_market_schema::*, delete_openbook_v2_fulfillment_config_schema::*,
-    delete_prelaunch_oracle_schema::*, delete_serum_fulfillment_config_schema::*,
+    delete_initialized_spot_market_schema::*, delete_prelaunch_oracle_schema::*,
     delete_signed_msg_user_orders_schema::*, delete_user_schema::*,
-    deposit_into_insurance_fund_stake_schema::*, deposit_into_isolated_perp_position_schema::*,
-    deposit_into_perp_market_fee_pool_schema::*, deposit_into_spot_market_revenue_pool_schema::*,
-    deposit_into_spot_market_vault_schema::*, deposit_schema::*,
-    deposit_to_program_vault_schema::*, disable_user_high_leverage_mode_schema::*,
-    enable_user_high_leverage_mode_schema::*, end_insurance_fund_swap_schema::*,
-    end_lp_swap_schema::*, end_swap_schema::*, fill_perp_order_schema::*,
-    fill_spot_order_schema::*, force_cancel_orders_schema::*, force_delete_user_schema::*,
-    initialize_amm_cache_schema::*, initialize_constituent_schema::*,
+    deposit_into_insurance_fund_stake_schema::*, deposit_into_perp_market_fee_pool_schema::*,
+    deposit_into_spot_market_revenue_pool_schema::*, deposit_into_spot_market_vault_schema::*,
+    deposit_schema::*, deposit_to_program_vault_schema::*,
+    disable_user_high_leverage_mode_schema::*, enable_user_high_leverage_mode_schema::*,
+    end_insurance_fund_swap_schema::*, end_lp_swap_schema::*, end_swap_schema::*,
+    fill_perp_order_schema::*, fill_spot_order_schema::*, force_cancel_orders_schema::*,
+    force_delete_user_schema::*, initialize_amm_cache_schema::*, initialize_constituent_schema::*,
     initialize_fuel_overflow_schema::*, initialize_high_leverage_mode_config_schema::*,
     initialize_if_rebalance_config_schema::*, initialize_insurance_fund_stake_schema::*,
     initialize_lp_pool_schema::*, initialize_openbook_v2_fulfillment_config_schema::*,
@@ -294,24 +283,24 @@ pub use {
     place_and_make_perp_order_schema::*, place_and_make_signed_msg_perp_order_schema::*,
     place_and_make_spot_order_schema::*, place_and_take_perp_order_schema::*,
     place_and_take_spot_order_schema::*, place_orders_schema::*, place_perp_order_schema::*,
-    place_scale_orders_schema::*, place_signed_msg_taker_order_schema::*,
-    place_spot_order_schema::*, post_multi_pyth_pull_oracle_updates_atomic_schema::*,
-    post_pyth_lazer_oracle_update_schema::*, post_pyth_pull_oracle_update_atomic_schema::*,
-    recenter_perp_market_amm_crank_schema::*, recenter_perp_market_amm_schema::*,
-    reclaim_rent_schema::*, remove_amm_constituent_mapping_data_schema::*,
-    remove_insurance_fund_stake_schema::*, repeg_amm_curve_schema::*,
-    request_remove_insurance_fund_stake_schema::*, reset_fuel_season_schema::*,
-    reset_perp_market_amm_oracle_twap_schema::*, resize_revenue_share_escrow_orders_schema::*,
-    resize_signed_msg_user_orders_schema::*, resolve_perp_bankruptcy_schema::*,
-    resolve_perp_pnl_deficit_schema::*, resolve_spot_bankruptcy_schema::*, revert_fill_schema::*,
+    place_signed_msg_taker_order_schema::*, place_spot_order_schema::*,
+    post_multi_pyth_pull_oracle_updates_atomic_schema::*, post_pyth_lazer_oracle_update_schema::*,
+    post_pyth_pull_oracle_update_atomic_schema::*, recenter_perp_market_amm_crank_schema::*,
+    recenter_perp_market_amm_schema::*, reclaim_rent_schema::*,
+    remove_amm_constituent_mapping_data_schema::*, remove_insurance_fund_stake_schema::*,
+    repeg_amm_curve_schema::*, request_remove_insurance_fund_stake_schema::*,
+    reset_fuel_season_schema::*, reset_perp_market_amm_oracle_twap_schema::*,
+    resize_revenue_share_escrow_orders_schema::*, resize_signed_msg_user_orders_schema::*,
+    resolve_perp_bankruptcy_schema::*, resolve_perp_pnl_deficit_schema::*,
+    resolve_spot_bankruptcy_schema::*, revert_fill_schema::*,
     set_user_status_to_being_liquidated_schema::*,
     settle_expired_market_pools_to_revenue_pool_schema::*, settle_expired_market_schema::*,
     settle_funding_payment_schema::*, settle_multiple_pnls_schema::*,
     settle_perp_to_lp_pool_schema::*, settle_pnl_schema::*,
     settle_revenue_to_insurance_fund_schema::*, sweep_fuel_schema::*, transfer_deposit_schema::*,
-    transfer_isolated_perp_position_deposit_schema::*, transfer_perp_position_schema::*,
-    transfer_pools_schema::*, transfer_protocol_if_shares_to_revenue_pool_schema::*,
-    trigger_order_schema::*, update_admin_schema::*, update_amm_cache_schema::*,
+    transfer_perp_position_schema::*, transfer_pools_schema::*,
+    transfer_protocol_if_shares_to_revenue_pool_schema::*, trigger_order_schema::*,
+    update_admin_schema::*, update_amm_cache_schema::*,
     update_amm_constituent_mapping_data_schema::*, update_amm_jit_intensity_schema::*,
     update_amms_schema::*, update_constituent_correlation_data_schema::*,
     update_constituent_oracle_info_schema::*, update_constituent_params_schema::*,
@@ -333,8 +322,7 @@ pub use {
     update_perp_fee_structure_schema::*, update_perp_market_amm_oracle_twap_schema::*,
     update_perp_market_amm_spread_adjustment_schema::*,
     update_perp_market_amm_summary_stats_schema::*, update_perp_market_base_spread_schema::*,
-    update_perp_market_concentration_coef_schema::*, update_perp_market_config_schema::*,
-    update_perp_market_contract_tier_schema::*,
+    update_perp_market_concentration_coef_schema::*, update_perp_market_contract_tier_schema::*,
     update_perp_market_curve_update_intensity_schema::*, update_perp_market_expiry_schema::*,
     update_perp_market_fee_adjustment_schema::*, update_perp_market_funding_period_schema::*,
     update_perp_market_high_leverage_margin_ratio_schema::*,
@@ -380,8 +368,8 @@ pub use {
     update_user_quote_asset_insurance_stake_schema::*, update_user_reduce_only_schema::*,
     update_user_stats_referrer_status_schema::*, update_withdraw_guard_threshold_schema::*,
     view_lp_pool_add_liquidity_fees_schema::*, view_lp_pool_remove_liquidity_fees_schema::*,
-    view_lp_pool_swap_fees_schema::*, withdraw_from_isolated_perp_position_schema::*,
-    withdraw_from_program_vault_schema::*, withdraw_schema::*, zero_mm_oracle_fields_schema::*,
+    view_lp_pool_swap_fees_schema::*, withdraw_from_program_vault_schema::*, withdraw_schema::*,
+    zero_mm_oracle_fields_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

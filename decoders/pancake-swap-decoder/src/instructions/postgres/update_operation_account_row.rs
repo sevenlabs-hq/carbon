@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_operation_account::UpdateOperationAccount
 {
     fn table() -> &'static str {
-        "update_operation_account_instruction"
+        "pancake_swap_update_operation_account_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for UpdateOperationAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_operation_account_instruction (
+            INSERT INTO pancake_swap_update_operation_account_instruction (
                 "param",
                 "keys",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -103,7 +103,7 @@ impl carbon_core::postgres::operations::Insert for UpdateOperationAccountRow {
 impl carbon_core::postgres::operations::Upsert for UpdateOperationAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_operation_account_instruction (
+            r#"INSERT INTO pancake_swap_update_operation_account_instruction (
                 "param",
                 "keys",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Delete for UpdateOperationAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_operation_account_instruction WHERE
+            r#"DELETE FROM pancake_swap_update_operation_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,7 +171,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateOperationAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_operation_account_instruction WHERE
+            r#"SELECT * FROM pancake_swap_update_operation_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -194,7 +194,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateOperationAccountMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_operation_account_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pancake_swap_update_operation_account_instruction (
                 -- Instruction data
                 "param" INT2 NOT NULL,
                 "keys" BYTEA[] NOT NULL,
@@ -216,7 +216,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateOperationAccountMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_operation_account_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pancake_swap_update_operation_account_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

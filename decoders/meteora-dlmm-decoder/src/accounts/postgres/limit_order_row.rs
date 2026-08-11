@@ -77,7 +77,7 @@ impl TryFrom<LimitOrderRow> for crate::accounts::limit_order::LimitOrder {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::limit_order::LimitOrder {
     fn table() -> &'static str {
-        "limit_order_account"
+        "meteora_dlmm_limit_order_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for LimitOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO limit_order_account (
+            INSERT INTO meteora_dlmm_limit_order_account (
                 "lb_pair",
                 "owner",
                 "bin_count",
@@ -127,7 +127,7 @@ impl carbon_core::postgres::operations::Insert for LimitOrderRow {
 impl carbon_core::postgres::operations::Upsert for LimitOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO limit_order_account (
+            r#"INSERT INTO meteora_dlmm_limit_order_account (
                 "lb_pair",
                 "owner",
                 "bin_count",
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Delete for LimitOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM limit_order_account WHERE
+            r#"DELETE FROM meteora_dlmm_limit_order_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -188,7 +188,7 @@ impl carbon_core::postgres::operations::Lookup for LimitOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM limit_order_account WHERE
+            r#"SELECT * FROM meteora_dlmm_limit_order_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -209,7 +209,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LimitOrderMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS limit_order_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_limit_order_account (
                 -- Account data
                 "lb_pair" BYTEA NOT NULL,
                 "owner" BYTEA NOT NULL,
@@ -231,7 +231,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LimitOrderMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS limit_order_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_limit_order_account"#)
             .execute(connection)
             .await?;
         Ok(())

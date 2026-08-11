@@ -18,6 +18,7 @@ pub struct FeeConfigRow {
     pub admin: Pubkey,
     pub flat_fees: sqlx::types::Json<Fees>,
     pub fee_tiers: sqlx::types::Json<Vec<FeeTier>>,
+    pub stable_fee_tiers: sqlx::types::Json<Vec<FeeTier>>,
 }
 
 impl FeeConfigRow {
@@ -31,6 +32,7 @@ impl FeeConfigRow {
             admin: source.admin.into(),
             flat_fees: sqlx::types::Json(source.flat_fees),
             fee_tiers: sqlx::types::Json(source.fee_tiers.to_vec()),
+            stable_fee_tiers: sqlx::types::Json(source.stable_fee_tiers.to_vec()),
         }
     }
 }
@@ -47,13 +49,14 @@ impl TryFrom<FeeConfigRow> for crate::accounts::fee_config::FeeConfig {
             admin: *source.admin,
             flat_fees: source.flat_fees.0,
             fee_tiers: source.fee_tiers.0,
+            stable_fee_tiers: source.stable_fee_tiers.0,
         })
     }
 }
 
 impl carbon_core::postgres::operations::Table for crate::accounts::fee_config::FeeConfig {
     fn table() -> &'static str {
-        "fee_config_account"
+        "pump_fees_fee_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,6 +67,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::fee_config::F
             "admin",
             "flat_fees",
             "fee_tiers",
+            "stable_fee_tiers",
         ]
     }
 }
@@ -73,20 +77,22 @@ impl carbon_core::postgres::operations::Insert for FeeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fee_config_account (
+            INSERT INTO pump_fees_fee_config_account (
                 "bump",
                 "admin",
                 "flat_fees",
                 "fee_tiers",
+                "stable_fee_tiers",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5, $6, $7
             )"#,
         )
         .bind(self.bump)
         .bind(self.admin)
         .bind(&self.flat_fees)
         .bind(&self.fee_tiers)
+        .bind(&self.stable_fee_tiers)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -100,14 +106,15 @@ impl carbon_core::postgres::operations::Insert for FeeConfigRow {
 impl carbon_core::postgres::operations::Upsert for FeeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_config_account (
+            r#"INSERT INTO pump_fees_fee_config_account (
                 "bump",
                 "admin",
                 "flat_fees",
                 "fee_tiers",
+                "stable_fee_tiers",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5, $6, $7
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -115,6 +122,7 @@ impl carbon_core::postgres::operations::Upsert for FeeConfigRow {
                 "admin" = EXCLUDED."admin",
                 "flat_fees" = EXCLUDED."flat_fees",
                 "fee_tiers" = EXCLUDED."fee_tiers",
+                "stable_fee_tiers" = EXCLUDED."stable_fee_tiers",
                 __slot = EXCLUDED.__slot
             "#,
         )
@@ -122,6 +130,7 @@ impl carbon_core::postgres::operations::Upsert for FeeConfigRow {
         .bind(self.admin)
         .bind(&self.flat_fees)
         .bind(&self.fee_tiers)
+        .bind(&self.stable_fee_tiers)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -137,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for FeeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fee_config_account WHERE
+            r#"DELETE FROM pump_fees_fee_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -158,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for FeeConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fee_config_account WHERE
+            r#"SELECT * FROM pump_fees_fee_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -179,12 +188,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeConfigMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fee_config_account (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_fee_config_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "admin" BYTEA NOT NULL,
                 "flat_fees" JSONB NOT NULL,
                 "fee_tiers" JSONB NOT NULL,
+                "stable_fee_tiers" JSONB NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
@@ -200,7 +210,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeConfigMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fee_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_fee_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

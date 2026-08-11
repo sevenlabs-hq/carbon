@@ -22,7 +22,9 @@ pub mod sync_user_volume_accumulator_schema;
 pub mod toggle_cashback_enabled_schema;
 pub mod toggle_mayhem_mode_schema;
 pub mod transfer_creator_fees_to_pump_schema;
+pub mod transfer_creator_fees_to_pump_v2_schema;
 pub mod update_admin_schema;
+pub mod update_buyback_config_schema;
 pub mod update_fee_config_schema;
 pub mod withdraw_schema;
 
@@ -36,8 +38,9 @@ pub use {
     init_user_volume_accumulator_schema::*, migrate_pool_coin_creator_schema::*, sell_schema::*,
     set_coin_creator_schema::*, set_reserved_fee_recipients_schema::*,
     sync_user_volume_accumulator_schema::*, toggle_cashback_enabled_schema::*,
-    toggle_mayhem_mode_schema::*, transfer_creator_fees_to_pump_schema::*, update_admin_schema::*,
-    update_fee_config_schema::*, withdraw_schema::*,
+    toggle_mayhem_mode_schema::*, transfer_creator_fees_to_pump_schema::*,
+    transfer_creator_fees_to_pump_v2_schema::*, update_admin_schema::*,
+    update_buyback_config_schema::*, update_fee_config_schema::*, withdraw_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

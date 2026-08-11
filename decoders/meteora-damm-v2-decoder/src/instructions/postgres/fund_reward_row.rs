@@ -51,7 +51,7 @@ impl TryFrom<FundRewardRow> for crate::instructions::fund_reward::FundReward {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::fund_reward::FundReward {
     fn table() -> &'static str {
-        "fund_reward_instruction"
+        "meteora_damm_v2_fund_reward_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for FundRewardRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fund_reward_instruction (
+            INSERT INTO meteora_damm_v2_fund_reward_instruction (
                 "reward_index",
                 "amount",
                 "carry_forward",
@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for FundRewardRow {
 impl carbon_core::postgres::operations::Upsert for FundRewardRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fund_reward_instruction (
+            r#"INSERT INTO meteora_damm_v2_fund_reward_instruction (
                 "reward_index",
                 "amount",
                 "carry_forward",
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Delete for FundRewardRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fund_reward_instruction WHERE
+            r#"DELETE FROM meteora_damm_v2_fund_reward_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Lookup for FundRewardRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fund_reward_instruction WHERE
+            r#"SELECT * FROM meteora_damm_v2_fund_reward_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FundRewardMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fund_reward_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_fund_reward_instruction (
                 -- Instruction data
                 "reward_index" INT2 NOT NULL,
                 "amount" NUMERIC(20) NOT NULL,
@@ -218,7 +218,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FundRewardMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fund_reward_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_fund_reward_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

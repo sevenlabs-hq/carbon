@@ -38,7 +38,7 @@ impl TryFrom<UpdatePerpMarketCurveUpdateIntensityRow> for crate::instructions::u
 
 impl carbon_core::postgres::operations::Table for crate::instructions::update_perp_market_curve_update_intensity::UpdatePerpMarketCurveUpdateIntensity {
     fn table() -> &'static str {
-        "update_perp_market_curve_update_intensity_instruction"
+        "drift_v2_update_perp_market_curve_update_intensity_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketCurveUpdateIn
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_perp_market_curve_update_intensity_instruction (
+            INSERT INTO drift_v2_update_perp_market_curve_update_intensity_instruction (
                 "curve_update_intensity",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketCurveUpdateIn
 impl carbon_core::postgres::operations::Upsert for UpdatePerpMarketCurveUpdateIntensityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_perp_market_curve_update_intensity_instruction (
+            r#"INSERT INTO drift_v2_update_perp_market_curve_update_intensity_instruction (
                 "curve_update_intensity",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketCurveUpdateIn
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_perp_market_curve_update_intensity_instruction WHERE
+            r#"DELETE FROM drift_v2_update_perp_market_curve_update_intensity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketCurveUpdateIn
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_perp_market_curve_update_intensity_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_perp_market_curve_update_intensity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,8 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_perp_market_curve_update_intensity_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS drift_v2_update_perp_market_curve_update_intensity_instruction (
                 -- Instruction data
                 "curve_update_intensity" INT2 NOT NULL,
                 -- Instruction metadata
@@ -182,10 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -193,11 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"DROP TABLE IF EXISTS update_perp_market_curve_update_intensity_instruction"#,
-        )
-        .execute(connection)
-        .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_perp_market_curve_update_intensity_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

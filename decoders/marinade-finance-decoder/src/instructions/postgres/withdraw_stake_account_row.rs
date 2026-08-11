@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::withdraw_stake_account::WithdrawStakeAccount
 {
     fn table() -> &'static str {
-        "withdraw_stake_account_instruction"
+        "marinade_finance_withdraw_stake_account_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -85,7 +85,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawStakeAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_stake_account_instruction (
+            INSERT INTO marinade_finance_withdraw_stake_account_instruction (
                 "stake_index",
                 "validator_index",
                 "msol_amount",
@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawStakeAccountRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawStakeAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_stake_account_instruction (
+            r#"INSERT INTO marinade_finance_withdraw_stake_account_instruction (
                 "stake_index",
                 "validator_index",
                 "msol_amount",
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawStakeAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_stake_account_instruction WHERE
+            r#"DELETE FROM marinade_finance_withdraw_stake_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -189,7 +189,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawStakeAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_stake_account_instruction WHERE
+            r#"SELECT * FROM marinade_finance_withdraw_stake_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -212,7 +212,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawStakeAccountMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_stake_account_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_withdraw_stake_account_instruction (
                 -- Instruction data
                 "stake_index" INT8 NOT NULL,
                 "validator_index" INT8 NOT NULL,
@@ -236,7 +236,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawStakeAccountMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_stake_account_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_withdraw_stake_account_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

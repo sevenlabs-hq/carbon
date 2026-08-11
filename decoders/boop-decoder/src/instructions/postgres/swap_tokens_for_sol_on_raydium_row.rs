@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::swap_tokens_for_sol_on_raydium::SwapTokensForSolOnRaydium
 {
     fn table() -> &'static str {
-        "swap_tokens_for_sol_on_raydium_instruction"
+        "boop_swap_tokens_for_sol_on_raydium_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for SwapTokensForSolOnRaydiumRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO swap_tokens_for_sol_on_raydium_instruction (
+            INSERT INTO boop_swap_tokens_for_sol_on_raydium_instruction (
                 "amount_in",
                 "minimum_amount_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for SwapTokensForSolOnRaydiumRow 
 impl carbon_core::postgres::operations::Upsert for SwapTokensForSolOnRaydiumRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO swap_tokens_for_sol_on_raydium_instruction (
+            r#"INSERT INTO boop_swap_tokens_for_sol_on_raydium_instruction (
                 "amount_in",
                 "minimum_amount_out",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for SwapTokensForSolOnRaydiumRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM swap_tokens_for_sol_on_raydium_instruction WHERE
+            r#"DELETE FROM boop_swap_tokens_for_sol_on_raydium_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for SwapTokensForSolOnRaydiumRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM swap_tokens_for_sol_on_raydium_instruction WHERE
+            r#"SELECT * FROM boop_swap_tokens_for_sol_on_raydium_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapTokensForSolOnRaydiumMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS swap_tokens_for_sol_on_raydium_instruction (
+            r#"CREATE TABLE IF NOT EXISTS boop_swap_tokens_for_sol_on_raydium_instruction (
                 -- Instruction data
                 "amount_in" NUMERIC(20) NOT NULL,
                 "minimum_amount_out" NUMERIC(20) NOT NULL,
@@ -205,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SwapTokensForSolOnRaydiumMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS swap_tokens_for_sol_on_raydium_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS boop_swap_tokens_for_sol_on_raydium_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

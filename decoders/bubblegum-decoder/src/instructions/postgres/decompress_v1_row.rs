@@ -38,7 +38,7 @@ impl TryFrom<DecompressV1Row> for crate::instructions::decompress_v1::Decompress
 
 impl carbon_core::postgres::operations::Table for crate::instructions::decompress_v1::DecompressV1 {
     fn table() -> &'static str {
-        "decompress_v1_instruction"
+        "bubblegum_decompress_v1_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for DecompressV1Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO decompress_v1_instruction (
+            INSERT INTO bubblegum_decompress_v1_instruction (
                 "metadata",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for DecompressV1Row {
 impl carbon_core::postgres::operations::Upsert for DecompressV1Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO decompress_v1_instruction (
+            r#"INSERT INTO bubblegum_decompress_v1_instruction (
                 "metadata",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for DecompressV1Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM decompress_v1_instruction WHERE
+            r#"DELETE FROM bubblegum_decompress_v1_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for DecompressV1Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM decompress_v1_instruction WHERE
+            r#"SELECT * FROM bubblegum_decompress_v1_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DecompressV1MigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS decompress_v1_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_decompress_v1_instruction (
                 -- Instruction data
                 "metadata" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DecompressV1MigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS decompress_v1_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_decompress_v1_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

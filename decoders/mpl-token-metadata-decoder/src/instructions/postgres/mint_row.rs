@@ -38,7 +38,7 @@ impl TryFrom<MintRow> for crate::instructions::mint::Mint {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::mint::Mint {
     fn table() -> &'static str {
-        "mint_instruction"
+        "mpl_token_metadata_mint_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for MintRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO mint_instruction (
+            INSERT INTO mpl_token_metadata_mint_instruction (
                 "mint_args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for MintRow {
 impl carbon_core::postgres::operations::Upsert for MintRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO mint_instruction (
+            r#"INSERT INTO mpl_token_metadata_mint_instruction (
                 "mint_args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for MintRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM mint_instruction WHERE
+            r#"DELETE FROM mpl_token_metadata_mint_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for MintRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM mint_instruction WHERE
+            r#"SELECT * FROM mpl_token_metadata_mint_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MintMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS mint_instruction (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_mint_instruction (
                 -- Instruction data
                 "mint_args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MintMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS mint_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_mint_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

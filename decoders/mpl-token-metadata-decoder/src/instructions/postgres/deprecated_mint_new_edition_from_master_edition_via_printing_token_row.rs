@@ -32,7 +32,7 @@ impl TryFrom<DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenRow> for c
 
 impl carbon_core::postgres::operations::Table for crate::instructions::deprecated_mint_new_edition_from_master_edition_via_printing_token::DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
     fn table() -> &'static str {
-        "deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction"
+        "mpl_token_metadata_deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Insert
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction (
+            INSERT INTO mpl_token_metadata_deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Upsert
     for DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenRow
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction (
+        sqlx::query(r#"INSERT INTO mpl_token_metadata_deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction WHERE
+        sqlx::query(r#"DELETE FROM mpl_token_metadata_deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
         .bind(key.0)
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Lookup
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM mpl_token_metadata_deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
         .bind(key.0)
@@ -155,7 +155,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction"#).execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

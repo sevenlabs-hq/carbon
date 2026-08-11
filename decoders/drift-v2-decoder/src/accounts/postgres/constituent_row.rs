@@ -185,7 +185,7 @@ impl TryFrom<ConstituentRow> for crate::accounts::constituent::Constituent {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::constituent::Constituent {
     fn table() -> &'static str {
-        "constituent_account"
+        "drift_v2_constituent_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -233,7 +233,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::constituent::
 impl carbon_core::postgres::operations::Insert for ConstituentRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO constituent_account (
+            INSERT INTO drift_v2_constituent_account (
                 "pubkey",
                 "mint",
                 "lp_pool",
@@ -315,7 +315,7 @@ impl carbon_core::postgres::operations::Insert for ConstituentRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ConstituentRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO constituent_account (
+        sqlx::query(r#"INSERT INTO drift_v2_constituent_account (
                 "pubkey",
                 "mint",
                 "lp_pool",
@@ -437,7 +437,7 @@ impl carbon_core::postgres::operations::Delete for ConstituentRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM constituent_account WHERE
+            r#"DELETE FROM drift_v2_constituent_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -458,7 +458,7 @@ impl carbon_core::postgres::operations::Lookup for ConstituentRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM constituent_account WHERE
+            r#"SELECT * FROM drift_v2_constituent_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -479,7 +479,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConstituentMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS constituent_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_constituent_account (
                 -- Account data
                 "pubkey" BYTEA NOT NULL,
                 "mint" BYTEA NOT NULL,
@@ -529,7 +529,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConstituentMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS constituent_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_constituent_account"#)
             .execute(connection)
             .await?;
         Ok(())

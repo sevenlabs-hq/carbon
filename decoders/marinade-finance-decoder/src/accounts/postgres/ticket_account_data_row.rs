@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::ticket_account_data::TicketAccountData
 {
     fn table() -> &'static str {
-        "ticket_account_data_account"
+        "marinade_finance_ticket_account_data_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Insert for TicketAccountDataRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO ticket_account_data_account (
+            INSERT INTO marinade_finance_ticket_account_data_account (
                 "state_address",
                 "beneficiary",
                 "lamports_amount",
@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for TicketAccountDataRow {
 impl carbon_core::postgres::operations::Upsert for TicketAccountDataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO ticket_account_data_account (
+            r#"INSERT INTO marinade_finance_ticket_account_data_account (
                 "state_address",
                 "beneficiary",
                 "lamports_amount",
@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for TicketAccountDataRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM ticket_account_data_account WHERE
+            r#"DELETE FROM marinade_finance_ticket_account_data_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Lookup for TicketAccountDataRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM ticket_account_data_account WHERE
+            r#"SELECT * FROM marinade_finance_ticket_account_data_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TicketAccountDataMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS ticket_account_data_account (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_ticket_account_data_account (
                 -- Account data
                 "state_address" BYTEA NOT NULL,
                 "beneficiary" BYTEA NOT NULL,
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TicketAccountDataMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS ticket_account_data_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_ticket_account_data_account"#)
             .execute(connection)
             .await?;
         Ok(())

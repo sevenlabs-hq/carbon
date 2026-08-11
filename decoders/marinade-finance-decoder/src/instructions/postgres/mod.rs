@@ -7,10 +7,12 @@ pub mod config_lp_row;
 pub mod config_marinade_row;
 pub mod config_validator_system_row;
 pub mod cpi_event_row;
+pub mod create_canonical_stake_row;
 pub mod deactivate_stake_row;
 pub mod deposit_row;
 pub mod deposit_stake_account_row;
 pub mod emergency_unstake_row;
+pub mod finalize_delinquent_upgrade_row;
 pub mod initialize_row;
 pub mod liquid_unstake_row;
 pub mod merge_stakes_row;
@@ -19,7 +21,6 @@ pub mod partial_unstake_row;
 pub mod pause_row;
 pub mod realloc_stake_list_row;
 pub mod realloc_validator_list_row;
-pub mod redelegate_row;
 pub mod remove_liquidity_row;
 pub mod remove_validator_row;
 pub mod resume_row;
@@ -32,12 +33,13 @@ pub mod withdraw_stake_account_row;
 pub use self::{
     add_liquidity_row::*, add_validator_row::*, change_authority_row::*, claim_row::*,
     config_lp_row::*, config_marinade_row::*, config_validator_system_row::*, cpi_event_row::*,
-    deactivate_stake_row::*, deposit_row::*, deposit_stake_account_row::*,
-    emergency_unstake_row::*, initialize_row::*, liquid_unstake_row::*, merge_stakes_row::*,
-    order_unstake_row::*, partial_unstake_row::*, pause_row::*, realloc_stake_list_row::*,
-    realloc_validator_list_row::*, redelegate_row::*, remove_liquidity_row::*,
-    remove_validator_row::*, resume_row::*, set_validator_score_row::*, stake_reserve_row::*,
-    update_active_row::*, update_deactivated_row::*, withdraw_stake_account_row::*,
+    create_canonical_stake_row::*, deactivate_stake_row::*, deposit_row::*,
+    deposit_stake_account_row::*, emergency_unstake_row::*, finalize_delinquent_upgrade_row::*,
+    initialize_row::*, liquid_unstake_row::*, merge_stakes_row::*, order_unstake_row::*,
+    partial_unstake_row::*, pause_row::*, realloc_stake_list_row::*, realloc_validator_list_row::*,
+    remove_liquidity_row::*, remove_validator_row::*, resume_row::*, set_validator_score_row::*,
+    stake_reserve_row::*, update_active_row::*, update_deactivated_row::*,
+    withdraw_stake_account_row::*,
 };
 use super::MarinadeFinanceInstruction;
 
@@ -61,10 +63,12 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MarinadeFinanceInstructionsMig
             Box::new(ConfigLpMigrationOperation),
             Box::new(ConfigMarinadeMigrationOperation),
             Box::new(ConfigValidatorSystemMigrationOperation),
+            Box::new(CreateCanonicalStakeMigrationOperation),
             Box::new(DeactivateStakeMigrationOperation),
             Box::new(DepositMigrationOperation),
             Box::new(DepositStakeAccountMigrationOperation),
             Box::new(EmergencyUnstakeMigrationOperation),
+            Box::new(FinalizeDelinquentUpgradeMigrationOperation),
             Box::new(InitializeMigrationOperation),
             Box::new(LiquidUnstakeMigrationOperation),
             Box::new(MergeStakesMigrationOperation),
@@ -73,7 +77,6 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MarinadeFinanceInstructionsMig
             Box::new(PauseMigrationOperation),
             Box::new(ReallocStakeListMigrationOperation),
             Box::new(ReallocValidatorListMigrationOperation),
-            Box::new(RedelegateMigrationOperation),
             Box::new(RemoveLiquidityMigrationOperation),
             Box::new(RemoveValidatorMigrationOperation),
             Box::new(ResumeMigrationOperation),
@@ -319,8 +322,8 @@ impl carbon_core::postgres::operations::Insert for MarinadeFinanceInstructionWit
                 row.insert(pool).await?;
                 Ok(())
             }
-            MarinadeFinanceInstruction::Redelegate { data, .. } => {
-                let row = redelegate_row::RedelegateRow::from_parts(
+            MarinadeFinanceInstruction::CreateCanonicalStake { data, .. } => {
+                let row = create_canonical_stake_row::CreateCanonicalStakeRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -366,6 +369,15 @@ impl carbon_core::postgres::operations::Insert for MarinadeFinanceInstructionWit
             }
             MarinadeFinanceInstruction::ReallocStakeList { data, .. } => {
                 let row = realloc_stake_list_row::ReallocStakeListRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MarinadeFinanceInstruction::FinalizeDelinquentUpgrade { data, .. } => {
+                let row = finalize_delinquent_upgrade_row::FinalizeDelinquentUpgradeRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -590,8 +602,8 @@ impl carbon_core::postgres::operations::Upsert for MarinadeFinanceInstructionWit
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MarinadeFinanceInstruction::Redelegate { data, .. } => {
-                let row = redelegate_row::RedelegateRow::from_parts(
+            MarinadeFinanceInstruction::CreateCanonicalStake { data, .. } => {
+                let row = create_canonical_stake_row::CreateCanonicalStakeRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -637,6 +649,15 @@ impl carbon_core::postgres::operations::Upsert for MarinadeFinanceInstructionWit
             }
             MarinadeFinanceInstruction::ReallocStakeList { data, .. } => {
                 let row = realloc_stake_list_row::ReallocStakeListRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MarinadeFinanceInstruction::FinalizeDelinquentUpgrade { data, .. } => {
+                let row = finalize_delinquent_upgrade_row::FinalizeDelinquentUpgradeRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

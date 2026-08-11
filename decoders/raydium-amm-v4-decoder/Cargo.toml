@@ -15,7 +15,7 @@ crate-type = ["rlib"]
 [features]
 default = []
 
-serde = ["dep:serde", "dep:serde-big-array"]
+serde = ["dep:serde"]
 
 postgres = [
     "carbon-core/postgres",
@@ -31,6 +31,18 @@ graphql = [
     "serde",
 ]
 
+clickhouse = [
+    "carbon-core/clickhouse",
+    "dep:clickhouse",
+    "dep:async-trait",
+    "serde",
+]
+
+clickhouse-cluster = [
+    "clickhouse",
+    "carbon-core/clickhouse-cluster",
+]
+
 [dependencies]
 carbon-core = { workspace = true, features = ["macros"] }
 borsh = { workspace = true, features = ["derive"] }
@@ -40,6 +52,8 @@ solana-instruction = { workspace = true }
 serde_json = { workspace = true }
 
 serde = { workspace = true, features = ["derive"], optional = true }
+
+clickhouse = { workspace = true, optional = true }
 serde-big-array = { workspace = true, optional = true }
 
 sqlx = { workspace = true, features = ["postgres", "rust_decimal"], optional = true }

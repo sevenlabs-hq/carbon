@@ -141,7 +141,7 @@ impl TryFrom<AmmRow> for crate::accounts::amm::Amm {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::amm::Amm {
     fn table() -> &'static str {
-        "amm_account"
+        "lifinity_amm_v2_amm_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -185,7 +185,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::amm::Amm {
 impl carbon_core::postgres::operations::Insert for AmmRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO amm_account (
+            INSERT INTO lifinity_amm_v2_amm_account (
                 "initializer_key",
                 "initializer_deposit_token_account",
                 "initializer_receive_token_account",
@@ -259,7 +259,7 @@ impl carbon_core::postgres::operations::Insert for AmmRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for AmmRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO amm_account (
+        sqlx::query(r#"INSERT INTO lifinity_amm_v2_amm_account (
                 "initializer_key",
                 "initializer_deposit_token_account",
                 "initializer_receive_token_account",
@@ -369,7 +369,7 @@ impl carbon_core::postgres::operations::Delete for AmmRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM amm_account WHERE
+            r#"DELETE FROM lifinity_amm_v2_amm_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -390,7 +390,7 @@ impl carbon_core::postgres::operations::Lookup for AmmRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM amm_account WHERE
+            r#"SELECT * FROM lifinity_amm_v2_amm_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -411,7 +411,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS amm_account (
+            r#"CREATE TABLE IF NOT EXISTS lifinity_amm_v2_amm_account (
                 -- Account data
                 "initializer_key" BYTEA NOT NULL,
                 "initializer_deposit_token_account" BYTEA NOT NULL,
@@ -457,7 +457,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS amm_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS lifinity_amm_v2_amm_account"#)
             .execute(connection)
             .await?;
         Ok(())

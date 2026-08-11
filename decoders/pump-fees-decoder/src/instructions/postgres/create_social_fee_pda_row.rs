@@ -49,7 +49,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_social_fee_pda::CreateSocialFeePda
 {
     fn table() -> &'static str {
-        "create_social_fee_pda_instruction"
+        "pump_fees_create_social_fee_pda_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for CreateSocialFeePdaRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_social_fee_pda_instruction (
+            INSERT INTO pump_fees_create_social_fee_pda_instruction (
                 "user_id",
                 "platform",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -96,7 +96,7 @@ impl carbon_core::postgres::operations::Insert for CreateSocialFeePdaRow {
 impl carbon_core::postgres::operations::Upsert for CreateSocialFeePdaRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_social_fee_pda_instruction (
+            r#"INSERT INTO pump_fees_create_social_fee_pda_instruction (
                 "user_id",
                 "platform",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for CreateSocialFeePdaRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_social_fee_pda_instruction WHERE
+            r#"DELETE FROM pump_fees_create_social_fee_pda_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Lookup for CreateSocialFeePdaRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_social_fee_pda_instruction WHERE
+            r#"SELECT * FROM pump_fees_create_social_fee_pda_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -187,7 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateSocialFeePdaMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_social_fee_pda_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_create_social_fee_pda_instruction (
                 -- Instruction data
                 "user_id" TEXT NOT NULL,
                 "platform" INT2 NOT NULL,
@@ -209,7 +209,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateSocialFeePdaMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_social_fee_pda_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_create_social_fee_pda_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

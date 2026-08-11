@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::init_user_volume_accumulator::InitUserVolumeAccumulator
 {
     fn table() -> &'static str {
-        "init_user_volume_accumulator_instruction"
+        "pumpfun_init_user_volume_accumulator_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for InitUserVolumeAccumulatorRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO init_user_volume_accumulator_instruction (
+            INSERT INTO pumpfun_init_user_volume_accumulator_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for InitUserVolumeAccumulatorRow 
 impl carbon_core::postgres::operations::Upsert for InitUserVolumeAccumulatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO init_user_volume_accumulator_instruction (
+            r#"INSERT INTO pumpfun_init_user_volume_accumulator_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for InitUserVolumeAccumulatorRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM init_user_volume_accumulator_instruction WHERE
+            r#"DELETE FROM pumpfun_init_user_volume_accumulator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for InitUserVolumeAccumulatorRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM init_user_volume_accumulator_instruction WHERE
+            r#"SELECT * FROM pumpfun_init_user_volume_accumulator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitUserVolumeAccumulatorMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS init_user_volume_accumulator_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_init_user_volume_accumulator_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitUserVolumeAccumulatorMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS init_user_volume_accumulator_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_init_user_volume_accumulator_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

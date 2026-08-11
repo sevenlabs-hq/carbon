@@ -13,6 +13,7 @@ pub struct DistributeCreatorFeesEventEvent {
     pub admin: Pubkey,
     pub shareholders: Vec<Shareholder>,
     pub distributed: u64,
+    pub quote_mint: Pubkey,
 }
 
 impl CarbonDeserialize for DistributeCreatorFeesEventEvent {

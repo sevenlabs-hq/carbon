@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::collection_authority_record::CollectionAuthorityRecord
 {
     fn table() -> &'static str {
-        "collection_authority_record_account"
+        "mpl_token_metadata_collection_authority_record_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -67,7 +67,7 @@ impl carbon_core::postgres::operations::Insert for CollectionAuthorityRecordRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO collection_authority_record_account (
+            INSERT INTO mpl_token_metadata_collection_authority_record_account (
                 "key",
                 "bump",
                 "update_authority",
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for CollectionAuthorityRecordRow 
 impl carbon_core::postgres::operations::Upsert for CollectionAuthorityRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO collection_authority_record_account (
+            r#"INSERT INTO mpl_token_metadata_collection_authority_record_account (
                 "key",
                 "bump",
                 "update_authority",
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for CollectionAuthorityRecordRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM collection_authority_record_account WHERE
+            r#"DELETE FROM mpl_token_metadata_collection_authority_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for CollectionAuthorityRecordRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM collection_authority_record_account WHERE
+            r#"SELECT * FROM mpl_token_metadata_collection_authority_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -168,7 +168,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectionAuthorityRecordMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS collection_authority_record_account (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_collection_authority_record_account (
                 -- Account data
                 "key" JSONB NOT NULL,
                 "bump" INT2 NOT NULL,
@@ -188,9 +188,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectionAuthorityRecordMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS collection_authority_record_account"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS mpl_token_metadata_collection_authority_record_account"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

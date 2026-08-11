@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_token_account::CreateTokenAccount
 {
     fn table() -> &'static str {
-        "create_token_account_instruction"
+        "jupiter_swap_create_token_account_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for CreateTokenAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_token_account_instruction (
+            INSERT INTO jupiter_swap_create_token_account_instruction (
                 "bump",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for CreateTokenAccountRow {
 impl carbon_core::postgres::operations::Upsert for CreateTokenAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_token_account_instruction (
+            r#"INSERT INTO jupiter_swap_create_token_account_instruction (
                 "bump",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for CreateTokenAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_token_account_instruction WHERE
+            r#"DELETE FROM jupiter_swap_create_token_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for CreateTokenAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_token_account_instruction WHERE
+            r#"SELECT * FROM jupiter_swap_create_token_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateTokenAccountMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_token_account_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_swap_create_token_account_instruction (
                 -- Instruction data
                 "bump" INT2 NOT NULL,
                 -- Instruction metadata
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateTokenAccountMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_token_account_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_swap_create_token_account_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

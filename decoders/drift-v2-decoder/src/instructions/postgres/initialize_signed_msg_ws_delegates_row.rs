@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_signed_msg_ws_delegates::InitializeSignedMsgWsDelegates
 {
     fn table() -> &'static str {
-        "initialize_signed_msg_ws_delegates_instruction"
+        "drift_v2_initialize_signed_msg_ws_delegates_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for InitializeSignedMsgWsDelegate
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_signed_msg_ws_delegates_instruction (
+            INSERT INTO drift_v2_initialize_signed_msg_ws_delegates_instruction (
                 "delegates",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for InitializeSignedMsgWsDelegate
 impl carbon_core::postgres::operations::Upsert for InitializeSignedMsgWsDelegatesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_signed_msg_ws_delegates_instruction (
+            r#"INSERT INTO drift_v2_initialize_signed_msg_ws_delegates_instruction (
                 "delegates",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -132,7 +132,7 @@ impl carbon_core::postgres::operations::Delete for InitializeSignedMsgWsDelegate
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_signed_msg_ws_delegates_instruction WHERE
+            r#"DELETE FROM drift_v2_initialize_signed_msg_ws_delegates_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,7 +159,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeSignedMsgWsDelegate
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_signed_msg_ws_delegates_instruction WHERE
+            r#"SELECT * FROM drift_v2_initialize_signed_msg_ws_delegates_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -182,7 +182,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeSignedMsgWsDelegates
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_signed_msg_ws_delegates_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_initialize_signed_msg_ws_delegates_instruction (
                 -- Instruction data
                 "delegates" BYTEA[] NOT NULL,
                 -- Instruction metadata
@@ -203,9 +203,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeSignedMsgWsDelegates
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_signed_msg_ws_delegates_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_initialize_signed_msg_ws_delegates_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

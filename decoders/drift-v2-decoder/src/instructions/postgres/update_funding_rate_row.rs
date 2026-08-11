@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_funding_rate::UpdateFundingRate
 {
     fn table() -> &'static str {
-        "update_funding_rate_instruction"
+        "drift_v2_update_funding_rate_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFundingRateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_funding_rate_instruction (
+            INSERT INTO drift_v2_update_funding_rate_instruction (
                 "market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFundingRateRow {
 impl carbon_core::postgres::operations::Upsert for UpdateFundingRateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_funding_rate_instruction (
+            r#"INSERT INTO drift_v2_update_funding_rate_instruction (
                 "market_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFundingRateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_funding_rate_instruction WHERE
+            r#"DELETE FROM drift_v2_update_funding_rate_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateFundingRateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_funding_rate_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_funding_rate_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFundingRateMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_funding_rate_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_funding_rate_instruction (
                 -- Instruction data
                 "market_index" INT4 NOT NULL,
                 -- Instruction metadata
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFundingRateMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_funding_rate_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_funding_rate_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

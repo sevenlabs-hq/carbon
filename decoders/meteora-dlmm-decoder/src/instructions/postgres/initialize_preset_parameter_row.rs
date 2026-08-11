@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_preset_parameter::InitializePresetParameter
 {
     fn table() -> &'static str {
-        "initialize_preset_parameter_instruction"
+        "meteora_dlmm_initialize_preset_parameter_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for InitializePresetParameterRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_preset_parameter_instruction (
+            INSERT INTO meteora_dlmm_initialize_preset_parameter_instruction (
                 "ix",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for InitializePresetParameterRow 
 impl carbon_core::postgres::operations::Upsert for InitializePresetParameterRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_preset_parameter_instruction (
+            r#"INSERT INTO meteora_dlmm_initialize_preset_parameter_instruction (
                 "ix",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for InitializePresetParameterRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_preset_parameter_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_initialize_preset_parameter_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for InitializePresetParameterRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_preset_parameter_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_initialize_preset_parameter_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePresetParameterMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_preset_parameter_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_initialize_preset_parameter_instruction (
                 -- Instruction data
                 "ix" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePresetParameterMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_preset_parameter_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_initialize_preset_parameter_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

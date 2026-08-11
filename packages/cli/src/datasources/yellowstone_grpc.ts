@@ -10,7 +10,7 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
     const imports = [
         'std::collections::{HashMap, HashSet}',
         'tokio::sync::RwLock',
-        'yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions}',
+        'yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequest, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions}',
         'carbon_yellowstone_grpc_datasource::{YellowstoneGrpcGeyserClient, YellowstoneGrpcClientConfig}',
     ];
 
@@ -46,12 +46,17 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
         YellowstoneGrpcGeyserClient::new(
             std::env::var("GEYSER_URL").unwrap_or_default(),
             std::env::var("X_TOKEN").ok(),
-            Some(CommitmentLevel::Confirmed),
-            account_filters,
-            transaction_filters,
-            Default::default(),
+            SubscribeRequest {
+                accounts: account_filters,
+                transactions: transaction_filters,
+                commitment: Some(CommitmentLevel::Confirmed.into()),
+                ..Default::default()
+            },
             std::sync::Arc::new(RwLock::new(HashSet::new())),
             YellowstoneGrpcClientConfig::default(),
+            None,
+            None,
+            None,
         )
     }`.trim();
 

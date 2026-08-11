@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_perp_market::InitializePerpMarket
 {
     fn table() -> &'static str {
-        "initialize_perp_market_instruction"
+        "drift_v2_initialize_perp_market_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -216,7 +216,7 @@ impl carbon_core::postgres::operations::Table
 impl carbon_core::postgres::operations::Insert for InitializePerpMarketRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO initialize_perp_market_instruction (
+            INSERT INTO drift_v2_initialize_perp_market_instruction (
                 "market_index",
                 "amm_base_asset_reserve",
                 "amm_quote_asset_reserve",
@@ -287,7 +287,7 @@ impl carbon_core::postgres::operations::Insert for InitializePerpMarketRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for InitializePerpMarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO initialize_perp_market_instruction (
+        sqlx::query(r#"INSERT INTO drift_v2_initialize_perp_market_instruction (
                 "market_index",
                 "amm_base_asset_reserve",
                 "amm_quote_asset_reserve",
@@ -398,7 +398,7 @@ impl carbon_core::postgres::operations::Delete for InitializePerpMarketRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_perp_market_instruction WHERE
+            r#"DELETE FROM drift_v2_initialize_perp_market_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -425,7 +425,7 @@ impl carbon_core::postgres::operations::Lookup for InitializePerpMarketRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_perp_market_instruction WHERE
+            r#"SELECT * FROM drift_v2_initialize_perp_market_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -448,7 +448,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePerpMarketMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_perp_market_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_initialize_perp_market_instruction (
                 -- Instruction data
                 "market_index" INT4 NOT NULL,
                 "amm_base_asset_reserve" NUMERIC(39) NOT NULL,
@@ -494,7 +494,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializePerpMarketMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_perp_market_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_initialize_perp_market_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

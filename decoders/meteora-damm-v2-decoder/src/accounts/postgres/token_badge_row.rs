@@ -42,7 +42,7 @@ impl TryFrom<TokenBadgeRow> for crate::accounts::token_badge::TokenBadge {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::token_badge::TokenBadge {
     fn table() -> &'static str {
-        "token_badge_account"
+        "meteora_damm_v2_token_badge_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -55,7 +55,7 @@ impl carbon_core::postgres::operations::Insert for TokenBadgeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO token_badge_account (
+            INSERT INTO meteora_damm_v2_token_badge_account (
                 "token_mint",
                 "padding",
                 __pubkey, __slot
@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for TokenBadgeRow {
 impl carbon_core::postgres::operations::Upsert for TokenBadgeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_badge_account (
+            r#"INSERT INTO meteora_damm_v2_token_badge_account (
                 "token_mint",
                 "padding",
                 __pubkey, __slot
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for TokenBadgeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM token_badge_account WHERE
+            r#"DELETE FROM meteora_damm_v2_token_badge_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -130,7 +130,7 @@ impl carbon_core::postgres::operations::Lookup for TokenBadgeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM token_badge_account WHERE
+            r#"SELECT * FROM meteora_damm_v2_token_badge_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -151,7 +151,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenBadgeMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS token_badge_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_token_badge_account (
                 -- Account data
                 "token_mint" BYTEA NOT NULL,
                 "padding" BYTEA NOT NULL,
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenBadgeMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS token_badge_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_token_badge_account"#)
             .execute(connection)
             .await?;
         Ok(())

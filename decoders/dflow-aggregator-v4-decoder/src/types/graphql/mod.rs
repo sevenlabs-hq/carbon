@@ -5,18 +5,24 @@ pub mod alpha_q_dynamic_route_v1_options_schema;
 pub mod alpha_q_swap_options_schema;
 pub mod bison_fi_dynamic_route_v1_options_schema;
 pub mod bison_fi_swap_options_schema;
+pub mod byreal_clmm_swap_v3_dyn_options_schema;
 pub mod c_schema;
 pub mod clearpools_swap_options_schema;
 pub mod d_flow_dynamic_route_v1_options_schema;
 pub mod deriverse_swap_options_schema;
+pub mod doppler_cpmm_swap_options_schema;
+pub mod doppler_launch_swap_options_schema;
 pub mod dynamic_route_v1_candidate_action_schema;
 pub mod fee_event_schema;
 pub mod fill_order_params_schema;
 pub mod gamma_swap_options_schema;
+pub mod gator_swap_swap_options_schema;
 pub mod ghost_swap_options_schema;
 pub mod heaven_swap_options_schema;
 pub mod humidi_fi_dynamic_route_v1_options_schema;
 pub mod humidi_fi_swap_options_schema;
+pub mod j_schema;
+pub mod jup_lend_amm_swap_options_schema;
 pub mod k_d_e_x_swap_options_schema;
 pub mod leg_price_schema;
 pub mod lemmings_fi_dynamic_route_v1_options_schema;
@@ -44,7 +50,9 @@ pub mod phoenix_swap_options_schema;
 pub mod pump_fun_amm_buy_options_schema;
 pub mod pump_fun_amm_sell_options_schema;
 pub mod pump_fun_buy_options_schema;
+pub mod pump_fun_buy_v2_options_schema;
 pub mod pump_fun_sell_options_schema;
+pub mod pump_fun_sell_v2_options_schema;
 pub mod raydium_amm_swap_options_schema;
 pub mod raydium_clmm_swap_options_schema;
 pub mod raydium_clmm_swap_v2_options_schema;
@@ -56,6 +64,10 @@ pub mod rubicon_dynamic_route_v1_options_schema;
 pub mod rubicon_swap_options_schema;
 pub mod sanctum_infinity_liquidity_options_schema;
 pub mod sanctum_infinity_swap_options_schema;
+pub mod sanctum_stakedex_prefund_options_schema;
+pub mod sanctum_stakedex_reserve_options_schema;
+pub mod sanctum_stakedex_stake_w_s_o_l_options_schema;
+pub mod sanctum_stakedex_withdraw_w_s_o_l_options_schema;
 pub mod saros_dlmm_swap_options_schema;
 pub mod scorch_swap_options_schema;
 pub mod set_max_underconsumption_bps_options_schema;
@@ -68,9 +80,11 @@ pub mod sol_fi_v2_dynamic_route_v1_options_schema;
 pub mod sol_fi_v2_swap_options_schema;
 pub mod stabble_stable_swap_options_schema;
 pub mod stabble_weighted_swap_options_schema;
+pub mod superis_swap_options_schema;
 pub mod swap2_params_schema;
 pub mod swap_event_schema;
 pub mod swap_params_schema;
+pub mod t_schema;
 pub mod tessera_v_dynamic_route_v1_options_schema;
 pub mod tessera_v_swap_options_schema;
 pub mod token_swap_options_schema;
@@ -87,12 +101,14 @@ pub mod zero_fi_swap_options_schema;
 pub use {
     a_schema::*, action_schema::*, alpha_q_dynamic_route_v1_options_schema::*,
     alpha_q_swap_options_schema::*, bison_fi_dynamic_route_v1_options_schema::*,
-    bison_fi_swap_options_schema::*, c_schema::*, clearpools_swap_options_schema::*,
-    d_flow_dynamic_route_v1_options_schema::*, deriverse_swap_options_schema::*,
-    dynamic_route_v1_candidate_action_schema::*, fee_event_schema::*, fill_order_params_schema::*,
-    gamma_swap_options_schema::*, ghost_swap_options_schema::*, heaven_swap_options_schema::*,
-    humidi_fi_dynamic_route_v1_options_schema::*, humidi_fi_swap_options_schema::*,
-    k_d_e_x_swap_options_schema::*, leg_price_schema::*,
+    bison_fi_swap_options_schema::*, byreal_clmm_swap_v3_dyn_options_schema::*, c_schema::*,
+    clearpools_swap_options_schema::*, d_flow_dynamic_route_v1_options_schema::*,
+    deriverse_swap_options_schema::*, doppler_cpmm_swap_options_schema::*,
+    doppler_launch_swap_options_schema::*, dynamic_route_v1_candidate_action_schema::*,
+    fee_event_schema::*, fill_order_params_schema::*, gamma_swap_options_schema::*,
+    gator_swap_swap_options_schema::*, ghost_swap_options_schema::*, heaven_swap_options_schema::*,
+    humidi_fi_dynamic_route_v1_options_schema::*, humidi_fi_swap_options_schema::*, j_schema::*,
+    jup_lend_amm_swap_options_schema::*, k_d_e_x_swap_options_schema::*, leg_price_schema::*,
     lemmings_fi_dynamic_route_v1_options_schema::*, lemmings_fi_swap_options_schema::*,
     lifinity_v2_swap_options_schema::*, manifest_dynamic_route_v1_options_schema::*,
     manifest_swap_options_schema::*, meta_dao_swap_options_schema::*,
@@ -105,23 +121,26 @@ pub use {
     open_predictions_order_options_schema::*, orchestrator_flags_schema::*,
     phoenix_swap_options_schema::*, pump_fun_amm_buy_options_schema::*,
     pump_fun_amm_sell_options_schema::*, pump_fun_buy_options_schema::*,
-    pump_fun_sell_options_schema::*, raydium_amm_swap_options_schema::*,
+    pump_fun_buy_v2_options_schema::*, pump_fun_sell_options_schema::*,
+    pump_fun_sell_v2_options_schema::*, raydium_amm_swap_options_schema::*,
     raydium_clmm_swap_options_schema::*, raydium_clmm_swap_v2_options_schema::*,
     raydium_cp_swap_options_schema::*, raydium_launchlab_swap_options_schema::*,
     record_id2_options_schema::*, record_id_options_schema::*,
     rubicon_dynamic_route_v1_options_schema::*, rubicon_swap_options_schema::*,
     sanctum_infinity_liquidity_options_schema::*, sanctum_infinity_swap_options_schema::*,
-    saros_dlmm_swap_options_schema::*, scorch_swap_options_schema::*,
-    set_max_underconsumption_bps_options_schema::*, set_minimum_leg_outputs_options_schema::*,
-    set_minimum_leg_prices_options_schema::*, side_schema::*,
-    sol_fi_dynamic_route_v1_options_schema::*, sol_fi_swap_options_schema::*,
+    sanctum_stakedex_prefund_options_schema::*, sanctum_stakedex_reserve_options_schema::*,
+    sanctum_stakedex_stake_w_s_o_l_options_schema::*,
+    sanctum_stakedex_withdraw_w_s_o_l_options_schema::*, saros_dlmm_swap_options_schema::*,
+    scorch_swap_options_schema::*, set_max_underconsumption_bps_options_schema::*,
+    set_minimum_leg_outputs_options_schema::*, set_minimum_leg_prices_options_schema::*,
+    side_schema::*, sol_fi_dynamic_route_v1_options_schema::*, sol_fi_swap_options_schema::*,
     sol_fi_v2_dynamic_route_v1_options_schema::*, sol_fi_v2_swap_options_schema::*,
     stabble_stable_swap_options_schema::*, stabble_weighted_swap_options_schema::*,
-    swap2_params_schema::*, swap_event_schema::*, swap_params_schema::*,
-    tessera_v_dynamic_route_v1_options_schema::*, tessera_v_swap_options_schema::*,
-    token_swap_options_schema::*, transfer_fee_options_schema::*, vault_swap_options_schema::*,
-    vertigo_swap_options_schema::*, whirlpools_swap_options_schema::*,
-    whirlpools_swap_v2_options_schema::*, wrap_sol_options_schema::*,
-    xo_cash_exchange_swap_options_schema::*, zero_fi_dynamic_route_v1_options_schema::*,
-    zero_fi_swap_options_schema::*,
+    superis_swap_options_schema::*, swap2_params_schema::*, swap_event_schema::*,
+    swap_params_schema::*, t_schema::*, tessera_v_dynamic_route_v1_options_schema::*,
+    tessera_v_swap_options_schema::*, token_swap_options_schema::*, transfer_fee_options_schema::*,
+    vault_swap_options_schema::*, vertigo_swap_options_schema::*,
+    whirlpools_swap_options_schema::*, whirlpools_swap_v2_options_schema::*,
+    wrap_sol_options_schema::*, xo_cash_exchange_swap_options_schema::*,
+    zero_fi_dynamic_route_v1_options_schema::*, zero_fi_swap_options_schema::*,
 };

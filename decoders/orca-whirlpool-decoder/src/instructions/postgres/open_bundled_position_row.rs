@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::open_bundled_position::OpenBundledPosition
 {
     fn table() -> &'static str {
-        "open_bundled_position_instruction"
+        "orca_whirlpool_open_bundled_position_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for OpenBundledPositionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO open_bundled_position_instruction (
+            INSERT INTO orca_whirlpool_open_bundled_position_instruction (
                 "bundle_index",
                 "tick_lower_index",
                 "tick_upper_index",
@@ -102,7 +102,7 @@ impl carbon_core::postgres::operations::Insert for OpenBundledPositionRow {
 impl carbon_core::postgres::operations::Upsert for OpenBundledPositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_bundled_position_instruction (
+            r#"INSERT INTO orca_whirlpool_open_bundled_position_instruction (
                 "bundle_index",
                 "tick_lower_index",
                 "tick_upper_index",
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for OpenBundledPositionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM open_bundled_position_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_open_bundled_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -173,7 +173,7 @@ impl carbon_core::postgres::operations::Lookup for OpenBundledPositionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM open_bundled_position_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_open_bundled_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -196,7 +196,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenBundledPositionMigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS open_bundled_position_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_open_bundled_position_instruction (
                 -- Instruction data
                 "bundle_index" INT4 NOT NULL,
                 "tick_lower_index" INT4 NOT NULL,
@@ -219,7 +219,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OpenBundledPositionMigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS open_bundled_position_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_open_bundled_position_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

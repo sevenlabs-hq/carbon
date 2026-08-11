@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_revenue_share_escrow::InitializeRevenueShareEscrow
 {
     fn table() -> &'static str {
-        "initialize_revenue_share_escrow_instruction"
+        "drift_v2_initialize_revenue_share_escrow_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for InitializeRevenueShareEscrowR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_revenue_share_escrow_instruction (
+            INSERT INTO drift_v2_initialize_revenue_share_escrow_instruction (
                 "num_orders",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for InitializeRevenueShareEscrowR
 impl carbon_core::postgres::operations::Upsert for InitializeRevenueShareEscrowRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO initialize_revenue_share_escrow_instruction (
+            r#"INSERT INTO drift_v2_initialize_revenue_share_escrow_instruction (
                 "num_orders",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for InitializeRevenueShareEscrowR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_revenue_share_escrow_instruction WHERE
+            r#"DELETE FROM drift_v2_initialize_revenue_share_escrow_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeRevenueShareEscrowR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_revenue_share_escrow_instruction WHERE
+            r#"SELECT * FROM drift_v2_initialize_revenue_share_escrow_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeRevenueShareEscrowMi
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_revenue_share_escrow_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_initialize_revenue_share_escrow_instruction (
                 -- Instruction data
                 "num_orders" INT4 NOT NULL,
                 -- Instruction metadata
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeRevenueShareEscrowMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_revenue_share_escrow_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_initialize_revenue_share_escrow_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

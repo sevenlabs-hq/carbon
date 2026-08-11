@@ -7,6 +7,7 @@ pub struct CollectCreatorFeeEventEvent {
     pub timestamp: i64,
     pub creator: Pubkey,
     pub creator_fee: u64,
+    pub quote_mint: Pubkey,
 }
 
 impl CarbonDeserialize for CollectCreatorFeeEventEvent {

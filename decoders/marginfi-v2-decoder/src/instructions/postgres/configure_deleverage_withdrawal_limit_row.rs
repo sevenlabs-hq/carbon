@@ -38,7 +38,7 @@ impl TryFrom<ConfigureDeleverageWithdrawalLimitRow> for crate::instructions::con
 
 impl carbon_core::postgres::operations::Table for crate::instructions::configure_deleverage_withdrawal_limit::ConfigureDeleverageWithdrawalLimit {
     fn table() -> &'static str {
-        "configure_deleverage_withdrawal_limit_instruction"
+        "marginfi_v2_configure_deleverage_withdrawal_limit_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for ConfigureDeleverageWithdrawal
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO configure_deleverage_withdrawal_limit_instruction (
+            INSERT INTO marginfi_v2_configure_deleverage_withdrawal_limit_instruction (
                 "limit",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for ConfigureDeleverageWithdrawal
 impl carbon_core::postgres::operations::Upsert for ConfigureDeleverageWithdrawalLimitRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO configure_deleverage_withdrawal_limit_instruction (
+            r#"INSERT INTO marginfi_v2_configure_deleverage_withdrawal_limit_instruction (
                 "limit",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for ConfigureDeleverageWithdrawal
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM configure_deleverage_withdrawal_limit_instruction WHERE
+            r#"DELETE FROM marginfi_v2_configure_deleverage_withdrawal_limit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for ConfigureDeleverageWithdrawal
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM configure_deleverage_withdrawal_limit_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_configure_deleverage_withdrawal_limit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,8 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS configure_deleverage_withdrawal_limit_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS marginfi_v2_configure_deleverage_withdrawal_limit_instruction (
                 -- Instruction data
                 "limit" INT8 NOT NULL,
                 -- Instruction metadata
@@ -182,10 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -193,9 +189,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS configure_deleverage_withdrawal_limit_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS marginfi_v2_configure_deleverage_withdrawal_limit_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

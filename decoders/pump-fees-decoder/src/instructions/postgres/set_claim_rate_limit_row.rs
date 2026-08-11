@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_claim_rate_limit::SetClaimRateLimit
 {
     fn table() -> &'static str {
-        "set_claim_rate_limit_instruction"
+        "pump_fees_set_claim_rate_limit_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SetClaimRateLimitRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_claim_rate_limit_instruction (
+            INSERT INTO pump_fees_set_claim_rate_limit_instruction (
                 "claim_rate_limit",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for SetClaimRateLimitRow {
 impl carbon_core::postgres::operations::Upsert for SetClaimRateLimitRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_claim_rate_limit_instruction (
+            r#"INSERT INTO pump_fees_set_claim_rate_limit_instruction (
                 "claim_rate_limit",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SetClaimRateLimitRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_claim_rate_limit_instruction WHERE
+            r#"DELETE FROM pump_fees_set_claim_rate_limit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for SetClaimRateLimitRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_claim_rate_limit_instruction WHERE
+            r#"SELECT * FROM pump_fees_set_claim_rate_limit_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetClaimRateLimitMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_claim_rate_limit_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_set_claim_rate_limit_instruction (
                 -- Instruction data
                 "claim_rate_limit" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetClaimRateLimitMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_claim_rate_limit_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_set_claim_rate_limit_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

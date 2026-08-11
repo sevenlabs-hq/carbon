@@ -38,7 +38,7 @@ impl TryFrom<FillOrderRow> for crate::instructions::fill_order::FillOrder {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::fill_order::FillOrder {
     fn table() -> &'static str {
-        "fill_order_instruction"
+        "jupiter_limit_order_2_fill_order_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for FillOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fill_order_instruction (
+            INSERT INTO jupiter_limit_order_2_fill_order_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for FillOrderRow {
 impl carbon_core::postgres::operations::Upsert for FillOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fill_order_instruction (
+            r#"INSERT INTO jupiter_limit_order_2_fill_order_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for FillOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fill_order_instruction WHERE
+            r#"DELETE FROM jupiter_limit_order_2_fill_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for FillOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fill_order_instruction WHERE
+            r#"SELECT * FROM jupiter_limit_order_2_fill_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FillOrderMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fill_order_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_limit_order_2_fill_order_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FillOrderMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fill_order_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_limit_order_2_fill_order_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

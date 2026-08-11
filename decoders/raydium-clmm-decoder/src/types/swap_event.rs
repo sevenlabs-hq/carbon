@@ -30,4 +30,10 @@ pub struct SwapEvent {
     pub liquidity: u128,
     /// The log base 1.0001 of price of the pool after the swap
     pub tick: i32,
+    /// Total AMM trade fee (lp + protocol + fund) charged in token_0 during
+    /// this swap
+    pub trade_fee0: u64,
+    /// Total AMM trade fee (lp + protocol + fund) charged in token_1 during
+    /// this swap
+    pub trade_fee1: u64,
 }

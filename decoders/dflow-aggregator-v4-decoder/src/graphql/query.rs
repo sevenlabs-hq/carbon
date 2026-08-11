@@ -30,7 +30,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::OrderGraphQL>> {
         let rows: Vec<crate::accounts::postgres::OrderRow> = sqlx::query_as(
-            r#"SELECT * FROM order_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_order_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -50,7 +50,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseEmptyTokenAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseEmptyTokenAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM close_empty_token_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_close_empty_token_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -69,7 +69,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseEmptyTokenAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseEmptyTokenAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM close_empty_token_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_close_empty_token_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -88,7 +88,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM close_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_close_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -107,7 +107,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM close_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_close_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -127,7 +127,7 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateReferralTokenAccountIdempotentGraphQL>>
     {
         let rows: Vec<crate::instructions::postgres::CreateReferralTokenAccountIdempotentRow> = sqlx::query_as(
-            r#"SELECT * FROM create_referral_token_account_idempotent_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_create_referral_token_account_idempotent_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -147,7 +147,7 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateReferralTokenAccountIdempotentGraphQL>>
     {
         let rows: Vec<crate::instructions::postgres::CreateReferralTokenAccountIdempotentRow> = sqlx::query_as(
-            r#"SELECT * FROM create_referral_token_account_idempotent_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_create_referral_token_account_idempotent_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -166,7 +166,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::FillOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::FillOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM fill_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_fill_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -185,7 +185,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::FillOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::FillOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM fill_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_fill_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -204,7 +204,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitMarketLedgerIdempotentGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitMarketLedgerIdempotentRow> = sqlx::query_as(
-            r#"SELECT * FROM init_market_ledger_idempotent_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_init_market_ledger_idempotent_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -223,7 +223,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitMarketLedgerIdempotentGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitMarketLedgerIdempotentRow> = sqlx::query_as(
-            r#"SELECT * FROM init_market_ledger_idempotent_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_init_market_ledger_idempotent_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -242,7 +242,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::OpenOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::OpenOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM open_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_open_order_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -261,7 +261,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::OpenOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::OpenOrderRow> = sqlx::query_as(
-            r#"SELECT * FROM open_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_open_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -280,7 +280,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -299,7 +299,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -318,7 +318,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::Swap2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::Swap2Row> = sqlx::query_as(
-            r#"SELECT * FROM swap2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -337,7 +337,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::Swap2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::Swap2Row> = sqlx::query_as(
-            r#"SELECT * FROM swap2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -356,7 +356,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::Swap2WithDestinationGraphQL>> {
         let rows: Vec<crate::instructions::postgres::Swap2WithDestinationRow> = sqlx::query_as(
-            r#"SELECT * FROM swap2_with_destination_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap2_with_destination_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -375,7 +375,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::Swap2WithDestinationGraphQL>> {
         let rows: Vec<crate::instructions::postgres::Swap2WithDestinationRow> = sqlx::query_as(
-            r#"SELECT * FROM swap2_with_destination_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap2_with_destination_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -394,7 +394,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::Swap2WithDestinationNativeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::Swap2WithDestinationNativeRow> = sqlx::query_as(
-            r#"SELECT * FROM swap2_with_destination_native_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap2_with_destination_native_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -413,7 +413,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::Swap2WithDestinationNativeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::Swap2WithDestinationNativeRow> = sqlx::query_as(
-            r#"SELECT * FROM swap2_with_destination_native_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap2_with_destination_native_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -432,7 +432,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapWithDestinationGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapWithDestinationRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_with_destination_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap_with_destination_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -451,7 +451,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapWithDestinationGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapWithDestinationRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_with_destination_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap_with_destination_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -470,7 +470,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapWithDestinationNativeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapWithDestinationNativeRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_with_destination_native_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap_with_destination_native_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -489,7 +489,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapWithDestinationNativeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapWithDestinationNativeRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_with_destination_native_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_swap_with_destination_native_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -508,7 +508,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferFeeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferFeeRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_transfer_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -527,7 +527,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferFeeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferFeeRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_transfer_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -546,7 +546,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferSolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferSolRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_sol_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_transfer_sol_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -565,7 +565,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferSolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferSolRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_sol_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_transfer_sol_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -584,7 +584,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferToSponsorGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferToSponsorRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_to_sponsor_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_transfer_to_sponsor_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -603,7 +603,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferToSponsorGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferToSponsorRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_to_sponsor_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_transfer_to_sponsor_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -622,7 +622,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UnwrapSolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UnwrapSolRow> = sqlx::query_as(
-            r#"SELECT * FROM unwrap_sol_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_unwrap_sol_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -641,7 +641,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UnwrapSolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UnwrapSolRow> = sqlx::query_as(
-            r#"SELECT * FROM unwrap_sol_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_unwrap_sol_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -660,7 +660,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WrapSolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WrapSolRow> = sqlx::query_as(
-            r#"SELECT * FROM wrap_sol_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM dflow_aggregator_v4_wrap_sol_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -679,7 +679,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WrapSolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WrapSolRow> = sqlx::query_as(
-            r#"SELECT * FROM wrap_sol_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM dflow_aggregator_v4_wrap_sol_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -697,13 +697,14 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CpiEventRow> =
-            sqlx::query_as(r#"SELECT * FROM cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
-                .bind(limit)
-                .bind(offset)
-                .fetch_all(&*context.pool)
-                .await
-                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        let rows: Vec<crate::instructions::postgres::CpiEventRow> = sqlx::query_as(
+            r#"SELECT * FROM dflow_aggregator_v4_cpi_events ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows
             .into_iter()
             .filter_map(|row| row.try_into().ok())

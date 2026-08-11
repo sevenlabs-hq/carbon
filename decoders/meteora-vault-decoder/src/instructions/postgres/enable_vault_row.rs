@@ -42,7 +42,7 @@ impl TryFrom<EnableVaultRow> for crate::instructions::enable_vault::EnableVault 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::enable_vault::EnableVault {
     fn table() -> &'static str {
-        "enable_vault_instruction"
+        "meteora_vault_enable_vault_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for EnableVaultRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO enable_vault_instruction (
+            INSERT INTO meteora_vault_enable_vault_instruction (
                 "enabled",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for EnableVaultRow {
 impl carbon_core::postgres::operations::Upsert for EnableVaultRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO enable_vault_instruction (
+            r#"INSERT INTO meteora_vault_enable_vault_instruction (
                 "enabled",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for EnableVaultRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM enable_vault_instruction WHERE
+            r#"DELETE FROM meteora_vault_enable_vault_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for EnableVaultRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM enable_vault_instruction WHERE
+            r#"SELECT * FROM meteora_vault_enable_vault_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EnableVaultMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS enable_vault_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_vault_enable_vault_instruction (
                 -- Instruction data
                 "enabled" INT2 NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EnableVaultMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS enable_vault_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_vault_enable_vault_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

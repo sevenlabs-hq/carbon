@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::refresh_assets_under_management::RefreshAssetsUnderManagement
 {
     fn table() -> &'static str {
-        "refresh_assets_under_management_instruction"
+        "jupiter_perpetuals_refresh_assets_under_management_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for RefreshAssetsUnderManagementR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO refresh_assets_under_management_instruction (
+            INSERT INTO jupiter_perpetuals_refresh_assets_under_management_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for RefreshAssetsUnderManagementR
 impl carbon_core::postgres::operations::Upsert for RefreshAssetsUnderManagementRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO refresh_assets_under_management_instruction (
+            r#"INSERT INTO jupiter_perpetuals_refresh_assets_under_management_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for RefreshAssetsUnderManagementR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM refresh_assets_under_management_instruction WHERE
+            r#"DELETE FROM jupiter_perpetuals_refresh_assets_under_management_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for RefreshAssetsUnderManagementR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM refresh_assets_under_management_instruction WHERE
+            r#"SELECT * FROM jupiter_perpetuals_refresh_assets_under_management_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -173,8 +173,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RefreshAssetsUnderManagementMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS refresh_assets_under_management_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_refresh_assets_under_management_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -184,10 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RefreshAssetsUnderManagementMi
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -195,9 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RefreshAssetsUnderManagementMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS refresh_assets_under_management_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_perpetuals_refresh_assets_under_management_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

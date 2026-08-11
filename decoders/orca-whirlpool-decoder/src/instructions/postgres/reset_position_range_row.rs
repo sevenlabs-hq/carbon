@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::reset_position_range::ResetPositionRange
 {
     fn table() -> &'static str {
-        "reset_position_range_instruction"
+        "orca_whirlpool_reset_position_range_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -63,7 +63,7 @@ impl carbon_core::postgres::operations::Insert for ResetPositionRangeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO reset_position_range_instruction (
+            INSERT INTO orca_whirlpool_reset_position_range_instruction (
                 "new_tick_lower_index",
                 "new_tick_upper_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -89,7 +89,7 @@ impl carbon_core::postgres::operations::Insert for ResetPositionRangeRow {
 impl carbon_core::postgres::operations::Upsert for ResetPositionRangeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO reset_position_range_instruction (
+            r#"INSERT INTO orca_whirlpool_reset_position_range_instruction (
                 "new_tick_lower_index",
                 "new_tick_upper_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -130,7 +130,7 @@ impl carbon_core::postgres::operations::Delete for ResetPositionRangeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM reset_position_range_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_reset_position_range_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Lookup for ResetPositionRangeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM reset_position_range_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_reset_position_range_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -180,7 +180,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ResetPositionRangeMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS reset_position_range_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_reset_position_range_instruction (
                 -- Instruction data
                 "new_tick_lower_index" INT4 NOT NULL,
                 "new_tick_upper_index" INT4 NOT NULL,
@@ -202,7 +202,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ResetPositionRangeMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS reset_position_range_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_reset_position_range_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

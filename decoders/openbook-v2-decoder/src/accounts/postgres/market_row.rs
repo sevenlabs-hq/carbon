@@ -169,7 +169,7 @@ impl TryFrom<MarketRow> for crate::accounts::market::Market {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::market::Market {
     fn table() -> &'static str {
-        "market_account"
+        "openbook_v2_market_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -220,7 +220,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::market::Marke
 impl carbon_core::postgres::operations::Insert for MarketRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO market_account (
+            INSERT INTO openbook_v2_market_account (
                 "bump",
                 "base_decimals",
                 "quote_decimals",
@@ -308,7 +308,7 @@ impl carbon_core::postgres::operations::Insert for MarketRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO market_account (
+        sqlx::query(r#"INSERT INTO openbook_v2_market_account (
                 "bump",
                 "base_decimals",
                 "quote_decimals",
@@ -439,7 +439,7 @@ impl carbon_core::postgres::operations::Delete for MarketRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM market_account WHERE
+            r#"DELETE FROM openbook_v2_market_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -460,7 +460,7 @@ impl carbon_core::postgres::operations::Lookup for MarketRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM market_account WHERE
+            r#"SELECT * FROM openbook_v2_market_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -481,7 +481,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarketMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS market_account (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_market_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "base_decimals" INT2 NOT NULL,
@@ -534,7 +534,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarketMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS market_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_market_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -46,7 +46,7 @@ impl TryFrom<AddOperatorsRow> for crate::instructions::add_operators::AddOperato
 
 impl carbon_core::postgres::operations::Table for crate::instructions::add_operators::AddOperators {
     fn table() -> &'static str {
-        "add_operators_instruction"
+        "boop_add_operators_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for AddOperatorsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO add_operators_instruction (
+            INSERT INTO boop_add_operators_instruction (
                 "operators",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for AddOperatorsRow {
 impl carbon_core::postgres::operations::Upsert for AddOperatorsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO add_operators_instruction (
+            r#"INSERT INTO boop_add_operators_instruction (
                 "operators",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for AddOperatorsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM add_operators_instruction WHERE
+            r#"DELETE FROM boop_add_operators_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for AddOperatorsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM add_operators_instruction WHERE
+            r#"SELECT * FROM boop_add_operators_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddOperatorsMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS add_operators_instruction (
+            r#"CREATE TABLE IF NOT EXISTS boop_add_operators_instruction (
                 -- Instruction data
                 "operators" BYTEA[] NOT NULL,
                 -- Instruction metadata
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddOperatorsMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS add_operators_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS boop_add_operators_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

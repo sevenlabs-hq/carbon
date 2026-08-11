@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::give_up_pending_fees::GiveUpPendingFees
 {
     fn table() -> &'static str {
-        "give_up_pending_fees_instruction"
+        "kamino_vault_give_up_pending_fees_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for GiveUpPendingFeesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO give_up_pending_fees_instruction (
+            INSERT INTO kamino_vault_give_up_pending_fees_instruction (
                 "max_amount_to_give_up",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for GiveUpPendingFeesRow {
 impl carbon_core::postgres::operations::Upsert for GiveUpPendingFeesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO give_up_pending_fees_instruction (
+            r#"INSERT INTO kamino_vault_give_up_pending_fees_instruction (
                 "max_amount_to_give_up",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for GiveUpPendingFeesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM give_up_pending_fees_instruction WHERE
+            r#"DELETE FROM kamino_vault_give_up_pending_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for GiveUpPendingFeesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM give_up_pending_fees_instruction WHERE
+            r#"SELECT * FROM kamino_vault_give_up_pending_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GiveUpPendingFeesMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS give_up_pending_fees_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_vault_give_up_pending_fees_instruction (
                 -- Instruction data
                 "max_amount_to_give_up" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GiveUpPendingFeesMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS give_up_pending_fees_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_vault_give_up_pending_fees_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

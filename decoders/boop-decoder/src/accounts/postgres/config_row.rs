@@ -120,7 +120,7 @@ impl TryFrom<ConfigRow> for crate::accounts::config::Config {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::config::Config {
     fn table() -> &'static str {
-        "config_account"
+        "boop_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -152,7 +152,7 @@ impl carbon_core::postgres::operations::Insert for ConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO config_account (
+            INSERT INTO boop_config_account (
                 "is_paused",
                 "authority",
                 "pending_authority",
@@ -202,7 +202,7 @@ impl carbon_core::postgres::operations::Insert for ConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO config_account (
+        sqlx::query(r#"INSERT INTO boop_config_account (
                 "is_paused",
                 "authority",
                 "pending_authority",
@@ -273,7 +273,7 @@ impl carbon_core::postgres::operations::Delete for ConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM config_account WHERE
+            r#"DELETE FROM boop_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -294,7 +294,7 @@ impl carbon_core::postgres::operations::Lookup for ConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM config_account WHERE
+            r#"SELECT * FROM boop_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -315,7 +315,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS config_account (
+            r#"CREATE TABLE IF NOT EXISTS boop_config_account (
                 -- Account data
                 "is_paused" BOOLEAN NOT NULL,
                 "authority" BYTEA NOT NULL,
@@ -348,7 +348,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS boop_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

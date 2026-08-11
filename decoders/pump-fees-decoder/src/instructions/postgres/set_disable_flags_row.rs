@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_disable_flags::SetDisableFlags
 {
     fn table() -> &'static str {
-        "set_disable_flags_instruction"
+        "pump_fees_set_disable_flags_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for SetDisableFlagsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_disable_flags_instruction (
+            INSERT INTO pump_fees_set_disable_flags_instruction (
                 "disable_flags",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for SetDisableFlagsRow {
 impl carbon_core::postgres::operations::Upsert for SetDisableFlagsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_disable_flags_instruction (
+            r#"INSERT INTO pump_fees_set_disable_flags_instruction (
                 "disable_flags",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Delete for SetDisableFlagsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_disable_flags_instruction WHERE
+            r#"DELETE FROM pump_fees_set_disable_flags_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -153,7 +153,7 @@ impl carbon_core::postgres::operations::Lookup for SetDisableFlagsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_disable_flags_instruction WHERE
+            r#"SELECT * FROM pump_fees_set_disable_flags_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetDisableFlagsMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_disable_flags_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_set_disable_flags_instruction (
                 -- Instruction data
                 "disable_flags" INT2 NOT NULL,
                 -- Instruction metadata
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetDisableFlagsMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_disable_flags_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_set_disable_flags_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::cancel_all_orders::CancelAllOrders
 {
     fn table() -> &'static str {
-        "cancel_all_orders_instruction"
+        "openbook_v2_cancel_all_orders_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Insert for CancelAllOrdersRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO cancel_all_orders_instruction (
+            INSERT INTO openbook_v2_cancel_all_orders_instruction (
                 "side_option",
                 "limit",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for CancelAllOrdersRow {
 impl carbon_core::postgres::operations::Upsert for CancelAllOrdersRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO cancel_all_orders_instruction (
+            r#"INSERT INTO openbook_v2_cancel_all_orders_instruction (
                 "side_option",
                 "limit",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Delete for CancelAllOrdersRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM cancel_all_orders_instruction WHERE
+            r#"DELETE FROM openbook_v2_cancel_all_orders_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Lookup for CancelAllOrdersRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM cancel_all_orders_instruction WHERE
+            r#"SELECT * FROM openbook_v2_cancel_all_orders_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -188,7 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelAllOrdersMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS cancel_all_orders_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_cancel_all_orders_instruction (
                 -- Instruction data
                 "side_option" JSONB,
                 "limit" INT2 NOT NULL,
@@ -210,7 +210,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelAllOrdersMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS cancel_all_orders_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_cancel_all_orders_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

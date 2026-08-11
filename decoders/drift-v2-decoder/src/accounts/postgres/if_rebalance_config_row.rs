@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::if_rebalance_config::IfRebalanceConfig
 {
     fn table() -> &'static str {
-        "if_rebalance_config_account"
+        "drift_v2_if_rebalance_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Insert for IfRebalanceConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO if_rebalance_config_account (
+            INSERT INTO drift_v2_if_rebalance_config_account (
                 "pubkey",
                 "total_in_amount",
                 "current_in_amount",
@@ -193,7 +193,7 @@ impl carbon_core::postgres::operations::Insert for IfRebalanceConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for IfRebalanceConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO if_rebalance_config_account (
+        sqlx::query(r#"INSERT INTO drift_v2_if_rebalance_config_account (
                 "pubkey",
                 "total_in_amount",
                 "current_in_amount",
@@ -264,7 +264,7 @@ impl carbon_core::postgres::operations::Delete for IfRebalanceConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM if_rebalance_config_account WHERE
+            r#"DELETE FROM drift_v2_if_rebalance_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -285,7 +285,7 @@ impl carbon_core::postgres::operations::Lookup for IfRebalanceConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM if_rebalance_config_account WHERE
+            r#"SELECT * FROM drift_v2_if_rebalance_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -306,7 +306,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IfRebalanceConfigMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS if_rebalance_config_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_if_rebalance_config_account (
                 -- Account data
                 "pubkey" BYTEA NOT NULL,
                 "total_in_amount" NUMERIC(20) NOT NULL,
@@ -339,7 +339,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IfRebalanceConfigMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS if_rebalance_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_if_rebalance_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -431,7 +431,7 @@ impl TryFrom<LendingMarketRow> for crate::accounts::lending_market::LendingMarke
 
 impl carbon_core::postgres::operations::Table for crate::accounts::lending_market::LendingMarket {
     fn table() -> &'static str {
-        "lending_market_account"
+        "kamino_lending_lending_market_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -497,7 +497,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::lending_marke
 impl carbon_core::postgres::operations::Insert for LendingMarketRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO lending_market_account (
+            INSERT INTO kamino_lending_lending_market_account (
                 "version",
                 "bump_seed",
                 "lending_market_owner",
@@ -615,7 +615,7 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO lending_market_account (
+        sqlx::query(r#"INSERT INTO kamino_lending_lending_market_account (
                 "version",
                 "bump_seed",
                 "lending_market_owner",
@@ -791,7 +791,7 @@ impl carbon_core::postgres::operations::Delete for LendingMarketRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lending_market_account WHERE
+            r#"DELETE FROM kamino_lending_lending_market_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -812,7 +812,7 @@ impl carbon_core::postgres::operations::Lookup for LendingMarketRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lending_market_account WHERE
+            r#"SELECT * FROM kamino_lending_lending_market_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -833,7 +833,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingMarketMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lending_market_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_lending_market_account (
                 -- Account data
                 "version" NUMERIC(20) NOT NULL,
                 "bump_seed" NUMERIC(20) NOT NULL,
@@ -901,7 +901,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingMarketMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lending_market_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_lending_market_account"#)
             .execute(connection)
             .await?;
         Ok(())

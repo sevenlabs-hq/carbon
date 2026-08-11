@@ -221,7 +221,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::solend_minimal_reserve::SolendMinimalReserve
 {
     fn table() -> &'static str {
-        "solend_minimal_reserve_account"
+        "marginfi_v2_solend_minimal_reserve_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -262,7 +262,7 @@ impl carbon_core::postgres::operations::Table
 impl carbon_core::postgres::operations::Insert for SolendMinimalReserveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO solend_minimal_reserve_account (
+            INSERT INTO marginfi_v2_solend_minimal_reserve_account (
                 "last_update_slot",
                 "last_update_stale",
                 "lending_market",
@@ -330,7 +330,7 @@ impl carbon_core::postgres::operations::Insert for SolendMinimalReserveRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SolendMinimalReserveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO solend_minimal_reserve_account (
+        sqlx::query(r#"INSERT INTO marginfi_v2_solend_minimal_reserve_account (
                 "last_update_slot",
                 "last_update_stale",
                 "lending_market",
@@ -431,7 +431,7 @@ impl carbon_core::postgres::operations::Delete for SolendMinimalReserveRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM solend_minimal_reserve_account WHERE
+            r#"DELETE FROM marginfi_v2_solend_minimal_reserve_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -452,7 +452,7 @@ impl carbon_core::postgres::operations::Lookup for SolendMinimalReserveRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM solend_minimal_reserve_account WHERE
+            r#"SELECT * FROM marginfi_v2_solend_minimal_reserve_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -473,7 +473,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SolendMinimalReserveMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS solend_minimal_reserve_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_solend_minimal_reserve_account (
                 -- Account data
                 "last_update_slot" NUMERIC(20) NOT NULL,
                 "last_update_stale" INT2 NOT NULL,
@@ -516,7 +516,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SolendMinimalReserveMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS solend_minimal_reserve_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_solend_minimal_reserve_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::lending_pool_withdraw_fees::LendingPoolWithdrawFees
 {
     fn table() -> &'static str {
-        "lending_pool_withdraw_fees_instruction"
+        "marginfi_v2_lending_pool_withdraw_fees_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for LendingPoolWithdrawFeesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lending_pool_withdraw_fees_instruction (
+            INSERT INTO marginfi_v2_lending_pool_withdraw_fees_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for LendingPoolWithdrawFeesRow {
 impl carbon_core::postgres::operations::Upsert for LendingPoolWithdrawFeesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lending_pool_withdraw_fees_instruction (
+            r#"INSERT INTO marginfi_v2_lending_pool_withdraw_fees_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for LendingPoolWithdrawFeesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lending_pool_withdraw_fees_instruction WHERE
+            r#"DELETE FROM marginfi_v2_lending_pool_withdraw_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for LendingPoolWithdrawFeesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lending_pool_withdraw_fees_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_lending_pool_withdraw_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingPoolWithdrawFeesMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lending_pool_withdraw_fees_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_lending_pool_withdraw_fees_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingPoolWithdrawFeesMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lending_pool_withdraw_fees_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_lending_pool_withdraw_fees_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::clone_reserve_config::CloneReserveConfig
 {
     fn table() -> &'static str {
-        "clone_reserve_config_instruction"
+        "kamino_lending_clone_reserve_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for CloneReserveConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO clone_reserve_config_instruction (
+            INSERT INTO kamino_lending_clone_reserve_config_instruction (
                 "customizations",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for CloneReserveConfigRow {
 impl carbon_core::postgres::operations::Upsert for CloneReserveConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO clone_reserve_config_instruction (
+            r#"INSERT INTO kamino_lending_clone_reserve_config_instruction (
                 "customizations",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for CloneReserveConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM clone_reserve_config_instruction WHERE
+            r#"DELETE FROM kamino_lending_clone_reserve_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for CloneReserveConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM clone_reserve_config_instruction WHERE
+            r#"SELECT * FROM kamino_lending_clone_reserve_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CloneReserveConfigMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS clone_reserve_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_clone_reserve_config_instruction (
                 -- Instruction data
                 "customizations" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CloneReserveConfigMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS clone_reserve_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_clone_reserve_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

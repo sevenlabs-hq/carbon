@@ -49,7 +49,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::buy_exact_sol_in::BuyExactSolIn
 {
     fn table() -> &'static str {
-        "buy_exact_sol_in_instruction"
+        "pumpfun_buy_exact_sol_in_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Insert for BuyExactSolInRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO buy_exact_sol_in_instruction (
+            INSERT INTO pumpfun_buy_exact_sol_in_instruction (
                 "spendable_sol_in",
                 "min_tokens_out",
                 "track_volume",
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for BuyExactSolInRow {
 impl carbon_core::postgres::operations::Upsert for BuyExactSolInRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO buy_exact_sol_in_instruction (
+            r#"INSERT INTO pumpfun_buy_exact_sol_in_instruction (
                 "spendable_sol_in",
                 "min_tokens_out",
                 "track_volume",
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for BuyExactSolInRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM buy_exact_sol_in_instruction WHERE
+            r#"DELETE FROM pumpfun_buy_exact_sol_in_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl carbon_core::postgres::operations::Lookup for BuyExactSolInRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM buy_exact_sol_in_instruction WHERE
+            r#"SELECT * FROM pumpfun_buy_exact_sol_in_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyExactSolInMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS buy_exact_sol_in_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_buy_exact_sol_in_instruction (
                 -- Instruction data
                 "spendable_sol_in" NUMERIC(20) NOT NULL,
                 "min_tokens_out" NUMERIC(20) NOT NULL,
@@ -216,7 +216,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyExactSolInMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS buy_exact_sol_in_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_buy_exact_sol_in_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

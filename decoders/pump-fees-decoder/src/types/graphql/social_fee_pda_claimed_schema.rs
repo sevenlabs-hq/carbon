@@ -18,6 +18,7 @@ pub struct SocialFeePdaClaimedGraphQL {
     pub lifetime_claimed: U64,
     pub recipient_balance_before: U64,
     pub recipient_balance_after: U64,
+    pub quote_mint: Pubkey,
 }
 
 impl From<crate::types::SocialFeePdaClaimed> for SocialFeePdaClaimedGraphQL {
@@ -40,6 +41,7 @@ impl From<crate::types::SocialFeePdaClaimed> for SocialFeePdaClaimedGraphQL {
             recipient_balance_after: carbon_core::graphql::primitives::U64(
                 original.recipient_balance_after,
             ),
+            quote_mint: carbon_core::graphql::primitives::Pubkey(original.quote_mint),
         }
     }
 }

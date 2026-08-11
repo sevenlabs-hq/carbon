@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_permissionless_operation_bits::SetPermissionlessOperationBits
 {
     fn table() -> &'static str {
-        "set_permissionless_operation_bits_instruction"
+        "meteora_dlmm_set_permissionless_operation_bits_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for SetPermissionlessOperationBit
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_permissionless_operation_bits_instruction (
+            INSERT INTO meteora_dlmm_set_permissionless_operation_bits_instruction (
                 "bits",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for SetPermissionlessOperationBit
 impl carbon_core::postgres::operations::Upsert for SetPermissionlessOperationBitsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_permissionless_operation_bits_instruction (
+            r#"INSERT INTO meteora_dlmm_set_permissionless_operation_bits_instruction (
                 "bits",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for SetPermissionlessOperationBit
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_permissionless_operation_bits_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_set_permissionless_operation_bits_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for SetPermissionlessOperationBit
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_permissionless_operation_bits_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_set_permissionless_operation_bits_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -177,8 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetPermissionlessOperationBits
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_permissionless_operation_bits_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_set_permissionless_operation_bits_instruction (
                 -- Instruction data
                 "bits" INT2 NOT NULL,
                 -- Instruction metadata
@@ -188,10 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetPermissionlessOperationBits
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -199,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetPermissionlessOperationBits
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_permissionless_operation_bits_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_dlmm_set_permissionless_operation_bits_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

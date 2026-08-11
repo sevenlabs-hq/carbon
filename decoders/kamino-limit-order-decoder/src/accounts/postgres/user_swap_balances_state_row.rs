@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::user_swap_balances_state::UserSwapBalancesState
 {
     fn table() -> &'static str {
-        "user_swap_balances_state_account"
+        "kamino_limit_order_user_swap_balances_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -63,7 +63,7 @@ impl carbon_core::postgres::operations::Insert for UserSwapBalancesStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO user_swap_balances_state_account (
+            INSERT INTO kamino_limit_order_user_swap_balances_state_account (
                 "user_lamports",
                 "input_ta_balance",
                 "output_ta_balance",
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for UserSwapBalancesStateRow {
 impl carbon_core::postgres::operations::Upsert for UserSwapBalancesStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO user_swap_balances_state_account (
+            r#"INSERT INTO kamino_limit_order_user_swap_balances_state_account (
                 "user_lamports",
                 "input_ta_balance",
                 "output_ta_balance",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for UserSwapBalancesStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM user_swap_balances_state_account WHERE
+            r#"DELETE FROM kamino_limit_order_user_swap_balances_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Lookup for UserSwapBalancesStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM user_swap_balances_state_account WHERE
+            r#"SELECT * FROM kamino_limit_order_user_swap_balances_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -164,7 +164,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserSwapBalancesStateMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS user_swap_balances_state_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_limit_order_user_swap_balances_state_account (
                 -- Account data
                 "user_lamports" NUMERIC(20) NOT NULL,
                 "input_ta_balance" NUMERIC(20) NOT NULL,
@@ -184,7 +184,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserSwapBalancesStateMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS user_swap_balances_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_limit_order_user_swap_balances_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

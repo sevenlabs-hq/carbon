@@ -16,7 +16,7 @@ pub struct TradeEventGraphQL {
     pub curve: Pubkey,
     pub cost_token: Pubkey,
     pub sender: Pubkey,
-    pub r#type: TradeTypeGraphQL,
+    pub r_type: TradeTypeGraphQL,
     pub label: String,
 }
 
@@ -31,7 +31,7 @@ impl From<crate::types::TradeEvent> for TradeEventGraphQL {
             curve: carbon_core::graphql::primitives::Pubkey(original.curve),
             cost_token: carbon_core::graphql::primitives::Pubkey(original.cost_token),
             sender: carbon_core::graphql::primitives::Pubkey(original.sender),
-            r#type: original.r#type.into(),
+            r_type: original.r#type.into(),
             label: original.label,
         }
     }

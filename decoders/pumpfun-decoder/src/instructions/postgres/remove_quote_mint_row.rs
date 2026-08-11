@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::remove_quote_mint::RemoveQuoteMint
 {
     fn table() -> &'static str {
-        "remove_quote_mint_instruction"
+        "pumpfun_remove_quote_mint_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for RemoveQuoteMintRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO remove_quote_mint_instruction (
+            INSERT INTO pumpfun_remove_quote_mint_instruction (
                 "quote_mint",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for RemoveQuoteMintRow {
 impl carbon_core::postgres::operations::Upsert for RemoveQuoteMintRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO remove_quote_mint_instruction (
+            r#"INSERT INTO pumpfun_remove_quote_mint_instruction (
                 "quote_mint",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for RemoveQuoteMintRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM remove_quote_mint_instruction WHERE
+            r#"DELETE FROM pumpfun_remove_quote_mint_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for RemoveQuoteMintRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM remove_quote_mint_instruction WHERE
+            r#"SELECT * FROM pumpfun_remove_quote_mint_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveQuoteMintMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS remove_quote_mint_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_remove_quote_mint_instruction (
                 -- Instruction data
                 "quote_mint" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveQuoteMintMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS remove_quote_mint_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_remove_quote_mint_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

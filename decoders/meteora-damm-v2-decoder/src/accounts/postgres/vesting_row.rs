@@ -65,7 +65,7 @@ impl TryFrom<VestingRow> for crate::accounts::vesting::Vesting {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::vesting::Vesting {
     fn table() -> &'static str {
-        "vesting_account"
+        "meteora_damm_v2_vesting_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for VestingRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO vesting_account (
+            INSERT INTO meteora_damm_v2_vesting_account (
                 "position",
                 "inner_vesting",
                 "padding2",
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Insert for VestingRow {
 impl carbon_core::postgres::operations::Upsert for VestingRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO vesting_account (
+            r#"INSERT INTO meteora_damm_v2_vesting_account (
                 "position",
                 "inner_vesting",
                 "padding2",
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for VestingRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM vesting_account WHERE
+            r#"DELETE FROM meteora_damm_v2_vesting_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Lookup for VestingRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM vesting_account WHERE
+            r#"SELECT * FROM meteora_damm_v2_vesting_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -185,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VestingMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS vesting_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_vesting_account (
                 -- Account data
                 "position" BYTEA NOT NULL,
                 "inner_vesting" JSONB NOT NULL,
@@ -205,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VestingMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS vesting_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_vesting_account"#)
             .execute(connection)
             .await?;
         Ok(())

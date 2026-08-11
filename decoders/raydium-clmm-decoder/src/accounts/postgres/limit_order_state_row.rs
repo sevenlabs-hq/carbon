@@ -91,7 +91,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::limit_order_state::LimitOrderState
 {
     fn table() -> &'static str {
-        "limit_order_state_account"
+        "raydium_clmm_limit_order_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Insert for LimitOrderStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO limit_order_state_account (
+            INSERT INTO raydium_clmm_limit_order_state_account (
                 "pool_id",
                 "owner",
                 "tick_index",
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Insert for LimitOrderStateRow {
 impl carbon_core::postgres::operations::Upsert for LimitOrderStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO limit_order_state_account (
+            r#"INSERT INTO raydium_clmm_limit_order_state_account (
                 "pool_id",
                 "owner",
                 "tick_index",
@@ -223,7 +223,7 @@ impl carbon_core::postgres::operations::Delete for LimitOrderStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM limit_order_state_account WHERE
+            r#"DELETE FROM raydium_clmm_limit_order_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -244,7 +244,7 @@ impl carbon_core::postgres::operations::Lookup for LimitOrderStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM limit_order_state_account WHERE
+            r#"SELECT * FROM raydium_clmm_limit_order_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -265,7 +265,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LimitOrderStateMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS limit_order_state_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_limit_order_state_account (
                 -- Account data
                 "pool_id" BYTEA NOT NULL,
                 "owner" BYTEA NOT NULL,
@@ -294,7 +294,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LimitOrderStateMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS limit_order_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_limit_order_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

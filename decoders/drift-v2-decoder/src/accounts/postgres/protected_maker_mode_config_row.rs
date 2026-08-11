@@ -67,7 +67,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::protected_maker_mode_config::ProtectedMakerModeConfig
 {
     fn table() -> &'static str {
-        "protected_maker_mode_config_account"
+        "drift_v2_protected_maker_mode_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -87,7 +87,7 @@ impl carbon_core::postgres::operations::Insert for ProtectedMakerModeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO protected_maker_mode_config_account (
+            INSERT INTO drift_v2_protected_maker_mode_config_account (
                 "max_users",
                 "current_users",
                 "reduce_only",
@@ -114,7 +114,7 @@ impl carbon_core::postgres::operations::Insert for ProtectedMakerModeConfigRow {
 impl carbon_core::postgres::operations::Upsert for ProtectedMakerModeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO protected_maker_mode_config_account (
+            r#"INSERT INTO drift_v2_protected_maker_mode_config_account (
                 "max_users",
                 "current_users",
                 "reduce_only",
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Delete for ProtectedMakerModeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM protected_maker_mode_config_account WHERE
+            r#"DELETE FROM drift_v2_protected_maker_mode_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Lookup for ProtectedMakerModeConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM protected_maker_mode_config_account WHERE
+            r#"SELECT * FROM drift_v2_protected_maker_mode_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProtectedMakerModeConfigMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS protected_maker_mode_config_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_protected_maker_mode_config_account (
                 -- Account data
                 "max_users" INT8 NOT NULL,
                 "current_users" INT8 NOT NULL,
@@ -214,7 +214,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProtectedMakerModeConfigMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS protected_maker_mode_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_protected_maker_mode_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

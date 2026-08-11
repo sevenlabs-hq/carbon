@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_mayhem_virtual_params::SetMayhemVirtualParams
 {
     fn table() -> &'static str {
-        "set_mayhem_virtual_params_instruction"
+        "pumpfun_set_mayhem_virtual_params_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for SetMayhemVirtualParamsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_mayhem_virtual_params_instruction (
+            INSERT INTO pumpfun_set_mayhem_virtual_params_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for SetMayhemVirtualParamsRow {
 impl carbon_core::postgres::operations::Upsert for SetMayhemVirtualParamsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_mayhem_virtual_params_instruction (
+            r#"INSERT INTO pumpfun_set_mayhem_virtual_params_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for SetMayhemVirtualParamsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_mayhem_virtual_params_instruction WHERE
+            r#"DELETE FROM pumpfun_set_mayhem_virtual_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for SetMayhemVirtualParamsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_mayhem_virtual_params_instruction WHERE
+            r#"SELECT * FROM pumpfun_set_mayhem_virtual_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMayhemVirtualParamsMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_mayhem_virtual_params_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_set_mayhem_virtual_params_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetMayhemVirtualParamsMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_mayhem_virtual_params_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_set_mayhem_virtual_params_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

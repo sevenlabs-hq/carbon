@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::split_post_graduation_trading_fees::SplitPostGraduationTradingFees
 {
     fn table() -> &'static str {
-        "split_post_graduation_trading_fees_instruction"
+        "boop_split_post_graduation_trading_fees_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for SplitPostGraduationTradingFee
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO split_post_graduation_trading_fees_instruction (
+            INSERT INTO boop_split_post_graduation_trading_fees_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for SplitPostGraduationTradingFee
 impl carbon_core::postgres::operations::Upsert for SplitPostGraduationTradingFeesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO split_post_graduation_trading_fees_instruction (
+            r#"INSERT INTO boop_split_post_graduation_trading_fees_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for SplitPostGraduationTradingFee
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM split_post_graduation_trading_fees_instruction WHERE
+            r#"DELETE FROM boop_split_post_graduation_trading_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for SplitPostGraduationTradingFee
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM split_post_graduation_trading_fees_instruction WHERE
+            r#"SELECT * FROM boop_split_post_graduation_trading_fees_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SplitPostGraduationTradingFees
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS split_post_graduation_trading_fees_instruction (
+            r#"CREATE TABLE IF NOT EXISTS boop_split_post_graduation_trading_fees_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SplitPostGraduationTradingFees
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS split_post_graduation_trading_fees_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS boop_split_post_graduation_trading_fees_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

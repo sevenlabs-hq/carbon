@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::assert_user_swap_balances_end::AssertUserSwapBalancesEnd
 {
     fn table() -> &'static str {
-        "assert_user_swap_balances_end_instruction"
+        "kamino_limit_order_assert_user_swap_balances_end_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for AssertUserSwapBalancesEndRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO assert_user_swap_balances_end_instruction (
+            INSERT INTO kamino_limit_order_assert_user_swap_balances_end_instruction (
                 "max_input_amount_change",
                 "min_output_amount_change",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for AssertUserSwapBalancesEndRow 
 impl carbon_core::postgres::operations::Upsert for AssertUserSwapBalancesEndRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO assert_user_swap_balances_end_instruction (
+            r#"INSERT INTO kamino_limit_order_assert_user_swap_balances_end_instruction (
                 "max_input_amount_change",
                 "min_output_amount_change",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for AssertUserSwapBalancesEndRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM assert_user_swap_balances_end_instruction WHERE
+            r#"DELETE FROM kamino_limit_order_assert_user_swap_balances_end_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for AssertUserSwapBalancesEndRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM assert_user_swap_balances_end_instruction WHERE
+            r#"SELECT * FROM kamino_limit_order_assert_user_swap_balances_end_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -182,8 +182,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AssertUserSwapBalancesEndMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS assert_user_swap_balances_end_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS kamino_limit_order_assert_user_swap_balances_end_instruction (
                 -- Instruction data
                 "max_input_amount_change" NUMERIC(20) NOT NULL,
                 "min_output_amount_change" NUMERIC(20) NOT NULL,
@@ -194,10 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AssertUserSwapBalancesEndMigra
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -205,9 +201,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AssertUserSwapBalancesEndMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS assert_user_swap_balances_end_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS kamino_limit_order_assert_user_swap_balances_end_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

@@ -32,6 +32,7 @@ pub struct PoolStateGraphQL {
     pub padding5: Vec<U128>,
     pub status: U8,
     pub fee_on: U8,
+    pub seed_index: Vec<U8>,
     pub padding: Vec<U8>,
     pub reward_infos: Vec<RewardInfoGraphQL>,
     pub tick_array_bitmap: Vec<U64>,
@@ -85,6 +86,11 @@ impl TryFrom<crate::accounts::postgres::PoolStateRow> for PoolStateGraphQL {
                 .collect(),
             status: carbon_core::graphql::primitives::U8((*row.status) as u8),
             fee_on: carbon_core::graphql::primitives::U8((*row.fee_on) as u8),
+            seed_index: row
+                .seed_index
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
+                .collect(),
             padding: row
                 .padding
                 .into_iter()

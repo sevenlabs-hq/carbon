@@ -71,7 +71,7 @@ impl TryFrom<VestingRecordRow> for crate::accounts::vesting_record::VestingRecor
 
 impl carbon_core::postgres::operations::Table for crate::accounts::vesting_record::VestingRecord {
     fn table() -> &'static str {
-        "vesting_record_account"
+        "raydium_launchpad_vesting_record_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -93,7 +93,7 @@ impl carbon_core::postgres::operations::Insert for VestingRecordRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO vesting_record_account (
+            INSERT INTO raydium_launchpad_vesting_record_account (
                 "epoch",
                 "pool",
                 "beneficiary",
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Insert for VestingRecordRow {
 impl carbon_core::postgres::operations::Upsert for VestingRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO vesting_record_account (
+            r#"INSERT INTO raydium_launchpad_vesting_record_account (
                 "epoch",
                 "pool",
                 "beneficiary",
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Delete for VestingRecordRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM vesting_record_account WHERE
+            r#"DELETE FROM raydium_launchpad_vesting_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -188,7 +188,7 @@ impl carbon_core::postgres::operations::Lookup for VestingRecordRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM vesting_record_account WHERE
+            r#"SELECT * FROM raydium_launchpad_vesting_record_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -209,7 +209,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VestingRecordMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS vesting_record_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_launchpad_vesting_record_account (
                 -- Account data
                 "epoch" NUMERIC(20) NOT NULL,
                 "pool" BYTEA NOT NULL,
@@ -232,7 +232,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VestingRecordMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS vesting_record_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_launchpad_vesting_record_account"#)
             .execute(connection)
             .await?;
         Ok(())

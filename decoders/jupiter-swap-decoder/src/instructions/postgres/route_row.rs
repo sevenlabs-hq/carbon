@@ -64,7 +64,7 @@ impl TryFrom<RouteRow> for crate::instructions::route::Route {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::route::Route {
     fn table() -> &'static str {
-        "route_instruction"
+        "jupiter_swap_route_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for RouteRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO route_instruction (
+            INSERT INTO jupiter_swap_route_instruction (
                 "route_plan",
                 "in_amount",
                 "quoted_out_amount",
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for RouteRow {
 impl carbon_core::postgres::operations::Upsert for RouteRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO route_instruction (
+            r#"INSERT INTO jupiter_swap_route_instruction (
                 "route_plan",
                 "in_amount",
                 "quoted_out_amount",
@@ -170,7 +170,7 @@ impl carbon_core::postgres::operations::Delete for RouteRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM route_instruction WHERE
+            r#"DELETE FROM jupiter_swap_route_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -197,7 +197,7 @@ impl carbon_core::postgres::operations::Lookup for RouteRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM route_instruction WHERE
+            r#"SELECT * FROM jupiter_swap_route_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -220,7 +220,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RouteMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS route_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_swap_route_instruction (
                 -- Instruction data
                 "route_plan" JSONB NOT NULL,
                 "in_amount" NUMERIC(20) NOT NULL,
@@ -245,7 +245,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RouteMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS route_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_swap_route_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

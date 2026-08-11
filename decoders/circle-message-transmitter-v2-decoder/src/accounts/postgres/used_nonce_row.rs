@@ -31,7 +31,7 @@ impl TryFrom<UsedNonceRow> for crate::accounts::used_nonce::UsedNonce {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::used_nonce::UsedNonce {
     fn table() -> &'static str {
-        "used_nonce_account"
+        "circle_message_transmitter_v2_used_nonce_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -44,7 +44,7 @@ impl carbon_core::postgres::operations::Insert for UsedNonceRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO used_nonce_account (
+            INSERT INTO circle_message_transmitter_v2_used_nonce_account (
                 "is_used",
                 __pubkey, __slot
             ) VALUES (
@@ -65,7 +65,7 @@ impl carbon_core::postgres::operations::Insert for UsedNonceRow {
 impl carbon_core::postgres::operations::Upsert for UsedNonceRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO used_nonce_account (
+            r#"INSERT INTO circle_message_transmitter_v2_used_nonce_account (
                 "is_used",
                 __pubkey, __slot
             ) VALUES (
@@ -93,7 +93,7 @@ impl carbon_core::postgres::operations::Delete for UsedNonceRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM used_nonce_account WHERE
+            r#"DELETE FROM circle_message_transmitter_v2_used_nonce_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -114,7 +114,7 @@ impl carbon_core::postgres::operations::Lookup for UsedNonceRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM used_nonce_account WHERE
+            r#"SELECT * FROM circle_message_transmitter_v2_used_nonce_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -135,7 +135,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UsedNonceMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS used_nonce_account (
+            r#"CREATE TABLE IF NOT EXISTS circle_message_transmitter_v2_used_nonce_account (
                 -- Account data
                 "is_used" BOOLEAN NOT NULL,
                 -- Account metadata
@@ -153,7 +153,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UsedNonceMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS used_nonce_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS circle_message_transmitter_v2_used_nonce_account"#)
             .execute(connection)
             .await?;
         Ok(())

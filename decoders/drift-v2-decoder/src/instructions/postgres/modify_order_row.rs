@@ -53,7 +53,7 @@ impl TryFrom<ModifyOrderRow> for crate::instructions::modify_order::ModifyOrder 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::modify_order::ModifyOrder {
     fn table() -> &'static str {
-        "modify_order_instruction"
+        "drift_v2_modify_order_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for ModifyOrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO modify_order_instruction (
+            INSERT INTO drift_v2_modify_order_instruction (
                 "order_id",
                 "modify_order_params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Insert for ModifyOrderRow {
 impl carbon_core::postgres::operations::Upsert for ModifyOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO modify_order_instruction (
+            r#"INSERT INTO drift_v2_modify_order_instruction (
                 "order_id",
                 "modify_order_params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for ModifyOrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM modify_order_instruction WHERE
+            r#"DELETE FROM drift_v2_modify_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Lookup for ModifyOrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM modify_order_instruction WHERE
+            r#"SELECT * FROM drift_v2_modify_order_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ModifyOrderMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS modify_order_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_modify_order_instruction (
                 -- Instruction data
                 "order_id" INT8,
                 "modify_order_params" JSONB NOT NULL,
@@ -213,7 +213,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ModifyOrderMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS modify_order_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_modify_order_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

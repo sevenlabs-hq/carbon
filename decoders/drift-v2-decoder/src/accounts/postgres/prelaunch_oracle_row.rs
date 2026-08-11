@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::prelaunch_oracle::PrelaunchOracle
 {
     fn table() -> &'static str {
-        "prelaunch_oracle_account"
+        "drift_v2_prelaunch_oracle_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -89,7 +89,7 @@ impl carbon_core::postgres::operations::Insert for PrelaunchOracleRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO prelaunch_oracle_account (
+            INSERT INTO drift_v2_prelaunch_oracle_account (
                 "price",
                 "max_price",
                 "confidence",
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for PrelaunchOracleRow {
 impl carbon_core::postgres::operations::Upsert for PrelaunchOracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO prelaunch_oracle_account (
+            r#"INSERT INTO drift_v2_prelaunch_oracle_account (
                 "price",
                 "max_price",
                 "confidence",
@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Delete for PrelaunchOracleRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM prelaunch_oracle_account WHERE
+            r#"DELETE FROM drift_v2_prelaunch_oracle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -189,7 +189,7 @@ impl carbon_core::postgres::operations::Lookup for PrelaunchOracleRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM prelaunch_oracle_account WHERE
+            r#"SELECT * FROM drift_v2_prelaunch_oracle_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -210,7 +210,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PrelaunchOracleMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS prelaunch_oracle_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_prelaunch_oracle_account (
                 -- Account data
                 "price" INT8 NOT NULL,
                 "max_price" INT8 NOT NULL,
@@ -234,7 +234,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PrelaunchOracleMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS prelaunch_oracle_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_prelaunch_oracle_account"#)
             .execute(connection)
             .await?;
         Ok(())

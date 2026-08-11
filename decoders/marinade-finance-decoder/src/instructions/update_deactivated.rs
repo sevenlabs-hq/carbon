@@ -7,6 +7,7 @@ use carbon_core::{
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateDeactivated {
     pub stake_index: u32,
+    pub validator_index: u32,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -24,6 +25,7 @@ pub struct UpdateDeactivatedInstructionAccounts {
     pub stake_history: solana_pubkey::Pubkey,
     pub stake_program: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
     pub operational_sol_account: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -69,6 +71,7 @@ impl ArrangeAccounts for UpdateDeactivated {
         let stake_history = next_account(&mut iter)?;
         let stake_program = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let validator_list = next_account(&mut iter)?;
         let operational_sol_account = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
 
@@ -87,6 +90,7 @@ impl ArrangeAccounts for UpdateDeactivated {
             stake_history,
             stake_program,
             token_program,
+            validator_list,
             operational_sol_account,
             system_program,
             remaining: remaining.to_vec(),

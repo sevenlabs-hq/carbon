@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::serum_v3_fulfillment_config::SerumV3FulfillmentConfig
 {
     fn table() -> &'static str {
-        "serum_v3_fulfillment_config_account"
+        "drift_v2_serum_v3_fulfillment_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Insert for SerumV3FulfillmentConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO serum_v3_fulfillment_config_account (
+            INSERT INTO drift_v2_serum_v3_fulfillment_config_account (
                 "pubkey",
                 "serum_program_id",
                 "serum_market",
@@ -175,7 +175,7 @@ impl carbon_core::postgres::operations::Insert for SerumV3FulfillmentConfigRow {
 impl carbon_core::postgres::operations::Upsert for SerumV3FulfillmentConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO serum_v3_fulfillment_config_account (
+            r#"INSERT INTO drift_v2_serum_v3_fulfillment_config_account (
                 "pubkey",
                 "serum_program_id",
                 "serum_market",
@@ -245,7 +245,7 @@ impl carbon_core::postgres::operations::Delete for SerumV3FulfillmentConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM serum_v3_fulfillment_config_account WHERE
+            r#"DELETE FROM drift_v2_serum_v3_fulfillment_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -266,7 +266,7 @@ impl carbon_core::postgres::operations::Lookup for SerumV3FulfillmentConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM serum_v3_fulfillment_config_account WHERE
+            r#"SELECT * FROM drift_v2_serum_v3_fulfillment_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -287,7 +287,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SerumV3FulfillmentConfigMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS serum_v3_fulfillment_config_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_serum_v3_fulfillment_config_account (
                 -- Account data
                 "pubkey" BYTEA NOT NULL,
                 "serum_program_id" BYTEA NOT NULL,
@@ -319,7 +319,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SerumV3FulfillmentConfigMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS serum_v3_fulfillment_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_serum_v3_fulfillment_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

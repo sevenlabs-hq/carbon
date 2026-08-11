@@ -5,6 +5,7 @@ pub mod limit_order_nonce_row;
 pub mod limit_order_state_row;
 pub mod observation_state_row;
 pub mod operation_state_row;
+pub mod permission_row;
 pub mod personal_position_state_row;
 pub mod pool_state_row;
 pub mod protocol_position_state_row;
@@ -14,7 +15,7 @@ pub mod tick_array_state_row;
 
 pub use self::{
     amm_config_row::*, dynamic_fee_config_row::*, limit_order_nonce_row::*,
-    limit_order_state_row::*, observation_state_row::*, operation_state_row::*,
+    limit_order_state_row::*, observation_state_row::*, operation_state_row::*, permission_row::*,
     personal_position_state_row::*, pool_state_row::*, protocol_position_state_row::*,
     support_mint_associated_row::*, tick_array_bitmap_extension_row::*, tick_array_state_row::*,
 };
@@ -39,6 +40,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumClmmAccountsMigration {
             Box::new(LimitOrderStateMigrationOperation),
             Box::new(ObservationStateMigrationOperation),
             Box::new(OperationStateMigrationOperation),
+            Box::new(PermissionMigrationOperation),
             Box::new(PersonalPositionStateMigrationOperation),
             Box::new(PoolStateMigrationOperation),
             Box::new(ProtocolPositionStateMigrationOperation),
@@ -115,6 +117,12 @@ impl carbon_core::postgres::operations::Insert for RaydiumClmmAccountWithMetadat
                     *account.clone(),
                     metadata.clone(),
                 );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            RaydiumClmmAccount::Permission(account) => {
+                let row =
+                    permission_row::PermissionRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -216,6 +224,12 @@ impl carbon_core::postgres::operations::Upsert for RaydiumClmmAccountWithMetadat
                     *account.clone(),
                     metadata.clone(),
                 );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            RaydiumClmmAccount::Permission(account) => {
+                let row =
+                    permission_row::PermissionRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

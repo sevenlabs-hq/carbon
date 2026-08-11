@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::rebalance_liquidity::RebalanceLiquidity
 {
     fn table() -> &'static str {
-        "rebalance_liquidity_instruction"
+        "meteora_dlmm_rebalance_liquidity_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for RebalanceLiquidityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO rebalance_liquidity_instruction (
+            INSERT INTO meteora_dlmm_rebalance_liquidity_instruction (
                 "params",
                 "remaining_accounts_info",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for RebalanceLiquidityRow {
 impl carbon_core::postgres::operations::Upsert for RebalanceLiquidityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO rebalance_liquidity_instruction (
+            r#"INSERT INTO meteora_dlmm_rebalance_liquidity_instruction (
                 "params",
                 "remaining_accounts_info",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Delete for RebalanceLiquidityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM rebalance_liquidity_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_rebalance_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Lookup for RebalanceLiquidityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM rebalance_liquidity_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_rebalance_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -183,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RebalanceLiquidityMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS rebalance_liquidity_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_rebalance_liquidity_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 "remaining_accounts_info" JSONB NOT NULL,
@@ -205,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RebalanceLiquidityMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS rebalance_liquidity_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_rebalance_liquidity_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

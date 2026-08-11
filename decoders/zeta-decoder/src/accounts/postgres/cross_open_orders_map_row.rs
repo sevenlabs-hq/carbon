@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::cross_open_orders_map::CrossOpenOrdersMap
 {
     fn table() -> &'static str {
-        "cross_open_orders_map_account"
+        "zeta_cross_open_orders_map_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Insert for CrossOpenOrdersMapRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO cross_open_orders_map_account (
+            INSERT INTO zeta_cross_open_orders_map_account (
                 "user_key",
                 "subaccount_index",
                 __pubkey, __slot
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for CrossOpenOrdersMapRow {
 impl carbon_core::postgres::operations::Upsert for CrossOpenOrdersMapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO cross_open_orders_map_account (
+            r#"INSERT INTO zeta_cross_open_orders_map_account (
                 "user_key",
                 "subaccount_index",
                 __pubkey, __slot
@@ -113,7 +113,7 @@ impl carbon_core::postgres::operations::Delete for CrossOpenOrdersMapRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM cross_open_orders_map_account WHERE
+            r#"DELETE FROM zeta_cross_open_orders_map_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for CrossOpenOrdersMapRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM cross_open_orders_map_account WHERE
+            r#"SELECT * FROM zeta_cross_open_orders_map_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -155,7 +155,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CrossOpenOrdersMapMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS cross_open_orders_map_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_cross_open_orders_map_account (
                 -- Account data
                 "user_key" BYTEA NOT NULL,
                 "subaccount_index" INT2 NOT NULL,
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CrossOpenOrdersMapMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS cross_open_orders_map_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_cross_open_orders_map_account"#)
             .execute(connection)
             .await?;
         Ok(())

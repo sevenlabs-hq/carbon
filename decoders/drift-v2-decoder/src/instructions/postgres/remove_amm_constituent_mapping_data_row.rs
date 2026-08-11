@@ -53,7 +53,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::remove_amm_constituent_mapping_data::RemoveAmmConstituentMappingData
 {
     fn table() -> &'static str {
-        "remove_amm_constituent_mapping_data_instruction"
+        "drift_v2_remove_amm_constituent_mapping_data_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for RemoveAmmConstituentMappingDa
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO remove_amm_constituent_mapping_data_instruction (
+            INSERT INTO drift_v2_remove_amm_constituent_mapping_data_instruction (
                 "perp_market_index",
                 "constituent_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Insert for RemoveAmmConstituentMappingDa
 impl carbon_core::postgres::operations::Upsert for RemoveAmmConstituentMappingDataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO remove_amm_constituent_mapping_data_instruction (
+            r#"INSERT INTO drift_v2_remove_amm_constituent_mapping_data_instruction (
                 "perp_market_index",
                 "constituent_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for RemoveAmmConstituentMappingDa
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM remove_amm_constituent_mapping_data_instruction WHERE
+            r#"DELETE FROM drift_v2_remove_amm_constituent_mapping_data_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Lookup for RemoveAmmConstituentMappingDa
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM remove_amm_constituent_mapping_data_instruction WHERE
+            r#"SELECT * FROM drift_v2_remove_amm_constituent_mapping_data_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS remove_amm_constituent_mapping_data_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_remove_amm_constituent_mapping_data_instruction (
                 -- Instruction data
                 "perp_market_index" INT4 NOT NULL,
                 "constituent_index" INT4 NOT NULL,
@@ -215,9 +215,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS remove_amm_constituent_mapping_data_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_remove_amm_constituent_mapping_data_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

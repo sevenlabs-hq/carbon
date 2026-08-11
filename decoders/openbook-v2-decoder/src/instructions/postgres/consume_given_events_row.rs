@@ -55,7 +55,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::consume_given_events::ConsumeGivenEvents
 {
     fn table() -> &'static str {
-        "consume_given_events_instruction"
+        "openbook_v2_consume_given_events_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -75,7 +75,7 @@ impl carbon_core::postgres::operations::Insert for ConsumeGivenEventsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO consume_given_events_instruction (
+            INSERT INTO openbook_v2_consume_given_events_instruction (
                 "slots",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for ConsumeGivenEventsRow {
 impl carbon_core::postgres::operations::Upsert for ConsumeGivenEventsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO consume_given_events_instruction (
+            r#"INSERT INTO openbook_v2_consume_given_events_instruction (
                 "slots",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Delete for ConsumeGivenEventsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM consume_given_events_instruction WHERE
+            r#"DELETE FROM openbook_v2_consume_given_events_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Lookup for ConsumeGivenEventsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM consume_given_events_instruction WHERE
+            r#"SELECT * FROM openbook_v2_consume_given_events_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -187,7 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConsumeGivenEventsMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS consume_given_events_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_consume_given_events_instruction (
                 -- Instruction data
                 "slots" NUMERIC(20)[] NOT NULL,
                 -- Instruction metadata
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConsumeGivenEventsMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS consume_given_events_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_consume_given_events_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

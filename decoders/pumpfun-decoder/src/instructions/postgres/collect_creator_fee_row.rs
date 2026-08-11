@@ -33,7 +33,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::collect_creator_fee::CollectCreatorFee
 {
     fn table() -> &'static str {
-        "collect_creator_fee_instruction"
+        "pumpfun_collect_creator_fee_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Insert for CollectCreatorFeeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO collect_creator_fee_instruction (
+            INSERT INTO pumpfun_collect_creator_fee_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for CollectCreatorFeeRow {
 impl carbon_core::postgres::operations::Upsert for CollectCreatorFeeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO collect_creator_fee_instruction (
+            r#"INSERT INTO pumpfun_collect_creator_fee_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for CollectCreatorFeeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM collect_creator_fee_instruction WHERE
+            r#"DELETE FROM pumpfun_collect_creator_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for CollectCreatorFeeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM collect_creator_fee_instruction WHERE
+            r#"SELECT * FROM pumpfun_collect_creator_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,7 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectCreatorFeeMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS collect_creator_fee_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_collect_creator_fee_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectCreatorFeeMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS collect_creator_fee_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_collect_creator_fee_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

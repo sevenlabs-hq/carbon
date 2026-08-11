@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::collect_remaining_rewards::CollectRemainingRewards
 {
     fn table() -> &'static str {
-        "collect_remaining_rewards_instruction"
+        "raydium_clmm_collect_remaining_rewards_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for CollectRemainingRewardsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO collect_remaining_rewards_instruction (
+            INSERT INTO raydium_clmm_collect_remaining_rewards_instruction (
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for CollectRemainingRewardsRow {
 impl carbon_core::postgres::operations::Upsert for CollectRemainingRewardsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO collect_remaining_rewards_instruction (
+            r#"INSERT INTO raydium_clmm_collect_remaining_rewards_instruction (
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for CollectRemainingRewardsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM collect_remaining_rewards_instruction WHERE
+            r#"DELETE FROM raydium_clmm_collect_remaining_rewards_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for CollectRemainingRewardsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM collect_remaining_rewards_instruction WHERE
+            r#"SELECT * FROM raydium_clmm_collect_remaining_rewards_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectRemainingRewardsMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS collect_remaining_rewards_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_collect_remaining_rewards_instruction (
                 -- Instruction data
                 "reward_index" INT2 NOT NULL,
                 -- Instruction metadata
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectRemainingRewardsMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS collect_remaining_rewards_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_collect_remaining_rewards_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

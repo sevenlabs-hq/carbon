@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::platform_global_access::PlatformGlobalAccess
 {
     fn table() -> &'static str {
-        "platform_global_access_account"
+        "raydium_launchpad_platform_global_access_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -93,7 +93,7 @@ impl carbon_core::postgres::operations::Insert for PlatformGlobalAccessRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO platform_global_access_account (
+            INSERT INTO raydium_launchpad_platform_global_access_account (
                 "bump",
                 "global_config",
                 "platform_config",
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for PlatformGlobalAccessRow {
 impl carbon_core::postgres::operations::Upsert for PlatformGlobalAccessRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO platform_global_access_account (
+            r#"INSERT INTO raydium_launchpad_platform_global_access_account (
                 "bump",
                 "global_config",
                 "platform_config",
@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Delete for PlatformGlobalAccessRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM platform_global_access_account WHERE
+            r#"DELETE FROM raydium_launchpad_platform_global_access_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Lookup for PlatformGlobalAccessRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM platform_global_access_account WHERE
+            r#"SELECT * FROM raydium_launchpad_platform_global_access_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PlatformGlobalAccessMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS platform_global_access_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_launchpad_platform_global_access_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "global_config" BYTEA NOT NULL,
@@ -220,7 +220,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PlatformGlobalAccessMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS platform_global_access_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_launchpad_platform_global_access_account"#)
             .execute(connection)
             .await?;
         Ok(())

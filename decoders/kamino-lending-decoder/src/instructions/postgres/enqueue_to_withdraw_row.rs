@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::enqueue_to_withdraw::EnqueueToWithdraw
 {
     fn table() -> &'static str {
-        "enqueue_to_withdraw_instruction"
+        "kamino_lending_enqueue_to_withdraw_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -67,7 +67,7 @@ impl carbon_core::postgres::operations::Insert for EnqueueToWithdrawRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO enqueue_to_withdraw_instruction (
+            INSERT INTO kamino_lending_enqueue_to_withdraw_instruction (
                 "collateral_amount",
                 "progress_callback_type",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -93,7 +93,7 @@ impl carbon_core::postgres::operations::Insert for EnqueueToWithdrawRow {
 impl carbon_core::postgres::operations::Upsert for EnqueueToWithdrawRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO enqueue_to_withdraw_instruction (
+            r#"INSERT INTO kamino_lending_enqueue_to_withdraw_instruction (
                 "collateral_amount",
                 "progress_callback_type",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Delete for EnqueueToWithdrawRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM enqueue_to_withdraw_instruction WHERE
+            r#"DELETE FROM kamino_lending_enqueue_to_withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl carbon_core::postgres::operations::Lookup for EnqueueToWithdrawRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM enqueue_to_withdraw_instruction WHERE
+            r#"SELECT * FROM kamino_lending_enqueue_to_withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -184,7 +184,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EnqueueToWithdrawMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS enqueue_to_withdraw_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_enqueue_to_withdraw_instruction (
                 -- Instruction data
                 "collateral_amount" NUMERIC(20) NOT NULL,
                 "progress_callback_type" JSONB NOT NULL,
@@ -206,7 +206,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EnqueueToWithdrawMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS enqueue_to_withdraw_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_enqueue_to_withdraw_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

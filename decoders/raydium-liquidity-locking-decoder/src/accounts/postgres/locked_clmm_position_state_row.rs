@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::locked_clmm_position_state::LockedClmmPositionState
 {
     fn table() -> &'static str {
-        "locked_clmm_position_state_account"
+        "raydium_liquidity_locking_locked_clmm_position_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -125,7 +125,7 @@ impl carbon_core::postgres::operations::Insert for LockedClmmPositionStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO locked_clmm_position_state_account (
+            INSERT INTO raydium_liquidity_locking_locked_clmm_position_state_account (
                 "bump",
                 "position_owner",
                 "pool_id",
@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Insert for LockedClmmPositionStateRow {
 impl carbon_core::postgres::operations::Upsert for LockedClmmPositionStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO locked_clmm_position_state_account (
+            r#"INSERT INTO raydium_liquidity_locking_locked_clmm_position_state_account (
                 "bump",
                 "position_owner",
                 "pool_id",
@@ -209,7 +209,7 @@ impl carbon_core::postgres::operations::Delete for LockedClmmPositionStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM locked_clmm_position_state_account WHERE
+            r#"DELETE FROM raydium_liquidity_locking_locked_clmm_position_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -230,7 +230,7 @@ impl carbon_core::postgres::operations::Lookup for LockedClmmPositionStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM locked_clmm_position_state_account WHERE
+            r#"SELECT * FROM raydium_liquidity_locking_locked_clmm_position_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -250,8 +250,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockedClmmPositionStateMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS locked_clmm_position_state_account (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS raydium_liquidity_locking_locked_clmm_position_state_account (
                 -- Account data
                 "bump" INT2[] NOT NULL,
                 "position_owner" BYTEA NOT NULL,
@@ -265,10 +264,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockedClmmPositionStateMigrati
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -276,9 +272,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockedClmmPositionStateMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS locked_clmm_position_state_account"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS raydium_liquidity_locking_locked_clmm_position_state_account"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

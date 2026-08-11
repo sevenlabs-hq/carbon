@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::remove_liquidity::RemoveLiquidity
 {
     fn table() -> &'static str {
-        "remove_liquidity_instruction"
+        "marinade_finance_remove_liquidity_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for RemoveLiquidityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO remove_liquidity_instruction (
+            INSERT INTO marinade_finance_remove_liquidity_instruction (
                 "tokens",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for RemoveLiquidityRow {
 impl carbon_core::postgres::operations::Upsert for RemoveLiquidityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO remove_liquidity_instruction (
+            r#"INSERT INTO marinade_finance_remove_liquidity_instruction (
                 "tokens",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for RemoveLiquidityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM remove_liquidity_instruction WHERE
+            r#"DELETE FROM marinade_finance_remove_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for RemoveLiquidityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM remove_liquidity_instruction WHERE
+            r#"SELECT * FROM marinade_finance_remove_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveLiquidityMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS remove_liquidity_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_remove_liquidity_instruction (
                 -- Instruction data
                 "tokens" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveLiquidityMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS remove_liquidity_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_remove_liquidity_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

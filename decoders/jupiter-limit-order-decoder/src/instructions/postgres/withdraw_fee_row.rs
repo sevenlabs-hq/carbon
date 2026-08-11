@@ -38,7 +38,7 @@ impl TryFrom<WithdrawFeeRow> for crate::instructions::withdraw_fee::WithdrawFee 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::withdraw_fee::WithdrawFee {
     fn table() -> &'static str {
-        "withdraw_fee_instruction"
+        "jupiter_limit_order_withdraw_fee_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawFeeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_fee_instruction (
+            INSERT INTO jupiter_limit_order_withdraw_fee_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawFeeRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawFeeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_fee_instruction (
+            r#"INSERT INTO jupiter_limit_order_withdraw_fee_instruction (
                 "amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawFeeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_fee_instruction WHERE
+            r#"DELETE FROM jupiter_limit_order_withdraw_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawFeeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_fee_instruction WHERE
+            r#"SELECT * FROM jupiter_limit_order_withdraw_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawFeeMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_fee_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_limit_order_withdraw_fee_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawFeeMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_fee_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_limit_order_withdraw_fee_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

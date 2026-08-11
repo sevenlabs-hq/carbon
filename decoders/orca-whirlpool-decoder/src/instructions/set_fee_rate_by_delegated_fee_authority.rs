@@ -27,6 +27,7 @@ pub struct SetFeeRateByDelegatedFeeAuthorityInstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub adaptive_fee_tier: solana_pubkey::Pubkey,
     pub delegated_fee_authority: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -61,6 +62,7 @@ impl ArrangeAccounts for SetFeeRateByDelegatedFeeAuthority {
         let whirlpool = next_account(&mut iter)?;
         let adaptive_fee_tier = next_account(&mut iter)?;
         let delegated_fee_authority = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -68,6 +70,7 @@ impl ArrangeAccounts for SetFeeRateByDelegatedFeeAuthority {
             whirlpool,
             adaptive_fee_tier,
             delegated_fee_authority,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

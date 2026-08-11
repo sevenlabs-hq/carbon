@@ -37,7 +37,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::toggle_create_v2::ToggleCreateV2
 {
     fn table() -> &'static str {
-        "toggle_create_v2_instruction"
+        "pumpfun_toggle_create_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Insert for ToggleCreateV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO toggle_create_v2_instruction (
+            INSERT INTO pumpfun_toggle_create_v2_instruction (
                 "enabled",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for ToggleCreateV2Row {
 impl carbon_core::postgres::operations::Upsert for ToggleCreateV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO toggle_create_v2_instruction (
+            r#"INSERT INTO pumpfun_toggle_create_v2_instruction (
                 "enabled",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Delete for ToggleCreateV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM toggle_create_v2_instruction WHERE
+            r#"DELETE FROM pumpfun_toggle_create_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Lookup for ToggleCreateV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM toggle_create_v2_instruction WHERE
+            r#"SELECT * FROM pumpfun_toggle_create_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ToggleCreateV2MigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS toggle_create_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_toggle_create_v2_instruction (
                 -- Instruction data
                 "enabled" BOOLEAN NOT NULL,
                 -- Instruction metadata
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ToggleCreateV2MigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS toggle_create_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_toggle_create_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

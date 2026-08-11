@@ -23,6 +23,8 @@ pub struct GlobalConfigRow {
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: Vec<Pubkey>,
     pub is_cashback_enabled: bool,
+    pub buyback_fee_recipients: Vec<Pubkey>,
+    pub buyback_basis_points: U64,
 }
 
 impl GlobalConfigRow {
@@ -52,6 +54,12 @@ impl GlobalConfigRow {
                 .map(|element| element.into())
                 .collect(),
             is_cashback_enabled: source.is_cashback_enabled,
+            buyback_fee_recipients: source
+                .buyback_fee_recipients
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            buyback_basis_points: source.buyback_basis_points.into(),
         }
     }
 }
@@ -106,13 +114,30 @@ impl TryFrom<GlobalConfigRow> for crate::accounts::global_config::GlobalConfig {
                     )
                 })?,
             is_cashback_enabled: source.is_cashback_enabled,
+            buyback_fee_recipients: source
+                .buyback_fee_recipients
+                .into_iter()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
+            buyback_basis_points: *source.buyback_basis_points,
         })
     }
 }
 
 impl carbon_core::postgres::operations::Table for crate::accounts::global_config::GlobalConfig {
     fn table() -> &'static str {
-        "global_config_account"
+        "pump_swap_global_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -131,6 +156,8 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global_config
             "mayhem_mode_enabled",
             "reserved_fee_recipients",
             "is_cashback_enabled",
+            "buyback_fee_recipients",
+            "buyback_basis_points",
         ]
     }
 }
@@ -140,7 +167,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO global_config_account (
+            INSERT INTO pump_swap_global_config_account (
                 "admin",
                 "lp_fee_basis_points",
                 "protocol_fee_basis_points",
@@ -153,9 +180,11 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
                 "mayhem_mode_enabled",
                 "reserved_fee_recipients",
                 "is_cashback_enabled",
+                "buyback_fee_recipients",
+                "buyback_basis_points",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
             )"#,
         )
         .bind(self.admin)
@@ -170,6 +199,8 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
         .bind(self.mayhem_mode_enabled)
         .bind(&self.reserved_fee_recipients)
         .bind(self.is_cashback_enabled)
+        .bind(&self.buyback_fee_recipients)
+        .bind(&self.buyback_basis_points)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -183,7 +214,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
 impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO global_config_account (
+            r#"INSERT INTO pump_swap_global_config_account (
                 "admin",
                 "lp_fee_basis_points",
                 "protocol_fee_basis_points",
@@ -196,9 +227,11 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "mayhem_mode_enabled",
                 "reserved_fee_recipients",
                 "is_cashback_enabled",
+                "buyback_fee_recipients",
+                "buyback_basis_points",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -214,6 +247,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "mayhem_mode_enabled" = EXCLUDED."mayhem_mode_enabled",
                 "reserved_fee_recipients" = EXCLUDED."reserved_fee_recipients",
                 "is_cashback_enabled" = EXCLUDED."is_cashback_enabled",
+                "buyback_fee_recipients" = EXCLUDED."buyback_fee_recipients",
+                "buyback_basis_points" = EXCLUDED."buyback_basis_points",
                 __slot = EXCLUDED.__slot
             "#,
         )
@@ -229,6 +264,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
         .bind(self.mayhem_mode_enabled)
         .bind(&self.reserved_fee_recipients)
         .bind(self.is_cashback_enabled)
+        .bind(&self.buyback_fee_recipients)
+        .bind(&self.buyback_basis_points)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -244,7 +281,7 @@ impl carbon_core::postgres::operations::Delete for GlobalConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM global_config_account WHERE
+            r#"DELETE FROM pump_swap_global_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -265,7 +302,7 @@ impl carbon_core::postgres::operations::Lookup for GlobalConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM global_config_account WHERE
+            r#"SELECT * FROM pump_swap_global_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -286,7 +323,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS global_config_account (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_global_config_account (
                 -- Account data
                 "admin" BYTEA NOT NULL,
                 "lp_fee_basis_points" NUMERIC(20) NOT NULL,
@@ -300,6 +337,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
                 "mayhem_mode_enabled" BOOLEAN NOT NULL,
                 "reserved_fee_recipients" BYTEA[] NOT NULL,
                 "is_cashback_enabled" BOOLEAN NOT NULL,
+                "buyback_fee_recipients" BYTEA[] NOT NULL,
+                "buyback_basis_points" NUMERIC(20) NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
@@ -315,7 +354,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS global_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_global_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

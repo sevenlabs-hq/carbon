@@ -38,7 +38,7 @@ impl TryFrom<RevokeRow> for crate::instructions::revoke::Revoke {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::revoke::Revoke {
     fn table() -> &'static str {
-        "revoke_instruction"
+        "mpl_token_metadata_revoke_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for RevokeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO revoke_instruction (
+            INSERT INTO mpl_token_metadata_revoke_instruction (
                 "revoke_args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for RevokeRow {
 impl carbon_core::postgres::operations::Upsert for RevokeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO revoke_instruction (
+            r#"INSERT INTO mpl_token_metadata_revoke_instruction (
                 "revoke_args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for RevokeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM revoke_instruction WHERE
+            r#"DELETE FROM mpl_token_metadata_revoke_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for RevokeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM revoke_instruction WHERE
+            r#"SELECT * FROM mpl_token_metadata_revoke_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RevokeMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS revoke_instruction (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_revoke_instruction (
                 -- Instruction data
                 "revoke_args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RevokeMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS revoke_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_revoke_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

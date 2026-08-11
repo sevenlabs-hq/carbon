@@ -22,6 +22,7 @@ pub struct ClosePositionInstructionAccounts {
     pub position_mint: solana_pubkey::Pubkey,
     pub position_token_account: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -59,6 +60,7 @@ impl ArrangeAccounts for ClosePosition {
         let position_mint = next_account(&mut iter)?;
         let position_token_account = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -69,6 +71,7 @@ impl ArrangeAccounts for ClosePosition {
             position_mint,
             position_token_account,
             token_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

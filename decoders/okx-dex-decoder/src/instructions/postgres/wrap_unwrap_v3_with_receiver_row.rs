@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::wrap_unwrap_v3_with_receiver::WrapUnwrapV3WithReceiver
 {
     fn table() -> &'static str {
-        "wrap_unwrap_v3_with_receiver_instruction"
+        "okx_dex_wrap_unwrap_v3_with_receiver_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for WrapUnwrapV3WithReceiverRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO wrap_unwrap_v3_with_receiver_instruction (
+            INSERT INTO okx_dex_wrap_unwrap_v3_with_receiver_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for WrapUnwrapV3WithReceiverRow {
 impl carbon_core::postgres::operations::Upsert for WrapUnwrapV3WithReceiverRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO wrap_unwrap_v3_with_receiver_instruction (
+            r#"INSERT INTO okx_dex_wrap_unwrap_v3_with_receiver_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for WrapUnwrapV3WithReceiverRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM wrap_unwrap_v3_with_receiver_instruction WHERE
+            r#"DELETE FROM okx_dex_wrap_unwrap_v3_with_receiver_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for WrapUnwrapV3WithReceiverRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM wrap_unwrap_v3_with_receiver_instruction WHERE
+            r#"SELECT * FROM okx_dex_wrap_unwrap_v3_with_receiver_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WrapUnwrapV3WithReceiverMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS wrap_unwrap_v3_with_receiver_instruction (
+            r#"CREATE TABLE IF NOT EXISTS okx_dex_wrap_unwrap_v3_with_receiver_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WrapUnwrapV3WithReceiverMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS wrap_unwrap_v3_with_receiver_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS okx_dex_wrap_unwrap_v3_with_receiver_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

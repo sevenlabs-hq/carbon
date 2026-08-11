@@ -43,7 +43,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::drift_withdraw::DriftWithdraw
 {
     fn table() -> &'static str {
-        "drift_withdraw_instruction"
+        "marginfi_v2_drift_withdraw_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -64,7 +64,7 @@ impl carbon_core::postgres::operations::Insert for DriftWithdrawRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO drift_withdraw_instruction (
+            INSERT INTO marginfi_v2_drift_withdraw_instruction (
                 "amount",
                 "withdraw_all",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for DriftWithdrawRow {
 impl carbon_core::postgres::operations::Upsert for DriftWithdrawRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO drift_withdraw_instruction (
+            r#"INSERT INTO marginfi_v2_drift_withdraw_instruction (
                 "amount",
                 "withdraw_all",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Delete for DriftWithdrawRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM drift_withdraw_instruction WHERE
+            r#"DELETE FROM marginfi_v2_drift_withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Lookup for DriftWithdrawRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM drift_withdraw_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_drift_withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DriftWithdrawMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS drift_withdraw_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_drift_withdraw_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 "withdraw_all" BOOLEAN,
@@ -203,7 +203,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DriftWithdrawMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS drift_withdraw_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_drift_withdraw_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

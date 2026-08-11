@@ -56,7 +56,7 @@ impl TryFrom<FeeConfigRow> for crate::accounts::fee_config::FeeConfig {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::fee_config::FeeConfig {
     fn table() -> &'static str {
-        "fee_config_account"
+        "pumpfun_fee_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for FeeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fee_config_account (
+            INSERT INTO pumpfun_fee_config_account (
                 "bump",
                 "admin",
                 "flat_fees",
@@ -106,7 +106,7 @@ impl carbon_core::postgres::operations::Insert for FeeConfigRow {
 impl carbon_core::postgres::operations::Upsert for FeeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_config_account (
+            r#"INSERT INTO pumpfun_fee_config_account (
                 "bump",
                 "admin",
                 "flat_fees",
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Delete for FeeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fee_config_account WHERE
+            r#"DELETE FROM pumpfun_fee_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -167,7 +167,7 @@ impl carbon_core::postgres::operations::Lookup for FeeConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fee_config_account WHERE
+            r#"SELECT * FROM pumpfun_fee_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -188,7 +188,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeConfigMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fee_config_account (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_fee_config_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "admin" BYTEA NOT NULL,
@@ -210,7 +210,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeConfigMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fee_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_fee_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

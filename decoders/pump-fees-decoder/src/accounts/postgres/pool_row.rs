@@ -72,7 +72,7 @@ impl TryFrom<PoolRow> for crate::accounts::pool::Pool {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::pool::Pool {
     fn table() -> &'static str {
-        "pool_account"
+        "pump_fees_pool_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO pool_account (
+            INSERT INTO pump_fees_pool_account (
                 "pool_bump",
                 "index",
                 "creator",
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
 impl carbon_core::postgres::operations::Upsert for PoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO pool_account (
+            r#"INSERT INTO pump_fees_pool_account (
                 "pool_bump",
                 "index",
                 "creator",
@@ -198,7 +198,7 @@ impl carbon_core::postgres::operations::Delete for PoolRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM pool_account WHERE
+            r#"DELETE FROM pump_fees_pool_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -219,7 +219,7 @@ impl carbon_core::postgres::operations::Lookup for PoolRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM pool_account WHERE
+            r#"SELECT * FROM pump_fees_pool_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -240,7 +240,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS pool_account (
+            r#"CREATE TABLE IF NOT EXISTS pump_fees_pool_account (
                 -- Account data
                 "pool_bump" INT2 NOT NULL,
                 "index" INT4 NOT NULL,
@@ -268,7 +268,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS pool_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_fees_pool_account"#)
             .execute(connection)
             .await?;
         Ok(())

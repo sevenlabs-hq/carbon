@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::marginfi_group_configure::MarginfiGroupConfigure
 {
     fn table() -> &'static str {
-        "marginfi_group_configure_instruction"
+        "marginfi_v2_marginfi_group_configure_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiGroupConfigureRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO marginfi_group_configure_instruction (
+            INSERT INTO marginfi_v2_marginfi_group_configure_instruction (
                 "new_admin",
                 "new_emode_admin",
                 "new_curve_admin",
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiGroupConfigureRow {
 impl carbon_core::postgres::operations::Upsert for MarginfiGroupConfigureRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO marginfi_group_configure_instruction (
+            r#"INSERT INTO marginfi_v2_marginfi_group_configure_instruction (
                 "new_admin",
                 "new_emode_admin",
                 "new_curve_admin",
@@ -208,7 +208,7 @@ impl carbon_core::postgres::operations::Delete for MarginfiGroupConfigureRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM marginfi_group_configure_instruction WHERE
+            r#"DELETE FROM marginfi_v2_marginfi_group_configure_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -235,7 +235,7 @@ impl carbon_core::postgres::operations::Lookup for MarginfiGroupConfigureRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM marginfi_group_configure_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_marginfi_group_configure_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -258,7 +258,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginfiGroupConfigureMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS marginfi_group_configure_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_marginfi_group_configure_instruction (
                 -- Instruction data
                 "new_admin" BYTEA,
                 "new_emode_admin" BYTEA,
@@ -288,7 +288,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginfiGroupConfigureMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_group_configure_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_marginfi_group_configure_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

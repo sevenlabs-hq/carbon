@@ -56,7 +56,7 @@ impl TryFrom<SharedAccountsRouteWithTokenLedgerRow> for crate::instructions::sha
 
 impl carbon_core::postgres::operations::Table for crate::instructions::shared_accounts_route_with_token_ledger::SharedAccountsRouteWithTokenLedger {
     fn table() -> &'static str {
-        "shared_accounts_route_with_token_ledger_instruction"
+        "jupiter_swap_shared_accounts_route_with_token_ledger_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for SharedAccountsRouteWithTokenL
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO shared_accounts_route_with_token_ledger_instruction (
+            INSERT INTO jupiter_swap_shared_accounts_route_with_token_ledger_instruction (
                 "id",
                 "route_plan",
                 "quoted_out_amount",
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Insert for SharedAccountsRouteWithTokenL
 impl carbon_core::postgres::operations::Upsert for SharedAccountsRouteWithTokenLedgerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO shared_accounts_route_with_token_ledger_instruction (
+            r#"INSERT INTO jupiter_swap_shared_accounts_route_with_token_ledger_instruction (
                 "id",
                 "route_plan",
                 "quoted_out_amount",
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Delete for SharedAccountsRouteWithTokenL
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM shared_accounts_route_with_token_ledger_instruction WHERE
+            r#"DELETE FROM jupiter_swap_shared_accounts_route_with_token_ledger_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -189,7 +189,7 @@ impl carbon_core::postgres::operations::Lookup for SharedAccountsRouteWithTokenL
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM shared_accounts_route_with_token_ledger_instruction WHERE
+            r#"SELECT * FROM jupiter_swap_shared_accounts_route_with_token_ledger_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -213,8 +213,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS shared_accounts_route_with_token_ledger_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS jupiter_swap_shared_accounts_route_with_token_ledger_instruction (
                 -- Instruction data
                 "id" INT2 NOT NULL,
                 "route_plan" JSONB NOT NULL,
@@ -228,10 +227,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -239,9 +235,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS shared_accounts_route_with_token_ledger_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_swap_shared_accounts_route_with_token_ledger_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

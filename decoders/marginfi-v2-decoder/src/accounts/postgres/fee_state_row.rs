@@ -111,7 +111,7 @@ impl TryFrom<FeeStateRow> for crate::accounts::fee_state::FeeState {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::fee_state::FeeState {
     fn table() -> &'static str {
-        "fee_state_account"
+        "marginfi_v2_fee_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Insert for FeeStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fee_state_account (
+            INSERT INTO marginfi_v2_fee_state_account (
                 "key",
                 "global_fee_admin",
                 "global_fee_wallet",
@@ -194,7 +194,7 @@ impl carbon_core::postgres::operations::Insert for FeeStateRow {
 impl carbon_core::postgres::operations::Upsert for FeeStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_state_account (
+            r#"INSERT INTO marginfi_v2_fee_state_account (
                 "key",
                 "global_fee_admin",
                 "global_fee_wallet",
@@ -267,7 +267,7 @@ impl carbon_core::postgres::operations::Delete for FeeStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fee_state_account WHERE
+            r#"DELETE FROM marginfi_v2_fee_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -288,7 +288,7 @@ impl carbon_core::postgres::operations::Lookup for FeeStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fee_state_account WHERE
+            r#"SELECT * FROM marginfi_v2_fee_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -309,7 +309,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeStateMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fee_state_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_fee_state_account (
                 -- Account data
                 "key" BYTEA NOT NULL,
                 "global_fee_admin" BYTEA NOT NULL,
@@ -342,7 +342,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeStateMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fee_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_fee_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

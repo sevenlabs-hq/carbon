@@ -72,7 +72,7 @@ impl TryFrom<RedeemRow> for crate::instructions::redeem::Redeem {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::redeem::Redeem {
     fn table() -> &'static str {
-        "redeem_instruction"
+        "bubblegum_redeem_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -96,7 +96,7 @@ impl carbon_core::postgres::operations::Insert for RedeemRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO redeem_instruction (
+            INSERT INTO bubblegum_redeem_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Insert for RedeemRow {
 impl carbon_core::postgres::operations::Upsert for RedeemRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO redeem_instruction (
+            r#"INSERT INTO bubblegum_redeem_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Delete for RedeemRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM redeem_instruction WHERE
+            r#"DELETE FROM bubblegum_redeem_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -205,7 +205,7 @@ impl carbon_core::postgres::operations::Lookup for RedeemRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM redeem_instruction WHERE
+            r#"SELECT * FROM bubblegum_redeem_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RedeemMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS redeem_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_redeem_instruction (
                 -- Instruction data
                 "root" BYTEA NOT NULL,
                 "data_hash" BYTEA NOT NULL,
@@ -253,7 +253,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RedeemMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS redeem_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_redeem_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

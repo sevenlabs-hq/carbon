@@ -36,7 +36,7 @@ impl TryFrom<DummyIxRow> for crate::instructions::dummy_ix::DummyIx {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::dummy_ix::DummyIx {
     fn table() -> &'static str {
-        "dummy_ix_instruction"
+        "meteora_damm_v2_dummy_ix_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Insert for DummyIxRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO dummy_ix_instruction (
+            INSERT INTO meteora_damm_v2_dummy_ix_instruction (
                 "ixs",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for DummyIxRow {
 impl carbon_core::postgres::operations::Upsert for DummyIxRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO dummy_ix_instruction (
+            r#"INSERT INTO meteora_damm_v2_dummy_ix_instruction (
                 "ixs",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -118,7 +118,7 @@ impl carbon_core::postgres::operations::Delete for DummyIxRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM dummy_ix_instruction WHERE
+            r#"DELETE FROM meteora_damm_v2_dummy_ix_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Lookup for DummyIxRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM dummy_ix_instruction WHERE
+            r#"SELECT * FROM meteora_damm_v2_dummy_ix_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -168,7 +168,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DummyIxMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS dummy_ix_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_dummy_ix_instruction (
                 -- Instruction data
                 "ixs" JSONB NOT NULL,
                 -- Instruction metadata
@@ -189,7 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DummyIxMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS dummy_ix_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_dummy_ix_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

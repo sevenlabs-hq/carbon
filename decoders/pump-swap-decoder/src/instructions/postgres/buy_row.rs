@@ -47,7 +47,7 @@ impl TryFrom<BuyRow> for crate::instructions::buy::Buy {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::buy::Buy {
     fn table() -> &'static str {
-        "buy_instruction"
+        "pump_swap_buy_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -69,7 +69,7 @@ impl carbon_core::postgres::operations::Insert for BuyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO buy_instruction (
+            INSERT INTO pump_swap_buy_instruction (
                 "base_amount_out",
                 "max_quote_amount_in",
                 "track_volume",
@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for BuyRow {
 impl carbon_core::postgres::operations::Upsert for BuyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO buy_instruction (
+            r#"INSERT INTO pump_swap_buy_instruction (
                 "base_amount_out",
                 "max_quote_amount_in",
                 "track_volume",
@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for BuyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM buy_instruction WHERE
+            r#"DELETE FROM pump_swap_buy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -168,7 +168,7 @@ impl carbon_core::postgres::operations::Lookup for BuyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM buy_instruction WHERE
+            r#"SELECT * FROM pump_swap_buy_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS buy_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pump_swap_buy_instruction (
                 -- Instruction data
                 "base_amount_out" NUMERIC(20) NOT NULL,
                 "max_quote_amount_in" NUMERIC(20) NOT NULL,
@@ -214,7 +214,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS buy_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pump_swap_buy_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

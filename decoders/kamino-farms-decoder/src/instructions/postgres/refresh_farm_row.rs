@@ -31,7 +31,7 @@ impl TryFrom<RefreshFarmRow> for crate::instructions::refresh_farm::RefreshFarm 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::refresh_farm::RefreshFarm {
     fn table() -> &'static str {
-        "refresh_farm_instruction"
+        "kamino_farms_refresh_farm_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for RefreshFarmRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO refresh_farm_instruction (
+            INSERT INTO kamino_farms_refresh_farm_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for RefreshFarmRow {
 impl carbon_core::postgres::operations::Upsert for RefreshFarmRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO refresh_farm_instruction (
+            r#"INSERT INTO kamino_farms_refresh_farm_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for RefreshFarmRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM refresh_farm_instruction WHERE
+            r#"DELETE FROM kamino_farms_refresh_farm_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for RefreshFarmRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM refresh_farm_instruction WHERE
+            r#"SELECT * FROM kamino_farms_refresh_farm_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RefreshFarmMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS refresh_farm_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_farms_refresh_farm_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RefreshFarmMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS refresh_farm_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_farms_refresh_farm_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

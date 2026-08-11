@@ -116,7 +116,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::protocol_position_state::ProtocolPositionState
 {
     fn table() -> &'static str {
-        "protocol_position_state_account"
+        "raydium_clmm_protocol_position_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Insert for ProtocolPositionStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO protocol_position_state_account (
+            INSERT INTO raydium_clmm_protocol_position_state_account (
                 "bump",
                 "pool_id",
                 "tick_lower_index",
@@ -187,7 +187,7 @@ impl carbon_core::postgres::operations::Insert for ProtocolPositionStateRow {
 impl carbon_core::postgres::operations::Upsert for ProtocolPositionStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO protocol_position_state_account (
+            r#"INSERT INTO raydium_clmm_protocol_position_state_account (
                 "bump",
                 "pool_id",
                 "tick_lower_index",
@@ -248,7 +248,7 @@ impl carbon_core::postgres::operations::Delete for ProtocolPositionStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM protocol_position_state_account WHERE
+            r#"DELETE FROM raydium_clmm_protocol_position_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -269,7 +269,7 @@ impl carbon_core::postgres::operations::Lookup for ProtocolPositionStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM protocol_position_state_account WHERE
+            r#"SELECT * FROM raydium_clmm_protocol_position_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -290,7 +290,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProtocolPositionStateMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS protocol_position_state_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_protocol_position_state_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "pool_id" BYTEA NOT NULL,
@@ -319,7 +319,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProtocolPositionStateMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS protocol_position_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_protocol_position_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -17,6 +17,7 @@ pub struct DepositStakeAccountEventEvent {
     pub msol_minted: u64,
     pub total_virtual_staked_lamports: u64,
     pub msol_supply: u64,
+    pub sol_fees: u64,
 }
 
 impl CarbonDeserialize for DepositStakeAccountEventEvent {

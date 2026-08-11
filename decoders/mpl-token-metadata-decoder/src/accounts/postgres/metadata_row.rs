@@ -84,7 +84,7 @@ impl TryFrom<MetadataRow> for crate::accounts::metadata::Metadata {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::metadata::Metadata {
     fn table() -> &'static str {
-        "metadata_account"
+        "mpl_token_metadata_metadata_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Insert for MetadataRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO metadata_account (
+            INSERT INTO mpl_token_metadata_metadata_account (
                 "key",
                 "update_authority",
                 "mint",
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Insert for MetadataRow {
 impl carbon_core::postgres::operations::Upsert for MetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO metadata_account (
+            r#"INSERT INTO mpl_token_metadata_metadata_account (
                 "key",
                 "update_authority",
                 "mint",
@@ -216,7 +216,7 @@ impl carbon_core::postgres::operations::Delete for MetadataRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM metadata_account WHERE
+            r#"DELETE FROM mpl_token_metadata_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -237,7 +237,7 @@ impl carbon_core::postgres::operations::Lookup for MetadataRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM metadata_account WHERE
+            r#"SELECT * FROM mpl_token_metadata_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -258,7 +258,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MetadataMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS metadata_account (
+            r#"CREATE TABLE IF NOT EXISTS mpl_token_metadata_metadata_account (
                 -- Account data
                 "key" JSONB NOT NULL,
                 "update_authority" BYTEA NOT NULL,
@@ -287,7 +287,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MetadataMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS metadata_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS mpl_token_metadata_metadata_account"#)
             .execute(connection)
             .await?;
         Ok(())

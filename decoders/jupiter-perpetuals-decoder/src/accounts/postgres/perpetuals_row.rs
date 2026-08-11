@@ -67,7 +67,7 @@ impl TryFrom<PerpetualsRow> for crate::accounts::perpetuals::Perpetuals {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::perpetuals::Perpetuals {
     fn table() -> &'static str {
-        "perpetuals_account"
+        "jupiter_perpetuals_perpetuals_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -89,7 +89,7 @@ impl carbon_core::postgres::operations::Insert for PerpetualsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO perpetuals_account (
+            INSERT INTO jupiter_perpetuals_perpetuals_account (
                 "permissions",
                 "pools",
                 "admin",
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for PerpetualsRow {
 impl carbon_core::postgres::operations::Upsert for PerpetualsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO perpetuals_account (
+            r#"INSERT INTO jupiter_perpetuals_perpetuals_account (
                 "permissions",
                 "pools",
                 "admin",
@@ -163,7 +163,7 @@ impl carbon_core::postgres::operations::Delete for PerpetualsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM perpetuals_account WHERE
+            r#"DELETE FROM jupiter_perpetuals_perpetuals_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -184,7 +184,7 @@ impl carbon_core::postgres::operations::Lookup for PerpetualsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM perpetuals_account WHERE
+            r#"SELECT * FROM jupiter_perpetuals_perpetuals_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -205,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PerpetualsMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS perpetuals_account (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_perpetuals_account (
                 -- Account data
                 "permissions" JSONB NOT NULL,
                 "pools" BYTEA[] NOT NULL,
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PerpetualsMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS perpetuals_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_perpetuals_perpetuals_account"#)
             .execute(connection)
             .await?;
         Ok(())

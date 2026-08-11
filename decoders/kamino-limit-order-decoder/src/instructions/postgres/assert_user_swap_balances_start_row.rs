@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::assert_user_swap_balances_start::AssertUserSwapBalancesStart
 {
     fn table() -> &'static str {
-        "assert_user_swap_balances_start_instruction"
+        "kamino_limit_order_assert_user_swap_balances_start_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for AssertUserSwapBalancesStartRo
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO assert_user_swap_balances_start_instruction (
+            INSERT INTO kamino_limit_order_assert_user_swap_balances_start_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for AssertUserSwapBalancesStartRo
 impl carbon_core::postgres::operations::Upsert for AssertUserSwapBalancesStartRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO assert_user_swap_balances_start_instruction (
+            r#"INSERT INTO kamino_limit_order_assert_user_swap_balances_start_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for AssertUserSwapBalancesStartRo
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM assert_user_swap_balances_start_instruction WHERE
+            r#"DELETE FROM kamino_limit_order_assert_user_swap_balances_start_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for AssertUserSwapBalancesStartRo
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM assert_user_swap_balances_start_instruction WHERE
+            r#"SELECT * FROM kamino_limit_order_assert_user_swap_balances_start_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -160,8 +160,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AssertUserSwapBalancesStartMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS assert_user_swap_balances_start_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS kamino_limit_order_assert_user_swap_balances_start_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -170,10 +169,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AssertUserSwapBalancesStartMig
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -181,9 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AssertUserSwapBalancesStartMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS assert_user_swap_balances_start_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_limit_order_assert_user_swap_balances_start_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

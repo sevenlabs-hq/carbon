@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::remote_token_messenger::RemoteTokenMessenger
 {
     fn table() -> &'static str {
-        "remote_token_messenger_account"
+        "circle_token_messenger_v2_remote_token_messenger_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -61,7 +61,7 @@ impl carbon_core::postgres::operations::Insert for RemoteTokenMessengerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO remote_token_messenger_account (
+            INSERT INTO circle_token_messenger_v2_remote_token_messenger_account (
                 "domain",
                 "token_messenger",
                 __pubkey, __slot
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for RemoteTokenMessengerRow {
 impl carbon_core::postgres::operations::Upsert for RemoteTokenMessengerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO remote_token_messenger_account (
+            r#"INSERT INTO circle_token_messenger_v2_remote_token_messenger_account (
                 "domain",
                 "token_messenger",
                 __pubkey, __slot
@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Delete for RemoteTokenMessengerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM remote_token_messenger_account WHERE
+            r#"DELETE FROM circle_token_messenger_v2_remote_token_messenger_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for RemoteTokenMessengerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM remote_token_messenger_account WHERE
+            r#"SELECT * FROM circle_token_messenger_v2_remote_token_messenger_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoteTokenMessengerMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS remote_token_messenger_account (
+            r#"CREATE TABLE IF NOT EXISTS circle_token_messenger_v2_remote_token_messenger_account (
                 -- Account data
                 "domain" INT8 NOT NULL,
                 "token_messenger" BYTEA NOT NULL,
@@ -176,9 +176,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoteTokenMessengerMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS remote_token_messenger_account"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS circle_token_messenger_v2_remote_token_messenger_account"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

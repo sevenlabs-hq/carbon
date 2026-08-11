@@ -380,24 +380,22 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         match msg.update_oneof {
                                                             Some(UpdateOneof::Account(account_update)) => {
                                                                 last_processed_slot = account_update.slot;
-                                                                send_subscribe_account_update_info(
+                                                                collect_subscribe_account_update_info(
                                                                     account_update.account,
                                                                     account_update.slot,
                                                                     &mut updates,
                                                                     &account_deletions_tracked,
-                                                                )
-                                                                .await
+                                                                ).await
                                                             }
 
                                                             Some(UpdateOneof::Transaction(transaction_update)) => {
                                                                 last_processed_slot = transaction_update.slot;
-                                                                send_subscribe_update_transaction_info(
+                                                                collect_subscribe_update_transaction_info(
                                                                     transaction_update.transaction,
                                                                     transaction_update.slot,
                                                                     None,
                                                                     &mut updates,
                                                                 )
-                                                                .await
                                                             }
                                                             Some(UpdateOneof::Block(block_update)) => {
                                                                 last_processed_slot = block_update.slot;
@@ -405,23 +403,22 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
                                                                 for transaction_update in block_update.transactions {
                                                                     if retain_block_failed_transactions || transaction_update.meta.as_ref().map(|meta| meta.err.is_none()).unwrap_or(false) {
-                                                                        send_subscribe_update_transaction_info(
+                                                                        collect_subscribe_update_transaction_info(
                                                                             Some(transaction_update),
                                                                             block_update.slot,
                                                                             block_time,
                                                                             &mut updates,
-                                                                        ).await
+                                                                        )
                                                                     }
                                                                 }
 
                                                                 for account_info in block_update.accounts {
-                                                                    send_subscribe_account_update_info(
+                                                                    collect_subscribe_account_update_info(
                                                                         Some(account_info),
                                                                         block_update.slot,
                                                                         &mut updates,
                                                                         &account_deletions_tracked,
-                                                                    )
-                                                                    .await;
+                                                                    ).await
                                                                 }
                                                             }
 
@@ -505,7 +502,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
     }
 }
 
-async fn send_subscribe_account_update_info(
+pub async fn collect_subscribe_account_update_info(
     account_update_info: Option<SubscribeUpdateAccountInfo>,
     slot: u64,
     updates: &mut Vec<Update>,
@@ -566,7 +563,7 @@ async fn send_subscribe_account_update_info(
     }
 }
 
-async fn send_subscribe_update_transaction_info(
+pub fn collect_subscribe_update_transaction_info(
     transaction_info: Option<SubscribeUpdateTransactionInfo>,
     slot: u64,
     block_time: Option<i64>,

@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::cancel_order_by_client_order_id::CancelOrderByClientOrderId
 {
     fn table() -> &'static str {
-        "cancel_order_by_client_order_id_instruction"
+        "openbook_v2_cancel_order_by_client_order_id_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for CancelOrderByClientOrderIdRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO cancel_order_by_client_order_id_instruction (
+            INSERT INTO openbook_v2_cancel_order_by_client_order_id_instruction (
                 "client_order_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for CancelOrderByClientOrderIdRow
 impl carbon_core::postgres::operations::Upsert for CancelOrderByClientOrderIdRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO cancel_order_by_client_order_id_instruction (
+            r#"INSERT INTO openbook_v2_cancel_order_by_client_order_id_instruction (
                 "client_order_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for CancelOrderByClientOrderIdRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM cancel_order_by_client_order_id_instruction WHERE
+            r#"DELETE FROM openbook_v2_cancel_order_by_client_order_id_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for CancelOrderByClientOrderIdRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM cancel_order_by_client_order_id_instruction WHERE
+            r#"SELECT * FROM openbook_v2_cancel_order_by_client_order_id_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelOrderByClientOrderIdMigr
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS cancel_order_by_client_order_id_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_cancel_order_by_client_order_id_instruction (
                 -- Instruction data
                 "client_order_id" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CancelOrderByClientOrderIdMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS cancel_order_by_client_order_id_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS openbook_v2_cancel_order_by_client_order_id_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

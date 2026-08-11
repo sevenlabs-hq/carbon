@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::deposit_obligation_collateral::DepositObligationCollateral
 {
     fn table() -> &'static str {
-        "deposit_obligation_collateral_instruction"
+        "kamino_lending_deposit_obligation_collateral_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for DepositObligationCollateralRo
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO deposit_obligation_collateral_instruction (
+            INSERT INTO kamino_lending_deposit_obligation_collateral_instruction (
                 "collateral_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for DepositObligationCollateralRo
 impl carbon_core::postgres::operations::Upsert for DepositObligationCollateralRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO deposit_obligation_collateral_instruction (
+            r#"INSERT INTO kamino_lending_deposit_obligation_collateral_instruction (
                 "collateral_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for DepositObligationCollateralRo
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM deposit_obligation_collateral_instruction WHERE
+            r#"DELETE FROM kamino_lending_deposit_obligation_collateral_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for DepositObligationCollateralRo
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM deposit_obligation_collateral_instruction WHERE
+            r#"SELECT * FROM kamino_lending_deposit_obligation_collateral_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositObligationCollateralMig
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS deposit_obligation_collateral_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_deposit_obligation_collateral_instruction (
                 -- Instruction data
                 "collateral_amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DepositObligationCollateralMig
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS deposit_obligation_collateral_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS kamino_lending_deposit_obligation_collateral_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

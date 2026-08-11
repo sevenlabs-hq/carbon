@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_customizable_pool::CreateCustomizablePool
 {
     fn table() -> &'static str {
-        "create_customizable_pool_instruction"
+        "raydium_clmm_create_customizable_pool_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for CreateCustomizablePoolRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_customizable_pool_instruction (
+            INSERT INTO raydium_clmm_create_customizable_pool_instruction (
                 "customizable_params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for CreateCustomizablePoolRow {
 impl carbon_core::postgres::operations::Upsert for CreateCustomizablePoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_customizable_pool_instruction (
+            r#"INSERT INTO raydium_clmm_create_customizable_pool_instruction (
                 "customizable_params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for CreateCustomizablePoolRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_customizable_pool_instruction WHERE
+            r#"DELETE FROM raydium_clmm_create_customizable_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for CreateCustomizablePoolRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_customizable_pool_instruction WHERE
+            r#"SELECT * FROM raydium_clmm_create_customizable_pool_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateCustomizablePoolMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_customizable_pool_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_create_customizable_pool_instruction (
                 -- Instruction data
                 "customizable_params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateCustomizablePoolMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_customizable_pool_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_create_customizable_pool_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

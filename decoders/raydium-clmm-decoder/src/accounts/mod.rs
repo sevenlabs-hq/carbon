@@ -4,6 +4,8 @@ use {
     carbon_core::deserialize::CarbonDeserialize,
 };
 
+#[cfg(feature = "clickhouse")]
+pub mod clickhouse;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 
@@ -16,6 +18,7 @@ pub mod limit_order_nonce;
 pub mod limit_order_state;
 pub mod observation_state;
 pub mod operation_state;
+pub mod permission;
 pub mod personal_position_state;
 pub mod pool_state;
 pub mod protocol_position_state;
@@ -33,6 +36,7 @@ pub enum RaydiumClmmAccount {
     LimitOrderState(Box<limit_order_state::LimitOrderState>),
     ObservationState(Box<observation_state::ObservationState>),
     OperationState(Box<operation_state::OperationState>),
+    Permission(Box<permission::Permission>),
     PersonalPositionState(Box<personal_position_state::PersonalPositionState>),
     PoolState(Box<pool_state::PoolState>),
     ProtocolPositionState(Box<protocol_position_state::ProtocolPositionState>),
@@ -114,6 +118,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumClmmDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: RaydiumClmmAccount::OperationState(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = permission::Permission::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumClmmAccount::Permission(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

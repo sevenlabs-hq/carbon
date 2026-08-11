@@ -31,7 +31,7 @@ impl TryFrom<CollectDustRow> for crate::instructions::collect_dust::CollectDust 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::collect_dust::CollectDust {
     fn table() -> &'static str {
-        "collect_dust_instruction"
+        "meteora_vault_collect_dust_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for CollectDustRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO collect_dust_instruction (
+            INSERT INTO meteora_vault_collect_dust_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for CollectDustRow {
 impl carbon_core::postgres::operations::Upsert for CollectDustRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO collect_dust_instruction (
+            r#"INSERT INTO meteora_vault_collect_dust_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for CollectDustRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM collect_dust_instruction WHERE
+            r#"DELETE FROM meteora_vault_collect_dust_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for CollectDustRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM collect_dust_instruction WHERE
+            r#"SELECT * FROM meteora_vault_collect_dust_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectDustMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS collect_dust_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_vault_collect_dust_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectDustMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS collect_dust_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_vault_collect_dust_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

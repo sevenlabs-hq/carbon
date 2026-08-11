@@ -50,7 +50,7 @@ impl TryFrom<TokenMinterRow> for crate::accounts::token_minter::TokenMinter {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::token_minter::TokenMinter {
     fn table() -> &'static str {
-        "token_minter_account"
+        "circle_token_messenger_v2_token_minter_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for TokenMinterRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO token_minter_account (
+            INSERT INTO circle_token_messenger_v2_token_minter_account (
                 "token_controller",
                 "pauser",
                 "paused",
@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for TokenMinterRow {
 impl carbon_core::postgres::operations::Upsert for TokenMinterRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_minter_account (
+            r#"INSERT INTO circle_token_messenger_v2_token_minter_account (
                 "token_controller",
                 "pauser",
                 "paused",
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Delete for TokenMinterRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM token_minter_account WHERE
+            r#"DELETE FROM circle_token_messenger_v2_token_minter_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for TokenMinterRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM token_minter_account WHERE
+            r#"SELECT * FROM circle_token_messenger_v2_token_minter_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenMinterMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS token_minter_account (
+            r#"CREATE TABLE IF NOT EXISTS circle_token_messenger_v2_token_minter_account (
                 -- Account data
                 "token_controller" BYTEA NOT NULL,
                 "pauser" BYTEA NOT NULL,
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenMinterMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS token_minter_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS circle_token_messenger_v2_token_minter_account"#)
             .execute(connection)
             .await?;
         Ok(())

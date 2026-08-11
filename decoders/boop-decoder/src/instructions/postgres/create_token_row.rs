@@ -47,7 +47,7 @@ impl TryFrom<CreateTokenRow> for crate::instructions::create_token::CreateToken 
 
 impl carbon_core::postgres::operations::Table for crate::instructions::create_token::CreateToken {
     fn table() -> &'static str {
-        "create_token_instruction"
+        "boop_create_token_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for CreateTokenRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_token_instruction (
+            INSERT INTO boop_create_token_instruction (
                 "salt",
                 "name",
                 "symbol",
@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Insert for CreateTokenRow {
 impl carbon_core::postgres::operations::Upsert for CreateTokenRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_token_instruction (
+            r#"INSERT INTO boop_create_token_instruction (
                 "salt",
                 "name",
                 "symbol",
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Delete for CreateTokenRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_token_instruction WHERE
+            r#"DELETE FROM boop_create_token_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Lookup for CreateTokenRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_token_instruction WHERE
+            r#"SELECT * FROM boop_create_token_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateTokenMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_token_instruction (
+            r#"CREATE TABLE IF NOT EXISTS boop_create_token_instruction (
                 -- Instruction data
                 "salt" NUMERIC(20) NOT NULL,
                 "name" TEXT NOT NULL,
@@ -221,7 +221,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateTokenMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_token_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS boop_create_token_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

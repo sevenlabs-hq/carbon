@@ -145,7 +145,7 @@ impl TryFrom<OrderRow> for crate::accounts::order::Order {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::order::Order {
     fn table() -> &'static str {
-        "order_account"
+        "marginfi_v2_order_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Insert for OrderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO order_account (
+            INSERT INTO marginfi_v2_order_account (
                 "marginfi_account",
                 "stop_loss",
                 "take_profit",
@@ -219,7 +219,7 @@ impl carbon_core::postgres::operations::Insert for OrderRow {
 impl carbon_core::postgres::operations::Upsert for OrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO order_account (
+            r#"INSERT INTO marginfi_v2_order_account (
                 "marginfi_account",
                 "stop_loss",
                 "take_profit",
@@ -283,7 +283,7 @@ impl carbon_core::postgres::operations::Delete for OrderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM order_account WHERE
+            r#"DELETE FROM marginfi_v2_order_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -304,7 +304,7 @@ impl carbon_core::postgres::operations::Lookup for OrderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM order_account WHERE
+            r#"SELECT * FROM marginfi_v2_order_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -325,7 +325,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OrderMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS order_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_order_account (
                 -- Account data
                 "marginfi_account" BYTEA NOT NULL,
                 "stop_loss" JSONB NOT NULL,
@@ -355,7 +355,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OrderMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS order_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_order_account"#)
             .execute(connection)
             .await?;
         Ok(())

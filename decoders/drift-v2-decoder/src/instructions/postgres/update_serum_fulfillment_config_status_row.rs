@@ -38,7 +38,7 @@ impl TryFrom<UpdateSerumFulfillmentConfigStatusRow> for crate::instructions::upd
 
 impl carbon_core::postgres::operations::Table for crate::instructions::update_serum_fulfillment_config_status::UpdateSerumFulfillmentConfigStatus {
     fn table() -> &'static str {
-        "update_serum_fulfillment_config_status_instruction"
+        "drift_v2_update_serum_fulfillment_config_status_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSerumFulfillmentConfigS
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_serum_fulfillment_config_status_instruction (
+            INSERT INTO drift_v2_update_serum_fulfillment_config_status_instruction (
                 "status",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSerumFulfillmentConfigS
 impl carbon_core::postgres::operations::Upsert for UpdateSerumFulfillmentConfigStatusRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_serum_fulfillment_config_status_instruction (
+            r#"INSERT INTO drift_v2_update_serum_fulfillment_config_status_instruction (
                 "status",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSerumFulfillmentConfigS
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_serum_fulfillment_config_status_instruction WHERE
+            r#"DELETE FROM drift_v2_update_serum_fulfillment_config_status_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateSerumFulfillmentConfigS
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_serum_fulfillment_config_status_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_serum_fulfillment_config_status_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,8 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_serum_fulfillment_config_status_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS drift_v2_update_serum_fulfillment_config_status_instruction (
                 -- Instruction data
                 "status" JSONB NOT NULL,
                 -- Instruction metadata
@@ -182,10 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -193,9 +189,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_serum_fulfillment_config_status_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS drift_v2_update_serum_fulfillment_config_status_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

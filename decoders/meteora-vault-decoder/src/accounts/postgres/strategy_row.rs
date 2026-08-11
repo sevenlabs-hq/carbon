@@ -67,7 +67,7 @@ impl TryFrom<StrategyRow> for crate::accounts::strategy::Strategy {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::strategy::Strategy {
     fn table() -> &'static str {
-        "strategy_account"
+        "meteora_vault_strategy_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for StrategyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO strategy_account (
+            INSERT INTO meteora_vault_strategy_account (
                 "reserve",
                 "collateral_vault",
                 "strategy_type",
@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Insert for StrategyRow {
 impl carbon_core::postgres::operations::Upsert for StrategyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO strategy_account (
+            r#"INSERT INTO meteora_vault_strategy_account (
                 "reserve",
                 "collateral_vault",
                 "strategy_type",
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Delete for StrategyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM strategy_account WHERE
+            r#"DELETE FROM meteora_vault_strategy_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -190,7 +190,7 @@ impl carbon_core::postgres::operations::Lookup for StrategyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM strategy_account WHERE
+            r#"SELECT * FROM meteora_vault_strategy_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StrategyMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS strategy_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_vault_strategy_account (
                 -- Account data
                 "reserve" BYTEA NOT NULL,
                 "collateral_vault" BYTEA NOT NULL,
@@ -235,7 +235,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StrategyMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS strategy_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_vault_strategy_account"#)
             .execute(connection)
             .await?;
         Ok(())

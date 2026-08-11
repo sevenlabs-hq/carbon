@@ -30,6 +30,7 @@ pub struct SetTokenBadgeAttributeInstructionAccounts {
     pub token_badge_authority: solana_pubkey::Pubkey,
     pub token_mint: solana_pubkey::Pubkey,
     pub token_badge: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -66,6 +67,7 @@ impl ArrangeAccounts for SetTokenBadgeAttribute {
         let token_badge_authority = next_account(&mut iter)?;
         let token_mint = next_account(&mut iter)?;
         let token_badge = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -75,6 +77,7 @@ impl ArrangeAccounts for SetTokenBadgeAttribute {
             token_badge_authority,
             token_mint,
             token_badge,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

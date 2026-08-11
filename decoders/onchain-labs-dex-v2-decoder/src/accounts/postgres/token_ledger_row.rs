@@ -40,7 +40,7 @@ impl TryFrom<TokenLedgerRow> for crate::accounts::token_ledger::TokenLedger {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::token_ledger::TokenLedger {
     fn table() -> &'static str {
-        "token_ledger_account"
+        "onchain_labs_dex_v2_token_ledger_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -53,7 +53,7 @@ impl carbon_core::postgres::operations::Insert for TokenLedgerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO token_ledger_account (
+            INSERT INTO onchain_labs_dex_v2_token_ledger_account (
                 "token_account",
                 "amount",
                 __pubkey, __slot
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for TokenLedgerRow {
 impl carbon_core::postgres::operations::Upsert for TokenLedgerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_ledger_account (
+            r#"INSERT INTO onchain_labs_dex_v2_token_ledger_account (
                 "token_account",
                 "amount",
                 __pubkey, __slot
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for TokenLedgerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM token_ledger_account WHERE
+            r#"DELETE FROM onchain_labs_dex_v2_token_ledger_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Lookup for TokenLedgerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM token_ledger_account WHERE
+            r#"SELECT * FROM onchain_labs_dex_v2_token_ledger_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -149,7 +149,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenLedgerMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS token_ledger_account (
+            r#"CREATE TABLE IF NOT EXISTS onchain_labs_dex_v2_token_ledger_account (
                 -- Account data
                 "token_account" BYTEA NOT NULL,
                 "amount" NUMERIC(20) NOT NULL,
@@ -168,7 +168,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenLedgerMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS token_ledger_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS onchain_labs_dex_v2_token_ledger_account"#)
             .execute(connection)
             .await?;
         Ok(())

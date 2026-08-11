@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_perp_market_max_spread::UpdatePerpMarketMaxSpread
 {
     fn table() -> &'static str {
-        "update_perp_market_max_spread_instruction"
+        "drift_v2_update_perp_market_max_spread_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketMaxSpreadRow 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_perp_market_max_spread_instruction (
+            INSERT INTO drift_v2_update_perp_market_max_spread_instruction (
                 "max_spread",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketMaxSpreadRow 
 impl carbon_core::postgres::operations::Upsert for UpdatePerpMarketMaxSpreadRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_perp_market_max_spread_instruction (
+            r#"INSERT INTO drift_v2_update_perp_market_max_spread_instruction (
                 "max_spread",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketMaxSpreadRow 
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_perp_market_max_spread_instruction WHERE
+            r#"DELETE FROM drift_v2_update_perp_market_max_spread_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketMaxSpreadRow 
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_perp_market_max_spread_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_perp_market_max_spread_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdatePerpMarketMaxSpreadMigra
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_perp_market_max_spread_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_perp_market_max_spread_instruction (
                 -- Instruction data
                 "max_spread" INT8 NOT NULL,
                 -- Instruction metadata
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdatePerpMarketMaxSpreadMigra
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_perp_market_max_spread_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_perp_market_max_spread_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::whitelist_deposit_account::WhitelistDepositAccount
 {
     fn table() -> &'static str {
-        "whitelist_deposit_account_account"
+        "zeta_whitelist_deposit_account_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -61,7 +61,7 @@ impl carbon_core::postgres::operations::Insert for WhitelistDepositAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO whitelist_deposit_account_account (
+            INSERT INTO zeta_whitelist_deposit_account_account (
                 "nonce",
                 "user_key",
                 __pubkey, __slot
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for WhitelistDepositAccountRow {
 impl carbon_core::postgres::operations::Upsert for WhitelistDepositAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO whitelist_deposit_account_account (
+            r#"INSERT INTO zeta_whitelist_deposit_account_account (
                 "nonce",
                 "user_key",
                 __pubkey, __slot
@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Delete for WhitelistDepositAccountRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM whitelist_deposit_account_account WHERE
+            r#"DELETE FROM zeta_whitelist_deposit_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for WhitelistDepositAccountRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM whitelist_deposit_account_account WHERE
+            r#"SELECT * FROM zeta_whitelist_deposit_account_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WhitelistDepositAccountMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS whitelist_deposit_account_account (
+            r#"CREATE TABLE IF NOT EXISTS zeta_whitelist_deposit_account_account (
                 -- Account data
                 "nonce" INT2 NOT NULL,
                 "user_key" BYTEA NOT NULL,
@@ -176,7 +176,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WhitelistDepositAccountMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS whitelist_deposit_account_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_whitelist_deposit_account_account"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -6,17 +6,17 @@ This directory contains standlone Carbon pipelines, each demonstrating a distinc
 
 If you're not sure which one fits, find your use case below:
 
-| What you're building                                         | Start with                                           |
-| ------------------------------------------------------------ | ---------------------------------------------------- |
-| Real-time pipeline (gRPC)                                    | [`yellowstone-grpc`](yellowstone-grpc)               |
-| Real-time pipeline (no Geyser, public RPC)                   | [`block-subscribe-rpc`](block-subscribe-rpc)         |
-| Bounded-range historical backfill via archive                | [`jetstreamer`](jetstreamer)                         |
-| Per-program transaction history backfill                     | [`transaction-crawler-rpc`](transaction-crawler-rpc) |
-| Loading current state via RPC `getProgramAccounts`           | [`gpa-rpc`](gpa-rpc)                                 |
-| Loading state from a validator snapshot file                 | [`snapshot-validator`](snapshot-validator)           |
-| Indexing a program upgraded with a breaking IDL change           | [`versioned-decoders`](versioned-decoders)           |
-| Persisting decoded data to Postgres and serving it via GraphQL | [`postgres-graphql`](postgres-graphql)             |
-| Implementing your own `Datasource`                           | [`custom-datasource`](custom-datasource)             |
+| What you're building                                           | Start with                                           |
+| -------------------------------------------------------------- | ---------------------------------------------------- |
+| Real-time pipeline (gRPC)                                      | [`yellowstone-grpc`](yellowstone-grpc)               |
+| Real-time pipeline (no Geyser, public RPC)                     | [`block-subscribe-rpc`](block-subscribe-rpc)         |
+| Bounded-range historical backfill via archive                  | [`jetstreamer`](jetstreamer)                         |
+| Per-program transaction history backfill                       | [`transaction-crawler-rpc`](transaction-crawler-rpc) |
+| Loading current state via RPC `getProgramAccounts`             | [`gpa-rpc`](gpa-rpc)                                 |
+| Loading state from a validator snapshot file                   | [`snapshot-validator`](snapshot-validator)           |
+| Indexing a program upgraded with a breaking IDL change         | [`versioned-decoders`](versioned-decoders)           |
+| Persisting decoded data to Postgres and serving it via GraphQL | [`postgres-graphql`](postgres-graphql)               |
+| Implementing your own `Datasource`                             | [`custom-datasource`](custom-datasource)             |
 
 ## Variants
 

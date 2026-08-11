@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_volatility::UpdateVolatility
 {
     fn table() -> &'static str {
-        "update_volatility_instruction"
+        "zeta_update_volatility_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for UpdateVolatilityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_volatility_instruction (
+            INSERT INTO zeta_update_volatility_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for UpdateVolatilityRow {
 impl carbon_core::postgres::operations::Upsert for UpdateVolatilityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_volatility_instruction (
+            r#"INSERT INTO zeta_update_volatility_instruction (
                 "args",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for UpdateVolatilityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_volatility_instruction WHERE
+            r#"DELETE FROM zeta_update_volatility_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateVolatilityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_volatility_instruction WHERE
+            r#"SELECT * FROM zeta_update_volatility_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateVolatilityMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_volatility_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_update_volatility_instruction (
                 -- Instruction data
                 "args" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateVolatilityMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_volatility_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_update_volatility_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

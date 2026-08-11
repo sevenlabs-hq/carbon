@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_activation_point::SetActivationPoint
 {
     fn table() -> &'static str {
-        "set_activation_point_instruction"
+        "meteora_dlmm_set_activation_point_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for SetActivationPointRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_activation_point_instruction (
+            INSERT INTO meteora_dlmm_set_activation_point_instruction (
                 "activation_point",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for SetActivationPointRow {
 impl carbon_core::postgres::operations::Upsert for SetActivationPointRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_activation_point_instruction (
+            r#"INSERT INTO meteora_dlmm_set_activation_point_instruction (
                 "activation_point",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for SetActivationPointRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_activation_point_instruction WHERE
+            r#"DELETE FROM meteora_dlmm_set_activation_point_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for SetActivationPointRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_activation_point_instruction WHERE
+            r#"SELECT * FROM meteora_dlmm_set_activation_point_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetActivationPointMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_activation_point_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_set_activation_point_instruction (
                 -- Instruction data
                 "activation_point" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetActivationPointMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_activation_point_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_set_activation_point_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

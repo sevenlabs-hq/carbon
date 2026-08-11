@@ -38,7 +38,7 @@ impl TryFrom<SetCreatorRow> for crate::instructions::set_creator::SetCreator {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::set_creator::SetCreator {
     fn table() -> &'static str {
-        "set_creator_instruction"
+        "pumpfun_set_creator_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for SetCreatorRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_creator_instruction (
+            INSERT INTO pumpfun_set_creator_instruction (
                 "creator",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for SetCreatorRow {
 impl carbon_core::postgres::operations::Upsert for SetCreatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_creator_instruction (
+            r#"INSERT INTO pumpfun_set_creator_instruction (
                 "creator",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for SetCreatorRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_creator_instruction WHERE
+            r#"DELETE FROM pumpfun_set_creator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for SetCreatorRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_creator_instruction WHERE
+            r#"SELECT * FROM pumpfun_set_creator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetCreatorMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_creator_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pumpfun_set_creator_instruction (
                 -- Instruction data
                 "creator" BYTEA NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetCreatorMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_creator_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pumpfun_set_creator_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

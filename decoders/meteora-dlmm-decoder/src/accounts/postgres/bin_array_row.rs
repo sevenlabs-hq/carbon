@@ -71,7 +71,7 @@ impl TryFrom<BinArrayRow> for crate::accounts::bin_array::BinArray {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::bin_array::BinArray {
     fn table() -> &'static str {
-        "bin_array_account"
+        "meteora_dlmm_bin_array_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for BinArrayRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO bin_array_account (
+            INSERT INTO meteora_dlmm_bin_array_account (
                 "index",
                 "version",
                 "padding1",
@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Insert for BinArrayRow {
 impl carbon_core::postgres::operations::Upsert for BinArrayRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO bin_array_account (
+            r#"INSERT INTO meteora_dlmm_bin_array_account (
                 "index",
                 "version",
                 "padding1",
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for BinArrayRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM bin_array_account WHERE
+            r#"DELETE FROM meteora_dlmm_bin_array_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Lookup for BinArrayRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM bin_array_account WHERE
+            r#"SELECT * FROM meteora_dlmm_bin_array_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -197,7 +197,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BinArrayMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS bin_array_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_bin_array_account (
                 -- Account data
                 "index" INT8 NOT NULL,
                 "version" INT2 NOT NULL,
@@ -219,7 +219,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BinArrayMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS bin_array_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_bin_array_account"#)
             .execute(connection)
             .await?;
         Ok(())

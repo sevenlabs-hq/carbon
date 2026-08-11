@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::initialize_constituent::InitializeConstituent
 {
     fn table() -> &'static str {
-        "initialize_constituent_instruction"
+        "drift_v2_initialize_constituent_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Table
 impl carbon_core::postgres::operations::Insert for InitializeConstituentRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO initialize_constituent_instruction (
+            INSERT INTO drift_v2_initialize_constituent_instruction (
                 "spot_market_index",
                 "decimals",
                 "max_weight_deviation",
@@ -197,7 +197,7 @@ impl carbon_core::postgres::operations::Insert for InitializeConstituentRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for InitializeConstituentRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO initialize_constituent_instruction (
+        sqlx::query(r#"INSERT INTO drift_v2_initialize_constituent_instruction (
                 "spot_market_index",
                 "decimals",
                 "max_weight_deviation",
@@ -278,7 +278,7 @@ impl carbon_core::postgres::operations::Delete for InitializeConstituentRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM initialize_constituent_instruction WHERE
+            r#"DELETE FROM drift_v2_initialize_constituent_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -305,7 +305,7 @@ impl carbon_core::postgres::operations::Lookup for InitializeConstituentRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_constituent_instruction WHERE
+            r#"SELECT * FROM drift_v2_initialize_constituent_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -328,7 +328,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeConstituentMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS initialize_constituent_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_initialize_constituent_instruction (
                 -- Instruction data
                 "spot_market_index" INT4 NOT NULL,
                 "decimals" INT2 NOT NULL,
@@ -364,7 +364,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeConstituentMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_constituent_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_initialize_constituent_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

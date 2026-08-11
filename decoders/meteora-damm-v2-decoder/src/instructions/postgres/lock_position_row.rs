@@ -38,7 +38,7 @@ impl TryFrom<LockPositionRow> for crate::instructions::lock_position::LockPositi
 
 impl carbon_core::postgres::operations::Table for crate::instructions::lock_position::LockPosition {
     fn table() -> &'static str {
-        "lock_position_instruction"
+        "meteora_damm_v2_lock_position_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for LockPositionRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lock_position_instruction (
+            INSERT INTO meteora_damm_v2_lock_position_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for LockPositionRow {
 impl carbon_core::postgres::operations::Upsert for LockPositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lock_position_instruction (
+            r#"INSERT INTO meteora_damm_v2_lock_position_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for LockPositionRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lock_position_instruction WHERE
+            r#"DELETE FROM meteora_damm_v2_lock_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for LockPositionRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lock_position_instruction WHERE
+            r#"SELECT * FROM meteora_damm_v2_lock_position_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockPositionMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lock_position_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_lock_position_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LockPositionMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lock_position_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_damm_v2_lock_position_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::set_validator_score::SetValidatorScore
 {
     fn table() -> &'static str {
-        "set_validator_score_instruction"
+        "marinade_finance_set_validator_score_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -79,7 +79,7 @@ impl carbon_core::postgres::operations::Insert for SetValidatorScoreRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_validator_score_instruction (
+            INSERT INTO marinade_finance_set_validator_score_instruction (
                 "index",
                 "validator_vote",
                 "score",
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Insert for SetValidatorScoreRow {
 impl carbon_core::postgres::operations::Upsert for SetValidatorScoreRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_validator_score_instruction (
+            r#"INSERT INTO marinade_finance_set_validator_score_instruction (
                 "index",
                 "validator_vote",
                 "score",
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Delete for SetValidatorScoreRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_validator_score_instruction WHERE
+            r#"DELETE FROM marinade_finance_set_validator_score_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Lookup for SetValidatorScoreRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_validator_score_instruction WHERE
+            r#"SELECT * FROM marinade_finance_set_validator_score_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetValidatorScoreMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_validator_score_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_set_validator_score_instruction (
                 -- Instruction data
                 "index" INT8 NOT NULL,
                 "validator_vote" BYTEA NOT NULL,
@@ -224,7 +224,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetValidatorScoreMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_validator_score_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_set_validator_score_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

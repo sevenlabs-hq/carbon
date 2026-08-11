@@ -37,7 +37,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::stub_oracle_create::StubOracleCreate
 {
     fn table() -> &'static str {
-        "stub_oracle_create_instruction"
+        "openbook_v2_stub_oracle_create_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Insert for StubOracleCreateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO stub_oracle_create_instruction (
+            INSERT INTO openbook_v2_stub_oracle_create_instruction (
                 "price",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for StubOracleCreateRow {
 impl carbon_core::postgres::operations::Upsert for StubOracleCreateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO stub_oracle_create_instruction (
+            r#"INSERT INTO openbook_v2_stub_oracle_create_instruction (
                 "price",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Delete for StubOracleCreateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM stub_oracle_create_instruction WHERE
+            r#"DELETE FROM openbook_v2_stub_oracle_create_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Lookup for StubOracleCreateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM stub_oracle_create_instruction WHERE
+            r#"SELECT * FROM openbook_v2_stub_oracle_create_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StubOracleCreateMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS stub_oracle_create_instruction (
+            r#"CREATE TABLE IF NOT EXISTS openbook_v2_stub_oracle_create_instruction (
                 -- Instruction data
                 "price" DOUBLE PRECISION NOT NULL,
                 -- Instruction metadata
@@ -190,7 +190,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StubOracleCreateMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS stub_oracle_create_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS openbook_v2_stub_oracle_create_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

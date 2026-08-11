@@ -49,7 +49,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::increase_liquidity::IncreaseLiquidity
 {
     fn table() -> &'static str {
-        "increase_liquidity_instruction"
+        "pancake_swap_increase_liquidity_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Insert for IncreaseLiquidityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO increase_liquidity_instruction (
+            INSERT INTO pancake_swap_increase_liquidity_instruction (
                 "liquidity",
                 "amount0_max",
                 "amount1_max",
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for IncreaseLiquidityRow {
 impl carbon_core::postgres::operations::Upsert for IncreaseLiquidityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO increase_liquidity_instruction (
+            r#"INSERT INTO pancake_swap_increase_liquidity_instruction (
                 "liquidity",
                 "amount0_max",
                 "amount1_max",
@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Delete for IncreaseLiquidityRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM increase_liquidity_instruction WHERE
+            r#"DELETE FROM pancake_swap_increase_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl carbon_core::postgres::operations::Lookup for IncreaseLiquidityRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM increase_liquidity_instruction WHERE
+            r#"SELECT * FROM pancake_swap_increase_liquidity_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IncreaseLiquidityMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS increase_liquidity_instruction (
+            r#"CREATE TABLE IF NOT EXISTS pancake_swap_increase_liquidity_instruction (
                 -- Instruction data
                 "liquidity" NUMERIC(39) NOT NULL,
                 "amount0_max" NUMERIC(20) NOT NULL,
@@ -216,7 +216,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IncreaseLiquidityMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS increase_liquidity_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS pancake_swap_increase_liquidity_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

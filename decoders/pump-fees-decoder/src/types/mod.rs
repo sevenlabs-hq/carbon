@@ -4,10 +4,14 @@ pub mod graphql;
 
 pub mod config_status;
 pub mod create_fee_sharing_config_event;
+pub mod donation_fee_pda_cranked;
+pub mod donation_fee_pda_created;
+pub mod extend_fee_config_event;
 pub mod fee_tier;
 pub mod fees;
 pub mod initialize_fee_config_event;
 pub mod initialize_fee_program_global_event;
+pub mod option_bool;
 pub mod reset_fee_sharing_config_event;
 pub mod set_authority_event;
 pub mod set_claim_rate_limit_event;
@@ -16,16 +20,21 @@ pub mod set_social_claim_authority_event;
 pub mod shareholder;
 pub mod social_fee_pda_claimed;
 pub mod social_fee_pda_created;
+pub mod sweep_buyback_event;
 pub mod update_admin_event;
 pub mod update_fee_config_event;
 pub mod update_fee_shares_event;
+pub mod update_stable_fee_config_event;
 pub mod upsert_fee_tiers_event;
+pub mod upsert_stable_fee_tiers_event;
 
 pub use self::{
-    config_status::*, create_fee_sharing_config_event::*, fee_tier::*, fees::*,
-    initialize_fee_config_event::*, initialize_fee_program_global_event::*,
+    config_status::*, create_fee_sharing_config_event::*, donation_fee_pda_cranked::*,
+    donation_fee_pda_created::*, extend_fee_config_event::*, fee_tier::*, fees::*,
+    initialize_fee_config_event::*, initialize_fee_program_global_event::*, option_bool::*,
     reset_fee_sharing_config_event::*, set_authority_event::*, set_claim_rate_limit_event::*,
     set_disable_flags_event::*, set_social_claim_authority_event::*, shareholder::*,
-    social_fee_pda_claimed::*, social_fee_pda_created::*, update_admin_event::*,
-    update_fee_config_event::*, update_fee_shares_event::*, upsert_fee_tiers_event::*,
+    social_fee_pda_claimed::*, social_fee_pda_created::*, sweep_buyback_event::*,
+    update_admin_event::*, update_fee_config_event::*, update_fee_shares_event::*,
+    update_stable_fee_config_event::*, upsert_fee_tiers_event::*, upsert_stable_fee_tiers_event::*,
 };

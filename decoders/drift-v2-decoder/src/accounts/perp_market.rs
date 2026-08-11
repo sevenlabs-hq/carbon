@@ -108,8 +108,7 @@ pub struct PerpMarket {
     pub lp_exchange_fee_excluscion_scalar: u8,
     pub last_fill_price: u64,
     pub lp_pool_id: u8,
-    pub market_config: u8,
-    pub padding: [u8; 22],
+    pub padding: [u8; 23],
 }
 
 impl CarbonDeserialize for PerpMarket {

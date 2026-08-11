@@ -38,7 +38,7 @@ impl TryFrom<InitializeCustomizablePermissionlessLbPair2Row> for crate::instruct
 
 impl carbon_core::postgres::operations::Table for crate::instructions::initialize_customizable_permissionless_lb_pair2::InitializeCustomizablePermissionlessLbPair2 {
     fn table() -> &'static str {
-        "initialize_customizable_permissionless_lb_pair2_instruction"
+        "meteora_dlmm_initialize_customizable_permissionless_lb_pair2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for InitializeCustomizablePermiss
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO initialize_customizable_permissionless_lb_pair2_instruction (
+            INSERT INTO meteora_dlmm_initialize_customizable_permissionless_lb_pair2_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -81,8 +81,7 @@ impl carbon_core::postgres::operations::Insert for InitializeCustomizablePermiss
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for InitializeCustomizablePermissionlessLbPair2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO initialize_customizable_permissionless_lb_pair2_instruction (
+        sqlx::query(r#"INSERT INTO meteora_dlmm_initialize_customizable_permissionless_lb_pair2_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -95,16 +94,14 @@ impl carbon_core::postgres::operations::Upsert for InitializeCustomizablePermiss
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
                 __accounts = EXCLUDED.__accounts
-            "#,
-        )
+            "#)
         .bind(&self.params)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -119,16 +116,13 @@ impl carbon_core::postgres::operations::Delete for InitializeCustomizablePermiss
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM initialize_customizable_permissionless_lb_pair2_instruction WHERE
+        sqlx::query(r#"DELETE FROM meteora_dlmm_initialize_customizable_permissionless_lb_pair2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -146,16 +140,13 @@ impl carbon_core::postgres::operations::Lookup for InitializeCustomizablePermiss
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM initialize_customizable_permissionless_lb_pair2_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM meteora_dlmm_initialize_customizable_permissionless_lb_pair2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -171,7 +162,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_customizable_permissionless_lb_pair2_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS meteora_dlmm_initialize_customizable_permissionless_lb_pair2_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -189,11 +180,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"DROP TABLE IF EXISTS initialize_customizable_permissionless_lb_pair2_instruction"#,
-        )
-        .execute(connection)
-        .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dlmm_initialize_customizable_permissionless_lb_pair2_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

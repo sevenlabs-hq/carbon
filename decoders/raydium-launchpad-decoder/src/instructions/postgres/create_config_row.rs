@@ -58,7 +58,7 @@ impl TryFrom<CreateConfigRow> for crate::instructions::create_config::CreateConf
 
 impl carbon_core::postgres::operations::Table for crate::instructions::create_config::CreateConfig {
     fn table() -> &'static str {
-        "create_config_instruction"
+        "raydium_launchpad_create_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for CreateConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_config_instruction (
+            INSERT INTO raydium_launchpad_create_config_instruction (
                 "curve_type",
                 "index",
                 "migrate_fee",
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Insert for CreateConfigRow {
 impl carbon_core::postgres::operations::Upsert for CreateConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_config_instruction (
+            r#"INSERT INTO raydium_launchpad_create_config_instruction (
                 "curve_type",
                 "index",
                 "migrate_fee",
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Delete for CreateConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_config_instruction WHERE
+            r#"DELETE FROM raydium_launchpad_create_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -185,7 +185,7 @@ impl carbon_core::postgres::operations::Lookup for CreateConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_config_instruction WHERE
+            r#"SELECT * FROM raydium_launchpad_create_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateConfigMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_launchpad_create_config_instruction (
                 -- Instruction data
                 "curve_type" INT2 NOT NULL,
                 "index" INT4 NOT NULL,
@@ -232,7 +232,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateConfigMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_launchpad_create_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

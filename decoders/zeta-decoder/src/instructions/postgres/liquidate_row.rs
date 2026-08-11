@@ -36,7 +36,7 @@ impl TryFrom<LiquidateRow> for crate::instructions::liquidate::Liquidate {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::liquidate::Liquidate {
     fn table() -> &'static str {
-        "liquidate_instruction"
+        "zeta_liquidate_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Insert for LiquidateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO liquidate_instruction (
+            INSERT INTO zeta_liquidate_instruction (
                 "size",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for LiquidateRow {
 impl carbon_core::postgres::operations::Upsert for LiquidateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO liquidate_instruction (
+            r#"INSERT INTO zeta_liquidate_instruction (
                 "size",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -118,7 +118,7 @@ impl carbon_core::postgres::operations::Delete for LiquidateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM liquidate_instruction WHERE
+            r#"DELETE FROM zeta_liquidate_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Lookup for LiquidateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM liquidate_instruction WHERE
+            r#"SELECT * FROM zeta_liquidate_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -168,7 +168,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LiquidateMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS liquidate_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_liquidate_instruction (
                 -- Instruction data
                 "size" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -189,7 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LiquidateMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS liquidate_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_liquidate_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

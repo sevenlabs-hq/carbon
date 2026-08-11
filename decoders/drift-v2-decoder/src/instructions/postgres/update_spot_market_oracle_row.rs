@@ -51,7 +51,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_spot_market_oracle::UpdateSpotMarketOracle
 {
     fn table() -> &'static str {
-        "update_spot_market_oracle_instruction"
+        "drift_v2_update_spot_market_oracle_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketOracleRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_spot_market_oracle_instruction (
+            INSERT INTO drift_v2_update_spot_market_oracle_instruction (
                 "oracle",
                 "oracle_source",
                 "skip_invariant_check",
@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketOracleRow {
 impl carbon_core::postgres::operations::Upsert for UpdateSpotMarketOracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_spot_market_oracle_instruction (
+            r#"INSERT INTO drift_v2_update_spot_market_oracle_instruction (
                 "oracle",
                 "oracle_source",
                 "skip_invariant_check",
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketOracleRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_spot_market_oracle_instruction WHERE
+            r#"DELETE FROM drift_v2_update_spot_market_oracle_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketOracleRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_spot_market_oracle_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_spot_market_oracle_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotMarketOracleMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_spot_market_oracle_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_spot_market_oracle_instruction (
                 -- Instruction data
                 "oracle" BYTEA NOT NULL,
                 "oracle_source" JSONB NOT NULL,
@@ -218,7 +218,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateSpotMarketOracleMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_spot_market_oracle_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_spot_market_oracle_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

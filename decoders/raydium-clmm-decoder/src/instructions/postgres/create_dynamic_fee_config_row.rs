@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_dynamic_fee_config::CreateDynamicFeeConfig
 {
     fn table() -> &'static str {
-        "create_dynamic_fee_config_instruction"
+        "raydium_clmm_create_dynamic_fee_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Insert for CreateDynamicFeeConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_dynamic_fee_config_instruction (
+            INSERT INTO raydium_clmm_create_dynamic_fee_config_instruction (
                 "index",
                 "filter_period",
                 "decay_period",
@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Insert for CreateDynamicFeeConfigRow {
 impl carbon_core::postgres::operations::Upsert for CreateDynamicFeeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_dynamic_fee_config_instruction (
+            r#"INSERT INTO raydium_clmm_create_dynamic_fee_config_instruction (
                 "index",
                 "filter_period",
                 "decay_period",
@@ -198,7 +198,7 @@ impl carbon_core::postgres::operations::Delete for CreateDynamicFeeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_dynamic_fee_config_instruction WHERE
+            r#"DELETE FROM raydium_clmm_create_dynamic_fee_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -225,7 +225,7 @@ impl carbon_core::postgres::operations::Lookup for CreateDynamicFeeConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_dynamic_fee_config_instruction WHERE
+            r#"SELECT * FROM raydium_clmm_create_dynamic_fee_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -248,7 +248,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateDynamicFeeConfigMigratio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_dynamic_fee_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_create_dynamic_fee_config_instruction (
                 -- Instruction data
                 "index" INT4 NOT NULL,
                 "filter_period" INT4 NOT NULL,
@@ -274,7 +274,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateDynamicFeeConfigMigratio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_dynamic_fee_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_create_dynamic_fee_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

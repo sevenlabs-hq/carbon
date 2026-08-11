@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::burn_token_custody::BurnTokenCustody
 {
     fn table() -> &'static str {
-        "burn_token_custody_instruction"
+        "circle_token_messenger_v2_burn_token_custody_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for BurnTokenCustodyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO burn_token_custody_instruction (
+            INSERT INTO circle_token_messenger_v2_burn_token_custody_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for BurnTokenCustodyRow {
 impl carbon_core::postgres::operations::Upsert for BurnTokenCustodyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO burn_token_custody_instruction (
+            r#"INSERT INTO circle_token_messenger_v2_burn_token_custody_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for BurnTokenCustodyRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM burn_token_custody_instruction WHERE
+            r#"DELETE FROM circle_token_messenger_v2_burn_token_custody_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for BurnTokenCustodyRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM burn_token_custody_instruction WHERE
+            r#"SELECT * FROM circle_token_messenger_v2_burn_token_custody_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BurnTokenCustodyMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS burn_token_custody_instruction (
+            r#"CREATE TABLE IF NOT EXISTS circle_token_messenger_v2_burn_token_custody_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -193,9 +193,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BurnTokenCustodyMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS burn_token_custody_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS circle_token_messenger_v2_burn_token_custody_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

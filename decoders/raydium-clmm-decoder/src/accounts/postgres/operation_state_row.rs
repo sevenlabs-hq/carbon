@@ -85,7 +85,7 @@ impl TryFrom<OperationStateRow> for crate::accounts::operation_state::OperationS
 
 impl carbon_core::postgres::operations::Table for crate::accounts::operation_state::OperationState {
     fn table() -> &'static str {
-        "operation_state_account"
+        "raydium_clmm_operation_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -104,7 +104,7 @@ impl carbon_core::postgres::operations::Insert for OperationStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO operation_state_account (
+            INSERT INTO raydium_clmm_operation_state_account (
                 "bump",
                 "operation_owners",
                 "whitelist_mints",
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Insert for OperationStateRow {
 impl carbon_core::postgres::operations::Upsert for OperationStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO operation_state_account (
+            r#"INSERT INTO raydium_clmm_operation_state_account (
                 "bump",
                 "operation_owners",
                 "whitelist_mints",
@@ -163,7 +163,7 @@ impl carbon_core::postgres::operations::Delete for OperationStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM operation_state_account WHERE
+            r#"DELETE FROM raydium_clmm_operation_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -184,7 +184,7 @@ impl carbon_core::postgres::operations::Lookup for OperationStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM operation_state_account WHERE
+            r#"SELECT * FROM raydium_clmm_operation_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -205,7 +205,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OperationStateMigrationOperati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS operation_state_account (
+            r#"CREATE TABLE IF NOT EXISTS raydium_clmm_operation_state_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "operation_owners" BYTEA[] NOT NULL,
@@ -225,7 +225,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OperationStateMigrationOperati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS operation_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS raydium_clmm_operation_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

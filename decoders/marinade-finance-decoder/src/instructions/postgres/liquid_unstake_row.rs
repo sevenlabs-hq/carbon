@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::liquid_unstake::LiquidUnstake
 {
     fn table() -> &'static str {
-        "liquid_unstake_instruction"
+        "marinade_finance_liquid_unstake_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for LiquidUnstakeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO liquid_unstake_instruction (
+            INSERT INTO marinade_finance_liquid_unstake_instruction (
                 "msol_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for LiquidUnstakeRow {
 impl carbon_core::postgres::operations::Upsert for LiquidUnstakeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO liquid_unstake_instruction (
+            r#"INSERT INTO marinade_finance_liquid_unstake_instruction (
                 "msol_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for LiquidUnstakeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM liquid_unstake_instruction WHERE
+            r#"DELETE FROM marinade_finance_liquid_unstake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for LiquidUnstakeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM liquid_unstake_instruction WHERE
+            r#"SELECT * FROM marinade_finance_liquid_unstake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LiquidUnstakeMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS liquid_unstake_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_liquid_unstake_instruction (
                 -- Instruction data
                 "msol_amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LiquidUnstakeMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS liquid_unstake_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_liquid_unstake_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

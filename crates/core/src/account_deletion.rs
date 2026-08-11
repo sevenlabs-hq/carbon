@@ -32,7 +32,7 @@ impl<P> AccountDeletionPipe<P> {
 pub trait AccountDeletionPipes: Send + Sync {
     async fn run(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         account_deletion: AccountDeletion,
     ) -> CarbonResult<()>;
 
@@ -46,7 +46,7 @@ where
 {
     async fn run(
         &mut self,
-        #[cfg(feature = "batch")] update_id: BatchUpdateId,
+        #[cfg(feature = "batch")] update_id: &BatchUpdateId,
         account_deletion: AccountDeletion,
     ) -> CarbonResult<()> {
         self.processor

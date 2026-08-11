@@ -33,6 +33,7 @@ pub struct CollectFeesV2InstructionAccounts {
     pub token_program_a: solana_pubkey::Pubkey,
     pub token_program_b: solana_pubkey::Pubkey,
     pub memo_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -77,6 +78,7 @@ impl ArrangeAccounts for CollectFeesV2 {
         let token_program_a = next_account(&mut iter)?;
         let token_program_b = next_account(&mut iter)?;
         let memo_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -94,6 +96,7 @@ impl ArrangeAccounts for CollectFeesV2 {
             token_program_a,
             token_program_b,
             memo_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

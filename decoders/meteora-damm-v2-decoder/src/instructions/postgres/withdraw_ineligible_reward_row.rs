@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::withdraw_ineligible_reward::WithdrawIneligibleReward
 {
     fn table() -> &'static str {
-        "withdraw_ineligible_reward_instruction"
+        "meteora_damm_v2_withdraw_ineligible_reward_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawIneligibleRewardRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_ineligible_reward_instruction (
+            INSERT INTO meteora_damm_v2_withdraw_ineligible_reward_instruction (
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawIneligibleRewardRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawIneligibleRewardRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_ineligible_reward_instruction (
+            r#"INSERT INTO meteora_damm_v2_withdraw_ineligible_reward_instruction (
                 "reward_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawIneligibleRewardRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_ineligible_reward_instruction WHERE
+            r#"DELETE FROM meteora_damm_v2_withdraw_ineligible_reward_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawIneligibleRewardRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_ineligible_reward_instruction WHERE
+            r#"SELECT * FROM meteora_damm_v2_withdraw_ineligible_reward_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawIneligibleRewardMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_ineligible_reward_instruction (
+            r#"CREATE TABLE IF NOT EXISTS meteora_damm_v2_withdraw_ineligible_reward_instruction (
                 -- Instruction data
                 "reward_index" INT2 NOT NULL,
                 -- Instruction metadata
@@ -199,9 +199,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawIneligibleRewardMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_ineligible_reward_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS meteora_damm_v2_withdraw_ineligible_reward_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

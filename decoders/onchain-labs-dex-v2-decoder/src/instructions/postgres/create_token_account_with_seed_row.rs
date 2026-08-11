@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::create_token_account_with_seed::CreateTokenAccountWithSeed
 {
     fn table() -> &'static str {
-        "create_token_account_with_seed_instruction"
+        "onchain_labs_dex_v2_create_token_account_with_seed_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for CreateTokenAccountWithSeedRow
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_token_account_with_seed_instruction (
+            INSERT INTO onchain_labs_dex_v2_create_token_account_with_seed_instruction (
                 "bump",
                 "seed",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -103,7 +103,7 @@ impl carbon_core::postgres::operations::Insert for CreateTokenAccountWithSeedRow
 impl carbon_core::postgres::operations::Upsert for CreateTokenAccountWithSeedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_token_account_with_seed_instruction (
+            r#"INSERT INTO onchain_labs_dex_v2_create_token_account_with_seed_instruction (
                 "bump",
                 "seed",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Delete for CreateTokenAccountWithSeedRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_token_account_with_seed_instruction WHERE
+            r#"DELETE FROM onchain_labs_dex_v2_create_token_account_with_seed_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -171,7 +171,7 @@ impl carbon_core::postgres::operations::Lookup for CreateTokenAccountWithSeedRow
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_token_account_with_seed_instruction WHERE
+            r#"SELECT * FROM onchain_labs_dex_v2_create_token_account_with_seed_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -193,8 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateTokenAccountWithSeedMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_token_account_with_seed_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS onchain_labs_dex_v2_create_token_account_with_seed_instruction (
                 -- Instruction data
                 "bump" INT2 NOT NULL,
                 "seed" INT8 NOT NULL,
@@ -205,10 +204,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateTokenAccountWithSeedMigr
                 __slot NUMERIC(20),
                 __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -216,9 +212,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateTokenAccountWithSeedMigr
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_token_account_with_seed_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS onchain_labs_dex_v2_create_token_account_with_seed_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

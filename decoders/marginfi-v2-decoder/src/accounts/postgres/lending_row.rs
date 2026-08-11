@@ -79,7 +79,7 @@ impl TryFrom<LendingRow> for crate::accounts::lending::Lending {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::lending::Lending {
     fn table() -> &'static str {
-        "lending_account"
+        "marginfi_v2_lending_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -106,7 +106,7 @@ impl carbon_core::postgres::operations::Insert for LendingRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lending_account (
+            INSERT INTO marginfi_v2_lending_account (
                 "mint",
                 "f_token_mint",
                 "lending_id",
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Insert for LendingRow {
 impl carbon_core::postgres::operations::Upsert for LendingRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lending_account (
+            r#"INSERT INTO marginfi_v2_lending_account (
                 "mint",
                 "f_token_mint",
                 "lending_id",
@@ -205,7 +205,7 @@ impl carbon_core::postgres::operations::Delete for LendingRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lending_account WHERE
+            r#"DELETE FROM marginfi_v2_lending_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -226,7 +226,7 @@ impl carbon_core::postgres::operations::Lookup for LendingRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lending_account WHERE
+            r#"SELECT * FROM marginfi_v2_lending_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -247,7 +247,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lending_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_lending_account (
                 -- Account data
                 "mint" BYTEA NOT NULL,
                 "f_token_mint" BYTEA NOT NULL,
@@ -275,7 +275,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lending_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_lending_account"#)
             .execute(connection)
             .await?;
         Ok(())

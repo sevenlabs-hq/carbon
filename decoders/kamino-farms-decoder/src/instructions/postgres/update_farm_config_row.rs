@@ -47,7 +47,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_farm_config::UpdateFarmConfig
 {
     fn table() -> &'static str {
-        "update_farm_config_instruction"
+        "kamino_farms_update_farm_config_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFarmConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_farm_config_instruction (
+            INSERT INTO kamino_farms_update_farm_config_instruction (
                 "mode",
                 "data",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -94,7 +94,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFarmConfigRow {
 impl carbon_core::postgres::operations::Upsert for UpdateFarmConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_farm_config_instruction (
+            r#"INSERT INTO kamino_farms_update_farm_config_instruction (
                 "mode",
                 "data",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFarmConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_farm_config_instruction WHERE
+            r#"DELETE FROM kamino_farms_update_farm_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Lookup for UpdateFarmConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_farm_config_instruction WHERE
+            r#"SELECT * FROM kamino_farms_update_farm_config_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -185,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFarmConfigMigrationOpera
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_farm_config_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_farms_update_farm_config_instruction (
                 -- Instruction data
                 "mode" INT4 NOT NULL,
                 "data" BYTEA NOT NULL,
@@ -207,7 +207,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFarmConfigMigrationOpera
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_farm_config_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_farms_update_farm_config_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

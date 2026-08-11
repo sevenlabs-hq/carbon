@@ -19,6 +19,7 @@ pub struct SetInitializePoolAuthorityInstructionAccounts {
     pub adaptive_fee_tier: solana_pubkey::Pubkey,
     pub fee_authority: solana_pubkey::Pubkey,
     pub new_initialize_pool_authority: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -54,6 +55,7 @@ impl ArrangeAccounts for SetInitializePoolAuthority {
         let adaptive_fee_tier = next_account(&mut iter)?;
         let fee_authority = next_account(&mut iter)?;
         let new_initialize_pool_authority = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -62,6 +64,7 @@ impl ArrangeAccounts for SetInitializePoolAuthority {
             adaptive_fee_tier,
             fee_authority,
             new_initialize_pool_authority,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

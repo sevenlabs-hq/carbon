@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::update_perp_market_lp_pool_id::UpdatePerpMarketLpPoolId
 {
     fn table() -> &'static str {
-        "update_perp_market_lp_pool_id_instruction"
+        "drift_v2_update_perp_market_lp_pool_id_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketLpPoolIdRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_perp_market_lp_pool_id_instruction (
+            INSERT INTO drift_v2_update_perp_market_lp_pool_id_instruction (
                 "lp_pool_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketLpPoolIdRow {
 impl carbon_core::postgres::operations::Upsert for UpdatePerpMarketLpPoolIdRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO update_perp_market_lp_pool_id_instruction (
+            r#"INSERT INTO drift_v2_update_perp_market_lp_pool_id_instruction (
                 "lp_pool_id",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketLpPoolIdRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM update_perp_market_lp_pool_id_instruction WHERE
+            r#"DELETE FROM drift_v2_update_perp_market_lp_pool_id_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketLpPoolIdRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM update_perp_market_lp_pool_id_instruction WHERE
+            r#"SELECT * FROM drift_v2_update_perp_market_lp_pool_id_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -178,7 +178,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdatePerpMarketLpPoolIdMigrat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS update_perp_market_lp_pool_id_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_update_perp_market_lp_pool_id_instruction (
                 -- Instruction data
                 "lp_pool_id" INT2 NOT NULL,
                 -- Instruction metadata
@@ -199,7 +199,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdatePerpMarketLpPoolIdMigrat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_perp_market_lp_pool_id_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_perp_market_lp_pool_id_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

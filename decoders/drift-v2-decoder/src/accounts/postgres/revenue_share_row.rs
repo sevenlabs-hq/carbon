@@ -51,7 +51,7 @@ impl TryFrom<RevenueShareRow> for crate::accounts::revenue_share::RevenueShare {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::revenue_share::RevenueShare {
     fn table() -> &'static str {
-        "revenue_share_account"
+        "drift_v2_revenue_share_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -71,7 +71,7 @@ impl carbon_core::postgres::operations::Insert for RevenueShareRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO revenue_share_account (
+            INSERT INTO drift_v2_revenue_share_account (
                 "authority",
                 "total_referrer_rewards",
                 "total_builder_rewards",
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for RevenueShareRow {
 impl carbon_core::postgres::operations::Upsert for RevenueShareRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO revenue_share_account (
+            r#"INSERT INTO drift_v2_revenue_share_account (
                 "authority",
                 "total_referrer_rewards",
                 "total_builder_rewards",
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for RevenueShareRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM revenue_share_account WHERE
+            r#"DELETE FROM drift_v2_revenue_share_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Lookup for RevenueShareRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM revenue_share_account WHERE
+            r#"SELECT * FROM drift_v2_revenue_share_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RevenueShareMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS revenue_share_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_revenue_share_account (
                 -- Account data
                 "authority" BYTEA NOT NULL,
                 "total_referrer_rewards" NUMERIC(20) NOT NULL,
@@ -198,7 +198,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RevenueShareMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS revenue_share_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_revenue_share_account"#)
             .execute(connection)
             .await?;
         Ok(())

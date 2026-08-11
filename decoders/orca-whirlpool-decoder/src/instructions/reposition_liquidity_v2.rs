@@ -78,6 +78,7 @@ pub struct RepositionLiquidityV2InstructionAccounts {
     pub new_tick_array_lower: solana_pubkey::Pubkey,
     pub new_tick_array_upper: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub whirlpool_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -128,6 +129,7 @@ impl ArrangeAccounts for RepositionLiquidityV2 {
         let new_tick_array_lower = next_account(&mut iter)?;
         let new_tick_array_upper = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let whirlpool_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -151,6 +153,7 @@ impl ArrangeAccounts for RepositionLiquidityV2 {
             new_tick_array_lower,
             new_tick_array_upper,
             system_program,
+            whirlpool_program,
             remaining: remaining.to_vec(),
         })
     }

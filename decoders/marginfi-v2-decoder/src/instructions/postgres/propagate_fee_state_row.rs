@@ -33,7 +33,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::propagate_fee_state::PropagateFeeState
 {
     fn table() -> &'static str {
-        "propagate_fee_state_instruction"
+        "marginfi_v2_propagate_fee_state_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Insert for PropagateFeeStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO propagate_fee_state_instruction (
+            INSERT INTO marginfi_v2_propagate_fee_state_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -74,7 +74,7 @@ impl carbon_core::postgres::operations::Insert for PropagateFeeStateRow {
 impl carbon_core::postgres::operations::Upsert for PropagateFeeStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO propagate_fee_state_instruction (
+            r#"INSERT INTO marginfi_v2_propagate_fee_state_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for PropagateFeeStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM propagate_fee_state_instruction WHERE
+            r#"DELETE FROM marginfi_v2_propagate_fee_state_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Lookup for PropagateFeeStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM propagate_fee_state_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_propagate_fee_state_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -159,7 +159,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PropagateFeeStateMigrationOper
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS propagate_fee_state_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_propagate_fee_state_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PropagateFeeStateMigrationOper
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS propagate_fee_state_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_propagate_fee_state_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

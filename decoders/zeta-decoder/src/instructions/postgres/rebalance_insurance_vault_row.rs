@@ -35,7 +35,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::rebalance_insurance_vault::RebalanceInsuranceVault
 {
     fn table() -> &'static str {
-        "rebalance_insurance_vault_instruction"
+        "zeta_rebalance_insurance_vault_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -54,7 +54,7 @@ impl carbon_core::postgres::operations::Insert for RebalanceInsuranceVaultRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO rebalance_insurance_vault_instruction (
+            INSERT INTO zeta_rebalance_insurance_vault_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Insert for RebalanceInsuranceVaultRow {
 impl carbon_core::postgres::operations::Upsert for RebalanceInsuranceVaultRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO rebalance_insurance_vault_instruction (
+            r#"INSERT INTO zeta_rebalance_insurance_vault_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Delete for RebalanceInsuranceVaultRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM rebalance_insurance_vault_instruction WHERE
+            r#"DELETE FROM zeta_rebalance_insurance_vault_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -138,7 +138,7 @@ impl carbon_core::postgres::operations::Lookup for RebalanceInsuranceVaultRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM rebalance_insurance_vault_instruction WHERE
+            r#"SELECT * FROM zeta_rebalance_insurance_vault_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -161,7 +161,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RebalanceInsuranceVaultMigrati
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS rebalance_insurance_vault_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_rebalance_insurance_vault_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +181,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RebalanceInsuranceVaultMigrati
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS rebalance_insurance_vault_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_rebalance_insurance_vault_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

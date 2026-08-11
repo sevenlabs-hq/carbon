@@ -48,7 +48,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::withdraw_all_token_types::WithdrawAllTokenTypes
 {
     fn table() -> &'static str {
-        "withdraw_all_token_types_instruction"
+        "lifinity_amm_v2_withdraw_all_token_types_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawAllTokenTypesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO withdraw_all_token_types_instruction (
+            INSERT INTO lifinity_amm_v2_withdraw_all_token_types_instruction (
                 "pool_token_amount",
                 "minimum_token_a_amount",
                 "minimum_token_b_amount",
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawAllTokenTypesRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawAllTokenTypesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_all_token_types_instruction (
+            r#"INSERT INTO lifinity_amm_v2_withdraw_all_token_types_instruction (
                 "pool_token_amount",
                 "minimum_token_a_amount",
                 "minimum_token_b_amount",
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawAllTokenTypesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM withdraw_all_token_types_instruction WHERE
+            r#"DELETE FROM lifinity_amm_v2_withdraw_all_token_types_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -169,7 +169,7 @@ impl carbon_core::postgres::operations::Lookup for WithdrawAllTokenTypesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM withdraw_all_token_types_instruction WHERE
+            r#"SELECT * FROM lifinity_amm_v2_withdraw_all_token_types_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -192,7 +192,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawAllTokenTypesMigration
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS withdraw_all_token_types_instruction (
+            r#"CREATE TABLE IF NOT EXISTS lifinity_amm_v2_withdraw_all_token_types_instruction (
                 -- Instruction data
                 "pool_token_amount" NUMERIC(20) NOT NULL,
                 "minimum_token_a_amount" NUMERIC(20) NOT NULL,
@@ -215,7 +215,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawAllTokenTypesMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_all_token_types_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS lifinity_amm_v2_withdraw_all_token_types_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

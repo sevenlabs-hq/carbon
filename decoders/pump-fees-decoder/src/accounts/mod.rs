@@ -4,6 +4,8 @@ use {
     carbon_core::deserialize::CarbonDeserialize,
 };
 
+#[cfg(feature = "clickhouse")]
+pub mod clickhouse;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 
@@ -11,6 +13,8 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod bonding_curve;
+pub mod buyback_vault;
+pub mod donation_fee_pda;
 pub mod fee_config;
 pub mod fee_program_global;
 pub mod global;
@@ -23,6 +27,8 @@ pub mod social_fee_pda;
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum PumpFeesAccount {
     BondingCurve(Box<bonding_curve::BondingCurve>),
+    BuybackVault(Box<buyback_vault::BuybackVault>),
+    DonationFeePda(Box<donation_fee_pda::DonationFeePda>),
     FeeConfig(Box<fee_config::FeeConfig>),
     FeeProgramGlobal(Box<fee_program_global::FeeProgramGlobal>),
     Global(Box<global::Global>),
@@ -49,6 +55,28 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpFeesDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: PumpFeesAccount::BondingCurve(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = buyback_vault::BuybackVault::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: PumpFeesAccount::BuybackVault(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = donation_fee_pda::DonationFeePda::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: PumpFeesAccount::DonationFeePda(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

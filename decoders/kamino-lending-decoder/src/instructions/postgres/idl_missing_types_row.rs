@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::idl_missing_types::IdlMissingTypes
 {
     fn table() -> &'static str {
-        "idl_missing_types_instruction"
+        "kamino_lending_idl_missing_types_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -87,7 +87,7 @@ impl carbon_core::postgres::operations::Insert for IdlMissingTypesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO idl_missing_types_instruction (
+            INSERT INTO kamino_lending_idl_missing_types_instruction (
                 "reserve_farm_kind",
                 "fee_calculation",
                 "reserve_status",
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for IdlMissingTypesRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for IdlMissingTypesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO idl_missing_types_instruction (
+        sqlx::query(r#"INSERT INTO kamino_lending_idl_missing_types_instruction (
                 "reserve_farm_kind",
                 "fee_calculation",
                 "reserve_status",
@@ -171,7 +171,7 @@ impl carbon_core::postgres::operations::Delete for IdlMissingTypesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM idl_missing_types_instruction WHERE
+            r#"DELETE FROM kamino_lending_idl_missing_types_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -198,7 +198,7 @@ impl carbon_core::postgres::operations::Lookup for IdlMissingTypesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM idl_missing_types_instruction WHERE
+            r#"SELECT * FROM kamino_lending_idl_missing_types_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -221,7 +221,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IdlMissingTypesMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS idl_missing_types_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_idl_missing_types_instruction (
                 -- Instruction data
                 "reserve_farm_kind" JSONB NOT NULL,
                 "fee_calculation" JSONB NOT NULL,
@@ -247,7 +247,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IdlMissingTypesMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS idl_missing_types_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_idl_missing_types_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

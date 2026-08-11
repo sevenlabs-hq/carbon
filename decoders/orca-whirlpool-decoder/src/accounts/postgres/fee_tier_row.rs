@@ -51,7 +51,7 @@ impl TryFrom<FeeTierRow> for crate::accounts::fee_tier::FeeTier {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::fee_tier::FeeTier {
     fn table() -> &'static str {
-        "fee_tier_account"
+        "orca_whirlpool_fee_tier_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for FeeTierRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO fee_tier_account (
+            INSERT INTO orca_whirlpool_fee_tier_account (
                 "whirlpools_config",
                 "tick_spacing",
                 "default_fee_rate",
@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for FeeTierRow {
 impl carbon_core::postgres::operations::Upsert for FeeTierRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_tier_account (
+            r#"INSERT INTO orca_whirlpool_fee_tier_account (
                 "whirlpools_config",
                 "tick_spacing",
                 "default_fee_rate",
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Delete for FeeTierRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM fee_tier_account WHERE
+            r#"DELETE FROM orca_whirlpool_fee_tier_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Lookup for FeeTierRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM fee_tier_account WHERE
+            r#"SELECT * FROM orca_whirlpool_fee_tier_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -171,7 +171,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeTierMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fee_tier_account (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_fee_tier_account (
                 -- Account data
                 "whirlpools_config" BYTEA NOT NULL,
                 "tick_spacing" INT4 NOT NULL,
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeTierMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fee_tier_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_fee_tier_account"#)
             .execute(connection)
             .await?;
         Ok(())

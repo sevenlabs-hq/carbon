@@ -65,7 +65,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::route_with_token_ledger::RouteWithTokenLedger
 {
     fn table() -> &'static str {
-        "route_with_token_ledger_instruction"
+        "jupiter_swap_route_with_token_ledger_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for RouteWithTokenLedgerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO route_with_token_ledger_instruction (
+            INSERT INTO jupiter_swap_route_with_token_ledger_instruction (
                 "route_plan",
                 "quoted_out_amount",
                 "slippage_bps",
@@ -118,7 +118,7 @@ impl carbon_core::postgres::operations::Insert for RouteWithTokenLedgerRow {
 impl carbon_core::postgres::operations::Upsert for RouteWithTokenLedgerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO route_with_token_ledger_instruction (
+            r#"INSERT INTO jupiter_swap_route_with_token_ledger_instruction (
                 "route_plan",
                 "quoted_out_amount",
                 "slippage_bps",
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Delete for RouteWithTokenLedgerRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM route_with_token_ledger_instruction WHERE
+            r#"DELETE FROM jupiter_swap_route_with_token_ledger_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Lookup for RouteWithTokenLedgerRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM route_with_token_ledger_instruction WHERE
+            r#"SELECT * FROM jupiter_swap_route_with_token_ledger_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -215,7 +215,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RouteWithTokenLedgerMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS route_with_token_ledger_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_swap_route_with_token_ledger_instruction (
                 -- Instruction data
                 "route_plan" JSONB NOT NULL,
                 "quoted_out_amount" NUMERIC(20) NOT NULL,
@@ -239,7 +239,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RouteWithTokenLedgerMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS route_with_token_ledger_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_swap_route_with_token_ledger_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

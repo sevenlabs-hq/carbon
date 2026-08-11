@@ -1,1 +1,0 @@
-# Carbon Kamino Farms Decoder

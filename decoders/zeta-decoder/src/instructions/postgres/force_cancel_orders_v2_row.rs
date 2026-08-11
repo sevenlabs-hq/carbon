@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::force_cancel_orders_v2::ForceCancelOrdersV2
 {
     fn table() -> &'static str {
-        "force_cancel_orders_v2_instruction"
+        "zeta_force_cancel_orders_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for ForceCancelOrdersV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO force_cancel_orders_v2_instruction (
+            INSERT INTO zeta_force_cancel_orders_v2_instruction (
                 "asset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for ForceCancelOrdersV2Row {
 impl carbon_core::postgres::operations::Upsert for ForceCancelOrdersV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO force_cancel_orders_v2_instruction (
+            r#"INSERT INTO zeta_force_cancel_orders_v2_instruction (
                 "asset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for ForceCancelOrdersV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM force_cancel_orders_v2_instruction WHERE
+            r#"DELETE FROM zeta_force_cancel_orders_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for ForceCancelOrdersV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM force_cancel_orders_v2_instruction WHERE
+            r#"SELECT * FROM zeta_force_cancel_orders_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ForceCancelOrdersV2MigrationOp
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS force_cancel_orders_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_force_cancel_orders_v2_instruction (
                 -- Instruction data
                 "asset" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ForceCancelOrdersV2MigrationOp
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS force_cancel_orders_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_force_cancel_orders_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

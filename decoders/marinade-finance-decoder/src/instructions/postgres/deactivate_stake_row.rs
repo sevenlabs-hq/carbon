@@ -51,7 +51,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::deactivate_stake::DeactivateStake
 {
     fn table() -> &'static str {
-        "deactivate_stake_instruction"
+        "marinade_finance_deactivate_stake_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for DeactivateStakeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO deactivate_stake_instruction (
+            INSERT INTO marinade_finance_deactivate_stake_instruction (
                 "stake_index",
                 "validator_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for DeactivateStakeRow {
 impl carbon_core::postgres::operations::Upsert for DeactivateStakeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO deactivate_stake_instruction (
+            r#"INSERT INTO marinade_finance_deactivate_stake_instruction (
                 "stake_index",
                 "validator_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Delete for DeactivateStakeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM deactivate_stake_instruction WHERE
+            r#"DELETE FROM marinade_finance_deactivate_stake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -166,7 +166,7 @@ impl carbon_core::postgres::operations::Lookup for DeactivateStakeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM deactivate_stake_instruction WHERE
+            r#"SELECT * FROM marinade_finance_deactivate_stake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -189,7 +189,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DeactivateStakeMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS deactivate_stake_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marinade_finance_deactivate_stake_instruction (
                 -- Instruction data
                 "stake_index" INT8 NOT NULL,
                 "validator_index" INT8 NOT NULL,
@@ -211,7 +211,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DeactivateStakeMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS deactivate_stake_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marinade_finance_deactivate_stake_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

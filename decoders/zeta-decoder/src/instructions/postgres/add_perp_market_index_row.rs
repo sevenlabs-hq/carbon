@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::add_perp_market_index::AddPerpMarketIndex
 {
     fn table() -> &'static str {
-        "add_perp_market_index_instruction"
+        "zeta_add_perp_market_index_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for AddPerpMarketIndexRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO add_perp_market_index_instruction (
+            INSERT INTO zeta_add_perp_market_index_instruction (
                 "asset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for AddPerpMarketIndexRow {
 impl carbon_core::postgres::operations::Upsert for AddPerpMarketIndexRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO add_perp_market_index_instruction (
+            r#"INSERT INTO zeta_add_perp_market_index_instruction (
                 "asset",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for AddPerpMarketIndexRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM add_perp_market_index_instruction WHERE
+            r#"DELETE FROM zeta_add_perp_market_index_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for AddPerpMarketIndexRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM add_perp_market_index_instruction WHERE
+            r#"SELECT * FROM zeta_add_perp_market_index_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddPerpMarketIndexMigrationOpe
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS add_perp_market_index_instruction (
+            r#"CREATE TABLE IF NOT EXISTS zeta_add_perp_market_index_instruction (
                 -- Instruction data
                 "asset" JSONB NOT NULL,
                 -- Instruction metadata
@@ -195,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddPerpMarketIndexMigrationOpe
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS add_perp_market_index_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS zeta_add_perp_market_index_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

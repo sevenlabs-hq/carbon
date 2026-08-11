@@ -38,7 +38,7 @@ impl TryFrom<UpdateSpotMarketScaleInitialAssetWeightStartRow> for crate::instruc
 
 impl carbon_core::postgres::operations::Table for crate::instructions::update_spot_market_scale_initial_asset_weight_start::UpdateSpotMarketScaleInitialAssetWeightStart {
     fn table() -> &'static str {
-        "update_spot_market_scale_initial_asset_weight_start_instruction"
+        "drift_v2_update_spot_market_scale_initial_asset_weight_start_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketScaleInitialA
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO update_spot_market_scale_initial_asset_weight_start_instruction (
+            INSERT INTO drift_v2_update_spot_market_scale_initial_asset_weight_start_instruction (
                 "scale_initial_asset_weight_start",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -81,8 +81,7 @@ impl carbon_core::postgres::operations::Insert for UpdateSpotMarketScaleInitialA
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UpdateSpotMarketScaleInitialAssetWeightStartRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO update_spot_market_scale_initial_asset_weight_start_instruction (
+        sqlx::query(r#"INSERT INTO drift_v2_update_spot_market_scale_initial_asset_weight_start_instruction (
                 "scale_initial_asset_weight_start",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -95,16 +94,14 @@ impl carbon_core::postgres::operations::Upsert for UpdateSpotMarketScaleInitialA
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
                 __accounts = EXCLUDED.__accounts
-            "#,
-        )
+            "#)
         .bind(&self.scale_initial_asset_weight_start)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -119,16 +116,13 @@ impl carbon_core::postgres::operations::Delete for UpdateSpotMarketScaleInitialA
     );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM update_spot_market_scale_initial_asset_weight_start_instruction WHERE
+        sqlx::query(r#"DELETE FROM drift_v2_update_spot_market_scale_initial_asset_weight_start_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -146,16 +140,13 @@ impl carbon_core::postgres::operations::Lookup for UpdateSpotMarketScaleInitialA
         key: Self::Key,
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM update_spot_market_scale_initial_asset_weight_start_instruction WHERE
+        let row = sqlx::query_as(r#"SELECT * FROM drift_v2_update_spot_market_scale_initial_asset_weight_start_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -171,7 +162,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS update_spot_market_scale_initial_asset_weight_start_instruction (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS drift_v2_update_spot_market_scale_initial_asset_weight_start_instruction (
                 -- Instruction data
                 "scale_initial_asset_weight_start" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -189,7 +180,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_spot_market_scale_initial_asset_weight_start_instruction"#).execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_update_spot_market_scale_initial_asset_weight_start_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

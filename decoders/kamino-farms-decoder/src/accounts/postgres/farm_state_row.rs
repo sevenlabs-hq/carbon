@@ -242,7 +242,7 @@ impl TryFrom<FarmStateRow> for crate::accounts::farm_state::FarmState {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::farm_state::FarmState {
     fn table() -> &'static str {
-        "farm_state_account"
+        "kamino_farms_farm_state_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -297,7 +297,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::farm_state::F
 impl carbon_core::postgres::operations::Insert for FarmStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO farm_state_account (
+            INSERT INTO kamino_farms_farm_state_account (
                 "farm_admin",
                 "global_config",
                 "token",
@@ -393,7 +393,7 @@ impl carbon_core::postgres::operations::Insert for FarmStateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for FarmStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO farm_state_account (
+        sqlx::query(r#"INSERT INTO kamino_farms_farm_state_account (
                 "farm_admin",
                 "global_config",
                 "token",
@@ -536,7 +536,7 @@ impl carbon_core::postgres::operations::Delete for FarmStateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM farm_state_account WHERE
+            r#"DELETE FROM kamino_farms_farm_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -557,7 +557,7 @@ impl carbon_core::postgres::operations::Lookup for FarmStateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM farm_state_account WHERE
+            r#"SELECT * FROM kamino_farms_farm_state_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -578,7 +578,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FarmStateMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS farm_state_account (
+            r#"CREATE TABLE IF NOT EXISTS kamino_farms_farm_state_account (
                 -- Account data
                 "farm_admin" BYTEA NOT NULL,
                 "global_config" BYTEA NOT NULL,
@@ -635,7 +635,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FarmStateMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS farm_state_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_farms_farm_state_account"#)
             .execute(connection)
             .await?;
         Ok(())

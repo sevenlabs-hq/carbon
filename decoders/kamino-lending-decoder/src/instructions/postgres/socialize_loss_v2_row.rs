@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::socialize_loss_v2::SocializeLossV2
 {
     fn table() -> &'static str {
-        "socialize_loss_v2_instruction"
+        "kamino_lending_socialize_loss_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for SocializeLossV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO socialize_loss_v2_instruction (
+            INSERT INTO kamino_lending_socialize_loss_v2_instruction (
                 "liquidity_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for SocializeLossV2Row {
 impl carbon_core::postgres::operations::Upsert for SocializeLossV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO socialize_loss_v2_instruction (
+            r#"INSERT INTO kamino_lending_socialize_loss_v2_instruction (
                 "liquidity_amount",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for SocializeLossV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM socialize_loss_v2_instruction WHERE
+            r#"DELETE FROM kamino_lending_socialize_loss_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for SocializeLossV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM socialize_loss_v2_instruction WHERE
+            r#"SELECT * FROM kamino_lending_socialize_loss_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SocializeLossV2MigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS socialize_loss_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_lending_socialize_loss_v2_instruction (
                 -- Instruction data
                 "liquidity_amount" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SocializeLossV2MigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS socialize_loss_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_lending_socialize_loss_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

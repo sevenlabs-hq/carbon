@@ -42,7 +42,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::lending_account_start_flashloan::LendingAccountStartFlashloan
 {
     fn table() -> &'static str {
-        "lending_account_start_flashloan_instruction"
+        "marginfi_v2_lending_account_start_flashloan_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for LendingAccountStartFlashloanR
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO lending_account_start_flashloan_instruction (
+            INSERT INTO marginfi_v2_lending_account_start_flashloan_instruction (
                 "end_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for LendingAccountStartFlashloanR
 impl carbon_core::postgres::operations::Upsert for LendingAccountStartFlashloanRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lending_account_start_flashloan_instruction (
+            r#"INSERT INTO marginfi_v2_lending_account_start_flashloan_instruction (
                 "end_index",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -124,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for LendingAccountStartFlashloanR
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM lending_account_start_flashloan_instruction WHERE
+            r#"DELETE FROM marginfi_v2_lending_account_start_flashloan_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Lookup for LendingAccountStartFlashloanR
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM lending_account_start_flashloan_instruction WHERE
+            r#"SELECT * FROM marginfi_v2_lending_account_start_flashloan_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -174,7 +174,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingAccountStartFlashloanMi
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS lending_account_start_flashloan_instruction (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_lending_account_start_flashloan_instruction (
                 -- Instruction data
                 "end_index" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
@@ -195,9 +195,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingAccountStartFlashloanMi
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS lending_account_start_flashloan_instruction"#)
-            .execute(connection)
-            .await?;
+        sqlx::query(
+            r#"DROP TABLE IF EXISTS marginfi_v2_lending_account_start_flashloan_instruction"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 }

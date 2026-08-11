@@ -11,4 +11,5 @@ pub struct CompletePumpAmmMigrationEvent {
     pub bonding_curve: Pubkey,
     pub timestamp: i64,
     pub pool: Pubkey,
+    pub quote_mint: Pubkey,
 }

@@ -76,7 +76,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::transfer_pools::TransferPools
 {
     fn table() -> &'static str {
-        "transfer_pools_instruction"
+        "drift_v2_transfer_pools_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for TransferPoolsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO transfer_pools_instruction (
+            INSERT INTO drift_v2_transfer_pools_instruction (
                 "deposit_from_market_index",
                 "deposit_to_market_index",
                 "borrow_from_market_index",
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Insert for TransferPoolsRow {
 impl carbon_core::postgres::operations::Upsert for TransferPoolsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO transfer_pools_instruction (
+            r#"INSERT INTO drift_v2_transfer_pools_instruction (
                 "deposit_from_market_index",
                 "deposit_to_market_index",
                 "borrow_from_market_index",
@@ -188,7 +188,7 @@ impl carbon_core::postgres::operations::Delete for TransferPoolsRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM transfer_pools_instruction WHERE
+            r#"DELETE FROM drift_v2_transfer_pools_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -215,7 +215,7 @@ impl carbon_core::postgres::operations::Lookup for TransferPoolsRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM transfer_pools_instruction WHERE
+            r#"SELECT * FROM drift_v2_transfer_pools_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -238,7 +238,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferPoolsMigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS transfer_pools_instruction (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_transfer_pools_instruction (
                 -- Instruction data
                 "deposit_from_market_index" INT4 NOT NULL,
                 "deposit_to_market_index" INT4 NOT NULL,
@@ -264,7 +264,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TransferPoolsMigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS transfer_pools_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_transfer_pools_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

@@ -20,6 +20,8 @@ pub struct GlobalConfigGraphQL {
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: Vec<Pubkey>,
     pub is_cashback_enabled: bool,
+    pub buyback_fee_recipients: Vec<Pubkey>,
+    pub buyback_basis_points: U64,
 }
 
 impl TryFrom<crate::accounts::postgres::GlobalConfigRow> for GlobalConfigGraphQL {
@@ -55,6 +57,12 @@ impl TryFrom<crate::accounts::postgres::GlobalConfigRow> for GlobalConfigGraphQL
                 .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
                 .collect(),
             is_cashback_enabled: row.is_cashback_enabled,
+            buyback_fee_recipients: row
+                .buyback_fee_recipients
+                .into_iter()
+                .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
+                .collect(),
+            buyback_basis_points: carbon_core::graphql::primitives::U64(*row.buyback_basis_points),
         })
     }
 }

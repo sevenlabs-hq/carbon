@@ -38,7 +38,7 @@ impl TryFrom<SetTestTimeRow> for crate::instructions::set_test_time::SetTestTime
 
 impl carbon_core::postgres::operations::Table for crate::instructions::set_test_time::SetTestTime {
     fn table() -> &'static str {
-        "set_test_time_instruction"
+        "jupiter_perpetuals_set_test_time_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for SetTestTimeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO set_test_time_instruction (
+            INSERT INTO jupiter_perpetuals_set_test_time_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for SetTestTimeRow {
 impl carbon_core::postgres::operations::Upsert for SetTestTimeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO set_test_time_instruction (
+            r#"INSERT INTO jupiter_perpetuals_set_test_time_instruction (
                 "params",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for SetTestTimeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM set_test_time_instruction WHERE
+            r#"DELETE FROM jupiter_perpetuals_set_test_time_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for SetTestTimeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM set_test_time_instruction WHERE
+            r#"SELECT * FROM jupiter_perpetuals_set_test_time_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetTestTimeMigrationOperation 
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_test_time_instruction (
+            r#"CREATE TABLE IF NOT EXISTS jupiter_perpetuals_set_test_time_instruction (
                 -- Instruction data
                 "params" JSONB NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetTestTimeMigrationOperation 
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_test_time_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS jupiter_perpetuals_set_test_time_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

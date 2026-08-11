@@ -38,7 +38,7 @@ impl TryFrom<UnstakeRow> for crate::instructions::unstake::Unstake {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::unstake::Unstake {
     fn table() -> &'static str {
-        "unstake_instruction"
+        "kamino_farms_unstake_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -58,7 +58,7 @@ impl carbon_core::postgres::operations::Insert for UnstakeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO unstake_instruction (
+            INSERT INTO kamino_farms_unstake_instruction (
                 "stake_shares_scaled",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for UnstakeRow {
 impl carbon_core::postgres::operations::Upsert for UnstakeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO unstake_instruction (
+            r#"INSERT INTO kamino_farms_unstake_instruction (
                 "stake_shares_scaled",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Delete for UnstakeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM unstake_instruction WHERE
+            r#"DELETE FROM kamino_farms_unstake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Lookup for UnstakeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM unstake_instruction WHERE
+            r#"SELECT * FROM kamino_farms_unstake_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -170,7 +170,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnstakeMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS unstake_instruction (
+            r#"CREATE TABLE IF NOT EXISTS kamino_farms_unstake_instruction (
                 -- Instruction data
                 "stake_shares_scaled" NUMERIC(39) NOT NULL,
                 -- Instruction metadata
@@ -191,7 +191,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnstakeMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS unstake_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS kamino_farms_unstake_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

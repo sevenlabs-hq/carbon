@@ -40,7 +40,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::collect_fees_v2::CollectFeesV2
 {
     fn table() -> &'static str {
-        "collect_fees_v2_instruction"
+        "orca_whirlpool_collect_fees_v2_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -60,7 +60,7 @@ impl carbon_core::postgres::operations::Insert for CollectFeesV2Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO collect_fees_v2_instruction (
+            INSERT INTO orca_whirlpool_collect_fees_v2_instruction (
                 "remaining_accounts_info",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for CollectFeesV2Row {
 impl carbon_core::postgres::operations::Upsert for CollectFeesV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO collect_fees_v2_instruction (
+            r#"INSERT INTO orca_whirlpool_collect_fees_v2_instruction (
                 "remaining_accounts_info",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for CollectFeesV2Row {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM collect_fees_v2_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_collect_fees_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Lookup for CollectFeesV2Row {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM collect_fees_v2_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_collect_fees_v2_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -172,7 +172,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectFeesV2MigrationOperatio
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS collect_fees_v2_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_collect_fees_v2_instruction (
                 -- Instruction data
                 "remaining_accounts_info" JSONB,
                 -- Instruction metadata
@@ -193,7 +193,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CollectFeesV2MigrationOperatio
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS collect_fees_v2_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_collect_fees_v2_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

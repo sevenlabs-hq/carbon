@@ -10,4 +10,5 @@ pub struct DistributeCreatorFeesEvent {
     pub admin: Pubkey,
     pub shareholders: Vec<Shareholder>,
     pub distributed: u64,
+    pub quote_mint: Pubkey,
 }

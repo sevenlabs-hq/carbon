@@ -326,7 +326,7 @@ impl TryFrom<PoolConfigRow> for crate::accounts::pool_config::PoolConfig {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::pool_config::PoolConfig {
     fn table() -> &'static str {
-        "pool_config_account"
+        "meteora_dbc_pool_config_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -384,7 +384,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool_config::
 impl carbon_core::postgres::operations::Insert for PoolConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
-            INSERT INTO pool_config_account (
+            INSERT INTO meteora_dbc_pool_config_account (
                 "quote_mint",
                 "fee_claimer",
                 "leftover_receiver",
@@ -486,7 +486,7 @@ impl carbon_core::postgres::operations::Insert for PoolConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PoolConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO pool_config_account (
+        sqlx::query(r#"INSERT INTO meteora_dbc_pool_config_account (
                 "quote_mint",
                 "fee_claimer",
                 "leftover_receiver",
@@ -638,7 +638,7 @@ impl carbon_core::postgres::operations::Delete for PoolConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM pool_config_account WHERE
+            r#"DELETE FROM meteora_dbc_pool_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -659,7 +659,7 @@ impl carbon_core::postgres::operations::Lookup for PoolConfigRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM pool_config_account WHERE
+            r#"SELECT * FROM meteora_dbc_pool_config_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -680,7 +680,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolConfigMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS pool_config_account (
+            r#"CREATE TABLE IF NOT EXISTS meteora_dbc_pool_config_account (
                 -- Account data
                 "quote_mint" BYTEA NOT NULL,
                 "fee_claimer" BYTEA NOT NULL,
@@ -740,7 +740,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolConfigMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS pool_config_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS meteora_dbc_pool_config_account"#)
             .execute(connection)
             .await?;
         Ok(())

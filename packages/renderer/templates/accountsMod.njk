@@ -8,6 +8,10 @@
 #[cfg(feature = "postgres")]
 pub mod postgres;
 {% endif %}
+{% if withClickhouse %}
+#[cfg(feature = "clickhouse")]
+pub mod clickhouse;
+{% endif %}
 
 {% if withGraphQL %}
 #[cfg(feature = "graphql")]

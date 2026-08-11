@@ -41,7 +41,7 @@ impl TryFrom<LaunchRow> for crate::instructions::launch::Launch {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::launch::Launch {
     fn table() -> &'static str {
-        "launch_instruction"
+        "virtuals_launch_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -63,7 +63,7 @@ impl carbon_core::postgres::operations::Insert for LaunchRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO launch_instruction (
+            INSERT INTO virtuals_launch_instruction (
                 "symbol",
                 "name",
                 "uri",
@@ -91,7 +91,7 @@ impl carbon_core::postgres::operations::Insert for LaunchRow {
 impl carbon_core::postgres::operations::Upsert for LaunchRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO launch_instruction (
+            r#"INSERT INTO virtuals_launch_instruction (
                 "symbol",
                 "name",
                 "uri",
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Delete for LaunchRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM launch_instruction WHERE
+            r#"DELETE FROM virtuals_launch_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Lookup for LaunchRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM launch_instruction WHERE
+            r#"SELECT * FROM virtuals_launch_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -185,7 +185,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LaunchMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS launch_instruction (
+            r#"CREATE TABLE IF NOT EXISTS virtuals_launch_instruction (
                 -- Instruction data
                 "symbol" TEXT NOT NULL,
                 "name" TEXT NOT NULL,
@@ -208,7 +208,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LaunchMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS launch_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS virtuals_launch_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

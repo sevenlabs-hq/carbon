@@ -46,7 +46,7 @@ impl carbon_core::postgres::operations::Table
     for crate::accounts::signed_msg_ws_delegates::SignedMsgWsDelegates
 {
     fn table() -> &'static str {
-        "signed_msg_ws_delegates_account"
+        "drift_v2_signed_msg_ws_delegates_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -59,7 +59,7 @@ impl carbon_core::postgres::operations::Insert for SignedMsgWsDelegatesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO signed_msg_ws_delegates_account (
+            INSERT INTO drift_v2_signed_msg_ws_delegates_account (
                 "delegates",
                 __pubkey, __slot
             ) VALUES (
@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for SignedMsgWsDelegatesRow {
 impl carbon_core::postgres::operations::Upsert for SignedMsgWsDelegatesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO signed_msg_ws_delegates_account (
+            r#"INSERT INTO drift_v2_signed_msg_ws_delegates_account (
                 "delegates",
                 __pubkey, __slot
             ) VALUES (
@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Delete for SignedMsgWsDelegatesRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM signed_msg_ws_delegates_account WHERE
+            r#"DELETE FROM drift_v2_signed_msg_ws_delegates_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Lookup for SignedMsgWsDelegatesRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM signed_msg_ws_delegates_account WHERE
+            r#"SELECT * FROM drift_v2_signed_msg_ws_delegates_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -150,7 +150,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SignedMsgWsDelegatesMigrationO
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS signed_msg_ws_delegates_account (
+            r#"CREATE TABLE IF NOT EXISTS drift_v2_signed_msg_ws_delegates_account (
                 -- Account data
                 "delegates" BYTEA[] NOT NULL,
                 -- Account metadata
@@ -168,7 +168,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SignedMsgWsDelegatesMigrationO
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS signed_msg_ws_delegates_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS drift_v2_signed_msg_ws_delegates_account"#)
             .execute(connection)
             .await?;
         Ok(())

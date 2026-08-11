@@ -41,7 +41,7 @@ impl TryFrom<AddTokensRow> for crate::instructions::add_tokens::AddTokens {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::add_tokens::AddTokens {
     fn table() -> &'static str {
-        "add_tokens_instruction"
+        "bonkswap_add_tokens_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -62,7 +62,7 @@ impl carbon_core::postgres::operations::Insert for AddTokensRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO add_tokens_instruction (
+            INSERT INTO bonkswap_add_tokens_instruction (
                 "delta_x",
                 "delta_y",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for AddTokensRow {
 impl carbon_core::postgres::operations::Upsert for AddTokensRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO add_tokens_instruction (
+            r#"INSERT INTO bonkswap_add_tokens_instruction (
                 "delta_x",
                 "delta_y",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Delete for AddTokensRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM add_tokens_instruction WHERE
+            r#"DELETE FROM bonkswap_add_tokens_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Lookup for AddTokensRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM add_tokens_instruction WHERE
+            r#"SELECT * FROM bonkswap_add_tokens_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -179,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddTokensMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS add_tokens_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_add_tokens_instruction (
                 -- Instruction data
                 "delta_x" JSONB NOT NULL,
                 "delta_y" JSONB NOT NULL,
@@ -201,7 +201,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AddTokensMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS add_tokens_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_add_tokens_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

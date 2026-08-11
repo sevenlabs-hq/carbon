@@ -25,6 +25,7 @@ pub enum CpiEvent {
     ReallocStakeListEvent(events::realloc_stake_list_event::ReallocStakeListEventEvent),
     DeactivateStakeEvent(events::deactivate_stake_event::DeactivateStakeEventEvent),
     MergeStakesEvent(events::merge_stakes_event::MergeStakesEventEvent),
+    CreateCanonicalStakeEvent(events::create_canonical_stake_event::CreateCanonicalStakeEventEvent),
     RedelegateEvent(events::redelegate_event::RedelegateEventEvent),
     StakeReserveEvent(events::stake_reserve_event::StakeReserveEventEvent),
     UpdateActiveEvent(events::update_active_event::UpdateActiveEventEvent),
@@ -106,6 +107,11 @@ impl CarbonDeserialize for CpiEvent {
         if let Some(decoded) = events::merge_stakes_event::MergeStakesEventEvent::decode(event_data)
         {
             return Some(CpiEvent::MergeStakesEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::create_canonical_stake_event::CreateCanonicalStakeEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::CreateCanonicalStakeEvent(decoded));
         }
         if let Some(decoded) = events::redelegate_event::RedelegateEventEvent::decode(event_data) {
             return Some(CpiEvent::RedelegateEvent(decoded));

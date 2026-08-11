@@ -100,7 +100,7 @@ impl TryFrom<BankMetadataRow> for crate::accounts::bank_metadata::BankMetadata {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::bank_metadata::BankMetadata {
     fn table() -> &'static str {
-        "bank_metadata_account"
+        "marginfi_v2_bank_metadata_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Insert for BankMetadataRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO bank_metadata_account (
+            INSERT INTO marginfi_v2_bank_metadata_account (
                 "bank",
                 "placeholder",
                 "ticker",
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Insert for BankMetadataRow {
 impl carbon_core::postgres::operations::Upsert for BankMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO bank_metadata_account (
+            r#"INSERT INTO marginfi_v2_bank_metadata_account (
                 "bank",
                 "placeholder",
                 "ticker",
@@ -220,7 +220,7 @@ impl carbon_core::postgres::operations::Delete for BankMetadataRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM bank_metadata_account WHERE
+            r#"DELETE FROM marginfi_v2_bank_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -241,7 +241,7 @@ impl carbon_core::postgres::operations::Lookup for BankMetadataRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM bank_metadata_account WHERE
+            r#"SELECT * FROM marginfi_v2_bank_metadata_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -262,7 +262,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BankMetadataMigrationOperation
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS bank_metadata_account (
+            r#"CREATE TABLE IF NOT EXISTS marginfi_v2_bank_metadata_account (
                 -- Account data
                 "bank" BYTEA NOT NULL,
                 "placeholder" NUMERIC(20) NOT NULL,
@@ -289,7 +289,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BankMetadataMigrationOperation
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS bank_metadata_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS marginfi_v2_bank_metadata_account"#)
             .execute(connection)
             .await?;
         Ok(())

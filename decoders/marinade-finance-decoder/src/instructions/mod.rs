@@ -15,10 +15,12 @@ pub mod config_lp;
 pub mod config_marinade;
 pub mod config_validator_system;
 pub mod cpi_event;
+pub mod create_canonical_stake;
 pub mod deactivate_stake;
 pub mod deposit;
 pub mod deposit_stake_account;
 pub mod emergency_unstake;
+pub mod finalize_delinquent_upgrade;
 pub mod initialize;
 pub mod liquid_unstake;
 pub mod merge_stakes;
@@ -27,7 +29,6 @@ pub mod partial_unstake;
 pub mod pause;
 pub mod realloc_stake_list;
 pub mod realloc_validator_list;
-pub mod redelegate;
 pub mod remove_liquidity;
 pub mod remove_validator;
 pub mod resume;
@@ -39,10 +40,11 @@ pub mod withdraw_stake_account;
 
 pub use self::{
     add_liquidity::*, add_validator::*, change_authority::*, claim::*, config_lp::*,
-    config_marinade::*, config_validator_system::*, cpi_event::*, deactivate_stake::*, deposit::*,
-    deposit_stake_account::*, emergency_unstake::*, initialize::*, liquid_unstake::*,
-    merge_stakes::*, order_unstake::*, partial_unstake::*, pause::*, realloc_stake_list::*,
-    realloc_validator_list::*, redelegate::*, remove_liquidity::*, remove_validator::*, resume::*,
+    config_marinade::*, config_validator_system::*, cpi_event::*, create_canonical_stake::*,
+    deactivate_stake::*, deposit::*, deposit_stake_account::*, emergency_unstake::*,
+    finalize_delinquent_upgrade::*, initialize::*, liquid_unstake::*, merge_stakes::*,
+    order_unstake::*, partial_unstake::*, pause::*, realloc_stake_list::*,
+    realloc_validator_list::*, remove_liquidity::*, remove_validator::*, resume::*,
     set_validator_score::*, stake_reserve::*, update_active::*, update_deactivated::*,
     withdraw_stake_account::*,
 };
@@ -87,6 +89,11 @@ pub enum MarinadeFinanceInstruction {
         data: ConfigValidatorSystem,
         accounts: ConfigValidatorSystemInstructionAccounts,
     },
+    CreateCanonicalStake {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateCanonicalStake,
+        accounts: CreateCanonicalStakeInstructionAccounts,
+    },
     DeactivateStake {
         program_id: solana_pubkey::Pubkey,
         data: DeactivateStake,
@@ -106,6 +113,11 @@ pub enum MarinadeFinanceInstruction {
         program_id: solana_pubkey::Pubkey,
         data: EmergencyUnstake,
         accounts: EmergencyUnstakeInstructionAccounts,
+    },
+    FinalizeDelinquentUpgrade {
+        program_id: solana_pubkey::Pubkey,
+        data: FinalizeDelinquentUpgrade,
+        accounts: FinalizeDelinquentUpgradeInstructionAccounts,
     },
     Initialize {
         program_id: solana_pubkey::Pubkey,
@@ -146,11 +158,6 @@ pub enum MarinadeFinanceInstruction {
         program_id: solana_pubkey::Pubkey,
         data: ReallocValidatorList,
         accounts: ReallocValidatorListInstructionAccounts,
-    },
-    Redelegate {
-        program_id: solana_pubkey::Pubkey,
-        data: Redelegate,
-        accounts: RedelegateInstructionAccounts,
     },
     RemoveLiquidity {
         program_id: solana_pubkey::Pubkey,
@@ -220,10 +227,12 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MarinadeFinanceDecoder
             MarinadeFinanceInstruction::ConfigLp => ConfigLp,
             MarinadeFinanceInstruction::ConfigMarinade => ConfigMarinade,
             MarinadeFinanceInstruction::ConfigValidatorSystem => ConfigValidatorSystem,
+            MarinadeFinanceInstruction::CreateCanonicalStake => CreateCanonicalStake,
             MarinadeFinanceInstruction::DeactivateStake => DeactivateStake,
             MarinadeFinanceInstruction::Deposit => Deposit,
             MarinadeFinanceInstruction::DepositStakeAccount => DepositStakeAccount,
             MarinadeFinanceInstruction::EmergencyUnstake => EmergencyUnstake,
+            MarinadeFinanceInstruction::FinalizeDelinquentUpgrade => FinalizeDelinquentUpgrade,
             MarinadeFinanceInstruction::Initialize => Initialize,
             MarinadeFinanceInstruction::LiquidUnstake => LiquidUnstake,
             MarinadeFinanceInstruction::MergeStakes => MergeStakes,
@@ -232,7 +241,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MarinadeFinanceDecoder
             MarinadeFinanceInstruction::Pause => Pause,
             MarinadeFinanceInstruction::ReallocStakeList => ReallocStakeList,
             MarinadeFinanceInstruction::ReallocValidatorList => ReallocValidatorList,
-            MarinadeFinanceInstruction::Redelegate => Redelegate,
             MarinadeFinanceInstruction::RemoveLiquidity => RemoveLiquidity,
             MarinadeFinanceInstruction::RemoveValidator => RemoveValidator,
             MarinadeFinanceInstruction::Resume => Resume,

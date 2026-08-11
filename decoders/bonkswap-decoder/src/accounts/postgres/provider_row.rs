@@ -77,7 +77,7 @@ impl TryFrom<ProviderRow> for crate::accounts::provider::Provider {
 
 impl carbon_core::postgres::operations::Table for crate::accounts::provider::Provider {
     fn table() -> &'static str {
-        "provider_account"
+        "bonkswap_provider_account"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for ProviderRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO provider_account (
+            INSERT INTO bonkswap_provider_account (
                 "token_x",
                 "token_y",
                 "owner",
@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Insert for ProviderRow {
 impl carbon_core::postgres::operations::Upsert for ProviderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO provider_account (
+            r#"INSERT INTO bonkswap_provider_account (
                 "token_x",
                 "token_y",
                 "owner",
@@ -209,7 +209,7 @@ impl carbon_core::postgres::operations::Delete for ProviderRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM provider_account WHERE
+            r#"DELETE FROM bonkswap_provider_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -230,7 +230,7 @@ impl carbon_core::postgres::operations::Lookup for ProviderRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM provider_account WHERE
+            r#"SELECT * FROM bonkswap_provider_account WHERE
                 __pubkey = $1
             "#,
         )
@@ -251,7 +251,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProviderMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS provider_account (
+            r#"CREATE TABLE IF NOT EXISTS bonkswap_provider_account (
                 -- Account data
                 "token_x" BYTEA NOT NULL,
                 "token_y" BYTEA NOT NULL,
@@ -280,7 +280,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ProviderMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS provider_account"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bonkswap_provider_account"#)
             .execute(connection)
             .await?;
         Ok(())

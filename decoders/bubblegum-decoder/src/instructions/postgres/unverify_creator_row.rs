@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Table
     for crate::instructions::unverify_creator::UnverifyCreator
 {
     fn table() -> &'static str {
-        "unverify_creator_instruction"
+        "bubblegum_unverify_creator_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for UnverifyCreatorRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO unverify_creator_instruction (
+            INSERT INTO bubblegum_unverify_creator_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Insert for UnverifyCreatorRow {
 impl carbon_core::postgres::operations::Upsert for UnverifyCreatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO unverify_creator_instruction (
+            r#"INSERT INTO bubblegum_unverify_creator_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Delete for UnverifyCreatorRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM unverify_creator_instruction WHERE
+            r#"DELETE FROM bubblegum_unverify_creator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -219,7 +219,7 @@ impl carbon_core::postgres::operations::Lookup for UnverifyCreatorRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM unverify_creator_instruction WHERE
+            r#"SELECT * FROM bubblegum_unverify_creator_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -242,7 +242,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnverifyCreatorMigrationOperat
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS unverify_creator_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_unverify_creator_instruction (
                 -- Instruction data
                 "root" BYTEA NOT NULL,
                 "data_hash" BYTEA NOT NULL,
@@ -268,7 +268,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UnverifyCreatorMigrationOperat
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS unverify_creator_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_unverify_creator_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

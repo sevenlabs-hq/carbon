@@ -18,6 +18,9 @@ pub enum CpiEvent {
     CreateFeeSharingConfigEvent(
         events::create_fee_sharing_config_event::CreateFeeSharingConfigEventEvent,
     ),
+    DonationFeePdaCranked(events::donation_fee_pda_cranked::DonationFeePdaCrankedEvent),
+    DonationFeePdaCreated(events::donation_fee_pda_created::DonationFeePdaCreatedEvent),
+    ExtendFeeConfigEvent(events::extend_fee_config_event::ExtendFeeConfigEventEvent),
     InitializeFeeConfigEvent(events::initialize_fee_config_event::InitializeFeeConfigEventEvent),
     InitializeFeeProgramGlobalEvent(
         events::initialize_fee_program_global_event::InitializeFeeProgramGlobalEventEvent,
@@ -33,10 +36,17 @@ pub enum CpiEvent {
     ),
     SocialFeePdaClaimed(events::social_fee_pda_claimed::SocialFeePdaClaimedEvent),
     SocialFeePdaCreated(events::social_fee_pda_created::SocialFeePdaCreatedEvent),
+    SweepBuybackEvent(events::sweep_buyback_event::SweepBuybackEventEvent),
     UpdateAdminEvent(events::update_admin_event::UpdateAdminEventEvent),
     UpdateFeeConfigEvent(events::update_fee_config_event::UpdateFeeConfigEventEvent),
     UpdateFeeSharesEvent(events::update_fee_shares_event::UpdateFeeSharesEventEvent),
+    UpdateStableFeeConfigEvent(
+        events::update_stable_fee_config_event::UpdateStableFeeConfigEventEvent,
+    ),
     UpsertFeeTiersEvent(events::upsert_fee_tiers_event::UpsertFeeTiersEventEvent),
+    UpsertStableFeeTiersEvent(
+        events::upsert_stable_fee_tiers_event::UpsertStableFeeTiersEventEvent,
+    ),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -67,6 +77,21 @@ impl CarbonDeserialize for CpiEvent {
             )
         {
             return Some(CpiEvent::CreateFeeSharingConfigEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::donation_fee_pda_cranked::DonationFeePdaCrankedEvent::decode(event_data)
+        {
+            return Some(CpiEvent::DonationFeePdaCranked(decoded));
+        }
+        if let Some(decoded) =
+            events::donation_fee_pda_created::DonationFeePdaCreatedEvent::decode(event_data)
+        {
+            return Some(CpiEvent::DonationFeePdaCreated(decoded));
+        }
+        if let Some(decoded) =
+            events::extend_fee_config_event::ExtendFeeConfigEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::ExtendFeeConfigEvent(decoded));
         }
         if let Some(decoded) =
             events::initialize_fee_config_event::InitializeFeeConfigEventEvent::decode(event_data)
@@ -115,6 +140,11 @@ impl CarbonDeserialize for CpiEvent {
         {
             return Some(CpiEvent::SocialFeePdaCreated(decoded));
         }
+        if let Some(decoded) =
+            events::sweep_buyback_event::SweepBuybackEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SweepBuybackEvent(decoded));
+        }
         if let Some(decoded) = events::update_admin_event::UpdateAdminEventEvent::decode(event_data)
         {
             return Some(CpiEvent::UpdateAdminEvent(decoded));
@@ -130,9 +160,23 @@ impl CarbonDeserialize for CpiEvent {
             return Some(CpiEvent::UpdateFeeSharesEvent(decoded));
         }
         if let Some(decoded) =
+            events::update_stable_fee_config_event::UpdateStableFeeConfigEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::UpdateStableFeeConfigEvent(decoded));
+        }
+        if let Some(decoded) =
             events::upsert_fee_tiers_event::UpsertFeeTiersEventEvent::decode(event_data)
         {
             return Some(CpiEvent::UpsertFeeTiersEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::upsert_stable_fee_tiers_event::UpsertStableFeeTiersEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::UpsertStableFeeTiersEvent(decoded));
         }
         None
     }

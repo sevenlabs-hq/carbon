@@ -72,7 +72,7 @@ impl TryFrom<DelegateRow> for crate::instructions::delegate::Delegate {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::delegate::Delegate {
     fn table() -> &'static str {
-        "delegate_instruction"
+        "bubblegum_delegate_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -96,7 +96,7 @@ impl carbon_core::postgres::operations::Insert for DelegateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO delegate_instruction (
+            INSERT INTO bubblegum_delegate_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -128,7 +128,7 @@ impl carbon_core::postgres::operations::Insert for DelegateRow {
 impl carbon_core::postgres::operations::Upsert for DelegateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO delegate_instruction (
+            r#"INSERT INTO bubblegum_delegate_instruction (
                 "root",
                 "data_hash",
                 "creator_hash",
@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Delete for DelegateRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM delegate_instruction WHERE
+            r#"DELETE FROM bubblegum_delegate_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -205,7 +205,7 @@ impl carbon_core::postgres::operations::Lookup for DelegateRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM delegate_instruction WHERE
+            r#"SELECT * FROM bubblegum_delegate_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DelegateMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS delegate_instruction (
+            r#"CREATE TABLE IF NOT EXISTS bubblegum_delegate_instruction (
                 -- Instruction data
                 "root" BYTEA NOT NULL,
                 "data_hash" BYTEA NOT NULL,
@@ -253,7 +253,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DelegateMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS delegate_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS bubblegum_delegate_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

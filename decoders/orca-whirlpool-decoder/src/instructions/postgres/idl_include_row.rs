@@ -31,7 +31,7 @@ impl TryFrom<IdlIncludeRow> for crate::instructions::idl_include::IdlInclude {
 
 impl carbon_core::postgres::operations::Table for crate::instructions::idl_include::IdlInclude {
     fn table() -> &'static str {
-        "idl_include_instruction"
+        "orca_whirlpool_idl_include_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Insert for IdlIncludeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO idl_include_instruction (
+            INSERT INTO orca_whirlpool_idl_include_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for IdlIncludeRow {
 impl carbon_core::postgres::operations::Upsert for IdlIncludeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO idl_include_instruction (
+            r#"INSERT INTO orca_whirlpool_idl_include_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for IdlIncludeRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM idl_include_instruction WHERE
+            r#"DELETE FROM orca_whirlpool_idl_include_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -134,7 +134,7 @@ impl carbon_core::postgres::operations::Lookup for IdlIncludeRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM idl_include_instruction WHERE
+            r#"SELECT * FROM orca_whirlpool_idl_include_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -157,7 +157,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IdlIncludeMigrationOperation {
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS idl_include_instruction (
+            r#"CREATE TABLE IF NOT EXISTS orca_whirlpool_idl_include_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -177,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for IdlIncludeMigrationOperation {
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS idl_include_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS orca_whirlpool_idl_include_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

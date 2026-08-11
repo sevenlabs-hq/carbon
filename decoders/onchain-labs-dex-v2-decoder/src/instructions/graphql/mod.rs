@@ -3,6 +3,7 @@ pub mod claim_cashback_pumpfun_schema;
 pub mod claim_cashback_pumpswap_schema;
 pub mod claim_schema;
 pub mod cpi_event_schema;
+pub mod create_ata_with_close_authority_schema;
 pub mod create_token_account_schema;
 pub mod create_token_account_with_seed_schema;
 pub mod init_token_ledger_schema;
@@ -12,23 +13,31 @@ pub mod swap_schema;
 pub mod swap_tob_enhanced_schema;
 pub mod swap_tob_schema;
 pub mod swap_tob_v2_schema;
+pub mod swap_tob_v3_schema;
 pub mod swap_tob_with_receiver_schema;
 pub mod swap_tob_with_receiver_token_ledger_schema;
+pub mod swap_tob_with_receiver_token_ledger_v3_schema;
+pub mod swap_tob_with_receiver_v3_schema;
 pub mod swap_tob_with_token_ledger_schema;
+pub mod swap_tob_with_token_ledger_v3_schema;
 pub mod swap_toc_schema;
 pub mod swap_toc_v2_schema;
+pub mod swap_toc_v3_schema;
 pub mod wrap_unwrap_schema;
 pub mod wrap_unwrap_with_receiver_schema;
 
 use juniper::GraphQLObject;
 pub use {
     claim_cashback_pumpfun_schema::*, claim_cashback_pumpswap_schema::*, claim_schema::*,
-    cpi_event_schema::*, create_token_account_schema::*, create_token_account_with_seed_schema::*,
-    init_token_ledger_schema::*, proxy_swap_schema::*, set_token_ledger_schema::*, swap_schema::*,
-    swap_tob_enhanced_schema::*, swap_tob_schema::*, swap_tob_v2_schema::*,
-    swap_tob_with_receiver_schema::*, swap_tob_with_receiver_token_ledger_schema::*,
-    swap_tob_with_token_ledger_schema::*, swap_toc_schema::*, swap_toc_v2_schema::*,
-    wrap_unwrap_schema::*, wrap_unwrap_with_receiver_schema::*,
+    cpi_event_schema::*, create_ata_with_close_authority_schema::*, create_token_account_schema::*,
+    create_token_account_with_seed_schema::*, init_token_ledger_schema::*, proxy_swap_schema::*,
+    set_token_ledger_schema::*, swap_schema::*, swap_tob_enhanced_schema::*, swap_tob_schema::*,
+    swap_tob_v2_schema::*, swap_tob_v3_schema::*, swap_tob_with_receiver_schema::*,
+    swap_tob_with_receiver_token_ledger_schema::*,
+    swap_tob_with_receiver_token_ledger_v3_schema::*, swap_tob_with_receiver_v3_schema::*,
+    swap_tob_with_token_ledger_schema::*, swap_tob_with_token_ledger_v3_schema::*,
+    swap_toc_schema::*, swap_toc_v2_schema::*, swap_toc_v3_schema::*, wrap_unwrap_schema::*,
+    wrap_unwrap_with_receiver_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]
