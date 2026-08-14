@@ -108,6 +108,7 @@ pub struct LaserStreamClientConfig {
     pub tls_config: Option<ClientTlsConfig>,
     pub tcp_nodelay: Option<bool>,
     pub replay_enabled: bool,
+    pub from_slot: Option<u64>,
 }
 
 impl Default for LaserStreamClientConfig {
@@ -120,6 +121,7 @@ impl Default for LaserStreamClientConfig {
             tls_config: None,
             tcp_nodelay: None,
             replay_enabled: true,
+            from_slot: None,
         }
     }
 }
@@ -164,6 +166,7 @@ impl LaserStreamClientConfig {
         tls_config: Option<ClientTlsConfig>,
         tcp_nodelay: Option<bool>,
         replay_enabled: bool,
+        from_slot: Option<u64>,
     ) -> Self {
         LaserStreamClientConfig {
             compression,
@@ -173,6 +176,7 @@ impl LaserStreamClientConfig {
             tls_config,
             tcp_nodelay,
             replay_enabled,
+            from_slot,
         }
     }
 
@@ -255,7 +259,7 @@ impl Datasource for LaserStreamGeyserClient {
                 commitment: commitment.map(|x| x as i32),
                 accounts_data_slice: vec![],
                 ping: None,
-                from_slot: None,
+                from_slot: geyser_config.from_slot,
             };
 
             let internal_slot_sub_id = if replay_enabled {

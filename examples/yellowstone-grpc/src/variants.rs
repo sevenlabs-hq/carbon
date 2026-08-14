@@ -44,6 +44,7 @@ pub fn laserstream(
         None,
         None,
         true,
+        None,
     );
 
     LaserStreamGeyserClient::new(
