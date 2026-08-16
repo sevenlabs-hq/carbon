@@ -65,9 +65,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     let definedTypesMap: Map<string, any> | null = null;
     const newtypeWrapperTypes = new Set<string>();
     const optionalBoolWrapperTypes = new Set<string>(); // single-bool tuples: EOF → false (e.g. pump.fun OptionBool)
-    const withBase58 = (options.withBase58 ?? false) || (options.withClickhouse === true);
-    const createTypeManifestVisitor = () =>
-        getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes, withBase58);
+    const withBase58 = (options.withBase58 ?? false) || options.withClickhouse === true;
+    const createTypeManifestVisitor = () => getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes, withBase58);
     let typeManifestVisitor = createTypeManifestVisitor();
     const postgresTypeManifestVisitor = getPostgresTypeManifestVisitor();
 

@@ -222,9 +222,11 @@ export function getTypeManifestVisitor(
                         let base58Attr = '';
                         if (withBase58) {
                             if (itemManifest.isPubkey === true) {
-                                base58Attr = '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize"))] ';
+                                base58Attr =
+                                    '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize"))] ';
                             } else if (itemManifest.isOptionPubkey === true) {
-                                base58Attr = '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize_option"))] ';
+                                base58Attr =
+                                    '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize_option"))] ';
                             }
                         }
                         return `${base58Attr}${itemManifest.type}`;
