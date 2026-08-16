@@ -112,13 +112,13 @@ test('serializes instruction metadata pubkeys as base58 when enabled', () => {
 
         const instructionsMod = readFileSync(join(outputDirectory, 'src/instructions/mod.rs'), 'utf8');
         const programIdSerializationAttributes = instructionsMod.match(
-            /serde\(serialize_with = "crate::base58::serialize"\)/g,
+            /serde\(serialize_with = "carbon_core::convert::base58::serialize"\)/g,
         );
         assert.equal(programIdSerializationAttributes?.length, 2);
 
         const cpiEvent = readFileSync(join(outputDirectory, 'src/instructions/cpi_event.rs'), 'utf8');
         const cpiAccountSerializationAttributes = cpiEvent.match(
-            /serde\(serialize_with = "crate::base58::serialize"\)/g,
+            /serde\(serialize_with = "carbon_core::convert::base58::serialize"\)/g,
         );
         assert.equal(cpiAccountSerializationAttributes?.length, 2);
     } finally {
