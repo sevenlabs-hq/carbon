@@ -17,11 +17,35 @@ pub struct PlaceAndMakeSpotOrder {
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PlaceAndMakeSpotOrderInstructionAccounts {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub state: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user_stats: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub taker: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub taker_stats: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }

@@ -14,14 +14,26 @@ pub struct InitializeMint2 {
     /// Number of base 10 digits to the right of the decimal place.
     pub decimals: u8,
     /// The authority/multisignature to mint tokens.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint_authority: Pubkey,
     /// The optional freeze authority/multisignature of the mint.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub freeze_authority: Option<Pubkey>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct InitializeMint2InstructionAccounts {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }

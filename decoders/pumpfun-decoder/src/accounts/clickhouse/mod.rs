@@ -44,55 +44,44 @@ pub enum PumpfunAccountRow {
     UserVolumeAccumulator(UserVolumeAccumulatorRow),
 }
 
-pub struct PumpfunAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub PumpfunAccount,
+pub struct PumpfunAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a PumpfunAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for PumpfunAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for PumpfunAccountMetadata<'a> {
     type Row = PumpfunAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            PumpfunAccount::BondingCurve(account) => {
-                rows.push(PumpfunAccountRow::BondingCurve(BondingCurveRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            PumpfunAccount::FeeConfig(account) => {
-                rows.push(PumpfunAccountRow::FeeConfig(FeeConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            PumpfunAccount::Global(account) => {
-                rows.push(PumpfunAccountRow::Global(GlobalRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            PumpfunAccount::GlobalVolumeAccumulator(account) => {
-                rows.push(PumpfunAccountRow::GlobalVolumeAccumulator(
-                    GlobalVolumeAccumulatorRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PumpfunAccount::SharingConfig(account) => {
-                rows.push(PumpfunAccountRow::SharingConfig(
-                    SharingConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PumpfunAccount::UserVolumeAccumulator(account) => {
-                rows.push(PumpfunAccountRow::UserVolumeAccumulator(
-                    UserVolumeAccumulatorRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let PumpfunAccount::$variant(account) = account {
+                    rows.push(PumpfunAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let PumpfunAccount::$variant(account) = account {
+                    rows.push(PumpfunAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(BondingCurve, BondingCurveRow, boxed);
+        insert_branch!(FeeConfig, FeeConfigRow, boxed);
+        insert_branch!(Global, GlobalRow, boxed);
+        insert_branch!(GlobalVolumeAccumulator, GlobalVolumeAccumulatorRow, boxed);
+        insert_branch!(SharingConfig, SharingConfigRow, boxed);
+        insert_branch!(UserVolumeAccumulator, UserVolumeAccumulatorRow, boxed);
 
         Ok(())
     }
@@ -101,28 +90,23 @@ impl carbon_core::clickhouse::BatchInsert for PumpfunAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for PumpfunAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(BondingCurve, BondingCurveRow);
@@ -131,6 +115,7 @@ impl carbon_core::clickhouse::BatchCommit for PumpfunAccountRow {
         commit_branch!(GlobalVolumeAccumulator, GlobalVolumeAccumulatorRow);
         commit_branch!(SharingConfig, SharingConfigRow);
         commit_branch!(UserVolumeAccumulator, UserVolumeAccumulatorRow);
+
         Ok(())
     }
 }

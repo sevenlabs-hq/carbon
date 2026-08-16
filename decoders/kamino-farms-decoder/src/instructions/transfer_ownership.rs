@@ -10,14 +10,50 @@ pub struct TransferOwnership {}
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TransferOwnershipInstructionAccounts {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub old_owner: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub payer: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub new_owner: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub old_user_state: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub new_user_state: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_state: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub scope_prices: Option<solana_pubkey::Pubkey>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub system_program: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub rent: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }

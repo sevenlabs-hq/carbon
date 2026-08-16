@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<ClosePositionIfEmptyRow>
+    for (
+        crate::instructions::close_position_if_empty::ClosePositionIfEmpty,
+        crate::instructions::close_position_if_empty::ClosePositionIfEmptyInstructionAccounts,
+        ClosePositionIfEmptyRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ClosePositionIfEmptyRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::close_position_if_empty::ClosePositionIfEmpty =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::close_position_if_empty::ClosePositionIfEmptyInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ClosePositionIfEmptyRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for ClosePositionIfEmptyRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ClosePositionIfEmptyRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for ClosePositionIfEmptyRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_dlmm_close_position_if_empty_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

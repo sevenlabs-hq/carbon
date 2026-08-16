@@ -7,6 +7,10 @@ pub struct GraduationMethodData {
     pub graduated: bool,
     pub fee_tier_index: u16,
     pub split_bps: u16,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub destination: Pubkey,
     pub unlocked: bool,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

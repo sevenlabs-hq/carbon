@@ -5,10 +5,30 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LPPool {
     /// address of the vault.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pubkey: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whitelist_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub constituent_target_base: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub constituent_correlations: Pubkey,
     /// The current number of VaultConstituents in the vault, each constituent
     /// is pda(LPPool.address, constituent_index) which constituent is the

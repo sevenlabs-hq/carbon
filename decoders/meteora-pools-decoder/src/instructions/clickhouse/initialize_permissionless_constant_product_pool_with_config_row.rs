@@ -41,8 +41,27 @@ impl
     }
 }
 
+impl TryFrom<InitializePermissionlessConstantProductPoolWithConfigRow> for (crate::instructions::initialize_permissionless_constant_product_pool_with_config::InitializePermissionlessConstantProductPoolWithConfig, crate::instructions::initialize_permissionless_constant_product_pool_with_config::InitializePermissionlessConstantProductPoolWithConfigInstructionAccounts, InitializePermissionlessConstantProductPoolWithConfigRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitializePermissionlessConstantProductPoolWithConfigRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::initialize_permissionless_constant_product_pool_with_config::InitializePermissionlessConstantProductPoolWithConfig = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::initialize_permissionless_constant_product_pool_with_config::InitializePermissionlessConstantProductPoolWithConfigInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
-impl carbon_core::clickhouse::ClusterTable for InitializePermissionlessConstantProductPoolWithConfigRow {
+impl carbon_core::clickhouse::ClusterTable
+    for InitializePermissionlessConstantProductPoolWithConfigRow
+{
     fn local_table() -> &'static str {
         "meteora_pools_initialize_permissionless_constant_product_pool_with_config_instruction_local"
     }
@@ -62,7 +81,6 @@ impl carbon_core::clickhouse::Table for InitializePermissionlessConstantProductP
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitializePermissionlessConstantProductPoolWithConfigRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +88,8 @@ impl carbon_core::clickhouse::Insert for InitializePermissionlessConstantProduct
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_pools_initialize_permissionless_constant_product_pool_with_config_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +112,9 @@ pub struct InitializePermissionlessConstantProductPoolWithConfigRowMigrationOper
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializePermissionlessConstantProductPoolWithConfigRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializePermissionlessConstantProductPoolWithConfigRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +189,9 @@ impl carbon_core::clickhouse::Operation for InitializePermissionlessConstantProd
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializePermissionlessConstantProductPoolWithConfigRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializePermissionlessConstantProductPoolWithConfigRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

@@ -58,75 +58,48 @@ pub enum PancakeSwapAccountRow {
     TickArrayState(TickArrayStateRow),
 }
 
-pub struct PancakeSwapAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub PancakeSwapAccount,
+pub struct PancakeSwapAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a PancakeSwapAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for PancakeSwapAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for PancakeSwapAccountMetadata<'a> {
     type Row = PancakeSwapAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            PancakeSwapAccount::AmmConfig(account) => {
-                rows.push(PancakeSwapAccountRow::AmmConfig(AmmConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            PancakeSwapAccount::ObservationState(account) => {
-                rows.push(PancakeSwapAccountRow::ObservationState(
-                    ObservationStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PancakeSwapAccount::OperationState(account) => {
-                rows.push(PancakeSwapAccountRow::OperationState(
-                    OperationStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PancakeSwapAccount::PermissionlessFarmSwitch(account) => {
-                rows.push(PancakeSwapAccountRow::PermissionlessFarmSwitch(
-                    PermissionlessFarmSwitchRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PancakeSwapAccount::PersonalPositionState(account) => {
-                rows.push(PancakeSwapAccountRow::PersonalPositionState(
-                    PersonalPositionStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PancakeSwapAccount::PoolState(account) => {
-                rows.push(PancakeSwapAccountRow::PoolState(PoolStateRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            PancakeSwapAccount::ProtocolPositionState(account) => {
-                rows.push(PancakeSwapAccountRow::ProtocolPositionState(
-                    ProtocolPositionStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PancakeSwapAccount::SupportMintAssociated(account) => {
-                rows.push(PancakeSwapAccountRow::SupportMintAssociated(
-                    SupportMintAssociatedRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PancakeSwapAccount::TickArrayBitmapExtension(account) => {
-                rows.push(PancakeSwapAccountRow::TickArrayBitmapExtension(
-                    TickArrayBitmapExtensionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PancakeSwapAccount::TickArrayState(account) => {
-                rows.push(PancakeSwapAccountRow::TickArrayState(
-                    TickArrayStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let PancakeSwapAccount::$variant(account) = account {
+                    rows.push(PancakeSwapAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let PancakeSwapAccount::$variant(account) = account {
+                    rows.push(PancakeSwapAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AmmConfig, AmmConfigRow, boxed);
+        insert_branch!(ObservationState, ObservationStateRow, boxed);
+        insert_branch!(OperationState, OperationStateRow, boxed);
+        insert_branch!(PermissionlessFarmSwitch, PermissionlessFarmSwitchRow, boxed);
+        insert_branch!(PersonalPositionState, PersonalPositionStateRow, boxed);
+        insert_branch!(PoolState, PoolStateRow, boxed);
+        insert_branch!(ProtocolPositionState, ProtocolPositionStateRow, boxed);
+        insert_branch!(SupportMintAssociated, SupportMintAssociatedRow, boxed);
+        insert_branch!(TickArrayBitmapExtension, TickArrayBitmapExtensionRow, boxed);
+        insert_branch!(TickArrayState, TickArrayStateRow, boxed);
 
         Ok(())
     }
@@ -135,28 +108,23 @@ impl carbon_core::clickhouse::BatchInsert for PancakeSwapAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for PancakeSwapAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AmmConfig, AmmConfigRow);
@@ -169,6 +137,7 @@ impl carbon_core::clickhouse::BatchCommit for PancakeSwapAccountRow {
         commit_branch!(SupportMintAssociated, SupportMintAssociatedRow);
         commit_branch!(TickArrayBitmapExtension, TickArrayBitmapExtensionRow);
         commit_branch!(TickArrayState, TickArrayStateRow);
+
         Ok(())
     }
 }

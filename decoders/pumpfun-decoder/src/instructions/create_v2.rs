@@ -14,6 +14,10 @@ pub struct CreateV2 {
     pub name: String,
     pub symbol: String,
     pub uri: String,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator: Pubkey,
     pub is_mayhem_mode: bool,
     pub is_cashback_enabled: OptionBool,
@@ -22,21 +26,85 @@ pub struct CreateV2 {
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateV2InstructionAccounts {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint_authority: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub bonding_curve: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub associated_bonding_curve: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub system_program: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_program: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub associated_token_program: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mayhem_program_id: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global_params: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub sol_vault: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mayhem_state: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mayhem_token_vault: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub event_authority: solana_pubkey::Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }

@@ -24,9 +24,21 @@ pub struct GlobalConfig {
     /// The amount of tips the host is due to receive -
     /// in lamports, stored in the pda_authority account
     pub host_tip_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pda_authority: Pubkey,
     pub pda_authority_bump: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin_authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin_authority_cached: Pubkey,
     pub txn_fee_cost: u64,
     pub ata_creation_cost: u64,

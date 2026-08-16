@@ -3,6 +3,10 @@ use {crate::types::OrderParams, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SignedMsgOrderRecord {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user: Pubkey,
     pub hash: String,
     pub matching_order_params: OrderParams,

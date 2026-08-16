@@ -5,7 +5,15 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PlatformGlobalAccess {
     pub bump: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global_config: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub platform_config: Pubkey,
     /// padding for future updates
     pub padding: [u64; 8],

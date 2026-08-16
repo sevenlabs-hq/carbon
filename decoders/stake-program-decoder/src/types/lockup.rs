@@ -8,5 +8,9 @@ use {
 pub struct Lockup {
     pub unix_timestamp: UnixTimestamp,
     pub epoch: Epoch,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub custodian: Pubkey,
 }

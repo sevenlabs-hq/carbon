@@ -19,16 +19,15 @@ impl carbon_core::clickhouse::Migration for OkxDexAccountsMigration {
 
 pub enum OkxDexAccountRow {}
 
-pub struct OkxDexAccountMetadata(pub carbon_core::account::AccountMetadata, pub OkxDexAccount);
+pub struct OkxDexAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a OkxDexAccount,
+);
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for OkxDexAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for OkxDexAccountMetadata<'a> {
     type Row = OkxDexAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
         let _ = rows;
         let Self(_metadata, _account) = self;
         unreachable!("BatchInsert called for program with no account row variants");
@@ -38,7 +37,6 @@ impl carbon_core::clickhouse::BatchInsert for OkxDexAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for OkxDexAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {

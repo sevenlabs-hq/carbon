@@ -8,5 +8,9 @@ pub struct LpPoolParams {
     pub gamma_execution: Option<u8>,
     pub xi: Option<u8>,
     pub max_aum: Option<u128>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub whitelist_mint: Option<Pubkey>,
 }

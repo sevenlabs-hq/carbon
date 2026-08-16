@@ -190,10 +190,10 @@ export function getTypeManifestVisitor(
                             if (withBase58) {
                                 if (fieldManifest.isPubkey === true) {
                                     base58Attr =
-                                        '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]\n';
+                                        '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize"))]\n';
                                 } else if (fieldManifest.isOptionPubkey === true) {
                                     base58Attr =
-                                        '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]\n';
+                                        '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize_option"))]\n';
                                 }
                             }
 
@@ -215,16 +215,26 @@ export function getTypeManifestVisitor(
 
                 visitEnumTupleVariantType(node, { self }) {
                     const name = pascalCase(node.name);
-                    const tupleManifest = visit(node.tuple, self);
-
-                    const needsParens = !tupleManifest.type.startsWith('(');
-                    const wrappedType = needsParens ? `(${tupleManifest.type})` : tupleManifest.type;
-                    const wrappedBorshType = needsParens ? `(${tupleManifest.borshType})` : tupleManifest.borshType;
-
+                    const items = isNode(node.tuple, 'tupleTypeNode')
+                        ? node.tuple.items.map(item => visit(item, self))
+                        : [visit(node.tuple, self)];
+                    const itemTypes = items.map(itemManifest => {
+                        let base58Attr = '';
+                        if (withBase58) {
+                            if (itemManifest.isPubkey === true) {
+                                base58Attr = '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize"))] ';
+                            } else if (itemManifest.isOptionPubkey === true) {
+                                base58Attr = '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize_option"))] ';
+                            }
+                        }
+                        return `${base58Attr}${itemManifest.type}`;
+                    });
+                    const itemBorshTypes = items.map(itemManifest => itemManifest.borshType);
+                    const mergedImports = new ImportMap().mergeWith(...items.map(i => i.imports));
                     return {
-                        imports: tupleManifest.imports,
-                        type: `${name}${wrappedType},`,
-                        borshType: `${name}${wrappedBorshType},`,
+                        imports: mergedImports,
+                        type: `${name}(${itemTypes.join(', ')}),`,
+                        borshType: `${name}(${itemBorshTypes.join(', ')}),`,
                     };
                 },
 
@@ -376,10 +386,10 @@ export function getTypeManifestVisitor(
                     if (withBase58) {
                         if (fieldManifest.isPubkey === true) {
                             base58Attr =
-                                '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]\n';
+                                '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize"))]\n';
                         } else if (fieldManifest.isOptionPubkey === true) {
                             base58Attr =
-                                '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]\n';
+                                '#[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize_option"))]\n';
                         }
                     }
 

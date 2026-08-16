@@ -3,13 +3,29 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CreateCanonicalStakeEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub state: Pubkey,
     pub epoch: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub canonical_stake_account: Pubkey,
     pub source_stake_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub source_stake_account: Pubkey,
     pub last_update_source_stake_delegation: u64,
     pub validator_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub validator_vote: Pubkey,
     pub validator_active_balance: u64,
     pub total_active_balance: u64,

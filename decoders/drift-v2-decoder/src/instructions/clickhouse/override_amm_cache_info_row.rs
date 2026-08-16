@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<OverrideAmmCacheInfoRow>
+    for (
+        crate::instructions::override_amm_cache_info::OverrideAmmCacheInfo,
+        crate::instructions::override_amm_cache_info::OverrideAmmCacheInfoInstructionAccounts,
+        OverrideAmmCacheInfoRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: OverrideAmmCacheInfoRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::override_amm_cache_info::OverrideAmmCacheInfo =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::override_amm_cache_info::OverrideAmmCacheInfoInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for OverrideAmmCacheInfoRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for OverrideAmmCacheInfoRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for OverrideAmmCacheInfoRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for OverrideAmmCacheInfoRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_override_amm_cache_info_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

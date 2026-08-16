@@ -63,86 +63,54 @@ pub enum OrcaWhirlpoolAccountRow {
     WhirlpoolsConfigExtension(WhirlpoolsConfigExtensionRow),
 }
 
-pub struct OrcaWhirlpoolAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub OrcaWhirlpoolAccount,
+pub struct OrcaWhirlpoolAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a OrcaWhirlpoolAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for OrcaWhirlpoolAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for OrcaWhirlpoolAccountMetadata<'a> {
     type Row = OrcaWhirlpoolAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            OrcaWhirlpoolAccount::AdaptiveFeeTier(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::AdaptiveFeeTier(
-                    AdaptiveFeeTierRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            OrcaWhirlpoolAccount::DynamicTickArray(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::DynamicTickArray(
-                    DynamicTickArrayRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            OrcaWhirlpoolAccount::FeeTier(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::FeeTier(FeeTierRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            OrcaWhirlpoolAccount::LockConfig(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::LockConfig(
-                    LockConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            OrcaWhirlpoolAccount::Oracle(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::Oracle(OracleRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            OrcaWhirlpoolAccount::Position(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::Position(PositionRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            OrcaWhirlpoolAccount::PositionBundle(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::PositionBundle(
-                    PositionBundleRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            OrcaWhirlpoolAccount::TickArray(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::TickArray(TickArrayRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            OrcaWhirlpoolAccount::TokenBadge(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::TokenBadge(
-                    TokenBadgeRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            OrcaWhirlpoolAccount::Whirlpool(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::Whirlpool(WhirlpoolRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            OrcaWhirlpoolAccount::WhirlpoolsConfig(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::WhirlpoolsConfig(
-                    WhirlpoolsConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            OrcaWhirlpoolAccount::WhirlpoolsConfigExtension(account) => {
-                rows.push(OrcaWhirlpoolAccountRow::WhirlpoolsConfigExtension(
-                    WhirlpoolsConfigExtensionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let OrcaWhirlpoolAccount::$variant(account) = account {
+                    rows.push(OrcaWhirlpoolAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let OrcaWhirlpoolAccount::$variant(account) = account {
+                    rows.push(OrcaWhirlpoolAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AdaptiveFeeTier, AdaptiveFeeTierRow, boxed);
+        insert_branch!(DynamicTickArray, DynamicTickArrayRow, boxed);
+        insert_branch!(FeeTier, FeeTierRow, boxed);
+        insert_branch!(LockConfig, LockConfigRow, boxed);
+        insert_branch!(Oracle, OracleRow, boxed);
+        insert_branch!(Position, PositionRow, boxed);
+        insert_branch!(PositionBundle, PositionBundleRow, boxed);
+        insert_branch!(TickArray, TickArrayRow, boxed);
+        insert_branch!(TokenBadge, TokenBadgeRow, boxed);
+        insert_branch!(Whirlpool, WhirlpoolRow, boxed);
+        insert_branch!(WhirlpoolsConfig, WhirlpoolsConfigRow, boxed);
+        insert_branch!(
+            WhirlpoolsConfigExtension,
+            WhirlpoolsConfigExtensionRow,
+            boxed
+        );
 
         Ok(())
     }
@@ -151,28 +119,23 @@ impl carbon_core::clickhouse::BatchInsert for OrcaWhirlpoolAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for OrcaWhirlpoolAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AdaptiveFeeTier, AdaptiveFeeTierRow);
@@ -187,6 +150,7 @@ impl carbon_core::clickhouse::BatchCommit for OrcaWhirlpoolAccountRow {
         commit_branch!(Whirlpool, WhirlpoolRow);
         commit_branch!(WhirlpoolsConfig, WhirlpoolsConfigRow);
         commit_branch!(WhirlpoolsConfigExtension, WhirlpoolsConfigExtensionRow);
+
         Ok(())
     }
 }

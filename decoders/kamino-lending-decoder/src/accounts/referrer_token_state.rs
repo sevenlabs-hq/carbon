@@ -7,8 +7,16 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ReferrerTokenState {
     /// Pubkey of the referrer/owner
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub referrer: Pubkey,
     /// Token mint for the account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     /// Amount that has been accumulated and not claimed yet -> available to
     /// claim (scaled fraction)

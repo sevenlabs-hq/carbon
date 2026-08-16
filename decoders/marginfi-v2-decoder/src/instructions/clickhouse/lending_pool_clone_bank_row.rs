@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<LendingPoolCloneBankRow>
+    for (
+        crate::instructions::lending_pool_clone_bank::LendingPoolCloneBank,
+        crate::instructions::lending_pool_clone_bank::LendingPoolCloneBankInstructionAccounts,
+        LendingPoolCloneBankRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: LendingPoolCloneBankRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::lending_pool_clone_bank::LendingPoolCloneBank =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::lending_pool_clone_bank::LendingPoolCloneBankInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for LendingPoolCloneBankRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for LendingPoolCloneBankRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for LendingPoolCloneBankRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for LendingPoolCloneBankRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("marginfi_v2_lending_pool_clone_bank_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

@@ -4,5 +4,9 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PythConfiguration {
     /// Pubkey of the base price feed (disabled if `null` or `default`)
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub price: Pubkey,
 }

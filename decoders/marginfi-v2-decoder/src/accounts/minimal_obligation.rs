@@ -30,9 +30,17 @@ pub struct MinimalObligation {
     /// * PRICE_USAGE_ALLOWED = 0b_0010_0000; // 32
     pub last_update_price_status: u8,
     pub last_update_placeholder: [u8; 6],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lending_market: Pubkey,
     /// For mrgn banks, the bank's Liquidity Vault Authority (a pda which can be
     /// derived if the bank key is known)
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     pub deposits: [MinimalObligationCollateral; 8],
     pub lowest_reserve_deposit_liquidation_ltv: u64,

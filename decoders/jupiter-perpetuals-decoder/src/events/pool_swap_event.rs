@@ -4,15 +4,35 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PoolSwapEventEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub receiving_custody_key: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub dispensing_custody_key: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_key: Pubkey,
     pub amount_in: u64,
     pub amount_out: u64,
     pub swap_usd_amount: u64,
     pub amount_out_after_fees: u64,
     pub fee_bps: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner_key: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub receiving_account_key: Pubkey,
 }
 

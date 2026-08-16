@@ -3,6 +3,10 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ReservationV1 {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub address: Pubkey,
     pub spots_remaining: u8,
     pub total_spots: u8,

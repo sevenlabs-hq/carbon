@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<EnableOrDisablePoolRow>
+    for (
+        crate::instructions::enable_or_disable_pool::EnableOrDisablePool,
+        crate::instructions::enable_or_disable_pool::EnableOrDisablePoolInstructionAccounts,
+        EnableOrDisablePoolRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: EnableOrDisablePoolRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::enable_or_disable_pool::EnableOrDisablePool =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::enable_or_disable_pool::EnableOrDisablePoolInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for EnableOrDisablePoolRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for EnableOrDisablePoolRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for EnableOrDisablePoolRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for EnableOrDisablePoolRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_pools_enable_or_disable_pool_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

@@ -5,6 +5,10 @@ use {crate::types::Key, carbon_core::deserialize::CarbonDeserialize, solana_pubk
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Edition {
     pub key: Key,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub parent: Pubkey,
     pub edition: u64,
 }

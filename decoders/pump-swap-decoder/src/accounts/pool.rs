@@ -6,14 +6,42 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 pub struct Pool {
     pub pool_bump: u8,
     pub index: u16,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub base_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lp_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_base_token_account: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_quote_token_account: Pubkey,
     /// True circulating supply without burns and lock-ups
     pub lp_supply: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub coin_creator: Pubkey,
     pub is_mayhem_mode: bool,
     pub is_cashback_coin: bool,

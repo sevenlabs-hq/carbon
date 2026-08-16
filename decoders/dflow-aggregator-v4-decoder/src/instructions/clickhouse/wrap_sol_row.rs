@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<WrapSolRow>
+    for (
+        crate::instructions::wrap_sol::WrapSol,
+        crate::instructions::wrap_sol::WrapSolInstructionAccounts,
+        WrapSolRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: WrapSolRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::wrap_sol::WrapSol = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::wrap_sol::WrapSolInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for WrapSolRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for WrapSolRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for WrapSolRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for WrapSolRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("dflow_aggregator_v4_wrap_sol_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

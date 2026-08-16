@@ -5,7 +5,15 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UserState {
     pub user_id: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_state: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     /// Indicate if this user state is part of a delegated farm
     pub is_farm_delegated: u8,
@@ -33,6 +41,10 @@ pub struct UserState {
     /// User bump used for account address validation
     pub bump: u64,
     /// Delegatee used for initialisation - useful to check against
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegatee: Pubkey,
     pub last_stake_ts: u64,
     /// Cumulative rewards issued to the user - ONLY used for stats/analytics

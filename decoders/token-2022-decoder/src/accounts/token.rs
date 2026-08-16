@@ -9,13 +9,25 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Token {
     /// The mint associated with this account.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     /// The owner of this account.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     /// The amount of tokens this account holds.
     pub amount: u64,
     /// If `delegate` is `Some` then `delegated_amount` represents
     /// the amount authorized by the delegate.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub delegate: Option<Pubkey>,
     /// The account's state.
     pub state: AccountState,
@@ -27,6 +39,10 @@ pub struct Token {
     /// The amount delegated.
     pub delegated_amount: u64,
     /// Optional authority to close the account.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub close_authority: Option<Pubkey>,
     /// The extensions activated on the token account.
     pub extensions: Option<Vec<Extension>>,

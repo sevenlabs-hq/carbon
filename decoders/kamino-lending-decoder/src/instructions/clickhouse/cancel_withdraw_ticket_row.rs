@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<CancelWithdrawTicketRow>
+    for (
+        crate::instructions::cancel_withdraw_ticket::CancelWithdrawTicket,
+        crate::instructions::cancel_withdraw_ticket::CancelWithdrawTicketInstructionAccounts,
+        CancelWithdrawTicketRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CancelWithdrawTicketRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::cancel_withdraw_ticket::CancelWithdrawTicket =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::cancel_withdraw_ticket::CancelWithdrawTicketInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CancelWithdrawTicketRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for CancelWithdrawTicketRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CancelWithdrawTicketRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for CancelWithdrawTicketRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("kamino_lending_cancel_withdraw_ticket_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

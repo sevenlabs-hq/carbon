@@ -7,11 +7,19 @@ pub enum GraduationMethod {
     Whirlpool {
         split_bps: u16,
         fee_tier_index: u16,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         destination: Pubkey,
         unlocked: bool,
     },
     Manual {
         split_bps: u16,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         destination: Pubkey,
     },
 }

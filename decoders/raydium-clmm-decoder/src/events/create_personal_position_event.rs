@@ -5,10 +5,22 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CreatePersonalPositionEventEvent {
     /// The pool for which liquidity was added
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_state: Pubkey,
     /// The address that create the position
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub minter: Pubkey,
     /// The owner of the position and recipient of any minted liquidity
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub nft_owner: Pubkey,
     /// The lower tick of the position
     pub tick_lower_index: i32,

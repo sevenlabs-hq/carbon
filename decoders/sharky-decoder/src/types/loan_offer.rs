@@ -3,6 +3,10 @@ use {crate::types::LoanTermsSpec, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LoanOffer {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lender_wallet: Pubkey,
     pub terms_spec: LoanTermsSpec,
     pub offer_time: i64,

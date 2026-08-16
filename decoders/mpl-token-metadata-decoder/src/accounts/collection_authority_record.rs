@@ -6,6 +6,10 @@ use {crate::types::Key, carbon_core::deserialize::CarbonDeserialize, solana_pubk
 pub struct CollectionAuthorityRecord {
     pub key: Key,
     pub bump: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub update_authority: Option<Pubkey>,
 }
 

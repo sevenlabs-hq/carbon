@@ -7,5 +7,9 @@ pub struct WhirlpoolTickArray {
     pub start_tick_index: i32,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub ticks: [u8; 9944],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whirlpool: Pubkey,
 }

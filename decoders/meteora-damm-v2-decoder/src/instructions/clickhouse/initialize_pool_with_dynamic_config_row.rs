@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<InitializePoolWithDynamicConfigRow> for (crate::instructions::initialize_pool_with_dynamic_config::InitializePoolWithDynamicConfig, crate::instructions::initialize_pool_with_dynamic_config::InitializePoolWithDynamicConfigInstructionAccounts, InitializePoolWithDynamicConfigRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitializePoolWithDynamicConfigRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::initialize_pool_with_dynamic_config::InitializePoolWithDynamicConfig = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::initialize_pool_with_dynamic_config::InitializePoolWithDynamicConfigInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for InitializePoolWithDynamicConfigRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for InitializePoolWithDynamicConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitializePoolWithDynamicConfigRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for InitializePoolWithDynamicConfigRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_damm_v2_initialize_pool_with_dynamic_config_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

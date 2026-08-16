@@ -6,5 +6,9 @@ pub struct BootstrapLiquidity {
     pub lp_mint_amount: u64,
     pub token_a_amount: u64,
     pub token_b_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool: Pubkey,
 }

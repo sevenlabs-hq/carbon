@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<BubblegumSetCollectionSizeRow> for (crate::instructions::bubblegum_set_collection_size::BubblegumSetCollectionSize, crate::instructions::bubblegum_set_collection_size::BubblegumSetCollectionSizeInstructionAccounts, BubblegumSetCollectionSizeRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: BubblegumSetCollectionSizeRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::bubblegum_set_collection_size::BubblegumSetCollectionSize = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::bubblegum_set_collection_size::BubblegumSetCollectionSizeInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for BubblegumSetCollectionSizeRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for BubblegumSetCollectionSizeRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for BubblegumSetCollectionSizeRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for BubblegumSetCollectionSizeRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("mpl_token_metadata_bubblegum_set_collection_size_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -199,7 +210,9 @@ impl carbon_core::clickhouse::Operation for BubblegumSetCollectionSizeRowMigrati
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS mpl_token_metadata_bubblegum_set_collection_size_instruction")
+            .query(
+                "DROP TABLE IF EXISTS mpl_token_metadata_bubblegum_set_collection_size_instruction",
+            )
             .execute()
             .await?;
 

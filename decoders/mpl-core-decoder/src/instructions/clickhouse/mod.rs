@@ -168,373 +168,102 @@ pub enum MplCoreInstructionRow {
     WriteExternalPluginAdapterDataV1(WriteExternalPluginAdapterDataV1Row),
 }
 
-pub struct MplCoreInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub MplCoreInstruction,
+pub struct MplCoreInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a MplCoreInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for MplCoreInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for MplCoreInstructionMetadata<'a> {
     type Row = MplCoreInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            MplCoreInstruction::AddAssetsToGroupV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::AddAssetsToGroupV1(
-                    AddAssetsToGroupV1Row::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let MplCoreInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(MplCoreInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::AddCollectionExternalPluginAdapterV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::AddCollectionExternalPluginAdapterV1(
-                    AddCollectionExternalPluginAdapterV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::AddCollectionPluginV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::AddCollectionPluginV1(
-                    AddCollectionPluginV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::AddCollectionsToGroupV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::AddCollectionsToGroupV1(
-                    AddCollectionsToGroupV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::AddExternalPluginAdapterV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::AddExternalPluginAdapterV1(
-                    AddExternalPluginAdapterV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::AddGroupsToGroupV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::AddGroupsToGroupV1(
-                    AddGroupsToGroupV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::AddPluginV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::AddPluginV1(
-                    AddPluginV1Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            MplCoreInstruction::ApproveCollectionPluginAuthorityV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::ApproveCollectionPluginAuthorityV1(
-                    ApproveCollectionPluginAuthorityV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::ApprovePluginAuthorityV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::ApprovePluginAuthorityV1(
-                    ApprovePluginAuthorityV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::BurnCollectionV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::BurnCollectionV1(
-                    BurnCollectionV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::BurnV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::BurnV1(BurnV1Row::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            MplCoreInstruction::CloseGroupV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::CloseGroupV1(
-                    CloseGroupV1Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            MplCoreInstruction::Collect { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::Collect(CollectRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            MplCoreInstruction::CompressV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::CompressV1(CompressV1Row::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            MplCoreInstruction::CreateCollectionV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::CreateCollectionV1(
-                    CreateCollectionV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::CreateCollectionV2 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::CreateCollectionV2(
-                    CreateCollectionV2Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::CreateGroupV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::CreateGroupV1(
-                    CreateGroupV1Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            MplCoreInstruction::CreateV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::CreateV1(CreateV1Row::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            MplCoreInstruction::CreateV2 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::CreateV2(CreateV2Row::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            MplCoreInstruction::DecompressV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::DecompressV1(
-                    DecompressV1Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            MplCoreInstruction::ExecuteV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::ExecuteV1(ExecuteV1Row::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            MplCoreInstruction::RemoveAssetsFromGroupV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::RemoveAssetsFromGroupV1(
-                    RemoveAssetsFromGroupV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::RemoveCollectionExternalPluginAdapterV1 {
-                data, accounts, ..
-            } => {
-                rows.push(
-                    MplCoreInstructionRow::RemoveCollectionExternalPluginAdapterV1(
-                        RemoveCollectionExternalPluginAdapterV1Row::try_from((
-                            data.clone(),
-                            metadata.clone(),
-                            accounts.clone(),
-                        ))?,
-                    ),
-                );
-            }
-            MplCoreInstruction::RemoveCollectionPluginV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::RemoveCollectionPluginV1(
-                    RemoveCollectionPluginV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::RemoveCollectionsFromGroupV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::RemoveCollectionsFromGroupV1(
-                    RemoveCollectionsFromGroupV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::RemoveExternalPluginAdapterV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::RemoveExternalPluginAdapterV1(
-                    RemoveExternalPluginAdapterV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::RemoveGroupsFromGroupV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::RemoveGroupsFromGroupV1(
-                    RemoveGroupsFromGroupV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::RemovePluginV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::RemovePluginV1(
-                    RemovePluginV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::RevokeCollectionPluginAuthorityV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::RevokeCollectionPluginAuthorityV1(
-                    RevokeCollectionPluginAuthorityV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::RevokePluginAuthorityV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::RevokePluginAuthorityV1(
-                    RevokePluginAuthorityV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::TransferV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::TransferV1(TransferV1Row::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            MplCoreInstruction::UpdateCollectionExternalPluginAdapterV1 {
-                data, accounts, ..
-            } => {
-                rows.push(
-                    MplCoreInstructionRow::UpdateCollectionExternalPluginAdapterV1(
-                        UpdateCollectionExternalPluginAdapterV1Row::try_from((
-                            data.clone(),
-                            metadata.clone(),
-                            accounts.clone(),
-                        ))?,
-                    ),
-                );
-            }
-            MplCoreInstruction::UpdateCollectionInfoV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::UpdateCollectionInfoV1(
-                    UpdateCollectionInfoV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::UpdateCollectionPluginV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::UpdateCollectionPluginV1(
-                    UpdateCollectionPluginV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::UpdateCollectionV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::UpdateCollectionV1(
-                    UpdateCollectionV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::UpdateExternalPluginAdapterV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::UpdateExternalPluginAdapterV1(
-                    UpdateExternalPluginAdapterV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::UpdateGroupV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::UpdateGroupV1(
-                    UpdateGroupV1Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            MplCoreInstruction::UpdatePluginV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::UpdatePluginV1(
-                    UpdatePluginV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            MplCoreInstruction::UpdateV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::UpdateV1(UpdateV1Row::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            MplCoreInstruction::UpdateV2 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::UpdateV2(UpdateV2Row::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            MplCoreInstruction::WriteCollectionExternalPluginAdapterDataV1 {
-                data,
-                accounts,
-                ..
-            } => {
-                rows.push(
-                    MplCoreInstructionRow::WriteCollectionExternalPluginAdapterDataV1(
-                        WriteCollectionExternalPluginAdapterDataV1Row::try_from((
-                            data.clone(),
-                            metadata.clone(),
-                            accounts.clone(),
-                        ))?,
-                    ),
-                );
-            }
-            MplCoreInstruction::WriteExternalPluginAdapterDataV1 { data, accounts, .. } => {
-                rows.push(MplCoreInstructionRow::WriteExternalPluginAdapterDataV1(
-                    WriteExternalPluginAdapterDataV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AddAssetsToGroupV1, AddAssetsToGroupV1Row);
+        insert_branch!(
+            AddCollectionExternalPluginAdapterV1,
+            AddCollectionExternalPluginAdapterV1Row
+        );
+        insert_branch!(AddCollectionPluginV1, AddCollectionPluginV1Row);
+        insert_branch!(AddCollectionsToGroupV1, AddCollectionsToGroupV1Row);
+        insert_branch!(AddExternalPluginAdapterV1, AddExternalPluginAdapterV1Row);
+        insert_branch!(AddGroupsToGroupV1, AddGroupsToGroupV1Row);
+        insert_branch!(AddPluginV1, AddPluginV1Row);
+        insert_branch!(
+            ApproveCollectionPluginAuthorityV1,
+            ApproveCollectionPluginAuthorityV1Row
+        );
+        insert_branch!(ApprovePluginAuthorityV1, ApprovePluginAuthorityV1Row);
+        insert_branch!(BurnCollectionV1, BurnCollectionV1Row);
+        insert_branch!(BurnV1, BurnV1Row);
+        insert_branch!(CloseGroupV1, CloseGroupV1Row);
+        insert_branch!(Collect, CollectRow);
+        insert_branch!(CompressV1, CompressV1Row);
+        insert_branch!(CreateCollectionV1, CreateCollectionV1Row);
+        insert_branch!(CreateCollectionV2, CreateCollectionV2Row);
+        insert_branch!(CreateGroupV1, CreateGroupV1Row);
+        insert_branch!(CreateV1, CreateV1Row);
+        insert_branch!(CreateV2, CreateV2Row);
+        insert_branch!(DecompressV1, DecompressV1Row);
+        insert_branch!(ExecuteV1, ExecuteV1Row);
+        insert_branch!(RemoveAssetsFromGroupV1, RemoveAssetsFromGroupV1Row);
+        insert_branch!(
+            RemoveCollectionExternalPluginAdapterV1,
+            RemoveCollectionExternalPluginAdapterV1Row
+        );
+        insert_branch!(RemoveCollectionPluginV1, RemoveCollectionPluginV1Row);
+        insert_branch!(
+            RemoveCollectionsFromGroupV1,
+            RemoveCollectionsFromGroupV1Row
+        );
+        insert_branch!(
+            RemoveExternalPluginAdapterV1,
+            RemoveExternalPluginAdapterV1Row
+        );
+        insert_branch!(RemoveGroupsFromGroupV1, RemoveGroupsFromGroupV1Row);
+        insert_branch!(RemovePluginV1, RemovePluginV1Row);
+        insert_branch!(
+            RevokeCollectionPluginAuthorityV1,
+            RevokeCollectionPluginAuthorityV1Row
+        );
+        insert_branch!(RevokePluginAuthorityV1, RevokePluginAuthorityV1Row);
+        insert_branch!(TransferV1, TransferV1Row);
+        insert_branch!(
+            UpdateCollectionExternalPluginAdapterV1,
+            UpdateCollectionExternalPluginAdapterV1Row
+        );
+        insert_branch!(UpdateCollectionInfoV1, UpdateCollectionInfoV1Row);
+        insert_branch!(UpdateCollectionPluginV1, UpdateCollectionPluginV1Row);
+        insert_branch!(UpdateCollectionV1, UpdateCollectionV1Row);
+        insert_branch!(
+            UpdateExternalPluginAdapterV1,
+            UpdateExternalPluginAdapterV1Row
+        );
+        insert_branch!(UpdateGroupV1, UpdateGroupV1Row);
+        insert_branch!(UpdatePluginV1, UpdatePluginV1Row);
+        insert_branch!(UpdateV1, UpdateV1Row);
+        insert_branch!(UpdateV2, UpdateV2Row);
+        insert_branch!(
+            WriteCollectionExternalPluginAdapterDataV1,
+            WriteCollectionExternalPluginAdapterDataV1Row
+        );
+        insert_branch!(
+            WriteExternalPluginAdapterDataV1,
+            WriteExternalPluginAdapterDataV1Row
+        );
 
         Ok(())
     }
@@ -543,28 +272,23 @@ impl carbon_core::clickhouse::BatchInsert for MplCoreInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for MplCoreInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AddAssetsToGroupV1, AddAssetsToGroupV1Row);
@@ -639,6 +363,7 @@ impl carbon_core::clickhouse::BatchCommit for MplCoreInstructionRow {
             WriteExternalPluginAdapterDataV1,
             WriteExternalPluginAdapterDataV1Row
         );
+
         Ok(())
     }
 }

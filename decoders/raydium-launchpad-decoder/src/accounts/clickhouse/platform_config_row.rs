@@ -80,7 +80,6 @@ impl carbon_core::clickhouse::Table for PlatformConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for PlatformConfigRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -88,13 +87,8 @@ impl carbon_core::clickhouse::Insert for PlatformConfigRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("raydium_launchpad_platform_config_account")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

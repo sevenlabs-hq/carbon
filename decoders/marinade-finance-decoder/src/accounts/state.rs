@@ -8,9 +8,25 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct State {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub msol_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin_authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub operational_sol_account: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub treasury_msol_account: Pubkey,
     pub reserve_bump_seed: u8,
     pub msol_mint_authority_bump_seed: u8,
@@ -32,6 +48,10 @@ pub struct State {
     pub staking_sol_cap: u64,
     pub emergency_cooling_down: u64,
     /// emergency pause
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pause_authority: Pubkey,
     pub paused: bool,
     pub delayed_unstake_fee: FeeCents,

@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<ClaimPartnerPoolCreationFeeRow> for (crate::instructions::claim_partner_pool_creation_fee::ClaimPartnerPoolCreationFee, crate::instructions::claim_partner_pool_creation_fee::ClaimPartnerPoolCreationFeeInstructionAccounts, ClaimPartnerPoolCreationFeeRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ClaimPartnerPoolCreationFeeRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::claim_partner_pool_creation_fee::ClaimPartnerPoolCreationFee = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::claim_partner_pool_creation_fee::ClaimPartnerPoolCreationFeeInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ClaimPartnerPoolCreationFeeRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for ClaimPartnerPoolCreationFeeRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ClaimPartnerPoolCreationFeeRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for ClaimPartnerPoolCreationFeeRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_dbc_claim_partner_pool_creation_fee_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

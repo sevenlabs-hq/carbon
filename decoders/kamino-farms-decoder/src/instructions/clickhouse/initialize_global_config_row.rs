@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<InitializeGlobalConfigRow>
+    for (
+        crate::instructions::initialize_global_config::InitializeGlobalConfig,
+        crate::instructions::initialize_global_config::InitializeGlobalConfigInstructionAccounts,
+        InitializeGlobalConfigRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitializeGlobalConfigRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::initialize_global_config::InitializeGlobalConfig =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::initialize_global_config::InitializeGlobalConfigInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for InitializeGlobalConfigRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for InitializeGlobalConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitializeGlobalConfigRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for InitializeGlobalConfigRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("kamino_farms_initialize_global_config_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

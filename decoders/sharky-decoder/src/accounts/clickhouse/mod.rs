@@ -54,69 +54,47 @@ pub enum SharkyAccountRow {
     TokenLendingPool(TokenLendingPoolRow),
 }
 
-pub struct SharkyAccountMetadata(pub carbon_core::account::AccountMetadata, pub SharkyAccount);
+pub struct SharkyAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a SharkyAccount,
+);
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for SharkyAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for SharkyAccountMetadata<'a> {
     type Row = SharkyAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            SharkyAccount::EscrowPDA(account) => {
-                rows.push(SharkyAccountRow::EscrowPDA(EscrowPDARow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            SharkyAccount::Loan(account) => {
-                rows.push(SharkyAccountRow::Loan(LoanRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            SharkyAccount::NFTList(account) => {
-                rows.push(SharkyAccountRow::NFTList(NFTListRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            SharkyAccount::OrderBook(account) => {
-                rows.push(SharkyAccountRow::OrderBook(OrderBookRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            SharkyAccount::PriceUpdateV2(account) => {
-                rows.push(SharkyAccountRow::PriceUpdateV2(PriceUpdateV2Row::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            SharkyAccount::ProgramVersion(account) => {
-                rows.push(SharkyAccountRow::ProgramVersion(
-                    ProgramVersionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            SharkyAccount::TokenLendingLoan(account) => {
-                rows.push(SharkyAccountRow::TokenLendingLoan(
-                    TokenLendingLoanRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            SharkyAccount::TokenLendingOrderBook(account) => {
-                rows.push(SharkyAccountRow::TokenLendingOrderBook(
-                    TokenLendingOrderBookRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            SharkyAccount::TokenLendingPool(account) => {
-                rows.push(SharkyAccountRow::TokenLendingPool(
-                    TokenLendingPoolRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let SharkyAccount::$variant(account) = account {
+                    rows.push(SharkyAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let SharkyAccount::$variant(account) = account {
+                    rows.push(SharkyAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(EscrowPDA, EscrowPDARow, boxed);
+        insert_branch!(Loan, LoanRow, boxed);
+        insert_branch!(NFTList, NFTListRow, boxed);
+        insert_branch!(OrderBook, OrderBookRow, boxed);
+        insert_branch!(PriceUpdateV2, PriceUpdateV2Row, boxed);
+        insert_branch!(ProgramVersion, ProgramVersionRow, boxed);
+        insert_branch!(TokenLendingLoan, TokenLendingLoanRow, boxed);
+        insert_branch!(TokenLendingOrderBook, TokenLendingOrderBookRow, boxed);
+        insert_branch!(TokenLendingPool, TokenLendingPoolRow, boxed);
 
         Ok(())
     }
@@ -125,28 +103,23 @@ impl carbon_core::clickhouse::BatchInsert for SharkyAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for SharkyAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(EscrowPDA, EscrowPDARow);
@@ -158,6 +131,7 @@ impl carbon_core::clickhouse::BatchCommit for SharkyAccountRow {
         commit_branch!(TokenLendingLoan, TokenLendingLoanRow);
         commit_branch!(TokenLendingOrderBook, TokenLendingOrderBookRow);
         commit_branch!(TokenLendingPool, TokenLendingPoolRow);
+
         Ok(())
     }
 }

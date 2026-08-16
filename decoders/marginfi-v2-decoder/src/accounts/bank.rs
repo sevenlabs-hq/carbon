@@ -9,10 +9,18 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Bank {
     /// The SPL token mint this bank manages
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     /// Number of decimals of the `mint`. Must be < 24.
     pub mint_decimals: u8,
     /// The `MarginfiGroup` this bank belongs to
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub group: Pubkey,
     pub _pad0: [u8; 7],
     /// Monotonically increases as interest rate accumulates. For typical banks,
@@ -28,12 +36,20 @@ pub struct Bank {
     /// * Initially 1
     pub liability_share_value: WrappedI80F48,
     /// The SPL token account holding deposited liquidity
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidity_vault: Pubkey,
     /// PDA bump for the liquidity vault
     pub liquidity_vault_bump: u8,
     /// PDA bump for the liquidity vault authority
     pub liquidity_vault_authority_bump: u8,
     /// The SPL token account holding insurance fund tokens
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub insurance_vault: Pubkey,
     /// PDA bump for the insurance vault
     pub insurance_vault_bump: u8,
@@ -43,6 +59,10 @@ pub struct Bank {
     /// Fees collected and pending withdraw for the `insurance_vault`
     pub collected_insurance_fees_outstanding: WrappedI80F48,
     /// The SPL token account holding collected group fees
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_vault: Pubkey,
     /// PDA bump for the fee vault
     pub fee_vault_bump: u8,
@@ -92,6 +112,10 @@ pub struct Bank {
     /// Remaining emissions tokens available for distribution
     pub emissions_remaining: WrappedI80F48,
     /// The SPL token mint used for emissions rewards
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub emissions_mint: Pubkey,
     /// Fees collected and pending withdraw for the
     /// `FeeState.global_fee_wallet`'s canonical ATA for `mint`
@@ -105,6 +129,10 @@ pub struct Bank {
     /// (withdraw_fees_permissionless). If pubkey default, the bank doesn't
     /// support this feature, and the fees must be collected manually
     /// (withdraw_fees).
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fees_destination_account: Pubkey,
     /// Cached bank metrics (interest rates, oracle price, etc.)
     pub cache: BankCache,
@@ -135,17 +163,29 @@ pub struct Bank {
     /// - Drift: spot market
     /// - Solend: reserve
     /// - JupLend: lending state
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub integration_acc1: Pubkey,
     /// Integration account slot 2 (default Pubkey for non-integrations).
     /// - Kamino: obligation
     /// - Drift: user
     /// - Solend: obligation
     /// - JupLend: fToken vault
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub integration_acc2: Pubkey,
     /// Integration account slot 3 (default Pubkey for non-integrations).
     /// - Drift: user stats
     /// - JupLend: withdraw intermediary ATA (ATA of liquidity_vault_authority
     ///   for bank mint)
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub integration_acc3: Pubkey,
     /// Rate limiter for controlling withdraw/borrow outflow.
     /// Tracks net outflow (outflows - inflows) in native tokens.

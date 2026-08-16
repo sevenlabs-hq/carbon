@@ -5,7 +5,15 @@ use solana_pubkey::Pubkey;
 pub struct DepositForBurnParams {
     pub amount: u64,
     pub destination_domain: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint_recipient: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub destination_caller: Pubkey,
     pub max_fee: u64,
     pub min_finality_threshold: u32,

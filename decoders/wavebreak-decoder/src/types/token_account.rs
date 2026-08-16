@@ -3,15 +3,31 @@ use {crate::types::TokenAccountState, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct TokenAccount {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     pub amount: u64,
     pub delegate_flag: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegate: Pubkey,
     pub state: TokenAccountState,
     pub is_native_flag: u32,
     pub native_amount: u64,
     pub delegate_amount: u64,
     pub close_authority_flag: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub close_authority: Pubkey,
 }

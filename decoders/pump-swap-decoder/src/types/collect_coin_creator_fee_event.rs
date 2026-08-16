@@ -4,8 +4,20 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CollectCoinCreatorFeeEvent {
     pub timestamp: i64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub coin_creator: Pubkey,
     pub coin_creator_fee: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub coin_creator_vault_ata: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub coin_creator_token_account: Pubkey,
 }

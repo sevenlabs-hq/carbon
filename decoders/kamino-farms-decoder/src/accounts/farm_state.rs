@@ -8,7 +8,15 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct FarmState {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_admin: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global_config: Pubkey,
     pub token: TokenInfo,
     pub reward_infos: [RewardInfo; 10],
@@ -19,11 +27,23 @@ pub struct FarmState {
     /// fees) Set such as `farm_vault.amount = total_staked_amount +
     /// total_pending_amount`
     pub total_staked_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_vault: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_vaults_authority: Pubkey,
     pub farm_vaults_authority_bump: u64,
     /// Only used for delegate farms
     /// Set to `default()` otherwise
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegate_authority: Pubkey,
     /// Raw representation of a `TimeUnit`
     /// Seconds = 0, Slots = 1
@@ -42,6 +62,10 @@ pub struct FarmState {
     /// Withdraw authority for the farm, allowed to lock deposited funds and
     /// withdraw them Set to `default()` if unused (only the depositors can
     /// withdraw their funds)
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub withdraw_authority: Pubkey,
     /// Delay between a user deposit and the moment it is considered as staked
     /// 0 if unused
@@ -60,6 +84,10 @@ pub struct FarmState {
     /// Slashed amounts from early withdrawal
     pub slashed_amount_current: u64,
     pub slashed_amount_cumulative: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub slashed_amount_spill_address: Pubkey,
     /// Locking stake
     pub locking_mode: u64,
@@ -67,13 +95,37 @@ pub struct FarmState {
     pub locking_duration: u64,
     pub locking_early_withdrawal_penalty_bps: u64,
     pub deposit_cap_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub scope_prices: Pubkey,
     pub scope_oracle_price_id: u64,
     pub scope_oracle_max_age: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pending_farm_admin: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub strategy_id: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegated_rps_admin: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault_id: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub second_delegated_authority: Pubkey,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub padding: [u64; 74],

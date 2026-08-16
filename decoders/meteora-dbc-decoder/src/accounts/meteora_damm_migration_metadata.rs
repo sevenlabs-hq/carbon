@@ -5,12 +5,24 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct MeteoraDammMigrationMetadata {
     /// pool
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub virtual_pool: Pubkey,
     /// !!! BE CAREFUL to use tombstone field, previous is pool creator
     pub _padding0: [u8; 32],
     /// partner
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub partner: Pubkey,
     /// lp mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lp_mint: Pubkey,
     /// partner locked liquidity
     pub partner_locked_liquidity: u64,

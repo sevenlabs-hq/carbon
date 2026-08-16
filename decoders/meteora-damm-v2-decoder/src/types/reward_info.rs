@@ -13,10 +13,22 @@ pub struct RewardInfo {
     /// Padding to ensure `reward_rate: u128` is 16-byte aligned
     pub padding1: [u8; 8],
     /// Reward token mint.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     /// Reward vault token account.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault: Pubkey,
     /// Authority account that allows to fund rewards
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub funder: Pubkey,
     /// reward duration
     pub reward_duration: u64,

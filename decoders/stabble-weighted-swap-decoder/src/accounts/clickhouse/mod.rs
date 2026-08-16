@@ -29,35 +29,38 @@ pub enum StabbleWeightedSwapAccountRow {
     Vault(VaultRow),
 }
 
-pub struct StabbleWeightedSwapAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub StabbleWeightedSwapAccount,
+pub struct StabbleWeightedSwapAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a StabbleWeightedSwapAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for StabbleWeightedSwapAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for StabbleWeightedSwapAccountMetadata<'a> {
     type Row = StabbleWeightedSwapAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            StabbleWeightedSwapAccount::Pool(account) => {
-                rows.push(StabbleWeightedSwapAccountRow::Pool(PoolRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            StabbleWeightedSwapAccount::Vault(account) => {
-                rows.push(StabbleWeightedSwapAccountRow::Vault(VaultRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let StabbleWeightedSwapAccount::$variant(account) = account {
+                    rows.push(StabbleWeightedSwapAccountRow::$variant(<$row>::try_from(
+                        (account.as_ref().clone(), metadata.clone()),
+                    )?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let StabbleWeightedSwapAccount::$variant(account) = account {
+                    rows.push(StabbleWeightedSwapAccountRow::$variant(<$row>::try_from(
+                        (account.clone(), metadata.clone()),
+                    )?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Pool, PoolRow, boxed);
+        insert_branch!(Vault, VaultRow, boxed);
 
         Ok(())
     }
@@ -66,32 +69,28 @@ impl carbon_core::clickhouse::BatchInsert for StabbleWeightedSwapAccountMetadata
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for StabbleWeightedSwapAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Pool, PoolRow);
         commit_branch!(Vault, VaultRow);
+
         Ok(())
     }
 }

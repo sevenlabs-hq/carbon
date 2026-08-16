@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<InitializeVirtualPoolWithToken2022Row> for (crate::instructions::initialize_virtual_pool_with_token2022::InitializeVirtualPoolWithToken2022, crate::instructions::initialize_virtual_pool_with_token2022::InitializeVirtualPoolWithToken2022InstructionAccounts, InitializeVirtualPoolWithToken2022Row) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitializeVirtualPoolWithToken2022Row) -> Result<Self, Self::Error> {
+        let source: crate::instructions::initialize_virtual_pool_with_token2022::InitializeVirtualPoolWithToken2022 = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::initialize_virtual_pool_with_token2022::InitializeVirtualPoolWithToken2022InstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for InitializeVirtualPoolWithToken2022Row {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for InitializeVirtualPoolWithToken2022Row {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitializeVirtualPoolWithToken2022Row {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for InitializeVirtualPoolWithToken2022Row {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_dbc_initialize_virtual_pool_with_token2022_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct InitializeVirtualPoolWithToken2022RowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializeVirtualPoolWithToken2022RowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializeVirtualPoolWithToken2022RowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for InitializeVirtualPoolWithToken2022Ro
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializeVirtualPoolWithToken2022RowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializeVirtualPoolWithToken2022RowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

@@ -18,6 +18,10 @@ pub struct OpenOrderParams {
     /// this is used to calculate the minimum allowed output amount.
     pub slippage_bps: u16,
     /// Account that is authorized to close the order
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub closer: Pubkey,
     /// Flags for the order
     pub flags: u8,

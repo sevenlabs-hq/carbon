@@ -5,10 +5,18 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ReserveCollateral {
     /// Reserve collateral mint address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint_pubkey: Pubkey,
     /// Reserve collateral mint supply, used for exchange rate
     pub mint_total_supply: u64,
     /// Reserve collateral supply address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub supply_vault: Pubkey,
     pub padding1: [u128; 32],
     pub padding2: [u128; 32],

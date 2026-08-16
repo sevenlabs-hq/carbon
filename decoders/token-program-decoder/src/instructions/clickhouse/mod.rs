@@ -116,231 +116,58 @@ pub enum TokenProgramInstructionRow {
     WithdrawExcessLamports(WithdrawExcessLamportsRow),
 }
 
-pub struct TokenProgramInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub TokenProgramInstruction,
+pub struct TokenProgramInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a TokenProgramInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for TokenProgramInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for TokenProgramInstructionMetadata<'a> {
     type Row = TokenProgramInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            TokenProgramInstruction::AmountToUiAmount { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::AmountToUiAmount(
-                    AmountToUiAmountRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let TokenProgramInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(TokenProgramInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::Approve { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::Approve(ApproveRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            TokenProgramInstruction::ApproveChecked { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::ApproveChecked(
-                    ApproveCheckedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::Batch { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::Batch(BatchRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            TokenProgramInstruction::Burn { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::Burn(BurnRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            TokenProgramInstruction::BurnChecked { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::BurnChecked(
-                    BurnCheckedRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            TokenProgramInstruction::CloseAccount { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::CloseAccount(
-                    CloseAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            TokenProgramInstruction::FreezeAccount { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::FreezeAccount(
-                    FreezeAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            TokenProgramInstruction::GetAccountDataSize { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::GetAccountDataSize(
-                    GetAccountDataSizeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::InitializeAccount { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::InitializeAccount(
-                    InitializeAccountRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::InitializeAccount2 { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::InitializeAccount2(
-                    InitializeAccount2Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::InitializeAccount3 { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::InitializeAccount3(
-                    InitializeAccount3Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::InitializeImmutableOwner { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::InitializeImmutableOwner(
-                    InitializeImmutableOwnerRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::InitializeMint { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::InitializeMint(
-                    InitializeMintRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::InitializeMint2 { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::InitializeMint2(
-                    InitializeMint2Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::InitializeMultisig { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::InitializeMultisig(
-                    InitializeMultisigRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::InitializeMultisig2 { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::InitializeMultisig2(
-                    InitializeMultisig2Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::MintTo { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::MintTo(MintToRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            TokenProgramInstruction::MintToChecked { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::MintToChecked(
-                    MintToCheckedRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            TokenProgramInstruction::Revoke { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::Revoke(RevokeRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            TokenProgramInstruction::SetAuthority { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::SetAuthority(
-                    SetAuthorityRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            TokenProgramInstruction::SyncNative { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::SyncNative(
-                    SyncNativeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            TokenProgramInstruction::ThawAccount { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::ThawAccount(
-                    ThawAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            TokenProgramInstruction::Transfer { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::Transfer(TransferRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            TokenProgramInstruction::TransferChecked { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::TransferChecked(
-                    TransferCheckedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::UiAmountToAmount { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::UiAmountToAmount(
-                    UiAmountToAmountRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::UnwrapLamports { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::UnwrapLamports(
-                    UnwrapLamportsRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            TokenProgramInstruction::WithdrawExcessLamports { data, accounts, .. } => {
-                rows.push(TokenProgramInstructionRow::WithdrawExcessLamports(
-                    WithdrawExcessLamportsRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AmountToUiAmount, AmountToUiAmountRow);
+        insert_branch!(Approve, ApproveRow);
+        insert_branch!(ApproveChecked, ApproveCheckedRow);
+        insert_branch!(Batch, BatchRow);
+        insert_branch!(Burn, BurnRow);
+        insert_branch!(BurnChecked, BurnCheckedRow);
+        insert_branch!(CloseAccount, CloseAccountRow);
+        insert_branch!(FreezeAccount, FreezeAccountRow);
+        insert_branch!(GetAccountDataSize, GetAccountDataSizeRow);
+        insert_branch!(InitializeAccount, InitializeAccountRow);
+        insert_branch!(InitializeAccount2, InitializeAccount2Row);
+        insert_branch!(InitializeAccount3, InitializeAccount3Row);
+        insert_branch!(InitializeImmutableOwner, InitializeImmutableOwnerRow);
+        insert_branch!(InitializeMint, InitializeMintRow);
+        insert_branch!(InitializeMint2, InitializeMint2Row);
+        insert_branch!(InitializeMultisig, InitializeMultisigRow);
+        insert_branch!(InitializeMultisig2, InitializeMultisig2Row);
+        insert_branch!(MintTo, MintToRow);
+        insert_branch!(MintToChecked, MintToCheckedRow);
+        insert_branch!(Revoke, RevokeRow);
+        insert_branch!(SetAuthority, SetAuthorityRow);
+        insert_branch!(SyncNative, SyncNativeRow);
+        insert_branch!(ThawAccount, ThawAccountRow);
+        insert_branch!(Transfer, TransferRow);
+        insert_branch!(TransferChecked, TransferCheckedRow);
+        insert_branch!(UiAmountToAmount, UiAmountToAmountRow);
+        insert_branch!(UnwrapLamports, UnwrapLamportsRow);
+        insert_branch!(WithdrawExcessLamports, WithdrawExcessLamportsRow);
 
         Ok(())
     }
@@ -349,28 +176,23 @@ impl carbon_core::clickhouse::BatchInsert for TokenProgramInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for TokenProgramInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AmountToUiAmount, AmountToUiAmountRow);
@@ -401,6 +223,7 @@ impl carbon_core::clickhouse::BatchCommit for TokenProgramInstructionRow {
         commit_branch!(UiAmountToAmount, UiAmountToAmountRow);
         commit_branch!(UnwrapLamports, UnwrapLamportsRow);
         commit_branch!(WithdrawExcessLamports, WithdrawExcessLamportsRow);
+
         Ok(())
     }
 }

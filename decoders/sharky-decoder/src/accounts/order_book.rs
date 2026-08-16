@@ -13,6 +13,10 @@ pub struct OrderBook {
     pub apy: APY,
     pub loan_terms: BookLoanTerms,
     pub fee_permillicentage: u16,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_authority: Pubkey,
 }
 

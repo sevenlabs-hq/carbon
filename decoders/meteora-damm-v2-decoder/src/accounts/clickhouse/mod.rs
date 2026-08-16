@@ -54,76 +54,55 @@ pub enum MeteoraDammV2AccountRow {
     Vesting(VestingRow),
 }
 
-pub struct MeteoraDammV2AccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub MeteoraDammV2Account,
+pub struct MeteoraDammV2AccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a MeteoraDammV2Account,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for MeteoraDammV2AccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for MeteoraDammV2AccountMetadata<'a> {
     type Row = MeteoraDammV2AccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            MeteoraDammV2Account::Config(account) => {
-                rows.push(MeteoraDammV2AccountRow::Config(ConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDammV2Account::Operator(account) => {
-                rows.push(MeteoraDammV2AccountRow::Operator(OperatorRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDammV2Account::PodAlignedFeeMarketCapScheduler(account) => {
-                rows.push(MeteoraDammV2AccountRow::PodAlignedFeeMarketCapScheduler(
-                    PodAlignedFeeMarketCapSchedulerRow::try_from((
-                        *account.clone(),
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let MeteoraDammV2Account::$variant(account) = account {
+                    rows.push(MeteoraDammV2AccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
                         metadata.clone(),
-                    ))?,
-                ));
-            }
-            MeteoraDammV2Account::PodAlignedFeeRateLimiter(account) => {
-                rows.push(MeteoraDammV2AccountRow::PodAlignedFeeRateLimiter(
-                    PodAlignedFeeRateLimiterRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDammV2Account::PodAlignedFeeTimeScheduler(account) => {
-                rows.push(MeteoraDammV2AccountRow::PodAlignedFeeTimeScheduler(
-                    PodAlignedFeeTimeSchedulerRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDammV2Account::Pool(account) => {
-                rows.push(MeteoraDammV2AccountRow::Pool(PoolRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDammV2Account::Position(account) => {
-                rows.push(MeteoraDammV2AccountRow::Position(PositionRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDammV2Account::TokenBadge(account) => {
-                rows.push(MeteoraDammV2AccountRow::TokenBadge(
-                    TokenBadgeRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDammV2Account::Vesting(account) => {
-                rows.push(MeteoraDammV2AccountRow::Vesting(VestingRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let MeteoraDammV2Account::$variant(account) = account {
+                    rows.push(MeteoraDammV2AccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Config, ConfigRow, boxed);
+        insert_branch!(Operator, OperatorRow, boxed);
+        insert_branch!(
+            PodAlignedFeeMarketCapScheduler,
+            PodAlignedFeeMarketCapSchedulerRow,
+            boxed
+        );
+        insert_branch!(PodAlignedFeeRateLimiter, PodAlignedFeeRateLimiterRow, boxed);
+        insert_branch!(
+            PodAlignedFeeTimeScheduler,
+            PodAlignedFeeTimeSchedulerRow,
+            boxed
+        );
+        insert_branch!(Pool, PoolRow, boxed);
+        insert_branch!(Position, PositionRow, boxed);
+        insert_branch!(TokenBadge, TokenBadgeRow, boxed);
+        insert_branch!(Vesting, VestingRow, boxed);
 
         Ok(())
     }
@@ -132,28 +111,23 @@ impl carbon_core::clickhouse::BatchInsert for MeteoraDammV2AccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for MeteoraDammV2AccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Config, ConfigRow);
@@ -168,6 +142,7 @@ impl carbon_core::clickhouse::BatchCommit for MeteoraDammV2AccountRow {
         commit_branch!(Position, PositionRow);
         commit_branch!(TokenBadge, TokenBadgeRow);
         commit_branch!(Vesting, VestingRow);
+
         Ok(())
     }
 }

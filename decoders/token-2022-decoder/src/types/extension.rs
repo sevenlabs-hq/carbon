@@ -16,8 +16,16 @@ pub enum Extension {
     Uninitialized,
     TransferFeeConfig {
         /// Optional authority to set the fee.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         transfer_fee_config_authority: Pubkey,
         /// Withdraw from mint instructions must be signed by this key.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         withdraw_withheld_authority: Pubkey,
         /// Withheld transfer fee tokens that have been moved to the mint for
         /// withdrawal.
@@ -35,6 +43,10 @@ pub enum Extension {
         withheld_amount: u64,
     },
     MintCloseAuthority {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         close_authority: Pubkey,
     },
     ConfidentialTransferMint {
@@ -42,6 +54,10 @@ pub enum Extension {
         /// to approve new accounts (if `auto_approve_new_accounts` is
         /// true). The legacy Token Multisig account is not supported as
         /// the authority.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         authority: Option<Pubkey>,
         /// Indicate if newly configured accounts must be approved by the
         /// `authority` before they may be used by the user.
@@ -53,6 +69,10 @@ pub enum Extension {
         /// `ConfidentialTransferInstruction::ConfigureAccount`).
         auto_approve_new_accounts: bool,
         /// Authority to decode any transfer amount in a confidential transfer.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         auditor_elgamal_pubkey: Option<Pubkey>,
     },
     ConfidentialTransferAccount {
@@ -61,6 +81,10 @@ pub enum Extension {
         /// granted.
         approved: bool,
         /// The public key associated with ElGamal encryption.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         elgamal_pubkey: Pubkey,
         /// The low 16 bits of the pending balance (encrypted by
         /// `elgamal_pubkey`).
@@ -101,6 +125,10 @@ pub enum Extension {
     },
     NonTransferable {},
     InterestBearingConfig {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         rate_authority: Pubkey,
         initialization_timestamp: u64,
         pre_update_average_rate: i16,
@@ -113,13 +141,25 @@ pub enum Extension {
         lock_cpi: bool,
     },
     PermanentDelegate {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         delegate: Pubkey,
     },
     NonTransferableAccount {},
     TransferHook {
         /// The transfer hook update authority.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         authority: Pubkey,
         /// The transfer hook program account.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         program_id: Pubkey,
     },
     TransferHookAccount {
@@ -130,6 +170,10 @@ pub enum Extension {
     ConfidentialTransferFee {
         /// Optional authority to set the withdraw withheld authority ElGamal
         /// key.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         authority: Option<Pubkey>,
         /// Withheld fees from accounts must be encrypted with this ElGamal key.
         /// Note that whoever holds the ElGamal private key for this ElGamal
@@ -137,6 +181,10 @@ pub enum Extension {
         /// that are associated with accounts. When combined with the
         /// fee parameters, the withheld fee amounts can reveal
         /// information about transfer amounts.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         elgamal_pubkey: Pubkey,
         /// If `false`, the harvest of withheld tokens to mint is rejected.
         harvest_to_mint_enabled: bool,
@@ -151,15 +199,31 @@ pub enum Extension {
     },
     MetadataPointer {
         /// Optional authority that can set the metadata address.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         authority: Option<Pubkey>,
         /// Optional Account Address that holds the metadata.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         metadata_address: Option<Pubkey>,
     },
     TokenMetadata {
         /// The authority that can sign to update the metadata.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         update_authority: Option<Pubkey>,
         /// The associated mint, used to counter spoofing to be sure that
         /// metadata belongs to a particular mint.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         mint: Pubkey,
         /// The longer name of the token.
         name: String,
@@ -172,15 +236,31 @@ pub enum Extension {
     },
     GroupPointer {
         /// Optional authority that can set the group address.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         authority: Option<Pubkey>,
         /// Optional account address that holds the group.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         group_address: Option<Pubkey>,
     },
     TokenGroup {
         /// The authority that can sign to update the group.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         update_authority: Option<Pubkey>,
         /// The associated mint, used to counter spoofing to be sure that group
         /// belongs to a particular mint.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         mint: Pubkey,
         /// The current number of group members.
         size: u64,
@@ -189,33 +269,61 @@ pub enum Extension {
     },
     GroupMemberPointer {
         /// Optional authority that can set the member address.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         authority: Option<Pubkey>,
         /// Optional account address that holds the member.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         member_address: Option<Pubkey>,
     },
     TokenGroupMember {
         /// The associated mint, used to counter spoofing to be sure that member
         /// belongs to a particular mint.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         mint: Pubkey,
         /// The pubkey of the `TokenGroup`.
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         group: Pubkey,
         /// The member number.
         member_number: u64,
     },
     ConfidentialMintBurn,
     ScaledUiAmountConfig {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         authority: Pubkey,
         multiplier: f64,
         new_multiplier_effective_timestamp: u64,
         new_multiplier: f64,
     },
     PausableConfig {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         authority: Option<Pubkey>,
         paused: bool,
     },
     PausableAccount,
     PermissionedBurn {
         /// Authority that is required for burning
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         authority: Option<Pubkey>,
     },
 }

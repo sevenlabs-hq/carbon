@@ -11,6 +11,10 @@ pub struct ElevationGroup {
     pub max_reserves_as_collateral: u8,
     pub padding0: u8,
     /// Mandatory debt reserve for this elevation group
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub debt_reserve: Pubkey,
     pub padding1: [u64; 4],
 }

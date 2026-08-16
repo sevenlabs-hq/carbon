@@ -6,6 +6,10 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct StakedSettingsEditConfig {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub oracle: Option<Pubkey>,
     pub asset_weight_init: Option<WrappedI80F48>,
     pub asset_weight_maint: Option<WrappedI80F48>,

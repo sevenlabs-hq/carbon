@@ -47,58 +47,43 @@ pub enum CircleTokenMessengerV2AccountRow {
     TokenPair(TokenPairRow),
 }
 
-pub struct CircleTokenMessengerV2AccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub CircleTokenMessengerV2Account,
+pub struct CircleTokenMessengerV2AccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a CircleTokenMessengerV2Account,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for CircleTokenMessengerV2AccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for CircleTokenMessengerV2AccountMetadata<'a> {
     type Row = CircleTokenMessengerV2AccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            CircleTokenMessengerV2Account::DenylistedAccount(account) => {
-                rows.push(CircleTokenMessengerV2AccountRow::DenylistedAccount(
-                    DenylistedAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            CircleTokenMessengerV2Account::LocalToken(account) => {
-                rows.push(CircleTokenMessengerV2AccountRow::LocalToken(
-                    LocalTokenRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            CircleTokenMessengerV2Account::MessageTransmitter(account) => {
-                rows.push(CircleTokenMessengerV2AccountRow::MessageTransmitter(
-                    MessageTransmitterRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            CircleTokenMessengerV2Account::RemoteTokenMessenger(account) => {
-                rows.push(CircleTokenMessengerV2AccountRow::RemoteTokenMessenger(
-                    RemoteTokenMessengerRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            CircleTokenMessengerV2Account::TokenMessenger(account) => {
-                rows.push(CircleTokenMessengerV2AccountRow::TokenMessenger(
-                    TokenMessengerRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            CircleTokenMessengerV2Account::TokenMinter(account) => {
-                rows.push(CircleTokenMessengerV2AccountRow::TokenMinter(
-                    TokenMinterRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            CircleTokenMessengerV2Account::TokenPair(account) => {
-                rows.push(CircleTokenMessengerV2AccountRow::TokenPair(
-                    TokenPairRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let CircleTokenMessengerV2Account::$variant(account) = account {
+                    rows.push(CircleTokenMessengerV2AccountRow::$variant(
+                        <$row>::try_from((account.as_ref().clone(), metadata.clone()))?,
+                    ));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let CircleTokenMessengerV2Account::$variant(account) = account {
+                    rows.push(CircleTokenMessengerV2AccountRow::$variant(
+                        <$row>::try_from((account.clone(), metadata.clone()))?,
+                    ));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(DenylistedAccount, DenylistedAccountRow, boxed);
+        insert_branch!(LocalToken, LocalTokenRow, boxed);
+        insert_branch!(MessageTransmitter, MessageTransmitterRow, boxed);
+        insert_branch!(RemoteTokenMessenger, RemoteTokenMessengerRow, boxed);
+        insert_branch!(TokenMessenger, TokenMessengerRow, boxed);
+        insert_branch!(TokenMinter, TokenMinterRow, boxed);
+        insert_branch!(TokenPair, TokenPairRow, boxed);
 
         Ok(())
     }
@@ -107,28 +92,23 @@ impl carbon_core::clickhouse::BatchInsert for CircleTokenMessengerV2AccountMetad
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for CircleTokenMessengerV2AccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(DenylistedAccount, DenylistedAccountRow);
@@ -138,6 +118,7 @@ impl carbon_core::clickhouse::BatchCommit for CircleTokenMessengerV2AccountRow {
         commit_branch!(TokenMessenger, TokenMessengerRow);
         commit_branch!(TokenMinter, TokenMinterRow);
         commit_branch!(TokenPair, TokenPairRow);
+
         Ok(())
     }
 }

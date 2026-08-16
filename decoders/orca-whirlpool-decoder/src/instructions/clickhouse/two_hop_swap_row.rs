@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<TwoHopSwapRow>
+    for (
+        crate::instructions::two_hop_swap::TwoHopSwap,
+        crate::instructions::two_hop_swap::TwoHopSwapInstructionAccounts,
+        TwoHopSwapRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: TwoHopSwapRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::two_hop_swap::TwoHopSwap =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::two_hop_swap::TwoHopSwapInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for TwoHopSwapRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for TwoHopSwapRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for TwoHopSwapRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for TwoHopSwapRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("orca_whirlpool_two_hop_swap_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<ApproveObligationOwnershipTransferRow> for (crate::instructions::approve_obligation_ownership_transfer::ApproveObligationOwnershipTransfer, crate::instructions::approve_obligation_ownership_transfer::ApproveObligationOwnershipTransferInstructionAccounts, ApproveObligationOwnershipTransferRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ApproveObligationOwnershipTransferRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::approve_obligation_ownership_transfer::ApproveObligationOwnershipTransfer = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::approve_obligation_ownership_transfer::ApproveObligationOwnershipTransferInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ApproveObligationOwnershipTransferRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for ApproveObligationOwnershipTransferRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ApproveObligationOwnershipTransferRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for ApproveObligationOwnershipTransferRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("kamino_lending_approve_obligation_ownership_transfer_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct ApproveObligationOwnershipTransferRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for ApproveObligationOwnershipTransferRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for ApproveObligationOwnershipTransferRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for ApproveObligationOwnershipTransferRo
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for ApproveObligationOwnershipTransferRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for ApproveObligationOwnershipTransferRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

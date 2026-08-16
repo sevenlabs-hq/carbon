@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<CreateProgramVersionRow>
+    for (
+        crate::instructions::create_program_version::CreateProgramVersion,
+        crate::instructions::create_program_version::CreateProgramVersionInstructionAccounts,
+        CreateProgramVersionRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CreateProgramVersionRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::create_program_version::CreateProgramVersion =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::create_program_version::CreateProgramVersionInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CreateProgramVersionRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for CreateProgramVersionRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CreateProgramVersionRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for CreateProgramVersionRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("sharky_create_program_version_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

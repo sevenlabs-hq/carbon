@@ -5,6 +5,10 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct TokenConfig {
     /// @param token address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token: Pubkey,
     /// @param fee charges on borrower's interest. in 1e2: 100% = 10_000; 1% =
     /// 100

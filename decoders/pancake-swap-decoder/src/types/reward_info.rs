@@ -19,10 +19,22 @@ pub struct RewardInfo {
     /// The total amount of claimed reward
     pub reward_claimed: u64,
     /// Reward token mint.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_mint: Pubkey,
     /// Reward vault token account.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_vault: Pubkey,
     /// The owner that has permission to set reward param
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
     /// Q64.64 number that tracks the total tokens earned per unit of liquidity
     /// since the reward emissions were turned on.

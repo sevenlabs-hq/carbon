@@ -37,47 +37,34 @@ pub enum SolayerRestakingProgramInstructionRow {
     Unrestake(UnrestakeRow),
 }
 
-pub struct SolayerRestakingProgramInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub SolayerRestakingProgramInstruction,
+pub struct SolayerRestakingProgramInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a SolayerRestakingProgramInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for SolayerRestakingProgramInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for SolayerRestakingProgramInstructionMetadata<'a> {
     type Row = SolayerRestakingProgramInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            SolayerRestakingProgramInstruction::BatchThawLstAccounts { data, accounts, .. } => {
-                rows.push(SolayerRestakingProgramInstructionRow::BatchThawLstAccounts(
-                    BatchThawLstAccountsRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SolayerRestakingProgramInstruction::Initialize { data, accounts, .. } => {
-                rows.push(SolayerRestakingProgramInstructionRow::Initialize(
-                    InitializeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SolayerRestakingProgramInstruction::Restake { data, accounts, .. } => {
-                rows.push(SolayerRestakingProgramInstructionRow::Restake(
-                    RestakeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SolayerRestakingProgramInstruction::Unrestake { data, accounts, .. } => {
-                rows.push(SolayerRestakingProgramInstructionRow::Unrestake(
-                    UnrestakeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let SolayerRestakingProgramInstruction::$variant { data, accounts, .. } =
+                    instruction
+                {
+                    rows.push(SolayerRestakingProgramInstructionRow::$variant(
+                        <$row>::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
+                    ));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(BatchThawLstAccounts, BatchThawLstAccountsRow);
+        insert_branch!(Initialize, InitializeRow);
+        insert_branch!(Restake, RestakeRow);
+        insert_branch!(Unrestake, UnrestakeRow);
 
         Ok(())
     }
@@ -86,34 +73,30 @@ impl carbon_core::clickhouse::BatchInsert for SolayerRestakingProgramInstruction
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for SolayerRestakingProgramInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(BatchThawLstAccounts, BatchThawLstAccountsRow);
         commit_branch!(Initialize, InitializeRow);
         commit_branch!(Restake, RestakeRow);
         commit_branch!(Unrestake, UnrestakeRow);
+
         Ok(())
     }
 }

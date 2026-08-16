@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<UpdatePerpMarketProtectedMakerParamsRow> for (crate::instructions::update_perp_market_protected_maker_params::UpdatePerpMarketProtectedMakerParams, crate::instructions::update_perp_market_protected_maker_params::UpdatePerpMarketProtectedMakerParamsInstructionAccounts, UpdatePerpMarketProtectedMakerParamsRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdatePerpMarketProtectedMakerParamsRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_perp_market_protected_maker_params::UpdatePerpMarketProtectedMakerParams = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_perp_market_protected_maker_params::UpdatePerpMarketProtectedMakerParamsInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdatePerpMarketProtectedMakerParamsRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for UpdatePerpMarketProtectedMakerParamsRow 
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdatePerpMarketProtectedMakerParamsRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for UpdatePerpMarketProtectedMakerParamsRow
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_update_perp_market_protected_maker_params_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct UpdatePerpMarketProtectedMakerParamsRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdatePerpMarketProtectedMakerParamsRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdatePerpMarketProtectedMakerParamsRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for UpdatePerpMarketProtectedMakerParams
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdatePerpMarketProtectedMakerParamsRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdatePerpMarketProtectedMakerParamsRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

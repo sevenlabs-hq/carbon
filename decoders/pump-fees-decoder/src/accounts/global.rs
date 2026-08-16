@@ -5,22 +5,50 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Global {
     pub initialized: bool,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_recipient: Pubkey,
     pub initial_virtual_token_reserves: u64,
     pub initial_virtual_sol_reserves: u64,
     pub initial_real_token_reserves: u64,
     pub token_total_supply: u64,
     pub fee_basis_points: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub withdraw_authority: Pubkey,
     pub enable_migrate: bool,
     pub pool_migration_fee: u64,
     pub creator_fee_basis_points: u64,
     pub fee_recipients: [Pubkey; 7],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub set_creator_authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin_set_creator_authority: Pubkey,
     pub create_v2_enabled: bool,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whitelist_pda: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub reserved_fee_recipient: Pubkey,
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: [Pubkey; 7],

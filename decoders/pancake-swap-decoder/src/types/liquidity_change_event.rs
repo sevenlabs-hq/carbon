@@ -5,6 +5,10 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LiquidityChangeEvent {
     /// The pool for swap
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_state: Pubkey,
     /// The tick of the pool
     pub tick: i32,

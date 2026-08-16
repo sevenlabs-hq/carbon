@@ -3,6 +3,10 @@ use {crate::types::OracleType, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct OracleParams {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub oracle_account: Pubkey,
     pub oracle_type: OracleType,
     pub buffer: u64,

@@ -44,55 +44,44 @@ pub enum MplCoreAccountRow {
     PluginRegistryV1(PluginRegistryV1Row),
 }
 
-pub struct MplCoreAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub MplCoreAccount,
+pub struct MplCoreAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a MplCoreAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for MplCoreAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for MplCoreAccountMetadata<'a> {
     type Row = MplCoreAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            MplCoreAccount::AssetV1(account) => {
-                rows.push(MplCoreAccountRow::AssetV1(AssetV1Row::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MplCoreAccount::CollectionV1(account) => {
-                rows.push(MplCoreAccountRow::CollectionV1(CollectionV1Row::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MplCoreAccount::GroupV1(account) => {
-                rows.push(MplCoreAccountRow::GroupV1(GroupV1Row::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MplCoreAccount::HashedAssetV1(account) => {
-                rows.push(MplCoreAccountRow::HashedAssetV1(
-                    HashedAssetV1Row::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplCoreAccount::PluginHeaderV1(account) => {
-                rows.push(MplCoreAccountRow::PluginHeaderV1(
-                    PluginHeaderV1Row::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplCoreAccount::PluginRegistryV1(account) => {
-                rows.push(MplCoreAccountRow::PluginRegistryV1(
-                    PluginRegistryV1Row::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let MplCoreAccount::$variant(account) = account {
+                    rows.push(MplCoreAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let MplCoreAccount::$variant(account) = account {
+                    rows.push(MplCoreAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AssetV1, AssetV1Row, boxed);
+        insert_branch!(CollectionV1, CollectionV1Row, boxed);
+        insert_branch!(GroupV1, GroupV1Row, boxed);
+        insert_branch!(HashedAssetV1, HashedAssetV1Row, boxed);
+        insert_branch!(PluginHeaderV1, PluginHeaderV1Row, boxed);
+        insert_branch!(PluginRegistryV1, PluginRegistryV1Row, boxed);
 
         Ok(())
     }
@@ -101,28 +90,23 @@ impl carbon_core::clickhouse::BatchInsert for MplCoreAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for MplCoreAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AssetV1, AssetV1Row);
@@ -131,6 +115,7 @@ impl carbon_core::clickhouse::BatchCommit for MplCoreAccountRow {
         commit_branch!(HashedAssetV1, HashedAssetV1Row);
         commit_branch!(PluginHeaderV1, PluginHeaderV1Row);
         commit_branch!(PluginRegistryV1, PluginRegistryV1Row);
+
         Ok(())
     }
 }

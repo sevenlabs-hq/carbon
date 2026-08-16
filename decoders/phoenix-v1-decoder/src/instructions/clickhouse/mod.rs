@@ -118,249 +118,70 @@ pub enum PhoenixV1InstructionRow {
     WithdrawFunds(WithdrawFundsRow),
 }
 
-pub struct PhoenixV1InstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub PhoenixV1Instruction,
+pub struct PhoenixV1InstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a PhoenixV1Instruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for PhoenixV1InstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for PhoenixV1InstructionMetadata<'a> {
     type Row = PhoenixV1InstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            PhoenixV1Instruction::CancelAllOrders { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::CancelAllOrders(
-                    CancelAllOrdersRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let PhoenixV1Instruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(PhoenixV1InstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::CancelAllOrdersWithFreeFunds { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::CancelAllOrdersWithFreeFunds(
-                    CancelAllOrdersWithFreeFundsRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::CancelMultipleOrdersById { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::CancelMultipleOrdersById(
-                    CancelMultipleOrdersByIdRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::CancelMultipleOrdersByIdWithFreeFunds {
-                data, accounts, ..
-            } => {
-                rows.push(
-                    PhoenixV1InstructionRow::CancelMultipleOrdersByIdWithFreeFunds(
-                        CancelMultipleOrdersByIdWithFreeFundsRow::try_from((
-                            data.clone(),
-                            metadata.clone(),
-                            accounts.clone(),
-                        ))?,
-                    ),
-                );
-            }
-            PhoenixV1Instruction::CancelUpTo { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::CancelUpTo(
-                    CancelUpToRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            PhoenixV1Instruction::CancelUpToWithFreeFunds { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::CancelUpToWithFreeFunds(
-                    CancelUpToWithFreeFundsRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::ChangeFeeRecipient { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::ChangeFeeRecipient(
-                    ChangeFeeRecipientRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::ChangeMarketStatus { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::ChangeMarketStatus(
-                    ChangeMarketStatusRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::ChangeSeatStatus { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::ChangeSeatStatus(
-                    ChangeSeatStatusRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::ClaimAuthority { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::ClaimAuthority(
-                    ClaimAuthorityRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::CollectFees { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::CollectFees(
-                    CollectFeesRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            PhoenixV1Instruction::DepositFunds { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::DepositFunds(
-                    DepositFundsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            PhoenixV1Instruction::EvictSeat { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::EvictSeat(EvictSeatRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            PhoenixV1Instruction::ForceCancelOrders { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::ForceCancelOrders(
-                    ForceCancelOrdersRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::InitializeMarket { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::InitializeMarket(
-                    InitializeMarketRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::Log { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::Log(LogRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            PhoenixV1Instruction::NameSuccessor { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::NameSuccessor(
-                    NameSuccessorRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            PhoenixV1Instruction::PlaceLimitOrder { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::PlaceLimitOrder(
-                    PlaceLimitOrderRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::PlaceLimitOrderWithFreeFunds { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::PlaceLimitOrderWithFreeFunds(
-                    PlaceLimitOrderWithFreeFundsRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::PlaceMultiplePostOnlyOrders { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::PlaceMultiplePostOnlyOrders(
-                    PlaceMultiplePostOnlyOrdersRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::PlaceMultiplePostOnlyOrdersWithFreeFunds {
-                data,
-                accounts,
-                ..
-            } => {
-                rows.push(
-                    PhoenixV1InstructionRow::PlaceMultiplePostOnlyOrdersWithFreeFunds(
-                        PlaceMultiplePostOnlyOrdersWithFreeFundsRow::try_from((
-                            data.clone(),
-                            metadata.clone(),
-                            accounts.clone(),
-                        ))?,
-                    ),
-                );
-            }
-            PhoenixV1Instruction::ReduceOrder { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::ReduceOrder(
-                    ReduceOrderRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            PhoenixV1Instruction::ReduceOrderWithFreeFunds { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::ReduceOrderWithFreeFunds(
-                    ReduceOrderWithFreeFundsRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::RequestSeat { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::RequestSeat(
-                    RequestSeatRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            PhoenixV1Instruction::RequestSeatAuthorized { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::RequestSeatAuthorized(
-                    RequestSeatAuthorizedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::Swap { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::Swap(SwapRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            PhoenixV1Instruction::SwapWithFreeFunds { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::SwapWithFreeFunds(
-                    SwapWithFreeFundsRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            PhoenixV1Instruction::WithdrawFunds { data, accounts, .. } => {
-                rows.push(PhoenixV1InstructionRow::WithdrawFunds(
-                    WithdrawFundsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(CancelAllOrders, CancelAllOrdersRow);
+        insert_branch!(
+            CancelAllOrdersWithFreeFunds,
+            CancelAllOrdersWithFreeFundsRow
+        );
+        insert_branch!(CancelMultipleOrdersById, CancelMultipleOrdersByIdRow);
+        insert_branch!(
+            CancelMultipleOrdersByIdWithFreeFunds,
+            CancelMultipleOrdersByIdWithFreeFundsRow
+        );
+        insert_branch!(CancelUpTo, CancelUpToRow);
+        insert_branch!(CancelUpToWithFreeFunds, CancelUpToWithFreeFundsRow);
+        insert_branch!(ChangeFeeRecipient, ChangeFeeRecipientRow);
+        insert_branch!(ChangeMarketStatus, ChangeMarketStatusRow);
+        insert_branch!(ChangeSeatStatus, ChangeSeatStatusRow);
+        insert_branch!(ClaimAuthority, ClaimAuthorityRow);
+        insert_branch!(CollectFees, CollectFeesRow);
+        insert_branch!(DepositFunds, DepositFundsRow);
+        insert_branch!(EvictSeat, EvictSeatRow);
+        insert_branch!(ForceCancelOrders, ForceCancelOrdersRow);
+        insert_branch!(InitializeMarket, InitializeMarketRow);
+        insert_branch!(Log, LogRow);
+        insert_branch!(NameSuccessor, NameSuccessorRow);
+        insert_branch!(PlaceLimitOrder, PlaceLimitOrderRow);
+        insert_branch!(
+            PlaceLimitOrderWithFreeFunds,
+            PlaceLimitOrderWithFreeFundsRow
+        );
+        insert_branch!(PlaceMultiplePostOnlyOrders, PlaceMultiplePostOnlyOrdersRow);
+        insert_branch!(
+            PlaceMultiplePostOnlyOrdersWithFreeFunds,
+            PlaceMultiplePostOnlyOrdersWithFreeFundsRow
+        );
+        insert_branch!(ReduceOrder, ReduceOrderRow);
+        insert_branch!(ReduceOrderWithFreeFunds, ReduceOrderWithFreeFundsRow);
+        insert_branch!(RequestSeat, RequestSeatRow);
+        insert_branch!(RequestSeatAuthorized, RequestSeatAuthorizedRow);
+        insert_branch!(Swap, SwapRow);
+        insert_branch!(SwapWithFreeFunds, SwapWithFreeFundsRow);
+        insert_branch!(WithdrawFunds, WithdrawFundsRow);
 
         Ok(())
     }
@@ -369,28 +190,23 @@ impl carbon_core::clickhouse::BatchInsert for PhoenixV1InstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for PhoenixV1InstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(CancelAllOrders, CancelAllOrdersRow);
@@ -433,6 +249,7 @@ impl carbon_core::clickhouse::BatchCommit for PhoenixV1InstructionRow {
         commit_branch!(Swap, SwapRow);
         commit_branch!(SwapWithFreeFunds, SwapWithFreeFundsRow);
         commit_branch!(WithdrawFunds, WithdrawFundsRow);
+
         Ok(())
     }
 }

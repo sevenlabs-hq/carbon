@@ -10,12 +10,20 @@ pub struct BorrowOrder {
     /// The asset to be borrowed.
     /// The reserves used for [Obligation::borrows] *must* all provide exactly
     /// this asset.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub debt_liquidity_mint: Pubkey,
     /// The amount of debt that still needs to be filled, in lamports.
     pub remaining_debt_amount: u64,
     /// The token account owned by the [Obligation::owner] and holding
     /// [Self::debt_liquidity_mint], where the filled funds should be
     /// transferred to.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub filled_debt_destination: Pubkey,
     /// The minimum allowed debt term that the obligation owner agrees to.
     /// The reserves used to fill this order *cannot* define their debt term

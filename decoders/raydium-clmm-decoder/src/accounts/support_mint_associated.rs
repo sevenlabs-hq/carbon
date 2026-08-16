@@ -7,6 +7,10 @@ pub struct SupportMintAssociated {
     /// Bump to identify PDA
     pub bump: u8,
     /// Address of the supported token22 mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     pub padding: [u64; 8],
 }

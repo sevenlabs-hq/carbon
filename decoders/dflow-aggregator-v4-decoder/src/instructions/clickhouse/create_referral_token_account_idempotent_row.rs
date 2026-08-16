@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<CreateReferralTokenAccountIdempotentRow> for (crate::instructions::create_referral_token_account_idempotent::CreateReferralTokenAccountIdempotent, crate::instructions::create_referral_token_account_idempotent::CreateReferralTokenAccountIdempotentInstructionAccounts, CreateReferralTokenAccountIdempotentRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CreateReferralTokenAccountIdempotentRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::create_referral_token_account_idempotent::CreateReferralTokenAccountIdempotent = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::create_referral_token_account_idempotent::CreateReferralTokenAccountIdempotentInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CreateReferralTokenAccountIdempotentRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for CreateReferralTokenAccountIdempotentRow 
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CreateReferralTokenAccountIdempotentRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,10 @@ impl carbon_core::clickhouse::Insert for CreateReferralTokenAccountIdempotentRow
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>(
+                "dflow_aggregator_v4_create_referral_token_account_idempotent_instruction",
+            )
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +112,9 @@ pub struct CreateReferralTokenAccountIdempotentRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for CreateReferralTokenAccountIdempotentRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for CreateReferralTokenAccountIdempotentRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +189,9 @@ impl carbon_core::clickhouse::Operation for CreateReferralTokenAccountIdempotent
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for CreateReferralTokenAccountIdempotentRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for CreateReferralTokenAccountIdempotentRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

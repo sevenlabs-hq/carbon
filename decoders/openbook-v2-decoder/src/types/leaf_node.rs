@@ -15,6 +15,10 @@ pub struct LeafNode {
     /// The binary tree key, see new_node_key()
     pub key: u128,
     /// Address of the owning OpenOrdersAccount
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     /// Number of base lots to buy or sell, always >=1
     pub quantity: i64,

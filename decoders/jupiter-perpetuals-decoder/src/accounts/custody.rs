@@ -11,8 +11,20 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Custody {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_account: Pubkey,
     pub decimals: u8,
     pub is_stable: bool,
@@ -27,8 +39,16 @@ pub struct Custody {
     pub increase_position_bps: u64,
     pub decrease_position_bps: u64,
     pub max_position_size_usd: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub doves_oracle: Pubkey,
     pub jump_rate_state: JumpRateState,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub doves_ag_oracle: Pubkey,
     pub price_impact_buffer: PriceImpactBuffer,
     pub borrow_lend_parameters: BorrowLendParams,

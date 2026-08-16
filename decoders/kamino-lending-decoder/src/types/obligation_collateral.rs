@@ -5,6 +5,10 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ObligationCollateral {
     /// Reserve collateral is deposited to
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub deposit_reserve: Pubkey,
     /// Amount of collateral deposited
     pub deposited_amount: u64,

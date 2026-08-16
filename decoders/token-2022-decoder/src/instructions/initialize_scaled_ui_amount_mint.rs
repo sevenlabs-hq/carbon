@@ -15,6 +15,10 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct InitializeScaledUiAmountMint {
     /// The authority that can update the multiplier
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub authority: Option<Pubkey>,
     /// The initial multiplier for the scaled UI extension
     pub multiplier: f64,
@@ -23,6 +27,10 @@ pub struct InitializeScaledUiAmountMint {
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct InitializeScaledUiAmountMintInstructionAccounts {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }

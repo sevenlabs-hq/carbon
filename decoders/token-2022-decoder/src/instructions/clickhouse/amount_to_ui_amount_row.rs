@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<AmountToUiAmountRow>
+    for (
+        crate::instructions::amount_to_ui_amount::AmountToUiAmount,
+        crate::instructions::amount_to_ui_amount::AmountToUiAmountInstructionAccounts,
+        AmountToUiAmountRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: AmountToUiAmountRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::amount_to_ui_amount::AmountToUiAmount =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::amount_to_ui_amount::AmountToUiAmountInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for AmountToUiAmountRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for AmountToUiAmountRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for AmountToUiAmountRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for AmountToUiAmountRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("token_2022_amount_to_ui_amount_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

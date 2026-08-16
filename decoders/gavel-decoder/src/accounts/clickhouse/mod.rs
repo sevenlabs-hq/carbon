@@ -29,31 +29,40 @@ pub enum GavelAccountRow {
     PoolAccount(PoolAccountRow),
 }
 
-pub struct GavelAccountMetadata(pub carbon_core::account::AccountMetadata, pub GavelAccount);
+pub struct GavelAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a GavelAccount,
+);
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for GavelAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for GavelAccountMetadata<'a> {
     type Row = GavelAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            GavelAccount::LpPositionAccount(account) => {
-                rows.push(GavelAccountRow::LpPositionAccount(
-                    LpPositionAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            GavelAccount::PoolAccount(account) => {
-                rows.push(GavelAccountRow::PoolAccount(PoolAccountRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let GavelAccount::$variant(account) = account {
+                    rows.push(GavelAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let GavelAccount::$variant(account) = account {
+                    rows.push(GavelAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(LpPositionAccount, LpPositionAccountRow, boxed);
+        insert_branch!(PoolAccount, PoolAccountRow, boxed);
 
         Ok(())
     }
@@ -62,32 +71,28 @@ impl carbon_core::clickhouse::BatchInsert for GavelAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for GavelAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(LpPositionAccount, LpPositionAccountRow);
         commit_branch!(PoolAccount, PoolAccountRow);
+
         Ok(())
     }
 }

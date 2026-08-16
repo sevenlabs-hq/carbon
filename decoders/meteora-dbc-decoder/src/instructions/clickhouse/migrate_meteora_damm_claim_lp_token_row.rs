@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<MigrateMeteoraDammClaimLpTokenRow> for (crate::instructions::migrate_meteora_damm_claim_lp_token::MigrateMeteoraDammClaimLpToken, crate::instructions::migrate_meteora_damm_claim_lp_token::MigrateMeteoraDammClaimLpTokenInstructionAccounts, MigrateMeteoraDammClaimLpTokenRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: MigrateMeteoraDammClaimLpTokenRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::migrate_meteora_damm_claim_lp_token::MigrateMeteoraDammClaimLpToken = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::migrate_meteora_damm_claim_lp_token::MigrateMeteoraDammClaimLpTokenInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for MigrateMeteoraDammClaimLpTokenRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for MigrateMeteoraDammClaimLpTokenRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for MigrateMeteoraDammClaimLpTokenRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for MigrateMeteoraDammClaimLpTokenRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_dbc_migrate_meteora_damm_claim_lp_token_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -199,7 +210,9 @@ impl carbon_core::clickhouse::Operation for MigrateMeteoraDammClaimLpTokenRowMig
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS meteora_dbc_migrate_meteora_damm_claim_lp_token_instruction")
+            .query(
+                "DROP TABLE IF EXISTS meteora_dbc_migrate_meteora_damm_claim_lp_token_instruction",
+            )
             .execute()
             .await?;
 

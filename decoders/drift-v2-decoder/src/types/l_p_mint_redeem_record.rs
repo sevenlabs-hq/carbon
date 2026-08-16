@@ -5,6 +5,10 @@ use solana_pubkey::Pubkey;
 pub struct LPMintRedeemRecord {
     pub ts: i64,
     pub slot: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
     pub description: u8,
     pub amount: u128,
@@ -12,6 +16,10 @@ pub struct LPMintRedeemRecord {
     pub spot_market_index: u16,
     pub constituent_index: u16,
     pub oracle_price: i64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     pub lp_amount: u64,
     pub lp_fee: i64,
@@ -21,5 +29,9 @@ pub struct LPMintRedeemRecord {
     pub last_aum_slot: u64,
     pub in_market_current_weight: i64,
     pub in_market_target_weight: i64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lp_pool: Pubkey,
 }

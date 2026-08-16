@@ -9,6 +9,10 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ReservationListV1 {
     pub key: Key,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub master_edition: Pubkey,
     pub supply_snapshot: Option<u64>,
     pub reservations: Vec<ReservationV1>,

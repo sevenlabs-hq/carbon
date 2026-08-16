@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<BurnEditionNftRow>
+    for (
+        crate::instructions::burn_edition_nft::BurnEditionNft,
+        crate::instructions::burn_edition_nft::BurnEditionNftInstructionAccounts,
+        BurnEditionNftRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: BurnEditionNftRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::burn_edition_nft::BurnEditionNft =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::burn_edition_nft::BurnEditionNftInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for BurnEditionNftRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for BurnEditionNftRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for BurnEditionNftRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for BurnEditionNftRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("mpl_token_metadata_burn_edition_nft_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

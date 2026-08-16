@@ -18,25 +18,53 @@ pub struct Vault {
     /// token_vault and the liquidity in all strategies.
     pub total_amount: u64,
     /// Token account, hold liquidity in vault reserve
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_vault: Pubkey,
     /// Hold lp token of vault, each time rebalance crank is called, vault
     /// calculate performance fee and mint corresponding lp token amount to
     /// fee_vault. fee_vault is owned by treasury address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_vault: Pubkey,
     /// Token mint that vault supports
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_mint: Pubkey,
     /// Lp mint of vault
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lp_mint: Pubkey,
     /// The list of strategy addresses that vault supports, vault can support up
     /// to MAX_STRATEGY strategies at the same time.
     pub strategies: [Pubkey; 30],
     /// The base address to create vault seeds
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub base: Pubkey,
     /// Admin of vault
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin: Pubkey,
     /// Person who can send the crank. Operator can only send liquidity to
     /// strategies that admin defined, and claim reward to account of treasury
     /// address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub operator: Pubkey,
     /// Stores information for locked profit.
     pub locked_profit_tracker: LockedProfitTracker,

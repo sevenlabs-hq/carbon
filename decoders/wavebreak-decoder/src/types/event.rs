@@ -8,8 +8,20 @@ use {
 pub enum Event {
     BondingCurveCreated {
         creation_type: BondingCurveCreationType,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         base_mint: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         quote_mint: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         creator: Pubkey,
         start_price: u128,
         end_price: u128,
@@ -32,14 +44,34 @@ pub enum Event {
         sell_requires_permission: bool,
         sell_permission_bitmap: [u8; 32],
         max_sell_amount: u64,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         quote_token_program: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         base_token_program: Pubkey,
         quote_token_decimals: u8,
         base_token_decimals: u8,
     },
     TokenBought {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         buyer: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         base_mint: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         quote_mint: Pubkey,
         amount_in: u64,
         amount_out: u64,
@@ -52,8 +84,20 @@ pub enum Event {
         protocol_fee: u64,
     },
     TokenSold {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         seller: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         base_mint: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         quote_mint: Pubkey,
         amount_in: u64,
         amount_out: u64,
@@ -66,21 +110,49 @@ pub enum Event {
         protocol_fee: u64,
     },
     TokenRefunded {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         signer: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         base_mint: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         quote_mint: Pubkey,
         price: u128,
         quote_amount: u64,
         base_amount: u64,
     },
     BondingCurveGraduated {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         graduator: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         base_mint: Pubkey,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         quote_mint: Pubkey,
         final_price: u128,
         graduation_methods: [GraduationMethodData; 8],
     },
     BondingCurveClosed {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         bonding_curve: Pubkey,
     },
 }

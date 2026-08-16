@@ -5,8 +5,16 @@ use {crate::types::UserFees, carbon_core::deserialize::CarbonDeserialize, solana
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UserStats {
     /// The authority for all of a users sub accounts
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
     /// The address that referred this user
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub referrer: Pubkey,
     /// Stats on the fees paid by the user
     pub fees: UserFees,

@@ -4,12 +4,24 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Lending {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub f_token_mint: Pubkey,
     pub lending_id: u16,
     /// number of decimals for the fToken, same as underlying mint
     pub decimals: u8,
     /// PDA of rewards rate model (LRRM)
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub rewards_rate_model: Pubkey,
     /// exchange price in the liquidity layer (no rewards)
     pub liquidity_exchange_price: u64,
@@ -17,7 +29,15 @@ pub struct Lending {
     pub token_exchange_price: u64,
     /// unix timestamp when exchange prices were updated last
     pub last_update_timestamp: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_reserves_liquidity: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub supply_position_on_liquidity: Pubkey,
     pub bump: u8,
 }

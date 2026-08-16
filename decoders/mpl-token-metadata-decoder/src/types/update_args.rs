@@ -10,6 +10,10 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum UpdateArgs {
     V1 {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         new_update_authority: Option<Pubkey>,
         data: Option<Data>,
         primary_sale_happened: Option<bool>,
@@ -21,6 +25,10 @@ pub enum UpdateArgs {
         authorization_data: Option<AuthorizationData>,
     },
     AsUpdateAuthorityV2 {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         new_update_authority: Option<Pubkey>,
         data: Option<Data>,
         primary_sale_happened: Option<bool>,
@@ -33,6 +41,10 @@ pub enum UpdateArgs {
         authorization_data: Option<AuthorizationData>,
     },
     AsAuthorityItemDelegateV2 {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         new_update_authority: Option<Pubkey>,
         primary_sale_happened: Option<bool>,
         is_mutable: Option<bool>,

@@ -17,12 +17,28 @@ pub struct LockedCpLiquidityState {
     /// Account update recent epoch
     pub recent_epoch: u64,
     /// The ID of the pool with which this record is connected
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_id: Pubkey,
     /// nft mint to check who has authority to collect fee
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_nft_mint: Pubkey,
     /// The owner who has locked liquidity
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub locked_owner: Pubkey,
     /// The mint of locked lp token
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub locked_lp_mint: Pubkey,
     /// Unused bytes for future upgrades.
     pub padding: [u64; 8],

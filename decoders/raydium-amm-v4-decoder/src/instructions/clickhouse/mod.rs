@@ -83,129 +83,48 @@ pub enum RaydiumAmmV4InstructionRow {
     WithdrawSrm(WithdrawSrmRow),
 }
 
-pub struct RaydiumAmmV4InstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub RaydiumAmmV4Instruction,
+pub struct RaydiumAmmV4InstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a RaydiumAmmV4Instruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for RaydiumAmmV4InstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for RaydiumAmmV4InstructionMetadata<'a> {
     type Row = RaydiumAmmV4InstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            RaydiumAmmV4Instruction::AdminCancelOrders { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::AdminCancelOrders(
-                    AdminCancelOrdersRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let RaydiumAmmV4Instruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(RaydiumAmmV4InstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::CreateConfigAccount { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::CreateConfigAccount(
-                    CreateConfigAccountRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::Deposit { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::Deposit(DepositRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            RaydiumAmmV4Instruction::Initialize { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::Initialize(
-                    InitializeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::Initialize2 { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::Initialize2(
-                    Initialize2Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::MigrateToOpenBook { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::MigrateToOpenBook(
-                    MigrateToOpenBookRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::MonitorStep { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::MonitorStep(
-                    MonitorStepRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::PreInitialize { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::PreInitialize(
-                    PreInitializeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::SetParams { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::SetParams(
-                    SetParamsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::SimulateInfo { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::SimulateInfo(
-                    SimulateInfoRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::SwapBaseIn { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::SwapBaseIn(
-                    SwapBaseInRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::SwapBaseInV2 { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::SwapBaseInV2(
-                    SwapBaseInV2Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::SwapBaseOut { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::SwapBaseOut(
-                    SwapBaseOutRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::SwapBaseOutV2 { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::SwapBaseOutV2(
-                    SwapBaseOutV2Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::UpdateConfigAccount { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::UpdateConfigAccount(
-                    UpdateConfigAccountRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::Withdraw { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::Withdraw(WithdrawRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            RaydiumAmmV4Instruction::WithdrawPnl { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::WithdrawPnl(
-                    WithdrawPnlRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumAmmV4Instruction::WithdrawSrm { data, accounts, .. } => {
-                rows.push(RaydiumAmmV4InstructionRow::WithdrawSrm(
-                    WithdrawSrmRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AdminCancelOrders, AdminCancelOrdersRow);
+        insert_branch!(CreateConfigAccount, CreateConfigAccountRow);
+        insert_branch!(Deposit, DepositRow);
+        insert_branch!(Initialize, InitializeRow);
+        insert_branch!(Initialize2, Initialize2Row);
+        insert_branch!(MigrateToOpenBook, MigrateToOpenBookRow);
+        insert_branch!(MonitorStep, MonitorStepRow);
+        insert_branch!(PreInitialize, PreInitializeRow);
+        insert_branch!(SetParams, SetParamsRow);
+        insert_branch!(SimulateInfo, SimulateInfoRow);
+        insert_branch!(SwapBaseIn, SwapBaseInRow);
+        insert_branch!(SwapBaseInV2, SwapBaseInV2Row);
+        insert_branch!(SwapBaseOut, SwapBaseOutRow);
+        insert_branch!(SwapBaseOutV2, SwapBaseOutV2Row);
+        insert_branch!(UpdateConfigAccount, UpdateConfigAccountRow);
+        insert_branch!(Withdraw, WithdrawRow);
+        insert_branch!(WithdrawPnl, WithdrawPnlRow);
+        insert_branch!(WithdrawSrm, WithdrawSrmRow);
 
         Ok(())
     }
@@ -214,28 +133,23 @@ impl carbon_core::clickhouse::BatchInsert for RaydiumAmmV4InstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for RaydiumAmmV4InstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AdminCancelOrders, AdminCancelOrdersRow);
@@ -256,6 +170,7 @@ impl carbon_core::clickhouse::BatchCommit for RaydiumAmmV4InstructionRow {
         commit_branch!(Withdraw, WithdrawRow);
         commit_branch!(WithdrawPnl, WithdrawPnlRow);
         commit_branch!(WithdrawSrm, WithdrawSrmRow);
+
         Ok(())
     }
 }

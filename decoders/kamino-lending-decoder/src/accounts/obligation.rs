@@ -16,8 +16,16 @@ pub struct Obligation {
     /// Last update to collateral, liquidity, or their market values
     pub last_update: LastUpdate,
     /// Lending market address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lending_market: Pubkey,
     /// Owner authority which can borrow liquidity
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     /// Deposited collateral for the obligation, unique by deposit reserve
     /// address
@@ -50,6 +58,10 @@ pub struct Obligation {
     /// Marked = 1 if borrows array is not empty, 0 = borrows empty
     pub has_debt: u8,
     /// Wallet address of the referrer
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub referrer: Pubkey,
     /// Marked = 1 if borrowing disabled, 0 = borrowing enabled
     pub borrowing_disabled: u8,
@@ -79,6 +91,10 @@ pub struct Obligation {
     pub borrow_order: BorrowOrder,
     /// Pending owner during ownership transfer process.
     /// Pubkey::default() means no pending owner (similar to Option::None)
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pending_owner: Pubkey,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub padding3: [u64; 69],

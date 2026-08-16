@@ -5,6 +5,10 @@ use {crate::types::WrappedI80F48, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct FeeStateCache {
     /// The wallet that receives program-level fees
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global_fee_wallet: Pubkey,
     /// Fixed fee APR charged to borrowers (program-level)
     pub program_fee_fixed: WrappedI80F48,

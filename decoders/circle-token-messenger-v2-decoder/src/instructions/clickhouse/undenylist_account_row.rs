@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<UndenylistAccountRow>
+    for (
+        crate::instructions::undenylist_account::UndenylistAccount,
+        crate::instructions::undenylist_account::UndenylistAccountInstructionAccounts,
+        UndenylistAccountRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UndenylistAccountRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::undenylist_account::UndenylistAccount =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::undenylist_account::UndenylistAccountInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UndenylistAccountRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for UndenylistAccountRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UndenylistAccountRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for UndenylistAccountRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("circle_token_messenger_v2_undenylist_account_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

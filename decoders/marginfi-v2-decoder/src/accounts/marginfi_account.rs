@@ -8,7 +8,15 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct MarginfiAccount {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub group: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
     pub lending_account: LendingAccount,
     /// The flags that indicate the state of the account. This is u64 bitfield,
@@ -40,13 +48,25 @@ pub struct MarginfiAccount {
     /// actions until unfrozen.
     pub account_flags: u64,
     /// Wallet whose canonical ATA receives off-chain emissions distributions.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub emissions_destination_account: Pubkey,
     pub health_cache: HealthCache,
     /// If this account was migrated from another one, store the original
     /// account key
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub migrated_from: Pubkey,
     /// If this account has been migrated to another one, store the destination
     /// account key
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub migrated_to: Pubkey,
     /// Unix timestamp (u64) of the last account interaction. Note:
     /// Bank.last_update uses i64.
@@ -76,6 +96,10 @@ pub struct MarginfiAccount {
     ///
     /// also charge the user if they are opening a risky position on the front
     /// end.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidation_record: Pubkey,
     pub padding0: [u64; 7],
 }

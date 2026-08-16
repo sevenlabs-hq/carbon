@@ -6,7 +6,13 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum PayloadType {
-    Pubkey(Pubkey),
+    Pubkey(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+    ),
     Seeds(SeedsVec),
     MerkleProof(ProofInfo),
     Number(u64),

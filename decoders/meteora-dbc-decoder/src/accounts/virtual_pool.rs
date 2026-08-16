@@ -11,14 +11,34 @@ pub struct VirtualPool {
     /// volatility tracker
     pub volatility_tracker: VolatilityTracker,
     /// config key
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub config: Pubkey,
     /// creator
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator: Pubkey,
     /// base mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub base_mint: Pubkey,
     /// base vault
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub base_vault: Pubkey,
     /// quote vault
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_vault: Pubkey,
     /// base reserve
     pub base_reserve: u64,

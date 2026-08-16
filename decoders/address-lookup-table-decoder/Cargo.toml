@@ -13,6 +13,8 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [features]
+base58 = ["serde"]
+
 default = []
 
 serde = ["dep:serde"]
@@ -35,7 +37,8 @@ clickhouse = [
     "carbon-core/clickhouse",
     "dep:clickhouse",
     "dep:async-trait",
-    "serde",
+    "solana-pubkey/serde",
+    "base58",
 ]
 
 clickhouse-cluster = [

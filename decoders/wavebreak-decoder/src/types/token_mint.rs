@@ -4,10 +4,18 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct TokenMint {
     pub mint_authority_flag: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint_authority: Pubkey,
     pub supply: u64,
     pub decimals: u8,
     pub is_initialized: bool,
     pub freeze_authority_flag: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub freeze_authority: Pubkey,
 }

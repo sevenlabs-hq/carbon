@@ -4,6 +4,10 @@ use {crate::types::WhirlpoolRewardInfo, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Whirlpool {
     pub discriminator: [u8; 8],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whirlpool_config: Pubkey,
     pub whirlpool_bump: u8,
     pub tick_spacing: u16,
@@ -15,10 +19,26 @@ pub struct Whirlpool {
     pub tick_current_index: i32,
     pub protocol_fee_owed_a: u64,
     pub protocol_fee_owed_b: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_a_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_a_vault: Pubkey,
     pub fee_growth_global_a: u128,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_b_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_b_vault: Pubkey,
     pub fee_growth_global_b: u128,
     pub reward_last_updated_timestamp: u64,

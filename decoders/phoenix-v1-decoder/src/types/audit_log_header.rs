@@ -7,7 +7,15 @@ pub struct AuditLogHeader {
     pub sequence_number: u64,
     pub timestamp: i64,
     pub slot: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub market: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub signer: Pubkey,
     pub total_events: u16,
 }

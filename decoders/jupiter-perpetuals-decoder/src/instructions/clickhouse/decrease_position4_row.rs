@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<DecreasePosition4Row>
+    for (
+        crate::instructions::decrease_position4::DecreasePosition4,
+        crate::instructions::decrease_position4::DecreasePosition4InstructionAccounts,
+        DecreasePosition4Row,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: DecreasePosition4Row) -> Result<Self, Self::Error> {
+        let source: crate::instructions::decrease_position4::DecreasePosition4 =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::decrease_position4::DecreasePosition4InstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for DecreasePosition4Row {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for DecreasePosition4Row {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for DecreasePosition4Row {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for DecreasePosition4Row {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("jupiter_perpetuals_decrease_position4_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

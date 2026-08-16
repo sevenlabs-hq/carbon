@@ -1,8 +1,6 @@
 {% extends "layout.njk" %}
 {% import "macros.njk" as macros %}
 
-{% set table_name = ( program.name | snakeCase)~"_instructions" %}
-
 {% block main %}
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
 pub mod {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row;
@@ -35,11 +33,6 @@ impl carbon_core::clickhouse::Migration for {{ program.name | pascalCase }}Instr
             Box::new(CpiEventMigrationOperation),{% endif %}
         ]
     }
-
-    #[cfg(feature = "clickhouse-cluster")]
-    fn config(&self) -> &carbon_core::clickhouse::MigrationConfig {
-        &self.config
-    }
 }
 
 pub enum {{ program.name | pascalCase }}InstructionRow {
@@ -47,53 +40,52 @@ pub enum {{ program.name | pascalCase }}InstructionRow {
 {% endfor %}{% if hasAnchorEvents %}    CpiEvent(CpiEventRow),
 {% endif %}}
 
-pub struct {{ program.name | pascalCase }}InstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub {{ program.name | pascalCase }}Instruction,
+pub struct {{ program.name | pascalCase }}InstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a {{ program.name | pascalCase }}Instruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for {{ program.name | pascalCase }}InstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for {{ program.name | pascalCase }}InstructionMetadata<'a> {
     type Row = {{ program.name | pascalCase }}InstructionRow;
-    
-    async fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
 
-        match instruction {
-{% for instruction in instructionsToExport | sort(false, false, 'name') %}            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data, accounts, .. } => {
-                rows.push({{ program.name | pascalCase }}InstructionRow::{{ instruction.name | pascalCase }}(
-                    {{ instruction.name | pascalCase }}Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?
-                ));
-            }
-{% endfor %}{% if hasAnchorEvents %}            {{ program.name | pascalCase }}Instruction::CpiEvent { data, accounts, .. } => {
-                rows.push({{ program.name | pascalCase }}InstructionRow::CpiEvent(
-                    CpiEventRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?
-                ));
-            }
-{% endif %}        }
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
+{% if (instructionsToExport | length == 0) and (not hasAnchorEvents) %}        let _ = (metadata, instruction, rows);
+        unreachable!("BatchInsert called for program with no instruction row variants");
+{% else %}        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let {{ program.name | pascalCase }}Instruction::$variant { data, accounts, .. } = instruction {
+                    rows.push({{ program.name | pascalCase }}InstructionRow::$variant(
+                        <$row>::try_from((
+                            data.clone(),
+                            metadata.clone(),
+                            accounts.clone(),
+                        ))?,
+                    ));
+                    return Ok(());
+                }
+            };
+        }
+
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}        insert_branch!({{ instruction.name | pascalCase }}, {{ instruction.name | pascalCase }}Row);
+{% endfor %}{% if hasAnchorEvents %}        insert_branch!(CpiEvent, CpiEventRow);
+{% endif %}
         Ok(())
-    }
+{% endif %}    }
 }
 
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for {{ program.name | pascalCase }}InstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
-        macro_rules! commit_branch {
+{% if (instructionsToExport | length == 0) and (not hasAnchorEvents) %}        let _ = (client, rows);
+        unreachable!("BatchCommit called for program with no instruction row variants");
+{% else %}        macro_rules! commit_branch {
             ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
+                {
                     let branch_rows: Vec<$row> = rows
                         .iter()
                         .filter_map(|row| match row {
@@ -101,19 +93,18 @@ impl carbon_core::clickhouse::BatchCommit for {{ program.name | pascalCase }}Ins
                             _ => None,
                         })
                         .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+
+                    if !branch_rows.is_empty() {
+                        <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
+                    }
                 }
             };
         }
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}        commit_branch!({{ instruction.name | pascalCase }}, {{ instruction.name | pascalCase }}Row);
 {% endfor %}{% if hasAnchorEvents %}        commit_branch!(CpiEvent, CpiEventRow);
-{% endif %}        Ok(())
-    }
+{% endif %}
+        Ok(())
+{% endif %}    }
 }
 {% endblock %}

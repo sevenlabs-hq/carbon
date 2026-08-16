@@ -4,6 +4,10 @@ use {crate::types::List, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ValidatorSystem {
     pub validator_list: List,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub manager_authority: Pubkey,
     pub total_validator_score: u32,
     /// sum of all active lamports staked

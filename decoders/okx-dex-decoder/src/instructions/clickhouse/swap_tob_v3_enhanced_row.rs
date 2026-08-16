@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<SwapTobV3EnhancedRow>
+    for (
+        crate::instructions::swap_tob_v3_enhanced::SwapTobV3Enhanced,
+        crate::instructions::swap_tob_v3_enhanced::SwapTobV3EnhancedInstructionAccounts,
+        SwapTobV3EnhancedRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: SwapTobV3EnhancedRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::swap_tob_v3_enhanced::SwapTobV3Enhanced =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::swap_tob_v3_enhanced::SwapTobV3EnhancedInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for SwapTobV3EnhancedRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for SwapTobV3EnhancedRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for SwapTobV3EnhancedRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for SwapTobV3EnhancedRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("okx_dex_swap_tob_v3_enhanced_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

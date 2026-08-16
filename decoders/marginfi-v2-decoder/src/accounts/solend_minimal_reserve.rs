@@ -9,18 +9,46 @@ pub struct SolendMinimalReserve {
     /// True when marked stale
     pub last_update_stale: u8,
     /// Lending market address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lending_market: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidity_mint_pubkey: Pubkey,
     pub liquidity_mint_decimals: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidity_supply_pubkey: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidity_pyth_oracle_pubkey: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidity_switchboard_oracle_pubkey: Pubkey,
     pub liquidity_available_amount: u64,
     pub liquidity_borrowed_amount_wads: [u8; 16],
     pub liquidity_cumulative_borrow_rate_wads: [u8; 16],
     pub liquidity_market_price: [u8; 16],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub collateral_mint_pubkey: Pubkey,
     pub collateral_mint_total_supply: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub collateral_supply_pubkey: Pubkey,
     pub config_optimal_utilization_rate: u8,
     pub config_loan_to_value_ratio: u8,

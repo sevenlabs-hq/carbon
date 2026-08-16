@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<CreatorSetProMarketCapReflectionFeeRow> for (crate::instructions::creator_set_pro_market_cap_reflection_fee::CreatorSetProMarketCapReflectionFee, crate::instructions::creator_set_pro_market_cap_reflection_fee::CreatorSetProMarketCapReflectionFeeInstructionAccounts, CreatorSetProMarketCapReflectionFeeRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CreatorSetProMarketCapReflectionFeeRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::creator_set_pro_market_cap_reflection_fee::CreatorSetProMarketCapReflectionFee = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::creator_set_pro_market_cap_reflection_fee::CreatorSetProMarketCapReflectionFeeInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CreatorSetProMarketCapReflectionFeeRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for CreatorSetProMarketCapReflectionFeeRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CreatorSetProMarketCapReflectionFeeRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for CreatorSetProMarketCapReflectionFeeRow 
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("heaven_creator_set_pro_market_cap_reflection_fee_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

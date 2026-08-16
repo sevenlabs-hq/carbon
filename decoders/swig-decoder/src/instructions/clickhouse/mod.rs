@@ -74,150 +74,45 @@ pub enum SwigInstructionRow {
     WithdrawFromSubAccountV1(WithdrawFromSubAccountV1Row),
 }
 
-pub struct SwigInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub SwigInstruction,
+pub struct SwigInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a SwigInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for SwigInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for SwigInstructionMetadata<'a> {
     type Row = SwigInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            SwigInstruction::AddAuthorityV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::AddAuthorityV1(
-                    AddAuthorityV1Row::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let SwigInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(SwigInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::CloseSwigV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::CloseSwigV1(CloseSwigV1Row::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            SwigInstruction::CloseTokenAccountV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::CloseTokenAccountV1(
-                    CloseTokenAccountV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::CreateSessionV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::CreateSessionV1(
-                    CreateSessionV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::CreateSubAccountV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::CreateSubAccountV1(
-                    CreateSubAccountV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::CreateV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::CreateV1(CreateV1Row::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            SwigInstruction::DeprecatedSignV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::DeprecatedSignV1(
-                    DeprecatedSignV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::MigrateToWalletAddressV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::MigrateToWalletAddressV1(
-                    MigrateToWalletAddressV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::RemoveAuthorityV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::RemoveAuthorityV1(
-                    RemoveAuthorityV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::SignV2 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::SignV2(SignV2Row::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            SwigInstruction::SubAccountSignV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::SubAccountSignV1(
-                    SubAccountSignV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::ToggleSubAccountV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::ToggleSubAccountV1(
-                    ToggleSubAccountV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::TransferAssetsV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::TransferAssetsV1(
-                    TransferAssetsV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::UpdateAuthorityV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::UpdateAuthorityV1(
-                    UpdateAuthorityV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SwigInstruction::WithdrawFromSubAccountV1 { data, accounts, .. } => {
-                rows.push(SwigInstructionRow::WithdrawFromSubAccountV1(
-                    WithdrawFromSubAccountV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AddAuthorityV1, AddAuthorityV1Row);
+        insert_branch!(CloseSwigV1, CloseSwigV1Row);
+        insert_branch!(CloseTokenAccountV1, CloseTokenAccountV1Row);
+        insert_branch!(CreateSessionV1, CreateSessionV1Row);
+        insert_branch!(CreateSubAccountV1, CreateSubAccountV1Row);
+        insert_branch!(CreateV1, CreateV1Row);
+        insert_branch!(DeprecatedSignV1, DeprecatedSignV1Row);
+        insert_branch!(MigrateToWalletAddressV1, MigrateToWalletAddressV1Row);
+        insert_branch!(RemoveAuthorityV1, RemoveAuthorityV1Row);
+        insert_branch!(SignV2, SignV2Row);
+        insert_branch!(SubAccountSignV1, SubAccountSignV1Row);
+        insert_branch!(ToggleSubAccountV1, ToggleSubAccountV1Row);
+        insert_branch!(TransferAssetsV1, TransferAssetsV1Row);
+        insert_branch!(UpdateAuthorityV1, UpdateAuthorityV1Row);
+        insert_branch!(WithdrawFromSubAccountV1, WithdrawFromSubAccountV1Row);
 
         Ok(())
     }
@@ -226,28 +121,23 @@ impl carbon_core::clickhouse::BatchInsert for SwigInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for SwigInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AddAuthorityV1, AddAuthorityV1Row);
@@ -265,6 +155,7 @@ impl carbon_core::clickhouse::BatchCommit for SwigInstructionRow {
         commit_branch!(TransferAssetsV1, TransferAssetsV1Row);
         commit_branch!(UpdateAuthorityV1, UpdateAuthorityV1Row);
         commit_branch!(WithdrawFromSubAccountV1, WithdrawFromSubAccountV1Row);
+
         Ok(())
     }
 }

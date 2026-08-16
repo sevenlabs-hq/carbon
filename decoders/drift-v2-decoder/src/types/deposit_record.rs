@@ -7,7 +7,15 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct DepositRecord {
     pub ts: i64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user_authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user: Pubkey,
     pub direction: DepositDirection,
     pub deposit_record_id: u64,
@@ -21,7 +29,15 @@ pub struct DepositRecord {
     pub total_deposits_after: u64,
     pub total_withdraws_after: u64,
     pub explanation: DepositExplanation,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub transfer_user: Option<Pubkey>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub signer: Option<Pubkey>,
     pub user_token_amount_after: i128,
 }

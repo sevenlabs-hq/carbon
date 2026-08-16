@@ -30,6 +30,10 @@ pub enum DelegateArgs {
     },
     LockedTransferV1 {
         amount: u64,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         locked_address: Pubkey,
         authorization_data: Option<AuthorizationData>,
     },

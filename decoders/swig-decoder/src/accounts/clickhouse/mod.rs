@@ -19,16 +19,15 @@ impl carbon_core::clickhouse::Migration for SwigAccountsMigration {
 
 pub enum SwigAccountRow {}
 
-pub struct SwigAccountMetadata(pub carbon_core::account::AccountMetadata, pub SwigAccount);
+pub struct SwigAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a SwigAccount,
+);
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for SwigAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for SwigAccountMetadata<'a> {
     type Row = SwigAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
         let _ = rows;
         let Self(_metadata, _account) = self;
         unreachable!("BatchInsert called for program with no account row variants");
@@ -38,7 +37,6 @@ impl carbon_core::clickhouse::BatchInsert for SwigAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for SwigAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {

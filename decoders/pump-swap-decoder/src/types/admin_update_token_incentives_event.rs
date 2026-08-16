@@ -7,6 +7,10 @@ pub struct AdminUpdateTokenIncentivesEvent {
     pub end_time: i64,
     pub day_number: u64,
     pub token_supply_per_day: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     pub seconds_in_a_day: i64,
     pub timestamp: i64,

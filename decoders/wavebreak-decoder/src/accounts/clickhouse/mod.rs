@@ -41,49 +41,43 @@ pub enum WavebreakAccountRow {
     PermissionConfig(PermissionConfigRow),
 }
 
-pub struct WavebreakAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub WavebreakAccount,
+pub struct WavebreakAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a WavebreakAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for WavebreakAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for WavebreakAccountMetadata<'a> {
     type Row = WavebreakAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            WavebreakAccount::AuthorityConfig(account) => {
-                rows.push(WavebreakAccountRow::AuthorityConfig(
-                    AuthorityConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            WavebreakAccount::BondingCurve(account) => {
-                rows.push(WavebreakAccountRow::BondingCurve(
-                    BondingCurveRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            WavebreakAccount::ConsumedPermission(account) => {
-                rows.push(WavebreakAccountRow::ConsumedPermission(
-                    ConsumedPermissionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            WavebreakAccount::MintConfig(account) => {
-                rows.push(WavebreakAccountRow::MintConfig(MintConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            WavebreakAccount::PermissionConfig(account) => {
-                rows.push(WavebreakAccountRow::PermissionConfig(
-                    PermissionConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let WavebreakAccount::$variant(account) = account {
+                    rows.push(WavebreakAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let WavebreakAccount::$variant(account) = account {
+                    rows.push(WavebreakAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AuthorityConfig, AuthorityConfigRow, boxed);
+        insert_branch!(BondingCurve, BondingCurveRow, boxed);
+        insert_branch!(ConsumedPermission, ConsumedPermissionRow, boxed);
+        insert_branch!(MintConfig, MintConfigRow, boxed);
+        insert_branch!(PermissionConfig, PermissionConfigRow, boxed);
 
         Ok(())
     }
@@ -92,28 +86,23 @@ impl carbon_core::clickhouse::BatchInsert for WavebreakAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for WavebreakAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AuthorityConfig, AuthorityConfigRow);
@@ -121,6 +110,7 @@ impl carbon_core::clickhouse::BatchCommit for WavebreakAccountRow {
         commit_branch!(ConsumedPermission, ConsumedPermissionRow);
         commit_branch!(MintConfig, MintConfigRow);
         commit_branch!(PermissionConfig, PermissionConfigRow);
+
         Ok(())
     }
 }

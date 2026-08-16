@@ -32,41 +32,41 @@ pub enum Token2022AccountRow {
     Token(TokenRow),
 }
 
-pub struct Token2022AccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub Token2022Account,
+pub struct Token2022AccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a Token2022Account,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for Token2022AccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for Token2022AccountMetadata<'a> {
     type Row = Token2022AccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            Token2022Account::Mint(account) => {
-                rows.push(Token2022AccountRow::Mint(MintRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            Token2022Account::Multisig(account) => {
-                rows.push(Token2022AccountRow::Multisig(MultisigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            Token2022Account::Token(account) => {
-                rows.push(Token2022AccountRow::Token(TokenRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let Token2022Account::$variant(account) = account {
+                    rows.push(Token2022AccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let Token2022Account::$variant(account) = account {
+                    rows.push(Token2022AccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Mint, MintRow, boxed);
+        insert_branch!(Multisig, MultisigRow, boxed);
+        insert_branch!(Token, TokenRow, boxed);
 
         Ok(())
     }
@@ -75,33 +75,29 @@ impl carbon_core::clickhouse::BatchInsert for Token2022AccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for Token2022AccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Mint, MintRow);
         commit_branch!(Multisig, MultisigRow);
         commit_branch!(Token, TokenRow);
+
         Ok(())
     }
 }

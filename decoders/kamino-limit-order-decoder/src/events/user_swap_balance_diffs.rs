@@ -10,6 +10,10 @@ pub struct UserSwapBalanceDiffsEvent {
     pub user_lamports_after: u64,
     pub input_ta_balance_after: u64,
     pub output_ta_balance_after: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub swap_program: Pubkey,
     pub simulated_swap_amount_out: u64,
     pub simulated_ts: u64,

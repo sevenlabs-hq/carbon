@@ -57,6 +57,7 @@ impl TryFrom<LPPoolRow>
         ))
     }
 }
+#[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for LPPoolRow {
     fn local_table() -> &'static str {
         "drift_v2_l_p_pool_account_local"
@@ -77,7 +78,6 @@ impl carbon_core::clickhouse::Table for LPPoolRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for LPPoolRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {

@@ -8,8 +8,20 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Amm {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub initializer_key: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub initializer_deposit_token_account: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub initializer_receive_token_account: Pubkey,
     pub initializer_amount: u64,
     pub taker_amount: u64,
@@ -26,24 +38,64 @@ pub struct Amm {
     /// Base decimals account
     pub base_decimals: u8,
     /// Token program ID associated with the swap
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_program_id: Pubkey,
     /// Address of token A liquidity account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_a_account: Pubkey,
     /// Address of token B liquidity account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_b_account: Pubkey,
     /// Address of pool token mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_mint: Pubkey,
     /// Address of token A mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_a_mint: Pubkey,
     /// Address of token B mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_b_mint: Pubkey,
     /// Address of pool fee account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_account: Pubkey,
     /// Oracle Main account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub oracle_main_account: Pubkey,
     /// Oracle Sub account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub oracle_sub_account: Pubkey,
     /// oracle Pc account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub oracle_pc_account: Pubkey,
     /// Fees associated with swap
     pub fees: AmmFees,
@@ -52,14 +104,34 @@ pub struct Amm {
     /// Curve associated with swap
     pub config: AmmConfig,
     /// Temp area
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub amm_p_temp1: Pubkey,
     /// Temp area
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub amm_p_temp2: Pubkey,
     /// Temp area
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub amm_p_temp3: Pubkey,
     /// Temp area
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub amm_p_temp4: Pubkey,
     /// Temp area
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub amm_p_temp5: Pubkey,
 }
 

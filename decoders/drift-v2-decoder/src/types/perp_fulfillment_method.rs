@@ -4,5 +4,13 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum PerpFulfillmentMethod {
     AMM(Option<u64>),
-    Match(Pubkey, u16, u64),
+    Match(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+        u16,
+        u64,
+    ),
 }

@@ -9,6 +9,10 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct FeeConfig {
     pub bump: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin: Pubkey,
     pub flat_fees: Fees,
     pub fee_tiers: Vec<FeeTier>,

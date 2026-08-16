@@ -10,7 +10,15 @@ use {
 pub struct Nonce {
     pub version: NonceVersion,
     pub state: NonceState,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub blockhash: Pubkey,
     pub lamports_per_signature: u64,
 }

@@ -45,75 +45,42 @@ pub enum FluxbeamInstructionRow {
     WithdrawSingleTokenTypeExactAmountOut(WithdrawSingleTokenTypeExactAmountOutRow),
 }
 
-pub struct FluxbeamInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub FluxbeamInstruction,
+pub struct FluxbeamInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a FluxbeamInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for FluxbeamInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for FluxbeamInstructionMetadata<'a> {
     type Row = FluxbeamInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            FluxbeamInstruction::DepositAllTokenTypes { data, accounts, .. } => {
-                rows.push(FluxbeamInstructionRow::DepositAllTokenTypes(
-                    DepositAllTokenTypesRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let FluxbeamInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(FluxbeamInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            FluxbeamInstruction::DepositSingleTokenTypeExactAmountIn { data, accounts, .. } => {
-                rows.push(FluxbeamInstructionRow::DepositSingleTokenTypeExactAmountIn(
-                    DepositSingleTokenTypeExactAmountInRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            FluxbeamInstruction::Initialize { data, accounts, .. } => {
-                rows.push(FluxbeamInstructionRow::Initialize(InitializeRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            FluxbeamInstruction::Swap { data, accounts, .. } => {
-                rows.push(FluxbeamInstructionRow::Swap(SwapRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            FluxbeamInstruction::WithdrawAllTokenTypes { data, accounts, .. } => {
-                rows.push(FluxbeamInstructionRow::WithdrawAllTokenTypes(
-                    WithdrawAllTokenTypesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            FluxbeamInstruction::WithdrawSingleTokenTypeExactAmountOut {
-                data, accounts, ..
-            } => {
-                rows.push(
-                    FluxbeamInstructionRow::WithdrawSingleTokenTypeExactAmountOut(
-                        WithdrawSingleTokenTypeExactAmountOutRow::try_from((
-                            data.clone(),
-                            metadata.clone(),
-                            accounts.clone(),
-                        ))?,
-                    ),
-                );
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(DepositAllTokenTypes, DepositAllTokenTypesRow);
+        insert_branch!(
+            DepositSingleTokenTypeExactAmountIn,
+            DepositSingleTokenTypeExactAmountInRow
+        );
+        insert_branch!(Initialize, InitializeRow);
+        insert_branch!(Swap, SwapRow);
+        insert_branch!(WithdrawAllTokenTypes, WithdrawAllTokenTypesRow);
+        insert_branch!(
+            WithdrawSingleTokenTypeExactAmountOut,
+            WithdrawSingleTokenTypeExactAmountOutRow
+        );
 
         Ok(())
     }
@@ -122,28 +89,23 @@ impl carbon_core::clickhouse::BatchInsert for FluxbeamInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for FluxbeamInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(DepositAllTokenTypes, DepositAllTokenTypesRow);
@@ -158,6 +120,7 @@ impl carbon_core::clickhouse::BatchCommit for FluxbeamInstructionRow {
             WithdrawSingleTokenTypeExactAmountOut,
             WithdrawSingleTokenTypeExactAmountOutRow
         );
+
         Ok(())
     }
 }

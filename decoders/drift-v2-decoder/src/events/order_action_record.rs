@@ -13,6 +13,10 @@ pub struct OrderActionRecordEvent {
     pub action_explanation: OrderActionExplanation,
     pub market_index: u16,
     pub market_type: MarketType,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub filler: Option<Pubkey>,
     pub filler_reward: Option<u64>,
     pub fill_record_id: Option<u64>,
@@ -23,12 +27,20 @@ pub struct OrderActionRecordEvent {
     pub referrer_reward: Option<u32>,
     pub quote_asset_amount_surplus: Option<i64>,
     pub spot_fulfillment_method_fee: Option<u64>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub taker: Option<Pubkey>,
     pub taker_order_id: Option<u32>,
     pub taker_order_direction: Option<PositionDirection>,
     pub taker_order_base_asset_amount: Option<u64>,
     pub taker_order_cumulative_base_asset_amount_filled: Option<u64>,
     pub taker_order_cumulative_quote_asset_amount_filled: Option<u64>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub maker: Option<Pubkey>,
     pub maker_order_id: Option<u32>,
     pub maker_order_direction: Option<PositionDirection>,

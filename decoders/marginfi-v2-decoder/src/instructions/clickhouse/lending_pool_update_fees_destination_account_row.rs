@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<LendingPoolUpdateFeesDestinationAccountRow> for (crate::instructions::lending_pool_update_fees_destination_account::LendingPoolUpdateFeesDestinationAccount, crate::instructions::lending_pool_update_fees_destination_account::LendingPoolUpdateFeesDestinationAccountInstructionAccounts, LendingPoolUpdateFeesDestinationAccountRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: LendingPoolUpdateFeesDestinationAccountRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::lending_pool_update_fees_destination_account::LendingPoolUpdateFeesDestinationAccount = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::lending_pool_update_fees_destination_account::LendingPoolUpdateFeesDestinationAccountInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for LendingPoolUpdateFeesDestinationAccountRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for LendingPoolUpdateFeesDestinationAccountR
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for LendingPoolUpdateFeesDestinationAccountRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for LendingPoolUpdateFeesDestinationAccount
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("marginfi_v2_lending_pool_update_fees_destination_account_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct LendingPoolUpdateFeesDestinationAccountRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for LendingPoolUpdateFeesDestinationAccountRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for LendingPoolUpdateFeesDestinationAccountRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for LendingPoolUpdateFeesDestinationAcco
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for LendingPoolUpdateFeesDestinationAccountRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for LendingPoolUpdateFeesDestinationAccountRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

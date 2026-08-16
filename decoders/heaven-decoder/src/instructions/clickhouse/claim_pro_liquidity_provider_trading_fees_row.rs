@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<ClaimProLiquidityProviderTradingFeesRow> for (crate::instructions::claim_pro_liquidity_provider_trading_fees::ClaimProLiquidityProviderTradingFees, crate::instructions::claim_pro_liquidity_provider_trading_fees::ClaimProLiquidityProviderTradingFeesInstructionAccounts, ClaimProLiquidityProviderTradingFeesRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ClaimProLiquidityProviderTradingFeesRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::claim_pro_liquidity_provider_trading_fees::ClaimProLiquidityProviderTradingFees = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::claim_pro_liquidity_provider_trading_fees::ClaimProLiquidityProviderTradingFeesInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ClaimProLiquidityProviderTradingFeesRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for ClaimProLiquidityProviderTradingFeesRow 
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ClaimProLiquidityProviderTradingFeesRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for ClaimProLiquidityProviderTradingFeesRow
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("heaven_claim_pro_liquidity_provider_trading_fees_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

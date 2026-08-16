@@ -67,90 +67,51 @@ pub enum RaydiumClmmAccountRow {
     TickArrayState(TickArrayStateRow),
 }
 
-pub struct RaydiumClmmAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub RaydiumClmmAccount,
+pub struct RaydiumClmmAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a RaydiumClmmAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for RaydiumClmmAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for RaydiumClmmAccountMetadata<'a> {
     type Row = RaydiumClmmAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            RaydiumClmmAccount::AmmConfig(account) => {
-                rows.push(RaydiumClmmAccountRow::AmmConfig(AmmConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            RaydiumClmmAccount::DynamicFeeConfig(account) => {
-                rows.push(RaydiumClmmAccountRow::DynamicFeeConfig(
-                    DynamicFeeConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumClmmAccount::LimitOrderNonce(account) => {
-                rows.push(RaydiumClmmAccountRow::LimitOrderNonce(
-                    LimitOrderNonceRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumClmmAccount::LimitOrderState(account) => {
-                rows.push(RaydiumClmmAccountRow::LimitOrderState(
-                    LimitOrderStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumClmmAccount::ObservationState(account) => {
-                rows.push(RaydiumClmmAccountRow::ObservationState(
-                    ObservationStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumClmmAccount::OperationState(account) => {
-                rows.push(RaydiumClmmAccountRow::OperationState(
-                    OperationStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumClmmAccount::Permission(account) => {
-                rows.push(RaydiumClmmAccountRow::Permission(PermissionRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            RaydiumClmmAccount::PersonalPositionState(account) => {
-                rows.push(RaydiumClmmAccountRow::PersonalPositionState(
-                    PersonalPositionStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumClmmAccount::PoolState(account) => {
-                rows.push(RaydiumClmmAccountRow::PoolState(PoolStateRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            RaydiumClmmAccount::ProtocolPositionState(account) => {
-                rows.push(RaydiumClmmAccountRow::ProtocolPositionState(
-                    ProtocolPositionStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumClmmAccount::SupportMintAssociated(account) => {
-                rows.push(RaydiumClmmAccountRow::SupportMintAssociated(
-                    SupportMintAssociatedRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumClmmAccount::TickArrayBitmapExtension(account) => {
-                rows.push(RaydiumClmmAccountRow::TickArrayBitmapExtension(
-                    TickArrayBitmapExtensionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumClmmAccount::TickArrayState(account) => {
-                rows.push(RaydiumClmmAccountRow::TickArrayState(
-                    TickArrayStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let RaydiumClmmAccount::$variant(account) = account {
+                    rows.push(RaydiumClmmAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let RaydiumClmmAccount::$variant(account) = account {
+                    rows.push(RaydiumClmmAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AmmConfig, AmmConfigRow, boxed);
+        insert_branch!(DynamicFeeConfig, DynamicFeeConfigRow, boxed);
+        insert_branch!(LimitOrderNonce, LimitOrderNonceRow, boxed);
+        insert_branch!(LimitOrderState, LimitOrderStateRow, boxed);
+        insert_branch!(ObservationState, ObservationStateRow, boxed);
+        insert_branch!(OperationState, OperationStateRow, boxed);
+        insert_branch!(Permission, PermissionRow, boxed);
+        insert_branch!(PersonalPositionState, PersonalPositionStateRow, boxed);
+        insert_branch!(PoolState, PoolStateRow, boxed);
+        insert_branch!(ProtocolPositionState, ProtocolPositionStateRow, boxed);
+        insert_branch!(SupportMintAssociated, SupportMintAssociatedRow, boxed);
+        insert_branch!(TickArrayBitmapExtension, TickArrayBitmapExtensionRow, boxed);
+        insert_branch!(TickArrayState, TickArrayStateRow, boxed);
 
         Ok(())
     }
@@ -159,28 +120,23 @@ impl carbon_core::clickhouse::BatchInsert for RaydiumClmmAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for RaydiumClmmAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AmmConfig, AmmConfigRow);
@@ -196,6 +152,7 @@ impl carbon_core::clickhouse::BatchCommit for RaydiumClmmAccountRow {
         commit_branch!(SupportMintAssociated, SupportMintAssociatedRow);
         commit_branch!(TickArrayBitmapExtension, TickArrayBitmapExtensionRow);
         commit_branch!(TickArrayState, TickArrayStateRow);
+
         Ok(())
     }
 }

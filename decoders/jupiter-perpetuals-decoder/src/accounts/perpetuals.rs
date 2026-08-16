@@ -8,6 +8,10 @@ use {
 pub struct Perpetuals {
     pub permissions: Permissions,
     pub pools: Vec<Pubkey>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin: Pubkey,
     pub transfer_authority_bump: u8,
     pub perpetuals_bump: u8,

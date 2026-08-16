@@ -5,9 +5,25 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SwapWithFeesCpiEventEvent {
     pub order_id: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub source_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub destination_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub source_token_account_owner: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub destination_token_account_owner: Pubkey,
     pub amount_in: u64,
     pub source_token_change: u64,
@@ -15,12 +31,24 @@ pub struct SwapWithFeesCpiEventEvent {
     pub commission_direction: bool,
     pub commission_rate: u32,
     pub commission_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub commission_account: Pubkey,
     pub platform_fee_rate: u16,
     pub platform_fee_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub platform_fee_account: Pubkey,
     pub trim_rate: u8,
     pub trim_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub trim_account: Pubkey,
 }
 

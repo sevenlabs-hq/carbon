@@ -5,5 +5,11 @@ use solana_pubkey::Pubkey;
 pub enum RuleSetToggle {
     None,
     Clear,
-    Set(Pubkey),
+    Set(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+    ),
 }

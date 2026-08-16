@@ -31,12 +31,28 @@ pub struct LbPair {
     /// Only applicable for customizable permissionless pair type.
     pub creator_pool_on_off_control: u8,
     /// Token X mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_x_mint: Pubkey,
     /// Token Y mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_y_mint: Pubkey,
     /// LB token X vault
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub reserve_x: Pubkey,
     /// LB token Y vault
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub reserve_y: Pubkey,
     /// Uncollected protocol fee
     pub protocol_fee: ProtocolFee,
@@ -45,6 +61,10 @@ pub struct LbPair {
     /// Farming reward information
     pub reward_infos: [RewardInfo; 2],
     /// Oracle pubkey
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub oracle: Pubkey,
     /// Packed initialized bin array state
     pub bin_array_bitmap: [u64; 16],
@@ -55,8 +75,16 @@ pub struct LbPair {
     /// Address allowed to swap when the current point is greater than or equal
     /// to the pre-activation point. The pre-activation point is calculated as
     /// `activation_point - pre_activation_duration`.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pre_activation_swap_address: Pubkey,
     /// Base keypair. Only required for permission pair
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub base_key: Pubkey,
     /// Time point to enable the pair. Only applicable for permission pair.
     pub activation_point: u64,
@@ -68,6 +96,10 @@ pub struct LbPair {
     /// _padding_4
     pub padding4: u64,
     /// Pool creator
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator: Pubkey,
     /// token_mint_x_program_flag
     pub token_mint_x_program_flag: u8,

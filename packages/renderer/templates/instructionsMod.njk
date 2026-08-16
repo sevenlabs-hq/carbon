@@ -8,6 +8,11 @@
 pub mod postgres;
 {% endif %}
 
+{% if withClickhouse %}
+#[cfg(feature = "clickhouse")]
+pub mod clickhouse;
+{% endif %}
+
 {% if withGraphQL %}
 #[cfg(feature = "graphql")]
 pub mod graphql;
@@ -33,7 +38,7 @@ pub enum {{ program.name | pascalCase }}Instruction {
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
     {{ instruction.name | pascalCase }} {
 {% if withBase58 %}
-        #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+        #[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize"))]
 {% endif %}
         program_id: solana_pubkey::Pubkey,
         data: {{ instruction.name | pascalCase }},
@@ -43,7 +48,7 @@ pub enum {{ program.name | pascalCase }}Instruction {
 {% if hasAnchorEvents %}
     CpiEvent {
 {% if withBase58 %}
-        #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+        #[cfg_attr(feature = "base58", serde(serialize_with = "carbon_core::convert::base58::serialize"))]
 {% endif %}
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

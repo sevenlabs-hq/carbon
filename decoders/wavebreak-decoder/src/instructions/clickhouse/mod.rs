@@ -239,555 +239,94 @@ pub enum WavebreakInstructionRow {
     TokenSellExactOut(TokenSellExactOutRow),
 }
 
-pub struct WavebreakInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub WavebreakInstruction,
+pub struct WavebreakInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a WavebreakInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for WavebreakInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for WavebreakInstructionMetadata<'a> {
     type Row = WavebreakInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            WavebreakInstruction::AuthorityConfigGrant { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::AuthorityConfigGrant(
-                    AuthorityConfigGrantRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let WavebreakInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(WavebreakInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::AuthorityConfigInitialize { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::AuthorityConfigInitialize(
-                    AuthorityConfigInitializeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::AuthorityConfigRevoke { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::AuthorityConfigRevoke(
-                    AuthorityConfigRevokeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::BondingCurveClose { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::BondingCurveClose(
-                    BondingCurveCloseRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::BondingCurveCollectFees { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::BondingCurveCollectFees(
-                    BondingCurveCollectFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::BondingCurveGraduate { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::BondingCurveGraduate(
-                    BondingCurveGraduateRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::BondingCurveInitialize { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::BondingCurveInitialize(
-                    BondingCurveInitializeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::CreateLaunch { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::CreateLaunch(
-                    CreateLaunchRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::CreateLockedlaunch { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::CreateLockedlaunch(
-                    CreateLockedlaunchRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::CreatePresale { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::CreatePresale(
-                    CreatePresaleRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::GraduateManual { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::GraduateManual(
-                    GraduateManualRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::GraduateWhirlpool { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::GraduateWhirlpool(
-                    GraduateWhirlpoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::LpHarvest { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::LpHarvest(LpHarvestRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            WavebreakInstruction::LpTakeover { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::LpTakeover(
-                    LpTakeoverRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::LpTransfer { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::LpTransfer(
-                    LpTransferRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::MintConfigClose { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::MintConfigClose(
-                    MintConfigCloseRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::MintConfigInitialize { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::MintConfigInitialize(
-                    MintConfigInitializeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::MintConfigUpdate { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::MintConfigUpdate(
-                    MintConfigUpdateRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::PermissionConfigClose { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::PermissionConfigClose(
-                    PermissionConfigCloseRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::PermissionConfigInitialize { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::PermissionConfigInitialize(
-                    PermissionConfigInitializeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::PermissionConfigUpdate { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::PermissionConfigUpdate(
-                    PermissionConfigUpdateRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::PermissionConsumeCpi { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::PermissionConsumeCpi(
-                    PermissionConsumeCpiRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::PermissionConsumeTopLevel { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::PermissionConsumeTopLevel(
-                    PermissionConsumeTopLevelRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::PermissionRefund { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::PermissionRefund(
-                    PermissionRefundRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::PermissionRevoke { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::PermissionRevoke(
-                    PermissionRevokeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedAuthorityConfigA { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedAuthorityConfigA(
-                    ReservedAuthorityConfigARow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedAuthorityConfigB { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedAuthorityConfigB(
-                    ReservedAuthorityConfigBRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedAuthorityConfigC { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedAuthorityConfigC(
-                    ReservedAuthorityConfigCRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedAuthorityConfigY { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedAuthorityConfigY(
-                    ReservedAuthorityConfigYRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedAuthorityConfigZ { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedAuthorityConfigZ(
-                    ReservedAuthorityConfigZRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedBondingCurveA { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedBondingCurveA(
-                    ReservedBondingCurveARow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedBondingCurveX { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedBondingCurveX(
-                    ReservedBondingCurveXRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedBondingCurveY { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedBondingCurveY(
-                    ReservedBondingCurveYRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedBondingCurveZ { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedBondingCurveZ(
-                    ReservedBondingCurveZRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedCreateA { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedCreateA(
-                    ReservedCreateARow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedCreateB { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedCreateB(
-                    ReservedCreateBRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedCreateC { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedCreateC(
-                    ReservedCreateCRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedCreateY { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedCreateY(
-                    ReservedCreateYRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedCreateZ { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedCreateZ(
-                    ReservedCreateZRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedGraduateA { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedGraduateA(
-                    ReservedGraduateARow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedGraduateB { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedGraduateB(
-                    ReservedGraduateBRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedGraduateC { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedGraduateC(
-                    ReservedGraduateCRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedGraduateX { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedGraduateX(
-                    ReservedGraduateXRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedGraduateY { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedGraduateY(
-                    ReservedGraduateYRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedGraduateZ { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedGraduateZ(
-                    ReservedGraduateZRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedLpA { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedLpA(
-                    ReservedLpARow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::ReservedLpB { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedLpB(
-                    ReservedLpBRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::ReservedLpX { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedLpX(
-                    ReservedLpXRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::ReservedLpY { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedLpY(
-                    ReservedLpYRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::ReservedLpZ { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedLpZ(
-                    ReservedLpZRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::ReservedMintConfigA { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedMintConfigA(
-                    ReservedMintConfigARow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedMintConfigB { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedMintConfigB(
-                    ReservedMintConfigBRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedMintConfigC { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedMintConfigC(
-                    ReservedMintConfigCRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedMintConfigY { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedMintConfigY(
-                    ReservedMintConfigYRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedMintConfigZ { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedMintConfigZ(
-                    ReservedMintConfigZRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedPermissionA { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedPermissionA(
-                    ReservedPermissionARow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedTokenA { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedTokenA(
-                    ReservedTokenARow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedTokenY { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedTokenY(
-                    ReservedTokenYRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::ReservedTokenZ { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::ReservedTokenZ(
-                    ReservedTokenZRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::TokenBuyExactIn { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::TokenBuyExactIn(
-                    TokenBuyExactInRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::TokenBuyExactOut { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::TokenBuyExactOut(
-                    TokenBuyExactOutRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::TokenRefund { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::TokenRefund(
-                    TokenRefundRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            WavebreakInstruction::TokenSellExactIn { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::TokenSellExactIn(
-                    TokenSellExactInRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            WavebreakInstruction::TokenSellExactOut { data, accounts, .. } => {
-                rows.push(WavebreakInstructionRow::TokenSellExactOut(
-                    TokenSellExactOutRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AuthorityConfigGrant, AuthorityConfigGrantRow);
+        insert_branch!(AuthorityConfigInitialize, AuthorityConfigInitializeRow);
+        insert_branch!(AuthorityConfigRevoke, AuthorityConfigRevokeRow);
+        insert_branch!(BondingCurveClose, BondingCurveCloseRow);
+        insert_branch!(BondingCurveCollectFees, BondingCurveCollectFeesRow);
+        insert_branch!(BondingCurveGraduate, BondingCurveGraduateRow);
+        insert_branch!(BondingCurveInitialize, BondingCurveInitializeRow);
+        insert_branch!(CreateLaunch, CreateLaunchRow);
+        insert_branch!(CreateLockedlaunch, CreateLockedlaunchRow);
+        insert_branch!(CreatePresale, CreatePresaleRow);
+        insert_branch!(GraduateManual, GraduateManualRow);
+        insert_branch!(GraduateWhirlpool, GraduateWhirlpoolRow);
+        insert_branch!(LpHarvest, LpHarvestRow);
+        insert_branch!(LpTakeover, LpTakeoverRow);
+        insert_branch!(LpTransfer, LpTransferRow);
+        insert_branch!(MintConfigClose, MintConfigCloseRow);
+        insert_branch!(MintConfigInitialize, MintConfigInitializeRow);
+        insert_branch!(MintConfigUpdate, MintConfigUpdateRow);
+        insert_branch!(PermissionConfigClose, PermissionConfigCloseRow);
+        insert_branch!(PermissionConfigInitialize, PermissionConfigInitializeRow);
+        insert_branch!(PermissionConfigUpdate, PermissionConfigUpdateRow);
+        insert_branch!(PermissionConsumeCpi, PermissionConsumeCpiRow);
+        insert_branch!(PermissionConsumeTopLevel, PermissionConsumeTopLevelRow);
+        insert_branch!(PermissionRefund, PermissionRefundRow);
+        insert_branch!(PermissionRevoke, PermissionRevokeRow);
+        insert_branch!(ReservedAuthorityConfigA, ReservedAuthorityConfigARow);
+        insert_branch!(ReservedAuthorityConfigB, ReservedAuthorityConfigBRow);
+        insert_branch!(ReservedAuthorityConfigC, ReservedAuthorityConfigCRow);
+        insert_branch!(ReservedAuthorityConfigY, ReservedAuthorityConfigYRow);
+        insert_branch!(ReservedAuthorityConfigZ, ReservedAuthorityConfigZRow);
+        insert_branch!(ReservedBondingCurveA, ReservedBondingCurveARow);
+        insert_branch!(ReservedBondingCurveX, ReservedBondingCurveXRow);
+        insert_branch!(ReservedBondingCurveY, ReservedBondingCurveYRow);
+        insert_branch!(ReservedBondingCurveZ, ReservedBondingCurveZRow);
+        insert_branch!(ReservedCreateA, ReservedCreateARow);
+        insert_branch!(ReservedCreateB, ReservedCreateBRow);
+        insert_branch!(ReservedCreateC, ReservedCreateCRow);
+        insert_branch!(ReservedCreateY, ReservedCreateYRow);
+        insert_branch!(ReservedCreateZ, ReservedCreateZRow);
+        insert_branch!(ReservedGraduateA, ReservedGraduateARow);
+        insert_branch!(ReservedGraduateB, ReservedGraduateBRow);
+        insert_branch!(ReservedGraduateC, ReservedGraduateCRow);
+        insert_branch!(ReservedGraduateX, ReservedGraduateXRow);
+        insert_branch!(ReservedGraduateY, ReservedGraduateYRow);
+        insert_branch!(ReservedGraduateZ, ReservedGraduateZRow);
+        insert_branch!(ReservedLpA, ReservedLpARow);
+        insert_branch!(ReservedLpB, ReservedLpBRow);
+        insert_branch!(ReservedLpX, ReservedLpXRow);
+        insert_branch!(ReservedLpY, ReservedLpYRow);
+        insert_branch!(ReservedLpZ, ReservedLpZRow);
+        insert_branch!(ReservedMintConfigA, ReservedMintConfigARow);
+        insert_branch!(ReservedMintConfigB, ReservedMintConfigBRow);
+        insert_branch!(ReservedMintConfigC, ReservedMintConfigCRow);
+        insert_branch!(ReservedMintConfigY, ReservedMintConfigYRow);
+        insert_branch!(ReservedMintConfigZ, ReservedMintConfigZRow);
+        insert_branch!(ReservedPermissionA, ReservedPermissionARow);
+        insert_branch!(ReservedTokenA, ReservedTokenARow);
+        insert_branch!(ReservedTokenY, ReservedTokenYRow);
+        insert_branch!(ReservedTokenZ, ReservedTokenZRow);
+        insert_branch!(TokenBuyExactIn, TokenBuyExactInRow);
+        insert_branch!(TokenBuyExactOut, TokenBuyExactOutRow);
+        insert_branch!(TokenRefund, TokenRefundRow);
+        insert_branch!(TokenSellExactIn, TokenSellExactInRow);
+        insert_branch!(TokenSellExactOut, TokenSellExactOutRow);
 
         Ok(())
     }
@@ -796,28 +335,23 @@ impl carbon_core::clickhouse::BatchInsert for WavebreakInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for WavebreakInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AuthorityConfigGrant, AuthorityConfigGrantRow);
@@ -884,6 +418,7 @@ impl carbon_core::clickhouse::BatchCommit for WavebreakInstructionRow {
         commit_branch!(TokenRefund, TokenRefundRow);
         commit_branch!(TokenSellExactIn, TokenSellExactInRow);
         commit_branch!(TokenSellExactOut, TokenSellExactOutRow);
+
         Ok(())
     }
 }

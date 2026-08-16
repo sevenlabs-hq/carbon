@@ -252,8 +252,10 @@ impl Pipeline {
                     }
                 }
                 update = update_receiver.recv() => {
+
                     match update {
                         Some((maybe_multiple_updates, datasource_id)) => {
+
                             let  mut errors = vec![];
 
                             #[cfg(feature = "batch")]

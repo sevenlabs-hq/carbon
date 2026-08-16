@@ -7,6 +7,10 @@ pub struct BinArray {
     pub index: i64,
     pub version: u8,
     pub padding1: [u8; 7],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lb_pair: Pubkey,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub bins: [Bin; 70],

@@ -4,16 +4,28 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct FillLogEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub market: Pubkey,
     pub taker_side: u8,
     pub maker_slot: u8,
     pub maker_out: bool,
     pub timestamp: u64,
     pub seq_num: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub maker: Pubkey,
     pub maker_client_order_id: u64,
     pub maker_fee: u64,
     pub maker_timestamp: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub taker: Pubkey,
     pub taker_client_order_id: u64,
     pub taker_fee_ceil: u64,

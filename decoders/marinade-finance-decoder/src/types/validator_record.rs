@@ -4,6 +4,10 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ValidatorRecord {
     /// Validator vote pubkey
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub validator_account: Pubkey,
     /// Validator total balance in lamports
     pub active_balance: u64,

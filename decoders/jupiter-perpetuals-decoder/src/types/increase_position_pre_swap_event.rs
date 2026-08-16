@@ -3,6 +3,10 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct IncreasePositionPreSwapEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub position_request_key: Pubkey,
     pub transfer_amount: u64,
     pub collateral_custody_pre_swap_amount: u64,

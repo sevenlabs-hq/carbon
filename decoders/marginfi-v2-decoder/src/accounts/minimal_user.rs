@@ -9,8 +9,16 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct MinimalUser {
     /// The owner/authority of the account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
     /// An addresses that can control the account on the authority's behalf
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegate: Pubkey,
     /// Encoded display name for the account
     pub name: [u8; 32],

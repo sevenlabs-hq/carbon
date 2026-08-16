@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<ThawAccountRow>
+    for (
+        crate::instructions::thaw_account::ThawAccount,
+        crate::instructions::thaw_account::ThawAccountInstructionAccounts,
+        ThawAccountRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ThawAccountRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::thaw_account::ThawAccount =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::thaw_account::ThawAccountInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ThawAccountRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for ThawAccountRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ThawAccountRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for ThawAccountRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("token_program_thaw_account_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

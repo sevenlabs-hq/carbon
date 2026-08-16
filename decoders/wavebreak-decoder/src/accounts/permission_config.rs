@@ -7,6 +7,10 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PermissionConfig {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub consumer_program: Pubkey,
     pub allowed_signers: [PermissionSigner; 3],
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

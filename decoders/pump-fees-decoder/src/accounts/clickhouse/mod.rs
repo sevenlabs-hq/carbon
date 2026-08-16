@@ -54,71 +54,47 @@ pub enum PumpFeesAccountRow {
     SocialFeePda(SocialFeePdaRow),
 }
 
-pub struct PumpFeesAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub PumpFeesAccount,
+pub struct PumpFeesAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a PumpFeesAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for PumpFeesAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for PumpFeesAccountMetadata<'a> {
     type Row = PumpFeesAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            PumpFeesAccount::BondingCurve(account) => {
-                rows.push(PumpFeesAccountRow::BondingCurve(BondingCurveRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            PumpFeesAccount::BuybackVault(account) => {
-                rows.push(PumpFeesAccountRow::BuybackVault(BuybackVaultRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            PumpFeesAccount::DonationFeePda(account) => {
-                rows.push(PumpFeesAccountRow::DonationFeePda(
-                    DonationFeePdaRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PumpFeesAccount::FeeConfig(account) => {
-                rows.push(PumpFeesAccountRow::FeeConfig(FeeConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            PumpFeesAccount::FeeProgramGlobal(account) => {
-                rows.push(PumpFeesAccountRow::FeeProgramGlobal(
-                    FeeProgramGlobalRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PumpFeesAccount::Global(account) => {
-                rows.push(PumpFeesAccountRow::Global(GlobalRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            PumpFeesAccount::Pool(account) => {
-                rows.push(PumpFeesAccountRow::Pool(PoolRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            PumpFeesAccount::SharingConfig(account) => {
-                rows.push(PumpFeesAccountRow::SharingConfig(
-                    SharingConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            PumpFeesAccount::SocialFeePda(account) => {
-                rows.push(PumpFeesAccountRow::SocialFeePda(SocialFeePdaRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let PumpFeesAccount::$variant(account) = account {
+                    rows.push(PumpFeesAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let PumpFeesAccount::$variant(account) = account {
+                    rows.push(PumpFeesAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(BondingCurve, BondingCurveRow, boxed);
+        insert_branch!(BuybackVault, BuybackVaultRow, boxed);
+        insert_branch!(DonationFeePda, DonationFeePdaRow, boxed);
+        insert_branch!(FeeConfig, FeeConfigRow, boxed);
+        insert_branch!(FeeProgramGlobal, FeeProgramGlobalRow, boxed);
+        insert_branch!(Global, GlobalRow, boxed);
+        insert_branch!(Pool, PoolRow, boxed);
+        insert_branch!(SharingConfig, SharingConfigRow, boxed);
+        insert_branch!(SocialFeePda, SocialFeePdaRow, boxed);
 
         Ok(())
     }
@@ -127,28 +103,23 @@ impl carbon_core::clickhouse::BatchInsert for PumpFeesAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for PumpFeesAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(BondingCurve, BondingCurveRow);
@@ -160,6 +131,7 @@ impl carbon_core::clickhouse::BatchCommit for PumpFeesAccountRow {
         commit_branch!(Pool, PoolRow);
         commit_branch!(SharingConfig, SharingConfigRow);
         commit_branch!(SocialFeePda, SocialFeePdaRow);
+
         Ok(())
     }
 }

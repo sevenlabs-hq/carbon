@@ -35,45 +35,42 @@ pub enum RaydiumCpmmAccountRow {
     PoolState(PoolStateRow),
 }
 
-pub struct RaydiumCpmmAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub RaydiumCpmmAccount,
+pub struct RaydiumCpmmAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a RaydiumCpmmAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for RaydiumCpmmAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for RaydiumCpmmAccountMetadata<'a> {
     type Row = RaydiumCpmmAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            RaydiumCpmmAccount::AmmConfig(account) => {
-                rows.push(RaydiumCpmmAccountRow::AmmConfig(AmmConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            RaydiumCpmmAccount::ObservationState(account) => {
-                rows.push(RaydiumCpmmAccountRow::ObservationState(
-                    ObservationStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumCpmmAccount::Permission(account) => {
-                rows.push(RaydiumCpmmAccountRow::Permission(PermissionRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            RaydiumCpmmAccount::PoolState(account) => {
-                rows.push(RaydiumCpmmAccountRow::PoolState(PoolStateRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let RaydiumCpmmAccount::$variant(account) = account {
+                    rows.push(RaydiumCpmmAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let RaydiumCpmmAccount::$variant(account) = account {
+                    rows.push(RaydiumCpmmAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AmmConfig, AmmConfigRow, boxed);
+        insert_branch!(ObservationState, ObservationStateRow, boxed);
+        insert_branch!(Permission, PermissionRow, boxed);
+        insert_branch!(PoolState, PoolStateRow, boxed);
 
         Ok(())
     }
@@ -82,34 +79,30 @@ impl carbon_core::clickhouse::BatchInsert for RaydiumCpmmAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for RaydiumCpmmAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AmmConfig, AmmConfigRow);
         commit_branch!(ObservationState, ObservationStateRow);
         commit_branch!(Permission, PermissionRow);
         commit_branch!(PoolState, PoolStateRow);
+
         Ok(())
     }
 }

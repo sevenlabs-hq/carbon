@@ -6,6 +6,10 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 pub struct LPSwapRecordEvent {
     pub ts: i64,
     pub slot: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
     pub out_amount: u128,
     pub in_amount: u128,
@@ -25,6 +29,10 @@ pub struct LPSwapRecordEvent {
     pub out_market_target_weight: i64,
     pub in_swap_id: u64,
     pub out_swap_id: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lp_pool: Pubkey,
 }
 

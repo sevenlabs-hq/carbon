@@ -7,6 +7,10 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct RewardInfo {
     pub token: TokenInfo,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub rewards_vault: Pubkey,
     pub rewards_available: u64,
     pub reward_schedule_curve: RewardScheduleCurve,

@@ -5,8 +5,16 @@ use {crate::types::PermissionSigner, solana_pubkey::Pubkey};
 pub enum PermissionMessage {
     V1 {
         nonce: u64,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         consumer_program: Pubkey,
         permission_signer: PermissionSigner,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         permission_subject: Pubkey,
         valid_until: u64,
         permission_type: u8,

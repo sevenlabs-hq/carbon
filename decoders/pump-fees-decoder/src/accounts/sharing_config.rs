@@ -11,7 +11,15 @@ pub struct SharingConfig {
     pub bump: u8,
     pub version: u8,
     pub status: ConfigStatus,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin: Pubkey,
     pub admin_revoked: bool,
     pub shareholders: Vec<Shareholder>,

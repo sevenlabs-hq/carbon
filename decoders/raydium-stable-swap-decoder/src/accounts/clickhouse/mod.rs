@@ -19,19 +19,15 @@ impl carbon_core::clickhouse::Migration for RaydiumStableSwapAccountsMigration {
 
 pub enum RaydiumStableSwapAccountRow {}
 
-pub struct RaydiumStableSwapAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub RaydiumStableSwapAccount,
+pub struct RaydiumStableSwapAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a RaydiumStableSwapAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for RaydiumStableSwapAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for RaydiumStableSwapAccountMetadata<'a> {
     type Row = RaydiumStableSwapAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
         let _ = rows;
         let Self(_metadata, _account) = self;
         unreachable!("BatchInsert called for program with no account row variants");
@@ -41,7 +37,6 @@ impl carbon_core::clickhouse::BatchInsert for RaydiumStableSwapAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for RaydiumStableSwapAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {

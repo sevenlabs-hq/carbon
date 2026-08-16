@@ -9,7 +9,15 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct RevenueShareEscrow {
     /// the owner of this account, a user
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub referrer: Pubkey,
     pub referrer_boost_expire_ts: u32,
     pub referrer_reward_offset: i8,

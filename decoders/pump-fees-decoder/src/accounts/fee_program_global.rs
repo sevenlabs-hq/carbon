@@ -5,8 +5,16 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct FeeProgramGlobal {
     pub bump: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
     pub disable_flags: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub social_claim_authority: Pubkey,
     pub claim_rate_limit: u64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

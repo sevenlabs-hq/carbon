@@ -3,6 +3,10 @@ use {crate::types::WrappedI80F48, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ExecuteOrderBalanceRecord {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub bank: Pubkey,
     pub is_asset: u8,
     pub pad0: [u8; 5],

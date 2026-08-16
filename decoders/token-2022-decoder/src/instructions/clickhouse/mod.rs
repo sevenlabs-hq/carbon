@@ -345,478 +345,193 @@ pub enum Token2022InstructionRow {
     ),
 }
 
-pub struct Token2022InstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub Token2022Instruction,
+pub struct Token2022InstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a Token2022Instruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for Token2022InstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for Token2022InstructionMetadata<'a> {
     type Row = Token2022InstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            Token2022Instruction::AmountToUiAmount { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::AmountToUiAmount(
-                    AmountToUiAmountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::ApplyConfidentialPendingBalance { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::ApplyConfidentialPendingBalance(
-                    ApplyConfidentialPendingBalanceRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::Approve { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::Approve(
-                    ApproveRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::ApproveChecked { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::ApproveChecked(
-                    ApproveCheckedRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::ApproveConfidentialTransferAccount { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::ApproveConfidentialTransferAccount(
-                    ApproveConfidentialTransferAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::Burn { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::Burn(
-                    BurnRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::BurnChecked { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::BurnChecked(
-                    BurnCheckedRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::CloseAccount { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::CloseAccount(
-                    CloseAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::ConfidentialDeposit { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::ConfidentialDeposit(
-                    ConfidentialDepositRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::ConfidentialTransfer { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::ConfidentialTransfer(
-                    ConfidentialTransferRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::ConfidentialTransferWithFee { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::ConfidentialTransferWithFee(
-                    ConfidentialTransferWithFeeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::ConfidentialWithdraw { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::ConfidentialWithdraw(
-                    ConfidentialWithdrawRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::ConfigureConfidentialTransferAccount { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::ConfigureConfidentialTransferAccount(
-                    ConfigureConfidentialTransferAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::CreateNativeMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::CreateNativeMint(
-                    CreateNativeMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::DisableConfidentialCredits { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::DisableConfidentialCredits(
-                    DisableConfidentialCreditsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::DisableCpiGuard { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::DisableCpiGuard(
-                    DisableCpiGuardRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::DisableHarvestToMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::DisableHarvestToMint(
-                    DisableHarvestToMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::DisableMemoTransfers { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::DisableMemoTransfers(
-                    DisableMemoTransfersRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::DisableNonConfidentialCredits { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::DisableNonConfidentialCredits(
-                    DisableNonConfidentialCreditsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::EmitTokenMetadata { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::EmitTokenMetadata(
-                    EmitTokenMetadataRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::EmptyConfidentialTransferAccount { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::EmptyConfidentialTransferAccount(
-                    EmptyConfidentialTransferAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::EnableConfidentialCredits { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::EnableConfidentialCredits(
-                    EnableConfidentialCreditsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::EnableCpiGuard { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::EnableCpiGuard(
-                    EnableCpiGuardRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::EnableHarvestToMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::EnableHarvestToMint(
-                    EnableHarvestToMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::EnableMemoTransfers { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::EnableMemoTransfers(
-                    EnableMemoTransfersRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::EnableNonConfidentialCredits { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::EnableNonConfidentialCredits(
-                    EnableNonConfidentialCreditsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::FreezeAccount { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::FreezeAccount(
-                    FreezeAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::GetAccountDataSize { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::GetAccountDataSize(
-                    GetAccountDataSizeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::HarvestWithheldTokensToMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::HarvestWithheldTokensToMint(
-                    HarvestWithheldTokensToMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::HarvestWithheldTokensToMintForConfidentialTransferFee(
-                    HarvestWithheldTokensToMintForConfidentialTransferFeeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeAccount { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeAccount(
-                    InitializeAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeAccount2 { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeAccount2(
-                    InitializeAccount2Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeAccount3 { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeAccount3(
-                    InitializeAccount3Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeConfidentialTransferFee { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeConfidentialTransferFee(
-                    InitializeConfidentialTransferFeeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeConfidentialTransferMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeConfidentialTransferMint(
-                    InitializeConfidentialTransferMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeDefaultAccountState { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeDefaultAccountState(
-                    InitializeDefaultAccountStateRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeGroupMemberPointer { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeGroupMemberPointer(
-                    InitializeGroupMemberPointerRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeGroupPointer { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeGroupPointer(
-                    InitializeGroupPointerRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeImmutableOwner { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeImmutableOwner(
-                    InitializeImmutableOwnerRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeInterestBearingMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeInterestBearingMint(
-                    InitializeInterestBearingMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeMetadataPointer { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeMetadataPointer(
-                    InitializeMetadataPointerRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeMint(
-                    InitializeMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeMint2 { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeMint2(
-                    InitializeMint2Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeMintCloseAuthority { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeMintCloseAuthority(
-                    InitializeMintCloseAuthorityRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeMultisig { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeMultisig(
-                    InitializeMultisigRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeMultisig2 { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeMultisig2(
-                    InitializeMultisig2Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeNonTransferableMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeNonTransferableMint(
-                    InitializeNonTransferableMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializePausableConfig { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializePausableConfig(
-                    InitializePausableConfigRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializePermanentDelegate { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializePermanentDelegate(
-                    InitializePermanentDelegateRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializePermissionedBurn { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializePermissionedBurn(
-                    InitializePermissionedBurnRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeScaledUiAmountMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeScaledUiAmountMint(
-                    InitializeScaledUiAmountMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeTokenGroup { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeTokenGroup(
-                    InitializeTokenGroupRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeTokenGroupMember { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeTokenGroupMember(
-                    InitializeTokenGroupMemberRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeTokenMetadata { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeTokenMetadata(
-                    InitializeTokenMetadataRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeTransferFeeConfig { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeTransferFeeConfig(
-                    InitializeTransferFeeConfigRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::InitializeTransferHook { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::InitializeTransferHook(
-                    InitializeTransferHookRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::MintTo { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::MintTo(
-                    MintToRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::MintToChecked { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::MintToChecked(
-                    MintToCheckedRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::Pause { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::Pause(
-                    PauseRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::PermissionedBurn { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::PermissionedBurn(
-                    PermissionedBurnRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::PermissionedBurnChecked { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::PermissionedBurnChecked(
-                    PermissionedBurnCheckedRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::Reallocate { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::Reallocate(
-                    ReallocateRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::RemoveTokenMetadataKey { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::RemoveTokenMetadataKey(
-                    RemoveTokenMetadataKeyRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::Resume { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::Resume(
-                    ResumeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::Revoke { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::Revoke(
-                    RevokeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::SetAuthority { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::SetAuthority(
-                    SetAuthorityRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::SetTransferFee { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::SetTransferFee(
-                    SetTransferFeeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::SyncNative { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::SyncNative(
-                    SyncNativeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::ThawAccount { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::ThawAccount(
-                    ThawAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::Transfer { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::Transfer(
-                    TransferRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::TransferChecked { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::TransferChecked(
-                    TransferCheckedRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::TransferCheckedWithFee { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::TransferCheckedWithFee(
-                    TransferCheckedWithFeeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UiAmountToAmount { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UiAmountToAmount(
-                    UiAmountToAmountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UnwrapLamports { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UnwrapLamports(
-                    UnwrapLamportsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateConfidentialTransferMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateConfidentialTransferMint(
-                    UpdateConfidentialTransferMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateDefaultAccountState { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateDefaultAccountState(
-                    UpdateDefaultAccountStateRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateGroupMemberPointer { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateGroupMemberPointer(
-                    UpdateGroupMemberPointerRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateGroupPointer { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateGroupPointer(
-                    UpdateGroupPointerRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateMetadataPointer { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateMetadataPointer(
-                    UpdateMetadataPointerRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateMultiplierScaledUiMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateMultiplierScaledUiMint(
-                    UpdateMultiplierScaledUiMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateRateInterestBearingMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateRateInterestBearingMint(
-                    UpdateRateInterestBearingMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateTokenGroupMaxSize { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateTokenGroupMaxSize(
-                    UpdateTokenGroupMaxSizeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateTokenGroupUpdateAuthority { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateTokenGroupUpdateAuthority(
-                    UpdateTokenGroupUpdateAuthorityRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateTokenMetadataField { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateTokenMetadataField(
-                    UpdateTokenMetadataFieldRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateTokenMetadataUpdateAuthority { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateTokenMetadataUpdateAuthority(
-                    UpdateTokenMetadataUpdateAuthorityRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::UpdateTransferHook { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::UpdateTransferHook(
-                    UpdateTransferHookRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::WithdrawExcessLamports { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::WithdrawExcessLamports(
-                    WithdrawExcessLamportsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::WithdrawWithheldTokensFromAccounts { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::WithdrawWithheldTokensFromAccounts(
-                    WithdrawWithheldTokensFromAccountsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(
-                    WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::WithdrawWithheldTokensFromMint { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::WithdrawWithheldTokensFromMint(
-                    WithdrawWithheldTokensFromMintRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee { data, accounts, .. } => {
-                rows.push(Token2022InstructionRow::WithdrawWithheldTokensFromMintForConfidentialTransferFee(
-                    WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let Token2022Instruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(Token2022InstructionRow::$variant(<$row>::try_from((
+                        data.clone(),
+                        metadata.clone(),
+                        accounts.clone(),
+                    ))?));
+                    return Ok(());
                 }
+            };
+        }
+
+        insert_branch!(AmountToUiAmount, AmountToUiAmountRow);
+        insert_branch!(
+            ApplyConfidentialPendingBalance,
+            ApplyConfidentialPendingBalanceRow
+        );
+        insert_branch!(Approve, ApproveRow);
+        insert_branch!(ApproveChecked, ApproveCheckedRow);
+        insert_branch!(
+            ApproveConfidentialTransferAccount,
+            ApproveConfidentialTransferAccountRow
+        );
+        insert_branch!(Burn, BurnRow);
+        insert_branch!(BurnChecked, BurnCheckedRow);
+        insert_branch!(CloseAccount, CloseAccountRow);
+        insert_branch!(ConfidentialDeposit, ConfidentialDepositRow);
+        insert_branch!(ConfidentialTransfer, ConfidentialTransferRow);
+        insert_branch!(ConfidentialTransferWithFee, ConfidentialTransferWithFeeRow);
+        insert_branch!(ConfidentialWithdraw, ConfidentialWithdrawRow);
+        insert_branch!(
+            ConfigureConfidentialTransferAccount,
+            ConfigureConfidentialTransferAccountRow
+        );
+        insert_branch!(CreateNativeMint, CreateNativeMintRow);
+        insert_branch!(DisableConfidentialCredits, DisableConfidentialCreditsRow);
+        insert_branch!(DisableCpiGuard, DisableCpiGuardRow);
+        insert_branch!(DisableHarvestToMint, DisableHarvestToMintRow);
+        insert_branch!(DisableMemoTransfers, DisableMemoTransfersRow);
+        insert_branch!(
+            DisableNonConfidentialCredits,
+            DisableNonConfidentialCreditsRow
+        );
+        insert_branch!(EmitTokenMetadata, EmitTokenMetadataRow);
+        insert_branch!(
+            EmptyConfidentialTransferAccount,
+            EmptyConfidentialTransferAccountRow
+        );
+        insert_branch!(EnableConfidentialCredits, EnableConfidentialCreditsRow);
+        insert_branch!(EnableCpiGuard, EnableCpiGuardRow);
+        insert_branch!(EnableHarvestToMint, EnableHarvestToMintRow);
+        insert_branch!(EnableMemoTransfers, EnableMemoTransfersRow);
+        insert_branch!(
+            EnableNonConfidentialCredits,
+            EnableNonConfidentialCreditsRow
+        );
+        insert_branch!(FreezeAccount, FreezeAccountRow);
+        insert_branch!(GetAccountDataSize, GetAccountDataSizeRow);
+        insert_branch!(HarvestWithheldTokensToMint, HarvestWithheldTokensToMintRow);
+        insert_branch!(
+            HarvestWithheldTokensToMintForConfidentialTransferFee,
+            HarvestWithheldTokensToMintForConfidentialTransferFeeRow
+        );
+        insert_branch!(InitializeAccount, InitializeAccountRow);
+        insert_branch!(InitializeAccount2, InitializeAccount2Row);
+        insert_branch!(InitializeAccount3, InitializeAccount3Row);
+        insert_branch!(
+            InitializeConfidentialTransferFee,
+            InitializeConfidentialTransferFeeRow
+        );
+        insert_branch!(
+            InitializeConfidentialTransferMint,
+            InitializeConfidentialTransferMintRow
+        );
+        insert_branch!(
+            InitializeDefaultAccountState,
+            InitializeDefaultAccountStateRow
+        );
+        insert_branch!(
+            InitializeGroupMemberPointer,
+            InitializeGroupMemberPointerRow
+        );
+        insert_branch!(InitializeGroupPointer, InitializeGroupPointerRow);
+        insert_branch!(InitializeImmutableOwner, InitializeImmutableOwnerRow);
+        insert_branch!(
+            InitializeInterestBearingMint,
+            InitializeInterestBearingMintRow
+        );
+        insert_branch!(InitializeMetadataPointer, InitializeMetadataPointerRow);
+        insert_branch!(InitializeMint, InitializeMintRow);
+        insert_branch!(InitializeMint2, InitializeMint2Row);
+        insert_branch!(
+            InitializeMintCloseAuthority,
+            InitializeMintCloseAuthorityRow
+        );
+        insert_branch!(InitializeMultisig, InitializeMultisigRow);
+        insert_branch!(InitializeMultisig2, InitializeMultisig2Row);
+        insert_branch!(
+            InitializeNonTransferableMint,
+            InitializeNonTransferableMintRow
+        );
+        insert_branch!(InitializePausableConfig, InitializePausableConfigRow);
+        insert_branch!(InitializePermanentDelegate, InitializePermanentDelegateRow);
+        insert_branch!(InitializePermissionedBurn, InitializePermissionedBurnRow);
+        insert_branch!(
+            InitializeScaledUiAmountMint,
+            InitializeScaledUiAmountMintRow
+        );
+        insert_branch!(InitializeTokenGroup, InitializeTokenGroupRow);
+        insert_branch!(InitializeTokenGroupMember, InitializeTokenGroupMemberRow);
+        insert_branch!(InitializeTokenMetadata, InitializeTokenMetadataRow);
+        insert_branch!(InitializeTransferFeeConfig, InitializeTransferFeeConfigRow);
+        insert_branch!(InitializeTransferHook, InitializeTransferHookRow);
+        insert_branch!(MintTo, MintToRow);
+        insert_branch!(MintToChecked, MintToCheckedRow);
+        insert_branch!(Pause, PauseRow);
+        insert_branch!(PermissionedBurn, PermissionedBurnRow);
+        insert_branch!(PermissionedBurnChecked, PermissionedBurnCheckedRow);
+        insert_branch!(Reallocate, ReallocateRow);
+        insert_branch!(RemoveTokenMetadataKey, RemoveTokenMetadataKeyRow);
+        insert_branch!(Resume, ResumeRow);
+        insert_branch!(Revoke, RevokeRow);
+        insert_branch!(SetAuthority, SetAuthorityRow);
+        insert_branch!(SetTransferFee, SetTransferFeeRow);
+        insert_branch!(SyncNative, SyncNativeRow);
+        insert_branch!(ThawAccount, ThawAccountRow);
+        insert_branch!(Transfer, TransferRow);
+        insert_branch!(TransferChecked, TransferCheckedRow);
+        insert_branch!(TransferCheckedWithFee, TransferCheckedWithFeeRow);
+        insert_branch!(UiAmountToAmount, UiAmountToAmountRow);
+        insert_branch!(UnwrapLamports, UnwrapLamportsRow);
+        insert_branch!(
+            UpdateConfidentialTransferMint,
+            UpdateConfidentialTransferMintRow
+        );
+        insert_branch!(UpdateDefaultAccountState, UpdateDefaultAccountStateRow);
+        insert_branch!(UpdateGroupMemberPointer, UpdateGroupMemberPointerRow);
+        insert_branch!(UpdateGroupPointer, UpdateGroupPointerRow);
+        insert_branch!(UpdateMetadataPointer, UpdateMetadataPointerRow);
+        insert_branch!(
+            UpdateMultiplierScaledUiMint,
+            UpdateMultiplierScaledUiMintRow
+        );
+        insert_branch!(
+            UpdateRateInterestBearingMint,
+            UpdateRateInterestBearingMintRow
+        );
+        insert_branch!(UpdateTokenGroupMaxSize, UpdateTokenGroupMaxSizeRow);
+        insert_branch!(
+            UpdateTokenGroupUpdateAuthority,
+            UpdateTokenGroupUpdateAuthorityRow
+        );
+        insert_branch!(UpdateTokenMetadataField, UpdateTokenMetadataFieldRow);
+        insert_branch!(
+            UpdateTokenMetadataUpdateAuthority,
+            UpdateTokenMetadataUpdateAuthorityRow
+        );
+        insert_branch!(UpdateTransferHook, UpdateTransferHookRow);
+        insert_branch!(WithdrawExcessLamports, WithdrawExcessLamportsRow);
+        insert_branch!(
+            WithdrawWithheldTokensFromAccounts,
+            WithdrawWithheldTokensFromAccountsRow
+        );
+        insert_branch!(
+            WithdrawWithheldTokensFromAccountsForConfidentialTransferFee,
+            WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow
+        );
+        insert_branch!(
+            WithdrawWithheldTokensFromMint,
+            WithdrawWithheldTokensFromMintRow
+        );
+        insert_branch!(
+            WithdrawWithheldTokensFromMintForConfidentialTransferFee,
+            WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow
+        );
 
         Ok(())
     }
@@ -825,28 +540,23 @@ impl carbon_core::clickhouse::BatchInsert for Token2022InstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for Token2022InstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AmountToUiAmount, AmountToUiAmountRow);
@@ -1012,6 +722,7 @@ impl carbon_core::clickhouse::BatchCommit for Token2022InstructionRow {
             WithdrawWithheldTokensFromMintForConfidentialTransferFee,
             WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow
         );
+
         Ok(())
     }
 }

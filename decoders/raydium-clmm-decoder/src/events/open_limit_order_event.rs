@@ -5,8 +5,16 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct OpenLimitOrderEventEvent {
     /// The pool whose limit order was opened
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_id: Pubkey,
     /// The limit order account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub limit_order: Pubkey,
     /// Direction of the limit order (true if zero_for_one)
     pub zero_for_one: bool,

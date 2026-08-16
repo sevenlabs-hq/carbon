@@ -47,28 +47,27 @@ pub trait Table {
         Self: Sized;
 }
 
-#[async_trait::async_trait]
 pub trait BatchInsert: Sized {
     type Row;
 
-    async fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> CarbonResult<()>;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> CarbonResult<()>;
 }
 
 #[async_trait::async_trait]
 pub trait BatchCommit: Sized {
-    async fn batch_commit(&self, client: &clickhouse::Client, rows: &[Self]) -> CarbonResult<()>;
+    async fn batch_commit(client: &clickhouse::Client, rows: &[Self]) -> CarbonResult<()>;
 }
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
 pub trait Insert: ClusterTable + Sized {
-    async fn insert(&self, client: &clickhouse::Client, rows: &[Self]) -> CarbonResult<()>;
+    async fn insert(client: &clickhouse::Client, rows: &[Self]) -> CarbonResult<()>;
 }
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
 pub trait Insert: Table + Sized {
-    async fn insert(&self, client: &clickhouse::Client, rows: &[Self]) -> CarbonResult<()>;
+    async fn insert(client: &clickhouse::Client, rows: &[Self]) -> CarbonResult<()>;
 }
 
 #[cfg(feature = "clickhouse-cluster")]

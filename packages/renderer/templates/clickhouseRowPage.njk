@@ -99,37 +99,30 @@ impl
 {% else %}
 impl
     TryFrom<{{ entityName | pascalCase }}Row> for (
-        crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }},
+        crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }},
         crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}InstructionAccounts,
-       {{ entityName | pascalCase }}Row,
+        {{ entityName | pascalCase }}Row,
     )
 {
     type Error = carbon_core::error::Error;
 
     fn try_from(value: {{ entityName | pascalCase }}Row) -> Result<Self, Self::Error> {
-        let pubkey = value
-            .__pubkey
-            .parse::<solana_pubkey::Pubkey>()
+        let source: crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }} = serde_json::from_str(&value.data)
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
-        let source: crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }} = serde_json::from_str(&value.data)
+        let accounts: crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}InstructionAccounts = serde_json::from_str(&value.__accounts)
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
-        let accounts: crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}InstructionAccounts = serde_json::from_str(&value.__accounts);
 
         Ok((
             source,
             accounts,
-            {{ entityName | pascalCase }}Row {
-                signature: value.__signature,
-                instruction_index: value.__instruction_index,
-                stack_height: value.__stack_height,
-                slot: value.__slot
-            }
+            value,
         ))
     }
 }
 
 
 {% endif %}
+#[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for {{ entityName | pascalCase }}Row {
     fn local_table() -> &'static str {
         "{{ table_name }}_local"
@@ -150,7 +143,6 @@ impl carbon_core::clickhouse::Table for {{ entityName | pascalCase }}Row {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for {{ entityName | pascalCase }}Row {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {

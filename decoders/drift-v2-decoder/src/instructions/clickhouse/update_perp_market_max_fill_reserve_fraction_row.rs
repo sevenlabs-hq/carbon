@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<UpdatePerpMarketMaxFillReserveFractionRow> for (crate::instructions::update_perp_market_max_fill_reserve_fraction::UpdatePerpMarketMaxFillReserveFraction, crate::instructions::update_perp_market_max_fill_reserve_fraction::UpdatePerpMarketMaxFillReserveFractionInstructionAccounts, UpdatePerpMarketMaxFillReserveFractionRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdatePerpMarketMaxFillReserveFractionRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_perp_market_max_fill_reserve_fraction::UpdatePerpMarketMaxFillReserveFraction = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_perp_market_max_fill_reserve_fraction::UpdatePerpMarketMaxFillReserveFractionInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdatePerpMarketMaxFillReserveFractionRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for UpdatePerpMarketMaxFillReserveFractionRo
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdatePerpMarketMaxFillReserveFractionRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for UpdatePerpMarketMaxFillReserveFractionR
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_update_perp_market_max_fill_reserve_fraction_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct UpdatePerpMarketMaxFillReserveFractionRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdatePerpMarketMaxFillReserveFractionRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdatePerpMarketMaxFillReserveFractionRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for UpdatePerpMarketMaxFillReserveFracti
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdatePerpMarketMaxFillReserveFractionRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdatePerpMarketMaxFillReserveFractionRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

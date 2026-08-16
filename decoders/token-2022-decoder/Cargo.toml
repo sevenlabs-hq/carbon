@@ -13,9 +13,11 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [features]
+base58 = ["serde"]
+
 default = []
 
-serde = ["dep:serde"]
+serde = ["dep:serde", "dep:serde-big-array"]
 
 postgres = [
     "carbon-core/postgres",
@@ -32,10 +34,11 @@ graphql = [
 ]
 
 clickhouse = [
+    "solana-pubkey/serde",
     "carbon-core/clickhouse",
     "dep:clickhouse",
     "dep:async-trait",
-    "serde",
+    "base58",
 ]
 
 clickhouse-cluster = [

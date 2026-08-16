@@ -215,506 +215,139 @@ pub enum HeavenInstructionRow {
     CpiEvent(CpiEventRow),
 }
 
-pub struct HeavenInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub HeavenInstruction,
+pub struct HeavenInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a HeavenInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for HeavenInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for HeavenInstructionMetadata<'a> {
     type Row = HeavenInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            HeavenInstruction::AddLiquidityProPool { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AddLiquidityProPool(
-                    AddLiquidityProPoolRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let HeavenInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(HeavenInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminBorrowSol { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminBorrowSol(
-                    AdminBorrowSolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminClaimMsol { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminClaimMsol(
-                    AdminClaimMsolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminClaimProCreatorTradingFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminClaimProCreatorTradingFees(
-                    AdminClaimProCreatorTradingFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminClaimStakingRewards { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminClaimStakingRewards(
-                    AdminClaimStakingRewardsRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminClaimStandardCreatorTradingFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminClaimStandardCreatorTradingFees(
-                    AdminClaimStandardCreatorTradingFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminDepositMsol { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminDepositMsol(
-                    AdminDepositMsolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminMintMsol { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminMintMsol(
-                    AdminMintMsolRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            HeavenInstruction::AdminRepaySol { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminRepaySol(
-                    AdminRepaySolRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            HeavenInstruction::AdminSetTransferFee { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminSetTransferFee(
-                    AdminSetTransferFeeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminUnstakeMsol { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminUnstakeMsol(
-                    AdminUnstakeMsolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminUpdateProLiquidityPoolState { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminUpdateProLiquidityPoolState(
-                    AdminUpdateProLiquidityPoolStateRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminUpdateStandardLiquidityPoolState { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminUpdateStandardLiquidityPoolState(
-                    AdminUpdateStandardLiquidityPoolStateRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminWithdrawMsol { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminWithdrawMsol(
-                    AdminWithdrawMsolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::AdminWithdrawTransferFee { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::AdminWithdrawTransferFee(
-                    AdminWithdrawTransferFeeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::Buy { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::Buy(BuyRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            HeavenInstruction::ClaimProCreatorTradingFeeProtocolFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ClaimProCreatorTradingFeeProtocolFees(
-                    ClaimProCreatorTradingFeeProtocolFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::ClaimProCreatorTradingFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ClaimProCreatorTradingFees(
-                    ClaimProCreatorTradingFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::ClaimProLiquidityProviderTradingFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ClaimProLiquidityProviderTradingFees(
-                    ClaimProLiquidityProviderTradingFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::ClaimProProtocolTradingFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ClaimProProtocolTradingFees(
-                    ClaimProProtocolTradingFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::ClaimProReflectionTradingFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ClaimProReflectionTradingFees(
-                    ClaimProReflectionTradingFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::ClaimStandardCreatorTradingFeeProtocolFees {
-                data,
-                accounts,
-                ..
-            } => {
-                rows.push(
-                    HeavenInstructionRow::ClaimStandardCreatorTradingFeeProtocolFees(
-                        ClaimStandardCreatorTradingFeeProtocolFeesRow::try_from((
-                            data.clone(),
-                            metadata.clone(),
-                            accounts.clone(),
-                        ))?,
-                    ),
-                );
-            }
-            HeavenInstruction::ClaimStandardCreatorTradingFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ClaimStandardCreatorTradingFees(
-                    ClaimStandardCreatorTradingFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::ClaimStandardProtocolTradingFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ClaimStandardProtocolTradingFees(
-                    ClaimStandardProtocolTradingFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::ClaimStandardReflectionTradingFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ClaimStandardReflectionTradingFees(
-                    ClaimStandardReflectionTradingFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CloseProtocolLookupTable { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CloseProtocolLookupTable(
-                    CloseProtocolLookupTableRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreateOrUpdateProtocolFeeAdmin { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreateOrUpdateProtocolFeeAdmin(
-                    CreateOrUpdateProtocolFeeAdminRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreateOrUpdateProtocolOwner { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreateOrUpdateProtocolOwner(
-                    CreateOrUpdateProtocolOwnerRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreateOrUpdateProtocolStakingAdmin { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreateOrUpdateProtocolStakingAdmin(
-                    CreateOrUpdateProtocolStakingAdminRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreateProLiquidityPool { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreateProLiquidityPool(
-                    CreateProLiquidityPoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreateProtocolConfig { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreateProtocolConfig(
-                    CreateProtocolConfigRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreateProtocolLookupTable { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreateProtocolLookupTable(
-                    CreateProtocolLookupTableRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreateStandardLiquidityPool { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreateStandardLiquidityPool(
-                    CreateStandardLiquidityPoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreatorSetProMarketCapCreatorFee { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreatorSetProMarketCapCreatorFee(
-                    CreatorSetProMarketCapCreatorFeeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreatorSetProMarketCapLpFee { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreatorSetProMarketCapLpFee(
-                    CreatorSetProMarketCapLpFeeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreatorSetProMarketCapReflectionFee { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreatorSetProMarketCapReflectionFee(
-                    CreatorSetProMarketCapReflectionFeeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreatorSetProSlotCreatorFee { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreatorSetProSlotCreatorFee(
-                    CreatorSetProSlotCreatorFeeRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreatorToggleProDeposit { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreatorToggleProDeposit(
-                    CreatorToggleProDepositRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreatorToggleProSwap { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreatorToggleProSwap(
-                    CreatorToggleProSwapRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CreatorToggleProWithdraw { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CreatorToggleProWithdraw(
-                    CreatorToggleProWithdrawRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::DeactivateProtocolLookupTable { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::DeactivateProtocolLookupTable(
-                    DeactivateProtocolLookupTableRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::ExtendProtocolLookupTable { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ExtendProtocolLookupTable(
-                    ExtendProtocolLookupTableRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::InitializeProtocolLending { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::InitializeProtocolLending(
-                    InitializeProtocolLendingRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::ProBuy { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ProBuy(ProBuyRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            HeavenInstruction::ProSell { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::ProSell(ProSellRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            HeavenInstruction::RemainingAccountsStub { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::RemainingAccountsStub(
-                    RemainingAccountsStubRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::RemoveLiquidityProPool { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::RemoveLiquidityProPool(
-                    RemoveLiquidityProPoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::Sell { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::Sell(SellRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            HeavenInstruction::SetProtocolSlotFees { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::SetProtocolSlotFees(
-                    SetProtocolSlotFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::TransferLpTokens { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::TransferLpTokens(
-                    TransferLpTokensRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::UpdateAllowCreatePool { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::UpdateAllowCreatePool(
-                    UpdateAllowCreatePoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::UpdateCreatorTradingFeeReceiver { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::UpdateCreatorTradingFeeReceiver(
-                    UpdateCreatorTradingFeeReceiverRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::UpdateProCreatorTradingFeeReceiver { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::UpdateProCreatorTradingFeeReceiver(
-                    UpdateProCreatorTradingFeeReceiverRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::UpdateProtocolConfig { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::UpdateProtocolConfig(
-                    UpdateProtocolConfigRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            HeavenInstruction::CpiEvent { data, accounts, .. } => {
-                rows.push(HeavenInstructionRow::CpiEvent(CpiEventRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AddLiquidityProPool, AddLiquidityProPoolRow);
+        insert_branch!(AdminBorrowSol, AdminBorrowSolRow);
+        insert_branch!(AdminClaimMsol, AdminClaimMsolRow);
+        insert_branch!(
+            AdminClaimProCreatorTradingFees,
+            AdminClaimProCreatorTradingFeesRow
+        );
+        insert_branch!(AdminClaimStakingRewards, AdminClaimStakingRewardsRow);
+        insert_branch!(
+            AdminClaimStandardCreatorTradingFees,
+            AdminClaimStandardCreatorTradingFeesRow
+        );
+        insert_branch!(AdminDepositMsol, AdminDepositMsolRow);
+        insert_branch!(AdminMintMsol, AdminMintMsolRow);
+        insert_branch!(AdminRepaySol, AdminRepaySolRow);
+        insert_branch!(AdminSetTransferFee, AdminSetTransferFeeRow);
+        insert_branch!(AdminUnstakeMsol, AdminUnstakeMsolRow);
+        insert_branch!(
+            AdminUpdateProLiquidityPoolState,
+            AdminUpdateProLiquidityPoolStateRow
+        );
+        insert_branch!(
+            AdminUpdateStandardLiquidityPoolState,
+            AdminUpdateStandardLiquidityPoolStateRow
+        );
+        insert_branch!(AdminWithdrawMsol, AdminWithdrawMsolRow);
+        insert_branch!(AdminWithdrawTransferFee, AdminWithdrawTransferFeeRow);
+        insert_branch!(Buy, BuyRow);
+        insert_branch!(
+            ClaimProCreatorTradingFeeProtocolFees,
+            ClaimProCreatorTradingFeeProtocolFeesRow
+        );
+        insert_branch!(ClaimProCreatorTradingFees, ClaimProCreatorTradingFeesRow);
+        insert_branch!(
+            ClaimProLiquidityProviderTradingFees,
+            ClaimProLiquidityProviderTradingFeesRow
+        );
+        insert_branch!(ClaimProProtocolTradingFees, ClaimProProtocolTradingFeesRow);
+        insert_branch!(
+            ClaimProReflectionTradingFees,
+            ClaimProReflectionTradingFeesRow
+        );
+        insert_branch!(
+            ClaimStandardCreatorTradingFeeProtocolFees,
+            ClaimStandardCreatorTradingFeeProtocolFeesRow
+        );
+        insert_branch!(
+            ClaimStandardCreatorTradingFees,
+            ClaimStandardCreatorTradingFeesRow
+        );
+        insert_branch!(
+            ClaimStandardProtocolTradingFees,
+            ClaimStandardProtocolTradingFeesRow
+        );
+        insert_branch!(
+            ClaimStandardReflectionTradingFees,
+            ClaimStandardReflectionTradingFeesRow
+        );
+        insert_branch!(CloseProtocolLookupTable, CloseProtocolLookupTableRow);
+        insert_branch!(
+            CreateOrUpdateProtocolFeeAdmin,
+            CreateOrUpdateProtocolFeeAdminRow
+        );
+        insert_branch!(CreateOrUpdateProtocolOwner, CreateOrUpdateProtocolOwnerRow);
+        insert_branch!(
+            CreateOrUpdateProtocolStakingAdmin,
+            CreateOrUpdateProtocolStakingAdminRow
+        );
+        insert_branch!(CreateProLiquidityPool, CreateProLiquidityPoolRow);
+        insert_branch!(CreateProtocolConfig, CreateProtocolConfigRow);
+        insert_branch!(CreateProtocolLookupTable, CreateProtocolLookupTableRow);
+        insert_branch!(CreateStandardLiquidityPool, CreateStandardLiquidityPoolRow);
+        insert_branch!(
+            CreatorSetProMarketCapCreatorFee,
+            CreatorSetProMarketCapCreatorFeeRow
+        );
+        insert_branch!(CreatorSetProMarketCapLpFee, CreatorSetProMarketCapLpFeeRow);
+        insert_branch!(
+            CreatorSetProMarketCapReflectionFee,
+            CreatorSetProMarketCapReflectionFeeRow
+        );
+        insert_branch!(CreatorSetProSlotCreatorFee, CreatorSetProSlotCreatorFeeRow);
+        insert_branch!(CreatorToggleProDeposit, CreatorToggleProDepositRow);
+        insert_branch!(CreatorToggleProSwap, CreatorToggleProSwapRow);
+        insert_branch!(CreatorToggleProWithdraw, CreatorToggleProWithdrawRow);
+        insert_branch!(
+            DeactivateProtocolLookupTable,
+            DeactivateProtocolLookupTableRow
+        );
+        insert_branch!(ExtendProtocolLookupTable, ExtendProtocolLookupTableRow);
+        insert_branch!(InitializeProtocolLending, InitializeProtocolLendingRow);
+        insert_branch!(ProBuy, ProBuyRow);
+        insert_branch!(ProSell, ProSellRow);
+        insert_branch!(RemainingAccountsStub, RemainingAccountsStubRow);
+        insert_branch!(RemoveLiquidityProPool, RemoveLiquidityProPoolRow);
+        insert_branch!(Sell, SellRow);
+        insert_branch!(SetProtocolSlotFees, SetProtocolSlotFeesRow);
+        insert_branch!(TransferLpTokens, TransferLpTokensRow);
+        insert_branch!(UpdateAllowCreatePool, UpdateAllowCreatePoolRow);
+        insert_branch!(
+            UpdateCreatorTradingFeeReceiver,
+            UpdateCreatorTradingFeeReceiverRow
+        );
+        insert_branch!(
+            UpdateProCreatorTradingFeeReceiver,
+            UpdateProCreatorTradingFeeReceiverRow
+        );
+        insert_branch!(UpdateProtocolConfig, UpdateProtocolConfigRow);
+        insert_branch!(CpiEvent, CpiEventRow);
 
         Ok(())
     }
@@ -723,28 +356,23 @@ impl carbon_core::clickhouse::BatchInsert for HeavenInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for HeavenInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AddLiquidityProPool, AddLiquidityProPoolRow);
@@ -856,6 +484,7 @@ impl carbon_core::clickhouse::BatchCommit for HeavenInstructionRow {
         );
         commit_branch!(UpdateProtocolConfig, UpdateProtocolConfigRow);
         commit_branch!(CpiEvent, CpiEventRow);
+
         Ok(())
     }
 }

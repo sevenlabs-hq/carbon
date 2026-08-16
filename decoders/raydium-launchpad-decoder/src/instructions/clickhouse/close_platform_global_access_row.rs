@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<ClosePlatformGlobalAccessRow> for (crate::instructions::close_platform_global_access::ClosePlatformGlobalAccess, crate::instructions::close_platform_global_access::ClosePlatformGlobalAccessInstructionAccounts, ClosePlatformGlobalAccessRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ClosePlatformGlobalAccessRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::close_platform_global_access::ClosePlatformGlobalAccess = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::close_platform_global_access::ClosePlatformGlobalAccessInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ClosePlatformGlobalAccessRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for ClosePlatformGlobalAccessRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ClosePlatformGlobalAccessRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for ClosePlatformGlobalAccessRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("raydium_launchpad_close_platform_global_access_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -199,7 +210,9 @@ impl carbon_core::clickhouse::Operation for ClosePlatformGlobalAccessRowMigratio
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS raydium_launchpad_close_platform_global_access_instruction")
+            .query(
+                "DROP TABLE IF EXISTS raydium_launchpad_close_platform_global_access_instruction",
+            )
             .execute()
             .await?;
 

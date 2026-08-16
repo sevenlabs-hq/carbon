@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<UpdateMultiplierScaledUiMintRow> for (crate::instructions::update_multiplier_scaled_ui_mint::UpdateMultiplierScaledUiMint, crate::instructions::update_multiplier_scaled_ui_mint::UpdateMultiplierScaledUiMintInstructionAccounts, UpdateMultiplierScaledUiMintRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdateMultiplierScaledUiMintRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_multiplier_scaled_ui_mint::UpdateMultiplierScaledUiMint = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_multiplier_scaled_ui_mint::UpdateMultiplierScaledUiMintInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdateMultiplierScaledUiMintRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for UpdateMultiplierScaledUiMintRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdateMultiplierScaledUiMintRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for UpdateMultiplierScaledUiMintRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("token_2022_update_multiplier_scaled_ui_mint_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

@@ -4,5 +4,11 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum EscrowAuthority {
     TokenOwner,
-    Creator(Pubkey),
+    Creator(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+    ),
 }

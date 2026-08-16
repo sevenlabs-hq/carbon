@@ -8,6 +8,10 @@ pub struct AmmConfig {
     pub bump: u8,
     pub index: u16,
     /// Address of the protocol owner
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     /// The protocol fee
     pub protocol_fee_rate: u32,
@@ -18,6 +22,10 @@ pub struct AmmConfig {
     /// The fund fee, denominated in hundredths of a bip (10^-6)
     pub fund_fee_rate: u32,
     pub padding_u32: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fund_owner: Pubkey,
     pub padding: [u64; 3],
 }

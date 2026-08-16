@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<UpdateV2Row>
+    for (
+        crate::instructions::update_v2::UpdateV2,
+        crate::instructions::update_v2::UpdateV2InstructionAccounts,
+        UpdateV2Row,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdateV2Row) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_v2::UpdateV2 = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_v2::UpdateV2InstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdateV2Row {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for UpdateV2Row {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdateV2Row {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for UpdateV2Row {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("mpl_core_update_v2_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

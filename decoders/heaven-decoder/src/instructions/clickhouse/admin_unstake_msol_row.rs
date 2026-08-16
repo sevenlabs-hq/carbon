@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<AdminUnstakeMsolRow>
+    for (
+        crate::instructions::admin_unstake_msol::AdminUnstakeMsol,
+        crate::instructions::admin_unstake_msol::AdminUnstakeMsolInstructionAccounts,
+        AdminUnstakeMsolRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: AdminUnstakeMsolRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::admin_unstake_msol::AdminUnstakeMsol =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::admin_unstake_msol::AdminUnstakeMsolInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for AdminUnstakeMsolRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for AdminUnstakeMsolRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for AdminUnstakeMsolRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for AdminUnstakeMsolRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("heaven_admin_unstake_msol_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

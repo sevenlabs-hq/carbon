@@ -32,40 +32,41 @@ pub enum StabbleStableSwapAccountRow {
     Vault(VaultRow),
 }
 
-pub struct StabbleStableSwapAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub StabbleStableSwapAccount,
+pub struct StabbleStableSwapAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a StabbleStableSwapAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for StabbleStableSwapAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for StabbleStableSwapAccountMetadata<'a> {
     type Row = StabbleStableSwapAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            StabbleStableSwapAccount::Pool(account) => {
-                rows.push(StabbleStableSwapAccountRow::Pool(PoolRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            StabbleStableSwapAccount::Strategy(account) => {
-                rows.push(StabbleStableSwapAccountRow::Strategy(
-                    StrategyRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            StabbleStableSwapAccount::Vault(account) => {
-                rows.push(StabbleStableSwapAccountRow::Vault(VaultRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let StabbleStableSwapAccount::$variant(account) = account {
+                    rows.push(StabbleStableSwapAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let StabbleStableSwapAccount::$variant(account) = account {
+                    rows.push(StabbleStableSwapAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Pool, PoolRow, boxed);
+        insert_branch!(Strategy, StrategyRow, boxed);
+        insert_branch!(Vault, VaultRow, boxed);
 
         Ok(())
     }
@@ -74,33 +75,29 @@ impl carbon_core::clickhouse::BatchInsert for StabbleStableSwapAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for StabbleStableSwapAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Pool, PoolRow);
         commit_branch!(Strategy, StrategyRow);
         commit_branch!(Vault, VaultRow);
+
         Ok(())
     }
 }

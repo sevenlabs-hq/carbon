@@ -6,6 +6,10 @@ pub struct Balance {
     /// Whether this balance slot is in use (nonzero = active)
     pub active: u8,
     /// The bank this balance corresponds to
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub bank_pk: Pubkey,
     /// Inherited from the bank when the position is first created and CANNOT BE
     /// CHANGED after that. Note that all balances created before the

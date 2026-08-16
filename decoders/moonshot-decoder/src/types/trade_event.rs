@@ -8,8 +8,20 @@ pub struct TradeEvent {
     pub dex_fee: u64,
     pub helio_fee: u64,
     pub allocation: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub curve: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub cost_token: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub sender: Pubkey,
     pub r#type: TradeType,
     pub label: String,

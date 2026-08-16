@@ -8,6 +8,10 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ObligationLiquidity {
     /// Reserve liquidity is borrowed from
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub borrow_reserve: Pubkey,
     /// Borrow rate used for calculating interest (big scaled fraction)
     pub cumulative_borrow_rate_bsf: BigFractionBytes,

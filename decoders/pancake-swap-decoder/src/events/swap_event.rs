@@ -5,14 +5,30 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SwapEventEvent {
     /// The pool for which token_0 and token_1 were swapped
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_state: Pubkey,
     /// The address that initiated the swap call, and that received the callback
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub sender: Pubkey,
     /// The payer token account in zero for one swaps, or the recipient token
     /// account in one for zero swaps
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_account0: Pubkey,
     /// The payer token account in one for zero swaps, or the recipient token
     /// account in zero for one swaps
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_account1: Pubkey,
     /// The real delta amount of the token_0 of the pool or user
     pub amount0: u64,

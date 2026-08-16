@@ -6,6 +6,10 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 pub struct ReferrerAccount {
     pub nonce: u8,
     pub has_alias: bool,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub referrer: Pubkey,
     pub pending_rewards: u64,
     pub claimed_rewards: u64,

@@ -24,29 +24,39 @@ pub enum DflowAggregatorV4AccountRow {
     Order(OrderRow),
 }
 
-pub struct DflowAggregatorV4AccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub DflowAggregatorV4Account,
+pub struct DflowAggregatorV4AccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a DflowAggregatorV4Account,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for DflowAggregatorV4AccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for DflowAggregatorV4AccountMetadata<'a> {
     type Row = DflowAggregatorV4AccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            DflowAggregatorV4Account::Order(account) => {
-                rows.push(DflowAggregatorV4AccountRow::Order(OrderRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let DflowAggregatorV4Account::$variant(account) = account {
+                    rows.push(DflowAggregatorV4AccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let DflowAggregatorV4Account::$variant(account) = account {
+                    rows.push(DflowAggregatorV4AccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Order, OrderRow, boxed);
 
         Ok(())
     }
@@ -55,31 +65,27 @@ impl carbon_core::clickhouse::BatchInsert for DflowAggregatorV4AccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for DflowAggregatorV4AccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Order, OrderRow);
+
         Ok(())
     }
 }

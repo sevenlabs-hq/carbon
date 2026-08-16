@@ -4,6 +4,10 @@ use {crate::types::Asset, carbon_core::deserialize::CarbonDeserialize, solana_pu
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct TradeEventV3Event {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub margin_account: Pubkey,
     pub index: u8,
     pub size: u64,
@@ -12,6 +16,10 @@ pub struct TradeEventV3Event {
     pub client_order_id: u64,
     pub order_id: u128,
     pub asset: Asset,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user: Pubkey,
     pub is_taker: bool,
     pub sequence_number: u64,

@@ -24,29 +24,39 @@ pub enum SystemProgramAccountRow {
     Nonce(NonceRow),
 }
 
-pub struct SystemProgramAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub SystemProgramAccount,
+pub struct SystemProgramAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a SystemProgramAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for SystemProgramAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for SystemProgramAccountMetadata<'a> {
     type Row = SystemProgramAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            SystemProgramAccount::Nonce(account) => {
-                rows.push(SystemProgramAccountRow::Nonce(NonceRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let SystemProgramAccount::$variant(account) = account {
+                    rows.push(SystemProgramAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let SystemProgramAccount::$variant(account) = account {
+                    rows.push(SystemProgramAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Nonce, NonceRow, boxed);
 
         Ok(())
     }
@@ -55,31 +65,27 @@ impl carbon_core::clickhouse::BatchInsert for SystemProgramAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for SystemProgramAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Nonce, NonceRow);
+
         Ok(())
     }
 }

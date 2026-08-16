@@ -6,6 +6,14 @@ pub struct SocialFeePdaCreated {
     pub timestamp: i64,
     pub user_id: String,
     pub platform: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub social_fee_pda: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub created_by: Pubkey,
 }

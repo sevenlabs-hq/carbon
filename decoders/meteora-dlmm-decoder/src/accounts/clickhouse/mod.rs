@@ -63,87 +63,50 @@ pub enum MeteoraDlmmAccountRow {
     TokenBadge(TokenBadgeRow),
 }
 
-pub struct MeteoraDlmmAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub MeteoraDlmmAccount,
+pub struct MeteoraDlmmAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a MeteoraDlmmAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for MeteoraDlmmAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for MeteoraDlmmAccountMetadata<'a> {
     type Row = MeteoraDlmmAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            MeteoraDlmmAccount::BinArray(account) => {
-                rows.push(MeteoraDlmmAccountRow::BinArray(BinArrayRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDlmmAccount::BinArrayBitmapExtension(account) => {
-                rows.push(MeteoraDlmmAccountRow::BinArrayBitmapExtension(
-                    BinArrayBitmapExtensionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDlmmAccount::ClaimFeeOperator(account) => {
-                rows.push(MeteoraDlmmAccountRow::ClaimFeeOperator(
-                    ClaimFeeOperatorRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDlmmAccount::DummyZcAccount(account) => {
-                rows.push(MeteoraDlmmAccountRow::DummyZcAccount(
-                    DummyZcAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDlmmAccount::LbPair(account) => {
-                rows.push(MeteoraDlmmAccountRow::LbPair(LbPairRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDlmmAccount::LimitOrder(account) => {
-                rows.push(MeteoraDlmmAccountRow::LimitOrder(LimitOrderRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MeteoraDlmmAccount::Operator(account) => {
-                rows.push(MeteoraDlmmAccountRow::Operator(OperatorRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDlmmAccount::Oracle(account) => {
-                rows.push(MeteoraDlmmAccountRow::Oracle(OracleRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDlmmAccount::PositionV2(account) => {
-                rows.push(MeteoraDlmmAccountRow::PositionV2(PositionV2Row::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MeteoraDlmmAccount::PresetParameter(account) => {
-                rows.push(MeteoraDlmmAccountRow::PresetParameter(
-                    PresetParameterRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDlmmAccount::PresetParameter2(account) => {
-                rows.push(MeteoraDlmmAccountRow::PresetParameter2(
-                    PresetParameter2Row::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDlmmAccount::TokenBadge(account) => {
-                rows.push(MeteoraDlmmAccountRow::TokenBadge(TokenBadgeRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let MeteoraDlmmAccount::$variant(account) = account {
+                    rows.push(MeteoraDlmmAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let MeteoraDlmmAccount::$variant(account) = account {
+                    rows.push(MeteoraDlmmAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(BinArray, BinArrayRow, boxed);
+        insert_branch!(BinArrayBitmapExtension, BinArrayBitmapExtensionRow, boxed);
+        insert_branch!(ClaimFeeOperator, ClaimFeeOperatorRow, boxed);
+        insert_branch!(DummyZcAccount, DummyZcAccountRow, boxed);
+        insert_branch!(LbPair, LbPairRow, boxed);
+        insert_branch!(LimitOrder, LimitOrderRow, boxed);
+        insert_branch!(Operator, OperatorRow, boxed);
+        insert_branch!(Oracle, OracleRow, boxed);
+        insert_branch!(PositionV2, PositionV2Row, boxed);
+        insert_branch!(PresetParameter, PresetParameterRow, boxed);
+        insert_branch!(PresetParameter2, PresetParameter2Row, boxed);
+        insert_branch!(TokenBadge, TokenBadgeRow, boxed);
 
         Ok(())
     }
@@ -152,28 +115,23 @@ impl carbon_core::clickhouse::BatchInsert for MeteoraDlmmAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for MeteoraDlmmAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(BinArray, BinArrayRow);
@@ -188,6 +146,7 @@ impl carbon_core::clickhouse::BatchCommit for MeteoraDlmmAccountRow {
         commit_branch!(PresetParameter, PresetParameterRow);
         commit_branch!(PresetParameter2, PresetParameter2Row);
         commit_branch!(TokenBadge, TokenBadgeRow);
+
         Ok(())
     }
 }

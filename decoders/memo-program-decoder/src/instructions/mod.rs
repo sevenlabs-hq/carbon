@@ -3,6 +3,7 @@ use crate::{MemoProgramDecoder, PROGRAM_ID};
 
 #[cfg(feature = "clickhouse")]
 pub mod clickhouse;
+
 #[cfg(feature = "postgres")]
 pub mod postgres;
 

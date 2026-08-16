@@ -6,8 +6,20 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum PlatformConfigParam {
-    FeeWallet(Pubkey),
-    NFTWallet(Pubkey),
+    FeeWallet(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+    ),
+    NFTWallet(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+    ),
     MigrateNftInfo(MigrateNftInfo),
     FeeRate(u64),
     Name(String),
@@ -15,7 +27,19 @@ pub enum PlatformConfigParam {
     Img(String),
     CpSwapConfig,
     AllInfo(PlatformConfigInfo),
-    VestingWallet(Pubkey),
+    VestingWallet(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+    ),
     PlatformVestingScale(u64),
-    PlatformCPCreator(Pubkey),
+    PlatformCPCreator(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+    ),
 }

@@ -6,6 +6,10 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ConfigMarinadeEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub state: Pubkey,
     pub rewards_fee_change: Option<FeeValueChange>,
     pub slots_for_stake_delta_change: Option<U64ValueChange>,

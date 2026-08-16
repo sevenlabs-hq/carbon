@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<InitObligationFarmsForReserveRow> for (crate::instructions::init_obligation_farms_for_reserve::InitObligationFarmsForReserve, crate::instructions::init_obligation_farms_for_reserve::InitObligationFarmsForReserveInstructionAccounts, InitObligationFarmsForReserveRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitObligationFarmsForReserveRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::init_obligation_farms_for_reserve::InitObligationFarmsForReserve = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::init_obligation_farms_for_reserve::InitObligationFarmsForReserveInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for InitObligationFarmsForReserveRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for InitObligationFarmsForReserveRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitObligationFarmsForReserveRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for InitObligationFarmsForReserveRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("kamino_lending_init_obligation_farms_for_reserve_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -199,7 +210,9 @@ impl carbon_core::clickhouse::Operation for InitObligationFarmsForReserveRowMigr
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS kamino_lending_init_obligation_farms_for_reserve_instruction")
+            .query(
+                "DROP TABLE IF EXISTS kamino_lending_init_obligation_farms_for_reserve_instruction",
+            )
             .execute()
             .await?;
 

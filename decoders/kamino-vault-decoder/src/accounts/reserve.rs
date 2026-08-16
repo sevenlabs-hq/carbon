@@ -13,8 +13,20 @@ pub struct Reserve {
     /// Last slot when supply and rates updated
     pub last_update: LastUpdate,
     /// Lending market address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lending_market: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_collateral: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_debt: Pubkey,
     /// Reserve liquidity
     pub liquidity: ReserveLiquidity,

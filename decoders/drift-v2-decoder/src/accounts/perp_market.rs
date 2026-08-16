@@ -9,6 +9,10 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PerpMarket {
     /// The perp market's address. It is a pda of the market index
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pubkey: Pubkey,
     /// The automated market maker
     pub amm: AMM,

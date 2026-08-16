@@ -10,6 +10,10 @@ use {
 pub struct MarginfiGroup {
     /// Broadly able to modify anything, and can set/remove other admins at
     /// will.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin: Pubkey,
     /// Bitmask for group settings flags.
     /// * Bit 0 (1): `PROGRAM_FEES_ENABLED` — If set, program-level fees are
@@ -28,16 +32,32 @@ pub struct MarginfiGroup {
     /// This admin can configure collateral ratios above (but not below) the
     /// collateral ratio of certain banks, e.g. allow SOL to count as 90%
     /// collateral when borrowing an LST instead of the default rate.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub emode_admin: Pubkey,
     /// Can modify the fields in `config.interest_rate_config` but nothing else,
     /// for every bank under this group
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegate_curve_admin: Pubkey,
     /// Can modify the `deposit_limit`, `borrow_limit`,
     /// `total_asset_value_init_limit` but nothing else, for every bank
     /// under this group
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegate_limit_admin: Pubkey,
     /// Can modify the emissions `flags`, `emissions_rate` and `emissions_mint`,
     /// but nothing else, for every bank under this group
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegate_emissions_admin: Pubkey,
     /// When program keeper temporarily puts the program into panic mode,
     /// information about the duration of the lockup will be available here.
@@ -49,8 +69,16 @@ pub struct MarginfiGroup {
     pub deleverage_withdraw_window_cache: WithdrawWindowCache,
     /// Can run bankruptcy and forced deleverage ixes to e.g. sunset
     /// risky/illiquid assets
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub risk_admin: Pubkey,
     /// Can modify a Bank's metadata, and nothing else.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub metadata_admin: Pubkey,
     /// Maximum leverage allowed for emode positions (initial margin), stored as
     /// u32 basis. Use `u32_to_basis` to convert to I80F48. Range: 1-100.
@@ -81,6 +109,10 @@ pub struct MarginfiGroup {
     /// wallet that lives in e.g. some cron job. If compromised, flow
     /// control can be effectively disabled until the admin is restored, which
     /// does not itself compromise any funds, and is merely annoying.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegate_flow_admin: Pubkey,
     pub padding0: [[u64; 2]; 2],
     pub padding1: [[u64; 2]; 32],

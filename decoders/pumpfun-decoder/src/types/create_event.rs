@@ -6,18 +6,42 @@ pub struct CreateEvent {
     pub name: String,
     pub symbol: String,
     pub uri: String,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub bonding_curve: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator: Pubkey,
     pub timestamp: i64,
     pub virtual_token_reserves: u64,
     pub virtual_sol_reserves: u64,
     pub real_token_reserves: u64,
     pub token_total_supply: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_program: Pubkey,
     pub is_mayhem_mode: bool,
     pub is_cashback_enabled: bool,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_mint: Pubkey,
     pub virtual_quote_reserves: u64,
 }

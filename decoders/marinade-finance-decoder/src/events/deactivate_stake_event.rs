@@ -7,13 +7,25 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct DeactivateStakeEventEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub state: Pubkey,
     pub epoch: u64,
     pub stake_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub stake_account: Pubkey,
     pub last_update_stake_delegation: u64,
     pub split_stake_account: Option<SplitStakeAccountInfo>,
     pub validator_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub validator_vote: Pubkey,
     pub total_stake_target: u64,
     pub validator_stake_target: u64,

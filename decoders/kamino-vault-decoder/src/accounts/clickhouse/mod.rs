@@ -29,34 +29,40 @@ pub enum KaminoVaultAccountRow {
     VaultState(VaultStateRow),
 }
 
-pub struct KaminoVaultAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub KaminoVaultAccount,
+pub struct KaminoVaultAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a KaminoVaultAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for KaminoVaultAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for KaminoVaultAccountMetadata<'a> {
     type Row = KaminoVaultAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            KaminoVaultAccount::Reserve(account) => {
-                rows.push(KaminoVaultAccountRow::Reserve(ReserveRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            KaminoVaultAccount::VaultState(account) => {
-                rows.push(KaminoVaultAccountRow::VaultState(VaultStateRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let KaminoVaultAccount::$variant(account) = account {
+                    rows.push(KaminoVaultAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let KaminoVaultAccount::$variant(account) = account {
+                    rows.push(KaminoVaultAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Reserve, ReserveRow, boxed);
+        insert_branch!(VaultState, VaultStateRow, boxed);
 
         Ok(())
     }
@@ -65,32 +71,28 @@ impl carbon_core::clickhouse::BatchInsert for KaminoVaultAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for KaminoVaultAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Reserve, ReserveRow);
         commit_branch!(VaultState, VaultStateRow);
+
         Ok(())
     }
 }

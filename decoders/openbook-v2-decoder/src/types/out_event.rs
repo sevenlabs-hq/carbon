@@ -9,6 +9,10 @@ pub struct OutEvent {
     pub padding0: [u8; 5],
     pub timestamp: u64,
     pub seq_num: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     pub quantity: i64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

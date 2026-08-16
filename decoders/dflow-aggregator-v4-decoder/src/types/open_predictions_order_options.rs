@@ -9,6 +9,10 @@ pub struct OpenPredictionsOrderOptions {
     pub quoted_out_amount: u64,
     /// Slippage for the predictions order (separate from swap slippage)
     pub slippage_bps: u16,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub platform_fee_recipient_vault: Pubkey,
     pub platform_fee_scale: u16,
 }

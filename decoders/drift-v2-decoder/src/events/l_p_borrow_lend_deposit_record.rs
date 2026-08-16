@@ -16,6 +16,10 @@ pub struct LPBorrowLendDepositRecordEvent {
     pub last_token_balance: i64,
     pub interest_accrued_token_amount: i64,
     pub amount_deposit_withdraw: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lp_pool: Pubkey,
 }
 

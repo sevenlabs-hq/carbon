@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<MoveAmmPriceRow>
+    for (
+        crate::instructions::move_amm_price::MoveAmmPrice,
+        crate::instructions::move_amm_price::MoveAmmPriceInstructionAccounts,
+        MoveAmmPriceRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: MoveAmmPriceRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::move_amm_price::MoveAmmPrice =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::move_amm_price::MoveAmmPriceInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for MoveAmmPriceRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for MoveAmmPriceRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for MoveAmmPriceRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for MoveAmmPriceRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_move_amm_price_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

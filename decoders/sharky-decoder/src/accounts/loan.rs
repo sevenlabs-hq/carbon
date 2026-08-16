@@ -7,8 +7,16 @@ pub struct Loan {
     pub version: u8,
     /// amount in tokens, decimals included
     pub principal_lamports: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub order_book: Pubkey,
     /// Token mint for what the loan is in (spl address)
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub value_token_mint: Pubkey,
     pub escrow_bump_seed: u8,
     /// stores start and duration

@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<ClaimTradingFeeRow>
+    for (
+        crate::instructions::claim_trading_fee::ClaimTradingFee,
+        crate::instructions::claim_trading_fee::ClaimTradingFeeInstructionAccounts,
+        ClaimTradingFeeRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ClaimTradingFeeRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::claim_trading_fee::ClaimTradingFee =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::claim_trading_fee::ClaimTradingFeeInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ClaimTradingFeeRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for ClaimTradingFeeRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ClaimTradingFeeRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for ClaimTradingFeeRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_dbc_claim_trading_fee_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

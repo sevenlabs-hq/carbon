@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<HarvestWithheldTokensToMintForConfidentialTransferFeeRow> for (crate::instructions::harvest_withheld_tokens_to_mint_for_confidential_transfer_fee::HarvestWithheldTokensToMintForConfidentialTransferFee, crate::instructions::harvest_withheld_tokens_to_mint_for_confidential_transfer_fee::HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts, HarvestWithheldTokensToMintForConfidentialTransferFeeRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: HarvestWithheldTokensToMintForConfidentialTransferFeeRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::harvest_withheld_tokens_to_mint_for_confidential_transfer_fee::HarvestWithheldTokensToMintForConfidentialTransferFee = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::harvest_withheld_tokens_to_mint_for_confidential_transfer_fee::HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable
     for HarvestWithheldTokensToMintForConfidentialTransferFeeRow
@@ -64,7 +81,6 @@ impl carbon_core::clickhouse::Table for HarvestWithheldTokensToMintForConfidenti
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for HarvestWithheldTokensToMintForConfidentialTransferFeeRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -72,13 +88,8 @@ impl carbon_core::clickhouse::Insert for HarvestWithheldTokensToMintForConfident
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("token_2022_harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

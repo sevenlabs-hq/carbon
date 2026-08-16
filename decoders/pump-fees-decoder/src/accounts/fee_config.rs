@@ -11,6 +11,10 @@ pub struct FeeConfig {
     /// The bump for the PDA
     pub bump: u8,
     /// The admin account that can update the fee config
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin: Pubkey,
     /// The flat fees for non-pump pools
     pub flat_fees: Fees,

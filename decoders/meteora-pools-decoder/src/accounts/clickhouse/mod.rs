@@ -32,40 +32,41 @@ pub enum MeteoraPoolsAccountRow {
     Pool(PoolRow),
 }
 
-pub struct MeteoraPoolsAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub MeteoraPoolsAccount,
+pub struct MeteoraPoolsAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a MeteoraPoolsAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for MeteoraPoolsAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for MeteoraPoolsAccountMetadata<'a> {
     type Row = MeteoraPoolsAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            MeteoraPoolsAccount::Config(account) => {
-                rows.push(MeteoraPoolsAccountRow::Config(ConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraPoolsAccount::LockEscrow(account) => {
-                rows.push(MeteoraPoolsAccountRow::LockEscrow(LockEscrowRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MeteoraPoolsAccount::Pool(account) => {
-                rows.push(MeteoraPoolsAccountRow::Pool(PoolRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let MeteoraPoolsAccount::$variant(account) = account {
+                    rows.push(MeteoraPoolsAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let MeteoraPoolsAccount::$variant(account) = account {
+                    rows.push(MeteoraPoolsAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Config, ConfigRow, boxed);
+        insert_branch!(LockEscrow, LockEscrowRow, boxed);
+        insert_branch!(Pool, PoolRow, boxed);
 
         Ok(())
     }
@@ -74,33 +75,29 @@ impl carbon_core::clickhouse::BatchInsert for MeteoraPoolsAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for MeteoraPoolsAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Config, ConfigRow);
         commit_branch!(LockEscrow, LockEscrowRow);
         commit_branch!(Pool, PoolRow);
+
         Ok(())
     }
 }

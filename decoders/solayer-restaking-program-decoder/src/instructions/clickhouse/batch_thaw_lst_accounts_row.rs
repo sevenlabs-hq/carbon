@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<BatchThawLstAccountsRow>
+    for (
+        crate::instructions::batch_thaw_lst_accounts::BatchThawLstAccounts,
+        crate::instructions::batch_thaw_lst_accounts::BatchThawLstAccountsInstructionAccounts,
+        BatchThawLstAccountsRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: BatchThawLstAccountsRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::batch_thaw_lst_accounts::BatchThawLstAccounts =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::batch_thaw_lst_accounts::BatchThawLstAccountsInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for BatchThawLstAccountsRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for BatchThawLstAccountsRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for BatchThawLstAccountsRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for BatchThawLstAccountsRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("solayer_restaking_program_batch_thaw_lst_accounts_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

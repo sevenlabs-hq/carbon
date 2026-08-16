@@ -8,6 +8,10 @@ pub struct PlatformCurveParam {
     /// The curve params index
     pub index: u8,
     /// The global config address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global_config: Pubkey,
     /// bonding curve param
     pub bonding_curve_param: BondingCurveParam,

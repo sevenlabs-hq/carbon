@@ -7,14 +7,26 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UserMetadata {
     /// Pubkey of the referrer/owner - pubkey::default if no referrer
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub referrer: Pubkey,
     /// Bump used for validation of account address
     pub bump: u64,
     /// User lookup table - used to store all user accounts - atas for each
     /// reserve mint, each obligation PDA, UserMetadata itself and all
     /// referrer_token_states if there is a referrer
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user_lookup_table: Pubkey,
     /// User metadata account owner
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub padding1: [u64; 51],

@@ -10,9 +10,17 @@ pub struct PlatformConfig {
     /// The epoch for update interval
     pub epoch: u64,
     /// The platform fee wallet
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub platform_fee_wallet: Pubkey,
     /// The platform nft wallet to receive the platform NFT after migration if
     /// platform_scale is not 0(Only support MigrateType::CPSWAP)
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub platform_nft_wallet: Pubkey,
     /// Scale of the platform liquidity quantity rights will be converted into
     /// NFT(Only support MigrateType::CPSWAP)
@@ -34,6 +42,10 @@ pub struct PlatformConfig {
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub img: [u8; 256],
     /// The platform specifies the trade fee rate after migration to cp swap
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub cpswap_config: Pubkey,
     /// Creator fee rate
     pub creator_fee_rate: u64,
@@ -44,12 +56,24 @@ pub struct PlatformConfig {
     /// `transfer_fee_config_authority` both belongs to the contract.
     /// Once the token is migrated to AMM, the authorities will be reset to this
     /// value
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub transfer_fee_extension_auth: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub platform_vesting_wallet: Pubkey,
     pub platform_vesting_scale: u64,
     /// If a valid platform_cp_creator is configured for the platform,
     /// it will be used as the creator for the AMM pool during migration to
     /// cpswap pool.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub platform_cp_creator: Pubkey,
     /// padding for future updates
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

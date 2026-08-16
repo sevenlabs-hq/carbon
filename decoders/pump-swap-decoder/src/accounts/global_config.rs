@@ -5,6 +5,10 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct GlobalConfig {
     /// The admin pubkey
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin: Pubkey,
     pub lp_fee_basis_points: u64,
     pub protocol_fee_basis_points: u64,
@@ -19,8 +23,20 @@ pub struct GlobalConfig {
     pub protocol_fee_recipients: [Pubkey; 8],
     pub coin_creator_fee_basis_points: u64,
     /// The admin authority for setting coin creators
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin_set_coin_creator_authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whitelist_pda: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub reserved_fee_recipient: Pubkey,
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: [Pubkey; 7],

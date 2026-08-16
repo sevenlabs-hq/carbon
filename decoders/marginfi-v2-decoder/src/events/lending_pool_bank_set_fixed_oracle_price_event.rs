@@ -9,6 +9,10 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingPoolBankSetFixedOraclePriceEventEvent {
     pub header: GroupEventHeader,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub bank: Pubkey,
     pub price: WrappedI80F48,
 }

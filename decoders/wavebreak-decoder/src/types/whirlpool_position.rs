@@ -4,7 +4,15 @@ use {crate::types::WhirlpoolPositionRewardInfo, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct WhirlpoolPosition {
     pub discriminator: [u8; 8],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whirlpool: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub position_mint: Pubkey,
     pub liquidity: u128,
     pub tick_lower_index: i32,

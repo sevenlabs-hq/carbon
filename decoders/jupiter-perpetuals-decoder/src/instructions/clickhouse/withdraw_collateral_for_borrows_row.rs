@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<WithdrawCollateralForBorrowsRow> for (crate::instructions::withdraw_collateral_for_borrows::WithdrawCollateralForBorrows, crate::instructions::withdraw_collateral_for_borrows::WithdrawCollateralForBorrowsInstructionAccounts, WithdrawCollateralForBorrowsRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: WithdrawCollateralForBorrowsRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::withdraw_collateral_for_borrows::WithdrawCollateralForBorrows = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::withdraw_collateral_for_borrows::WithdrawCollateralForBorrowsInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for WithdrawCollateralForBorrowsRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for WithdrawCollateralForBorrowsRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for WithdrawCollateralForBorrowsRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for WithdrawCollateralForBorrowsRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("jupiter_perpetuals_withdraw_collateral_for_borrows_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

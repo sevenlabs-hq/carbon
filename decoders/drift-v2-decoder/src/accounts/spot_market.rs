@@ -12,14 +12,30 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SpotMarket {
     /// The address of the spot market. It is a pda of the market index
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pubkey: Pubkey,
     /// The oracle used to price the markets deposits/borrows
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub oracle: Pubkey,
     /// The token mint of the market
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     /// The vault used to store the market's deposits
     /// The amount in the vault should be equal to or greater than deposits -
     /// borrows
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault: Pubkey,
     /// The encoded display name for the market e.g. SOL
     pub name: [u8; 32],

@@ -18,17 +18,29 @@ use {
 pub struct InitializeConfidentialTransferMint {
     /// Authority to modify the `ConfidentialTransferMint` configuration and to
     /// approve new accounts.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub authority: Option<Pubkey>,
     /// Determines if newly configured accounts must be approved by the
     /// `authority` before they may be used by the user.
     pub auto_approve_new_accounts: bool,
     /// New authority to decode any transfer amount in a confidential transfer.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub auditor_elgamal_pubkey: Option<Pubkey>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct InitializeConfidentialTransferMintInstructionAccounts {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }

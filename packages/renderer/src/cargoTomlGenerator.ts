@@ -202,7 +202,8 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         features.push('    "carbon-core/clickhouse",');
         features.push('    "dep:clickhouse",');
         features.push('    "dep:async-trait",');
-        features.push('    "serde",');
+        features.push('    "solana-pubkey/serde",');
+        features.push('    "base58",');
         features.push(']');
         features.push('');
         features.push('clickhouse-cluster = [');

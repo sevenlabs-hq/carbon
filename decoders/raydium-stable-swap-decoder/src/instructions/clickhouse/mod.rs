@@ -44,53 +44,34 @@ pub enum RaydiumStableSwapInstructionRow {
     Withdraw(WithdrawRow),
 }
 
-pub struct RaydiumStableSwapInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub RaydiumStableSwapInstruction,
+pub struct RaydiumStableSwapInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a RaydiumStableSwapInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for RaydiumStableSwapInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for RaydiumStableSwapInstructionMetadata<'a> {
     type Row = RaydiumStableSwapInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            RaydiumStableSwapInstruction::Deposit { data, accounts, .. } => {
-                rows.push(RaydiumStableSwapInstructionRow::Deposit(
-                    DepositRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumStableSwapInstruction::Initialize { data, accounts, .. } => {
-                rows.push(RaydiumStableSwapInstructionRow::Initialize(
-                    InitializeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumStableSwapInstruction::PreInitialize { data, accounts, .. } => {
-                rows.push(RaydiumStableSwapInstructionRow::PreInitialize(
-                    PreInitializeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumStableSwapInstruction::SwapBaseIn { data, accounts, .. } => {
-                rows.push(RaydiumStableSwapInstructionRow::SwapBaseIn(
-                    SwapBaseInRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumStableSwapInstruction::SwapBaseOut { data, accounts, .. } => {
-                rows.push(RaydiumStableSwapInstructionRow::SwapBaseOut(
-                    SwapBaseOutRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            RaydiumStableSwapInstruction::Withdraw { data, accounts, .. } => {
-                rows.push(RaydiumStableSwapInstructionRow::Withdraw(
-                    WithdrawRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let RaydiumStableSwapInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(RaydiumStableSwapInstructionRow::$variant(<$row>::try_from(
+                        (data.clone(), metadata.clone(), accounts.clone()),
+                    )?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Deposit, DepositRow);
+        insert_branch!(Initialize, InitializeRow);
+        insert_branch!(PreInitialize, PreInitializeRow);
+        insert_branch!(SwapBaseIn, SwapBaseInRow);
+        insert_branch!(SwapBaseOut, SwapBaseOutRow);
+        insert_branch!(Withdraw, WithdrawRow);
 
         Ok(())
     }
@@ -99,28 +80,23 @@ impl carbon_core::clickhouse::BatchInsert for RaydiumStableSwapInstructionMetada
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for RaydiumStableSwapInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Deposit, DepositRow);
@@ -129,6 +105,7 @@ impl carbon_core::clickhouse::BatchCommit for RaydiumStableSwapInstructionRow {
         commit_branch!(SwapBaseIn, SwapBaseInRow);
         commit_branch!(SwapBaseOut, SwapBaseOutRow);
         commit_branch!(Withdraw, WithdrawRow);
+
         Ok(())
     }
 }

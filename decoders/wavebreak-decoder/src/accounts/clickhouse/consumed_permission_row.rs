@@ -80,7 +80,6 @@ impl carbon_core::clickhouse::Table for ConsumedPermissionRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ConsumedPermissionRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -88,13 +87,8 @@ impl carbon_core::clickhouse::Insert for ConsumedPermissionRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("wavebreak_consumed_permission_account")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

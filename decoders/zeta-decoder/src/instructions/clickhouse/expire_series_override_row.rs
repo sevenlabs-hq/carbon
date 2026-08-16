@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<ExpireSeriesOverrideRow>
+    for (
+        crate::instructions::expire_series_override::ExpireSeriesOverride,
+        crate::instructions::expire_series_override::ExpireSeriesOverrideInstructionAccounts,
+        ExpireSeriesOverrideRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ExpireSeriesOverrideRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::expire_series_override::ExpireSeriesOverride =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::expire_series_override::ExpireSeriesOverrideInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ExpireSeriesOverrideRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for ExpireSeriesOverrideRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ExpireSeriesOverrideRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for ExpireSeriesOverrideRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("zeta_expire_series_override_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

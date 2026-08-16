@@ -5,12 +5,24 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct GlobalConfig {
     /// Global admin of the program
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global_admin: Pubkey,
     /// Pending admin must sign a specific transaction to become the global
     /// admin
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pending_admin: Pubkey,
     /// Fee collector is the only allowed owner of token accounts receiving
     /// protocol fees
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_collector: Pubkey,
     /// Padding to make the struct size 1024 bytes
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<InitializePositionBundleWithMetadataRow> for (crate::instructions::initialize_position_bundle_with_metadata::InitializePositionBundleWithMetadata, crate::instructions::initialize_position_bundle_with_metadata::InitializePositionBundleWithMetadataInstructionAccounts, InitializePositionBundleWithMetadataRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitializePositionBundleWithMetadataRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::initialize_position_bundle_with_metadata::InitializePositionBundleWithMetadata = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::initialize_position_bundle_with_metadata::InitializePositionBundleWithMetadataInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for InitializePositionBundleWithMetadataRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for InitializePositionBundleWithMetadataRow 
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitializePositionBundleWithMetadataRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for InitializePositionBundleWithMetadataRow
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("orca_whirlpool_initialize_position_bundle_with_metadata_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct InitializePositionBundleWithMetadataRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializePositionBundleWithMetadataRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializePositionBundleWithMetadataRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for InitializePositionBundleWithMetadata
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializePositionBundleWithMetadataRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializePositionBundleWithMetadataRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

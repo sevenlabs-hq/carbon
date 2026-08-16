@@ -14,6 +14,10 @@ pub struct AddCustodyParams {
     pub target_ratio_bps: u64,
     pub increase_position_bps: u64,
     pub decrease_position_bps: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub doves_oracle: Pubkey,
     pub max_position_size_usd: u64,
     pub jump_rate: JumpRateState,
@@ -21,5 +25,9 @@ pub struct AddCustodyParams {
     pub price_impact_exponent: f32,
     pub delta_imbalance_threshold_decimal: u64,
     pub max_fee_bps: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub doves_ag_oracle: Pubkey,
 }

@@ -7,13 +7,37 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct VaultState {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault_admin_authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub base_vault_authority: Pubkey,
     pub base_vault_authority_bump: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_mint: Pubkey,
     pub token_mint_decimals: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_vault: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_program: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub shares_mint: Pubkey,
     pub shares_mint_decimals: u64,
     pub token_available: u64,
@@ -31,16 +55,32 @@ pub struct VaultState {
     pub min_invest_amount: u64,
     pub min_invest_delay_slots: u64,
     pub crank_fund_fee_per_reserve: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pending_admin: Pubkey,
     pub cumulative_earned_interest_sf: u128,
     pub cumulative_mgmt_fees_sf: u128,
     pub cumulative_perf_fees_sf: u128,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub name: [u8; 40],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault_lookup_table: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault_farm: Pubkey,
     pub creation_timestamp: u64,
     pub padding1: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub allocation_admin: Pubkey,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub padding2: [u128; 242],

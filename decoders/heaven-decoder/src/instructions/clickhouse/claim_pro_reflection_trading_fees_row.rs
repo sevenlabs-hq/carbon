@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<ClaimProReflectionTradingFeesRow> for (crate::instructions::claim_pro_reflection_trading_fees::ClaimProReflectionTradingFees, crate::instructions::claim_pro_reflection_trading_fees::ClaimProReflectionTradingFeesInstructionAccounts, ClaimProReflectionTradingFeesRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ClaimProReflectionTradingFeesRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::claim_pro_reflection_trading_fees::ClaimProReflectionTradingFees = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::claim_pro_reflection_trading_fees::ClaimProReflectionTradingFeesInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ClaimProReflectionTradingFeesRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for ClaimProReflectionTradingFeesRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ClaimProReflectionTradingFeesRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for ClaimProReflectionTradingFeesRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("heaven_claim_pro_reflection_trading_fees_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

@@ -79,7 +79,6 @@ impl carbon_core::clickhouse::Table for OperatorRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for OperatorRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -87,13 +86,8 @@ impl carbon_core::clickhouse::Insert for OperatorRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_dlmm_operator_account")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

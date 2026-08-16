@@ -10,8 +10,16 @@ pub struct PersonalPositionState {
     /// Bump to identify PDA
     pub bump: [u8; 1],
     /// Mint address of the tokenized position
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub nft_mint: Pubkey,
     /// The ID of the pool with which this token is connected
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_id: Pubkey,
     /// The lower bound tick of the position
     pub tick_lower_index: i32,

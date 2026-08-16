@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<AdminDepositMsolRow>
+    for (
+        crate::instructions::admin_deposit_msol::AdminDepositMsol,
+        crate::instructions::admin_deposit_msol::AdminDepositMsolInstructionAccounts,
+        AdminDepositMsolRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: AdminDepositMsolRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::admin_deposit_msol::AdminDepositMsol =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::admin_deposit_msol::AdminDepositMsolInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for AdminDepositMsolRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for AdminDepositMsolRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for AdminDepositMsolRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for AdminDepositMsolRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("heaven_admin_deposit_msol_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

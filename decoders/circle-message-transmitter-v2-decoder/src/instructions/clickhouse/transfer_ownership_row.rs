@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<TransferOwnershipRow>
+    for (
+        crate::instructions::transfer_ownership::TransferOwnership,
+        crate::instructions::transfer_ownership::TransferOwnershipInstructionAccounts,
+        TransferOwnershipRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: TransferOwnershipRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::transfer_ownership::TransferOwnership =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::transfer_ownership::TransferOwnershipInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for TransferOwnershipRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for TransferOwnershipRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for TransferOwnershipRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for TransferOwnershipRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("circle_message_transmitter_v2_transfer_ownership_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -199,7 +213,9 @@ impl carbon_core::clickhouse::Operation for TransferOwnershipRowMigrationOperati
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS circle_message_transmitter_v2_transfer_ownership_instruction")
+            .query(
+                "DROP TABLE IF EXISTS circle_message_transmitter_v2_transfer_ownership_instruction",
+            )
             .execute()
             .await?;
 

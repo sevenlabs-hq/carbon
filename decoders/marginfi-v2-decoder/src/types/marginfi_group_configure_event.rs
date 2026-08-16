@@ -4,6 +4,10 @@ use {crate::types::GroupEventHeader, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct MarginfiGroupConfigureEvent {
     pub header: GroupEventHeader,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub admin: Option<Pubkey>,
     pub flags: u64,
 }

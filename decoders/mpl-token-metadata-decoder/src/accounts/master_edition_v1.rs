@@ -7,7 +7,15 @@ pub struct MasterEditionV1 {
     pub key: Key,
     pub supply: u64,
     pub max_supply: Option<u64>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub printing_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub one_time_printing_authorization_mint: Pubkey,
 }
 

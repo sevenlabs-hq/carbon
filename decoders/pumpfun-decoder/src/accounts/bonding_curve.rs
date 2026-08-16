@@ -10,9 +10,17 @@ pub struct BondingCurve {
     pub real_quote_reserves: u64,
     pub token_total_supply: u64,
     pub complete: bool,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator: Pubkey,
     pub is_mayhem_mode: bool,
     pub is_cashback_coin: bool,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_mint: Pubkey,
 }
 

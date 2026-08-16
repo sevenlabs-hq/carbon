@@ -27,13 +27,37 @@ pub struct MinimalReserve {
     /// * PRICE_USAGE_ALLOWED = 0b_0010_0000; // 32
     pub price_status: u8,
     pub placeholder: [u8; 6],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lending_market: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_collateral: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_debt: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint_pubkey: Pubkey,
     /// * A PDA
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub supply_vault: Pubkey,
     /// * A PDA
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_vault: Pubkey,
     /// In simple terms: (amount in supply vault - outstanding borrows)
     /// * In token, with `mint_decimals`
@@ -63,6 +87,10 @@ pub struct MinimalReserve {
     pub absolute_referral_rate_sf: [u8; 16],
     /// Token or Token22. If token22, note that Kamino does not support all
     /// Token22 extensions.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_program: Pubkey,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub padding2_part1: [u8; 256],
@@ -84,12 +112,20 @@ pub struct MinimalReserve {
     /// * technically 6 decimals, but uses `mint_decimals` regardless for all
     ///   purposes
     /// * authority = lending_market_authority
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub collateral_mint_pubkey: Pubkey,
     /// Total number of collateral tokens
     /// * uses `mint_decimals`, even though it's technically 6 decimals under
     ///   the hood
     pub mint_total_supply: u64,
     /// * A PDA
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub collateral_supply_vault: Pubkey,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub padding1_reserve_collateral: [u8; 512],

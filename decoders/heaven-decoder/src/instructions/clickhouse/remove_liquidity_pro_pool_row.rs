@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<RemoveLiquidityProPoolRow>
+    for (
+        crate::instructions::remove_liquidity_pro_pool::RemoveLiquidityProPool,
+        crate::instructions::remove_liquidity_pro_pool::RemoveLiquidityProPoolInstructionAccounts,
+        RemoveLiquidityProPoolRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: RemoveLiquidityProPoolRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::remove_liquidity_pro_pool::RemoveLiquidityProPool =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::remove_liquidity_pro_pool::RemoveLiquidityProPoolInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for RemoveLiquidityProPoolRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for RemoveLiquidityProPoolRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for RemoveLiquidityProPoolRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for RemoveLiquidityProPoolRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("heaven_remove_liquidity_pro_pool_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

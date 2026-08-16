@@ -15,11 +15,19 @@ pub struct Market {
     pub base_decimals: u8,
     pub quote_decimals: u8,
     pub padding1: [u8; 5],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub market_authority: Pubkey,
     /// No expiry = 0. Market will expire and no trading allowed after
     /// time_expiry
     pub time_expiry: i64,
     /// Admin who can collect fees from the market
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub collect_fee_admin: Pubkey,
     /// Admin who must sign off on all order creations
     pub open_orders_admin: NonZeroPubkeyOption,
@@ -30,10 +38,22 @@ pub struct Market {
     /// Name. Trailing zero bytes are ignored.
     pub name: [u8; 16],
     /// Address of the BookSide account for bids
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub bids: Pubkey,
     /// Address of the BookSide account for asks
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub asks: Pubkey,
     /// Address of the EventHeap account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub event_heap: Pubkey,
     /// Oracles account address
     pub oracle_a: NonZeroPubkeyOption,
@@ -74,10 +94,26 @@ pub struct Market {
     pub maker_volume: u128,
     /// Cumulative taker volume in quote native units due to place take orders
     pub taker_volume_wo_oo: u128,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub base_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub market_base_vault: Pubkey,
     pub base_deposit_total: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub market_quote_vault: Pubkey,
     pub quote_deposit_total: u64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

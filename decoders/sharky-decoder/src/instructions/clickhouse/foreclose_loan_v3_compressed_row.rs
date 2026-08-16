@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<ForecloseLoanV3CompressedRow> for (crate::instructions::foreclose_loan_v3_compressed::ForecloseLoanV3Compressed, crate::instructions::foreclose_loan_v3_compressed::ForecloseLoanV3CompressedInstructionAccounts, ForecloseLoanV3CompressedRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ForecloseLoanV3CompressedRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::foreclose_loan_v3_compressed::ForecloseLoanV3Compressed = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::foreclose_loan_v3_compressed::ForecloseLoanV3CompressedInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ForecloseLoanV3CompressedRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for ForecloseLoanV3CompressedRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ForecloseLoanV3CompressedRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for ForecloseLoanV3CompressedRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("sharky_foreclose_loan_v3_compressed_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

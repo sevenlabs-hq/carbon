@@ -6,7 +6,15 @@ pub struct PlasmaEventHeader {
     pub sequence_number: u64,
     pub slot: u64,
     pub timestamp: i64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub signer: Pubkey,
     pub base_decimals: u8,
     pub quote_decimals: u8,

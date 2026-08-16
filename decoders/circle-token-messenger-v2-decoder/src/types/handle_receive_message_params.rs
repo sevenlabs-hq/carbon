@@ -4,6 +4,10 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct HandleReceiveMessageParams {
     pub remote_domain: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub sender: Pubkey,
     pub finality_threshold_executed: u32,
     pub message_body: Vec<u8>,

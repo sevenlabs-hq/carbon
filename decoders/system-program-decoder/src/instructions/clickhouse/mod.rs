@@ -67,126 +67,43 @@ pub enum SystemProgramInstructionRow {
     WithdrawNonceAccount(WithdrawNonceAccountRow),
 }
 
-pub struct SystemProgramInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub SystemProgramInstruction,
+pub struct SystemProgramInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a SystemProgramInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for SystemProgramInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for SystemProgramInstructionMetadata<'a> {
     type Row = SystemProgramInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            SystemProgramInstruction::AdvanceNonceAccount { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::AdvanceNonceAccount(
-                    AdvanceNonceAccountRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let SystemProgramInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(SystemProgramInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            SystemProgramInstruction::Allocate { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::Allocate(
-                    AllocateRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SystemProgramInstruction::AllocateWithSeed { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::AllocateWithSeed(
-                    AllocateWithSeedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SystemProgramInstruction::Assign { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::Assign(AssignRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            SystemProgramInstruction::AssignWithSeed { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::AssignWithSeed(
-                    AssignWithSeedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SystemProgramInstruction::AuthorizeNonceAccount { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::AuthorizeNonceAccount(
-                    AuthorizeNonceAccountRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SystemProgramInstruction::CreateAccount { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::CreateAccount(
-                    CreateAccountRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SystemProgramInstruction::CreateAccountWithSeed { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::CreateAccountWithSeed(
-                    CreateAccountWithSeedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SystemProgramInstruction::InitializeNonceAccount { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::InitializeNonceAccount(
-                    InitializeNonceAccountRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SystemProgramInstruction::TransferSol { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::TransferSol(
-                    TransferSolRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SystemProgramInstruction::TransferSolWithSeed { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::TransferSolWithSeed(
-                    TransferSolWithSeedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SystemProgramInstruction::UpgradeNonceAccount { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::UpgradeNonceAccount(
-                    UpgradeNonceAccountRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SystemProgramInstruction::WithdrawNonceAccount { data, accounts, .. } => {
-                rows.push(SystemProgramInstructionRow::WithdrawNonceAccount(
-                    WithdrawNonceAccountRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AdvanceNonceAccount, AdvanceNonceAccountRow);
+        insert_branch!(Allocate, AllocateRow);
+        insert_branch!(AllocateWithSeed, AllocateWithSeedRow);
+        insert_branch!(Assign, AssignRow);
+        insert_branch!(AssignWithSeed, AssignWithSeedRow);
+        insert_branch!(AuthorizeNonceAccount, AuthorizeNonceAccountRow);
+        insert_branch!(CreateAccount, CreateAccountRow);
+        insert_branch!(CreateAccountWithSeed, CreateAccountWithSeedRow);
+        insert_branch!(InitializeNonceAccount, InitializeNonceAccountRow);
+        insert_branch!(TransferSol, TransferSolRow);
+        insert_branch!(TransferSolWithSeed, TransferSolWithSeedRow);
+        insert_branch!(UpgradeNonceAccount, UpgradeNonceAccountRow);
+        insert_branch!(WithdrawNonceAccount, WithdrawNonceAccountRow);
 
         Ok(())
     }
@@ -195,28 +112,23 @@ impl carbon_core::clickhouse::BatchInsert for SystemProgramInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for SystemProgramInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AdvanceNonceAccount, AdvanceNonceAccountRow);
@@ -232,6 +144,7 @@ impl carbon_core::clickhouse::BatchCommit for SystemProgramInstructionRow {
         commit_branch!(TransferSolWithSeed, TransferSolWithSeedRow);
         commit_branch!(UpgradeNonceAccount, UpgradeNonceAccountRow);
         commit_branch!(WithdrawNonceAccount, WithdrawNonceAccountRow);
+
         Ok(())
     }
 }

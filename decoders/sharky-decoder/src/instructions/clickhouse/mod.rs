@@ -141,296 +141,68 @@ pub enum SharkyInstructionRow {
     WithdrawLiquidityTokenPool(WithdrawLiquidityTokenPoolRow),
 }
 
-pub struct SharkyInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub SharkyInstruction,
+pub struct SharkyInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a SharkyInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for SharkyInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for SharkyInstructionMetadata<'a> {
     type Row = SharkyInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            SharkyInstruction::AddLiquidityTokenPool { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::AddLiquidityTokenPool(
-                    AddLiquidityTokenPoolRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let SharkyInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(SharkyInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::CloseEscrowValueMintAtaAdmin { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CloseEscrowValueMintAtaAdmin(
-                    CloseEscrowValueMintAtaAdminRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::CloseNftList { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CloseNftList(
-                    CloseNftListRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SharkyInstruction::CloseOrderBook { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CloseOrderBook(
-                    CloseOrderBookRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::CloseTokenOrderbook { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CloseTokenOrderbook(
-                    CloseTokenOrderbookRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::CloseTokenPool { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CloseTokenPool(
-                    CloseTokenPoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::CreateNftList { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CreateNftList(
-                    CreateNftListRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SharkyInstruction::CreateOrderBook { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CreateOrderBook(
-                    CreateOrderBookRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::CreateProgramVersion { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CreateProgramVersion(
-                    CreateProgramVersionRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::CreateTokenOrderbook { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CreateTokenOrderbook(
-                    CreateTokenOrderbookRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::CreateTokenPool { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::CreateTokenPool(
-                    CreateTokenPoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::ExtendLoanCore { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::ExtendLoanCore(
-                    ExtendLoanCoreRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::ExtendLoanV3 { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::ExtendLoanV3(
-                    ExtendLoanV3Row::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SharkyInstruction::ExtendLoanV3Compressed { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::ExtendLoanV3Compressed(
-                    ExtendLoanV3CompressedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::ExtendTokenLoan { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::ExtendTokenLoan(
-                    ExtendTokenLoanRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::ForecloseLoanCore { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::ForecloseLoanCore(
-                    ForecloseLoanCoreRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::ForecloseLoanV3 { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::ForecloseLoanV3(
-                    ForecloseLoanV3Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::ForecloseLoanV3Compressed { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::ForecloseLoanV3Compressed(
-                    ForecloseLoanV3CompressedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::ForecloseTokenLoan { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::ForecloseTokenLoan(
-                    ForecloseTokenLoanRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::OfferLoan { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::OfferLoan(OfferLoanRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            SharkyInstruction::RepayLoanCore { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::RepayLoanCore(
-                    RepayLoanCoreRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SharkyInstruction::RepayLoanV3 { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::RepayLoanV3(RepayLoanV3Row::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            SharkyInstruction::RepayLoanV3Compressed { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::RepayLoanV3Compressed(
-                    RepayLoanV3CompressedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::RepayTokenLoan { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::RepayTokenLoan(
-                    RepayTokenLoanRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::RescindLoan { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::RescindLoan(RescindLoanRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            SharkyInstruction::TakeLoanCore { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::TakeLoanCore(
-                    TakeLoanCoreRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SharkyInstruction::TakeLoanV3 { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::TakeLoanV3(TakeLoanV3Row::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            SharkyInstruction::TakeLoanV3Compressed { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::TakeLoanV3Compressed(
-                    TakeLoanV3CompressedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::TakeTokenLoan { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::TakeTokenLoan(
-                    TakeTokenLoanRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SharkyInstruction::UpdateNftList { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::UpdateNftList(
-                    UpdateNftListRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            SharkyInstruction::UpdateOrderBook { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::UpdateOrderBook(
-                    UpdateOrderBookRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::UpdateProgramVersion { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::UpdateProgramVersion(
-                    UpdateProgramVersionRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::UpdateTokenOrderbook { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::UpdateTokenOrderbook(
-                    UpdateTokenOrderbookRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::UpdateTokenPool { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::UpdateTokenPool(
-                    UpdateTokenPoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            SharkyInstruction::WithdrawLiquidityTokenPool { data, accounts, .. } => {
-                rows.push(SharkyInstructionRow::WithdrawLiquidityTokenPool(
-                    WithdrawLiquidityTokenPoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AddLiquidityTokenPool, AddLiquidityTokenPoolRow);
+        insert_branch!(
+            CloseEscrowValueMintAtaAdmin,
+            CloseEscrowValueMintAtaAdminRow
+        );
+        insert_branch!(CloseNftList, CloseNftListRow);
+        insert_branch!(CloseOrderBook, CloseOrderBookRow);
+        insert_branch!(CloseTokenOrderbook, CloseTokenOrderbookRow);
+        insert_branch!(CloseTokenPool, CloseTokenPoolRow);
+        insert_branch!(CreateNftList, CreateNftListRow);
+        insert_branch!(CreateOrderBook, CreateOrderBookRow);
+        insert_branch!(CreateProgramVersion, CreateProgramVersionRow);
+        insert_branch!(CreateTokenOrderbook, CreateTokenOrderbookRow);
+        insert_branch!(CreateTokenPool, CreateTokenPoolRow);
+        insert_branch!(ExtendLoanCore, ExtendLoanCoreRow);
+        insert_branch!(ExtendLoanV3, ExtendLoanV3Row);
+        insert_branch!(ExtendLoanV3Compressed, ExtendLoanV3CompressedRow);
+        insert_branch!(ExtendTokenLoan, ExtendTokenLoanRow);
+        insert_branch!(ForecloseLoanCore, ForecloseLoanCoreRow);
+        insert_branch!(ForecloseLoanV3, ForecloseLoanV3Row);
+        insert_branch!(ForecloseLoanV3Compressed, ForecloseLoanV3CompressedRow);
+        insert_branch!(ForecloseTokenLoan, ForecloseTokenLoanRow);
+        insert_branch!(OfferLoan, OfferLoanRow);
+        insert_branch!(RepayLoanCore, RepayLoanCoreRow);
+        insert_branch!(RepayLoanV3, RepayLoanV3Row);
+        insert_branch!(RepayLoanV3Compressed, RepayLoanV3CompressedRow);
+        insert_branch!(RepayTokenLoan, RepayTokenLoanRow);
+        insert_branch!(RescindLoan, RescindLoanRow);
+        insert_branch!(TakeLoanCore, TakeLoanCoreRow);
+        insert_branch!(TakeLoanV3, TakeLoanV3Row);
+        insert_branch!(TakeLoanV3Compressed, TakeLoanV3CompressedRow);
+        insert_branch!(TakeTokenLoan, TakeTokenLoanRow);
+        insert_branch!(UpdateNftList, UpdateNftListRow);
+        insert_branch!(UpdateOrderBook, UpdateOrderBookRow);
+        insert_branch!(UpdateProgramVersion, UpdateProgramVersionRow);
+        insert_branch!(UpdateTokenOrderbook, UpdateTokenOrderbookRow);
+        insert_branch!(UpdateTokenPool, UpdateTokenPoolRow);
+        insert_branch!(WithdrawLiquidityTokenPool, WithdrawLiquidityTokenPoolRow);
 
         Ok(())
     }
@@ -439,28 +211,23 @@ impl carbon_core::clickhouse::BatchInsert for SharkyInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for SharkyInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AddLiquidityTokenPool, AddLiquidityTokenPoolRow);
@@ -501,6 +268,7 @@ impl carbon_core::clickhouse::BatchCommit for SharkyInstructionRow {
         commit_branch!(UpdateTokenOrderbook, UpdateTokenOrderbookRow);
         commit_branch!(UpdateTokenPool, UpdateTokenPoolRow);
         commit_branch!(WithdrawLiquidityTokenPool, WithdrawLiquidityTokenPoolRow);
+
         Ok(())
     }
 }

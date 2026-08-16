@@ -9,8 +9,16 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct WhirlpoolRewardInfo {
     /// Reward token mint.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     /// Reward vault token account.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault: Pubkey,
     /// reward_infos[0]: Authority account that has permission to initialize the
     /// reward and set emissions. reward_infos[1]: used for a struct that

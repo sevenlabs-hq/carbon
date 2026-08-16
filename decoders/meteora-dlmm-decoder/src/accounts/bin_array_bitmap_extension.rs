@@ -4,6 +4,10 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct BinArrayBitmapExtension {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lb_pair: Pubkey,
     /// Packed initialized bin array state for start_bin_index is positive
     pub positive_bin_array_bitmap: [[u64; 8]; 12],

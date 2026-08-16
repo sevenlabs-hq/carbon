@@ -65,8 +65,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     let definedTypesMap: Map<string, any> | null = null;
     const newtypeWrapperTypes = new Set<string>();
     const optionalBoolWrapperTypes = new Set<string>(); // single-bool tuples: EOF → false (e.g. pump.fun OptionBool)
+    const withBase58 = (options.withBase58 ?? false) || (options.withClickhouse === true);
     const createTypeManifestVisitor = () =>
-        getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes, options.withBase58 ?? false);
+        getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes, withBase58);
     let typeManifestVisitor = createTypeManifestVisitor();
     const postgresTypeManifestVisitor = getPostgresTypeManifestVisitor();
 
@@ -588,7 +589,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             instruction: instructionWithUniqueAccounts,
                             discriminatorManifest,
                             program: currentProgram,
-                            withBase58: options.withBase58 ?? false,
+                            withBase58,
                         }),
                     );
 
@@ -758,7 +759,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withClickhouse: options.withClickhouse === true,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
-                        withBase58: options.withBase58 ?? false,
+                        withBase58,
                     };
 
                     const map = new RenderMap();
@@ -959,7 +960,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withClickhouse: options.withClickhouse === true,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
-                        withBase58: options.withBase58 ?? false,
+                        withBase58,
                         withSerdeBigArray: requiresSerdeBigArray,
                         standalone: options.standalone !== false,
                         workspaceDeps: options.workspaceDeps,

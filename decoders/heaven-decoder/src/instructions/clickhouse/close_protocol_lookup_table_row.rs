@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<CloseProtocolLookupTableRow> for (crate::instructions::close_protocol_lookup_table::CloseProtocolLookupTable, crate::instructions::close_protocol_lookup_table::CloseProtocolLookupTableInstructionAccounts, CloseProtocolLookupTableRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CloseProtocolLookupTableRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::close_protocol_lookup_table::CloseProtocolLookupTable = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::close_protocol_lookup_table::CloseProtocolLookupTableInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CloseProtocolLookupTableRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for CloseProtocolLookupTableRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CloseProtocolLookupTableRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for CloseProtocolLookupTableRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("heaven_close_protocol_lookup_table_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

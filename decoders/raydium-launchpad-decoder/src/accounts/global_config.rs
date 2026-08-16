@@ -30,14 +30,34 @@ pub struct GlobalConfig {
     /// The minimum quote fund raising, the value with decimals
     pub min_quote_fund_raising: u64,
     /// Mint information for quote token
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_mint: Pubkey,
     /// Protocol Fee owner
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub protocol_fee_owner: Pubkey,
     /// Migrate Fee owner
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub migrate_fee_owner: Pubkey,
     /// Migrate to amm control wallet
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub migrate_to_amm_wallet: Pubkey,
     /// Migrate to cpswap wallet
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub migrate_to_cpswap_wallet: Pubkey,
     /// Whether a platform must be explicitly authorized before using this
     /// global config

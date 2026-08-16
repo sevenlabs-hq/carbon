@@ -4,6 +4,10 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct WhirlpoolFeeTier {
     pub discriminator: [u8; 8],
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whirlpool_config: Pubkey,
     pub tick_spacing: u16,
     pub default_fee_rate: u16,

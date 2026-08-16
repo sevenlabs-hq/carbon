@@ -9,8 +9,16 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PositionV2 {
     /// The LB pair of this position
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lb_pair: Pubkey,
     /// Owner of the position. Client rely on this to to fetch their positions.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     /// Liquidity shares of this position in bins (lower_bin_id <->
     /// upper_bin_id). This is the same as LP concept.
@@ -35,6 +43,10 @@ pub struct PositionV2 {
     /// Total claimed rewards
     pub total_claimed_rewards: [u64; 2],
     /// Operator of position
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub operator: Pubkey,
     /// Time point which the locked liquidity can be withdraw
     pub lock_release_point: u64,
@@ -43,6 +55,10 @@ pub struct PositionV2 {
     pub padding0: u8,
     /// Address is able to claim fee in this position, only valid for
     /// bootstrap_liquidity_position
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_owner: Pubkey,
     /// version to know whether we have reset tombstone fields
     pub version: u8,

@@ -41,48 +41,43 @@ pub enum RaydiumLaunchpadAccountRow {
     VestingRecord(VestingRecordRow),
 }
 
-pub struct RaydiumLaunchpadAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub RaydiumLaunchpadAccount,
+pub struct RaydiumLaunchpadAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a RaydiumLaunchpadAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for RaydiumLaunchpadAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for RaydiumLaunchpadAccountMetadata<'a> {
     type Row = RaydiumLaunchpadAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            RaydiumLaunchpadAccount::GlobalConfig(account) => {
-                rows.push(RaydiumLaunchpadAccountRow::GlobalConfig(
-                    GlobalConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumLaunchpadAccount::PlatformConfig(account) => {
-                rows.push(RaydiumLaunchpadAccountRow::PlatformConfig(
-                    PlatformConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumLaunchpadAccount::PlatformGlobalAccess(account) => {
-                rows.push(RaydiumLaunchpadAccountRow::PlatformGlobalAccess(
-                    PlatformGlobalAccessRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumLaunchpadAccount::PoolState(account) => {
-                rows.push(RaydiumLaunchpadAccountRow::PoolState(
-                    PoolStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumLaunchpadAccount::VestingRecord(account) => {
-                rows.push(RaydiumLaunchpadAccountRow::VestingRecord(
-                    VestingRecordRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let RaydiumLaunchpadAccount::$variant(account) = account {
+                    rows.push(RaydiumLaunchpadAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let RaydiumLaunchpadAccount::$variant(account) = account {
+                    rows.push(RaydiumLaunchpadAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(GlobalConfig, GlobalConfigRow, boxed);
+        insert_branch!(PlatformConfig, PlatformConfigRow, boxed);
+        insert_branch!(PlatformGlobalAccess, PlatformGlobalAccessRow, boxed);
+        insert_branch!(PoolState, PoolStateRow, boxed);
+        insert_branch!(VestingRecord, VestingRecordRow, boxed);
 
         Ok(())
     }
@@ -91,28 +86,23 @@ impl carbon_core::clickhouse::BatchInsert for RaydiumLaunchpadAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for RaydiumLaunchpadAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(GlobalConfig, GlobalConfigRow);
@@ -120,6 +110,7 @@ impl carbon_core::clickhouse::BatchCommit for RaydiumLaunchpadAccountRow {
         commit_branch!(PlatformGlobalAccess, PlatformGlobalAccessRow);
         commit_branch!(PoolState, PoolStateRow);
         commit_branch!(VestingRecord, VestingRecordRow);
+
         Ok(())
     }
 }

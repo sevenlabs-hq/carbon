@@ -17,5 +17,9 @@ pub struct AssetData {
     pub collection: Option<Collection>,
     pub uses: Option<Uses>,
     pub collection_details: Option<CollectionDetails>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub rule_set: Option<Pubkey>,
 }

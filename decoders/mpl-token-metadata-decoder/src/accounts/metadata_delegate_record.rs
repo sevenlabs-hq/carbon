@@ -6,8 +6,20 @@ use {crate::types::Key, carbon_core::deserialize::CarbonDeserialize, solana_pubk
 pub struct MetadataDelegateRecord {
     pub key: Key,
     pub bump: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegate: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub update_authority: Pubkey,
 }
 

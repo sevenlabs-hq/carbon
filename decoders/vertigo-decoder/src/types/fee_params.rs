@@ -14,5 +14,9 @@ pub struct FeeParams {
     /// Royalties in basis points.
     pub royalties_bps: u16,
     /// Number of fee exempt buys.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub privileged_swapper: Option<Pubkey>,
 }

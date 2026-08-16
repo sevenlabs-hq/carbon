@@ -3,15 +3,31 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct MergeStakesEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub state: Pubkey,
     pub epoch: u64,
     pub destination_stake_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub destination_stake_account: Pubkey,
     pub last_update_destination_stake_delegation: u64,
     pub source_stake_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub source_stake_account: Pubkey,
     pub last_update_source_stake_delegation: u64,
     pub validator_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub validator_vote: Pubkey,
     pub extra_delegated: u64,
     pub returned_stake_rent: u64,

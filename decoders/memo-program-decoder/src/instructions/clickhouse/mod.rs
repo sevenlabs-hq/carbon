@@ -24,30 +24,31 @@ pub enum MemoProgramInstructionRow {
     AddMemo(AddMemoRow),
 }
 
-pub struct MemoProgramInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub MemoProgramInstruction,
+pub struct MemoProgramInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a MemoProgramInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for MemoProgramInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for MemoProgramInstructionMetadata<'a> {
     type Row = MemoProgramInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            MemoProgramInstruction::AddMemo { data, accounts, .. } => {
-                rows.push(MemoProgramInstructionRow::AddMemo(AddMemoRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let MemoProgramInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(MemoProgramInstructionRow::$variant(<$row>::try_from((
+                        data.clone(),
+                        metadata.clone(),
+                        accounts.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AddMemo, AddMemoRow);
 
         Ok(())
     }
@@ -56,31 +57,27 @@ impl carbon_core::clickhouse::BatchInsert for MemoProgramInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for MemoProgramInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AddMemo, AddMemoRow);
+
         Ok(())
     }
 }

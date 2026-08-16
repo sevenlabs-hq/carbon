@@ -7,6 +7,10 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct DynamicTickArray {
     pub start_tick_index: i32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whirlpool: Pubkey,
     pub tick_bitmap: u128,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

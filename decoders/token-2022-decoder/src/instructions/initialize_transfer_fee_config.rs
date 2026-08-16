@@ -15,8 +15,16 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct InitializeTransferFeeConfig {
     /// Pubkey that may update the fees.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub transfer_fee_config_authority: Option<Pubkey>,
     /// Withdraw instructions must be signed by this key.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub withdraw_withheld_authority: Option<Pubkey>,
     /// Amount of transfer collected as fees, expressed as basis points of the
     /// transfer amount.
@@ -28,6 +36,10 @@ pub struct InitializeTransferFeeConfig {
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct InitializeTransferFeeConfigInstructionAccounts {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }

@@ -55,21 +55,49 @@ pub struct PoolState {
     pub vesting_schedule: VestingSchedule,
     /// Public key of the global configuration account
     /// Contains protocol-wide settings this pool adheres to
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global_config: Pubkey,
     /// Public key of the platform configuration account
     /// Contains platform-wide settings this pool adheres to
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub platform_config: Pubkey,
     /// Public key of the base mint address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub base_mint: Pubkey,
     /// Public key of the quote mint address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_mint: Pubkey,
     /// Public key of the base token vault
     /// Holds the actual base tokens owned by the pool
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub base_vault: Pubkey,
     /// Public key of the quote token vault
     /// Holds the actual quote tokens owned by the pool
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_vault: Pubkey,
     /// The creator of base token
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator: Pubkey,
     /// token program bits
     /// bit0: base token program flag

@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<UpdateZetaPricingPubkeysRow> for (crate::instructions::update_zeta_pricing_pubkeys::UpdateZetaPricingPubkeys, crate::instructions::update_zeta_pricing_pubkeys::UpdateZetaPricingPubkeysInstructionAccounts, UpdateZetaPricingPubkeysRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdateZetaPricingPubkeysRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_zeta_pricing_pubkeys::UpdateZetaPricingPubkeys = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_zeta_pricing_pubkeys::UpdateZetaPricingPubkeysInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdateZetaPricingPubkeysRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for UpdateZetaPricingPubkeysRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdateZetaPricingPubkeysRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for UpdateZetaPricingPubkeysRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("zeta_update_zeta_pricing_pubkeys_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

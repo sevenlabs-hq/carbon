@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<InitializeReferrerNameRow>
+    for (
+        crate::instructions::initialize_referrer_name::InitializeReferrerName,
+        crate::instructions::initialize_referrer_name::InitializeReferrerNameInstructionAccounts,
+        InitializeReferrerNameRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitializeReferrerNameRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::initialize_referrer_name::InitializeReferrerName =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::initialize_referrer_name::InitializeReferrerNameInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for InitializeReferrerNameRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for InitializeReferrerNameRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitializeReferrerNameRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for InitializeReferrerNameRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_initialize_referrer_name_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

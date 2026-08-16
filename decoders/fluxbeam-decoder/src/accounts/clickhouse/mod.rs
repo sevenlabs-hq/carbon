@@ -19,19 +19,15 @@ impl carbon_core::clickhouse::Migration for FluxbeamAccountsMigration {
 
 pub enum FluxbeamAccountRow {}
 
-pub struct FluxbeamAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub FluxbeamAccount,
+pub struct FluxbeamAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a FluxbeamAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for FluxbeamAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for FluxbeamAccountMetadata<'a> {
     type Row = FluxbeamAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
         let _ = rows;
         let Self(_metadata, _account) = self;
         unreachable!("BatchInsert called for program with no account row variants");
@@ -41,7 +37,6 @@ impl carbon_core::clickhouse::BatchInsert for FluxbeamAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for FluxbeamAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {

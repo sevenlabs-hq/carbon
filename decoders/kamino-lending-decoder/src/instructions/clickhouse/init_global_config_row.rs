@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<InitGlobalConfigRow>
+    for (
+        crate::instructions::init_global_config::InitGlobalConfig,
+        crate::instructions::init_global_config::InitGlobalConfigInstructionAccounts,
+        InitGlobalConfigRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitGlobalConfigRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::init_global_config::InitGlobalConfig =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::init_global_config::InitGlobalConfigInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for InitGlobalConfigRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for InitGlobalConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitGlobalConfigRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for InitGlobalConfigRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("kamino_lending_init_global_config_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

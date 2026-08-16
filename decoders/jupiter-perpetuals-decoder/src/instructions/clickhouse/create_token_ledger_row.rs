@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<CreateTokenLedgerRow>
+    for (
+        crate::instructions::create_token_ledger::CreateTokenLedger,
+        crate::instructions::create_token_ledger::CreateTokenLedgerInstructionAccounts,
+        CreateTokenLedgerRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CreateTokenLedgerRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::create_token_ledger::CreateTokenLedger =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::create_token_ledger::CreateTokenLedgerInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CreateTokenLedgerRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for CreateTokenLedgerRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CreateTokenLedgerRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for CreateTokenLedgerRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("jupiter_perpetuals_create_token_ledger_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

@@ -38,53 +38,43 @@ pub enum BonkswapAccountRow {
     State(StateRow),
 }
 
-pub struct BonkswapAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub BonkswapAccount,
+pub struct BonkswapAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a BonkswapAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for BonkswapAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for BonkswapAccountMetadata<'a> {
     type Row = BonkswapAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            BonkswapAccount::Farm(account) => {
-                rows.push(BonkswapAccountRow::Farm(FarmRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            BonkswapAccount::Pool(account) => {
-                rows.push(BonkswapAccountRow::Pool(PoolRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            BonkswapAccount::PoolV2(account) => {
-                rows.push(BonkswapAccountRow::PoolV2(PoolV2Row::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            BonkswapAccount::Provider(account) => {
-                rows.push(BonkswapAccountRow::Provider(ProviderRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            BonkswapAccount::State(account) => {
-                rows.push(BonkswapAccountRow::State(StateRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let BonkswapAccount::$variant(account) = account {
+                    rows.push(BonkswapAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let BonkswapAccount::$variant(account) = account {
+                    rows.push(BonkswapAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Farm, FarmRow, boxed);
+        insert_branch!(Pool, PoolRow, boxed);
+        insert_branch!(PoolV2, PoolV2Row, boxed);
+        insert_branch!(Provider, ProviderRow, boxed);
+        insert_branch!(State, StateRow, boxed);
 
         Ok(())
     }
@@ -93,28 +83,23 @@ impl carbon_core::clickhouse::BatchInsert for BonkswapAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for BonkswapAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Farm, FarmRow);
@@ -122,6 +107,7 @@ impl carbon_core::clickhouse::BatchCommit for BonkswapAccountRow {
         commit_branch!(PoolV2, PoolV2Row);
         commit_branch!(Provider, ProviderRow);
         commit_branch!(State, StateRow);
+
         Ok(())
     }
 }

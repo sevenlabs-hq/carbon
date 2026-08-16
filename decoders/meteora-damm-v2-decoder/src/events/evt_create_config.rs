@@ -8,13 +8,25 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct EvtCreateConfigEvent {
     pub pool_fees: PoolFeeParameters,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault_config_key: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_creator_authority: Pubkey,
     pub activation_type: u8,
     pub sqrt_min_price: u128,
     pub sqrt_max_price: u128,
     pub collect_fee_mode: u8,
     pub index: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub config: Pubkey,
 }
 

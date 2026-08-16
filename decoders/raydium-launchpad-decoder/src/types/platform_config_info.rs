@@ -3,15 +3,31 @@ use {crate::types::MigrateNftInfo, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PlatformConfigInfo {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_wallet: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub nft_wallet: Pubkey,
     pub migrate_nft_info: MigrateNftInfo,
     pub fee_rate: u64,
     pub name: String,
     pub web: String,
     pub img: String,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub transfer_fee_extension_auth: Pubkey,
     pub creator_fee_rate: u64,
     pub platform_vesting_scale: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vesting_wallet: Pubkey,
 }

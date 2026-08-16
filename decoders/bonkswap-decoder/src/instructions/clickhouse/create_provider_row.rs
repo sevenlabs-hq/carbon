@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<CreateProviderRow>
+    for (
+        crate::instructions::create_provider::CreateProvider,
+        crate::instructions::create_provider::CreateProviderInstructionAccounts,
+        CreateProviderRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CreateProviderRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::create_provider::CreateProvider =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::create_provider::CreateProviderInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CreateProviderRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for CreateProviderRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CreateProviderRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for CreateProviderRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("bonkswap_create_provider_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

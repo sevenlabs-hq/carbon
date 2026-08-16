@@ -44,50 +44,44 @@ pub enum HeavenAccountRow {
     UserLpPosition(UserLpPositionRow),
 }
 
-pub struct HeavenAccountMetadata(pub carbon_core::account::AccountMetadata, pub HeavenAccount);
+pub struct HeavenAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a HeavenAccount,
+);
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for HeavenAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for HeavenAccountMetadata<'a> {
     type Row = HeavenAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            HeavenAccount::LiquidityPoolState(account) => {
-                rows.push(HeavenAccountRow::LiquidityPoolState(
-                    LiquidityPoolStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            HeavenAccount::MsolTicketSolSpent(account) => {
-                rows.push(HeavenAccountRow::MsolTicketSolSpent(
-                    MsolTicketSolSpentRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            HeavenAccount::ProtocolAdminState(account) => {
-                rows.push(HeavenAccountRow::ProtocolAdminState(
-                    ProtocolAdminStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            HeavenAccount::ProtocolConfig(account) => {
-                rows.push(HeavenAccountRow::ProtocolConfig(
-                    ProtocolConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            HeavenAccount::ProtocolOwnerState(account) => {
-                rows.push(HeavenAccountRow::ProtocolOwnerState(
-                    ProtocolOwnerStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            HeavenAccount::UserLpPosition(account) => {
-                rows.push(HeavenAccountRow::UserLpPosition(
-                    UserLpPositionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let HeavenAccount::$variant(account) = account {
+                    rows.push(HeavenAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let HeavenAccount::$variant(account) = account {
+                    rows.push(HeavenAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(LiquidityPoolState, LiquidityPoolStateRow, boxed);
+        insert_branch!(MsolTicketSolSpent, MsolTicketSolSpentRow, boxed);
+        insert_branch!(ProtocolAdminState, ProtocolAdminStateRow, boxed);
+        insert_branch!(ProtocolConfig, ProtocolConfigRow, boxed);
+        insert_branch!(ProtocolOwnerState, ProtocolOwnerStateRow, boxed);
+        insert_branch!(UserLpPosition, UserLpPositionRow, boxed);
 
         Ok(())
     }
@@ -96,28 +90,23 @@ impl carbon_core::clickhouse::BatchInsert for HeavenAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for HeavenAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(LiquidityPoolState, LiquidityPoolStateRow);
@@ -126,6 +115,7 @@ impl carbon_core::clickhouse::BatchCommit for HeavenAccountRow {
         commit_branch!(ProtocolConfig, ProtocolConfigRow);
         commit_branch!(ProtocolOwnerState, ProtocolOwnerStateRow);
         commit_branch!(UserLpPosition, UserLpPositionRow);
+
         Ok(())
     }
 }

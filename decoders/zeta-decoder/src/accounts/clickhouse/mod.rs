@@ -100,141 +100,73 @@ pub enum ZetaAccountRow {
     ZetaGroup(ZetaGroupRow),
 }
 
-pub struct ZetaAccountMetadata(pub carbon_core::account::AccountMetadata, pub ZetaAccount);
+pub struct ZetaAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a ZetaAccount,
+);
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for ZetaAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for ZetaAccountMetadata<'a> {
     type Row = ZetaAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            ZetaAccount::CrossMarginAccount(account) => {
-                rows.push(ZetaAccountRow::CrossMarginAccount(
-                    CrossMarginAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::CrossMarginAccountManager(account) => {
-                rows.push(ZetaAccountRow::CrossMarginAccountManager(
-                    CrossMarginAccountManagerRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::CrossOpenOrdersMap(account) => {
-                rows.push(ZetaAccountRow::CrossOpenOrdersMap(
-                    CrossOpenOrdersMapRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::Greeks(account) => {
-                rows.push(ZetaAccountRow::Greeks(GreeksRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            ZetaAccount::InsuranceDepositAccount(account) => {
-                rows.push(ZetaAccountRow::InsuranceDepositAccount(
-                    InsuranceDepositAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::MarginAccount(account) => {
-                rows.push(ZetaAccountRow::MarginAccount(MarginAccountRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            ZetaAccount::MarketIndexes(account) => {
-                rows.push(ZetaAccountRow::MarketIndexes(MarketIndexesRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            ZetaAccount::MarketNode(account) => {
-                rows.push(ZetaAccountRow::MarketNode(MarketNodeRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            ZetaAccount::OpenOrdersMap(account) => {
-                rows.push(ZetaAccountRow::OpenOrdersMap(OpenOrdersMapRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            ZetaAccount::PerpSyncQueue(account) => {
-                rows.push(ZetaAccountRow::PerpSyncQueue(PerpSyncQueueRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            ZetaAccount::Pricing(account) => {
-                rows.push(ZetaAccountRow::Pricing(PricingRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            ZetaAccount::ReferralAccount(account) => {
-                rows.push(ZetaAccountRow::ReferralAccount(
-                    ReferralAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::ReferrerAccount(account) => {
-                rows.push(ZetaAccountRow::ReferrerAccount(
-                    ReferrerAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::ReferrerAlias(account) => {
-                rows.push(ZetaAccountRow::ReferrerAlias(ReferrerAliasRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            ZetaAccount::SettlementAccount(account) => {
-                rows.push(ZetaAccountRow::SettlementAccount(
-                    SettlementAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::SocializedLossAccount(account) => {
-                rows.push(ZetaAccountRow::SocializedLossAccount(
-                    SocializedLossAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::SpreadAccount(account) => {
-                rows.push(ZetaAccountRow::SpreadAccount(SpreadAccountRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            ZetaAccount::State(account) => {
-                rows.push(ZetaAccountRow::State(StateRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            ZetaAccount::Underlying(account) => {
-                rows.push(ZetaAccountRow::Underlying(UnderlyingRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            ZetaAccount::WhitelistDepositAccount(account) => {
-                rows.push(ZetaAccountRow::WhitelistDepositAccount(
-                    WhitelistDepositAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::WhitelistInsuranceAccount(account) => {
-                rows.push(ZetaAccountRow::WhitelistInsuranceAccount(
-                    WhitelistInsuranceAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::WhitelistTradingFeesAccount(account) => {
-                rows.push(ZetaAccountRow::WhitelistTradingFeesAccount(
-                    WhitelistTradingFeesAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            ZetaAccount::ZetaGroup(account) => {
-                rows.push(ZetaAccountRow::ZetaGroup(ZetaGroupRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let ZetaAccount::$variant(account) = account {
+                    rows.push(ZetaAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let ZetaAccount::$variant(account) = account {
+                    rows.push(ZetaAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(CrossMarginAccount, CrossMarginAccountRow, boxed);
+        insert_branch!(
+            CrossMarginAccountManager,
+            CrossMarginAccountManagerRow,
+            boxed
+        );
+        insert_branch!(CrossOpenOrdersMap, CrossOpenOrdersMapRow, boxed);
+        insert_branch!(Greeks, GreeksRow, boxed);
+        insert_branch!(InsuranceDepositAccount, InsuranceDepositAccountRow, boxed);
+        insert_branch!(MarginAccount, MarginAccountRow, boxed);
+        insert_branch!(MarketIndexes, MarketIndexesRow, boxed);
+        insert_branch!(MarketNode, MarketNodeRow, boxed);
+        insert_branch!(OpenOrdersMap, OpenOrdersMapRow, boxed);
+        insert_branch!(PerpSyncQueue, PerpSyncQueueRow, boxed);
+        insert_branch!(Pricing, PricingRow, boxed);
+        insert_branch!(ReferralAccount, ReferralAccountRow, boxed);
+        insert_branch!(ReferrerAccount, ReferrerAccountRow, boxed);
+        insert_branch!(ReferrerAlias, ReferrerAliasRow, boxed);
+        insert_branch!(SettlementAccount, SettlementAccountRow, boxed);
+        insert_branch!(SocializedLossAccount, SocializedLossAccountRow, boxed);
+        insert_branch!(SpreadAccount, SpreadAccountRow, boxed);
+        insert_branch!(State, StateRow, boxed);
+        insert_branch!(Underlying, UnderlyingRow, boxed);
+        insert_branch!(WhitelistDepositAccount, WhitelistDepositAccountRow, boxed);
+        insert_branch!(
+            WhitelistInsuranceAccount,
+            WhitelistInsuranceAccountRow,
+            boxed
+        );
+        insert_branch!(
+            WhitelistTradingFeesAccount,
+            WhitelistTradingFeesAccountRow,
+            boxed
+        );
+        insert_branch!(ZetaGroup, ZetaGroupRow, boxed);
 
         Ok(())
     }
@@ -243,28 +175,23 @@ impl carbon_core::clickhouse::BatchInsert for ZetaAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for ZetaAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(CrossMarginAccount, CrossMarginAccountRow);
@@ -290,6 +217,7 @@ impl carbon_core::clickhouse::BatchCommit for ZetaAccountRow {
         commit_branch!(WhitelistInsuranceAccount, WhitelistInsuranceAccountRow);
         commit_branch!(WhitelistTradingFeesAccount, WhitelistTradingFeesAccountRow);
         commit_branch!(ZetaGroup, ZetaGroupRow);
+
         Ok(())
     }
 }

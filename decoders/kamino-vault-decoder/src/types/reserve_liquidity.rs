@@ -5,10 +5,22 @@ use {crate::types::BigFractionBytes, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ReserveLiquidity {
     /// Reserve liquidity mint address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint_pubkey: Pubkey,
     /// Reserve liquidity supply address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub supply_vault: Pubkey,
     /// Reserve liquidity fee collection address
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_vault: Pubkey,
     /// Reserve liquidity available
     pub available_amount: u64,
@@ -43,6 +55,10 @@ pub struct ReserveLiquidity {
     /// operation (scaled fraction)
     pub absolute_referral_rate_sf: u128,
     /// Token program of the liquidity mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_program: Pubkey,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub padding2: [u64; 51],

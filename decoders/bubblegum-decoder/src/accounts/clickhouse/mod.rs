@@ -29,35 +29,40 @@ pub enum BubblegumAccountRow {
     Voucher(VoucherRow),
 }
 
-pub struct BubblegumAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub BubblegumAccount,
+pub struct BubblegumAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a BubblegumAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for BubblegumAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for BubblegumAccountMetadata<'a> {
     type Row = BubblegumAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            BubblegumAccount::TreeConfig(account) => {
-                rows.push(BubblegumAccountRow::TreeConfig(TreeConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            BubblegumAccount::Voucher(account) => {
-                rows.push(BubblegumAccountRow::Voucher(VoucherRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let BubblegumAccount::$variant(account) = account {
+                    rows.push(BubblegumAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let BubblegumAccount::$variant(account) = account {
+                    rows.push(BubblegumAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(TreeConfig, TreeConfigRow, boxed);
+        insert_branch!(Voucher, VoucherRow, boxed);
 
         Ok(())
     }
@@ -66,32 +71,28 @@ impl carbon_core::clickhouse::BatchInsert for BubblegumAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for BubblegumAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(TreeConfig, TreeConfigRow);
         commit_branch!(Voucher, VoucherRow);
+
         Ok(())
     }
 }

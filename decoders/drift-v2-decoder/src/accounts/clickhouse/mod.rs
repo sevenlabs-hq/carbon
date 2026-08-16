@@ -115,169 +115,77 @@ pub enum DriftV2AccountRow {
     UserStats(UserStatsRow),
 }
 
-pub struct DriftV2AccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub DriftV2Account,
+pub struct DriftV2AccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a DriftV2Account,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for DriftV2AccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for DriftV2AccountMetadata<'a> {
     type Row = DriftV2AccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            DriftV2Account::AmmCache(account) => {
-                rows.push(DriftV2AccountRow::AmmCache(AmmCacheRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            DriftV2Account::AmmConstituentMapping(account) => {
-                rows.push(DriftV2AccountRow::AmmConstituentMapping(
-                    AmmConstituentMappingRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::Constituent(account) => {
-                rows.push(DriftV2AccountRow::Constituent(ConstituentRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            DriftV2Account::ConstituentCorrelations(account) => {
-                rows.push(DriftV2AccountRow::ConstituentCorrelations(
-                    ConstituentCorrelationsRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::ConstituentTargetBase(account) => {
-                rows.push(DriftV2AccountRow::ConstituentTargetBase(
-                    ConstituentTargetBaseRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::FuelOverflow(account) => {
-                rows.push(DriftV2AccountRow::FuelOverflow(FuelOverflowRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            DriftV2Account::HighLeverageModeConfig(account) => {
-                rows.push(DriftV2AccountRow::HighLeverageModeConfig(
-                    HighLeverageModeConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::IfRebalanceConfig(account) => {
-                rows.push(DriftV2AccountRow::IfRebalanceConfig(
-                    IfRebalanceConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::InsuranceFundStake(account) => {
-                rows.push(DriftV2AccountRow::InsuranceFundStake(
-                    InsuranceFundStakeRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::LPPool(account) => {
-                rows.push(DriftV2AccountRow::LPPool(LPPoolRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            DriftV2Account::OpenbookV2FulfillmentConfig(account) => {
-                rows.push(DriftV2AccountRow::OpenbookV2FulfillmentConfig(
-                    OpenbookV2FulfillmentConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::PerpMarket(account) => {
-                rows.push(DriftV2AccountRow::PerpMarket(PerpMarketRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            DriftV2Account::PhoenixV1FulfillmentConfig(account) => {
-                rows.push(DriftV2AccountRow::PhoenixV1FulfillmentConfig(
-                    PhoenixV1FulfillmentConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::PrelaunchOracle(account) => {
-                rows.push(DriftV2AccountRow::PrelaunchOracle(
-                    PrelaunchOracleRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::ProtectedMakerModeConfig(account) => {
-                rows.push(DriftV2AccountRow::ProtectedMakerModeConfig(
-                    ProtectedMakerModeConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::ProtocolIfSharesTransferConfig(account) => {
-                rows.push(DriftV2AccountRow::ProtocolIfSharesTransferConfig(
-                    ProtocolIfSharesTransferConfigRow::try_from((
-                        *account.clone(),
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let DriftV2Account::$variant(account) = account {
+                    rows.push(DriftV2AccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
                         metadata.clone(),
-                    ))?,
-                ));
-            }
-            DriftV2Account::PythLazerOracle(account) => {
-                rows.push(DriftV2AccountRow::PythLazerOracle(
-                    PythLazerOracleRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::ReferrerName(account) => {
-                rows.push(DriftV2AccountRow::ReferrerName(ReferrerNameRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            DriftV2Account::RevenueShare(account) => {
-                rows.push(DriftV2AccountRow::RevenueShare(RevenueShareRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            DriftV2Account::RevenueShareEscrow(account) => {
-                rows.push(DriftV2AccountRow::RevenueShareEscrow(
-                    RevenueShareEscrowRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::SerumV3FulfillmentConfig(account) => {
-                rows.push(DriftV2AccountRow::SerumV3FulfillmentConfig(
-                    SerumV3FulfillmentConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::SignedMsgUserOrders(account) => {
-                rows.push(DriftV2AccountRow::SignedMsgUserOrders(
-                    SignedMsgUserOrdersRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::SignedMsgWsDelegates(account) => {
-                rows.push(DriftV2AccountRow::SignedMsgWsDelegates(
-                    SignedMsgWsDelegatesRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            DriftV2Account::SpotMarket(account) => {
-                rows.push(DriftV2AccountRow::SpotMarket(SpotMarketRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            DriftV2Account::State(account) => {
-                rows.push(DriftV2AccountRow::State(StateRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            DriftV2Account::User(account) => {
-                rows.push(DriftV2AccountRow::User(UserRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            DriftV2Account::UserStats(account) => {
-                rows.push(DriftV2AccountRow::UserStats(UserStatsRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let DriftV2Account::$variant(account) = account {
+                    rows.push(DriftV2AccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AmmCache, AmmCacheRow, boxed);
+        insert_branch!(AmmConstituentMapping, AmmConstituentMappingRow, boxed);
+        insert_branch!(Constituent, ConstituentRow, boxed);
+        insert_branch!(ConstituentCorrelations, ConstituentCorrelationsRow, boxed);
+        insert_branch!(ConstituentTargetBase, ConstituentTargetBaseRow, boxed);
+        insert_branch!(FuelOverflow, FuelOverflowRow, boxed);
+        insert_branch!(HighLeverageModeConfig, HighLeverageModeConfigRow, boxed);
+        insert_branch!(IfRebalanceConfig, IfRebalanceConfigRow, boxed);
+        insert_branch!(InsuranceFundStake, InsuranceFundStakeRow, boxed);
+        insert_branch!(LPPool, LPPoolRow, boxed);
+        insert_branch!(
+            OpenbookV2FulfillmentConfig,
+            OpenbookV2FulfillmentConfigRow,
+            boxed
+        );
+        insert_branch!(PerpMarket, PerpMarketRow, boxed);
+        insert_branch!(
+            PhoenixV1FulfillmentConfig,
+            PhoenixV1FulfillmentConfigRow,
+            boxed
+        );
+        insert_branch!(PrelaunchOracle, PrelaunchOracleRow, boxed);
+        insert_branch!(ProtectedMakerModeConfig, ProtectedMakerModeConfigRow, boxed);
+        insert_branch!(
+            ProtocolIfSharesTransferConfig,
+            ProtocolIfSharesTransferConfigRow,
+            boxed
+        );
+        insert_branch!(PythLazerOracle, PythLazerOracleRow, boxed);
+        insert_branch!(ReferrerName, ReferrerNameRow, boxed);
+        insert_branch!(RevenueShare, RevenueShareRow, boxed);
+        insert_branch!(RevenueShareEscrow, RevenueShareEscrowRow, boxed);
+        insert_branch!(SerumV3FulfillmentConfig, SerumV3FulfillmentConfigRow, boxed);
+        insert_branch!(SignedMsgUserOrders, SignedMsgUserOrdersRow, boxed);
+        insert_branch!(SignedMsgWsDelegates, SignedMsgWsDelegatesRow, boxed);
+        insert_branch!(SpotMarket, SpotMarketRow, boxed);
+        insert_branch!(State, StateRow, boxed);
+        insert_branch!(User, UserRow, boxed);
+        insert_branch!(UserStats, UserStatsRow, boxed);
 
         Ok(())
     }
@@ -286,28 +194,23 @@ impl carbon_core::clickhouse::BatchInsert for DriftV2AccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for DriftV2AccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AmmCache, AmmCacheRow);
@@ -340,6 +243,7 @@ impl carbon_core::clickhouse::BatchCommit for DriftV2AccountRow {
         commit_branch!(State, StateRow);
         commit_branch!(User, UserRow);
         commit_branch!(UserStats, UserStatsRow);
+
         Ok(())
     }
 }

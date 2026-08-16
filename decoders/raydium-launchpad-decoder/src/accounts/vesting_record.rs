@@ -7,8 +7,16 @@ pub struct VestingRecord {
     /// Account update epoch
     pub epoch: u64,
     /// The pool state account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool: Pubkey,
     /// The beneficiary of the vesting account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub beneficiary: Pubkey,
     /// The amount of tokens claimed
     pub claimed_amount: u64,

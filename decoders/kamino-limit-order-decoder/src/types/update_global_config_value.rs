@@ -6,5 +6,11 @@ pub enum UpdateGlobalConfigValue {
     Bool(bool),
     U16(u16),
     U64(u64),
-    Pubkey(Pubkey),
+    Pubkey(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+    ),
 }

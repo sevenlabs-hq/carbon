@@ -44,56 +44,44 @@ pub enum OpenbookV2AccountRow {
     StubOracle(StubOracleRow),
 }
 
-pub struct OpenbookV2AccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub OpenbookV2Account,
+pub struct OpenbookV2AccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a OpenbookV2Account,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for OpenbookV2AccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for OpenbookV2AccountMetadata<'a> {
     type Row = OpenbookV2AccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            OpenbookV2Account::BookSide(account) => {
-                rows.push(OpenbookV2AccountRow::BookSide(BookSideRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            OpenbookV2Account::EventHeap(account) => {
-                rows.push(OpenbookV2AccountRow::EventHeap(EventHeapRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            OpenbookV2Account::Market(account) => {
-                rows.push(OpenbookV2AccountRow::Market(MarketRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            OpenbookV2Account::OpenOrdersAccount(account) => {
-                rows.push(OpenbookV2AccountRow::OpenOrdersAccount(
-                    OpenOrdersAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            OpenbookV2Account::OpenOrdersIndexer(account) => {
-                rows.push(OpenbookV2AccountRow::OpenOrdersIndexer(
-                    OpenOrdersIndexerRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            OpenbookV2Account::StubOracle(account) => {
-                rows.push(OpenbookV2AccountRow::StubOracle(StubOracleRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let OpenbookV2Account::$variant(account) = account {
+                    rows.push(OpenbookV2AccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let OpenbookV2Account::$variant(account) = account {
+                    rows.push(OpenbookV2AccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(BookSide, BookSideRow, boxed);
+        insert_branch!(EventHeap, EventHeapRow, boxed);
+        insert_branch!(Market, MarketRow, boxed);
+        insert_branch!(OpenOrdersAccount, OpenOrdersAccountRow, boxed);
+        insert_branch!(OpenOrdersIndexer, OpenOrdersIndexerRow, boxed);
+        insert_branch!(StubOracle, StubOracleRow, boxed);
 
         Ok(())
     }
@@ -102,28 +90,23 @@ impl carbon_core::clickhouse::BatchInsert for OpenbookV2AccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for OpenbookV2AccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(BookSide, BookSideRow);
@@ -132,6 +115,7 @@ impl carbon_core::clickhouse::BatchCommit for OpenbookV2AccountRow {
         commit_branch!(OpenOrdersAccount, OpenOrdersAccountRow);
         commit_branch!(OpenOrdersIndexer, OpenOrdersIndexerRow);
         commit_branch!(StubOracle, StubOracleRow);
+
         Ok(())
     }
 }

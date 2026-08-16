@@ -5,10 +5,22 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CollectProtocolFeeEventEvent {
     /// The pool whose protocol fee is collected
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_state: Pubkey,
     /// The address that receives the collected token_0 protocol fees
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub recipient_token_account0: Pubkey,
     /// The address that receives the collected token_1 protocol fees
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub recipient_token_account1: Pubkey,
     /// The amount of token_0 protocol fees that is withdrawn
     pub amount0: u64,

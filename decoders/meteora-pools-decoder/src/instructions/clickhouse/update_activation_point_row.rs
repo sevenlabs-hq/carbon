@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<UpdateActivationPointRow>
+    for (
+        crate::instructions::update_activation_point::UpdateActivationPoint,
+        crate::instructions::update_activation_point::UpdateActivationPointInstructionAccounts,
+        UpdateActivationPointRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdateActivationPointRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_activation_point::UpdateActivationPoint =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_activation_point::UpdateActivationPointInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdateActivationPointRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for UpdateActivationPointRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdateActivationPointRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for UpdateActivationPointRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_pools_update_activation_point_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

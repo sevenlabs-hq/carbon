@@ -41,68 +41,34 @@ pub enum AddressLookupTableInstructionRow {
     FreezeLookupTable(FreezeLookupTableRow),
 }
 
-pub struct AddressLookupTableInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub AddressLookupTableInstruction,
+pub struct AddressLookupTableInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a AddressLookupTableInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for AddressLookupTableInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for AddressLookupTableInstructionMetadata<'a> {
     type Row = AddressLookupTableInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            AddressLookupTableInstruction::CloseLookupTable { data, accounts, .. } => {
-                rows.push(AddressLookupTableInstructionRow::CloseLookupTable(
-                    CloseLookupTableRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            AddressLookupTableInstruction::CreateLookupTable { data, accounts, .. } => {
-                rows.push(AddressLookupTableInstructionRow::CreateLookupTable(
-                    CreateLookupTableRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            AddressLookupTableInstruction::DeactivateLookupTable { data, accounts, .. } => {
-                rows.push(AddressLookupTableInstructionRow::DeactivateLookupTable(
-                    DeactivateLookupTableRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            AddressLookupTableInstruction::ExtendLookupTable { data, accounts, .. } => {
-                rows.push(AddressLookupTableInstructionRow::ExtendLookupTable(
-                    ExtendLookupTableRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            AddressLookupTableInstruction::FreezeLookupTable { data, accounts, .. } => {
-                rows.push(AddressLookupTableInstructionRow::FreezeLookupTable(
-                    FreezeLookupTableRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let AddressLookupTableInstruction::$variant { data, accounts, .. } = instruction
+                {
+                    rows.push(AddressLookupTableInstructionRow::$variant(
+                        <$row>::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
+                    ));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(CloseLookupTable, CloseLookupTableRow);
+        insert_branch!(CreateLookupTable, CreateLookupTableRow);
+        insert_branch!(DeactivateLookupTable, DeactivateLookupTableRow);
+        insert_branch!(ExtendLookupTable, ExtendLookupTableRow);
+        insert_branch!(FreezeLookupTable, FreezeLookupTableRow);
 
         Ok(())
     }
@@ -111,28 +77,23 @@ impl carbon_core::clickhouse::BatchInsert for AddressLookupTableInstructionMetad
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for AddressLookupTableInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(CloseLookupTable, CloseLookupTableRow);
@@ -140,6 +101,7 @@ impl carbon_core::clickhouse::BatchCommit for AddressLookupTableInstructionRow {
         commit_branch!(DeactivateLookupTable, DeactivateLookupTableRow);
         commit_branch!(ExtendLookupTable, ExtendLookupTableRow);
         commit_branch!(FreezeLookupTable, FreezeLookupTableRow);
+
         Ok(())
     }
 }

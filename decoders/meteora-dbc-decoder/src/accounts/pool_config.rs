@@ -11,11 +11,23 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PoolConfig {
     /// quote mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_mint: Pubkey,
     /// Address to get the fee
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_claimer: Pubkey,
     /// Address to receive extra base token after migration, in case token is
     /// fixed supply
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub leftover_receiver: Pubkey,
     /// Pool fee
     pub pool_fees: PoolFeesConfig,

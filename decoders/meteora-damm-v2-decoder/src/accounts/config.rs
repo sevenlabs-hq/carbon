@@ -8,9 +8,17 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Config {
     /// Vault config key
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault_config_key: Pubkey,
     /// Only pool_creator_authority can use the current config to initialize new
     /// pool. When it's Pubkey::default, it's a public config.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_creator_authority: Pubkey,
     /// Pool fee
     pub pool_fees: PoolFeesConfig,

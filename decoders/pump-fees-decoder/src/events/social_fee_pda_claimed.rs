@@ -7,14 +7,30 @@ pub struct SocialFeePdaClaimedEvent {
     pub timestamp: i64,
     pub user_id: String,
     pub platform: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub social_fee_pda: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub recipient: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub social_claim_authority: Pubkey,
     pub amount_claimed: u64,
     pub claimable_before: u64,
     pub lifetime_claimed: u64,
     pub recipient_balance_before: u64,
     pub recipient_balance_after: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_mint: Pubkey,
 }
 

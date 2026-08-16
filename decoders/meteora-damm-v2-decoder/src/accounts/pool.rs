@@ -11,14 +11,34 @@ pub struct Pool {
     /// Pool fee
     pub pool_fees: PoolFeesStruct,
     /// token a mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_a_mint: Pubkey,
     /// token b mint
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_b_mint: Pubkey,
     /// token a vault
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_a_vault: Pubkey,
     /// token b vault
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_b_vault: Pubkey,
     /// Whitelisted vault to be able to buy pool before activation_point
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whitelisted_vault: Pubkey,
     /// padding, previously partner pubkey, be careful when using this field
     pub padding0: [u8; 32],
@@ -64,6 +84,10 @@ pub struct Pool {
     /// metrics
     pub metrics: PoolMetrics,
     /// pool creator
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator: Pubkey,
     /// token a amount
     pub token_a_amount: u64,

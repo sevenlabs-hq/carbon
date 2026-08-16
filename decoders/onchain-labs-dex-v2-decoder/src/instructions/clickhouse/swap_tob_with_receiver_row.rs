@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<SwapTobWithReceiverRow>
+    for (
+        crate::instructions::swap_tob_with_receiver::SwapTobWithReceiver,
+        crate::instructions::swap_tob_with_receiver::SwapTobWithReceiverInstructionAccounts,
+        SwapTobWithReceiverRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: SwapTobWithReceiverRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::swap_tob_with_receiver::SwapTobWithReceiver =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::swap_tob_with_receiver::SwapTobWithReceiverInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for SwapTobWithReceiverRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for SwapTobWithReceiverRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for SwapTobWithReceiverRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for SwapTobWithReceiverRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("onchain_labs_dex_v2_swap_tob_with_receiver_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

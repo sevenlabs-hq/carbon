@@ -10,6 +10,10 @@ use {
 pub struct CurveAccount {
     pub total_supply: u64,
     pub curve_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     pub decimals: u8,
     pub collateral_currency: Currency,

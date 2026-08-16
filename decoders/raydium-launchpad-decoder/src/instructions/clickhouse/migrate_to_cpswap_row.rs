@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<MigrateToCpswapRow>
+    for (
+        crate::instructions::migrate_to_cpswap::MigrateToCpswap,
+        crate::instructions::migrate_to_cpswap::MigrateToCpswapInstructionAccounts,
+        MigrateToCpswapRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: MigrateToCpswapRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::migrate_to_cpswap::MigrateToCpswap =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::migrate_to_cpswap::MigrateToCpswapInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for MigrateToCpswapRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for MigrateToCpswapRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for MigrateToCpswapRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for MigrateToCpswapRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("raydium_launchpad_migrate_to_cpswap_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

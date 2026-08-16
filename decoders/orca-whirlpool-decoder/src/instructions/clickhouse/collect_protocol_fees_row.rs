@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<CollectProtocolFeesRow>
+    for (
+        crate::instructions::collect_protocol_fees::CollectProtocolFees,
+        crate::instructions::collect_protocol_fees::CollectProtocolFeesInstructionAccounts,
+        CollectProtocolFeesRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CollectProtocolFeesRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::collect_protocol_fees::CollectProtocolFees =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::collect_protocol_fees::CollectProtocolFeesInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CollectProtocolFeesRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for CollectProtocolFeesRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CollectProtocolFeesRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for CollectProtocolFeesRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("orca_whirlpool_collect_protocol_fees_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

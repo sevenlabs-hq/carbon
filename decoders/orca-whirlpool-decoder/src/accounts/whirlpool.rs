@@ -7,6 +7,10 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Whirlpool {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whirlpools_config: Pubkey,
     pub whirlpool_bump: [u8; 1],
     pub tick_spacing: u16,
@@ -18,10 +22,26 @@ pub struct Whirlpool {
     pub tick_current_index: i32,
     pub protocol_fee_owed_a: u64,
     pub protocol_fee_owed_b: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_mint_a: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_vault_a: Pubkey,
     pub fee_growth_global_a: u128,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_mint_b: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_vault_b: Pubkey,
     pub fee_growth_global_b: u128,
     pub reward_last_updated_timestamp: u64,

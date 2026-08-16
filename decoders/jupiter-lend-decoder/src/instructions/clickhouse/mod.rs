@@ -107,216 +107,55 @@ pub enum JupiterLendInstructionRow {
     CpiEvent(CpiEventRow),
 }
 
-pub struct JupiterLendInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub JupiterLendInstruction,
+pub struct JupiterLendInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a JupiterLendInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for JupiterLendInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for JupiterLendInstructionMetadata<'a> {
     type Row = JupiterLendInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            JupiterLendInstruction::ChangeStatus { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::ChangeStatus(
-                    ChangeStatusRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            JupiterLendInstruction::Claim { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::Claim(ClaimRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            JupiterLendInstruction::CloseClaimAccount { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::CloseClaimAccount(
-                    CloseClaimAccountRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let JupiterLendInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(JupiterLendInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::CollectRevenue { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::CollectRevenue(
-                    CollectRevenueRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::InitClaimAccount { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::InitClaimAccount(
-                    InitClaimAccountRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::InitLiquidity { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::InitLiquidity(
-                    InitLiquidityRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            JupiterLendInstruction::InitNewProtocol { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::InitNewProtocol(
-                    InitNewProtocolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::InitTokenReserve { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::InitTokenReserve(
-                    InitTokenReserveRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::Operate { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::Operate(OperateRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            JupiterLendInstruction::PauseUser { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::PauseUser(
-                    PauseUserRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            JupiterLendInstruction::PreOperate { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::PreOperate(
-                    PreOperateRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            JupiterLendInstruction::UnpauseUser { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UnpauseUser(
-                    UnpauseUserRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateAuthority { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateAuthority(
-                    UpdateAuthorityRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateAuths { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateAuths(
-                    UpdateAuthsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateExchangePrice { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateExchangePrice(
-                    UpdateExchangePriceRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateGuardians { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateGuardians(
-                    UpdateGuardiansRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateRateDataV1 { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateRateDataV1(
-                    UpdateRateDataV1Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateRateDataV2 { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateRateDataV2(
-                    UpdateRateDataV2Row::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateRevenueCollector { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateRevenueCollector(
-                    UpdateRevenueCollectorRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateTokenConfig { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateTokenConfig(
-                    UpdateTokenConfigRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateUserBorrowConfig { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateUserBorrowConfig(
-                    UpdateUserBorrowConfigRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateUserClass { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateUserClass(
-                    UpdateUserClassRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateUserSupplyConfig { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateUserSupplyConfig(
-                    UpdateUserSupplyConfigRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::UpdateUserWithdrawalLimit { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::UpdateUserWithdrawalLimit(
-                    UpdateUserWithdrawalLimitRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            JupiterLendInstruction::CpiEvent { data, accounts, .. } => {
-                rows.push(JupiterLendInstructionRow::CpiEvent(CpiEventRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(ChangeStatus, ChangeStatusRow);
+        insert_branch!(Claim, ClaimRow);
+        insert_branch!(CloseClaimAccount, CloseClaimAccountRow);
+        insert_branch!(CollectRevenue, CollectRevenueRow);
+        insert_branch!(InitClaimAccount, InitClaimAccountRow);
+        insert_branch!(InitLiquidity, InitLiquidityRow);
+        insert_branch!(InitNewProtocol, InitNewProtocolRow);
+        insert_branch!(InitTokenReserve, InitTokenReserveRow);
+        insert_branch!(Operate, OperateRow);
+        insert_branch!(PauseUser, PauseUserRow);
+        insert_branch!(PreOperate, PreOperateRow);
+        insert_branch!(UnpauseUser, UnpauseUserRow);
+        insert_branch!(UpdateAuthority, UpdateAuthorityRow);
+        insert_branch!(UpdateAuths, UpdateAuthsRow);
+        insert_branch!(UpdateExchangePrice, UpdateExchangePriceRow);
+        insert_branch!(UpdateGuardians, UpdateGuardiansRow);
+        insert_branch!(UpdateRateDataV1, UpdateRateDataV1Row);
+        insert_branch!(UpdateRateDataV2, UpdateRateDataV2Row);
+        insert_branch!(UpdateRevenueCollector, UpdateRevenueCollectorRow);
+        insert_branch!(UpdateTokenConfig, UpdateTokenConfigRow);
+        insert_branch!(UpdateUserBorrowConfig, UpdateUserBorrowConfigRow);
+        insert_branch!(UpdateUserClass, UpdateUserClassRow);
+        insert_branch!(UpdateUserSupplyConfig, UpdateUserSupplyConfigRow);
+        insert_branch!(UpdateUserWithdrawalLimit, UpdateUserWithdrawalLimitRow);
+        insert_branch!(CpiEvent, CpiEventRow);
 
         Ok(())
     }
@@ -325,28 +164,23 @@ impl carbon_core::clickhouse::BatchInsert for JupiterLendInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for JupiterLendInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(ChangeStatus, ChangeStatusRow);
@@ -374,6 +208,7 @@ impl carbon_core::clickhouse::BatchCommit for JupiterLendInstructionRow {
         commit_branch!(UpdateUserSupplyConfig, UpdateUserSupplyConfigRow);
         commit_branch!(UpdateUserWithdrawalLimit, UpdateUserWithdrawalLimitRow);
         commit_branch!(CpiEvent, CpiEventRow);
+
         Ok(())
     }
 }

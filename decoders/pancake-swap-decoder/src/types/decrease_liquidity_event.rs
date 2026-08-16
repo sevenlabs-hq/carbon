@@ -5,6 +5,10 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct DecreaseLiquidityEvent {
     /// The ID of the token for which liquidity was decreased
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub position_nft_mint: Pubkey,
     /// The amount by which liquidity for the position was decreased
     pub liquidity: u128,

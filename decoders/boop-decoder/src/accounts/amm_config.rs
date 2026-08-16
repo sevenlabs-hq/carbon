@@ -19,8 +19,16 @@ pub struct AmmConfig {
     /// Fee for create a new pool
     pub create_pool_fee: u64,
     /// Address of the protocol fee owner
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub protocol_owner: Pubkey,
     /// Address of the fund fee owner
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fund_owner: Pubkey,
     /// padding
     pub padding: [u64; 16],

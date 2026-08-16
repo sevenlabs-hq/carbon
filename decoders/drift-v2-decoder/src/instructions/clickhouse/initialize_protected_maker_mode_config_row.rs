@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<InitializeProtectedMakerModeConfigRow> for (crate::instructions::initialize_protected_maker_mode_config::InitializeProtectedMakerModeConfig, crate::instructions::initialize_protected_maker_mode_config::InitializeProtectedMakerModeConfigInstructionAccounts, InitializeProtectedMakerModeConfigRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitializeProtectedMakerModeConfigRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::initialize_protected_maker_mode_config::InitializeProtectedMakerModeConfig = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::initialize_protected_maker_mode_config::InitializeProtectedMakerModeConfigInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for InitializeProtectedMakerModeConfigRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for InitializeProtectedMakerModeConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitializeProtectedMakerModeConfigRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for InitializeProtectedMakerModeConfigRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_initialize_protected_maker_mode_config_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct InitializeProtectedMakerModeConfigRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializeProtectedMakerModeConfigRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializeProtectedMakerModeConfigRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for InitializeProtectedMakerModeConfigRo
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializeProtectedMakerModeConfigRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializeProtectedMakerModeConfigRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(
@@ -199,7 +214,9 @@ impl carbon_core::clickhouse::Operation for InitializeProtectedMakerModeConfigRo
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS drift_v2_initialize_protected_maker_mode_config_instruction")
+            .query(
+                "DROP TABLE IF EXISTS drift_v2_initialize_protected_maker_mode_config_instruction",
+            )
             .execute()
             .await?;
 

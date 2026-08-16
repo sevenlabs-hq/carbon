@@ -6,6 +6,10 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct State {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub admin: Pubkey,
     pub state_nonce: u8,
     pub serum_nonce: u8,
@@ -27,9 +31,17 @@ pub struct State {
     pub treasury_wallet_nonce: u8,
     pub native_option_trade_fee_percentage: u64,
     pub native_option_underlying_fee_percentage: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub referrals_admin: Pubkey,
     pub referrals_rewards_wallet_nonce: u8,
     pub max_perp_delta_age: u16,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub secondary_admin: Pubkey,
     pub vault_nonce: u8,
     pub insurance_vault_nonce: u8,

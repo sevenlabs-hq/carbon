@@ -4,6 +4,10 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SwapEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_id: Pubkey,
     /// pool vault sub trade fees
     pub input_vault_before: u64,
@@ -16,7 +20,15 @@ pub struct SwapEvent {
     pub input_transfer_fee: u64,
     pub output_transfer_fee: u64,
     pub base_input: bool,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub input_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub output_mint: Pubkey,
     pub trade_fee: u64,
     /// Amount of fee tokens going to creator

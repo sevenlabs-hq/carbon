@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<CancelDustOrderRow>
+    for (
+        crate::instructions::cancel_dust_order::CancelDustOrder,
+        crate::instructions::cancel_dust_order::CancelDustOrderInstructionAccounts,
+        CancelDustOrderRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CancelDustOrderRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::cancel_dust_order::CancelDustOrder =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::cancel_dust_order::CancelDustOrderInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CancelDustOrderRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for CancelDustOrderRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CancelDustOrderRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for CancelDustOrderRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("jupiter_limit_order_2_cancel_dust_order_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

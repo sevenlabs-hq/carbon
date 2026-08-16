@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<DisableAttesterRow>
+    for (
+        crate::instructions::disable_attester::DisableAttester,
+        crate::instructions::disable_attester::DisableAttesterInstructionAccounts,
+        DisableAttesterRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: DisableAttesterRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::disable_attester::DisableAttester =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::disable_attester::DisableAttesterInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for DisableAttesterRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for DisableAttesterRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for DisableAttesterRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for DisableAttesterRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("circle_message_transmitter_v2_disable_attester_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -199,7 +214,9 @@ impl carbon_core::clickhouse::Operation for DisableAttesterRowMigrationOperation
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS circle_message_transmitter_v2_disable_attester_instruction")
+            .query(
+                "DROP TABLE IF EXISTS circle_message_transmitter_v2_disable_attester_instruction",
+            )
             .execute()
             .await?;
 

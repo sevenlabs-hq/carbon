@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<ClaimReferralsRewardsRow>
+    for (
+        crate::instructions::claim_referrals_rewards::ClaimReferralsRewards,
+        crate::instructions::claim_referrals_rewards::ClaimReferralsRewardsInstructionAccounts,
+        ClaimReferralsRewardsRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ClaimReferralsRewardsRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::claim_referrals_rewards::ClaimReferralsRewards =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::claim_referrals_rewards::ClaimReferralsRewardsInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ClaimReferralsRewardsRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for ClaimReferralsRewardsRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ClaimReferralsRewardsRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for ClaimReferralsRewardsRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("zeta_claim_referrals_rewards_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

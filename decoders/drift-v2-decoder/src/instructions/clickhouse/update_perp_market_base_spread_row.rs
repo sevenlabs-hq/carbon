@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<UpdatePerpMarketBaseSpreadRow> for (crate::instructions::update_perp_market_base_spread::UpdatePerpMarketBaseSpread, crate::instructions::update_perp_market_base_spread::UpdatePerpMarketBaseSpreadInstructionAccounts, UpdatePerpMarketBaseSpreadRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdatePerpMarketBaseSpreadRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_perp_market_base_spread::UpdatePerpMarketBaseSpread = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_perp_market_base_spread::UpdatePerpMarketBaseSpreadInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdatePerpMarketBaseSpreadRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for UpdatePerpMarketBaseSpreadRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdatePerpMarketBaseSpreadRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for UpdatePerpMarketBaseSpreadRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_update_perp_market_base_spread_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

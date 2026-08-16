@@ -4,6 +4,10 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct EvictEvent {
     pub index: u16,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub maker_id: Pubkey,
     pub order_sequence_number: u64,
     pub price_in_ticks: u64,

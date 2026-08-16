@@ -37,43 +37,42 @@ pub enum BoopAccountRow {
     LockedCpLiquidityState(LockedCpLiquidityStateRow),
 }
 
-pub struct BoopAccountMetadata(pub carbon_core::account::AccountMetadata, pub BoopAccount);
+pub struct BoopAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a BoopAccount,
+);
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for BoopAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for BoopAccountMetadata<'a> {
     type Row = BoopAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            BoopAccount::AmmConfig(account) => {
-                rows.push(BoopAccountRow::AmmConfig(AmmConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            BoopAccount::BondingCurve(account) => {
-                rows.push(BoopAccountRow::BondingCurve(BondingCurveRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            BoopAccount::Config(account) => {
-                rows.push(BoopAccountRow::Config(ConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            BoopAccount::LockedCpLiquidityState(account) => {
-                rows.push(BoopAccountRow::LockedCpLiquidityState(
-                    LockedCpLiquidityStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let BoopAccount::$variant(account) = account {
+                    rows.push(BoopAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let BoopAccount::$variant(account) = account {
+                    rows.push(BoopAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AmmConfig, AmmConfigRow, boxed);
+        insert_branch!(BondingCurve, BondingCurveRow, boxed);
+        insert_branch!(Config, ConfigRow, boxed);
+        insert_branch!(LockedCpLiquidityState, LockedCpLiquidityStateRow, boxed);
 
         Ok(())
     }
@@ -82,34 +81,30 @@ impl carbon_core::clickhouse::BatchInsert for BoopAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for BoopAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AmmConfig, AmmConfigRow);
         commit_branch!(BondingCurve, BondingCurveRow);
         commit_branch!(Config, ConfigRow);
         commit_branch!(LockedCpLiquidityState, LockedCpLiquidityStateRow);
+
         Ok(())
     }
 }

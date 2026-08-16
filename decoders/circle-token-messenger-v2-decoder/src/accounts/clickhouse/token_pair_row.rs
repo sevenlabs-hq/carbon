@@ -79,7 +79,6 @@ impl carbon_core::clickhouse::Table for TokenPairRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for TokenPairRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -87,13 +86,8 @@ impl carbon_core::clickhouse::Insert for TokenPairRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("circle_token_messenger_v2_token_pair_account")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

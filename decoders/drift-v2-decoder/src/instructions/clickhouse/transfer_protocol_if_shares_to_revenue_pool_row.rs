@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<TransferProtocolIfSharesToRevenuePoolRow> for (crate::instructions::transfer_protocol_if_shares_to_revenue_pool::TransferProtocolIfSharesToRevenuePool, crate::instructions::transfer_protocol_if_shares_to_revenue_pool::TransferProtocolIfSharesToRevenuePoolInstructionAccounts, TransferProtocolIfSharesToRevenuePoolRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: TransferProtocolIfSharesToRevenuePoolRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::transfer_protocol_if_shares_to_revenue_pool::TransferProtocolIfSharesToRevenuePool = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::transfer_protocol_if_shares_to_revenue_pool::TransferProtocolIfSharesToRevenuePoolInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for TransferProtocolIfSharesToRevenuePoolRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for TransferProtocolIfSharesToRevenuePoolRow
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for TransferProtocolIfSharesToRevenuePoolRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for TransferProtocolIfSharesToRevenuePoolRo
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_transfer_protocol_if_shares_to_revenue_pool_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct TransferProtocolIfSharesToRevenuePoolRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for TransferProtocolIfSharesToRevenuePoolRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for TransferProtocolIfSharesToRevenuePoolRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for TransferProtocolIfSharesToRevenuePoo
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for TransferProtocolIfSharesToRevenuePoolRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for TransferProtocolIfSharesToRevenuePoolRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

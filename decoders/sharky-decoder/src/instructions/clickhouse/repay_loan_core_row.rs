@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<RepayLoanCoreRow>
+    for (
+        crate::instructions::repay_loan_core::RepayLoanCore,
+        crate::instructions::repay_loan_core::RepayLoanCoreInstructionAccounts,
+        RepayLoanCoreRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: RepayLoanCoreRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::repay_loan_core::RepayLoanCore =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::repay_loan_core::RepayLoanCoreInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for RepayLoanCoreRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for RepayLoanCoreRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for RepayLoanCoreRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for RepayLoanCoreRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("sharky_repay_loan_core_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

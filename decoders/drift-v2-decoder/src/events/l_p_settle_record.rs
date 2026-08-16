@@ -15,6 +15,10 @@ pub struct LPSettleRecordEvent {
     pub perp_amm_ex_fee_delta: i64,
     pub lp_aum: u128,
     pub lp_price: u128,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lp_pool: Pubkey,
 }
 

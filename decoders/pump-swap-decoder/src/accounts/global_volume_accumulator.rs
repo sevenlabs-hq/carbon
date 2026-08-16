@@ -7,6 +7,10 @@ pub struct GlobalVolumeAccumulator {
     pub start_time: i64,
     pub end_time: i64,
     pub seconds_in_a_day: i64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     pub total_token_supply: [u64; 30],
     pub sol_volumes: [u64; 30],

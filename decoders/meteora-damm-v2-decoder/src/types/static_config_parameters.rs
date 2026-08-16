@@ -6,7 +6,15 @@ pub struct StaticConfigParameters {
     pub pool_fees: PoolFeeParameters,
     pub sqrt_min_price: u128,
     pub sqrt_max_price: u128,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault_config_key: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_creator_authority: Pubkey,
     pub activation_type: u8,
     pub collect_fee_mode: u8,

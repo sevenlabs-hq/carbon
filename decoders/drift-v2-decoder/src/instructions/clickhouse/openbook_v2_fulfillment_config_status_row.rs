@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<OpenbookV2FulfillmentConfigStatusRow> for (crate::instructions::openbook_v2_fulfillment_config_status::OpenbookV2FulfillmentConfigStatus, crate::instructions::openbook_v2_fulfillment_config_status::OpenbookV2FulfillmentConfigStatusInstructionAccounts, OpenbookV2FulfillmentConfigStatusRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: OpenbookV2FulfillmentConfigStatusRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::openbook_v2_fulfillment_config_status::OpenbookV2FulfillmentConfigStatus = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::openbook_v2_fulfillment_config_status::OpenbookV2FulfillmentConfigStatusInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for OpenbookV2FulfillmentConfigStatusRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for OpenbookV2FulfillmentConfigStatusRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for OpenbookV2FulfillmentConfigStatusRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for OpenbookV2FulfillmentConfigStatusRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_openbook_v2_fulfillment_config_status_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -199,7 +210,9 @@ impl carbon_core::clickhouse::Operation for OpenbookV2FulfillmentConfigStatusRow
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS drift_v2_openbook_v2_fulfillment_config_status_instruction")
+            .query(
+                "DROP TABLE IF EXISTS drift_v2_openbook_v2_fulfillment_config_status_instruction",
+            )
             .execute()
             .await?;
 

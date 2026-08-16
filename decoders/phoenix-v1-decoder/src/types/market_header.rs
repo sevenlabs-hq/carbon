@@ -14,9 +14,21 @@ pub struct MarketHeader {
     pub quote_params: TokenParams,
     pub quote_lot_size: u64,
     pub tick_size_in_quote_atoms_per_base_unit: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_recipient: Pubkey,
     pub market_sequence_number: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub successor: Pubkey,
     pub raw_base_units_per_base_unit: u32,
     pub padding1: u32,

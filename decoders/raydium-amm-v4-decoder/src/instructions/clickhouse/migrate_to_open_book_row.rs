@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<MigrateToOpenBookRow>
+    for (
+        crate::instructions::migrate_to_open_book::MigrateToOpenBook,
+        crate::instructions::migrate_to_open_book::MigrateToOpenBookInstructionAccounts,
+        MigrateToOpenBookRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: MigrateToOpenBookRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::migrate_to_open_book::MigrateToOpenBook =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::migrate_to_open_book::MigrateToOpenBookInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for MigrateToOpenBookRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for MigrateToOpenBookRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for MigrateToOpenBookRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for MigrateToOpenBookRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("raydium_amm_v4_migrate_to_open_book_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

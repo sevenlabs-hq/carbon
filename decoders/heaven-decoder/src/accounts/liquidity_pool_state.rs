@@ -27,9 +27,25 @@ pub struct LiquidityPoolState {
     pub trading_volume_usd: f64,
     pub creator_trading_fee_trading_volume_threshold: f64,
     pub creator_trading_fee_trading_volume_threshold_reached_unix_timestamp: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_a_vault: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_b_vault: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub protocol_config: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub key: Pubkey,
     pub token_a: LiquidityPoolTokenInfo,
     pub token_b: LiquidityPoolTokenInfo,
@@ -43,6 +59,10 @@ pub struct LiquidityPoolState {
     pub is_migrated: u8,
     pub pad: [u8; 13],
     pub slot_offset_based_fees: LiquidityPoolSlotOffsetBasedFees,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator_trading_fee_receiver: Pubkey,
 }
 

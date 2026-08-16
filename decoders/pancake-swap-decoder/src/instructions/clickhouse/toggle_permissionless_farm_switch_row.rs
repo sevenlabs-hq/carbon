@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<TogglePermissionlessFarmSwitchRow> for (crate::instructions::toggle_permissionless_farm_switch::TogglePermissionlessFarmSwitch, crate::instructions::toggle_permissionless_farm_switch::TogglePermissionlessFarmSwitchInstructionAccounts, TogglePermissionlessFarmSwitchRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: TogglePermissionlessFarmSwitchRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::toggle_permissionless_farm_switch::TogglePermissionlessFarmSwitch = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::toggle_permissionless_farm_switch::TogglePermissionlessFarmSwitchInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for TogglePermissionlessFarmSwitchRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for TogglePermissionlessFarmSwitchRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for TogglePermissionlessFarmSwitchRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for TogglePermissionlessFarmSwitchRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("pancake_swap_toggle_permissionless_farm_switch_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -199,7 +210,9 @@ impl carbon_core::clickhouse::Operation for TogglePermissionlessFarmSwitchRowMig
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS pancake_swap_toggle_permissionless_farm_switch_instruction")
+            .query(
+                "DROP TABLE IF EXISTS pancake_swap_toggle_permissionless_farm_switch_instruction",
+            )
             .execute()
             .await?;
 

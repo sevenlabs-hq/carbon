@@ -12,8 +12,16 @@ pub struct TokenRecord {
     pub bump: u8,
     pub state: TokenState,
     pub rule_set_revision: Option<u64>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub delegate: Option<Pubkey>,
     pub delegate_role: Option<TokenDelegateRole>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub locked_transfer: Option<Pubkey>,
 }
 

@@ -5,5 +5,9 @@ use {crate::types::StrategyType, solana_pubkey::Pubkey};
 pub struct ClaimReward {
     pub strategy_type: StrategyType,
     pub token_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint_account: Pubkey,
 }

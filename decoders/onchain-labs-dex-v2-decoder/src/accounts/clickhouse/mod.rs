@@ -24,28 +24,39 @@ pub enum OnchainLabsDexV2AccountRow {
     TokenLedger(TokenLedgerRow),
 }
 
-pub struct OnchainLabsDexV2AccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub OnchainLabsDexV2Account,
+pub struct OnchainLabsDexV2AccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a OnchainLabsDexV2Account,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for OnchainLabsDexV2AccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for OnchainLabsDexV2AccountMetadata<'a> {
     type Row = OnchainLabsDexV2AccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            OnchainLabsDexV2Account::TokenLedger(account) => {
-                rows.push(OnchainLabsDexV2AccountRow::TokenLedger(
-                    TokenLedgerRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let OnchainLabsDexV2Account::$variant(account) = account {
+                    rows.push(OnchainLabsDexV2AccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let OnchainLabsDexV2Account::$variant(account) = account {
+                    rows.push(OnchainLabsDexV2AccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(TokenLedger, TokenLedgerRow, boxed);
 
         Ok(())
     }
@@ -54,31 +65,27 @@ impl carbon_core::clickhouse::BatchInsert for OnchainLabsDexV2AccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for OnchainLabsDexV2AccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(TokenLedger, TokenLedgerRow);
+
         Ok(())
     }
 }

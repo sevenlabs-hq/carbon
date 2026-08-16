@@ -10,8 +10,16 @@ pub struct FillEvent {
     pub padding: [u8; 4],
     pub timestamp: u64,
     pub seq_num: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub maker: Pubkey,
     pub maker_timestamp: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub taker: Pubkey,
     pub taker_client_order_id: u64,
     pub price: i64,

@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<SetDisableFlagsRow>
+    for (
+        crate::instructions::set_disable_flags::SetDisableFlags,
+        crate::instructions::set_disable_flags::SetDisableFlagsInstructionAccounts,
+        SetDisableFlagsRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: SetDisableFlagsRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::set_disable_flags::SetDisableFlags =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::set_disable_flags::SetDisableFlagsInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for SetDisableFlagsRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for SetDisableFlagsRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for SetDisableFlagsRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for SetDisableFlagsRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("pump_fees_set_disable_flags_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

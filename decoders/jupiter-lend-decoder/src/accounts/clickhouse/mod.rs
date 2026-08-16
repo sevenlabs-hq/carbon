@@ -47,61 +47,45 @@ pub enum JupiterLendAccountRow {
     UserSupplyPosition(UserSupplyPositionRow),
 }
 
-pub struct JupiterLendAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub JupiterLendAccount,
+pub struct JupiterLendAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a JupiterLendAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for JupiterLendAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for JupiterLendAccountMetadata<'a> {
     type Row = JupiterLendAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            JupiterLendAccount::AuthorizationList(account) => {
-                rows.push(JupiterLendAccountRow::AuthorizationList(
-                    AuthorizationListRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            JupiterLendAccount::Liquidity(account) => {
-                rows.push(JupiterLendAccountRow::Liquidity(LiquidityRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            JupiterLendAccount::RateModel(account) => {
-                rows.push(JupiterLendAccountRow::RateModel(RateModelRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            JupiterLendAccount::TokenReserve(account) => {
-                rows.push(JupiterLendAccountRow::TokenReserve(
-                    TokenReserveRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            JupiterLendAccount::UserBorrowPosition(account) => {
-                rows.push(JupiterLendAccountRow::UserBorrowPosition(
-                    UserBorrowPositionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            JupiterLendAccount::UserClaim(account) => {
-                rows.push(JupiterLendAccountRow::UserClaim(UserClaimRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            JupiterLendAccount::UserSupplyPosition(account) => {
-                rows.push(JupiterLendAccountRow::UserSupplyPosition(
-                    UserSupplyPositionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let JupiterLendAccount::$variant(account) = account {
+                    rows.push(JupiterLendAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let JupiterLendAccount::$variant(account) = account {
+                    rows.push(JupiterLendAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AuthorizationList, AuthorizationListRow, boxed);
+        insert_branch!(Liquidity, LiquidityRow, boxed);
+        insert_branch!(RateModel, RateModelRow, boxed);
+        insert_branch!(TokenReserve, TokenReserveRow, boxed);
+        insert_branch!(UserBorrowPosition, UserBorrowPositionRow, boxed);
+        insert_branch!(UserClaim, UserClaimRow, boxed);
+        insert_branch!(UserSupplyPosition, UserSupplyPositionRow, boxed);
 
         Ok(())
     }
@@ -110,28 +94,23 @@ impl carbon_core::clickhouse::BatchInsert for JupiterLendAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for JupiterLendAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AuthorizationList, AuthorizationListRow);
@@ -141,6 +120,7 @@ impl carbon_core::clickhouse::BatchCommit for JupiterLendAccountRow {
         commit_branch!(UserBorrowPosition, UserBorrowPositionRow);
         commit_branch!(UserClaim, UserClaimRow);
         commit_branch!(UserSupplyPosition, UserSupplyPositionRow);
+
         Ok(())
     }
 }

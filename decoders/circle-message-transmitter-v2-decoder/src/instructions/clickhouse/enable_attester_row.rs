@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<EnableAttesterRow>
+    for (
+        crate::instructions::enable_attester::EnableAttester,
+        crate::instructions::enable_attester::EnableAttesterInstructionAccounts,
+        EnableAttesterRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: EnableAttesterRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::enable_attester::EnableAttester =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::enable_attester::EnableAttesterInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for EnableAttesterRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for EnableAttesterRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for EnableAttesterRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for EnableAttesterRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("circle_message_transmitter_v2_enable_attester_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

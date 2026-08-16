@@ -6,9 +6,17 @@ use {crate::types::PoolFees, carbon_core::deserialize::CarbonDeserialize, solana
 pub struct Config {
     pub pool_fees: PoolFees,
     pub activation_duration: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault_config_key: Pubkey,
     /// Only pool_creator_authority can use the current config to initialize new
     /// pool. When it's Pubkey::default, it's a public config.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_creator_authority: Pubkey,
     /// Activation type
     pub activation_type: u8,

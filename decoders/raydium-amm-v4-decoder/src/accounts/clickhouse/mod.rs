@@ -32,39 +32,41 @@ pub enum RaydiumAmmV4AccountRow {
     TargetOrders(TargetOrdersRow),
 }
 
-pub struct RaydiumAmmV4AccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub RaydiumAmmV4Account,
+pub struct RaydiumAmmV4AccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a RaydiumAmmV4Account,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for RaydiumAmmV4AccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for RaydiumAmmV4AccountMetadata<'a> {
     type Row = RaydiumAmmV4AccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            RaydiumAmmV4Account::AmmConfig(account) => {
-                rows.push(RaydiumAmmV4AccountRow::AmmConfig(AmmConfigRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            RaydiumAmmV4Account::AmmInfo(account) => {
-                rows.push(RaydiumAmmV4AccountRow::AmmInfo(AmmInfoRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            RaydiumAmmV4Account::TargetOrders(account) => {
-                rows.push(RaydiumAmmV4AccountRow::TargetOrders(
-                    TargetOrdersRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let RaydiumAmmV4Account::$variant(account) = account {
+                    rows.push(RaydiumAmmV4AccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let RaydiumAmmV4Account::$variant(account) = account {
+                    rows.push(RaydiumAmmV4AccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AmmConfig, AmmConfigRow, boxed);
+        insert_branch!(AmmInfo, AmmInfoRow, boxed);
+        insert_branch!(TargetOrders, TargetOrdersRow, boxed);
 
         Ok(())
     }
@@ -73,33 +75,29 @@ impl carbon_core::clickhouse::BatchInsert for RaydiumAmmV4AccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for RaydiumAmmV4AccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AmmConfig, AmmConfigRow);
         commit_branch!(AmmInfo, AmmInfoRow);
         commit_branch!(TargetOrders, TargetOrdersRow);
+
         Ok(())
     }
 }

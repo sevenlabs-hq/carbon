@@ -24,28 +24,39 @@ pub enum JupiterSwapAccountRow {
     TokenLedger(TokenLedgerRow),
 }
 
-pub struct JupiterSwapAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub JupiterSwapAccount,
+pub struct JupiterSwapAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a JupiterSwapAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for JupiterSwapAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for JupiterSwapAccountMetadata<'a> {
     type Row = JupiterSwapAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            JupiterSwapAccount::TokenLedger(account) => {
-                rows.push(JupiterSwapAccountRow::TokenLedger(
-                    TokenLedgerRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let JupiterSwapAccount::$variant(account) = account {
+                    rows.push(JupiterSwapAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let JupiterSwapAccount::$variant(account) = account {
+                    rows.push(JupiterSwapAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(TokenLedger, TokenLedgerRow, boxed);
 
         Ok(())
     }
@@ -54,31 +65,27 @@ impl carbon_core::clickhouse::BatchInsert for JupiterSwapAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for JupiterSwapAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(TokenLedger, TokenLedgerRow);
+
         Ok(())
     }
 }

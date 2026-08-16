@@ -4,6 +4,10 @@ use {crate::types::DataV2, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateMetadataAccountArgsV2 {
     pub data: Option<DataV2>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub update_authority: Option<Pubkey>,
     pub primary_sale_happened: Option<bool>,
     pub is_mutable: Option<bool>,

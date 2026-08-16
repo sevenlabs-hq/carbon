@@ -38,56 +38,35 @@ pub enum NameServiceInstructionRow {
     Update(UpdateRow),
 }
 
-pub struct NameServiceInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub NameServiceInstruction,
+pub struct NameServiceInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a NameServiceInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for NameServiceInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for NameServiceInstructionMetadata<'a> {
     type Row = NameServiceInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            NameServiceInstruction::Create { data, accounts, .. } => {
-                rows.push(NameServiceInstructionRow::Create(CreateRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            NameServiceInstruction::Delete { data, accounts, .. } => {
-                rows.push(NameServiceInstructionRow::Delete(DeleteRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            NameServiceInstruction::Realloc { data, accounts, .. } => {
-                rows.push(NameServiceInstructionRow::Realloc(ReallocRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            NameServiceInstruction::Transfer { data, accounts, .. } => {
-                rows.push(NameServiceInstructionRow::Transfer(TransferRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
-            NameServiceInstruction::Update { data, accounts, .. } => {
-                rows.push(NameServiceInstructionRow::Update(UpdateRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let NameServiceInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(NameServiceInstructionRow::$variant(<$row>::try_from((
+                        data.clone(),
+                        metadata.clone(),
+                        accounts.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Create, CreateRow);
+        insert_branch!(Delete, DeleteRow);
+        insert_branch!(Realloc, ReallocRow);
+        insert_branch!(Transfer, TransferRow);
+        insert_branch!(Update, UpdateRow);
 
         Ok(())
     }
@@ -96,28 +75,23 @@ impl carbon_core::clickhouse::BatchInsert for NameServiceInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for NameServiceInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Create, CreateRow);
@@ -125,6 +99,7 @@ impl carbon_core::clickhouse::BatchCommit for NameServiceInstructionRow {
         commit_branch!(Realloc, ReallocRow);
         commit_branch!(Transfer, TransferRow);
         commit_branch!(Update, UpdateRow);
+
         Ok(())
     }
 }

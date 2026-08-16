@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<UpdateInsuranceFundUnstakingPeriodRow> for (crate::instructions::update_insurance_fund_unstaking_period::UpdateInsuranceFundUnstakingPeriod, crate::instructions::update_insurance_fund_unstaking_period::UpdateInsuranceFundUnstakingPeriodInstructionAccounts, UpdateInsuranceFundUnstakingPeriodRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdateInsuranceFundUnstakingPeriodRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_insurance_fund_unstaking_period::UpdateInsuranceFundUnstakingPeriod = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_insurance_fund_unstaking_period::UpdateInsuranceFundUnstakingPeriodInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdateInsuranceFundUnstakingPeriodRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for UpdateInsuranceFundUnstakingPeriodRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdateInsuranceFundUnstakingPeriodRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for UpdateInsuranceFundUnstakingPeriodRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_update_insurance_fund_unstaking_period_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct UpdateInsuranceFundUnstakingPeriodRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdateInsuranceFundUnstakingPeriodRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdateInsuranceFundUnstakingPeriodRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for UpdateInsuranceFundUnstakingPeriodRo
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdateInsuranceFundUnstakingPeriodRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdateInsuranceFundUnstakingPeriodRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(
@@ -199,7 +214,9 @@ impl carbon_core::clickhouse::Operation for UpdateInsuranceFundUnstakingPeriodRo
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS drift_v2_update_insurance_fund_unstaking_period_instruction")
+            .query(
+                "DROP TABLE IF EXISTS drift_v2_update_insurance_fund_unstaking_period_instruction",
+            )
             .execute()
             .await?;
 

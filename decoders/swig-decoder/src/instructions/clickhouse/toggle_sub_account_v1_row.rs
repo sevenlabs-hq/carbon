@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<ToggleSubAccountV1Row>
+    for (
+        crate::instructions::toggle_sub_account_v1::ToggleSubAccountV1,
+        crate::instructions::toggle_sub_account_v1::ToggleSubAccountV1InstructionAccounts,
+        ToggleSubAccountV1Row,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ToggleSubAccountV1Row) -> Result<Self, Self::Error> {
+        let source: crate::instructions::toggle_sub_account_v1::ToggleSubAccountV1 =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::toggle_sub_account_v1::ToggleSubAccountV1InstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ToggleSubAccountV1Row {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for ToggleSubAccountV1Row {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ToggleSubAccountV1Row {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for ToggleSubAccountV1Row {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("swig_toggle_sub_account_v1_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

@@ -15,8 +15,20 @@ pub struct ZetaGroup {
     pub nonce_padding: [u8; 2],
     pub front_expiry_index: u8,
     pub halt_state: HaltState,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub underlying_mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub oracle: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub greeks: Pubkey,
     pub pricing_parameters: PricingParameters,
     pub margin_parameters: MarginParameters,
@@ -34,7 +46,15 @@ pub struct ZetaGroup {
     pub expiry_interval_seconds: u32,
     pub new_expiry_threshold_seconds: u32,
     pub perp_parameters: PerpParameters,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub perp_sync_queue: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub oracle_backup_feed: Pubkey,
     pub perps_only: bool,
     pub flex_underlying: bool,

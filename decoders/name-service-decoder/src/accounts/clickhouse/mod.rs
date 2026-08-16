@@ -24,28 +24,39 @@ pub enum NameServiceAccountRow {
     NameRecordHeader(NameRecordHeaderRow),
 }
 
-pub struct NameServiceAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub NameServiceAccount,
+pub struct NameServiceAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a NameServiceAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for NameServiceAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for NameServiceAccountMetadata<'a> {
     type Row = NameServiceAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            NameServiceAccount::NameRecordHeader(account) => {
-                rows.push(NameServiceAccountRow::NameRecordHeader(
-                    NameRecordHeaderRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let NameServiceAccount::$variant(account) = account {
+                    rows.push(NameServiceAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let NameServiceAccount::$variant(account) = account {
+                    rows.push(NameServiceAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(NameRecordHeader, NameRecordHeaderRow, boxed);
 
         Ok(())
     }
@@ -54,31 +65,27 @@ impl carbon_core::clickhouse::BatchInsert for NameServiceAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for NameServiceAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(NameRecordHeader, NameRecordHeaderRow);
+
         Ok(())
     }
 }

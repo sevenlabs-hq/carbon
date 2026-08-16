@@ -156,3 +156,28 @@ where
         .map_err(serde::de::Error::custom)?;
     bincode::deserialize(&bytes).map_err(serde::de::Error::custom)
 }
+
+pub mod base58 {
+    use {
+        serde::{Serialize, Serializer},
+        solana_pubkey::Pubkey,
+    };
+
+    pub fn serialize<S: Serializer>(pubkey: &Pubkey, s: S) -> Result<S::Ok, S::Error> {
+        let base58 = pubkey.to_string();
+        String::serialize(&base58, s)
+    }
+
+    pub fn serialize_option<S: Serializer>(
+        pubkey: &Option<Pubkey>,
+        s: S,
+    ) -> Result<S::Ok, S::Error> {
+        match pubkey {
+            Some(pk) => {
+                let base58 = pk.to_string();
+                Option::<String>::serialize(&Some(base58), s)
+            }
+            None => Option::<String>::serialize(&None, s),
+        }
+    }
+}

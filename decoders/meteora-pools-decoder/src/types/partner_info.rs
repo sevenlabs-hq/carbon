@@ -4,6 +4,10 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PartnerInfo {
     pub fee_numerator: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub partner_authority: Pubkey,
     pub pending_fee_a: u64,
     pub pending_fee_b: u64,

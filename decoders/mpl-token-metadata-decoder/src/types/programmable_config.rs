@@ -3,5 +3,11 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum ProgrammableConfig {
-    V1 { rule_set: Option<Pubkey> },
+    V1 {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
+        rule_set: Option<Pubkey>,
+    },
 }

@@ -5,11 +5,19 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ConfigChangeEventEvent {
     pub index: u16,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     pub protocol_fee_rate: u32,
     pub trade_fee_rate: u32,
     pub tick_spacing: u16,
     pub fund_fee_rate: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fund_owner: Pubkey,
 }
 

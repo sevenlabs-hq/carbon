@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<LiquidateObligationAndRedeemReserveCollateralV2Row> for (crate::instructions::liquidate_obligation_and_redeem_reserve_collateral_v2::LiquidateObligationAndRedeemReserveCollateralV2, crate::instructions::liquidate_obligation_and_redeem_reserve_collateral_v2::LiquidateObligationAndRedeemReserveCollateralV2InstructionAccounts, LiquidateObligationAndRedeemReserveCollateralV2Row) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: LiquidateObligationAndRedeemReserveCollateralV2Row) -> Result<Self, Self::Error> {
+        let source: crate::instructions::liquidate_obligation_and_redeem_reserve_collateral_v2::LiquidateObligationAndRedeemReserveCollateralV2 = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::liquidate_obligation_and_redeem_reserve_collateral_v2::LiquidateObligationAndRedeemReserveCollateralV2InstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for LiquidateObligationAndRedeemReserveCollateralV2Row {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for LiquidateObligationAndRedeemReserveColla
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for LiquidateObligationAndRedeemReserveCollateralV2Row {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,10 @@ impl carbon_core::clickhouse::Insert for LiquidateObligationAndRedeemReserveColl
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>(
+                "kamino_lending_liquidate_obligation_and_redeem_reserve_collateral_v2_instruction",
+            )
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +112,9 @@ pub struct LiquidateObligationAndRedeemReserveCollateralV2RowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for LiquidateObligationAndRedeemReserveCollateralV2RowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for LiquidateObligationAndRedeemReserveCollateralV2RowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +189,9 @@ impl carbon_core::clickhouse::Operation for LiquidateObligationAndRedeemReserveC
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for LiquidateObligationAndRedeemReserveCollateralV2RowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for LiquidateObligationAndRedeemReserveCollateralV2RowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

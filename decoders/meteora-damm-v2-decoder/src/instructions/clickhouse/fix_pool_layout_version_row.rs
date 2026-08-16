@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<FixPoolLayoutVersionRow>
+    for (
+        crate::instructions::fix_pool_layout_version::FixPoolLayoutVersion,
+        crate::instructions::fix_pool_layout_version::FixPoolLayoutVersionInstructionAccounts,
+        FixPoolLayoutVersionRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: FixPoolLayoutVersionRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::fix_pool_layout_version::FixPoolLayoutVersion =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::fix_pool_layout_version::FixPoolLayoutVersionInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for FixPoolLayoutVersionRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for FixPoolLayoutVersionRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for FixPoolLayoutVersionRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for FixPoolLayoutVersionRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_damm_v2_fix_pool_layout_version_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

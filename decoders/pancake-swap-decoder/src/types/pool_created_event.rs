@@ -5,12 +5,24 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PoolCreatedEvent {
     /// The first token of the pool by address sort order
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_mint0: Pubkey,
     /// The second token of the pool by address sort order
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_mint1: Pubkey,
     /// The minimum number of ticks between initialized ticks
     pub tick_spacing: u16,
     /// The address of the created pool
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_state: Pubkey,
     /// The initial sqrt price of the pool, as a Q64.64
     pub sqrt_price_x64: u128,
@@ -18,7 +30,15 @@ pub struct PoolCreatedEvent {
     /// of the pool
     pub tick: i32,
     /// Vault of token_0
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_vault0: Pubkey,
     /// Vault of token_1
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_vault1: Pubkey,
 }

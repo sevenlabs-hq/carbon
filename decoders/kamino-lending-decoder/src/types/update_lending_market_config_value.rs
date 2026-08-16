@@ -9,7 +9,13 @@ pub enum UpdateLendingMarketConfigValue {
     U16(u16),
     U64(u64),
     U128(u128),
-    Pubkey(Pubkey),
+    Pubkey(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+    ),
     ElevationGroup(ElevationGroup),
     Name([u8; 32]),
 }

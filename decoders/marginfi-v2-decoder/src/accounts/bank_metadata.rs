@@ -5,6 +5,10 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct BankMetadata {
     /// Bank this metadata corresponds to
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub bank: Pubkey,
     pub placeholder: u64,
     /// The token's ticker name, e.g. USDC

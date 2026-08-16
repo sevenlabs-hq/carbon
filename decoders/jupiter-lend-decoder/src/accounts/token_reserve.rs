@@ -4,7 +4,15 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct TokenReserve {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault: Pubkey,
     pub borrow_rate: u16,
     pub fee_on_interest: u16,
@@ -18,6 +26,10 @@ pub struct TokenReserve {
     pub total_borrow_with_interest: u64,
     pub total_borrow_interest_free: u64,
     pub total_claim_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub interacting_protocol: Pubkey,
     pub interacting_timestamp: u64,
     pub interacting_balance: u64,

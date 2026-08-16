@@ -5,6 +5,14 @@ use solana_pubkey::Pubkey;
 pub struct TokenParams {
     pub decimals: u32,
     pub vault_bump: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint_key: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault_key: Pubkey,
 }

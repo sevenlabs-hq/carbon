@@ -3,10 +3,18 @@ use {crate::types::Fee, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LiqPool {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lp_mint: Pubkey,
     pub lp_mint_authority_bump_seed: u8,
     pub sol_leg_bump_seed: u8,
     pub msol_leg_authority_bump_seed: u8,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub msol_leg: Pubkey,
     /// Liquidity target. If the Liquidity reach this amount, the fee reaches
     /// lp_min_discount_fee

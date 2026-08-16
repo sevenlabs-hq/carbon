@@ -29,35 +29,40 @@ pub enum JupiterLimitOrderAccountRow {
     Order(OrderRow),
 }
 
-pub struct JupiterLimitOrderAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub JupiterLimitOrderAccount,
+pub struct JupiterLimitOrderAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a JupiterLimitOrderAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for JupiterLimitOrderAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for JupiterLimitOrderAccountMetadata<'a> {
     type Row = JupiterLimitOrderAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            JupiterLimitOrderAccount::Fee(account) => {
-                rows.push(JupiterLimitOrderAccountRow::Fee(FeeRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            JupiterLimitOrderAccount::Order(account) => {
-                rows.push(JupiterLimitOrderAccountRow::Order(OrderRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let JupiterLimitOrderAccount::$variant(account) = account {
+                    rows.push(JupiterLimitOrderAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let JupiterLimitOrderAccount::$variant(account) = account {
+                    rows.push(JupiterLimitOrderAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Fee, FeeRow, boxed);
+        insert_branch!(Order, OrderRow, boxed);
 
         Ok(())
     }
@@ -66,32 +71,28 @@ impl carbon_core::clickhouse::BatchInsert for JupiterLimitOrderAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for JupiterLimitOrderAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Fee, FeeRow);
         commit_branch!(Order, OrderRow);
+
         Ok(())
     }
 }

@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<CreateOrderBookRow>
+    for (
+        crate::instructions::create_order_book::CreateOrderBook,
+        crate::instructions::create_order_book::CreateOrderBookInstructionAccounts,
+        CreateOrderBookRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: CreateOrderBookRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::create_order_book::CreateOrderBook =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::create_order_book::CreateOrderBookInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for CreateOrderBookRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for CreateOrderBookRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for CreateOrderBookRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for CreateOrderBookRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("sharky_create_order_book_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

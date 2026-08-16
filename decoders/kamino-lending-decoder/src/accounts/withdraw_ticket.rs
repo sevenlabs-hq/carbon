@@ -35,11 +35,23 @@ pub struct WithdrawTicket {
     pub sequence_number: u64,
     /// The funds' owner (the user who called the `enqueue_to_withdraw`
     /// handler).
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     /// The reserve to withdraw from.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub reserve: Pubkey,
     /// The token account to which the finally-available liquidity should be
     /// transferred (by the `withdraw_queued_liquidity` handler).
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user_destination_liquidity_ta: Pubkey,
     /// The amount of collateral still waiting to be withdrawn using this
     /// ticket.

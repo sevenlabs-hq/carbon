@@ -10,30 +10,66 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Pool {
     /// LP token mint of the pool
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lp_mint: Pubkey,
     /// Token A mint of the pool. Eg: USDT
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_a_mint: Pubkey,
     /// Token B mint of the pool. Eg: USDC
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub token_b_mint: Pubkey,
     /// Vault account for token A. Token A of the pool will be deposit /
     /// withdraw from this vault account.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub a_vault: Pubkey,
     /// Vault account for token B. Token B of the pool will be deposit /
     /// withdraw from this vault account.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub b_vault: Pubkey,
     /// LP token account of vault A. Used to receive/burn the vault LP upon
     /// deposit/withdraw from the vault.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub a_vault_lp: Pubkey,
     /// LP token account of vault B. Used to receive/burn the vault LP upon
     /// deposit/withdraw from the vault.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub b_vault_lp: Pubkey,
     /// "A" vault lp bump. Used to create signer seeds.
     pub a_vault_lp_bump: u8,
     /// Flag to determine whether the pool is enabled, or disabled.
     pub enabled: bool,
     /// Protocol fee token account for token A. Used to receive trading fee.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub protocol_token_a_fee: Pubkey,
     /// Protocol fee token account for token B. Used to receive trading fee.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub protocol_token_b_fee: Pubkey,
     /// Fee last updated timestamp
     pub fee_last_updated_at: u64,
@@ -43,6 +79,10 @@ pub struct Pool {
     /// Pool type
     pub pool_type: PoolType,
     /// Stake pubkey of SPL stake pool
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub stake: Pubkey,
     /// Total locked lp token
     pub total_locked_lp: u64,

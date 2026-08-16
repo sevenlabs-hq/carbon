@@ -8,6 +8,10 @@ pub struct InitializeParams {
     pub tick_size_in_quote_lots_per_base_unit: u64,
     pub num_base_lots_per_base_unit: u64,
     pub taker_fee_bps: u16,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_collector: Pubkey,
     pub raw_base_units_per_base_unit: Option<u32>,
 }

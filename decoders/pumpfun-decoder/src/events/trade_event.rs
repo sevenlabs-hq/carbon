@@ -6,19 +6,35 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct TradeEventEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub mint: Pubkey,
     pub sol_amount: u64,
     pub token_amount: u64,
     pub is_buy: bool,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user: Pubkey,
     pub timestamp: i64,
     pub virtual_sol_reserves: u64,
     pub virtual_token_reserves: u64,
     pub real_sol_reserves: u64,
     pub real_token_reserves: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_recipient: Pubkey,
     pub fee_basis_points: u64,
     pub fee: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub creator: Pubkey,
     pub creator_fee_basis_points: u64,
     pub creator_fee: u64,
@@ -34,6 +50,10 @@ pub struct TradeEventEvent {
     pub buyback_fee_basis_points: u64,
     pub buyback_fee: u64,
     pub shareholders: Vec<Shareholder>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub quote_mint: Pubkey,
     pub quote_amount: u64,
     pub virtual_quote_reserves: u64,

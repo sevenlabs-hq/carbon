@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<GoToABinRow>
+    for (
+        crate::instructions::go_to_a_bin::GoToABin,
+        crate::instructions::go_to_a_bin::GoToABinInstructionAccounts,
+        GoToABinRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: GoToABinRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::go_to_a_bin::GoToABin = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::go_to_a_bin::GoToABinInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for GoToABinRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for GoToABinRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for GoToABinRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for GoToABinRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_dlmm_go_to_a_bin_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

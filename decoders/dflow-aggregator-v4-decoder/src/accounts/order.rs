@@ -5,6 +5,10 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Order {
     /// Account that is authorized to close the order
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub closer: Pubkey,
     /// Account to which output from the fill should be sent. If the order
     /// specifies that it should output native SOL, then this should be the
@@ -12,15 +16,27 @@ pub struct Order {
     /// specify that it should output native SOL, then this must be an SPL
     /// token account, and the token account's mint determines the order's
     /// output mint.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub output_token_account: Pubkey,
     /// Account to which leftover tokens in the order vault should be returned
     /// when the order is filled or closed. If the input is native SOL, this
     /// should be the user's wallet, although any account is allowed. If the
     /// input is wrapped SOL or an SPL token, this must be an SPL token
     /// account for the input mint.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub return_input_token_account: Pubkey,
     /// Account to which rent for the account should be returned when the
     /// account is closed
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub return_rent_to: Pubkey,
     /// ID used to produce a unique PDA for the order account
     pub id: u64,

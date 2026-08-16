@@ -10,6 +10,10 @@ pub struct Mint {
     /// Optional authority used to mint new tokens. The mint authority may only
     /// be provided during mint creation. If no mint authority is present
     /// then the mint has a fixed supply and no further tokens may be minted.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub mint_authority: Option<Pubkey>,
     /// Total supply of tokens.
     pub supply: u64,
@@ -18,6 +22,10 @@ pub struct Mint {
     /// Is `true` if this structure has been initialized.
     pub is_initialized: bool,
     /// Optional authority to freeze token accounts.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub freeze_authority: Option<Pubkey>,
     /// The extensions activated on the mint account.
     pub extensions: Option<Vec<Extension>>,

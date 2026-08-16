@@ -9,12 +9,24 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct FeeState {
     /// The fee state's own key. A PDA derived from just `b"feestate"`
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub key: Pubkey,
     /// Can modify fees
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global_fee_admin: Pubkey,
     /// The base wallet for all protocol fees. All SOL fees go to this wallet.
     /// All non-SOL fees go to the cannonical ATA of this wallet for that
     /// asset.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub global_fee_wallet: Pubkey,
     pub placeholder0: u64,
     /// Flat fee assessed when a new bank is initialized, in lamports.

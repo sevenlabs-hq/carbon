@@ -10,10 +10,22 @@ use {
 pub struct StakedSettings {
     /// This account's own key. A PDA derived from `marginfi_group` and
     /// `STAKED_SETTINGS_SEED`
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub key: Pubkey,
     /// Group for which these settings apply
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub marginfi_group: Pubkey,
     /// Generally, the Pyth push oracle for SOL
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub oracle: Pubkey,
     pub asset_weight_init: WrappedI80F48,
     pub asset_weight_maint: WrappedI80F48,

@@ -7,14 +7,34 @@ pub struct LockedClmmPositionState {
     /// Bump to identify PDA
     pub bump: [u8; 1],
     /// The owner who has locked clmm NFT
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub position_owner: Pubkey,
     /// The ID of the pool with which this record is connected
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_id: Pubkey,
     /// The ID of the position with which this record is connected
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub position_id: Pubkey,
     /// Program ATA locked NFT account or user ATA position NFT account
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub locked_nft_account: Pubkey,
     /// nft mint to check who has authority to collect fee
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub fee_nft_mint: Pubkey,
     /// account update recent epoch
     pub recent_epoch: u64,

@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<WithdrawV2Row>
+    for (
+        crate::instructions::withdraw_v2::WithdrawV2,
+        crate::instructions::withdraw_v2::WithdrawV2InstructionAccounts,
+        WithdrawV2Row,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: WithdrawV2Row) -> Result<Self, Self::Error> {
+        let source: crate::instructions::withdraw_v2::WithdrawV2 =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::withdraw_v2::WithdrawV2InstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for WithdrawV2Row {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for WithdrawV2Row {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for WithdrawV2Row {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for WithdrawV2Row {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("zeta_withdraw_v2_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

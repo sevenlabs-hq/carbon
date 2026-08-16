@@ -19,19 +19,15 @@ impl carbon_core::clickhouse::Migration for StakeProgramAccountsMigration {
 
 pub enum StakeProgramAccountRow {}
 
-pub struct StakeProgramAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub StakeProgramAccount,
+pub struct StakeProgramAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a StakeProgramAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for StakeProgramAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for StakeProgramAccountMetadata<'a> {
     type Row = StakeProgramAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
         let _ = rows;
         let Self(_metadata, _account) = self;
         unreachable!("BatchInsert called for program with no account row variants");
@@ -41,7 +37,6 @@ impl carbon_core::clickhouse::BatchInsert for StakeProgramAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for StakeProgramAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {

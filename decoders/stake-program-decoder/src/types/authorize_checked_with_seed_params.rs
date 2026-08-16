@@ -5,5 +5,9 @@ use {crate::types::StakeAuthorize, solana_pubkey::Pubkey};
 pub struct AuthorizeCheckedWithSeedParams {
     pub stake_authorize: StakeAuthorize,
     pub authority_seed: String,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub authority_owner: Pubkey,
 }

@@ -25,11 +25,19 @@ pub enum ExtraAccount {
     },
     CustomPda {
         seeds: Vec<Seed>,
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+        )]
         custom_program_id: Option<Pubkey>,
         is_signer: bool,
         is_writable: bool,
     },
     Address {
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         address: Pubkey,
         is_signer: bool,
         is_writable: bool,

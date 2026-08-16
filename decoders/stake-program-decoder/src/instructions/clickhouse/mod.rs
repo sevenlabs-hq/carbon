@@ -83,145 +83,48 @@ pub enum StakeProgramInstructionRow {
     Withdraw(WithdrawRow),
 }
 
-pub struct StakeProgramInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub StakeProgramInstruction,
+pub struct StakeProgramInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a StakeProgramInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for StakeProgramInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for StakeProgramInstructionMetadata<'a> {
     type Row = StakeProgramInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            StakeProgramInstruction::Authorize { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::Authorize(
-                    AuthorizeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            StakeProgramInstruction::AuthorizeChecked { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::AuthorizeChecked(
-                    AuthorizeCheckedRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let StakeProgramInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(StakeProgramInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            StakeProgramInstruction::AuthorizeCheckedWithSeed { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::AuthorizeCheckedWithSeed(
-                    AuthorizeCheckedWithSeedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            StakeProgramInstruction::AuthorizeWithSeed { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::AuthorizeWithSeed(
-                    AuthorizeWithSeedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            StakeProgramInstruction::Deactivate { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::Deactivate(
-                    DeactivateRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            StakeProgramInstruction::DeactivateDelinquent { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::DeactivateDelinquent(
-                    DeactivateDelinquentRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            StakeProgramInstruction::DelegateStake { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::DelegateStake(
-                    DelegateStakeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            StakeProgramInstruction::GetMinimumDelegation { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::GetMinimumDelegation(
-                    GetMinimumDelegationRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            StakeProgramInstruction::Initialize { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::Initialize(
-                    InitializeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            StakeProgramInstruction::InitializeChecked { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::InitializeChecked(
-                    InitializeCheckedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            StakeProgramInstruction::Merge { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::Merge(MergeRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            StakeProgramInstruction::MoveLamports { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::MoveLamports(
-                    MoveLamportsRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            StakeProgramInstruction::MoveStake { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::MoveStake(
-                    MoveStakeRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            StakeProgramInstruction::Redelegate { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::Redelegate(
-                    RedelegateRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            StakeProgramInstruction::SetLockup { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::SetLockup(
-                    SetLockupRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            StakeProgramInstruction::SetLockupChecked { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::SetLockupChecked(
-                    SetLockupCheckedRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            StakeProgramInstruction::Split { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::Split(SplitRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            StakeProgramInstruction::Withdraw { data, accounts, .. } => {
-                rows.push(StakeProgramInstructionRow::Withdraw(WithdrawRow::try_from(
-                    (data.clone(), metadata.clone(), accounts.clone()),
-                )?));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Authorize, AuthorizeRow);
+        insert_branch!(AuthorizeChecked, AuthorizeCheckedRow);
+        insert_branch!(AuthorizeCheckedWithSeed, AuthorizeCheckedWithSeedRow);
+        insert_branch!(AuthorizeWithSeed, AuthorizeWithSeedRow);
+        insert_branch!(Deactivate, DeactivateRow);
+        insert_branch!(DeactivateDelinquent, DeactivateDelinquentRow);
+        insert_branch!(DelegateStake, DelegateStakeRow);
+        insert_branch!(GetMinimumDelegation, GetMinimumDelegationRow);
+        insert_branch!(Initialize, InitializeRow);
+        insert_branch!(InitializeChecked, InitializeCheckedRow);
+        insert_branch!(Merge, MergeRow);
+        insert_branch!(MoveLamports, MoveLamportsRow);
+        insert_branch!(MoveStake, MoveStakeRow);
+        insert_branch!(Redelegate, RedelegateRow);
+        insert_branch!(SetLockup, SetLockupRow);
+        insert_branch!(SetLockupChecked, SetLockupCheckedRow);
+        insert_branch!(Split, SplitRow);
+        insert_branch!(Withdraw, WithdrawRow);
 
         Ok(())
     }
@@ -230,28 +133,23 @@ impl carbon_core::clickhouse::BatchInsert for StakeProgramInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for StakeProgramInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Authorize, AuthorizeRow);
@@ -272,6 +170,7 @@ impl carbon_core::clickhouse::BatchCommit for StakeProgramInstructionRow {
         commit_branch!(SetLockupChecked, SetLockupCheckedRow);
         commit_branch!(Split, SplitRow);
         commit_branch!(Withdraw, WithdrawRow);
+
         Ok(())
     }
 }

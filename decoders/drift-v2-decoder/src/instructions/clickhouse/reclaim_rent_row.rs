@@ -41,6 +41,27 @@ impl
     }
 }
 
+impl TryFrom<ReclaimRentRow>
+    for (
+        crate::instructions::reclaim_rent::ReclaimRent,
+        crate::instructions::reclaim_rent::ReclaimRentInstructionAccounts,
+        ReclaimRentRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: ReclaimRentRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::reclaim_rent::ReclaimRent =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::reclaim_rent::ReclaimRentInstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for ReclaimRentRow {
     fn local_table() -> &'static str {
@@ -62,7 +83,6 @@ impl carbon_core::clickhouse::Table for ReclaimRentRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for ReclaimRentRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +90,8 @@ impl carbon_core::clickhouse::Insert for ReclaimRentRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_reclaim_rent_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

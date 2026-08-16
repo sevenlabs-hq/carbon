@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<TokenBuyExactOutRow>
+    for (
+        crate::instructions::token_buy_exact_out::TokenBuyExactOut,
+        crate::instructions::token_buy_exact_out::TokenBuyExactOutInstructionAccounts,
+        TokenBuyExactOutRow,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: TokenBuyExactOutRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::token_buy_exact_out::TokenBuyExactOut =
+            serde_json::from_str(&value.data)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::token_buy_exact_out::TokenBuyExactOutInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for TokenBuyExactOutRow {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for TokenBuyExactOutRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for TokenBuyExactOutRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for TokenBuyExactOutRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("wavebreak_token_buy_exact_out_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

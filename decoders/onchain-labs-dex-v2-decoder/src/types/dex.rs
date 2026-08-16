@@ -214,6 +214,10 @@ pub enum Dex {
         claimed_ms: u64,
         seed_rng: [u8; 32],
         token: [u8; 16],
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
         end_user: Pubkey,
     },
     Deriverse,

@@ -73,102 +73,53 @@ pub enum MarginfiV2AccountRow {
     StakedSettings(StakedSettingsRow),
 }
 
-pub struct MarginfiV2AccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub MarginfiV2Account,
+pub struct MarginfiV2AccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a MarginfiV2Account,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for MarginfiV2AccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for MarginfiV2AccountMetadata<'a> {
     type Row = MarginfiV2AccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            MarginfiV2Account::Bank(account) => {
-                rows.push(MarginfiV2AccountRow::Bank(BankRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MarginfiV2Account::BankMetadata(account) => {
-                rows.push(MarginfiV2AccountRow::BankMetadata(
-                    BankMetadataRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MarginfiV2Account::ExecuteOrderRecord(account) => {
-                rows.push(MarginfiV2AccountRow::ExecuteOrderRecord(
-                    ExecuteOrderRecordRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MarginfiV2Account::FeeState(account) => {
-                rows.push(MarginfiV2AccountRow::FeeState(FeeStateRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MarginfiV2Account::Lending(account) => {
-                rows.push(MarginfiV2AccountRow::Lending(LendingRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MarginfiV2Account::LiquidationRecord(account) => {
-                rows.push(MarginfiV2AccountRow::LiquidationRecord(
-                    LiquidationRecordRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MarginfiV2Account::MarginfiAccount(account) => {
-                rows.push(MarginfiV2AccountRow::MarginfiAccount(
-                    MarginfiAccountRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MarginfiV2Account::MarginfiGroup(account) => {
-                rows.push(MarginfiV2AccountRow::MarginfiGroup(
-                    MarginfiGroupRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MarginfiV2Account::MinimalObligation(account) => {
-                rows.push(MarginfiV2AccountRow::MinimalObligation(
-                    MinimalObligationRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MarginfiV2Account::MinimalReserve(account) => {
-                rows.push(MarginfiV2AccountRow::MinimalReserve(
-                    MinimalReserveRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MarginfiV2Account::MinimalSpotMarket(account) => {
-                rows.push(MarginfiV2AccountRow::MinimalSpotMarket(
-                    MinimalSpotMarketRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MarginfiV2Account::MinimalUser(account) => {
-                rows.push(MarginfiV2AccountRow::MinimalUser(MinimalUserRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MarginfiV2Account::Order(account) => {
-                rows.push(MarginfiV2AccountRow::Order(OrderRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MarginfiV2Account::SolendMinimalReserve(account) => {
-                rows.push(MarginfiV2AccountRow::SolendMinimalReserve(
-                    SolendMinimalReserveRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MarginfiV2Account::StakedSettings(account) => {
-                rows.push(MarginfiV2AccountRow::StakedSettings(
-                    StakedSettingsRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let MarginfiV2Account::$variant(account) = account {
+                    rows.push(MarginfiV2AccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let MarginfiV2Account::$variant(account) = account {
+                    rows.push(MarginfiV2AccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Bank, BankRow, boxed);
+        insert_branch!(BankMetadata, BankMetadataRow, boxed);
+        insert_branch!(ExecuteOrderRecord, ExecuteOrderRecordRow, boxed);
+        insert_branch!(FeeState, FeeStateRow, boxed);
+        insert_branch!(Lending, LendingRow, boxed);
+        insert_branch!(LiquidationRecord, LiquidationRecordRow, boxed);
+        insert_branch!(MarginfiAccount, MarginfiAccountRow, boxed);
+        insert_branch!(MarginfiGroup, MarginfiGroupRow, boxed);
+        insert_branch!(MinimalObligation, MinimalObligationRow, boxed);
+        insert_branch!(MinimalReserve, MinimalReserveRow, boxed);
+        insert_branch!(MinimalSpotMarket, MinimalSpotMarketRow, boxed);
+        insert_branch!(MinimalUser, MinimalUserRow, boxed);
+        insert_branch!(Order, OrderRow, boxed);
+        insert_branch!(SolendMinimalReserve, SolendMinimalReserveRow, boxed);
+        insert_branch!(StakedSettings, StakedSettingsRow, boxed);
 
         Ok(())
     }
@@ -177,28 +128,23 @@ impl carbon_core::clickhouse::BatchInsert for MarginfiV2AccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for MarginfiV2AccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Bank, BankRow);
@@ -216,6 +162,7 @@ impl carbon_core::clickhouse::BatchCommit for MarginfiV2AccountRow {
         commit_branch!(Order, OrderRow);
         commit_branch!(SolendMinimalReserve, SolendMinimalReserveRow);
         commit_branch!(StakedSettings, StakedSettingsRow);
+
         Ok(())
     }
 }

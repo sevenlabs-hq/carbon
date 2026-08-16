@@ -32,42 +32,33 @@ pub enum AssociatedTokenAccountInstructionRow {
     RecoverNested(RecoverNestedRow),
 }
 
-pub struct AssociatedTokenAccountInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub AssociatedTokenAccountInstruction,
+pub struct AssociatedTokenAccountInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a AssociatedTokenAccountInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for AssociatedTokenAccountInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for AssociatedTokenAccountInstructionMetadata<'a> {
     type Row = AssociatedTokenAccountInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            AssociatedTokenAccountInstruction::Create { data, accounts, .. } => {
-                rows.push(AssociatedTokenAccountInstructionRow::Create(
-                    CreateRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            AssociatedTokenAccountInstruction::CreateIdempotent { data, accounts, .. } => {
-                rows.push(AssociatedTokenAccountInstructionRow::CreateIdempotent(
-                    CreateIdempotentRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            AssociatedTokenAccountInstruction::RecoverNested { data, accounts, .. } => {
-                rows.push(AssociatedTokenAccountInstructionRow::RecoverNested(
-                    RecoverNestedRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let AssociatedTokenAccountInstruction::$variant { data, accounts, .. } =
+                    instruction
+                {
+                    rows.push(AssociatedTokenAccountInstructionRow::$variant(
+                        <$row>::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
+                    ));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(Create, CreateRow);
+        insert_branch!(CreateIdempotent, CreateIdempotentRow);
+        insert_branch!(RecoverNested, RecoverNestedRow);
 
         Ok(())
     }
@@ -76,33 +67,29 @@ impl carbon_core::clickhouse::BatchInsert for AssociatedTokenAccountInstructionM
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for AssociatedTokenAccountInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(Create, CreateRow);
         commit_branch!(CreateIdempotent, CreateIdempotentRow);
         commit_branch!(RecoverNested, RecoverNestedRow);
+
         Ok(())
     }
 }

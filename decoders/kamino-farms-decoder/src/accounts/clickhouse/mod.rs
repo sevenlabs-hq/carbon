@@ -35,45 +35,42 @@ pub enum KaminoFarmsAccountRow {
     UserState(UserStateRow),
 }
 
-pub struct KaminoFarmsAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub KaminoFarmsAccount,
+pub struct KaminoFarmsAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a KaminoFarmsAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for KaminoFarmsAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for KaminoFarmsAccountMetadata<'a> {
     type Row = KaminoFarmsAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            KaminoFarmsAccount::FarmState(account) => {
-                rows.push(KaminoFarmsAccountRow::FarmState(FarmStateRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            KaminoFarmsAccount::GlobalConfig(account) => {
-                rows.push(KaminoFarmsAccountRow::GlobalConfig(
-                    GlobalConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            KaminoFarmsAccount::OraclePrices(account) => {
-                rows.push(KaminoFarmsAccountRow::OraclePrices(
-                    OraclePricesRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            KaminoFarmsAccount::UserState(account) => {
-                rows.push(KaminoFarmsAccountRow::UserState(UserStateRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let KaminoFarmsAccount::$variant(account) = account {
+                    rows.push(KaminoFarmsAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let KaminoFarmsAccount::$variant(account) = account {
+                    rows.push(KaminoFarmsAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(FarmState, FarmStateRow, boxed);
+        insert_branch!(GlobalConfig, GlobalConfigRow, boxed);
+        insert_branch!(OraclePrices, OraclePricesRow, boxed);
+        insert_branch!(UserState, UserStateRow, boxed);
 
         Ok(())
     }
@@ -82,34 +79,30 @@ impl carbon_core::clickhouse::BatchInsert for KaminoFarmsAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for KaminoFarmsAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(FarmState, FarmStateRow);
         commit_branch!(GlobalConfig, GlobalConfigRow);
         commit_branch!(OraclePrices, OraclePricesRow);
         commit_branch!(UserState, UserStateRow);
+
         Ok(())
     }
 }

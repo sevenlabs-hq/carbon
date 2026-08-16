@@ -54,73 +54,51 @@ pub enum MeteoraDbcAccountRow {
     VirtualPoolMetadata(VirtualPoolMetadataRow),
 }
 
-pub struct MeteoraDbcAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub MeteoraDbcAccount,
+pub struct MeteoraDbcAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a MeteoraDbcAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for MeteoraDbcAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for MeteoraDbcAccountMetadata<'a> {
     type Row = MeteoraDbcAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            MeteoraDbcAccount::ClaimFeeOperator(account) => {
-                rows.push(MeteoraDbcAccountRow::ClaimFeeOperator(
-                    ClaimFeeOperatorRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDbcAccount::Config(account) => {
-                rows.push(MeteoraDbcAccountRow::Config(ConfigRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDbcAccount::LockEscrow(account) => {
-                rows.push(MeteoraDbcAccountRow::LockEscrow(LockEscrowRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MeteoraDbcAccount::MeteoraDammMigrationMetadata(account) => {
-                rows.push(MeteoraDbcAccountRow::MeteoraDammMigrationMetadata(
-                    MeteoraDammMigrationMetadataRow::try_from((
-                        *account.clone(),
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let MeteoraDbcAccount::$variant(account) = account {
+                    rows.push(MeteoraDbcAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
                         metadata.clone(),
-                    ))?,
-                ));
-            }
-            MeteoraDbcAccount::Operator(account) => {
-                rows.push(MeteoraDbcAccountRow::Operator(OperatorRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            MeteoraDbcAccount::PartnerMetadata(account) => {
-                rows.push(MeteoraDbcAccountRow::PartnerMetadata(
-                    PartnerMetadataRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MeteoraDbcAccount::PoolConfig(account) => {
-                rows.push(MeteoraDbcAccountRow::PoolConfig(PoolConfigRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MeteoraDbcAccount::VirtualPool(account) => {
-                rows.push(MeteoraDbcAccountRow::VirtualPool(VirtualPoolRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MeteoraDbcAccount::VirtualPoolMetadata(account) => {
-                rows.push(MeteoraDbcAccountRow::VirtualPoolMetadata(
-                    VirtualPoolMetadataRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let MeteoraDbcAccount::$variant(account) = account {
+                    rows.push(MeteoraDbcAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(ClaimFeeOperator, ClaimFeeOperatorRow, boxed);
+        insert_branch!(Config, ConfigRow, boxed);
+        insert_branch!(LockEscrow, LockEscrowRow, boxed);
+        insert_branch!(
+            MeteoraDammMigrationMetadata,
+            MeteoraDammMigrationMetadataRow,
+            boxed
+        );
+        insert_branch!(Operator, OperatorRow, boxed);
+        insert_branch!(PartnerMetadata, PartnerMetadataRow, boxed);
+        insert_branch!(PoolConfig, PoolConfigRow, boxed);
+        insert_branch!(VirtualPool, VirtualPoolRow, boxed);
+        insert_branch!(VirtualPoolMetadata, VirtualPoolMetadataRow, boxed);
 
         Ok(())
     }
@@ -129,28 +107,23 @@ impl carbon_core::clickhouse::BatchInsert for MeteoraDbcAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for MeteoraDbcAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(ClaimFeeOperator, ClaimFeeOperatorRow);
@@ -165,6 +138,7 @@ impl carbon_core::clickhouse::BatchCommit for MeteoraDbcAccountRow {
         commit_branch!(PoolConfig, PoolConfigRow);
         commit_branch!(VirtualPool, VirtualPoolRow);
         commit_branch!(VirtualPoolMetadata, VirtualPoolMetadataRow);
+
         Ok(())
     }
 }

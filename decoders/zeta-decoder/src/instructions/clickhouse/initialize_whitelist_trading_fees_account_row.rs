@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<InitializeWhitelistTradingFeesAccountRow> for (crate::instructions::initialize_whitelist_trading_fees_account::InitializeWhitelistTradingFeesAccount, crate::instructions::initialize_whitelist_trading_fees_account::InitializeWhitelistTradingFeesAccountInstructionAccounts, InitializeWhitelistTradingFeesAccountRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: InitializeWhitelistTradingFeesAccountRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::initialize_whitelist_trading_fees_account::InitializeWhitelistTradingFeesAccount = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::initialize_whitelist_trading_fees_account::InitializeWhitelistTradingFeesAccountInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for InitializeWhitelistTradingFeesAccountRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for InitializeWhitelistTradingFeesAccountRow
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for InitializeWhitelistTradingFeesAccountRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for InitializeWhitelistTradingFeesAccountRo
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("zeta_initialize_whitelist_trading_fees_account_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct InitializeWhitelistTradingFeesAccountRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializeWhitelistTradingFeesAccountRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializeWhitelistTradingFeesAccountRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for InitializeWhitelistTradingFeesAccoun
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for InitializeWhitelistTradingFeesAccountRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for InitializeWhitelistTradingFeesAccountRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(
@@ -199,7 +214,9 @@ impl carbon_core::clickhouse::Operation for InitializeWhitelistTradingFeesAccoun
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS zeta_initialize_whitelist_trading_fees_account_instruction")
+            .query(
+                "DROP TABLE IF EXISTS zeta_initialize_whitelist_trading_fees_account_instruction",
+            )
             .execute()
             .await?;
 

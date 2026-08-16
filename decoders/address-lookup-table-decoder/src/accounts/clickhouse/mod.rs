@@ -24,28 +24,39 @@ pub enum AddressLookupTableAccountRow {
     AddressLookupTable(AddressLookupTableRow),
 }
 
-pub struct AddressLookupTableAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub AddressLookupTableAccount,
+pub struct AddressLookupTableAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a AddressLookupTableAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for AddressLookupTableAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for AddressLookupTableAccountMetadata<'a> {
     type Row = AddressLookupTableAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            AddressLookupTableAccount::AddressLookupTable(account) => {
-                rows.push(AddressLookupTableAccountRow::AddressLookupTable(
-                    AddressLookupTableRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let AddressLookupTableAccount::$variant(account) = account {
+                    rows.push(AddressLookupTableAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let AddressLookupTableAccount::$variant(account) = account {
+                    rows.push(AddressLookupTableAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AddressLookupTable, AddressLookupTableRow, boxed);
 
         Ok(())
     }
@@ -54,31 +65,27 @@ impl carbon_core::clickhouse::BatchInsert for AddressLookupTableAccountMetadata 
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for AddressLookupTableAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AddressLookupTable, AddressLookupTableRow);
+
         Ok(())
     }
 }

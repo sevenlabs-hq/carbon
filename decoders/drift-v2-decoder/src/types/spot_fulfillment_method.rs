@@ -4,5 +4,12 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum SpotFulfillmentMethod {
     ExternalMarket,
-    Match(Pubkey, u16),
+    Match(
+        #[cfg_attr(
+            feature = "base58",
+            serde(serialize_with = "carbon_core::convert::base58::serialize")
+        )]
+        Pubkey,
+        u16,
+    ),
 }

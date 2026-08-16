@@ -29,33 +29,38 @@ pub enum RaydiumLiquidityLockingAccountRow {
     LockedCpLiquidityState(LockedCpLiquidityStateRow),
 }
 
-pub struct RaydiumLiquidityLockingAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub RaydiumLiquidityLockingAccount,
+pub struct RaydiumLiquidityLockingAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a RaydiumLiquidityLockingAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for RaydiumLiquidityLockingAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for RaydiumLiquidityLockingAccountMetadata<'a> {
     type Row = RaydiumLiquidityLockingAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            RaydiumLiquidityLockingAccount::LockedClmmPositionState(account) => {
-                rows.push(RaydiumLiquidityLockingAccountRow::LockedClmmPositionState(
-                    LockedClmmPositionStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            RaydiumLiquidityLockingAccount::LockedCpLiquidityState(account) => {
-                rows.push(RaydiumLiquidityLockingAccountRow::LockedCpLiquidityState(
-                    LockedCpLiquidityStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let RaydiumLiquidityLockingAccount::$variant(account) = account {
+                    rows.push(RaydiumLiquidityLockingAccountRow::$variant(
+                        <$row>::try_from((account.as_ref().clone(), metadata.clone()))?,
+                    ));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let RaydiumLiquidityLockingAccount::$variant(account) = account {
+                    rows.push(RaydiumLiquidityLockingAccountRow::$variant(
+                        <$row>::try_from((account.clone(), metadata.clone()))?,
+                    ));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(LockedClmmPositionState, LockedClmmPositionStateRow, boxed);
+        insert_branch!(LockedCpLiquidityState, LockedCpLiquidityStateRow, boxed);
 
         Ok(())
     }
@@ -64,32 +69,28 @@ impl carbon_core::clickhouse::BatchInsert for RaydiumLiquidityLockingAccountMeta
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for RaydiumLiquidityLockingAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(LockedClmmPositionState, LockedClmmPositionStateRow);
         commit_branch!(LockedCpLiquidityState, LockedCpLiquidityStateRow);
+
         Ok(())
     }
 }

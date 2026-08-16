@@ -122,6 +122,7 @@ regenerate_decoder() {
         --with-postgres true \
         --with-clickhouse true \
         --with-graphql true \
+        --with-base58 true \
         --postgres-mode typed \
         --no-clean false > "$log_file" 2>&1; then
         echo "SUCCESS" > "$status_file"

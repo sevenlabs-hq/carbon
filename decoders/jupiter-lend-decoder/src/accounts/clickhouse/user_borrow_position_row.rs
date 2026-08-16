@@ -80,7 +80,6 @@ impl carbon_core::clickhouse::Table for UserBorrowPositionRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UserBorrowPositionRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -88,13 +87,8 @@ impl carbon_core::clickhouse::Insert for UserBorrowPositionRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("jupiter_lend_user_borrow_position_account")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

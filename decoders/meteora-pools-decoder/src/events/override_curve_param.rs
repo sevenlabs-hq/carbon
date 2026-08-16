@@ -6,6 +6,10 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 pub struct OverrideCurveParamEvent {
     pub new_amp: u64,
     pub updated_timestamp: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool: Pubkey,
 }
 

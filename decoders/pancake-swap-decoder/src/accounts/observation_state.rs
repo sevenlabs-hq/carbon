@@ -13,6 +13,10 @@ pub struct ObservationState {
     /// the most-recently updated index of the observations array
     pub observation_index: u16,
     /// belongs to which pool
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_id: Pubkey,
     /// observation array
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

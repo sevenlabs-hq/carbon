@@ -57,105 +57,40 @@ pub enum GavelInstructionRow {
     WithdrawProtocolFees(WithdrawProtocolFeesRow),
 }
 
-pub struct GavelInstructionMetadata(
-    pub carbon_core::instruction::InstructionMetadata,
-    pub GavelInstruction,
+pub struct GavelInstructionMetadata<'a>(
+    pub &'a carbon_core::instruction::InstructionMetadata,
+    pub &'a GavelInstruction,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for GavelInstructionMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for GavelInstructionMetadata<'a> {
     type Row = GavelInstructionRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, instruction) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, instruction) = self;
 
-        match instruction {
-            GavelInstruction::AddLiquidity { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::AddLiquidity(
-                    AddLiquidityRow::try_from((data.clone(), metadata.clone(), accounts.clone()))?,
-                ));
-            }
-            GavelInstruction::InitializeLpPosition { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::InitializeLpPosition(
-                    InitializeLpPositionRow::try_from((
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty) => {
+                if let GavelInstruction::$variant { data, accounts, .. } = instruction {
+                    rows.push(GavelInstructionRow::$variant(<$row>::try_from((
                         data.clone(),
                         metadata.clone(),
                         accounts.clone(),
-                    ))?,
-                ));
-            }
-            GavelInstruction::InitializePool { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::InitializePool(
-                    InitializePoolRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            GavelInstruction::Log { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::Log(LogRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            GavelInstruction::RemoveLiquidity { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::RemoveLiquidity(
-                    RemoveLiquidityRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            GavelInstruction::RenounceLiquidity { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::RenounceLiquidity(
-                    RenounceLiquidityRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            GavelInstruction::Swap { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::Swap(SwapRow::try_from((
-                    data.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                ))?));
-            }
-            GavelInstruction::TransferLiquidity { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::TransferLiquidity(
-                    TransferLiquidityRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            GavelInstruction::WithdrawLpFees { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::WithdrawLpFees(
-                    WithdrawLpFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
-            GavelInstruction::WithdrawProtocolFees { data, accounts, .. } => {
-                rows.push(GavelInstructionRow::WithdrawProtocolFees(
-                    WithdrawProtocolFeesRow::try_from((
-                        data.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    ))?,
-                ));
-            }
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(AddLiquidity, AddLiquidityRow);
+        insert_branch!(InitializeLpPosition, InitializeLpPositionRow);
+        insert_branch!(InitializePool, InitializePoolRow);
+        insert_branch!(Log, LogRow);
+        insert_branch!(RemoveLiquidity, RemoveLiquidityRow);
+        insert_branch!(RenounceLiquidity, RenounceLiquidityRow);
+        insert_branch!(Swap, SwapRow);
+        insert_branch!(TransferLiquidity, TransferLiquidityRow);
+        insert_branch!(WithdrawLpFees, WithdrawLpFeesRow);
+        insert_branch!(WithdrawProtocolFees, WithdrawProtocolFeesRow);
 
         Ok(())
     }
@@ -164,28 +99,23 @@ impl carbon_core::clickhouse::BatchInsert for GavelInstructionMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for GavelInstructionRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(AddLiquidity, AddLiquidityRow);
@@ -198,6 +128,7 @@ impl carbon_core::clickhouse::BatchCommit for GavelInstructionRow {
         commit_branch!(TransferLiquidity, TransferLiquidityRow);
         commit_branch!(WithdrawLpFees, WithdrawLpFeesRow);
         commit_branch!(WithdrawProtocolFees, WithdrawProtocolFeesRow);
+
         Ok(())
     }
 }

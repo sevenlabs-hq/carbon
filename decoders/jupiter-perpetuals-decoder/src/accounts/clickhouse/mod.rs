@@ -50,64 +50,46 @@ pub enum JupiterPerpetualsAccountRow {
     TokenLedger(TokenLedgerRow),
 }
 
-pub struct JupiterPerpetualsAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub JupiterPerpetualsAccount,
+pub struct JupiterPerpetualsAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a JupiterPerpetualsAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for JupiterPerpetualsAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for JupiterPerpetualsAccountMetadata<'a> {
     type Row = JupiterPerpetualsAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            JupiterPerpetualsAccount::BorrowPosition(account) => {
-                rows.push(JupiterPerpetualsAccountRow::BorrowPosition(
-                    BorrowPositionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            JupiterPerpetualsAccount::Custody(account) => {
-                rows.push(JupiterPerpetualsAccountRow::Custody(CustodyRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            JupiterPerpetualsAccount::Perpetuals(account) => {
-                rows.push(JupiterPerpetualsAccountRow::Perpetuals(
-                    PerpetualsRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            JupiterPerpetualsAccount::Pool(account) => {
-                rows.push(JupiterPerpetualsAccountRow::Pool(PoolRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            JupiterPerpetualsAccount::Position(account) => {
-                rows.push(JupiterPerpetualsAccountRow::Position(
-                    PositionRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            JupiterPerpetualsAccount::PositionRequest(account) => {
-                rows.push(JupiterPerpetualsAccountRow::PositionRequest(
-                    PositionRequestRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            JupiterPerpetualsAccount::StakeInfo(account) => {
-                rows.push(JupiterPerpetualsAccountRow::StakeInfo(
-                    StakeInfoRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            JupiterPerpetualsAccount::TokenLedger(account) => {
-                rows.push(JupiterPerpetualsAccountRow::TokenLedger(
-                    TokenLedgerRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let JupiterPerpetualsAccount::$variant(account) = account {
+                    rows.push(JupiterPerpetualsAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let JupiterPerpetualsAccount::$variant(account) = account {
+                    rows.push(JupiterPerpetualsAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(BorrowPosition, BorrowPositionRow, boxed);
+        insert_branch!(Custody, CustodyRow, boxed);
+        insert_branch!(Perpetuals, PerpetualsRow, boxed);
+        insert_branch!(Pool, PoolRow, boxed);
+        insert_branch!(Position, PositionRow, boxed);
+        insert_branch!(PositionRequest, PositionRequestRow, boxed);
+        insert_branch!(StakeInfo, StakeInfoRow, boxed);
+        insert_branch!(TokenLedger, TokenLedgerRow, boxed);
 
         Ok(())
     }
@@ -116,28 +98,23 @@ impl carbon_core::clickhouse::BatchInsert for JupiterPerpetualsAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for JupiterPerpetualsAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(BorrowPosition, BorrowPositionRow);
@@ -148,6 +125,7 @@ impl carbon_core::clickhouse::BatchCommit for JupiterPerpetualsAccountRow {
         commit_branch!(PositionRequest, PositionRequestRow);
         commit_branch!(StakeInfo, StakeInfoRow);
         commit_branch!(TokenLedger, TokenLedgerRow);
+
         Ok(())
     }
 }

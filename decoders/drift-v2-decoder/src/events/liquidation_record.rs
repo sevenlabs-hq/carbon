@@ -13,7 +13,15 @@ use {
 pub struct LiquidationRecordEvent {
     pub ts: i64,
     pub liquidation_type: LiquidationType,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub user: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidator: Pubkey,
     pub margin_requirement: u128,
     pub total_collateral: i128,

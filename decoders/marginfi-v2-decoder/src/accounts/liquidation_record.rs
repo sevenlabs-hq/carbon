@@ -9,15 +9,31 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LiquidationRecord {
     /// This account's own key. A PDA derived from `marginfi_account`
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub key: Pubkey,
     /// Account this record tracks
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub marginfi_account: Pubkey,
     /// The key that paid to create this account. At some point, we may allow
     /// this wallet to reclaim the rent paid to open a record.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub record_payer: Pubkey,
     /// The liquidator taking receivership of the `marginfi_account` to complete
     /// a liquidation. Pays the liquidation fee.
     /// * Always pubkey default unless actively within a liquidation event.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidation_receiver: Pubkey,
     /// Basic historical data for the last few liquidation events on this
     /// account

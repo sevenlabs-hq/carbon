@@ -57,75 +57,48 @@ pub enum KaminoLendingAccountRow {
     WithdrawTicket(WithdrawTicketRow),
 }
 
-pub struct KaminoLendingAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub KaminoLendingAccount,
+pub struct KaminoLendingAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a KaminoLendingAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for KaminoLendingAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for KaminoLendingAccountMetadata<'a> {
     type Row = KaminoLendingAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            KaminoLendingAccount::GlobalConfig(account) => {
-                rows.push(KaminoLendingAccountRow::GlobalConfig(
-                    GlobalConfigRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            KaminoLendingAccount::LendingMarket(account) => {
-                rows.push(KaminoLendingAccountRow::LendingMarket(
-                    LendingMarketRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            KaminoLendingAccount::Obligation(account) => {
-                rows.push(KaminoLendingAccountRow::Obligation(
-                    ObligationRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            KaminoLendingAccount::ReferrerState(account) => {
-                rows.push(KaminoLendingAccountRow::ReferrerState(
-                    ReferrerStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            KaminoLendingAccount::ReferrerTokenState(account) => {
-                rows.push(KaminoLendingAccountRow::ReferrerTokenState(
-                    ReferrerTokenStateRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            KaminoLendingAccount::Reserve(account) => {
-                rows.push(KaminoLendingAccountRow::Reserve(ReserveRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            KaminoLendingAccount::ShortUrl(account) => {
-                rows.push(KaminoLendingAccountRow::ShortUrl(ShortUrlRow::try_from((
-                    *account.clone(),
-                    metadata.clone(),
-                ))?));
-            }
-            KaminoLendingAccount::UserMetadata(account) => {
-                rows.push(KaminoLendingAccountRow::UserMetadata(
-                    UserMetadataRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            KaminoLendingAccount::UserState(account) => {
-                rows.push(KaminoLendingAccountRow::UserState(UserStateRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            KaminoLendingAccount::WithdrawTicket(account) => {
-                rows.push(KaminoLendingAccountRow::WithdrawTicket(
-                    WithdrawTicketRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let KaminoLendingAccount::$variant(account) = account {
+                    rows.push(KaminoLendingAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let KaminoLendingAccount::$variant(account) = account {
+                    rows.push(KaminoLendingAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(GlobalConfig, GlobalConfigRow, boxed);
+        insert_branch!(LendingMarket, LendingMarketRow, boxed);
+        insert_branch!(Obligation, ObligationRow, boxed);
+        insert_branch!(ReferrerState, ReferrerStateRow, boxed);
+        insert_branch!(ReferrerTokenState, ReferrerTokenStateRow, boxed);
+        insert_branch!(Reserve, ReserveRow, boxed);
+        insert_branch!(ShortUrl, ShortUrlRow, boxed);
+        insert_branch!(UserMetadata, UserMetadataRow, boxed);
+        insert_branch!(UserState, UserStateRow, boxed);
+        insert_branch!(WithdrawTicket, WithdrawTicketRow, boxed);
 
         Ok(())
     }
@@ -134,28 +107,23 @@ impl carbon_core::clickhouse::BatchInsert for KaminoLendingAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for KaminoLendingAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(GlobalConfig, GlobalConfigRow);
@@ -168,6 +136,7 @@ impl carbon_core::clickhouse::BatchCommit for KaminoLendingAccountRow {
         commit_branch!(UserMetadata, UserMetadataRow);
         commit_branch!(UserState, UserStateRow);
         commit_branch!(WithdrawTicket, WithdrawTicketRow);
+
         Ok(())
     }
 }

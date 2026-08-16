@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<UpdateUserPerpPositionCustomMarginRatioRow> for (crate::instructions::update_user_perp_position_custom_margin_ratio::UpdateUserPerpPositionCustomMarginRatio, crate::instructions::update_user_perp_position_custom_margin_ratio::UpdateUserPerpPositionCustomMarginRatioInstructionAccounts, UpdateUserPerpPositionCustomMarginRatioRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdateUserPerpPositionCustomMarginRatioRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_user_perp_position_custom_margin_ratio::UpdateUserPerpPositionCustomMarginRatio = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_user_perp_position_custom_margin_ratio::UpdateUserPerpPositionCustomMarginRatioInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdateUserPerpPositionCustomMarginRatioRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for UpdateUserPerpPositionCustomMarginRatioR
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdateUserPerpPositionCustomMarginRatioRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for UpdateUserPerpPositionCustomMarginRatio
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_update_user_perp_position_custom_margin_ratio_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct UpdateUserPerpPositionCustomMarginRatioRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdateUserPerpPositionCustomMarginRatioRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdateUserPerpPositionCustomMarginRatioRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for UpdateUserPerpPositionCustomMarginRa
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdateUserPerpPositionCustomMarginRatioRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdateUserPerpPositionCustomMarginRatioRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

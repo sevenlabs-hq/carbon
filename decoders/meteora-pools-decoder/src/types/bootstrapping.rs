@@ -6,9 +6,17 @@ pub struct Bootstrapping {
     /// Activation point, can be slot or timestamp
     pub activation_point: u64,
     /// Whitelisted vault to be able to buy pool before activation_point
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub whitelisted_vault: Pubkey,
     /// Need to store pool creator in lauch pool, so they can modify liquidity
     /// before activation_point
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool_creator: Pubkey,
     /// Activation type, 0 means by slot, 1 means by timestamp
     pub activation_type: u8,

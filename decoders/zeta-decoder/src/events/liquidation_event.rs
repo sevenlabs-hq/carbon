@@ -12,7 +12,15 @@ pub struct LiquidationEventEvent {
     pub remaining_liquidator_balance: u64,
     pub mark_price: u64,
     pub underlying_price: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidatee: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub liquidator: Pubkey,
     pub asset: Asset,
 }

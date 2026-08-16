@@ -3,17 +3,33 @@ use {crate::types::SplitStakeAccountInfo, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct RedelegateEvent {
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub state: Pubkey,
     pub epoch: u64,
     pub stake_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub stake_account: Pubkey,
     pub last_update_delegation: u64,
     pub source_validator_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub source_validator_vote: Pubkey,
     pub source_validator_score: u32,
     pub source_validator_balance: u64,
     pub source_validator_stake_target: u64,
     pub dest_validator_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub dest_validator_vote: Pubkey,
     pub dest_validator_score: u32,
     pub dest_validator_balance: u64,
@@ -21,5 +37,9 @@ pub struct RedelegateEvent {
     pub redelegate_amount: u64,
     pub split_stake_account: Option<SplitStakeAccountInfo>,
     pub redelegate_stake_index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub redelegate_stake_account: Pubkey,
 }

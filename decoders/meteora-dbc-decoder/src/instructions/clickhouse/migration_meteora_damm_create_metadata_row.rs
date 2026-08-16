@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<MigrationMeteoraDammCreateMetadataRow> for (crate::instructions::migration_meteora_damm_create_metadata::MigrationMeteoraDammCreateMetadata, crate::instructions::migration_meteora_damm_create_metadata::MigrationMeteoraDammCreateMetadataInstructionAccounts, MigrationMeteoraDammCreateMetadataRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: MigrationMeteoraDammCreateMetadataRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::migration_meteora_damm_create_metadata::MigrationMeteoraDammCreateMetadata = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::migration_meteora_damm_create_metadata::MigrationMeteoraDammCreateMetadataInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for MigrationMeteoraDammCreateMetadataRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for MigrationMeteoraDammCreateMetadataRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for MigrationMeteoraDammCreateMetadataRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for MigrationMeteoraDammCreateMetadataRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("meteora_dbc_migration_meteora_damm_create_metadata_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct MigrationMeteoraDammCreateMetadataRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for MigrationMeteoraDammCreateMetadataRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for MigrationMeteoraDammCreateMetadataRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for MigrationMeteoraDammCreateMetadataRo
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for MigrationMeteoraDammCreateMetadataRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for MigrationMeteoraDammCreateMetadataRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

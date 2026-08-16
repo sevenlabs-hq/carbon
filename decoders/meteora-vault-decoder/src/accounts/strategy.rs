@@ -8,8 +8,16 @@ use {
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Strategy {
     /// Lending pool address, that the strategy will deposit/withdraw balance
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub reserve: Pubkey,
     /// The token account, that holds the collateral token
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub collateral_vault: Pubkey,
     /// Specify type of strategy
     pub strategy_type: StrategyType,
@@ -20,6 +28,10 @@ pub struct Strategy {
     /// CPI call.
     pub bumps: [u8; 10],
     /// Vault address, that the strategy belongs
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub vault: Pubkey,
     /// If we remove strategy by remove_strategy2 endpoint, this account will be
     /// never added again

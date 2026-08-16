@@ -71,93 +71,56 @@ pub enum MplTokenMetadataAccountRow {
     UseAuthorityRecord(UseAuthorityRecordRow),
 }
 
-pub struct MplTokenMetadataAccountMetadata(
-    pub carbon_core::account::AccountMetadata,
-    pub MplTokenMetadataAccount,
+pub struct MplTokenMetadataAccountMetadata<'a>(
+    pub &'a carbon_core::account::AccountMetadata,
+    pub &'a MplTokenMetadataAccount,
 );
 
-#[async_trait::async_trait]
-impl carbon_core::clickhouse::BatchInsert for MplTokenMetadataAccountMetadata {
+impl<'a> carbon_core::clickhouse::BatchInsert for MplTokenMetadataAccountMetadata<'a> {
     type Row = MplTokenMetadataAccountRow;
 
-    async fn batch_insert(
-        &self,
-        rows: &mut Vec<Self::Row>,
-    ) -> carbon_core::error::CarbonResult<()> {
-        let Self(metadata, account) = self;
+    fn batch_insert(&self, rows: &mut Vec<Self::Row>) -> carbon_core::error::CarbonResult<()> {
+        let &Self(metadata, account) = self;
 
-        match account {
-            MplTokenMetadataAccount::CollectionAuthorityRecord(account) => {
-                rows.push(MplTokenMetadataAccountRow::CollectionAuthorityRecord(
-                    CollectionAuthorityRecordRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::Edition(account) => {
-                rows.push(MplTokenMetadataAccountRow::Edition(EditionRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MplTokenMetadataAccount::EditionMarker(account) => {
-                rows.push(MplTokenMetadataAccountRow::EditionMarker(
-                    EditionMarkerRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::EditionMarkerV2(account) => {
-                rows.push(MplTokenMetadataAccountRow::EditionMarkerV2(
-                    EditionMarkerV2Row::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::HolderDelegateRecord(account) => {
-                rows.push(MplTokenMetadataAccountRow::HolderDelegateRecord(
-                    HolderDelegateRecordRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::MasterEditionV1(account) => {
-                rows.push(MplTokenMetadataAccountRow::MasterEditionV1(
-                    MasterEditionV1Row::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::MasterEditionV2(account) => {
-                rows.push(MplTokenMetadataAccountRow::MasterEditionV2(
-                    MasterEditionV2Row::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::Metadata(account) => {
-                rows.push(MplTokenMetadataAccountRow::Metadata(MetadataRow::try_from(
-                    (*account.clone(), metadata.clone()),
-                )?));
-            }
-            MplTokenMetadataAccount::MetadataDelegateRecord(account) => {
-                rows.push(MplTokenMetadataAccountRow::MetadataDelegateRecord(
-                    MetadataDelegateRecordRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::ReservationListV1(account) => {
-                rows.push(MplTokenMetadataAccountRow::ReservationListV1(
-                    ReservationListV1Row::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::ReservationListV2(account) => {
-                rows.push(MplTokenMetadataAccountRow::ReservationListV2(
-                    ReservationListV2Row::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::TokenOwnedEscrow(account) => {
-                rows.push(MplTokenMetadataAccountRow::TokenOwnedEscrow(
-                    TokenOwnedEscrowRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::TokenRecord(account) => {
-                rows.push(MplTokenMetadataAccountRow::TokenRecord(
-                    TokenRecordRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
-            MplTokenMetadataAccount::UseAuthorityRecord(account) => {
-                rows.push(MplTokenMetadataAccountRow::UseAuthorityRecord(
-                    UseAuthorityRecordRow::try_from((*account.clone(), metadata.clone()))?,
-                ));
-            }
+        macro_rules! insert_branch {
+            ($variant:ident, $row:ty, boxed) => {
+                if let MplTokenMetadataAccount::$variant(account) = account {
+                    rows.push(MplTokenMetadataAccountRow::$variant(<$row>::try_from((
+                        account.as_ref().clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
+            ($variant:ident, $row:ty, plain) => {
+                if let MplTokenMetadataAccount::$variant(account) = account {
+                    rows.push(MplTokenMetadataAccountRow::$variant(<$row>::try_from((
+                        account.clone(),
+                        metadata.clone(),
+                    ))?));
+                    return Ok(());
+                }
+            };
         }
+
+        insert_branch!(
+            CollectionAuthorityRecord,
+            CollectionAuthorityRecordRow,
+            boxed
+        );
+        insert_branch!(Edition, EditionRow, boxed);
+        insert_branch!(EditionMarker, EditionMarkerRow, boxed);
+        insert_branch!(EditionMarkerV2, EditionMarkerV2Row, boxed);
+        insert_branch!(HolderDelegateRecord, HolderDelegateRecordRow, boxed);
+        insert_branch!(MasterEditionV1, MasterEditionV1Row, boxed);
+        insert_branch!(MasterEditionV2, MasterEditionV2Row, boxed);
+        insert_branch!(Metadata, MetadataRow, boxed);
+        insert_branch!(MetadataDelegateRecord, MetadataDelegateRecordRow, boxed);
+        insert_branch!(ReservationListV1, ReservationListV1Row, boxed);
+        insert_branch!(ReservationListV2, ReservationListV2Row, boxed);
+        insert_branch!(TokenOwnedEscrow, TokenOwnedEscrowRow, boxed);
+        insert_branch!(TokenRecord, TokenRecordRow, boxed);
+        insert_branch!(UseAuthorityRecord, UseAuthorityRecordRow, boxed);
 
         Ok(())
     }
@@ -166,28 +129,23 @@ impl carbon_core::clickhouse::BatchInsert for MplTokenMetadataAccountMetadata {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::BatchCommit for MplTokenMetadataAccountRow {
     async fn batch_commit(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
         macro_rules! commit_branch {
-            ($variant:ident, $row:ty) => {
-                if let Self::$variant(source) = self {
-                    let branch_rows: Vec<$row> = rows
-                        .iter()
-                        .filter_map(|row| match row {
-                            Self::$variant(row) => Some(row.clone()),
-                            _ => None,
-                        })
-                        .collect();
-                    return <$row as carbon_core::clickhouse::Insert>::insert(
-                        source,
-                        client,
-                        &branch_rows,
-                    )
-                    .await;
+            ($variant:ident, $row:ty) => {{
+                let branch_rows: Vec<$row> = rows
+                    .iter()
+                    .filter_map(|row| match row {
+                        Self::$variant(row) => Some(row.clone()),
+                        _ => None,
+                    })
+                    .collect();
+
+                if !branch_rows.is_empty() {
+                    <$row as carbon_core::clickhouse::Insert>::insert(client, &branch_rows).await?;
                 }
-            };
+            }};
         }
 
         commit_branch!(CollectionAuthorityRecord, CollectionAuthorityRecordRow);
@@ -204,6 +162,7 @@ impl carbon_core::clickhouse::BatchCommit for MplTokenMetadataAccountRow {
         commit_branch!(TokenOwnedEscrow, TokenOwnedEscrowRow);
         commit_branch!(TokenRecord, TokenRecordRow);
         commit_branch!(UseAuthorityRecord, UseAuthorityRecordRow);
+
         Ok(())
     }
 }

@@ -5,8 +5,16 @@ use solana_pubkey::Pubkey;
 pub struct TrimFeeInfo {
     pub trim_rate: u16,
     pub trim_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub trim_account: Pubkey,
     pub charge_rate: u16,
     pub charge_amount: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub charge_account: Pubkey,
 }

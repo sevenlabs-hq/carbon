@@ -12,9 +12,17 @@ pub struct LendingMarket {
     /// Bump seed for derived authority address
     pub bump_seed: u64,
     /// Owner authority which can add new reserves
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lending_market_owner: Pubkey,
     /// Temporary cache of the lending market owner, used in
     /// update_lending_market_owner
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub lending_market_owner_cached: Pubkey,
     /// Currency market prices are quoted in
     /// e.g. "USD" null padded
@@ -56,6 +64,10 @@ pub struct LendingMarket {
     pub global_allowed_borrow_value: u64,
     /// The address of the emergency council, in charge of taking emergency
     /// actions on the market (e.g., enabling emergency mode)
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub emergency_council: Pubkey,
     /// [DEPRECATED] Reward points multiplier per obligation type
     pub reserved1: [u8; 8],
@@ -111,6 +123,10 @@ pub struct LendingMarket {
     pub borrow_order_execution_enabled: u8,
     /// Authority that can propose creating of new reserves but cannot enable
     /// them.
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub proposer_authority: Pubkey,
     /// Minimum value that can be filled in a single `fill_borrow_order()` call,
     /// in full units of the quote currency (e.g. `2` means "$2", not "2
@@ -201,6 +217,10 @@ pub struct LendingMarket {
     pub term_based_full_liquidation_duration_secs: u64,
     /// If not NULL, operations encoded in permissioned_ops require a signature
     /// from this authority
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub permissioning_authority: Pubkey,
     /// Bitmap of operations that require permissioning authority signature
     pub permissioned_ops: u64,

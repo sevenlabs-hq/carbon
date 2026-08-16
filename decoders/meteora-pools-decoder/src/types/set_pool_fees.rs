@@ -7,5 +7,9 @@ pub struct SetPoolFees {
     pub trade_fee_denominator: u64,
     pub protocol_trade_fee_numerator: u64,
     pub protocol_trade_fee_denominator: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub pool: Pubkey,
 }

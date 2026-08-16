@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<UpdateFeatureBitFlagsMedianTriggerPriceRow> for (crate::instructions::update_feature_bit_flags_median_trigger_price::UpdateFeatureBitFlagsMedianTriggerPrice, crate::instructions::update_feature_bit_flags_median_trigger_price::UpdateFeatureBitFlagsMedianTriggerPriceInstructionAccounts, UpdateFeatureBitFlagsMedianTriggerPriceRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: UpdateFeatureBitFlagsMedianTriggerPriceRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::update_feature_bit_flags_median_trigger_price::UpdateFeatureBitFlagsMedianTriggerPrice = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::update_feature_bit_flags_median_trigger_price::UpdateFeatureBitFlagsMedianTriggerPriceInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for UpdateFeatureBitFlagsMedianTriggerPriceRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for UpdateFeatureBitFlagsMedianTriggerPriceR
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for UpdateFeatureBitFlagsMedianTriggerPriceRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for UpdateFeatureBitFlagsMedianTriggerPrice
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("drift_v2_update_feature_bit_flags_median_trigger_price_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -99,7 +110,9 @@ pub struct UpdateFeatureBitFlagsMedianTriggerPriceRowMigrationOperation;
 
 #[cfg(feature = "clickhouse-cluster")]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdateFeatureBitFlagsMedianTriggerPriceRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdateFeatureBitFlagsMedianTriggerPriceRowMigrationOperation
+{
     async fn up(
         &self,
         client: &clickhouse::Client,
@@ -174,7 +187,9 @@ impl carbon_core::clickhouse::Operation for UpdateFeatureBitFlagsMedianTriggerPr
 
 #[cfg(not(feature = "clickhouse-cluster"))]
 #[async_trait::async_trait]
-impl carbon_core::clickhouse::Operation for UpdateFeatureBitFlagsMedianTriggerPriceRowMigrationOperation {
+impl carbon_core::clickhouse::Operation
+    for UpdateFeatureBitFlagsMedianTriggerPriceRowMigrationOperation
+{
     async fn up(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
             .query(

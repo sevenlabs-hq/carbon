@@ -41,6 +41,26 @@ impl
     }
 }
 
+impl TryFrom<MintV1Row>
+    for (
+        crate::instructions::mint_v1::MintV1,
+        crate::instructions::mint_v1::MintV1InstructionAccounts,
+        MintV1Row,
+    )
+{
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: MintV1Row) -> Result<Self, Self::Error> {
+        let source: crate::instructions::mint_v1::MintV1 = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::mint_v1::MintV1InstructionAccounts =
+            serde_json::from_str(&value.__accounts)
+                .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((source, accounts, value))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for MintV1Row {
     fn local_table() -> &'static str {
@@ -62,7 +82,6 @@ impl carbon_core::clickhouse::Table for MintV1Row {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for MintV1Row {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +89,8 @@ impl carbon_core::clickhouse::Insert for MintV1Row {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("bubblegum_mint_v1_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 

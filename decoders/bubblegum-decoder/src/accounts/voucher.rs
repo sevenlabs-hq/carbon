@@ -8,6 +8,10 @@ use {
 pub struct Voucher {
     pub leaf_schema: LeafSchema,
     pub index: u32,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub merkle_tree: Pubkey,
 }
 

@@ -5,7 +5,15 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UserState {
     pub user_id: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub farm_state: Pubkey,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub owner: Pubkey,
     pub is_farm_delegated: u8,
     pub padding0: [u8; 7],
@@ -18,6 +26,10 @@ pub struct UserState {
     pub pending_withdrawal_unstake_scaled: u128,
     pub pending_withdrawal_unstake_ts: u64,
     pub bump: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub delegatee: Pubkey,
     pub last_stake_ts: u64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]

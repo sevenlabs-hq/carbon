@@ -6,6 +6,10 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 pub struct ConsumedPermission {
     pub padding1: [u8; 7],
     pub safe_to_close_slot: u64,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub refund_destination: Pubkey,
     pub padding2: [u8; 16],
 }

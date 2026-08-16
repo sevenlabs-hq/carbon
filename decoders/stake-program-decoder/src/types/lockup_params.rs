@@ -8,5 +8,9 @@ use {
 pub struct LockupParams {
     pub unix_timestamp: Option<UnixTimestamp>,
     pub epoch: Option<Epoch>,
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize_option")
+    )]
     pub custodian: Option<Pubkey>,
 }

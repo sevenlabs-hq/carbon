@@ -41,6 +41,23 @@ impl
     }
 }
 
+impl TryFrom<SwapWithDestinationNativeRow> for (crate::instructions::swap_with_destination_native::SwapWithDestinationNative, crate::instructions::swap_with_destination_native::SwapWithDestinationNativeInstructionAccounts, SwapWithDestinationNativeRow) {
+    type Error = carbon_core::error::Error;
+
+    fn try_from(value: SwapWithDestinationNativeRow) -> Result<Self, Self::Error> {
+        let source: crate::instructions::swap_with_destination_native::SwapWithDestinationNative = serde_json::from_str(&value.data)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+        let accounts: crate::instructions::swap_with_destination_native::SwapWithDestinationNativeInstructionAccounts = serde_json::from_str(&value.__accounts)
+            .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
+
+        Ok((
+            source,
+            accounts,
+            value,
+        ))
+    }
+}
+
 #[cfg(feature = "clickhouse-cluster")]
 impl carbon_core::clickhouse::ClusterTable for SwapWithDestinationNativeRow {
     fn local_table() -> &'static str {
@@ -62,7 +79,6 @@ impl carbon_core::clickhouse::Table for SwapWithDestinationNativeRow {
 #[async_trait::async_trait]
 impl carbon_core::clickhouse::Insert for SwapWithDestinationNativeRow {
     async fn insert(
-        &self,
         client: &clickhouse::Client,
         rows: &[Self],
     ) -> carbon_core::error::CarbonResult<()> {
@@ -70,13 +86,8 @@ impl carbon_core::clickhouse::Insert for SwapWithDestinationNativeRow {
             return Ok(());
         }
 
-        #[cfg(feature = "clickhouse-cluster")]
-        let table = <Self as carbon_core::clickhouse::ClusterTable>::distributed_table();
-        #[cfg(not(feature = "clickhouse-cluster"))]
-        let table = <Self as carbon_core::clickhouse::Table>::table();
-
         let mut insert = client
-            .insert::<Self>(table)
+            .insert::<Self>("dflow_aggregator_v4_swap_with_destination_native_instruction")
             .await
             .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?;
 
@@ -199,7 +210,9 @@ impl carbon_core::clickhouse::Operation for SwapWithDestinationNativeRowMigratio
 
     async fn down(&self, client: &clickhouse::Client) -> clickhouse::error::Result<()> {
         client
-            .query("DROP TABLE IF EXISTS dflow_aggregator_v4_swap_with_destination_native_instruction")
+            .query(
+                "DROP TABLE IF EXISTS dflow_aggregator_v4_swap_with_destination_native_instruction",
+            )
             .execute()
             .await?;
 

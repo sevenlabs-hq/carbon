@@ -5,10 +5,22 @@ use {carbon_core::deserialize::CarbonDeserialize, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CollectPersonalFeeEventEvent {
     /// The ID of the token for which underlying tokens were collected
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub position_nft_mint: Pubkey,
     /// The token account that received the collected token_0 tokens
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub recipient_token_account0: Pubkey,
     /// The token account that received the collected token_1 tokens
+    #[cfg_attr(
+        feature = "base58",
+        serde(serialize_with = "carbon_core::convert::base58::serialize")
+    )]
     pub recipient_token_account1: Pubkey,
     /// The amount of token_0 owed to the position that was collected
     pub amount0: u64,
