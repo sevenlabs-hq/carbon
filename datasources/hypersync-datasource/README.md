@@ -37,11 +37,11 @@ Yellowstone or block-crawler source produces.
 | `carbon-jetstreamer-datasource` | genesis to head minus ~2 epochs | client-side, after download | whole-chain bytes for the range |
 | `carbon-rpc-block-crawler-datasource` | RPC retention | client-side, after download | one `getBlock` per slot |
 | `carbon-rpc-transaction-crawler-datasource` | RPC retention | server-side by address | one `getTransaction` per signature |
-| this crate | last ~5 months (public endpoint) | server-side by program | matched transactions only |
+| this crate | recent history, growing with demand | server-side by program | matched transactions only |
 
 The natural composition for deep history is Jetstreamer below the HyperSync floor and this
-datasource above it; the archive behind Jetstreamer lags the head by roughly two epochs, which
-is exactly the window HyperSync serves.
+datasource above it; the archive behind Jetstreamer lags the head by roughly two epochs, a
+window HyperSync serves. Envio is actively extending the backfill depth based on user demand.
 
 ## Fidelity limits
 

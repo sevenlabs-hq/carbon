@@ -32,11 +32,12 @@
 //!
 //! # Fidelity limits, stated plainly
 //!
-//! - **History window.** The public endpoint serves roughly the last five
-//!   months (floor around slot 403,000,000 as of August 2026). Below the
-//!   floor, compose with `carbon-jetstreamer-datasource`, which reaches
-//!   genesis but lags the head by about two epochs; this datasource covers
-//!   exactly the window Jetstreamer cannot.
+//! - **History window.** The public endpoint's historical depth is a moving
+//!   floor: Envio is actively growing the backfill based on user demand, so
+//!   check the endpoint for current coverage. Below the floor, compose with
+//!   `carbon-jetstreamer-datasource`, which reaches back to genesis but lags
+//!   the head by about two epochs; this datasource serves the recent window
+//!   Jetstreamer cannot.
 //! - **Failed transactions are not served.** The archive stores no
 //!   instruction rows for them, so this datasource only emits successful
 //!   transactions. (`carbon-rpc-block-crawler-datasource` also skips failed
