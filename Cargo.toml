@@ -29,6 +29,7 @@ carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-dataso
 carbon-helius-gpa-v2-datasource = { path = "datasources/helius-gpa-v2-datasource", version = "1.0.0" }
 carbon-helius-gtfa-datasource = { path = "datasources/helius-gtfa-datasource", version = "1.0.0" }
 carbon-helius-laserstream-datasource = { path = "datasources/helius-laserstream-datasource", version = "1.0.0" }
+carbon-hypersync-datasource = { path = "datasources/hypersync-datasource", version = "1.0.0" }
 carbon-jetstreamer-datasource = { path = "datasources/jetstreamer-datasource", version = "1.0.0" }
 carbon-jito-shredstream-grpc-datasource = { path = "datasources/jito-shredstream-grpc-datasource", version = "1.0.0" }
 carbon-rpc-block-crawler-datasource = { path = "datasources/rpc-block-crawler-datasource", version = "1.0.0" }

@@ -1,0 +1,30 @@
+[package]
+name = "carbon-hypersync-datasource"
+description = "Carbon HyperSync Datasource"
+license = { workspace = true }
+version = "1.0.0"
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+# hypersync-client-solana pulls arrow 57, whose MSRV is above the workspace 1.82.
+rust-version = "1.85"
+keywords = ["solana", "indexer", "hypersync", "datasource"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+async-trait = { workspace = true }
+carbon-core = { workspace = true }
+hypersync-client-solana = "0.2.0"
+hypersync-solana-net-types = "0.2.0"
+log = { workspace = true }
+solana-hash = { workspace = true }
+solana-message = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-signature = { workspace = true }
+solana-transaction = { workspace = true }
+solana-transaction-status = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
