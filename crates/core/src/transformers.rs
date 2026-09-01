@@ -125,7 +125,16 @@ fn process_instructions<F1, F2>(
                     let mut prev_height = 0;
 
                     for inner_inst in &inner_tx.instructions {
-                        let stack_height = inner_inst.stack_height.unwrap_or(1) as usize;
+                        let Some(stack_height) = validated_stack_height(inner_inst.stack_height)
+                        else {
+                            log::warn!(
+                                "invalid inner instruction stack height ({:?}) in transaction {} at instruction {}, dropping the remaining inner instructions of this group",
+                                inner_inst.stack_height,
+                                transaction_metadata.signature,
+                                inner_tx.index,
+                            );
+                            break;
+                        };
                         if stack_height > prev_height {
                             path_stack[stack_height - 1] = 0;
                         } else {
@@ -152,6 +161,15 @@ fn process_instructions<F1, F2>(
                 }
             }
         }
+    }
+}
+
+fn validated_stack_height(stack_height: Option<u32>) -> Option<usize> {
+    match stack_height {
+        Some(height) if (2..=MAX_INSTRUCTION_STACK_DEPTH as u32).contains(&height) => {
+            Some(height as usize)
+        }
+        _ => None,
     }
 }
 
@@ -633,6 +651,66 @@ mod tests {
         assert_eq!(nested_instructions[0].inner_instructions.len(), 0);
         assert_eq!(nested_instructions[1].inner_instructions.len(), 4);
         assert_eq!(nested_instructions[2].inner_instructions.len(), 0);
+    }
+
+    #[test]
+    fn test_extract_instructions_skips_inner_group_after_invalid_stack_height() {
+        let build_update = |stack_heights: Vec<Option<u32>>| {
+            let payer = Pubkey::new_unique();
+            let program = Pubkey::new_unique();
+            let instruction = CompiledInstruction {
+                program_id_index: 1,
+                accounts: vec![0],
+                data: vec![],
+            };
+            TransactionUpdate {
+                signature: Signature::default(),
+                transaction: VersionedTransaction {
+                    signatures: vec![Signature::default()],
+                    message: VersionedMessage::Legacy(Message {
+                        header: MessageHeader::default(),
+                        account_keys: vec![payer, program],
+                        recent_blockhash: Hash::default(),
+                        instructions: vec![instruction.clone()],
+                    }),
+                },
+                meta: TransactionStatusMeta {
+                    inner_instructions: Some(vec![InnerInstructions {
+                        index: 0,
+                        instructions: stack_heights
+                            .into_iter()
+                            .map(|stack_height| InnerInstruction {
+                                instruction: instruction.clone(),
+                                stack_height,
+                            })
+                            .collect(),
+                    }]),
+                    ..Default::default()
+                },
+                is_vote: false,
+                slot: 1,
+                index: None,
+                block_time: None,
+                block_hash: None,
+            }
+        };
+        let extract = |stack_heights: Vec<Option<u32>>| {
+            extract_instructions_with_metadata(
+                &Arc::new(TransactionMetadata::default()),
+                &build_update(stack_heights),
+            )
+            .expect("extract instructions with metadata")
+        };
+
+        assert_eq!(extract(vec![None]).len(), 1);
+        assert_eq!(extract(vec![Some(1)]).len(), 1);
+        assert_eq!(extract(vec![Some(6)]).len(), 1);
+        assert_eq!(extract(vec![Some(2)]).len(), 2);
+
+        let partial = extract(vec![Some(2), None, Some(2)]);
+        assert_eq!(partial.len(), 2);
+        assert_eq!(partial[0].0.absolute_path, vec![0]);
+        assert_eq!(partial[1].0.absolute_path, vec![0, 0]);
     }
 
     #[test]
