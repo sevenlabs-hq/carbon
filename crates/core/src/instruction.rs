@@ -61,7 +61,6 @@ impl InstructionMetadata {
     pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
         self.extract_event_log_data()
             .into_iter()
-            .filter(|log| log.len() >= 8)
             .filter_map(|log| <T as CarbonDeserialize>::deserialize(&log))
             .collect()
     }
@@ -494,6 +493,39 @@ mod tests {
         let nested_instructions: NestedInstructions = instructions.into();
         assert_eq!(nested_instructions.len(), 2);
         assert_eq!(nested_instructions.0[1].inner_instructions.len(), 1);
+    }
+
+    #[test]
+    fn test_decode_log_events_accepts_payloads_under_eight_bytes() {
+        #[derive(crate::borsh::BorshDeserialize)]
+        struct TinyEvent {
+            value: u8,
+        }
+
+        impl CarbonDeserialize for TinyEvent {
+            const DISCRIMINATOR: &'static [u8] = &[9];
+
+            fn deserialize(data: &[u8]) -> Option<Self> {
+                let payload = data.strip_prefix(Self::DISCRIMINATOR)?;
+                crate::borsh::BorshDeserialize::try_from_slice(payload).ok()
+            }
+        }
+
+        let metadata = create_metadata_with_message(
+            vec![0],
+            1,
+            vec![
+                "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK invoke [1]".to_string(),
+                "Program data: CSo=".to_string(),
+                "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK success".to_string(),
+            ],
+            vec![],
+            vec![],
+        );
+
+        let events = metadata.decode_log_events::<TinyEvent>();
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0].value, 42);
     }
 
     #[test]
