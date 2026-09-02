@@ -143,8 +143,8 @@ spl-token-group-interface = "0.7.2"
 spl-token-interface = "3.0.0"
 spl-token-metadata-interface = "1.0.0"
 spl-type-length-value = "0.9.1"
-yellowstone-grpc-client = { version = "=13.3.0" }
-yellowstone-grpc-proto = { version = "=12.6.0", default-features = false }
+yellowstone-grpc-client = { version = "=13.5.0" }
+yellowstone-grpc-proto = { version = "=12.7.0", default-features = false }
 
 # misc
 anyhow = "1.0.100"

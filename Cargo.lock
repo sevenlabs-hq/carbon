@@ -12568,9 +12568,9 @@ dependencies = [
 
 [[package]]
 name = "yellowstone-grpc-client"
-version = "13.3.0"
+version = "13.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23943ae6ea7dbca2fe7f7e804efa28dab9b10e0e132a159a97351446361a3ad3"
+checksum = "9d877fb5cdbace43ce02017372cbc47d0ce5c916671cd66e8bee8e8b925061d3"
 dependencies = [
  "arc-swap",
  "bytes",
@@ -12589,9 +12589,9 @@ dependencies = [
 
 [[package]]
 name = "yellowstone-grpc-proto"
-version = "12.6.0"
+version = "12.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bdceeb3f02e4b31ab481eb9fd714854d757e76d2eb7b4f9c00136ed19edf183f"
+checksum = "a5c845c3eaa82bf075d1e553826e629eda16a74e9fdbe886ec07bd7434d132af"
 dependencies = [
  "anyhow",
  "prost",
