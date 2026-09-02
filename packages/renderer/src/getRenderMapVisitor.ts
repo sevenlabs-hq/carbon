@@ -42,6 +42,7 @@ export type GetRenderMapOptions = {
         name: string;
         discriminator: number[];
     }[];
+    eventCpiDiscriminator?: number[];
     postgresMode?: 'generic' | 'typed';
     withPostgres?: boolean;
     withGraphql?: boolean;
@@ -642,7 +643,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                 visitRoot(node, { self }) {
                     let renderRoot = node;
-                    const normalizedEvents = hasExplicitAnchorEvents ? null : normalizeCodamaEvents(node);
+                    const normalizedEvents = hasExplicitAnchorEvents
+                        ? null
+                        : normalizeCodamaEvents(node, { eventCpiDiscriminator: options.eventCpiDiscriminator });
                     if (normalizedEvents !== null) {
                         renderRoot = normalizedEvents.root;
                         renderEvents = normalizedEvents.events;
