@@ -114,40 +114,35 @@ carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "1.0.0" }
 
 # solana
 agave-snapshots = { version = "=4.2.2", features = ["agave-unstable-api"] }
-solana-account = "=4.3.1"
+solana-account = "4.3.2"
 solana-account-decoder = { version = "=4.2.2", features = ["agave-unstable-api"] }
 solana-account-decoder-client-types = { version = "=4.2.2", features = ["agave-unstable-api"] }
 solana-accounts-db = { version = "=4.2.2", features = ["agave-unstable-api"] }
 solana-client = "=4.2.2"
-solana-clock = "=3.1.1"
-solana-commitment-config = "=3.1.1"
+solana-clock = "3.1.1"
+solana-commitment-config = "3.1.1"
 solana-entry = { version = "=4.2.2", features = ["agave-unstable-api"] }
 solana-genesis-utils = { version = "=4.2.2", features = ["agave-unstable-api"] }
-solana-hash = { version = "=4.4.0", features = ["decode"] }
-solana-instruction = { version = "=3.4.0", default-features = false }
-solana-instruction-error = "=2.4.0"
+solana-hash = { version = "4.5.0", features = ["decode"] }
+solana-instruction = { version = "3.4.1", default-features = false }
 solana-ledger = { version = "=4.2.2", features = ["agave-unstable-api"] }
-solana-message = { version = "=4.2.3", features = ["wincode"] }
-solana-native-token = "=3.0.0"
-solana-program = { version = "=4.0.0", features = ["borsh"] }
-solana-program-pack = "=3.1.0"
-solana-pubkey = { version = "=4.2.0", features = ["borsh", "curve25519", "serde"] }
-solana-reward-info = { version = "=6.2.0", features = ["serde", "wincode"] }
+solana-message = { version = "4.4.1", features = ["wincode"] }
+solana-program = { version = "4.0.0", features = ["borsh"] }
+solana-program-pack = "3.1.0"
+solana-pubkey = { version = "4.2.1", features = ["borsh", "curve25519", "serde"] }
 solana-runtime = { version = "=4.2.2", features = ["agave-unstable-api"] }
-solana-signature = { version = "=3.4.1", features = ["rand"] }
-solana-system-interface = { version = "=3.2.0", features = ["alloc", "bincode", "serde", "wincode"] }
-solana-transaction = { version = "=4.1.4", features = ["wincode"] }
+solana-signature = { version = "3.4.1", features = ["rand"] }
+solana-transaction = { version = "4.1.6", features = ["wincode"] }
 solana-transaction-context = { version = "=4.2.2", features = ["agave-unstable-api", "bincode"] }
-solana-transaction-error = "=3.3.1"
+solana-transaction-error = "3.3.2"
 solana-transaction-status = { version = "=4.2.2", features = ["agave-unstable-api"] }
 solana-transaction-status-client-types = { version = "=4.2.2", features = ["agave-unstable-api"] }
-spl-memo-interface = "=2.1.0"
-spl-pod = "=0.7.3"
-spl-token-2022 = "=11.0.0"
-spl-token-group-interface = "=0.7.2"
-spl-token-interface = "=3.0.0"
-spl-token-metadata-interface = "=1.0.0"
-spl-type-length-value = "=0.9.1"
+spl-pod = "0.7.3"
+spl-token-2022 = "11.0.0"
+spl-token-group-interface = "0.7.2"
+spl-token-interface = "3.0.0"
+spl-token-metadata-interface = "1.0.0"
+spl-type-length-value = "0.9.1"
 yellowstone-grpc-client = { version = "=13.3.0" }
 yellowstone-grpc-proto = { version = "=12.6.0", default-features = false }
 
@@ -173,7 +168,7 @@ flate2 = "1.1.5"
 futures = "0.3.31"
 futures-util = "0.3.31"
 heck = "0.5.0"
-helius = "=2.0.0"
+helius = "2.0.0"
 hex = "0.4.3"
 indicatif = "0.17.11"
 inquire = "0.7.5"

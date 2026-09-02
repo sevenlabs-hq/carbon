@@ -52,7 +52,9 @@ pub fn extract_instructions_with_metadata(
                 &meta.inner_instructions,
                 transaction_metadata,
                 &mut instructions_with_metadata,
-                |_, idx| legacy.is_maybe_writable(idx, None),
+                |_, idx| {
+                    legacy.is_maybe_writable_with_reserved_addresses(idx, None::<&HashSet<Pubkey>>)
+                },
                 |_, idx| legacy.is_signer(idx),
             );
         }
@@ -99,7 +101,9 @@ pub fn extract_instructions_with_metadata(
                 &meta.inner_instructions,
                 transaction_metadata,
                 &mut instructions_with_metadata,
-                |_, idx| v1.is_maybe_writable(idx, None),
+                |_, idx| {
+                    v1.is_maybe_writable_with_reserved_addresses(idx, None::<&HashSet<Pubkey>>)
+                },
                 |_, idx| v1.is_signer(idx),
             );
         }
@@ -232,7 +236,7 @@ pub fn extract_account_metas(
                 .get(*account_index as usize)
                 .ok_or(Error::MissingAccountInTransaction)?,
             is_signer: message.is_signer(*account_index as usize),
-            is_writable: message.is_maybe_writable(
+            is_writable: message.is_maybe_writable_with_reserved_addresses(
                 *account_index as usize,
                 Some(
                     &message

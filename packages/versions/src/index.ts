@@ -35,31 +35,31 @@ export const VERSIONS: Record<string, CrateDependency> = {
     'carbon-stream-message-datasource': '1.0.0',
     'carbon-yellowstone-grpc-datasource': '1.0.0',
     /// Solana crates
-    'solana-account': '=4.3.1',
+    'solana-account': '4.3.2',
     'solana-account-decoder': {
         version: '=4.2.2',
         features: ['agave-unstable-api'],
     },
     'solana-client': '=4.2.2',
     'solana-instruction': {
-        version: '=3.4.0',
+        version: '3.4.1',
         defaultFeatures: false,
     },
     'solana-pubkey': {
-        version: '=4.2.0',
+        version: '4.2.1',
         features: ['borsh'],
     },
-    'solana-commitment-config': '=3.1.1',
+    'solana-commitment-config': '3.1.1',
     /// SPL Token 2022 dependencies
-    'solana-program-pack': '=3.1.0',
-    'spl-token-2022': '=11.0.0',
+    'solana-program-pack': '3.1.0',
+    'spl-token-2022': '11.0.0',
     'spl-pod': {
-        version: '=0.7.3',
+        version: '0.7.3',
         features: ['borsh'],
     },
-    'spl-token-metadata-interface': '=1.0.0',
-    'spl-token-group-interface': '=0.7.2',
-    'spl-type-length-value': '=0.9.1',
+    'spl-token-metadata-interface': '1.0.0',
+    'spl-token-group-interface': '0.7.2',
+    'spl-type-length-value': '0.9.1',
     'yellowstone-grpc-client': {
         version: '=13.3.0',
     },
@@ -73,7 +73,7 @@ export const VERSIONS: Record<string, CrateDependency> = {
     juniper: '0.16.2',
     axum: '0.8.7',
     rustls: '0.23',
-    helius: '=2.0.0',
+    helius: '2.0.0',
     'futures-util': '0.3.31',
     serde: {
         version: '1.0.228',
