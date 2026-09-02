@@ -126,6 +126,7 @@ solana-entry = { version = "=4.2.2", features = ["agave-unstable-api"] }
 solana-genesis-utils = { version = "=4.2.2", features = ["agave-unstable-api"] }
 solana-hash = { version = "=4.4.0", features = ["decode"] }
 solana-instruction = { version = "=3.4.0", default-features = false }
+solana-instruction-error = "=2.4.0"
 solana-ledger = { version = "=4.2.2", features = ["agave-unstable-api"] }
 solana-message = { version = "=4.2.3", features = ["wincode"] }
 solana-native-token = "=3.0.0"

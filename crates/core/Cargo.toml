@@ -57,3 +57,8 @@ sqlx_migrator = { workspace = true, optional = true }
 [dev-dependencies]
 carbon-test-utils = { workspace = true }
 solana-account-decoder-client-types = { workspace = true }
+
+# Keep the Agave 4.2 wincode graph coherent. This transitive pin is resolved for
+# the workspace but never linked into Carbon Core.
+[target.'cfg(any())'.dependencies]
+solana-instruction-error = { workspace = true }
