@@ -436,7 +436,7 @@ fn transaction_fetcher(
                                     commitment: Some(
                                         commitment.unwrap_or(CommitmentConfig::confirmed()),
                                     ),
-                                    max_supported_transaction_version: Some(0),
+                                    max_supported_transaction_version: Some(1),
                                 },
                             ).await {
                                 Ok(tx) => {

@@ -116,7 +116,7 @@ impl Datasource for HttpPollDatasource {
                         solana_client::rpc_config::RpcTransactionConfig {
                             encoding: Some(UiTransactionEncoding::Base64),
                             commitment: Some(CommitmentConfig::confirmed()),
-                            max_supported_transaction_version: Some(0),
+                            max_supported_transaction_version: Some(1),
                         },
                     )
                     .await
