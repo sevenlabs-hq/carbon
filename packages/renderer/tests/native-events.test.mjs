@@ -6,6 +6,7 @@ import test from 'node:test';
 
 import {
     constantDiscriminatorNode,
+    constantValueNode,
     constantValueNodeFromBytes,
     definedTypeNode,
     fieldDiscriminatorNode,
@@ -318,6 +319,79 @@ test('lets the eventCpiDiscriminator option override the hidden-prefix envelope'
 
         const generatedEvent = readFileSync(join(outputDirectory, 'src/events/payout_redirected.rs'), 'utf8');
         assert.match(generatedEvent, /if discriminator != \[209, 22, 185, 215, 84, 167, 84, 80\]/);
+    } finally {
+        rmSync(outputDirectory, { force: true, recursive: true });
+    }
+});
+
+test('decodes a base58 hidden-prefix discriminator according to its encoding', () => {
+    const outputDirectory = mkdtempSync(join(tmpdir(), 'carbon-base58-event-tag-'));
+
+    try {
+        // In base58, each leading "1" represents a zero byte.
+        const eventTag = constantValueNodeFromBytes('base58', '11111111');
+        const root = rootNode(
+            programWithEvents({
+                name: 'payments',
+                publicKey: '11111111111111111111111111111111',
+                events: [
+                    nativeEventNode({
+                        name: 'paymentCreated',
+                        data: hiddenPrefixTypeNode(structTypeNode([]), [eventTag]),
+                        discriminators: [constantDiscriminatorNode(eventTag, 0)],
+                    }),
+                ],
+                instructions: [instructionNode({ name: 'createPayment' })],
+            }),
+        );
+
+        visit(
+            root,
+            renderVisitor(outputDirectory, {
+                standalone: true,
+                withGraphql: false,
+                withPostgres: false,
+            }),
+        );
+
+        const generatedEvent = readFileSync(join(outputDirectory, 'src/events/payment_created.rs'), 'utf8');
+        assert.match(generatedEvent, /if discriminator != \[0, 0, 0, 0, 0, 0, 0, 0\]/);
+    } finally {
+        rmSync(outputDirectory, { force: true, recursive: true });
+    }
+});
+
+test('preserves big-endian numeric hidden-prefix discriminators', () => {
+    const outputDirectory = mkdtempSync(join(tmpdir(), 'carbon-big-endian-event-tag-'));
+
+    try {
+        const eventTag = constantValueNode(numberTypeNode('u16', 'be'), numberValueNode(0x0102));
+        const root = rootNode(
+            programWithEvents({
+                name: 'payments',
+                publicKey: '11111111111111111111111111111111',
+                events: [
+                    nativeEventNode({
+                        name: 'paymentCreated',
+                        data: hiddenPrefixTypeNode(structTypeNode([]), [eventTag]),
+                        discriminators: [constantDiscriminatorNode(eventTag, 0)],
+                    }),
+                ],
+                instructions: [instructionNode({ name: 'createPayment' })],
+            }),
+        );
+
+        visit(
+            root,
+            renderVisitor(outputDirectory, {
+                standalone: true,
+                withGraphql: false,
+                withPostgres: false,
+            }),
+        );
+
+        const generatedEvent = readFileSync(join(outputDirectory, 'src/events/payment_created.rs'), 'utf8');
+        assert.match(generatedEvent, /if discriminator != \[1, 2\]/);
     } finally {
         rmSync(outputDirectory, { force: true, recursive: true });
     }
