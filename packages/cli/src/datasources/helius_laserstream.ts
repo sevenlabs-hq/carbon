@@ -29,6 +29,7 @@ export function buildHeliusLaserstream(decoders: DecoderMeta[]): DatasourceArtif
                     ],
                     filters: vec![],
                     nonempty_txn_signature: None,
+                    cuckoo_accounts_filter: None,
                 },
             );
             account_filters
@@ -43,6 +44,8 @@ export function buildHeliusLaserstream(decoders: DecoderMeta[]): DatasourceArtif
                     ${rustJoin(programIds)}
                 ],
                 signature: None,
+                cuckoo_account_include: None,
+                token_accounts: None,
             };
             let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> = HashMap::new();
             transaction_filters.insert("transaction_filter".to_string(), transaction_filter);

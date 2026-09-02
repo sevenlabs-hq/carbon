@@ -25,6 +25,7 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
                 ],
                 filters: vec![],
                 nonempty_txn_signature: None,
+                cuckoo_accounts_filter: None,
             },
         );
 
@@ -37,6 +38,8 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
                 ${rustJoin(programIds)}
             ],
             signature: None,
+            cuckoo_account_include: None,
+            token_accounts: None,
         };
 
         let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> = HashMap::new();
@@ -50,6 +53,8 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
             transaction_filters,
             Default::default(),
             YellowstoneGrpcClientConfig::default(),
+            None,
+            None,
         )
     }`.trim();
 

@@ -139,6 +139,7 @@ pub async fn main() -> CarbonResult<()> {
             owner: vec![TOKEN_PROGRAM_ID.to_string()],
             filters: vec![],
             nonempty_txn_signature: None,
+            cuckoo_accounts_filter: None,
         },
     );
 
