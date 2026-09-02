@@ -75,6 +75,9 @@ test('renders native Codama events with their IDL-defined CPI discriminator', ()
         assert.match(generatedEvent, /pub struct PaymentCreatedEvent/);
         assert.match(generatedEvent, /if discriminator != \[9\]/);
 
+        const lib = readFileSync(join(outputDirectory, 'src/lib.rs'), 'utf8');
+        assert.match(lib, /pub const EVENT_CPI_DISCRIMINATOR: &\[u8\] = &\[1, 2, 3, 4\];/);
+
         const cargoToml = readFileSync(join(outputDirectory, 'Cargo.toml'), 'utf8');
         assert.match(cargoToml, /carbon-core = \{ version = "0\.12\.0"/);
         assert.match(cargoToml, /carbon-test-utils = "0\.12\.0"/);
@@ -689,6 +692,9 @@ test('keeps the anchorEvents renderer option backward compatible', () => {
         assert.match(cpiEvent, /if discriminator != \[228, 69, 165, 46, 81, 203, 154, 29\]/);
         assert.match(cpiEvent, /let event_data = &data\[8\.\.\]/);
         assert.doesNotMatch(cpiEvent, /NativePaymentCreated/);
+
+        const lib = readFileSync(join(outputDirectory, 'src/lib.rs'), 'utf8');
+        assert.match(lib, /pub const EVENT_CPI_DISCRIMINATOR: &\[u8\] = &\[228, 69, 165, 46, 81, 203, 154, 29\];/);
     } finally {
         rmSync(outputDirectory, { force: true, recursive: true });
     }
@@ -727,6 +733,9 @@ test('keeps an explicit empty anchorEvents option as an event opt-out', () => {
         );
 
         assert.equal(existsSync(join(outputDirectory, 'src/instructions/cpi_event.rs')), false);
+
+        const lib = readFileSync(join(outputDirectory, 'src/lib.rs'), 'utf8');
+        assert.doesNotMatch(lib, /EVENT_CPI_DISCRIMINATOR/);
     } finally {
         rmSync(outputDirectory, { force: true, recursive: true });
     }

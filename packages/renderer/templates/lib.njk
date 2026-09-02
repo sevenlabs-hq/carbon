@@ -4,6 +4,9 @@
 use solana_pubkey::Pubkey;
 pub struct {{ program.name | pascalCase }}Decoder;
 pub const PROGRAM_ID: Pubkey = solana_pubkey::Pubkey::from_str_const("{{ program.publicKey }}");
+{% if hasAnchorEvents %}
+pub const EVENT_CPI_DISCRIMINATOR: &[u8] = &[{{ eventCpiDiscriminator | join(', ') }}];
+{% endif %}
 
 pub mod accounts;
 {% if instructionsToExport.length > 0 %}
