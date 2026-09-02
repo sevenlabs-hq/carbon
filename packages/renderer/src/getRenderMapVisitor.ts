@@ -6,6 +6,7 @@ import {
     getAllDefinedTypes,
     getAllInstructionsWithSubs,
     isNode,
+    optionTypeNode,
     pascalCase,
     ProgramNode,
     resolveNestedTypeNode,
@@ -34,6 +35,69 @@ import { formatDocComments } from './utils/render';
 import { PostgresRowMapper, type FlattenedField } from './postgresRowMapper';
 import { checkRequiresBigArray } from './utils/postgresHelpers';
 import { LEGACY_ANCHOR_EVENT_CPI_DISCRIMINATOR, normalizeCodamaEvents, type RenderEvent } from './eventNodes';
+
+const TOKEN_2022_NULLABLE_EXTENSION_FIELDS = new Map([
+    ['transferFeeConfig', new Set(['transferFeeConfigAuthority', 'withdrawWithheldAuthority'])],
+    ['mintCloseAuthority', new Set(['closeAuthority'])],
+    ['confidentialTransferMint', new Set(['authority', 'auditorElgamalPubkey'])],
+    ['interestBearingConfig', new Set(['rateAuthority'])],
+    ['permanentDelegate', new Set(['delegate'])],
+    ['transferHook', new Set(['authority', 'programId'])],
+    ['confidentialTransferFee', new Set(['authority'])],
+    ['metadataPointer', new Set(['authority', 'metadataAddress'])],
+    ['tokenMetadata', new Set(['updateAuthority'])],
+    ['groupPointer', new Set(['authority', 'groupAddress'])],
+    ['tokenGroup', new Set(['updateAuthority'])],
+    ['groupMemberPointer', new Set(['authority', 'memberAddress'])],
+    ['scaledUiAmountConfig', new Set(['authority'])],
+    ['pausableConfig', new Set(['authority'])],
+    ['permissionedBurn', new Set(['authority'])],
+]);
+
+function isOptionalType(node: TypeNode): boolean {
+    return (
+        isNode(node, 'optionTypeNode') ||
+        isNode(node, 'zeroableOptionTypeNode') ||
+        isNode(node, 'remainderOptionTypeNode')
+    );
+}
+
+function preserveToken2022ExtensionNullability(node: DefinedTypeNode): DefinedTypeNode {
+    if (!isNode(node.type, 'enumTypeNode')) {
+        return node;
+    }
+
+    return {
+        ...node,
+        type: {
+            ...node.type,
+            variants: node.type.variants.map(variant => {
+                if (!isNode(variant, 'enumStructVariantTypeNode') || !isNode(variant.struct, 'structTypeNode')) {
+                    return variant;
+                }
+
+                const nullableFields = TOKEN_2022_NULLABLE_EXTENSION_FIELDS.get(camelCase(variant.name));
+                if (!nullableFields) {
+                    return variant;
+                }
+
+                return {
+                    ...variant,
+                    struct: {
+                        ...variant.struct,
+                        fields: variant.struct.fields.map(field => {
+                            if (!nullableFields.has(camelCase(field.name)) || isOptionalType(field.type)) {
+                                return field;
+                            }
+
+                            return { ...field, type: optionTypeNode(field.type) };
+                        }),
+                    },
+                };
+            }),
+        },
+    };
+}
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
@@ -238,35 +302,38 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 },
 
                 visitDefinedType(node) {
-                    const typeManifest = visit(node.type, typeManifestVisitor);
+                    const isToken2022Extension =
+                        isToken2022Program(currentProgram) && (node.name === 'Extension' || node.name === 'extension');
+                    const renderedNode = isToken2022Extension ? preserveToken2022ExtensionNullability(node) : node;
+                    const typeManifest = visit(renderedNode.type, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest);
 
                     // Check if this type requires serde-big-array
-                    if (checkRequiresBigArray(node.type)) {
+                    if (checkRequiresBigArray(renderedNode.type)) {
                         requiresSerdeBigArray = true;
                     }
 
                     // Use newtype wrapper instead of type alias to allow BigArray attribute for large arrays
                     let needsNewtypeWrapper = false;
                     let arraySize: number | undefined = undefined;
-                    if (node.type.kind !== 'structTypeNode' && node.type.kind !== 'enumTypeNode') {
+                    if (renderedNode.type.kind !== 'structTypeNode' && renderedNode.type.kind !== 'enumTypeNode') {
                         // Resolve the underlying type to check if it's a large array
                         let resolvedRaw: any = undefined;
-                        if (isNode(node.type, 'fixedSizeTypeNode')) {
-                            resolvedRaw = node.type;
-                        } else if (isNode(node.type, 'arrayTypeNode')) {
-                            resolvedRaw = node.type;
-                        } else if (isNode(node.type, 'definedTypeLinkNode')) {
+                        if (isNode(renderedNode.type, 'fixedSizeTypeNode')) {
+                            resolvedRaw = renderedNode.type;
+                        } else if (isNode(renderedNode.type, 'arrayTypeNode')) {
+                            resolvedRaw = renderedNode.type;
+                        } else if (isNode(renderedNode.type, 'definedTypeLinkNode')) {
                             // For type aliases, resolve through the map or nested resolution
                             if (definedTypesMap) {
-                                const typeName = node.type.name;
+                                const typeName = renderedNode.type.name;
                                 const definedType = definedTypesMap.get(typeName);
                                 if (definedType && definedType.type) {
                                     resolvedRaw = definedType.type;
                                 }
                             }
                             if (!resolvedRaw) {
-                                resolvedRaw = resolveNestedTypeNode(node.type);
+                                resolvedRaw = resolveNestedTypeNode(renderedNode.type);
                             }
                         }
                         if (resolvedRaw) {
@@ -292,9 +359,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Single-item bool tuple → custom BorshDeserialize (EOF = false)
                     let isOptionalBoolWrapper = false;
                     if (
-                        isNode(node.type, 'tupleTypeNode') &&
-                        node.type.items.length === 1 &&
-                        isNode(node.type.items[0], 'booleanTypeNode')
+                        isNode(renderedNode.type, 'tupleTypeNode') &&
+                        renderedNode.type.items.length === 1 &&
+                        isNode(renderedNode.type.items[0], 'booleanTypeNode')
                     ) {
                         isOptionalBoolWrapper = true;
                         optionalBoolWrapperTypes.add(node.name);
@@ -308,16 +375,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         imports.add('spl_token_2022::extension::StateWithExtensions');
                         imports.add('spl_token_2022::extension::BaseStateWithExtensions as _');
                         imports.add('spl_token_2022::extension::ExtensionType');
-                        // solana_zk_sdk is used via full path spl_token_2022::solana_zk_sdk::*, no direct import needed
-                        imports.add('spl_token_2022::solana_zk_sdk::encryption::elgamal::ElGamalPubkey');
-                        imports.add('spl_token_2022::solana_zk_sdk::encryption::pod::elgamal::PodElGamalPubkey');
                         imports.add('spl_pod::primitives::PodI64');
                         imports.add('spl_type_length_value::variable_len_pack::VariableLenPack');
                         // bytemuck is used via full path spl_pod::bytemuck::*, no direct import needed
                     }
 
                     let typeContent = render('typesPage.njk', {
-                        definedType: node,
+                        definedType: renderedNode,
                         imports: imports.toString(),
                         typeManifest,
                         needsNewtypeWrapper,
