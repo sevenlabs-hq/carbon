@@ -1500,6 +1500,7 @@ dependencies = [
  "solana-signature",
  "solana-transaction",
  "solana-transaction-context",
+ "solana-transaction-error",
  "solana-transaction-status",
  "sqlx",
  "sqlx_migrator",
@@ -1507,6 +1508,8 @@ dependencies = [
  "tokio",
  "tokio-util",
  "uuid",
+ "wincode",
+ "yellowstone-grpc-proto",
 ]
 
 [[package]]

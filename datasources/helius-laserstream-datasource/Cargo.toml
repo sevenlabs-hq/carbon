@@ -17,7 +17,7 @@ solana-account = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-signature = { workspace = true }
 
-carbon-core = { workspace = true }
+carbon-core = { workspace = true, features = ["yellowstone"] }
 
 async-trait = { workspace = true }
 futures = { workspace = true }

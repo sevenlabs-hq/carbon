@@ -7,6 +7,7 @@ use {
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
+        transformers::yellowstone::{create_tx_meta, create_tx_versioned},
     },
     futures::{sink::SinkExt, StreamExt},
     solana_account::Account,
@@ -26,7 +27,6 @@ use {
     uuid::Uuid,
     yellowstone_grpc_client::{GeyserGrpcBuilder, GeyserGrpcBuilderResult, GeyserGrpcClient},
     yellowstone_grpc_proto::{
-        convert_from::{create_tx_meta, create_tx_versioned},
         geyser::{
             subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
             SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,

@@ -12,6 +12,9 @@
 //!   `UiTransactionStatusMeta` (RPC representation) into the binary
 //!   `TransactionStatusMeta` that the pipeline expects.
 
+#[cfg(feature = "yellowstone")]
+pub mod yellowstone;
+
 use {
     crate::{
         datasource::TransactionUpdate,
