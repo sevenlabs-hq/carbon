@@ -25,7 +25,7 @@ jobs:
           toolchain: stable
 
       - name: Install `rustfmt`
-        run: rustup component add  rustfmt --toolchain 1.88.0
+        run: rustup component add rustfmt --toolchain 1.96.1
 
       - name: cargo fmt --check
         run: cargo fmt --check
@@ -47,7 +47,7 @@ jobs:
           toolchain: stable
 
       - name: Install `clippy`
-        run: rustup component add  clippy --toolchain 1.88.0
+        run: rustup component add clippy --toolchain 1.96.1
 
       - name: Install LLVM/Clang
         run: sudo apt-get update && sudo apt-get install -y libclang-dev
