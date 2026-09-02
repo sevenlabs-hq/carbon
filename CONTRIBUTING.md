@@ -24,7 +24,7 @@ Carbon is an indexing framework for Solana that provides a modular pipeline for 
 
 ### Prerequisites
 
-- **Rust**: 1.88.0 (pinned via [`rust-toolchain.toml`](rust-toolchain.toml)). Published crates target **MSRV 1.82** (set in [`clippy.toml`](clippy.toml)) — develop on 1.88, but don't reach for features newer than 1.82 in code that ships.
+- **Rust**: 1.96.1 (pinned via [`rust-toolchain.toml`](rust-toolchain.toml)). Published crates target **MSRV 1.96.1** (set in the workspace manifest and [`clippy.toml`](clippy.toml)).
 - **Git**: For version control.
 - **Cargo**: Rust's package manager (included with Rust).
 - **System libs**: Some datasources need `libclang` (for `bindgen`) — `sudo apt-get install libclang-dev` on Debian/Ubuntu, `brew install llvm` on macOS.
@@ -153,7 +153,7 @@ cargo machete
 
 The project uses a strict clippy configuration defined in `clippy.toml`:
 
-- Minimum Rust version: 1.82
+- Minimum Rust version: 1.96.1
 - Maximum stack size for large types: 128 bytes
 - Denies warnings, default trait access, arithmetic side effects, manual let-else, and used underscore binding
 
