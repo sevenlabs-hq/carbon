@@ -14,12 +14,7 @@ use {
     },
     juniper::{graphql_object, FieldError, FieldResult, GraphQLObject, Value},
     sqlx::{postgres::PgPoolOptions, PgPool, Row},
-    std::{
-        collections::{HashMap, HashSet},
-        env,
-        sync::Arc,
-    },
-    tokio::sync::RwLock,
+    std::{collections::HashMap, env, sync::Arc},
     yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterAccounts},
 };
 
@@ -156,7 +151,6 @@ pub async fn main() -> CarbonResult<()> {
         account_filters,
         HashMap::default(),
         Default::default(),
-        Arc::new(RwLock::new(HashSet::new())),
         YellowstoneGrpcClientConfig::default(),
         None,
         None,

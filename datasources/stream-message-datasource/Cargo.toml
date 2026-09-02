@@ -13,9 +13,6 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [dependencies]
-solana-pubkey = { workspace = true }
-solana-system-interface = { workspace = true }
-
 carbon-core = { workspace = true }
 
 async-trait = { workspace = true }

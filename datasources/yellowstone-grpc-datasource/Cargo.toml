@@ -16,7 +16,6 @@ crate-type = ["rlib"]
 solana-account = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-signature = { workspace = true }
-solana-system-interface = { workspace = true }
 
 carbon-core = { workspace = true, features = ["yellowstone"] }
 

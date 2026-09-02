@@ -8,8 +8,7 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
     const programIds = decoders.map(d => `${d.name.toUpperCase()}_PROGRAM_ID.to_string().clone()`);
 
     const imports = [
-        'std::collections::{HashMap, HashSet}',
-        'tokio::sync::RwLock',
+        'std::collections::HashMap',
         'yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions}',
         'carbon_yellowstone_grpc_datasource::{YellowstoneGrpcGeyserClient, YellowstoneGrpcClientConfig}',
     ];
@@ -50,7 +49,6 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
             account_filters,
             transaction_filters,
             Default::default(),
-            std::sync::Arc::new(RwLock::new(HashSet::new())),
             YellowstoneGrpcClientConfig::default(),
         )
     }`.trim();

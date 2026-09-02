@@ -6,13 +6,7 @@ use {
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
-    std::{
-        collections::{HashMap, HashSet},
-        env,
-        sync::Arc,
-        time::Duration,
-    },
-    tokio::sync::RwLock,
+    std::{collections::HashMap, env, time::Duration},
     yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterTransactions},
 };
 
@@ -26,7 +20,6 @@ pub fn yellowstone(
         HashMap::default(),
         transaction_filters,
         Default::default(),
-        Arc::new(RwLock::new(HashSet::new())),
         YellowstoneGrpcClientConfig::default(),
         None,
         None,
@@ -54,7 +47,6 @@ pub fn laserstream(
         HashMap::default(),
         transaction_filters,
         Default::default(),
-        Arc::new(RwLock::new(HashSet::new())),
         config,
     )
 }
