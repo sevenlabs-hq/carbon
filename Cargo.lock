@@ -12550,6 +12550,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "yellowstone-grpc-carbon-example"
+version = "1.0.0"
+dependencies = [
+ "carbon-core",
+ "carbon-helius-laserstream-datasource",
+ "carbon-jupiter-swap-decoder",
+ "carbon-log-metrics",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger",
+ "log",
+ "rustls",
+ "tokio",
+ "yellowstone-grpc-proto",
+]
+
+[[package]]
 name = "yellowstone-grpc-client"
 version = "13.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

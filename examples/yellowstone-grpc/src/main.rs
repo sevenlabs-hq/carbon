@@ -33,13 +33,13 @@ pub async fn main() -> CarbonResult<()> {
             account_exclude: vec![],
             account_required: vec![JUPITER_SWAP_PROGRAM_ID.to_string()],
             signature: None,
+            cuckoo_account_include: None,
+            token_accounts: None,
         },
     );
 
     let datasource = variants::yellowstone(transaction_filters);
     // alt: let datasource = variants::laserstream(transaction_filters);
-    // alt: let datasource = variants::jito_shredstream(); // ignores
-    // transaction_filters; decoder filters down to JUPITER_SWAP_PROGRAM_ID
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(datasource)

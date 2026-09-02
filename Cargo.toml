@@ -6,7 +6,6 @@ exclude = [
     "datasources/jetstreamer-datasource",
     "datasources/jito-shredstream-grpc-datasource",
     "examples/jetstreamer",
-    "examples/yellowstone-grpc",
 ]
 resolver = "2"
 
