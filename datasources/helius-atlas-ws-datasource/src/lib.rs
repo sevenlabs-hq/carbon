@@ -18,7 +18,7 @@ use {
     solana_message::{compiled_instruction::CompiledInstruction, v0::LoadedAddresses},
     solana_pubkey::Pubkey,
     solana_signature::Signature,
-    solana_transaction_context::TransactionReturnData,
+    solana_transaction_context::transaction::TransactionReturnData,
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
@@ -306,7 +306,7 @@ impl Datasource for HeliusWebsocket {
                                 match event_result {
                                     Some(clock_event) => {
                                         last_clock_update = Instant::now();
-                                        if let Some(clock_data) = clock_event.value.decode::<Account>() {
+                                        if let Some(clock_data) = clock_event.value.to_account() {
                                             if let Ok(clock) = bincode::deserialize::<Clock>(&clock_data.data) {
                                                 let current_slot = clock.slot;
 
@@ -381,7 +381,7 @@ impl Datasource for HeliusWebsocket {
                                         match event_result {
                                             Some(acc_event) => {
                                                 let start_time = std::time::Instant::now();
-                                                let decoded_account: Account = match acc_event.value.decode() {
+                                                let decoded_account: Account = match acc_event.value.to_account() {
                                                     Some(account_data) => account_data,
                                                     None => {
                                                         log::error!("Error decoding Helius WS Account event");
@@ -645,6 +645,7 @@ impl Datasource for HeliusWebsocket {
                                                             post_balance: rewards.post_balance,
                                                             reward_type: rewards.reward_type,
                                                             commission: rewards.commission,
+                                                            commission_bps: rewards.commission_bps,
                                                         })
                                                         .collect::<Vec<Reward>>(),
                                                 ),
