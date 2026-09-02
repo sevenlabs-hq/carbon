@@ -158,6 +158,7 @@ impl LaserStreamGeyserClient {
 }
 
 impl LaserStreamClientConfig {
+    #[allow(clippy::too_many_arguments)]
     pub const fn new(
         compression: Option<CompressionEncoding>,
         connect_timeout: Option<Duration>,
