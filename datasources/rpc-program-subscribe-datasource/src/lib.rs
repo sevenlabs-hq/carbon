@@ -157,12 +157,13 @@ impl Datasource for RpcProgramSubscribe {
                                     continue;
                                 };
 
-                                let update = Update::Account(AccountUpdate {
+                                let update = AccountUpdate {
                                     pubkey: account_pubkey,
                                     account: decoded_account,
                                     slot: acc_event.context.slot,
                                     transaction_signature: None,
-                                });
+                                }
+                                .into_update();
 
                                 ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                 ACCOUNTS_PROCESSED.inc();
@@ -188,6 +189,6 @@ impl Datasource for RpcProgramSubscribe {
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![UpdateType::AccountUpdate]
+        vec![UpdateType::AccountUpdate, UpdateType::AccountDeletion]
     }
 }
