@@ -427,10 +427,11 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             }
 
                                             Some(UpdateOneof::Ping(_)) => {
+                                                // Sink replays the last request on reconnect.
                                                 match subscribe_tx
                                                     .send(SubscribeRequest {
                                                         ping: Some(SubscribeRequestPing { id: 1 }),
-                                                        ..Default::default()
+                                                        ..subscribe_request.clone()
                                                     })
                                                     .await {
                                                         Ok(()) => (),
