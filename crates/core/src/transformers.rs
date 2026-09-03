@@ -12,6 +12,9 @@
 //!   `UiTransactionStatusMeta` (RPC representation) into the binary
 //!   `TransactionStatusMeta` that the pipeline expects.
 
+#[cfg(feature = "yellowstone")]
+pub mod yellowstone;
+
 use {
     crate::{
         datasource::TransactionUpdate,
@@ -24,7 +27,7 @@ use {
         compiled_instruction::CompiledInstruction, v0::LoadedAddresses, VersionedMessage,
     },
     solana_pubkey::Pubkey,
-    solana_transaction_context::TransactionReturnData,
+    solana_transaction_context::transaction::TransactionReturnData,
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
@@ -49,7 +52,9 @@ pub fn extract_instructions_with_metadata(
                 &meta.inner_instructions,
                 transaction_metadata,
                 &mut instructions_with_metadata,
-                |_, idx| legacy.is_maybe_writable(idx, None),
+                |_, idx| {
+                    legacy.is_maybe_writable_with_reserved_addresses(idx, None::<&HashSet<Pubkey>>)
+                },
                 |_, idx| legacy.is_signer(idx),
             );
         }
@@ -87,6 +92,19 @@ pub fn extract_instructions_with_metadata(
                     }
                 },
                 |_, idx| idx < v0.header.num_required_signatures as usize,
+            );
+        }
+        VersionedMessage::V1(v1) => {
+            process_instructions(
+                &v1.account_keys,
+                &v1.instructions,
+                &meta.inner_instructions,
+                transaction_metadata,
+                &mut instructions_with_metadata,
+                |_, idx| {
+                    v1.is_maybe_writable_with_reserved_addresses(idx, None::<&HashSet<Pubkey>>)
+                },
+                |_, idx| v1.is_signer(idx),
             );
         }
     }
@@ -218,7 +236,7 @@ pub fn extract_account_metas(
                 .get(*account_index as usize)
                 .ok_or(Error::MissingAccountInTransaction)?,
             is_signer: message.is_signer(*account_index as usize),
-            is_writable: message.is_maybe_writable(
+            is_writable: message.is_maybe_writable_with_reserved_addresses(
                 *account_index as usize,
                 Some(
                     &message
@@ -345,6 +363,7 @@ pub fn transaction_metadata_from_original_meta(
                     post_balance: rewards.post_balance,
                     reward_type: rewards.reward_type,
                     commission: rewards.commission,
+                    commission_bps: rewards.commission_bps,
                 })
                 .collect::<Vec<Reward>>(),
         ),
@@ -393,6 +412,7 @@ mod tests {
         solana_message::{
             legacy::Message,
             v0::{self, MessageAddressTableLookup},
+            v1::{self, TransactionConfig},
             MessageHeader,
         },
         solana_signature::Signature,
@@ -711,6 +731,143 @@ mod tests {
         assert_eq!(partial.len(), 2);
         assert_eq!(partial[0].0.absolute_path, vec![0]);
         assert_eq!(partial[1].0.absolute_path, vec![0, 0]);
+    }
+
+    #[test]
+    fn test_extract_instructions_v1_preserves_config_and_resolves_inline_accounts() {
+        let payer = Pubkey::new_unique();
+        let readonly_signer = Pubkey::new_unique();
+        let writable_account = Pubkey::new_unique();
+        let readonly_account = Pubkey::new_unique();
+        let program = Pubkey::new_unique();
+        let config = TransactionConfig::empty()
+            .with_priority_fee(42)
+            .with_compute_unit_limit(500_000)
+            .with_loaded_accounts_data_size_limit(64 * 1024)
+            .with_heap_size(64 * 1024);
+        let top_level_instruction = CompiledInstruction {
+            program_id_index: 4,
+            accounts: vec![0, 1, 2, 3],
+            data: vec![1, 2, 3],
+        };
+        let inner_instruction = CompiledInstruction {
+            program_id_index: 4,
+            accounts: vec![2, 3, 1],
+            data: vec![4, 5, 6],
+        };
+        let transaction_update = TransactionUpdate {
+            signature: Signature::default(),
+            transaction: VersionedTransaction {
+                signatures: vec![Signature::default(), Signature::default()],
+                message: VersionedMessage::V1(v1::Message::new(
+                    MessageHeader {
+                        num_required_signatures: 2,
+                        num_readonly_signed_accounts: 1,
+                        num_readonly_unsigned_accounts: 2,
+                    },
+                    config,
+                    Hash::default(),
+                    vec![
+                        payer,
+                        readonly_signer,
+                        writable_account,
+                        readonly_account,
+                        program,
+                    ],
+                    vec![top_level_instruction],
+                )),
+            },
+            meta: TransactionStatusMeta {
+                inner_instructions: Some(vec![InnerInstructions {
+                    index: 0,
+                    instructions: vec![InnerInstruction {
+                        instruction: inner_instruction,
+                        stack_height: Some(2),
+                    }],
+                }]),
+                ..Default::default()
+            },
+            is_vote: false,
+            slot: 1,
+            index: Some(0),
+            block_time: None,
+            block_hash: None,
+        };
+        let transaction_metadata: TransactionMetadata = transaction_update
+            .clone()
+            .try_into()
+            .expect("transaction metadata");
+
+        assert_eq!(transaction_metadata.fee_payer, payer);
+        let VersionedMessage::V1(metadata_message) = &transaction_metadata.message else {
+            panic!("expected V1 transaction metadata");
+        };
+        assert_eq!(metadata_message.config, config);
+
+        let instructions = extract_instructions_with_metadata(
+            &Arc::new(transaction_metadata),
+            &transaction_update,
+        )
+        .expect("extract V1 instructions with metadata");
+
+        assert_eq!(instructions.len(), 2);
+
+        let (top_level_metadata, top_level) = &instructions[0];
+        assert_eq!(top_level_metadata.stack_height, 1);
+        assert_eq!(top_level_metadata.absolute_path, vec![0]);
+        assert_eq!(top_level.program_id, program);
+        assert_eq!(top_level.data, vec![1, 2, 3]);
+        assert_eq!(
+            top_level.accounts,
+            vec![
+                AccountMeta {
+                    pubkey: payer,
+                    is_signer: true,
+                    is_writable: true,
+                },
+                AccountMeta {
+                    pubkey: readonly_signer,
+                    is_signer: true,
+                    is_writable: false,
+                },
+                AccountMeta {
+                    pubkey: writable_account,
+                    is_signer: false,
+                    is_writable: true,
+                },
+                AccountMeta {
+                    pubkey: readonly_account,
+                    is_signer: false,
+                    is_writable: false,
+                },
+            ]
+        );
+
+        let (inner_metadata, inner) = &instructions[1];
+        assert_eq!(inner_metadata.stack_height, 2);
+        assert_eq!(inner_metadata.absolute_path, vec![0, 0]);
+        assert_eq!(inner.program_id, program);
+        assert_eq!(inner.data, vec![4, 5, 6]);
+        assert_eq!(
+            inner.accounts,
+            vec![
+                AccountMeta {
+                    pubkey: writable_account,
+                    is_signer: false,
+                    is_writable: true,
+                },
+                AccountMeta {
+                    pubkey: readonly_account,
+                    is_signer: false,
+                    is_writable: false,
+                },
+                AccountMeta {
+                    pubkey: readonly_signer,
+                    is_signer: true,
+                    is_writable: false,
+                },
+            ]
+        );
     }
 
     #[test]

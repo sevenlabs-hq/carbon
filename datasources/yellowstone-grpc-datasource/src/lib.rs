@@ -2,28 +2,23 @@ use {
     async_trait::async_trait,
     carbon_core::{
         datasource::{
-            AccountDeletion, AccountUpdate, Datasource, DatasourceDisconnection, DatasourceId,
-            TransactionUpdate, Update, UpdateType,
+            AccountUpdate, Datasource, DatasourceDisconnection, DatasourceId, TransactionUpdate,
+            Update, UpdateType,
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
+        transformers::yellowstone::{create_tx_meta, create_tx_versioned},
     },
     chrono::{DateTime, Utc},
     futures::{sink::SinkExt, StreamExt},
     solana_account::Account,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
-    std::{
-        collections::{HashMap, HashSet},
-        convert::TryFrom,
-        sync::{Arc, LazyLock},
-        time::Duration,
-    },
-    tokio::sync::{mpsc, mpsc::Sender, RwLock},
+    std::{collections::HashMap, convert::TryFrom, sync::LazyLock, time::Duration},
+    tokio::sync::{mpsc, mpsc::Sender},
     tokio_util::sync::CancellationToken,
     yellowstone_grpc_client::{GeyserGrpcBuilder, GeyserGrpcBuilderResult, GeyserGrpcClient},
     yellowstone_grpc_proto::{
-        convert_from::{create_tx_meta, create_tx_versioned},
         geyser::{
             subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
             SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,
@@ -53,6 +48,25 @@ static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
     "yellowstone_grpc_account_updates_received_total",
     "Total account updates received from Yellowstone gRPC",
 );
+static ACCOUNT_DELETION_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "yellowstone_grpc_account_deletion_process_time_nanoseconds",
+        "Time taken to process account deletions in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static ACCOUNT_DELETIONS_RECEIVED: Counter = Counter::new(
+    "yellowstone_grpc_account_deletions_received_total",
+    "Total account deletions received from Yellowstone gRPC",
+);
 static TRANSACTION_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
     Histogram::new(
         "yellowstone_grpc_transaction_process_time_nanoseconds",
@@ -76,8 +90,10 @@ static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
 fn register_yellowstone_metrics() {
     let registry = MetricsRegistry::global();
     registry.register_counter(&ACCOUNT_UPDATES_RECEIVED);
+    registry.register_counter(&ACCOUNT_DELETIONS_RECEIVED);
     registry.register_counter(&TRANSACTION_UPDATES_RECEIVED);
     registry.register_histogram(&ACCOUNT_PROCESS_TIME_NANOS);
+    registry.register_histogram(&ACCOUNT_DELETION_PROCESS_TIME_NANOS);
     registry.register_histogram(&TRANSACTION_PROCESS_TIME_NANOS);
 }
 
@@ -98,7 +114,6 @@ pub struct YellowstoneGrpcGeyserClient {
     pub account_filters: HashMap<String, SubscribeRequestFilterAccounts>,
     pub transaction_filters: HashMap<String, SubscribeRequestFilterTransactions>,
     pub block_filters: BlockFilters,
-    pub account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
     pub geyser_config: YellowstoneGrpcClientConfig,
     pub disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
     /// Timeout for detecting hung/stale connections. Default: 30 seconds.
@@ -145,7 +160,6 @@ impl YellowstoneGrpcGeyserClient {
         account_filters: HashMap<String, SubscribeRequestFilterAccounts>,
         transaction_filters: HashMap<String, SubscribeRequestFilterTransactions>,
         block_filters: BlockFilters,
-        account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
         geyser_config: YellowstoneGrpcClientConfig,
         disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
         stream_timeout: Option<Duration>,
@@ -157,7 +171,6 @@ impl YellowstoneGrpcGeyserClient {
             account_filters,
             transaction_filters,
             block_filters,
-            account_deletions_tracked,
             geyser_config,
             disconnect_notifier,
             stream_timeout: stream_timeout
@@ -228,7 +241,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         let commitment = self.commitment;
         let account_filters = self.account_filters.clone();
         let transaction_filters = self.transaction_filters.clone();
-        let account_deletions_tracked = self.account_deletions_tracked.clone();
         let BlockFilters {
             filters,
             failed_transactions: block_failed_transactions,
@@ -360,7 +372,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     &sender,
                                                     id_for_loop.clone(),
                                                     account_update.slot,
-                                                    &account_deletions_tracked,
                                                 )
                                                 .await
                                             }
@@ -392,7 +403,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         &sender,
                                                         id_for_loop.clone(),
                                                         block_update.slot,
-                                                        &account_deletions_tracked,
                                                     )
                                                     .await;
                                                 }
@@ -472,7 +482,6 @@ async fn send_subscribe_account_update_info(
     sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     slot: u64,
-    account_deletions_tracked: &RwLock<HashSet<Pubkey>>,
 ) {
     let start_time = std::time::Instant::now();
 
@@ -493,44 +502,30 @@ async fn send_subscribe_account_update_info(
             rent_epoch: account_info.rent_epoch,
         };
 
-        if account.lamports == 0
-            && account.data.is_empty()
-            && account_owner_pubkey == solana_system_interface::program::ID
-        {
-            let accounts = account_deletions_tracked.read().await;
-            if accounts.contains(&account_pubkey) {
-                let account_deletion = AccountDeletion {
-                    pubkey: account_pubkey,
-                    slot,
-                    transaction_signature: account_info
-                        .txn_signature
-                        .and_then(|sig| Signature::try_from(sig).ok()),
-                };
-                if let Err(e) = sender.try_send((Update::AccountDeletion(account_deletion), id)) {
-                    log::error!(
-                        "Failed to send account deletion update for pubkey {account_pubkey:?} at slot {slot}: {e:?}"
-                    );
-                }
-            }
-        } else {
-            let update = Update::Account(AccountUpdate {
-                pubkey: account_pubkey,
-                account,
-                slot,
-                transaction_signature: account_info
-                    .txn_signature
-                    .and_then(|sig| Signature::try_from(sig).ok()),
-            });
+        let update = AccountUpdate {
+            pubkey: account_pubkey,
+            account,
+            slot,
+            transaction_signature: account_info
+                .txn_signature
+                .and_then(|sig| Signature::try_from(sig).ok()),
+        }
+        .into_update();
+        let is_deletion = matches!(&update, Update::AccountDeletion(_));
 
-            if let Err(e) = sender.try_send((update, id)) {
-                log::error!(
-                    "Failed to send account update for pubkey {account_pubkey:?} at slot {slot}: {e:?}"
-                );
-            }
+        if let Err(e) = sender.try_send((update, id)) {
+            log::error!(
+                "Failed to send account event for pubkey {account_pubkey:?} at slot {slot}: {e:?}"
+            );
         }
 
-        ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
-        ACCOUNT_UPDATES_RECEIVED.inc();
+        if is_deletion {
+            ACCOUNT_DELETION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+            ACCOUNT_DELETIONS_RECEIVED.inc();
+        } else {
+            ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+            ACCOUNT_UPDATES_RECEIVED.inc();
+        }
     } else {
         log::error!("No account info in UpdateOneof::Account at slot {slot}");
     }

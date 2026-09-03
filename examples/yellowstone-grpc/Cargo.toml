@@ -6,7 +6,6 @@ edition = { workspace = true }
 [dependencies]
 carbon-core = { workspace = true }
 carbon-helius-laserstream-datasource = { workspace = true }
-carbon-jito-shredstream-grpc-datasource = { workspace = true }
 carbon-jupiter-swap-decoder = { workspace = true }
 carbon-log-metrics = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }

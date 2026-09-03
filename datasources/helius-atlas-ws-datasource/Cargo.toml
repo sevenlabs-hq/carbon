@@ -22,7 +22,6 @@ solana-message = { workspace = true }
 solana-program = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-signature = { workspace = true }
-solana-system-interface = { workspace = true }
 solana-transaction-context = { workspace = true }
 solana-transaction-status = { workspace = true }
 

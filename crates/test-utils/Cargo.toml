@@ -20,4 +20,9 @@ serde_json = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
 solana-pubkey = { workspace = true }
+# Compatibility anchor for Agave 4.2's wincode cohort.
+solana-transaction = { workspace = true }
 solana-transaction-status = { workspace = true }
+
+[package.metadata.cargo-machete]
+ignored = ["solana-transaction"]

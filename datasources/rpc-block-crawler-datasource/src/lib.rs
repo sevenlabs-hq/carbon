@@ -382,7 +382,7 @@ mod tests {
         let (block_sender, mut block_receiver) = mpsc::channel(1);
 
         let block_config = RpcBlockConfig {
-            max_supported_transaction_version: Some(0),
+            max_supported_transaction_version: Some(1),
             ..Default::default()
         };
 
@@ -462,7 +462,7 @@ mod tests {
         let (block_sender, mut block_receiver) = mpsc::channel(1);
 
         let block_config = RpcBlockConfig {
-            max_supported_transaction_version: Some(0),
+            max_supported_transaction_version: Some(1),
             ..Default::default()
         };
 

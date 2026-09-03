@@ -4,18 +4,16 @@ This example demonstrates a real-time Carbon pipeline backed by a Yellowstone Ge
 
 ## Variants
 
-This crate ships three interchangeable upstream variants in [`src/variants.rs`](src/variants.rs):
+This crate ships two interchangeable upstream variants in [`src/variants.rs`](src/variants.rs):
 
 - `variants::yellowstone(...)` — vanilla Yellowstone Geyser gRPC. Default in `main.rs`.
 - `variants::laserstream(...)` — Helius LaserStream gRPC. Adds the `replay_enabled` flag for replaying missed slots after a reconnect.
-- `variants::jito_shredstream()` — Jito Shredstream gRPC. Streams pre-confirmation transactions from raw shreds.
 
 Swap by editing the line in `main.rs`:
 
 ```rust
 let datasource = variants::yellowstone(transaction_filters);
-let datasource = variants::laserstream(transaction_filters);
-let datasource = variants::jito_shredstream();
+// Or: let datasource = variants::laserstream(transaction_filters);
 ```
 
 ## Setup Instructions
@@ -42,9 +40,6 @@ X_TOKEN=your-auth-token
 # LASERSTREAM_URL=https://laserstream-mainnet-ewr.helius-rpc.com
 # API_KEY=your-helius-api-key
 
-# Jito Shredstream variant
-# JITO_SHREDSTREAM_URL=http://your-jito-shredstream-proxy:port
-
 RUST_LOG=info
 ```
 
@@ -52,7 +47,6 @@ RUST_LOG=info
 - `X_TOKEN`: auth token for Yellowstone. Required if your provider enforces it (optional otherwise).
 - `LASERSTREAM_URL`: Helius LaserStream gRPC endpoint. Required for the LaserStream variant.
 - `API_KEY`: Helius API key. Required for the LaserStream variant.
-- `JITO_SHREDSTREAM_URL`: Jito Shredstream proxy gRPC endpoint. Required for the Jito Shredstream variant.
 - `RUST_LOG`: log level (`info` shows decoded swaps plus periodic pipeline counters).
 
 ### Step 3: Build the Project

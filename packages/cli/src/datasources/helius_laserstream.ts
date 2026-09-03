@@ -8,8 +8,7 @@ export function buildHeliusLaserstream(decoders: DecoderMeta[]): DatasourceArtif
     const programIds = decoders.map(d => `${d.name.toUpperCase()}_PROGRAM_ID.to_string().clone()`);
 
     const imports = [
-        'std::collections::{HashMap, HashSet}',
-        'tokio::sync::RwLock',
+        'std::collections::HashMap',
         'yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions}',
         'carbon_helius_laserstream_datasource::LaserStreamClientConfig',
     ];
@@ -30,6 +29,7 @@ export function buildHeliusLaserstream(decoders: DecoderMeta[]): DatasourceArtif
                     ],
                     filters: vec![],
                     nonempty_txn_signature: None,
+                    cuckoo_accounts_filter: None,
                 },
             );
             account_filters
@@ -44,13 +44,14 @@ export function buildHeliusLaserstream(decoders: DecoderMeta[]): DatasourceArtif
                     ${rustJoin(programIds)}
                 ],
                 signature: None,
+                cuckoo_account_include: None,
+                token_accounts: None,
             };
             let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> = HashMap::new();
             transaction_filters.insert("transaction_filter".to_string(), transaction_filter);
             transaction_filters
         },
         Default::default(),
-        std::sync::Arc::new(RwLock::new(HashSet::new())),
         LaserStreamClientConfig::default(),
     )`.trim();
 

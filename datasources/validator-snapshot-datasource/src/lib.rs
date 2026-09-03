@@ -11,18 +11,11 @@ use {
     downloader::download_and_setup_ledger,
     solana_account::ReadableAccount,
     solana_accounts_db::{
-        accounts_db::AccountsDbConfig,
-        accounts_index::{ScanConfig, ScanOrder},
-        is_loadable::IsLoadable,
+        accounts_db::AccountsDbConfig, is_loadable::IsLoadable,
         utils::create_all_accounts_run_and_snapshot_dirs,
     },
     solana_genesis_utils::open_genesis_config,
-    solana_ledger::{
-        bank_forks_utils,
-        blockstore::Blockstore,
-        blockstore_options::{AccessType, BlockstoreOptions},
-        blockstore_processor::ProcessOptions,
-    },
+    solana_ledger::{bank_forks_utils, blockstore_processor::ProcessOptions},
     solana_pubkey::{Pubkey as SolanaPubkey, Pubkey},
     solana_runtime::bank::Bank,
     std::{
@@ -136,21 +129,7 @@ impl SnapshotState {
                 ))
             })?;
 
-        let blockstore = Blockstore::open_with_options(
-            &ledger_directory,
-            BlockstoreOptions {
-                access_type: AccessType::PrimaryForMaintenance,
-                ..BlockstoreOptions::default()
-            },
-        )
-        .map_err(|err| {
-            Error::FailedToConsumeDatasource(format!(
-                "Failed to open blockstore at {ledger_directory:?}: {err}"
-            ))
-        })?;
-
         let accounts_db_settings = AccountsDbConfig {
-            base_working_path: Some(ledger_directory.clone()),
             skip_initial_hash_calc: true,
             ..AccountsDbConfig::default()
         };
@@ -159,7 +138,7 @@ impl SnapshotState {
             usage: SnapshotUsage::LoadOnly,
             full_snapshot_archives_dir: snapshots_directory.clone(),
             incremental_snapshot_archives_dir: snapshots_directory.clone(),
-            bank_snapshots_dir: snapshots_directory,
+            bank_snapshots_dir: snapshots_directory.clone(),
             ..SnapshotConfig::default()
         };
 
@@ -169,23 +148,24 @@ impl SnapshotState {
             ..Default::default()
         };
 
-        let (bank_forks, _leader_schedule_cache, _snapshot_hashes, ..) =
-            bank_forks_utils::load_bank_forks(
-                &genesis_config,
-                &blockstore,
-                account_run_directories,
-                &snapshot_settings,
-                &processing_settings,
-                None,
-                None,
-                None,
-                Arc::new(AtomicBool::new(false)),
-            )
-            .map_err(|err| {
-                Error::FailedToConsumeDatasource(format!(
-                    "Failed to load bank forks from snapshot: {err}"
-                ))
-            })?;
+        let (bank_forks, _snapshot_hashes) = bank_forks_utils::try_load_bank_forks_from_snapshot(
+            &genesis_config,
+            &account_run_directories,
+            &snapshot_settings,
+            &processing_settings,
+            None,
+            Arc::new(AtomicBool::new(false)),
+        )
+        .map_err(|err| {
+            Error::FailedToConsumeDatasource(format!(
+                "Failed to load bank forks from snapshot: {err}"
+            ))
+        })?
+        .ok_or_else(|| {
+            Error::FailedToConsumeDatasource(format!(
+                "No loadable full snapshot archive found in {snapshots_directory:?}"
+            ))
+        })?;
 
         let bank = bank_forks
             .read()
@@ -272,60 +252,51 @@ impl Datasource for SnapshotDatasource {
                 snapshot_slot
             );
 
-            let scan_config = ScanConfig::new(ScanOrder::Sorted);
             let mut channel_closed = false;
 
-            bank.rc
-                .accounts
-                .accounts_db
-                .scan_accounts(
-                    &bank.ancestors,
-                    bank.bank_id(),
-                    |option| {
-                        if cancellation_token_clone.is_cancelled() {
-                            return;
-                        }
+            bank.scan_all_accounts(|option| {
+                if cancellation_token_clone.is_cancelled() {
+                    return;
+                }
 
-                        if channel_closed {
-                            return;
-                        }
+                if channel_closed {
+                    return;
+                }
 
-                        if let Some((pubkey, account, _slot)) = option {
-                            if !account.is_loadable() {
-                                return;
-                            }
+                if let Some((pubkey, account, _slot)) = option {
+                    if !account.is_loadable() {
+                        return;
+                    }
 
-                            let owner = account.owner();
-                            if !owners_set.contains(owner) && !accounts_set.contains(pubkey) {
-                                return;
-                            }
+                    let owner = account.owner();
+                    if !owners_set.contains(owner) && !accounts_set.contains(pubkey) {
+                        return;
+                    }
 
-                            let account_update = AccountUpdate {
-                                pubkey: *pubkey,
-                                account: solana_account::Account {
-                                    lamports: account.lamports(),
-                                    data: account.data().to_vec(),
-                                    owner: *owner,
-                                    executable: account.executable(),
-                                    rent_epoch: account.rent_epoch(),
-                                },
-                                slot: snapshot_slot,
-                                transaction_signature: None,
-                            };
+                    let account_update = AccountUpdate {
+                        pubkey: *pubkey,
+                        account: solana_account::Account {
+                            lamports: account.lamports(),
+                            data: account.data().to_vec(),
+                            owner: *owner,
+                            executable: account.executable(),
+                            rent_epoch: account.rent_epoch(),
+                        },
+                        slot: snapshot_slot,
+                        transaction_signature: None,
+                    };
 
-                            let update = Update::Account(account_update);
+                    let update = Update::Account(account_update);
 
-                            if let Err(e) = sender_clone.blocking_send((update, id_clone.clone())) {
-                                log::error!("Failed to send account update: {e:?}");
-                                channel_closed = true;
-                            } else {
-                                ACCOUNTS_PROCESSED.inc();
-                            }
-                        }
-                    },
-                    &scan_config,
-                )
-                .map_err(|e| Error::FailedToConsumeDatasource(format!("Scan failed: {e}")))?;
+                    if let Err(e) = sender_clone.blocking_send((update, id_clone.clone())) {
+                        log::error!("Failed to send account update: {e:?}");
+                        channel_closed = true;
+                    } else {
+                        ACCOUNTS_PROCESSED.inc();
+                    }
+                }
+            })
+            .map_err(|e| Error::FailedToConsumeDatasource(format!("Scan failed: {e}")))?;
 
             log::info!("Account scan completed");
 

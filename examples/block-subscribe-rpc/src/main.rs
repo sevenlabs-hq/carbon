@@ -27,7 +27,7 @@ pub async fn main() -> CarbonResult<()> {
             encoding: Some(UiTransactionEncoding::Base64),
             transaction_details: Some(TransactionDetails::Full),
             show_rewards: Some(false),
-            max_supported_transaction_version: Some(0),
+            max_supported_transaction_version: Some(1),
         }),
     );
 

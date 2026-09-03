@@ -208,7 +208,7 @@ impl HeliusGtfaDatasource {
                 .as_ref()
                 .map(|c| c.commitment.to_string()),
             encoding: "base64".to_string(),
-            max_supported_transaction_version: 0,
+            max_supported_transaction_version: 1,
             min_context_slot: self.config.min_context_slot,
             filters,
         }

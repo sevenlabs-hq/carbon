@@ -1,9 +1,16 @@
 [workspace]
 members = ["crates/*", "datasources/*", "decoders/*", "examples/*", "metrics/*"]
+# These providers remain on their existing Solana v3 stacks and are intentionally
+# outside the v4 migration scope.
+exclude = [
+    "datasources/jetstreamer-datasource",
+    "datasources/jito-shredstream-grpc-datasource",
+    "examples/jetstreamer",
+]
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.82"
+rust-version = "1.96.1"
 version = "1.0.0"
 edition = "2021"
 license = "MIT"
@@ -106,42 +113,38 @@ carbon-wavebreak-decoder = { path = "decoders/wavebreak-decoder", version = "1.0
 carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "1.0.0" }
 
 # solana
-agave-snapshots = "^3.1.5"
-solana-account = "^3.0.0"
-solana-account-decoder = "^3.0.0"
-solana-account-decoder-client-types = "^3.0.0"
-solana-accounts-db = "^3.1.5"
-solana-client = "^3.0.0"
-solana-clock = "^3.0.0"
-solana-commitment-config = "^3.0.0"
-solana-entry = "^3.0.0"
-solana-genesis-utils = { version = "^3.1.5", features = ["agave-unstable-api"] }
-solana-hash = "^3.0.0"
-solana-instruction = { version = "^3.0.0", default-features = false }
-solana-ledger = { version = "^3.1.5", features = ["agave-unstable-api"] }
-solana-message = "^3.0.0"
-solana-native-token = "^3.0.0"
-solana-program = { version = "^3.0.0", features = ["borsh"] }
-solana-program-pack = "^3.0.0"
-solana-pubkey = { version = "^3.0.0", features = ["serde", "borsh", "curve25519"] }
-solana-reward-info = "^3.0.0"
-solana-runtime = "^3.1.5"
-solana-signature = { version = "^3.0.0", features = ["rand"] }
-solana-system-interface = "^2.0.0"
-solana-transaction = "^3.0.0"
-solana-transaction-context = "^3.0.0"
-solana-transaction-error = "^3.0.0"
-solana-transaction-status = "^3.0.0"
-solana-transaction-status-client-types = "^3.0.0"
-spl-memo-interface = "2.0.0"
-spl-pod = "0.7.1"
-spl-token-2022 = "10.0.0"
-spl-token-group-interface = "0.7.1"
-spl-token-interface = "2.0.0"
-spl-token-metadata-interface = "0.8.0"
-spl-type-length-value = "0.9.0"
-yellowstone-grpc-client = { version = "10.0.0" }
-yellowstone-grpc-proto = { version = "10.0.0", features = ["convert"] }
+agave-snapshots = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-account = "4.3.2"
+solana-account-decoder = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-account-decoder-client-types = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-accounts-db = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-client = "=4.2.2"
+solana-clock = "3.1.1"
+solana-commitment-config = "3.1.1"
+solana-entry = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-genesis-utils = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-hash = { version = "4.5.0", features = ["decode"] }
+solana-instruction = { version = "3.4.1", default-features = false }
+solana-ledger = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-message = { version = "4.4.1", features = ["wincode"] }
+solana-program = { version = "4.0.0", features = ["borsh"] }
+solana-program-pack = "3.1.0"
+solana-pubkey = { version = "4.2.1", features = ["borsh", "curve25519", "serde"] }
+solana-runtime = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-signature = { version = "3.4.1", features = ["rand"] }
+solana-transaction = { version = "4.1.6", features = ["wincode"] }
+solana-transaction-context = { version = "=4.2.2", features = ["agave-unstable-api", "bincode"] }
+solana-transaction-error = "3.3.2"
+solana-transaction-status = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-transaction-status-client-types = { version = "=4.2.2", features = ["agave-unstable-api"] }
+spl-pod = "0.7.3"
+spl-token-2022 = "11.0.0"
+spl-token-group-interface = "0.7.2"
+spl-token-interface = "3.0.0"
+spl-token-metadata-interface = "1.0.0"
+spl-type-length-value = "0.9.1"
+yellowstone-grpc-client = { version = "=13.5.0" }
+yellowstone-grpc-proto = { version = "=12.7.0", default-features = false }
 
 # misc
 anyhow = "1.0.100"
@@ -165,7 +168,7 @@ flate2 = "1.1.5"
 futures = "0.3.31"
 futures-util = "0.3.31"
 heck = "0.5.0"
-helius = "1.1.0"
+helius = "2.0.0"
 hex = "0.4.3"
 indicatif = "0.17.11"
 inquire = "0.7.5"
@@ -209,3 +212,4 @@ tonic = { version = "0.13.1", features = ["tls-native-roots", "tls-webpki-roots"
 tonic-build = "0.13.1"
 unicode-xid = "0.2"
 uuid = { version = "1.18.1", features = ["serde", "v7"] }
+wincode = "0.5.5"

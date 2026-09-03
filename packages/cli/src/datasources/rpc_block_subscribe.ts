@@ -11,7 +11,7 @@ export function buildRpcBlockSubscribe(_decoders: DecoderMeta[]): DatasourceArti
         let filters = Filters::new(
             RpcBlockSubscribeFilter::All,
             Some(RpcBlockSubscribeConfig {
-                max_supported_transaction_version: Some(0),
+                max_supported_transaction_version: Some(1),
                 ..RpcBlockSubscribeConfig::default()
             }),
         );

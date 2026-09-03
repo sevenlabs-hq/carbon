@@ -2,8 +2,7 @@ use {
     async_trait::async_trait,
     carbon_core::{
         datasource::{
-            AccountDeletion, AccountUpdate, Datasource, DatasourceId, TransactionUpdate, Update,
-            UpdateType,
+            AccountUpdate, Datasource, DatasourceId, TransactionUpdate, Update, UpdateType,
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
@@ -18,18 +17,17 @@ use {
     solana_message::{compiled_instruction::CompiledInstruction, v0::LoadedAddresses},
     solana_pubkey::Pubkey,
     solana_signature::Signature,
-    solana_transaction_context::TransactionReturnData,
+    solana_transaction_context::transaction::TransactionReturnData,
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
     },
     std::{
-        collections::HashSet,
         str::FromStr,
         sync::{Arc, LazyLock},
         time::{Duration, Instant},
     },
-    tokio::sync::{mpsc::Sender, RwLock},
+    tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
@@ -146,7 +144,6 @@ impl Filters {
 pub struct HeliusWebsocket {
     pub api_key: String,
     pub filters: Filters,
-    pub account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
     pub cluster: Cluster,
     pub ping_interval_secs: Option<u64>,
     pub pong_timeout_secs: Option<u64>,
@@ -156,16 +153,10 @@ pub struct HeliusWebsocket {
 }
 
 impl HeliusWebsocket {
-    pub const fn new(
-        api_key: String,
-        filters: Filters,
-        account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
-        cluster: Cluster,
-    ) -> Self {
+    pub const fn new(api_key: String, filters: Filters, cluster: Cluster) -> Self {
         Self {
             api_key,
             filters,
-            account_deletions_tracked,
             cluster,
             ping_interval_secs: None,
             pong_timeout_secs: None,
@@ -242,7 +233,6 @@ impl Datasource for HeliusWebsocket {
                 }
             };
 
-            let account_deletions_tracked = Arc::clone(&self.account_deletions_tracked);
             let filters = self.filters.clone();
             let transaction_idle_timeout_secs = self.transaction_idle_timeout_secs;
             let sender = sender.clone();
@@ -306,7 +296,7 @@ impl Datasource for HeliusWebsocket {
                                 match event_result {
                                     Some(clock_event) => {
                                         last_clock_update = Instant::now();
-                                        if let Some(clock_data) = clock_event.value.decode::<Account>() {
+                                        if let Some(clock_data) = clock_event.value.to_account() {
                                             if let Ok(clock) = bincode::deserialize::<Clock>(&clock_data.data) {
                                                 let current_slot = clock.slot;
 
@@ -344,7 +334,6 @@ impl Datasource for HeliusWebsocket {
                         let iteration_cancellation_acc = iteration_cancellation.clone();
                         let sender_clone = sender.clone();
                         let helius_clone = Arc::clone(&helius);
-                        let account_deletions_tracked = Arc::clone(&account_deletions_tracked);
                         let id_for_account = id_for_loop.clone();
 
                         let handle = tokio::spawn(async move {
@@ -381,7 +370,7 @@ impl Datasource for HeliusWebsocket {
                                         match event_result {
                                             Some(acc_event) => {
                                                 let start_time = std::time::Instant::now();
-                                                let decoded_account: Account = match acc_event.value.decode() {
+                                                let decoded_account: Account = match acc_event.value.to_account() {
                                                     Some(account_data) => account_data,
                                                     None => {
                                                         log::error!("Error decoding Helius WS Account event");
@@ -389,45 +378,28 @@ impl Datasource for HeliusWebsocket {
                                                     }
                                                 };
 
-                                                if decoded_account.lamports == 0 && decoded_account.data.is_empty() && decoded_account.owner == solana_system_interface::program::ID {
-                                                    let accounts_tracked =
-                                                        account_deletions_tracked.read().await;
-                                                    if !accounts_tracked.is_empty() && accounts_tracked.contains(&account) {
-                                                        let account_deletion = AccountDeletion {
-                                                            pubkey: account,
-                                                            slot: acc_event.context.slot,
-                                                            transaction_signature: None,
-                                                        };
+                                                let update = AccountUpdate {
+                                                    pubkey: account,
+                                                    account: decoded_account,
+                                                    slot: acc_event.context.slot,
+                                                    transaction_signature: None,
+                                                }
+                                                .into_update();
 
-                                                        ACCOUNT_DELETION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
-                                                        ACCOUNT_DELETIONS_RECEIVED.inc();
-
-                                                        if let Err(err) = sender_clone.try_send((
-                                                            Update::AccountDeletion(account_deletion),
-                                                            id_for_account.clone(),
-                                                        )) {
-                                                            log::error!("Error sending account update: {err:?}");
-                                                            break;
-                                                        }
-                                                    }
+                                                if matches!(&update, Update::AccountDeletion(_)) {
+                                                    ACCOUNT_DELETION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+                                                    ACCOUNT_DELETIONS_RECEIVED.inc();
                                                 } else {
-                                                    let update = Update::Account(AccountUpdate {
-                                                        pubkey: account,
-                                                        account: decoded_account,
-                                                        slot: acc_event.context.slot,
-                                                        transaction_signature: None,
-                                                    });
-
                                                     ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                                     ACCOUNT_UPDATES_RECEIVED.inc();
+                                                }
 
-                                                    if let Err(err) = sender_clone.try_send((
-                                                        update,
-                                                        id_for_account.clone(),
-                                                    )) {
-                                                        log::error!("Error sending account update: {err:?}");
-                                                        break;
-                                                    }
+                                                if let Err(err) = sender_clone.try_send((
+                                                    update,
+                                                    id_for_account.clone(),
+                                                )) {
+                                                    log::error!("Error sending account event: {err:?}");
+                                                    break;
                                                 }
                                             },
                                             None => {
@@ -645,6 +617,7 @@ impl Datasource for HeliusWebsocket {
                                                             post_balance: rewards.post_balance,
                                                             reward_type: rewards.reward_type,
                                                             commission: rewards.commission,
+                                                            commission_bps: rewards.commission_bps,
                                                         })
                                                         .collect::<Vec<Reward>>(),
                                                 ),
