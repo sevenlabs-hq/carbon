@@ -17,7 +17,9 @@ use {
     std::{collections::HashMap, convert::TryFrom, sync::LazyLock, time::Duration},
     tokio::sync::{mpsc, mpsc::Sender},
     tokio_util::sync::CancellationToken,
-    yellowstone_grpc_client::{GeyserGrpcBuilder, GeyserGrpcBuilderResult, GeyserGrpcClient},
+    yellowstone_grpc_client::{
+        GeyserGrpcBuilder, GeyserGrpcBuilderResult, GeyserGrpcClient, ReconnectConfig,
+    },
     yellowstone_grpc_proto::{
         geyser::{
             subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
@@ -128,6 +130,9 @@ pub struct YellowstoneGrpcClientConfig {
     pub max_decoding_message_size: Option<usize>,
     pub tls_config: Option<ClientTlsConfig>,
     pub tcp_nodelay: Option<bool>,
+    /// When set, the client reconnects and replays inside the stream instead of
+    /// surfacing the disconnect. Off by default.
+    pub reconnect: Option<ReconnectConfig>,
 }
 
 impl Default for YellowstoneGrpcClientConfig {
@@ -139,6 +144,7 @@ impl Default for YellowstoneGrpcClientConfig {
             max_decoding_message_size: None,
             tls_config: None,
             tcp_nodelay: None,
+            reconnect: None,
         }
     }
 }
@@ -195,6 +201,14 @@ impl YellowstoneGrpcClientConfig {
             max_decoding_message_size,
             tls_config,
             tcp_nodelay,
+            reconnect: None,
+        }
+    }
+
+    pub fn with_reconnect(self, reconnect: ReconnectConfig) -> Self {
+        YellowstoneGrpcClientConfig {
+            reconnect: Some(reconnect),
+            ..self
         }
     }
 
@@ -222,6 +236,10 @@ impl YellowstoneGrpcClientConfig {
 
         if let Some(val) = self.tcp_nodelay {
             builder = builder.tcp_nodelay(val);
+        }
+
+        if let Some(reconnect) = self.reconnect.clone() {
+            builder = builder.set_reconnect_config(reconnect);
         }
         Ok(builder)
     }
