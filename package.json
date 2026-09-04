@@ -26,7 +26,7 @@
     "packageManager": "pnpm@9.6.0",
     "engines": {
         "node": ">=20.18.0",
-        "pnpm": ">=8.0.0"
+        "pnpm": "9.6.0"
     },
     "pnpm": {
         "overrides": {

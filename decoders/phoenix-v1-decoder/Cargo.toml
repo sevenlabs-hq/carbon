@@ -1,6 +1,7 @@
 [package]
 name = "carbon-phoenix-v1-decoder"
-version = "1.0.0"
+version = "2.0.0"
+rust-version = { workspace = true }
 edition = { workspace = true }
 description = "Phoenix V1 Decoder"
 license = { workspace = true }

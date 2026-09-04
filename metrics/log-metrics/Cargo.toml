@@ -1,6 +1,7 @@
 [package]
 name = "carbon-log-metrics"
-version = "1.0.0"
+version = "2.0.0"
+rust-version = { workspace = true }
 description = "Log Metrics"
 license = { workspace = true }
 edition = { workspace = true }

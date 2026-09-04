@@ -1,17 +1,20 @@
 # Jetstreamer Example
 
+> [!NOTE]
+> This is a Carbon 1 / Solana 3 example. It is excluded from the Carbon 2
+> workspace because Jetstreamer does not yet support the Solana v4 stack.
+> It is retained as an archival reference and is not buildable from this Carbon
+> 2 checkout; use the published 1.x datasource in a Carbon 1 application.
+
 This example demonstrates how to backfill historical Token-2022 activity over a slot range via the Jetstream API (Solana Foundation's Old Faithful archive). It uses upstream-side transaction filtering (only matching transactions are returned), multi-threaded fetch for higher throughput than serial RPC polling, and exits cleanly via `ProcessPending` when the slot range drains.
 
 ## Setup Instructions
 
-### Step 1: Clone the Repository
+### Step 1: Use a Carbon 1 project
 
-To get started, clone the repository:
-
-```sh
-git clone git@github.com:sevenlabs-hq/carbon.git
-cd carbon/examples/jetstreamer
-```
+Copy this example's configuration and processor pattern into an application
+that consistently uses the published Carbon 1.x crates. Do not add it to the
+Carbon 2 workspace.
 
 ### Step 2: Set Environment Variables
 

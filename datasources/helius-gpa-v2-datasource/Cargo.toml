@@ -2,7 +2,8 @@
 name = "carbon-helius-gpa-v2-datasource"
 description = "Helius gPA V2 Datasource - Fetches program accounts using Helius getProgramAccountsV2 with pagination and changedSinceSlot support"
 license = { workspace = true }
-version = "1.0.0"
+version = "2.0.0"
+rust-version = { workspace = true }
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }

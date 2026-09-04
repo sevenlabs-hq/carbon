@@ -86,9 +86,14 @@ Update producers grouped by source — each crate ships its own README with setu
 
 - **Solana RPC**: `carbon-rpc-block-subscribe-datasource`, `carbon-rpc-program-subscribe-datasource`, `carbon-rpc-transaction-crawler-datasource`, `carbon-rpc-block-crawler-datasource`, `carbon-rpc-gpa-datasource`
 - **Helius**: `carbon-helius-atlas-ws-datasource`, `carbon-helius-laserstream-datasource`, `carbon-helius-gpa-v2-datasource`, `carbon-helius-gtfa-datasource`
-- **Geyser gRPC**: `carbon-yellowstone-grpc-datasource`, `carbon-jito-shredstream-grpc-datasource`
-- **Historical / archive**: `carbon-validator-snapshot-datasource`, `carbon-jetstreamer-datasource`
+- **Geyser gRPC**: `carbon-yellowstone-grpc-datasource`
+- **Historical / archive**: `carbon-validator-snapshot-datasource`
 - **Adapter**: `carbon-stream-message-datasource`
+
+`carbon-jito-shredstream-grpc-datasource` and `carbon-jetstreamer-datasource`
+remain on the Carbon 1 / Solana 3 line and are excluded from the Carbon 2
+workspace. Jito Shredstream does not yet support Transaction V1; Jetstreamer
+does not yet support the Solana v4 stack.
 
 ### Decoders (`decoders/`)
 
@@ -109,12 +114,12 @@ Program-specific decoders for popular Solana programs:
 
 Standalone, runnable indexers — one crate per indexing pattern:
 
-- **`yellowstone-grpc`**: Real-time pipeline (Yellowstone gRPC, with LaserStream and Jito Shredstream variants)
+- **`yellowstone-grpc`**: Real-time pipeline (Yellowstone gRPC, with a LaserStream variant)
 - **`block-subscribe-rpc`**: Real-time pipeline over public Solana RPC
 - **`gpa-rpc`**: Loading current program state via `getProgramAccounts`
 - **`transaction-crawler-rpc`**: Per-program transaction history
 - **`snapshot-validator`**: Loading state from a validator snapshot file
-- **`jetstreamer`**: Bounded-range historical backfill from an archive
+- **`jetstreamer`**: Legacy Carbon 1 bounded-range archive example (excluded from the Carbon 2 workspace)
 - **`versioned-decoders`**: Routing across program upgrades with breaking IDL changes
 - **`postgres-graphql`**: Persisting decoded data to Postgres with a GraphQL query layer
 - **`custom-datasource`**: Reference for implementing your own `Datasource`
