@@ -4,6 +4,7 @@ export function buildRpcBlockSubscribe(_decoders: DecoderMeta[]): DatasourceArti
     const imports = [
         'carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe}',
         'solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter}',
+        'solana_transaction_status::{TransactionDetails, UiTransactionEncoding}',
     ];
 
     const init = `
@@ -11,6 +12,8 @@ export function buildRpcBlockSubscribe(_decoders: DecoderMeta[]): DatasourceArti
         let filters = Filters::new(
             RpcBlockSubscribeFilter::All,
             Some(RpcBlockSubscribeConfig {
+                encoding: Some(UiTransactionEncoding::Base64),
+                transaction_details: Some(TransactionDetails::Full),
                 max_supported_transaction_version: Some(1),
                 ..RpcBlockSubscribeConfig::default()
             }),

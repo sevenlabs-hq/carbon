@@ -116,25 +116,16 @@ async fn run_graphql(pool: Arc<sqlx::PgPool>) -> CarbonResult<()> {
 {%- for decoder in decoders %} 
 pub struct {{ decoder.name }}InstructionProcessor;
 
-#[async_trait]
-impl Processor for {{ decoder.name }}InstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        {{ decoder.name }}Instruction,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, {{ decoder.name }}Instruction>> for {{ decoder.name }}InstructionProcessor {
     async fn process(
         &mut self,
-        (metadata, decoded_instruction, _nested_instructions, _raw_instruction): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, {{ decoder.name }}Instruction>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
+        let signature = input.metadata.transaction_metadata.signature;
 
         log::info!("received the {{ decoder.name }} instruction, sig: {}", signature);
-        
-        match decoded_instruction {
+
+        match input.decoded_instruction {
             _ => {}
         };
 

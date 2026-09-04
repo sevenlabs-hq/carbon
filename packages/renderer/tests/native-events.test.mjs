@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -25,6 +26,37 @@ import {
 import { visit } from '@codama/visitors-core';
 
 import { renderVisitor } from '../dist/index.mjs';
+
+const require = createRequire(import.meta.url);
+const { renderVisitor: renderVisitorCjs } = require('../dist/index.js');
+
+test('renders through the CommonJS entry point', () => {
+    const outputDirectory = mkdtempSync(join(tmpdir(), 'carbon-cjs-render-'));
+
+    try {
+        const root = rootNode(
+            programNode({
+                name: 'commonJsSmoke',
+                publicKey: '11111111111111111111111111111111',
+                instructions: [instructionNode({ name: 'ping' })],
+            }),
+        );
+
+        visit(
+            root,
+            renderVisitorCjs(outputDirectory, {
+                standalone: true,
+                withGraphql: false,
+                withPostgres: false,
+                withSerde: true,
+            }),
+        );
+
+        assert.ok(existsSync(join(outputDirectory, 'src/lib.rs')));
+    } finally {
+        rmSync(outputDirectory, { force: true, recursive: true });
+    }
+});
 
 test('renders native Codama events with their IDL-defined CPI discriminator', () => {
     const outputDirectory = mkdtempSync(join(tmpdir(), 'carbon-codama-events-'));
@@ -79,8 +111,9 @@ test('renders native Codama events with their IDL-defined CPI discriminator', ()
         assert.match(lib, /pub const EVENT_CPI_DISCRIMINATOR: &\[u8\] = &\[1, 2, 3, 4\];/);
 
         const cargoToml = readFileSync(join(outputDirectory, 'Cargo.toml'), 'utf8');
-        assert.match(cargoToml, /carbon-core = \{ version = "1\.0\.0"/);
-        assert.match(cargoToml, /carbon-test-utils = "1\.0\.0"/);
+        assert.match(cargoToml, /rust-version = "1\.96\.1"/);
+        assert.match(cargoToml, /carbon-core = \{ version = "2\.0\.0"/);
+        assert.match(cargoToml, /carbon-test-utils = "2\.0\.0"/);
     } finally {
         rmSync(outputDirectory, { force: true, recursive: true });
     }

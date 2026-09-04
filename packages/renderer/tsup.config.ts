@@ -5,6 +5,7 @@ export default defineConfig({
     format: ['cjs', 'esm'],
     dts: true,
     splitting: false,
+    shims: true,
     sourcemap: true,
     clean: true,
     minify: false,

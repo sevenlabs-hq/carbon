@@ -2,7 +2,7 @@
  * Carbon Version Registry
  *
  * Centralized registry for all Rust crate versions used in Carbon code generation.
- * This package version matches the Rust workspace version.
+ * Carbon-owned entries track the current supported Rust release line.
  */
 
 export type CrateDependency =
@@ -16,24 +16,30 @@ export type CrateDependency =
           defaultFeatures?: boolean;
       };
 
+export const CARBON_VERSION = '2.0.0';
+export const CARBON_MSRV = '1.96.1';
+
 export const VERSIONS: Record<string, CrateDependency> = {
     /// Carbon crates
     'carbon-core': {
-        version: '1.0.0',
+        version: CARBON_VERSION,
         defaultFeatures: false,
     },
-    'carbon-test-utils': '1.0.0',
-    'carbon-log-metrics': '1.0.0',
-    'carbon-prometheus-metrics': '1.0.0',
-    'carbon-helius-atlas-ws-datasource': '1.0.0',
-    'carbon-helius-laserstream-datasource': '1.0.0',
-    'carbon-jito-shredstream-grpc-datasource': '0.12.0',
-    'carbon-rpc-block-crawler-datasource': '1.0.0',
-    'carbon-rpc-block-subscribe-datasource': '1.0.0',
-    'carbon-rpc-program-subscribe-datasource': '1.0.0',
-    'carbon-rpc-transaction-crawler-datasource': '1.0.0',
-    'carbon-stream-message-datasource': '1.0.0',
-    'carbon-yellowstone-grpc-datasource': '1.0.0',
+    'carbon-test-utils': CARBON_VERSION,
+    'carbon-log-metrics': CARBON_VERSION,
+    'carbon-prometheus-metrics': CARBON_VERSION,
+    'carbon-helius-atlas-ws-datasource': CARBON_VERSION,
+    'carbon-helius-gpa-v2-datasource': CARBON_VERSION,
+    'carbon-helius-gtfa-datasource': CARBON_VERSION,
+    'carbon-helius-laserstream-datasource': CARBON_VERSION,
+    'carbon-rpc-block-crawler-datasource': CARBON_VERSION,
+    'carbon-rpc-block-subscribe-datasource': CARBON_VERSION,
+    'carbon-rpc-gpa-datasource': CARBON_VERSION,
+    'carbon-rpc-program-subscribe-datasource': CARBON_VERSION,
+    'carbon-rpc-transaction-crawler-datasource': CARBON_VERSION,
+    'carbon-stream-message-datasource': CARBON_VERSION,
+    'carbon-validator-snapshot-datasource': CARBON_VERSION,
+    'carbon-yellowstone-grpc-datasource': CARBON_VERSION,
     /// Solana crates
     'solana-account': '4.3.2',
     'solana-account-decoder': {
@@ -50,6 +56,10 @@ export const VERSIONS: Record<string, CrateDependency> = {
         features: ['borsh'],
     },
     'solana-commitment-config': '3.1.1',
+    'solana-transaction-status': {
+        version: '=4.2.2',
+        features: ['agave-unstable-api'],
+    },
     /// SPL Token 2022 dependencies
     'solana-program-pack': '3.1.0',
     'spl-token-2022': '11.0.0',

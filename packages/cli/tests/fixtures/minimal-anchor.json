@@ -1,0 +1,16 @@
+{
+    "address": "11111111111111111111111111111111",
+    "metadata": {
+        "name": "smoke",
+        "version": "0.1.0",
+        "spec": "0.1.0"
+    },
+    "instructions": [
+        {
+            "name": "ping",
+            "discriminator": [1],
+            "accounts": [],
+            "args": []
+        }
+    ]
+}

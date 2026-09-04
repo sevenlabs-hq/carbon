@@ -1,6 +1,5 @@
 import { mkdirSync, writeFileSync, existsSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import nunjucks from 'nunjucks';
 import { exitWithError } from './utils';
 import { kebabCase } from '@codama/nodes';
@@ -32,14 +31,11 @@ function buildProjectImports(ctx: any): string {
     const lines: string[] = [];
 
     // Common
-    lines.push('use std::{env, sync::Arc};');
+    lines.push(ctx.withPostgres ? 'use std::{env, sync::Arc};' : 'use std::sync::Arc;');
 
     // Feature-dependent
     if (!ctx.withPostgres) {
-        lines.push('use async_trait::async_trait;');
-        lines.push('use carbon_core::deserialize::ArrangeAccounts;');
-        lines.push('use carbon_core::instruction::{InstructionMetadata, NestedInstructions};');
-        lines.push('use carbon_core::metrics::MetricsCollection;');
+        lines.push('use carbon_core::instruction::InstructionProcessorInputType;');
         lines.push('use carbon_core::processor::Processor;');
     }
 
@@ -127,6 +123,10 @@ function getEnvContent(artifact: DatasourceArtifact | undefined, withPostgres: b
 }
 
 export function renderScaffold(opts: ScaffoldOptions) {
+    if (opts.withGraphql && !opts.withPostgres) {
+        exitWithError('GraphQL scaffolding requires Postgres. Enable --with-postgres or disable --with-graphql.');
+    }
+
     const base = join(opts.outDir, opts.name);
 
     if (existsSync(base) && !opts.force) {
@@ -140,8 +140,7 @@ export function renderScaffold(opts: ScaffoldOptions) {
     ensureDir(indexerDir);
     ensureDir(join(indexerDir, 'src'));
 
-    const thisDir = dirname(fileURLToPath(import.meta.url));
-    const templatesDir = join(thisDir, '..', 'templates');
+    const templatesDir = join(__dirname, '..', 'templates');
 
     if (!existsSync(join(templatesDir, 'project.njk'))) {
         exitWithError('Template file not found. Please ensure cli/templates/project.njk exists.');

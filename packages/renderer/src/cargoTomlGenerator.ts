@@ -1,5 +1,5 @@
 import { kebabCase } from '@codama/nodes';
-import { VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
+import { CARBON_MSRV, VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
 import { isToken2022Program } from './utils/helpers';
 
 export type PackageMetadata = {
@@ -288,6 +288,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         `name = "${decoderPackageName}"`,
         `version = "${version}"`,
         useWorkspace ? 'edition = { workspace = true }' : 'edition = "2021"',
+        useWorkspace ? 'rust-version = { workspace = true }' : `rust-version = "${CARBON_MSRV}"`,
     ];
     if (hasMeta) {
         packageLines.push(`description = "${description.replace(/"/g, '\\"')}"`);
