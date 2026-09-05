@@ -2,7 +2,8 @@
 name = "carbon-validator-snapshot-datasource"
 description = "Carbon Validator Snapshot Datasource - Index accounts from Solana validator snapshots"
 license = { workspace = true }
-version = "1.0.0"
+version = "2.0.0"
+rust-version = { workspace = true }
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }

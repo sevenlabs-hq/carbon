@@ -50,7 +50,8 @@ use carbon_core::{error::CarbonResult, pipeline::Pipeline};
 use carbon_log_metrics::LogMetrics;
 use carbon_my_program_decoder::{MyProgramDecoder, PROGRAM_ID};
 use carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe};
-use solana_client::rpc_config::RpcBlockSubscribeFilter;
+use solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter};
+use solana_transaction_status::{TransactionDetails, UiTransactionEncoding};
 
 #[tokio::main]
 async fn main() -> CarbonResult<()> {
@@ -58,7 +59,12 @@ async fn main() -> CarbonResult<()> {
         "wss://api.mainnet-beta.solana.com".to_string(),
         Filters::new(
             RpcBlockSubscribeFilter::MentionsAccountOrProgram(PROGRAM_ID.to_string()),
-            None,
+            Some(RpcBlockSubscribeConfig {
+                encoding: Some(UiTransactionEncoding::Base64),
+                transaction_details: Some(TransactionDetails::Full),
+                max_supported_transaction_version: Some(1),
+                ..RpcBlockSubscribeConfig::default()
+            }),
         ),
     );
 

@@ -1,5 +1,4 @@
-import { dirname as pathDirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 
 import { camelCase, kebabCase, pascalCase, snakeCase, titleCase } from '@codama/nodes';
 import nunjucks, { ConfigureOptions as NunJucksOptions } from 'nunjucks';
@@ -65,9 +64,7 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
 }
 
 export const render = (template: string, context?: object, options?: NunJucksOptions): string => {
-    const isESM = typeof import.meta !== 'undefined';
-    const dirname = isESM ? pathDirname(fileURLToPath(import.meta.url)) : __dirname;
-    const templates = join(dirname, '..', 'templates');
+    const templates = join(__dirname, '..', 'templates');
 
     const env = nunjucks.configure(templates, { autoescape: false, trimBlocks: true, ...options });
 

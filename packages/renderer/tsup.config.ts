@@ -5,6 +5,7 @@ export default defineConfig({
     format: ['cjs', 'esm'],
     dts: true,
     splitting: false,
+    shims: true,
     sourcemap: true,
     clean: true,
     minify: false,
@@ -13,6 +14,6 @@ export default defineConfig({
     define: {
         __ESM__: 'true',
         __TEST__: 'false',
-        __VERSION__: '"1.0.0"',
+        __VERSION__: '"0.13.0"',
     },
 });

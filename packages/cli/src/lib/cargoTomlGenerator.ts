@@ -1,5 +1,5 @@
 import { kebabCase } from '@codama/nodes';
-import { VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
+import { CARBON_MSRV, VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
 import type { ScaffoldOptions } from './scaffold';
 import { exitWithError } from './utils';
 
@@ -20,10 +20,14 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
     if (opts.withSerde) decoderFeatures.push('serde');
     if (opts.withBase58) decoderFeatures.push('base58');
 
-    const carbonCoreDep = getCrateDependencyString('carbon-core', VERSIONS['carbon-core'], ['postgres', 'graphql']);
+    const coreFeatures: string[] = [];
+    if (opts.withPostgres) coreFeatures.push('postgres');
+    if (opts.withGraphql) coreFeatures.push('graphql');
+    const carbonCoreDep = getCrateDependencyString('carbon-core', VERSIONS['carbon-core'], coreFeatures);
     const tokioDep = getCrateDependencyString('tokio', VERSIONS['tokio']);
     const dotenvDep = getCrateDependencyString('dotenv', VERSIONS['dotenv']);
     const envLoggerDep = getCrateDependencyString('env_logger', VERSIONS['env_logger']);
+    const logDep = getCrateDependencyString('log', VERSIONS.log);
 
     const decoderFeaturesStr =
         decoderFeatures.length > 0 ? `, features = [${decoderFeatures.map(f => `"${f}"`).join(', ')}]` : '';
@@ -55,9 +59,19 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
             ? getCrateDependencyString('solana-commitment-config', VERSIONS['solana-commitment-config'])
             : null;
 
-    const programDeps =
+    const rpcClientDep =
+        opts.dataSource === 'rpc-block-subscribe' || opts.dataSource === 'rpc-program-subscribe'
+            ? getCrateDependencyString('solana-client', VERSIONS['solana-client'])
+            : null;
+
+    const programDep =
         opts.dataSource === 'rpc-program-subscribe'
             ? getCrateDependencyString('solana-account-decoder', VERSIONS['solana-account-decoder'])
+            : null;
+
+    const blockSubscribeDep =
+        opts.dataSource === 'rpc-block-subscribe'
+            ? getCrateDependencyString('solana-transaction-status', VERSIONS['solana-transaction-status'])
             : null;
 
     const pgDeps = opts.withPostgres
@@ -82,11 +96,19 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
     if (crawlerDeps) {
         dependencies.push(crawlerDeps);
     }
-    if (programDeps) {
-        dependencies.push(programDeps);
+    if (rpcClientDep) {
+        dependencies.push(rpcClientDep);
     }
 
-    dependencies.push(tokioDep, dotenvDep, envLoggerDep);
+    if (programDep) {
+        dependencies.push(programDep);
+    }
+
+    if (blockSubscribeDep) {
+        dependencies.push(blockSubscribeDep);
+    }
+
+    dependencies.push(tokioDep, dotenvDep, envLoggerDep, logDep);
 
     if (rustlsDep) {
         dependencies.push(rustlsDep);
@@ -106,6 +128,7 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
         `name = "${opts.name}-indexer"`,
         'version = "0.0.1"',
         'edition = "2021"',
+        `rust-version = "${CARBON_MSRV}"`,
         '',
         '[dependencies]',
         ...dependencies,

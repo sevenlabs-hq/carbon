@@ -1,6 +1,7 @@
 [package]
 name = "jetstreamer-carbon-example"
 version = "1.0.0"
+publish = false
 edition = { workspace = true }
 
 [dependencies]

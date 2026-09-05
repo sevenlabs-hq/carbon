@@ -2,4 +2,4 @@
 
 Centralized version registry for Carbon Rust crate versions.
 
-This package version matches the Rust workspace version and provides constants for all Rust dependencies used in Carbon code generation.
+It exports the current supported Carbon Rust release and compatible third-party dependencies used in code generation. The npm package and Rust workspace use independent release numbers.

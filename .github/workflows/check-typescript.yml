@@ -3,7 +3,7 @@ name: TypeScript Packages Check
 on:
   push:
     branches:
-      - master
+      - main
       - ci
   pull_request:
 
@@ -23,7 +23,7 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20.18.0'
           cache: 'pnpm'
       
       - run: pnpm install --frozen-lockfile
@@ -31,5 +31,3 @@ jobs:
       - run: pnpm test
       - run: pnpm format:check
       - run: pnpm type-check
-
-

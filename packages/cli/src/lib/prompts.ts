@@ -335,12 +335,14 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
     }
 
     const withGraphql =
-        existingOpts.withGraphql !== undefined
-            ? existingOpts.withGraphql
-            : await confirm({
-                  message: 'Enable GraphQL API for querying data?',
-                  default: true,
-              });
+        !withPostgres && existingOpts.withGraphql === undefined
+            ? false
+            : existingOpts.withGraphql !== undefined
+              ? existingOpts.withGraphql
+              : await confirm({
+                    message: 'Enable GraphQL API for querying data?',
+                    default: true,
+                });
 
     return {
         name,

@@ -118,7 +118,6 @@ carbon-cli scaffold
 - `rpc-transaction-crawler` - Crawls historical transactions
 - `helius-laserstream` - Helius Laserstream datasource
 - `yellowstone-grpc` - Yellowstone gRPC datasource
-- `jito-shredstream-grpc` - JITO Shredstream gRPC
 
 ## Related Packages
 
