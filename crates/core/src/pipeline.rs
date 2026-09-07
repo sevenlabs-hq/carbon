@@ -35,13 +35,13 @@ use {
         error::CarbonResult,
         filter::{Filter, FilterContext, FilterResult},
         instruction::{
-            InstructionDecoder, InstructionPipe, InstructionPipes, InstructionProcessorInputType,
-            InstructionsWithMetadata, NestedInstructions,
+            extract_instructions_with_metadata, InstructionDecoder, InstructionPipe,
+            InstructionPipes, InstructionProcessorInputType, InstructionsWithMetadata,
+            NestedInstructions,
         },
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
-        transformers,
     },
     std::{
         convert::TryInto,
@@ -329,10 +329,7 @@ impl Pipeline {
                 let transaction_metadata = Arc::new((*transaction_update).clone().try_into()?);
 
                 let instructions_with_metadata: InstructionsWithMetadata =
-                    transformers::extract_instructions_with_metadata(
-                        &transaction_metadata,
-                        &transaction_update,
-                    )?;
+                    extract_instructions_with_metadata(&transaction_metadata, &transaction_update)?;
 
                 let nested_instructions: NestedInstructions =
                     instructions_with_metadata.clone().into();

@@ -33,7 +33,9 @@ pub mod metrics;
 pub mod pipeline;
 pub mod processor;
 pub mod transaction;
-pub mod transformers;
+
+#[cfg(feature = "yellowstone")]
+pub mod yellowstone;
 
 #[cfg(feature = "graphql")]
 pub mod graphql;

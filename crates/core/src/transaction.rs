@@ -12,6 +12,8 @@
 //! - [`parse_instructions_flat`] — helper that maps a flat list of instructions
 //!   through a collection.
 
+pub mod rpc;
+
 use {
     crate::{
         collection::InstructionDecoderCollection, error::CarbonResult, filter::Filter,

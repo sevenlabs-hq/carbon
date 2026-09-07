@@ -18,6 +18,10 @@
 //! - [`MAX_INSTRUCTION_STACK_DEPTH`] — Solana's per-transaction CPI depth
 //!   ceiling (5).
 
+mod extraction;
+
+pub use extraction::{extract_account_metas, extract_instructions_with_metadata};
+
 use {
     crate::{
         deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter, processor::Processor,
