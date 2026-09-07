@@ -16,6 +16,8 @@ use {crate::datasource::UpdateType, thiserror::Error};
 
 #[derive(Error, Debug)]
 pub enum Error {
+    #[error(transparent)]
+    Transform(#[from] crate::instruction::TransformError),
     #[error("Missing update type in datasource")]
     MissingUpdateTypeInDatasource(UpdateType),
     #[error("Failed to receive updates({0})")]

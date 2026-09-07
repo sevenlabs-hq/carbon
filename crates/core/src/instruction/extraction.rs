@@ -1,233 +1,204 @@
 //! Instruction extraction and account resolution.
 
 use {
-    super::{InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
-    crate::{
-        error::{CarbonResult, Error},
-        transaction::TransactionMetadata,
-        update::TransactionUpdate,
+    super::{
+        InstructionMetadata, InstructionsWithMetadata, TransformError, MAX_INSTRUCTION_STACK_DEPTH,
     },
-    solana_instruction::AccountMeta,
-    solana_message::{compiled_instruction::CompiledInstruction, VersionedMessage},
+    crate::{transaction::TransactionMetadata, update::TransactionUpdate},
+    solana_instruction::{AccountMeta, Instruction},
+    solana_message::{
+        compiled_instruction::CompiledInstruction,
+        v0::{LoadedAddresses, LoadedMessage},
+        VersionedMessage,
+    },
     solana_pubkey::Pubkey,
-    solana_transaction_status::InnerInstructions,
     std::{collections::HashSet, sync::Arc},
 };
 
 pub fn extract_instructions_with_metadata(
     transaction_metadata: &Arc<TransactionMetadata>,
     transaction_update: &TransactionUpdate,
-) -> CarbonResult<Vec<(InstructionMetadata, solana_instruction::Instruction)>> {
+) -> Result<InstructionsWithMetadata, TransformError> {
     let message = &transaction_update.transaction().message;
     let meta = transaction_update.meta();
-    let mut instructions_with_metadata = Vec::with_capacity(32);
+    let accounts = resolve_accounts(message, &meta.loaded_addresses)?;
+    let instructions = message.instructions();
+    if instructions.len() > usize::from(u8::MAX) + 1 {
+        return Err(TransformError::InstructionPathOverflow);
+    }
 
-    match message {
-        VersionedMessage::Legacy(legacy) => {
-            process_instructions(
-                &legacy.account_keys,
-                &legacy.instructions,
-                &meta.inner_instructions,
-                transaction_metadata,
-                &mut instructions_with_metadata,
-                |_, idx| {
-                    legacy.is_maybe_writable_with_reserved_addresses(idx, None::<&HashSet<Pubkey>>)
-                },
-                |_, idx| legacy.is_signer(idx),
-            );
-        }
-        VersionedMessage::V0(v0) => {
-            let mut account_keys: Vec<Pubkey> = Vec::with_capacity(
-                v0.account_keys.len()
-                    + meta.loaded_addresses.writable.len()
-                    + meta.loaded_addresses.readonly.len(),
-            );
-
-            account_keys.extend_from_slice(&v0.account_keys);
-            account_keys.extend_from_slice(&meta.loaded_addresses.writable);
-            account_keys.extend_from_slice(&meta.loaded_addresses.readonly);
-
-            process_instructions(
-                &account_keys,
-                &v0.instructions,
-                &meta.inner_instructions,
-                transaction_metadata,
-                &mut instructions_with_metadata,
-                |key, idx| {
-                    let num_static = v0.account_keys.len();
-                    if idx < num_static {
-                        let num_signers = v0.header.num_required_signatures as usize;
-                        let num_readonly_signed = v0.header.num_readonly_signed_accounts as usize;
-                        let num_readonly_unsigned =
-                            v0.header.num_readonly_unsigned_accounts as usize;
-                        if idx < num_signers {
-                            idx < num_signers - num_readonly_signed
-                        } else {
-                            idx < num_static - num_readonly_unsigned
-                        }
-                    } else {
-                        meta.loaded_addresses.writable.contains(key)
-                    }
-                },
-                |_, idx| idx < v0.header.num_required_signatures as usize,
-            );
-        }
-        VersionedMessage::V1(v1) => {
-            process_instructions(
-                &v1.account_keys,
-                &v1.instructions,
-                &meta.inner_instructions,
-                transaction_metadata,
-                &mut instructions_with_metadata,
-                |_, idx| {
-                    v1.is_maybe_writable_with_reserved_addresses(idx, None::<&HashSet<Pubkey>>)
-                },
-                |_, idx| v1.is_signer(idx),
-            );
+    let mut groups = vec![None; instructions.len()];
+    for group in meta.inner_instructions.iter().flatten() {
+        let entry = groups.get_mut(usize::from(group.index)).ok_or(
+            TransformError::InnerGroupIndexOutOfBounds {
+                index: group.index,
+                instruction_count: instructions.len(),
+            },
+        )?;
+        if entry.replace(group).is_some() {
+            return Err(TransformError::DuplicateInnerGroup { index: group.index });
         }
     }
 
-    Ok(instructions_with_metadata)
-}
-
-fn process_instructions<F1, F2>(
-    account_keys: &[Pubkey],
-    instructions: &[CompiledInstruction],
-    inner: &Option<Vec<InnerInstructions>>,
-    transaction_metadata: &Arc<TransactionMetadata>,
-    result: &mut Vec<(InstructionMetadata, solana_instruction::Instruction)>,
-    is_writable: F1,
-    is_signer: F2,
-) where
-    F1: Fn(&Pubkey, usize) -> bool,
-    F2: Fn(&Pubkey, usize) -> bool,
-{
-    for (i, compiled_instruction) in instructions.iter().enumerate() {
+    let mut result = Vec::with_capacity(instructions.len());
+    for (index, instruction) in instructions.iter().enumerate() {
+        let outer_index =
+            u8::try_from(index).map_err(|_| TransformError::InstructionPathOverflow)?;
         result.push((
             InstructionMetadata {
                 transaction_metadata: transaction_metadata.clone(),
                 stack_height: 1,
-                index: i as u32,
-                absolute_path: vec![i as u8],
+                index: u32::from(outer_index),
+                absolute_path: vec![outer_index],
             },
-            build_instruction(account_keys, compiled_instruction, &is_writable, &is_signer),
+            build_instruction(&accounts, instruction)?,
         ));
 
-        if let Some(inner_instructions) = inner {
-            for inner_tx in inner_instructions {
-                if inner_tx.index as usize == i {
-                    let mut path_stack = [0; MAX_INSTRUCTION_STACK_DEPTH];
-                    path_stack[0] = inner_tx.index;
-                    let mut prev_height = 0;
-
-                    for inner_inst in &inner_tx.instructions {
-                        let Some(stack_height) = validated_stack_height(inner_inst.stack_height)
-                        else {
-                            log::warn!(
-                                "invalid inner instruction stack height ({:?}) in transaction {} at instruction {}, dropping the remaining inner instructions of this group",
-                                inner_inst.stack_height,
-                                transaction_metadata.signature,
-                                inner_tx.index,
-                            );
-                            break;
-                        };
-                        if stack_height > prev_height {
-                            path_stack[stack_height - 1] = 0;
-                        } else {
-                            path_stack[stack_height - 1] += 1;
-                        }
-
-                        result.push((
-                            InstructionMetadata {
-                                transaction_metadata: transaction_metadata.clone(),
-                                stack_height: stack_height as u32,
-                                index: inner_tx.index as u32,
-                                absolute_path: path_stack[..stack_height].to_vec(),
-                            },
-                            build_instruction(
-                                account_keys,
-                                &inner_inst.instruction,
-                                &is_writable,
-                                &is_signer,
-                            ),
-                        ));
-
-                        prev_height = stack_height;
-                    }
-                }
+        let Some(group) = groups[index] else {
+            continue;
+        };
+        let mut path = [0u8; MAX_INSTRUCTION_STACK_DEPTH];
+        path[0] = outer_index;
+        let mut previous_height = 1;
+        for inner in &group.instructions {
+            let height = inner
+                .stack_height
+                .ok_or(TransformError::MissingStackHeight)?;
+            if !(2..=MAX_INSTRUCTION_STACK_DEPTH as u32).contains(&height)
+                || height > previous_height + 1
+            {
+                return Err(TransformError::InvalidStackHeight { height });
             }
+            let depth = height as usize;
+            if height > previous_height {
+                path[depth - 1] = 0;
+            } else {
+                path[depth - 1] = path[depth - 1]
+                    .checked_add(1)
+                    .ok_or(TransformError::InstructionPathOverflow)?;
+            }
+
+            result.push((
+                InstructionMetadata {
+                    transaction_metadata: transaction_metadata.clone(),
+                    stack_height: height,
+                    index: u32::from(outer_index),
+                    absolute_path: path[..depth].to_vec(),
+                },
+                build_instruction(&accounts, &inner.instruction)?,
+            ));
+            previous_height = height;
         }
     }
+
+    Ok(result)
 }
 
-fn validated_stack_height(stack_height: Option<u32>) -> Option<usize> {
-    match stack_height {
-        Some(height) if (2..=MAX_INSTRUCTION_STACK_DEPTH as u32).contains(&height) => {
-            Some(height as usize)
-        }
-        _ => None,
+fn resolve_accounts(
+    message: &VersionedMessage,
+    loaded_addresses: &LoadedAddresses,
+) -> Result<Vec<AccountMeta>, TransformError> {
+    let header = message.header();
+    let static_count = message.static_account_keys().len();
+    let signer_count = usize::from(header.num_required_signatures);
+    if signer_count == 0
+        || signer_count > static_count
+        || usize::from(header.num_readonly_signed_accounts) >= signer_count
+        || usize::from(header.num_readonly_unsigned_accounts) > static_count - signer_count
+    {
+        return Err(TransformError::InvalidMessageHeader);
     }
-}
 
-fn build_instruction<F1, F2>(
-    account_keys: &[Pubkey],
-    instruction: &CompiledInstruction,
-    is_writable: &F1,
-    is_signer: &F2,
-) -> solana_instruction::Instruction
-where
-    F1: Fn(&Pubkey, usize) -> bool,
-    F2: Fn(&Pubkey, usize) -> bool,
-{
-    let program_id = *account_keys
-        .get(instruction.program_id_index as usize)
-        .unwrap_or(&Pubkey::default());
+    if let VersionedMessage::V0(message) = message {
+        let writable_count: usize = message
+            .address_table_lookups
+            .iter()
+            .map(|lookup| lookup.writable_indexes.len())
+            .sum();
+        let readonly_count: usize = message
+            .address_table_lookups
+            .iter()
+            .map(|lookup| lookup.readonly_indexes.len())
+            .sum();
+        if loaded_addresses.writable.len() != writable_count
+            || loaded_addresses.readonly.len() != readonly_count
+        {
+            return Err(TransformError::LoadedAddressCountMismatch);
+        }
 
-    let mut accounts = Vec::with_capacity(instruction.accounts.len());
-    for account_idx in &instruction.accounts {
-        if let Some(key) = account_keys.get(*account_idx as usize) {
-            accounts.push(AccountMeta {
+        let loaded = LoadedMessage::new_borrowed(message, loaded_addresses, &HashSet::new());
+        return Ok(loaded
+            .account_keys()
+            .iter()
+            .enumerate()
+            .map(|(index, key)| AccountMeta {
                 pubkey: *key,
-                is_writable: is_writable(key, *account_idx as usize),
-                is_signer: is_signer(key, *account_idx as usize),
-            });
-        }
+                is_signer: loaded.is_signer(index),
+                is_writable: loaded.is_writable(index),
+            })
+            .collect());
     }
 
-    solana_instruction::Instruction {
-        program_id,
-        accounts,
-        data: instruction.data.clone(),
-    }
+    Ok(message
+        .static_account_keys()
+        .iter()
+        .enumerate()
+        .map(|(index, key)| AccountMeta {
+            pubkey: *key,
+            is_signer: message.is_signer(index),
+            is_writable: message
+                .is_maybe_writable_with_reserved_addresses(index, None::<&HashSet<Pubkey>>),
+        })
+        .collect())
 }
 
+fn build_instruction(
+    accounts: &[AccountMeta],
+    instruction: &CompiledInstruction,
+) -> Result<Instruction, TransformError> {
+    let program_id = accounts
+        .get(usize::from(instruction.program_id_index))
+        .ok_or(TransformError::ProgramIndexOutOfBounds {
+            index: instruction.program_id_index,
+            account_count: accounts.len(),
+        })?
+        .pubkey;
+
+    Ok(Instruction {
+        program_id,
+        accounts: select_accounts(accounts, instruction)?,
+        data: instruction.data.clone(),
+    })
+}
+
+fn select_accounts(
+    accounts: &[AccountMeta],
+    instruction: &CompiledInstruction,
+) -> Result<Vec<AccountMeta>, TransformError> {
+    instruction
+        .accounts
+        .iter()
+        .map(|&index| {
+            accounts.get(usize::from(index)).cloned().ok_or(
+                TransformError::AccountIndexOutOfBounds {
+                    index,
+                    account_count: accounts.len(),
+                },
+            )
+        })
+        .collect()
+}
+
+/// Resolves instruction accounts using the message and runtime-loaded addresses.
 pub fn extract_account_metas(
     compiled_instruction: &CompiledInstruction,
     message: &VersionedMessage,
-) -> CarbonResult<Vec<AccountMeta>> {
-    let mut accounts = Vec::<AccountMeta>::with_capacity(compiled_instruction.accounts.len());
-
-    for account_index in compiled_instruction.accounts.iter() {
-        accounts.push(AccountMeta {
-            pubkey: *message
-                .static_account_keys()
-                .get(*account_index as usize)
-                .ok_or(Error::MissingAccountInTransaction)?,
-            is_signer: message.is_signer(*account_index as usize),
-            is_writable: message.is_maybe_writable_with_reserved_addresses(
-                *account_index as usize,
-                Some(
-                    &message
-                        .static_account_keys()
-                        .iter()
-                        .copied()
-                        .collect::<HashSet<_>>(),
-                ),
-            ),
-        });
-    }
-
-    Ok(accounts)
+    loaded_addresses: &LoadedAddresses,
+) -> Result<Vec<AccountMeta>, TransformError> {
+    select_accounts(
+        &resolve_accounts(message, loaded_addresses)?,
+        compiled_instruction,
+    )
 }
 
 #[cfg(test)]
@@ -242,11 +213,365 @@ mod tests {
         },
         solana_signature::Signature,
         solana_transaction::versioned::VersionedTransaction,
-        solana_transaction_status::{InnerInstruction, TransactionStatusMeta},
+        solana_transaction_status::{InnerInstruction, InnerInstructions, TransactionStatusMeta},
     };
 
     #[test]
-    fn test_extract_instructions_skips_inner_group_after_invalid_stack_height() {
+    fn invalid_indices_are_errors_for_outer_and_inner_instructions() {
+        for inner in [false, true] {
+            for program in [false, true] {
+                let mut message = legacy_message();
+                let mut invalid = message.instructions[0].clone();
+                if program {
+                    invalid.program_id_index = 2;
+                } else {
+                    invalid.accounts = vec![0, 2, 0];
+                }
+                let mut meta = TransactionStatusMeta::default();
+                if inner {
+                    meta.inner_instructions = Some(vec![InnerInstructions {
+                        index: 0,
+                        instructions: vec![InnerInstruction {
+                            instruction: invalid,
+                            stack_height: Some(2),
+                        }],
+                    }]);
+                } else {
+                    message.instructions[0] = invalid;
+                }
+                let expected = if program {
+                    TransformError::ProgramIndexOutOfBounds {
+                        index: 2,
+                        account_count: 2,
+                    }
+                } else {
+                    TransformError::AccountIndexOutOfBounds {
+                        index: 2,
+                        account_count: 2,
+                    }
+                };
+                assert_eq!(
+                    extract(VersionedMessage::Legacy(message), meta).unwrap_err(),
+                    expected
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn extraction_rejects_invalid_inner_groups() {
+        for (indices, expected) in [
+            (
+                vec![1],
+                TransformError::InnerGroupIndexOutOfBounds {
+                    index: 1,
+                    instruction_count: 1,
+                },
+            ),
+            (vec![0, 0], TransformError::DuplicateInnerGroup { index: 0 }),
+        ] {
+            let meta = TransactionStatusMeta {
+                inner_instructions: Some(
+                    indices
+                        .into_iter()
+                        .map(|index| InnerInstructions {
+                            index,
+                            instructions: vec![],
+                        })
+                        .collect(),
+                ),
+                ..Default::default()
+            };
+            assert_eq!(
+                extract(VersionedMessage::Legacy(legacy_message()), meta).unwrap_err(),
+                expected
+            );
+        }
+    }
+
+    #[test]
+    fn absent_inner_instructions_and_failed_transactions_are_valid() {
+        for inner_instructions in [None, Some(vec![])] {
+            let meta = TransactionStatusMeta {
+                inner_instructions,
+                status: serde_json::from_str(r#"{"Err":"AccountNotFound"}"#).unwrap(),
+                ..Default::default()
+            };
+            assert_eq!(
+                extract(VersionedMessage::Legacy(legacy_message()), meta)
+                    .unwrap()
+                    .len(),
+                1
+            );
+        }
+    }
+
+    #[test]
+    fn instruction_paths_reject_overflow() {
+        for count in [256, 257] {
+            let mut message = legacy_message();
+            message.instructions = vec![message.instructions[0].clone(); count];
+            let outer = extract(
+                VersionedMessage::Legacy(message),
+                TransactionStatusMeta::default(),
+            );
+            let message = legacy_message();
+            let meta = TransactionStatusMeta {
+                inner_instructions: Some(vec![InnerInstructions {
+                    index: 0,
+                    instructions: vec![
+                        InnerInstruction {
+                            instruction: message.instructions[0].clone(),
+                            stack_height: Some(2),
+                        };
+                        count
+                    ],
+                }]),
+                ..Default::default()
+            };
+            let inner = extract(VersionedMessage::Legacy(message), meta);
+            if count == 256 {
+                assert_eq!(outer.unwrap().last().unwrap().0.absolute_path, vec![255]);
+                assert_eq!(inner.unwrap().last().unwrap().0.absolute_path, vec![0, 255]);
+            } else {
+                assert_eq!(outer.unwrap_err(), TransformError::InstructionPathOverflow);
+                assert_eq!(inner.unwrap_err(), TransformError::InstructionPathOverflow);
+            }
+        }
+    }
+
+    #[test]
+    fn paths_follow_runtime_order_and_reset_for_new_parents() {
+        let mut message = legacy_message();
+        message.instructions.push(message.instructions[0].clone());
+        let meta = TransactionStatusMeta {
+            inner_instructions: Some(
+                vec![1, 0]
+                    .into_iter()
+                    .map(|index| InnerInstructions {
+                        index,
+                        instructions: [2, 3, 3, 2, 3, 4, 2]
+                            .into_iter()
+                            .map(|height| InnerInstruction {
+                                instruction: message.instructions[0].clone(),
+                                stack_height: Some(height),
+                            })
+                            .collect(),
+                    })
+                    .collect(),
+            ),
+            ..Default::default()
+        };
+        let instructions = extract(VersionedMessage::Legacy(message), meta).unwrap();
+        let paths: Vec<_> = instructions
+            .iter()
+            .map(|(metadata, _)| metadata.absolute_path.clone())
+            .collect();
+        assert_eq!(
+            paths,
+            vec![
+                vec![0],
+                vec![0, 0],
+                vec![0, 0, 0],
+                vec![0, 0, 1],
+                vec![0, 1],
+                vec![0, 1, 0],
+                vec![0, 1, 0, 0],
+                vec![0, 2],
+                vec![1],
+                vec![1, 0],
+                vec![1, 0, 0],
+                vec![1, 0, 1],
+                vec![1, 1],
+                vec![1, 1, 0],
+                vec![1, 1, 0, 0],
+                vec![1, 2],
+            ]
+        );
+        let tree = crate::instruction::NestedInstructions::try_from(instructions).unwrap();
+        assert_eq!(tree.len(), 2);
+        assert_eq!(tree[0].inner_instructions.len(), 3);
+        assert_eq!(tree[0].inner_instructions[0].inner_instructions.len(), 2);
+        assert_eq!(
+            tree[1].inner_instructions[1].inner_instructions[0]
+                .inner_instructions
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn account_helper_preserves_writable_signers_and_account_order() {
+        let mut message = legacy_message();
+        message.instructions[0].accounts = vec![0, 1, 0];
+        let expected = vec![
+            AccountMeta::new(message.account_keys[0], true),
+            AccountMeta::new_readonly(message.account_keys[1], false),
+            AccountMeta::new(message.account_keys[0], true),
+        ];
+        let message = VersionedMessage::Legacy(message);
+        assert_eq!(
+            extract_account_metas(
+                &message.instructions()[0],
+                &message,
+                &LoadedAddresses::default()
+            )
+            .unwrap(),
+            expected
+        );
+        assert_eq!(
+            extract(message, TransactionStatusMeta::default()).unwrap()[0]
+                .1
+                .accounts,
+            expected
+        );
+    }
+
+    #[test]
+    fn v0_resolves_loaded_accounts_and_programs() {
+        let legacy = legacy_message();
+        let loaded_addresses = LoadedAddresses {
+            writable: vec![Pubkey::new_unique(), Pubkey::new_unique()],
+            readonly: vec![Pubkey::new_unique()],
+        };
+        let message = VersionedMessage::V0(solana_message::v0::Message {
+            header: legacy.header,
+            account_keys: legacy.account_keys.clone(),
+            recent_blockhash: Hash::default(),
+            instructions: vec![CompiledInstruction {
+                program_id_index: 3,
+                accounts: vec![4, 0, 2, 3, 1, 2],
+                data: vec![7],
+            }],
+            address_table_lookups: vec![solana_message::v0::MessageAddressTableLookup {
+                account_key: Pubkey::new_unique(),
+                writable_indexes: vec![8, 9],
+                readonly_indexes: vec![3],
+            }],
+        });
+        let expected = vec![
+            AccountMeta::new_readonly(loaded_addresses.readonly[0], false),
+            AccountMeta::new(legacy.account_keys[0], true),
+            AccountMeta::new(loaded_addresses.writable[0], false),
+            AccountMeta::new_readonly(loaded_addresses.writable[1], false),
+            AccountMeta::new_readonly(legacy.account_keys[1], false),
+            AccountMeta::new(loaded_addresses.writable[0], false),
+        ];
+        assert_eq!(
+            extract_account_metas(&message.instructions()[0], &message, &loaded_addresses).unwrap(),
+            expected
+        );
+        let meta = TransactionStatusMeta {
+            loaded_addresses: loaded_addresses.clone(),
+            inner_instructions: Some(vec![InnerInstructions {
+                index: 0,
+                instructions: vec![InnerInstruction {
+                    instruction: message.instructions()[0].clone(),
+                    stack_height: Some(2),
+                }],
+            }]),
+            ..Default::default()
+        };
+        for (_, instruction) in extract(message.clone(), meta).unwrap() {
+            assert_eq!(instruction.program_id, loaded_addresses.writable[1]);
+            assert_eq!(instruction.accounts, expected);
+        }
+        assert_eq!(
+            extract(message, TransactionStatusMeta::default()).unwrap_err(),
+            TransformError::LoadedAddressCountMismatch
+        );
+    }
+
+    #[test]
+    fn invalid_headers_are_errors_for_each_message_version() {
+        for header in [
+            MessageHeader::default(),
+            MessageHeader {
+                num_required_signatures: 3,
+                num_readonly_signed_accounts: 0,
+                num_readonly_unsigned_accounts: 0,
+            },
+            MessageHeader {
+                num_required_signatures: 1,
+                num_readonly_signed_accounts: 2,
+                num_readonly_unsigned_accounts: 0,
+            },
+            MessageHeader {
+                num_required_signatures: 1,
+                num_readonly_signed_accounts: 1,
+                num_readonly_unsigned_accounts: 0,
+            },
+            MessageHeader {
+                num_required_signatures: 1,
+                num_readonly_signed_accounts: 0,
+                num_readonly_unsigned_accounts: 2,
+            },
+        ] {
+            let mut legacy = legacy_message();
+            legacy.header = header;
+            let v0 = solana_message::v0::Message {
+                header,
+                account_keys: legacy.account_keys.clone(),
+                recent_blockhash: legacy.recent_blockhash,
+                instructions: legacy.instructions.clone(),
+                address_table_lookups: vec![],
+            };
+            let v1 = v1::Message::new(
+                header,
+                TransactionConfig::empty(),
+                Hash::default(),
+                legacy.account_keys.clone(),
+                legacy.instructions.clone(),
+            );
+            for message in [
+                VersionedMessage::Legacy(legacy),
+                VersionedMessage::V0(v0),
+                VersionedMessage::V1(v1),
+            ] {
+                assert_eq!(
+                    extract(message, TransactionStatusMeta::default()).unwrap_err(),
+                    TransformError::InvalidMessageHeader
+                );
+            }
+        }
+    }
+
+    fn legacy_message() -> Message {
+        Message {
+            header: MessageHeader {
+                num_required_signatures: 1,
+                num_readonly_signed_accounts: 0,
+                num_readonly_unsigned_accounts: 1,
+            },
+            account_keys: vec![Pubkey::new_unique(), Pubkey::new_unique()],
+            recent_blockhash: Hash::default(),
+            instructions: vec![CompiledInstruction {
+                program_id_index: 1,
+                accounts: vec![0],
+                data: vec![],
+            }],
+        }
+    }
+
+    fn extract(
+        message: VersionedMessage,
+        meta: TransactionStatusMeta,
+    ) -> Result<InstructionsWithMetadata, TransformError> {
+        let update = TransactionUpdate::new(
+            VersionedTransaction {
+                signatures: vec![Signature::default()],
+                message,
+            },
+            meta,
+            1,
+        )
+        .unwrap();
+        let metadata = Arc::new(update.clone().try_into().unwrap());
+        extract_instructions_with_metadata(&metadata, &update)
+    }
+
+    #[test]
+    fn extraction_rejects_invalid_stack_heights() {
         let build_update = |stack_heights: Vec<Option<u32>>| {
             let payer = Pubkey::new_unique();
             let program = Pubkey::new_unique();
@@ -259,7 +584,11 @@ mod tests {
                 VersionedTransaction {
                     signatures: vec![Signature::default()],
                     message: VersionedMessage::Legacy(Message {
-                        header: MessageHeader::default(),
+                        header: MessageHeader {
+                            num_required_signatures: 1,
+                            num_readonly_signed_accounts: 0,
+                            num_readonly_unsigned_accounts: 1,
+                        },
                         account_keys: vec![payer, program],
                         recent_blockhash: Hash::default(),
                         instructions: vec![instruction.clone()],
@@ -288,18 +617,33 @@ mod tests {
                 &Arc::new(TransactionMetadata::default()),
                 &build_update(stack_heights),
             )
-            .expect("extract instructions with metadata")
         };
 
-        assert_eq!(extract(vec![None]).len(), 1);
-        assert_eq!(extract(vec![Some(1)]).len(), 1);
-        assert_eq!(extract(vec![Some(6)]).len(), 1);
-        assert_eq!(extract(vec![Some(2)]).len(), 2);
-
-        let partial = extract(vec![Some(2), None, Some(2)]);
-        assert_eq!(partial.len(), 2);
-        assert_eq!(partial[0].0.absolute_path, vec![0]);
-        assert_eq!(partial[1].0.absolute_path, vec![0, 0]);
+        assert_eq!(
+            extract(vec![None]).unwrap_err(),
+            TransformError::MissingStackHeight
+        );
+        for height in [0, 1, 3, MAX_INSTRUCTION_STACK_DEPTH as u32 + 1, u32::MAX] {
+            assert_eq!(
+                extract(vec![Some(height)]).unwrap_err(),
+                TransformError::InvalidStackHeight { height }
+            );
+        }
+        assert_eq!(
+            extract(vec![Some(2), Some(4)]).unwrap_err(),
+            TransformError::InvalidStackHeight { height: 4 }
+        );
+        assert_eq!(extract(vec![Some(2)]).unwrap().len(), 2);
+        assert_eq!(
+            extract(vec![Some(2), None, Some(2)]).unwrap_err(),
+            TransformError::MissingStackHeight
+        );
+        assert_eq!(
+            extract((2..=MAX_INSTRUCTION_STACK_DEPTH as u32).map(Some).collect())
+                .unwrap()
+                .len(),
+            MAX_INSTRUCTION_STACK_DEPTH
+        );
     }
 
     #[test]

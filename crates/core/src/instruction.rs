@@ -12,11 +12,7 @@
 //!   decoder + processor + filters; constructed by `PipelineBuilder`.
 //! - [`NestedInstruction`] / [`NestedInstructions`] — recursive CPI tree
 //!   rebuilt from the flat `(InstructionMetadata, Instruction)` list.
-//! - [`UnsafeNestedBuilder`] — internal builder that turns a flat list into a
-//!   nested tree without reallocating mid-build (uses raw pointers under the
-//!   hood; safety invariants documented inline).
-//! - [`MAX_INSTRUCTION_STACK_DEPTH`] — Solana's per-transaction CPI depth
-//!   ceiling (5).
+//! - [`MAX_INSTRUCTION_STACK_DEPTH`] — maximum supported instruction stack depth.
 
 mod extraction;
 
@@ -58,8 +54,32 @@ const PRECOMPILE_PROGRAMS: &[&str] = &[
     "Secp256r1SigVerify1111111111111111111111111",
 ];
 
-// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
-pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
+// Agave's maximum with SIMD-0268 enabled, including the top-level instruction.
+// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs
+pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 9;
+
+/// Invalid instruction data or runtime metadata.
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+pub enum TransformError {
+    #[error("program index {index} is out of bounds for {account_count} accounts")]
+    ProgramIndexOutOfBounds { index: u8, account_count: usize },
+    #[error("account index {index} is out of bounds for {account_count} accounts")]
+    AccountIndexOutOfBounds { index: u8, account_count: usize },
+    #[error("inner instruction is missing its stack height")]
+    MissingStackHeight,
+    #[error("invalid instruction stack height {height}")]
+    InvalidStackHeight { height: u32 },
+    #[error("instruction path exceeds its index range")]
+    InstructionPathOverflow,
+    #[error("invalid message header")]
+    InvalidMessageHeader,
+    #[error("loaded address counts do not match the message lookups")]
+    LoadedAddressCountMismatch,
+    #[error("inner group index {index} is out of bounds for {instruction_count} instructions")]
+    InnerGroupIndexOutOfBounds { index: u8, instruction_count: usize },
+    #[error("duplicate inner instruction group at index {index}")]
+    DuplicateInnerGroup { index: u8 },
+}
 
 impl InstructionMetadata {
     pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
@@ -76,19 +96,20 @@ impl InstructionMetadata {
         };
 
         let precompile_offset = self.count_precompiles_before_index();
-        let adjusted_absolute_path: Vec<u8> = if !self.absolute_path.is_empty() {
-            let mut adjusted = self.absolute_path.clone();
-            adjusted[0] = adjusted[0].saturating_sub(precompile_offset as u8);
-            adjusted
-        } else {
-            self.absolute_path.clone()
-        };
+        let mut adjusted_absolute_path: Vec<usize> = self
+            .absolute_path
+            .iter()
+            .map(|&index| usize::from(index))
+            .collect();
+        if let Some(index) = adjusted_absolute_path.first_mut() {
+            *index = index.saturating_sub(precompile_offset);
+        }
 
         let mut extracted_logs = Vec::new();
         let mut current_stack_height = 0usize;
         let mut last_stack_height = 0usize;
 
-        let mut position_at_level: std::collections::HashMap<usize, u8> =
+        let mut position_at_level: std::collections::HashMap<usize, usize> =
             std::collections::HashMap::new();
 
         for log in logs {
@@ -116,7 +137,7 @@ impl InstructionMetadata {
                 _ => {}
             }
 
-            let current_path: Vec<u8> = (1..=current_stack_height)
+            let current_path: Vec<usize> = (1..=current_stack_height)
                 .map(|level| position_at_level.get(&level).copied().unwrap_or(0))
                 .collect();
 
@@ -164,7 +185,7 @@ impl InstructionMetadata {
             let parts: Vec<&str> = log.split_whitespace().collect();
             if parts.len() >= 4 && parts[0] == "Program" && parts[2] == "invoke" {
                 let level_str = parts[3].trim_start_matches('[').trim_end_matches(']');
-                if let Ok(level) = level_str.parse::<usize>() {
+                if let Ok(level @ 1..=MAX_INSTRUCTION_STACK_DEPTH) = level_str.parse::<usize>() {
                     return LogType::Start(level);
                 }
             }
@@ -324,71 +345,48 @@ impl IntoIterator for NestedInstructions {
     }
 }
 
-impl From<InstructionsWithMetadata> for NestedInstructions {
-    fn from(instructions: InstructionsWithMetadata) -> Self {
-        // To avoid reallocations that result in dangling pointers.
-        // Therefore the number of "push"s must be calculated to set the capacity
-        let estimated_capacity = instructions
-            .iter()
-            .filter(|(meta, _)| meta.stack_height == 1)
-            .count();
+impl TryFrom<InstructionsWithMetadata> for NestedInstructions {
+    type Error = TransformError;
 
-        UnsafeNestedBuilder::new(estimated_capacity).build(instructions)
-    }
-}
+    fn try_from(instructions: InstructionsWithMetadata) -> Result<Self, Self::Error> {
+        let mut roots = NestedInstructions::default();
+        let mut stack: Vec<NestedInstruction> = Vec::with_capacity(MAX_INSTRUCTION_STACK_DEPTH);
 
-pub struct UnsafeNestedBuilder {
-    nested_ixs: Vec<NestedInstruction>,
-    level_ptrs: [Option<*mut NestedInstruction>; MAX_INSTRUCTION_STACK_DEPTH],
-}
-
-impl UnsafeNestedBuilder {
-    pub fn new(capacity: usize) -> Self {
-        Self {
-            nested_ixs: Vec::with_capacity(capacity),
-            level_ptrs: [None; MAX_INSTRUCTION_STACK_DEPTH],
-        }
-    }
-
-    pub fn build(mut self, instructions: InstructionsWithMetadata) -> NestedInstructions {
         for (metadata, instruction) in instructions {
-            let stack_height = metadata.stack_height as usize;
-
-            assert!(stack_height > 0);
-            assert!(stack_height <= MAX_INSTRUCTION_STACK_DEPTH);
-
-            for ptr in &mut self.level_ptrs[stack_height..] {
-                *ptr = None;
+            let height = metadata.stack_height as usize;
+            if !(1..=MAX_INSTRUCTION_STACK_DEPTH).contains(&height) || height > stack.len() + 1 {
+                return Err(TransformError::InvalidStackHeight {
+                    height: metadata.stack_height,
+                });
             }
 
-            let new_instruction = NestedInstruction {
+            while stack.len() >= height {
+                append_completed_instruction(&mut stack, &mut roots);
+            }
+            stack.push(NestedInstruction {
                 metadata,
                 instruction,
                 inner_instructions: NestedInstructions::default(),
-            };
-
-            // SAFETY:The following operation is safe.
-            // because:
-            // 1. All pointers come from pre-allocated Vec (no extension)
-            // 2. level_ptr does not guarantee any aliasing
-            // 3. Lifecycle is limited to the build() method
-            unsafe {
-                if stack_height == 1 {
-                    self.nested_ixs.push(new_instruction);
-                    let ptr = self.nested_ixs.last_mut().unwrap_unchecked() as *mut _;
-                    self.level_ptrs[0] = Some(ptr);
-                } else if let Some(parent_ptr) = self.level_ptrs[stack_height - 2] {
-                    (*parent_ptr).inner_instructions.push(new_instruction);
-                    let ptr = (*parent_ptr)
-                        .inner_instructions
-                        .last_mut()
-                        .unwrap_unchecked() as *mut _;
-                    self.level_ptrs[stack_height - 1] = Some(ptr);
-                }
-            }
+            });
         }
 
-        NestedInstructions(self.nested_ixs)
+        while !stack.is_empty() {
+            append_completed_instruction(&mut stack, &mut roots);
+        }
+        Ok(roots)
+    }
+}
+
+fn append_completed_instruction(
+    stack: &mut Vec<NestedInstruction>,
+    roots: &mut NestedInstructions,
+) {
+    if let Some(instruction) = stack.pop() {
+        if let Some(parent) = stack.last_mut() {
+            parent.inner_instructions.push(instruction);
+        } else {
+            roots.push(instruction);
+        }
     }
 }
 
@@ -464,12 +462,73 @@ mod tests {
     }
 
     #[test]
+    fn nested_construction_rejects_invalid_heights_and_missing_parents() {
+        for heights in [
+            vec![0],
+            vec![2],
+            vec![10],
+            vec![u32::MAX],
+            vec![1, 3],
+            vec![1, 2, 3, 2, 4],
+        ] {
+            let invalid_height = *heights.last().unwrap();
+            let instructions: InstructionsWithMetadata = heights
+                .into_iter()
+                .map(|height| create_instruction_with_metadata(0, height, vec![]))
+                .collect();
+            assert_eq!(
+                NestedInstructions::try_from(instructions).unwrap_err(),
+                TransformError::InvalidStackHeight {
+                    height: invalid_height
+                },
+            );
+        }
+    }
+
+    #[test]
+    fn nested_construction_supports_full_depth_and_preserves_siblings() {
+        let mut instructions: InstructionsWithMetadata = (1..=MAX_INSTRUCTION_STACK_DEPTH as u32)
+            .map(|height| create_instruction_with_metadata(0, height, vec![0; height as usize]))
+            .collect();
+        instructions.push(create_instruction_with_metadata(0, 2, vec![0, 1]));
+        instructions.push(create_instruction_with_metadata(1, 1, vec![1]));
+        let tree = NestedInstructions::try_from(instructions).unwrap();
+        assert_eq!(tree.len(), 2);
+        assert_eq!(tree[0].inner_instructions.len(), 2);
+        assert_eq!(
+            tree[0].inner_instructions[1].metadata.absolute_path,
+            vec![0, 1]
+        );
+        let mut node = &tree[0];
+        for height in 2..=MAX_INSTRUCTION_STACK_DEPTH as u32 {
+            node = &node.inner_instructions[0];
+            assert_eq!(node.metadata.stack_height, height);
+        }
+        assert!(node.inner_instructions.is_empty());
+    }
+
+    #[test]
+    fn event_log_paths_do_not_wrap_after_255_siblings() {
+        let program = Pubkey::new_unique();
+        let mut logs = Vec::new();
+        for index in 0..257 {
+            logs.push(format!("Program {program} invoke [1]"));
+            if index == 256 {
+                logs.push("Program data: AQ==".to_owned());
+            }
+            logs.push(format!("Program {program} success"));
+        }
+        let metadata = create_metadata_with_message(vec![0], 1, logs, vec![program], vec![]);
+        assert!(metadata.extract_event_log_data().is_empty());
+    }
+
+    #[test]
     fn test_nested_instructions_single_level() {
         let instructions = vec![
             create_instruction_with_metadata(1, 1, vec![1]),
             create_instruction_with_metadata(2, 1, vec![2]),
         ];
-        let nested_instructions: NestedInstructions = instructions.into();
+        let nested_instructions = NestedInstructions::try_from(instructions).unwrap();
         assert_eq!(nested_instructions.len(), 2);
         assert!(nested_instructions[0].inner_instructions.is_empty());
         assert!(nested_instructions[1].inner_instructions.is_empty());
@@ -478,7 +537,7 @@ mod tests {
     #[test]
     fn test_nested_instructions_empty() {
         let instructions: InstructionsWithMetadata = vec![];
-        let nested_instructions: NestedInstructions = instructions.into();
+        let nested_instructions = NestedInstructions::try_from(instructions).unwrap();
         assert!(nested_instructions.is_empty());
     }
 
@@ -494,7 +553,7 @@ mod tests {
             create_instruction_with_metadata(1, 3, vec![0, 1, 1]),
         ];
 
-        let nested_instructions: NestedInstructions = instructions.into();
+        let nested_instructions = NestedInstructions::try_from(instructions).unwrap();
         assert_eq!(nested_instructions.len(), 2);
         assert_eq!(nested_instructions.0[1].inner_instructions.len(), 1);
     }

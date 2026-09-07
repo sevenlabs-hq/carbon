@@ -333,7 +333,7 @@ impl Pipeline {
                     extract_instructions_with_metadata(&transaction_metadata, &transaction_update)?;
 
                 let nested_instructions: NestedInstructions =
-                    instructions_with_metadata.clone().into();
+                    instructions_with_metadata.clone().try_into()?;
                 let mut all_instructions = Vec::new();
                 Self::flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 

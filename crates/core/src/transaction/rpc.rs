@@ -370,7 +370,11 @@ mod tests {
             VersionedTransaction {
                 signatures: vec![Signature::default()],
                 message: VersionedMessage::Legacy(Message {
-                    header: MessageHeader::default(),
+                    header: MessageHeader {
+                        num_required_signatures: 1,
+                        num_readonly_signed_accounts: 0,
+                        num_readonly_unsigned_accounts: 7,
+                    },
                     account_keys: vec![
                         Pubkey::from_str_const("Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm"),
                         Pubkey::from_str_const("5Zg9kJdzYFKwS4hLzF1QvvNBYyUNpn9YWxYp6HVMknJt"),
@@ -430,7 +434,7 @@ mod tests {
             )
             .expect("extract instructions with metadata");
 
-        let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+        let nested_instructions = NestedInstructions::try_from(instructions_with_metadata).unwrap();
 
         // Assert
         assert_eq!(original_tx_meta, expected_tx_meta);
@@ -775,7 +779,11 @@ mod tests {
             VersionedTransaction {
                 signatures: vec![Signature::default()],
                 message: VersionedMessage::V0(v0::Message {
-                    header: MessageHeader::default(),
+                    header: MessageHeader {
+                        num_required_signatures: 1,
+                        num_readonly_signed_accounts: 0,
+                        num_readonly_unsigned_accounts: 5,
+                    },
                     account_keys: vec![
                         Pubkey::from_str_const("7Z2QzVa3q7r7m84nuez9eRn2u3oCUeg9D1bzdRvNFdxN"),
                         Pubkey::from_str_const("6VRWsRGxnJFg7y4ck3NBsBPQ5SLkCtkH3tTioJkEby3b"),
@@ -787,16 +795,6 @@ mod tests {
                         Pubkey::from_str_const("7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx"),
                         Pubkey::from_str_const("AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB"),
                         Pubkey::from_str_const("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
-                        Pubkey::from_str_const("12QvTU4Z7XdxT16mSYU8rE2n9CpXpvunHiZrfySaf7h8"),
-                        Pubkey::from_str_const("76TaSYC4LuopNGf5apJUXMG2MDfcQMHiw6SMX93VYQGp"),
-                        Pubkey::from_str_const("7q4JPakWqK7UrjRsTNoYXMNeBYKP3WKawNcHYzidTaav"),
-                        Pubkey::from_str_const("BMCheVSdKZ6rxsoJ1MChA5HQRtk5pz4QkCLs7MXFkvZJ"),
-                        Pubkey::from_str_const("GqXFYwijuNaKRQgtrVrJkDGXorPcZwX7Vyd4jDsuxW9J"),
-                        Pubkey::from_str_const("JBbKXBC4yBco9BfChDaf5GHd8hyLbjASeLxFCwGCH99a"),
-                        Pubkey::from_str_const("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-                        Pubkey::from_str_const("11111111111111111111111111111111"),
-                        Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-                        Pubkey::from_str_const("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
                     ],
                     recent_blockhash: Hash::default(),
                     instructions: vec![
@@ -858,7 +856,7 @@ mod tests {
                 &transaction_update,
             )
             .expect("extract instructions with metadata");
-        let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+        let nested_instructions = NestedInstructions::try_from(instructions_with_metadata).unwrap();
 
         // Assert
         assert_eq!(original_tx_meta, expected_tx_meta);
