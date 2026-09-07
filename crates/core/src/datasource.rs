@@ -15,6 +15,8 @@
 //! terminates when the `CancellationToken` is triggered or the channel is
 //! closed.
 
+pub mod receipt;
+
 use {
     crate::{error::CarbonResult, id::Id, update::Update},
     async_trait::async_trait,
