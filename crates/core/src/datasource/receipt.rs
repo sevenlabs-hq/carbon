@@ -35,6 +35,24 @@ pub enum UpdateReceiptError {
     Aborted,
 }
 
+#[cfg_attr(not(test), expect(dead_code))]
+pub(crate) enum UpdateReceiptSender {
+    Single(oneshot::Sender<Result<(), UpdateReceiptError>>),
+    Group(GroupMember),
+}
+
+impl UpdateReceiptSender {
+    #[cfg_attr(not(test), expect(dead_code))]
+    pub(crate) fn send(self, result: Result<(), UpdateReceiptError>) {
+        match self {
+            Self::Single(sender) => {
+                let _ = sender.send(result);
+            }
+            Self::Group(member) => member.complete(result),
+        }
+    }
+}
+
 // The datasource context will own this while a group is open.
 pub(crate) struct ReceiptGroup {
     state: Arc<GroupState>,
@@ -77,7 +95,6 @@ pub(crate) struct GroupMember {
 }
 
 impl GroupMember {
-    #[cfg_attr(not(test), expect(dead_code))]
     pub(crate) fn complete(mut self, result: Result<(), UpdateReceiptError>) {
         if let Some(state) = self.state.take() {
             if let Err(error) = result {

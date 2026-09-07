@@ -15,7 +15,10 @@
 //! terminates when the `CancellationToken` is triggered or the channel is
 //! closed.
 
+pub mod queue;
 pub mod receipt;
+
+pub use queue::{DatasourceOptions, OverflowPolicy};
 
 use {
     crate::{error::CarbonResult, id::Id, update::Update},
