@@ -34,6 +34,7 @@ pub mod instruction;
 pub mod metrics;
 pub mod pipeline;
 pub mod processor;
+pub mod route;
 pub mod transaction;
 pub mod update;
 
