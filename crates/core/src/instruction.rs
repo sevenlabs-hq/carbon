@@ -20,7 +20,10 @@ pub use extraction::{extract_account_metas, extract_instructions_with_metadata};
 
 use {
     crate::{
-        deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter, processor::Processor,
+        deserialize::CarbonDeserialize,
+        error::{BoxError, CarbonResult, Error},
+        filter::Filter,
+        processor::Processor,
         transaction::TransactionMetadata,
     },
     async_trait::async_trait,
@@ -206,16 +209,14 @@ impl InstructionMetadata {
 
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
-/// User-implemented decoder mapping a raw `solana_instruction::Instruction`
-/// to a typed `Self::InstructionType`. Returning `None` skips the
-/// instruction for this pipe.
-pub trait InstructionDecoder<'a> {
+/// Decodes an instruction. `Ok(None)` means it is outside this decoder's scope.
+pub trait InstructionDecoder {
     type InstructionType;
 
     fn decode_instruction(
         &self,
-        instruction: &'a solana_instruction::Instruction,
-    ) -> Option<Self::InstructionType>;
+        instruction: &solana_instruction::Instruction,
+    ) -> Result<Option<Self::InstructionType>, BoxError>;
 }
 
 /// Borrowed bundle delivered to a
@@ -230,16 +231,14 @@ pub struct InstructionProcessorInputType<'a, T> {
 }
 
 pub struct InstructionPipe<T: Send, P> {
-    decoder: Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
+    decoder: Box<dyn InstructionDecoder<InstructionType = T> + Send + 'static>,
     processor: P,
     filters: Vec<Box<dyn Filter + 'static>>,
 }
 
 impl<T: Send, P> InstructionPipe<T, P> {
     pub fn new(
-        decoder: Box<
-            dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
-        >,
+        decoder: Box<dyn InstructionDecoder<InstructionType = T> + Send + 'static>,
         processor: P,
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self {
@@ -252,7 +251,7 @@ impl<T: Send, P> InstructionPipe<T, P> {
 }
 
 #[async_trait]
-pub trait InstructionPipes<'a>: Send + Sync {
+pub trait InstructionPipes<'a>: Send {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
@@ -268,6 +267,7 @@ where
         if let Some(decoded_instruction) = self
             .decoder
             .decode_instruction(&nested_instruction.instruction)
+            .map_err(Error::Decode)?
         {
             let data = InstructionProcessorInputType {
                 metadata: &nested_instruction.metadata,
@@ -400,6 +400,76 @@ mod tests {
         solana_transaction_status::TransactionStatusMeta,
         std::str::FromStr,
     };
+
+    struct Decoder(std::cell::Cell<usize>);
+
+    impl InstructionDecoder for Decoder {
+        type InstructionType = u8;
+
+        fn decode_instruction(&self, instruction: &Instruction) -> Result<Option<u8>, BoxError> {
+            self.0.set(self.0.get() + 1);
+            match instruction.data.first() {
+                Some(0) => Ok(None),
+                Some(value) => Ok(Some(*value)),
+                None => Err(std::io::Error::new(
+                    std::io::ErrorKind::UnexpectedEof,
+                    "missing instruction data",
+                )
+                .into()),
+            }
+        }
+    }
+
+    struct Counter(Arc<std::sync::atomic::AtomicUsize>);
+
+    impl Processor<InstructionProcessorInputType<'_, u8>> for Counter {
+        async fn process(
+            &mut self,
+            input: &InstructionProcessorInputType<'_, u8>,
+        ) -> CarbonResult<()> {
+            assert_eq!(*input.decoded_instruction, input.raw_instruction.data[0]);
+            self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn instruction_pipe_handles_matches_non_matches_and_errors() {
+        use std::{
+            io,
+            sync::atomic::{AtomicUsize, Ordering},
+        };
+        let calls = Arc::new(AtomicUsize::new(0));
+        let mut pipe = InstructionPipe::new(
+            Box::new(Decoder(std::cell::Cell::new(0))),
+            Counter(calls.clone()),
+            vec![],
+        );
+        for data in [vec![7], vec![0], vec![]] {
+            let is_error = data.is_empty();
+            let (metadata, mut instruction) = create_instruction_with_metadata(0, 1, vec![0]);
+            instruction.data = data;
+            let result = pipe
+                .run(&NestedInstruction {
+                    metadata,
+                    instruction,
+                    inner_instructions: NestedInstructions::default(),
+                })
+                .await;
+            if is_error {
+                let Error::Decode(error) = result.unwrap_err() else {
+                    panic!("expected decoder error");
+                };
+                assert_eq!(
+                    error.downcast_ref::<io::Error>().unwrap().kind(),
+                    io::ErrorKind::UnexpectedEof
+                );
+            } else {
+                result.unwrap();
+            }
+            assert_eq!(calls.load(Ordering::Relaxed), 1);
+        }
+    }
 
     fn create_instruction_with_metadata(
         index: u32,

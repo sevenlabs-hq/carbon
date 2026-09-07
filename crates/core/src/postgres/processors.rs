@@ -96,7 +96,7 @@ where
     async fn process(&mut self, input: &AccountProcessorInputType<'a, T>) -> CarbonResult<()> {
         let start = std::time::Instant::now();
 
-        let wrapper = W::from((input.decoded_account.data.clone(), input.metadata.clone()));
+        let wrapper = W::from((input.decoded_account.clone(), input.metadata.clone()));
 
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
@@ -133,7 +133,7 @@ where
 {
     async fn process(&mut self, input: &AccountProcessorInputType<'a, T>) -> CarbonResult<()> {
         let account_row =
-            AccountRow::from_parts(input.decoded_account.data.clone(), input.metadata.clone());
+            AccountRow::from_parts(input.decoded_account.clone(), input.metadata.clone());
 
         let start = std::time::Instant::now();
 

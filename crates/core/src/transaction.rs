@@ -16,8 +16,11 @@ pub mod rpc;
 
 use {
     crate::{
-        collection::InstructionDecoderCollection, error::CarbonResult, filter::Filter,
-        instruction::InstructionMetadata, processor::Processor,
+        collection::InstructionDecoderCollection,
+        error::{BoxError, CarbonResult, Error},
+        filter::Filter,
+        instruction::InstructionMetadata,
+        processor::Processor,
     },
     async_trait::async_trait,
     core::convert::TryFrom,
@@ -103,7 +106,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
 #[async_trait]
 impl<T, P> TransactionPipes<'_> for TransactionPipe<T, P>
 where
-    T: InstructionDecoderCollection + Sync + 'static,
+    T: InstructionDecoderCollection + Send + Sync + 'static,
     P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
 {
     async fn run(
@@ -111,7 +114,8 @@ where
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()> {
-        let parsed_instructions = parse_instructions_flat::<T>(instructions);
+        let parsed_instructions =
+            parse_instructions_flat::<T>(instructions).map_err(Error::Decode)?;
 
         let data = TransactionProcessorInputType {
             metadata: &transaction_metadata,
@@ -130,11 +134,113 @@ where
 
 pub fn parse_instructions_flat<T: InstructionDecoderCollection>(
     instructions: &[(InstructionMetadata, Instruction)],
-) -> Vec<(InstructionMetadata, T)> {
-    instructions
-        .iter()
-        .filter_map(|(metadata, instruction)| {
-            T::parse_instruction(instruction).map(|parsed| (metadata.clone(), parsed))
-        })
-        .collect()
+) -> Result<Vec<(InstructionMetadata, T)>, BoxError> {
+    let mut decoded = Vec::new();
+    for (metadata, instruction) in instructions {
+        if let Some(value) = T::decode_instruction(instruction)? {
+            decoded.push((metadata.clone(), value));
+        }
+    }
+    Ok(decoded)
+}
+
+#[cfg(test)]
+mod tests {
+    use {
+        super::*,
+        crate::instruction::InstructionsWithMetadata,
+        std::{io, sync::Mutex},
+    };
+
+    struct Decoded(u8);
+
+    impl InstructionDecoderCollection for Decoded {
+        fn decode_instruction(instruction: &Instruction) -> Result<Option<Self>, BoxError> {
+            match instruction.data.first() {
+                Some(0) => Ok(None),
+                Some(value) => Ok(Some(Self(*value))),
+                None => Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "missing instruction data",
+                )
+                .into()),
+            }
+        }
+    }
+
+    fn instructions(data: &[&[u8]]) -> InstructionsWithMetadata {
+        data.iter()
+            .enumerate()
+            .map(|(index, data)| {
+                (
+                    InstructionMetadata {
+                        transaction_metadata: Arc::new(TransactionMetadata::default()),
+                        stack_height: 1,
+                        index: index as u32,
+                        absolute_path: vec![index as u8],
+                    },
+                    Instruction {
+                        program_id: Pubkey::new_unique(),
+                        accounts: vec![],
+                        data: data.to_vec(),
+                    },
+                )
+            })
+            .collect()
+    }
+
+    #[test]
+    fn collection_skips_non_matches_and_preserves_order() {
+        let input = instructions(&[&[7], &[0], &[9]]);
+        let decoded = parse_instructions_flat::<Decoded>(&input).unwrap();
+        let values: Vec<_> = decoded
+            .iter()
+            .map(|(meta, value)| (meta.index, value.0))
+            .collect();
+        assert_eq!(values, vec![(0, 7), (2, 9)]);
+    }
+
+    struct Collector(Arc<Mutex<Vec<Vec<u8>>>>);
+
+    impl Processor<TransactionProcessorInputType<'_, Decoded>> for Collector {
+        async fn process(
+            &mut self,
+            input: &TransactionProcessorInputType<'_, Decoded>,
+        ) -> CarbonResult<()> {
+            self.0.lock().unwrap().push(
+                input
+                    .instructions
+                    .iter()
+                    .map(|(_, value)| value.0)
+                    .collect(),
+            );
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn transaction_pipe_never_delivers_partial_collections() {
+        let received = Arc::new(Mutex::new(Vec::new()));
+        let mut pipe = TransactionPipe::<Decoded, _>::new(Collector(received.clone()), vec![]);
+        let metadata = Arc::new(TransactionMetadata::default());
+        for input in [
+            instructions(&[]),
+            instructions(&[&[0]]),
+            instructions(&[&[7], &[0], &[9]]),
+        ] {
+            pipe.run(metadata.clone(), &input).await.unwrap();
+        }
+        let error = pipe
+            .run(metadata, &instructions(&[&[7], &[], &[9]]))
+            .await
+            .unwrap_err();
+        let Error::Decode(error) = error else {
+            panic!("expected decoder error");
+        };
+        assert_eq!(
+            error.downcast_ref::<io::Error>().unwrap().kind(),
+            io::ErrorKind::UnexpectedEof
+        );
+        assert_eq!(*received.lock().unwrap(), vec![vec![], vec![], vec![7, 9]]);
+    }
 }

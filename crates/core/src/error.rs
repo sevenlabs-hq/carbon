@@ -14,10 +14,14 @@
 
 use {crate::datasource::UpdateType, thiserror::Error};
 
+pub type BoxError = Box<dyn std::error::Error + Send + Sync + 'static>;
+
 #[derive(Error, Debug)]
 pub enum Error {
     #[error(transparent)]
     Transform(#[from] crate::instruction::TransformError),
+    #[error("decoding failed: {0}")]
+    Decode(#[source] BoxError),
     #[error("Missing update type in datasource")]
     MissingUpdateTypeInDatasource(UpdateType),
     #[error("Failed to receive updates({0})")]

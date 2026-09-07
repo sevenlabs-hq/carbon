@@ -481,7 +481,7 @@ impl PipelineBuilder {
 
     pub fn account<T, P>(
         mut self,
-        decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
+        decoder: impl AccountDecoder<AccountType = T> + Send + 'static,
         processor: P,
     ) -> Self
     where
@@ -498,7 +498,7 @@ impl PipelineBuilder {
 
     pub fn account_with_filters<T, P>(
         mut self,
-        decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
+        decoder: impl AccountDecoder<AccountType = T> + Send + 'static,
         processor: P,
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
@@ -560,7 +560,7 @@ impl PipelineBuilder {
 
     pub fn instruction<T, P>(
         mut self,
-        decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
+        decoder: impl InstructionDecoder<InstructionType = T> + Send + 'static,
         processor: P,
     ) -> Self
     where
@@ -577,7 +577,7 @@ impl PipelineBuilder {
 
     pub fn instruction_with_filters<T, P>(
         mut self,
-        decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
+        decoder: impl InstructionDecoder<InstructionType = T> + Send + 'static,
         processor: P,
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
@@ -595,7 +595,7 @@ impl PipelineBuilder {
 
     pub fn transaction<T, P>(mut self, processor: P) -> Self
     where
-        T: InstructionDecoderCollection + 'static,
+        T: InstructionDecoderCollection + Send + Sync + 'static,
         P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         self.transaction_pipes
@@ -612,7 +612,7 @@ impl PipelineBuilder {
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
-        T: InstructionDecoderCollection + 'static,
+        T: InstructionDecoderCollection + Send + Sync + 'static,
         P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         self.transaction_pipes
