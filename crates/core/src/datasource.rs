@@ -2,21 +2,21 @@
 //!
 //! # Components
 //!
-//! - [`Datasource`] — async producer that streams `(Update, DatasourceId)` into
+//! - [`Datasource`] — async producer that streams `(Update, Id)` into
 //!   the pipeline.
-//! - [`DatasourceId`] — identity used for routing, filtering, and metrics.
+//! - [`Id`] — identity used for routing, filtering, and metrics.
 //! - [`Update`] — unified payload consumed by downstream pipeline stages.
 //! - [`UpdateType`] — declared set of update variants a datasource may emit.
 //!
 //! # Flow
 //!
 //! Each datasource runs in a dedicated Tokio task spawned by `Pipeline::run`.
-//! It emits `(Update, DatasourceId)` pairs through an MPSC channel and
+//! It emits `(Update, Id)` pairs through an MPSC channel and
 //! terminates when the `CancellationToken` is triggered or the channel is
 //! closed.
 
 use {
-    crate::{error::CarbonResult, update::Update},
+    crate::{error::CarbonResult, id::Id, update::Update},
     async_trait::async_trait,
     chrono::{DateTime, Utc},
     solana_clock::Slot,
@@ -38,7 +38,7 @@ pub struct DatasourceDisconnection {
 
 /// Async producer trait implemented by all upstream data sources.
 ///
-/// Runs as a dedicated task and streams `(Update, DatasourceId)` into the
+/// Runs as a dedicated task and streams `(Update, Id)` into the
 /// pipeline. Implementations must respect the provided `CancellationToken` and
 /// exit on shutdown. `update_types` declares which `Update` variants may be
 /// emitted.
@@ -46,28 +46,12 @@ pub struct DatasourceDisconnection {
 pub trait Datasource: Send + Sync {
     async fn consume(
         &self,
-        id: DatasourceId,
-        sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
+        id: Id,
+        sender: tokio::sync::mpsc::Sender<(Update, Id)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()>;
 
     fn update_types(&self) -> Vec<UpdateType>;
-}
-
-/// Unique identifier for a datasource instance.
-///
-/// Used for filtering, routing, and per-source metrics aggregation.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct DatasourceId(String);
-
-impl DatasourceId {
-    pub fn new_unique() -> Self {
-        Self(uuid::Uuid::new_v4().to_string())
-    }
-
-    pub fn new_named(name: &str) -> Self {
-        Self(name.to_string())
-    }
 }
 
 /// Declared set of update variants a datasource may emit.

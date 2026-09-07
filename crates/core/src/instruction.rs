@@ -6,7 +6,7 @@
 //!   (`stack_height`, `index`, `absolute_path` for CPI tree position).
 //! - [`InstructionDecoder`] — user trait mapping raw `Instruction` → typed
 //!   `Self::InstructionType`.
-//! - [`InstructionProcessorInputType<'a, T>`] — borrowed bundle delivered to
+//! - [`InstructionProcessorInput<'a, T>`] — borrowed bundle delivered to
 //!   processors (metadata + decoded body + nested children + raw).
 //! - [`InstructionPipe`] / [`InstructionPipes`] — internal pipe wrapping
 //!   decoder + processor + filters; constructed by `PipelineBuilder`.
@@ -24,6 +24,7 @@ use {
         error::{BoxError, CarbonResult, Error},
         filter::Filter,
         processor::Processor,
+        route::{InstructionProcessorInput, RouteContext},
         transaction::TransactionMetadata,
     },
     async_trait::async_trait,
@@ -219,17 +220,6 @@ pub trait InstructionDecoder {
     ) -> Result<Option<Self::InstructionType>, BoxError>;
 }
 
-/// Borrowed bundle delivered to a
-/// `Processor<InstructionProcessorInputType<T>>`: metadata, decoded body, child
-/// CPIs, and the raw instruction.
-#[derive(Debug)]
-pub struct InstructionProcessorInputType<'a, T> {
-    pub metadata: &'a InstructionMetadata,
-    pub decoded_instruction: &'a T,
-    pub nested_instructions: &'a NestedInstructions,
-    pub raw_instruction: &'a solana_instruction::Instruction,
-}
-
 pub struct InstructionPipe<T: Send, P> {
     decoder: Box<dyn InstructionDecoder<InstructionType = T> + Send + 'static>,
     processor: P,
@@ -251,32 +241,41 @@ impl<T: Send, P> InstructionPipe<T, P> {
 }
 
 #[async_trait]
-pub trait InstructionPipes<'a>: Send {
-    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
+pub trait InstructionPipes: Send {
+    async fn run(
+        &mut self,
+        context: &RouteContext<'_>,
+        nested_instruction: &NestedInstruction,
+    ) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
-impl<T, P> InstructionPipes<'_> for InstructionPipe<T, P>
+impl<T, P> InstructionPipes for InstructionPipe<T, P>
 where
     T: Send + Sync + 'static,
-    P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
+    P: for<'a> Processor<InstructionProcessorInput<'a, T>> + 'static,
 {
-    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
+    async fn run(
+        &mut self,
+        context: &RouteContext<'_>,
+        nested_instruction: &NestedInstruction,
+    ) -> CarbonResult<()> {
         if let Some(decoded_instruction) = self
             .decoder
             .decode_instruction(&nested_instruction.instruction)
             .map_err(Error::Decode)?
         {
-            let data = InstructionProcessorInputType {
-                metadata: &nested_instruction.metadata,
-                decoded_instruction: &decoded_instruction,
-                nested_instructions: &nested_instruction.inner_instructions,
-                raw_instruction: &nested_instruction.instruction,
+            let input = InstructionProcessorInput {
+                instruction: nested_instruction,
+                decoded: decoded_instruction,
             };
 
-            self.processor.process(&data).await?;
+            self.processor
+                .process(context, &input)
+                .await
+                .map_err(Error::Processor)?;
         }
 
         Ok(())
@@ -422,12 +421,13 @@ mod tests {
 
     struct Counter(Arc<std::sync::atomic::AtomicUsize>);
 
-    impl Processor<InstructionProcessorInputType<'_, u8>> for Counter {
+    impl Processor<InstructionProcessorInput<'_, u8>> for Counter {
         async fn process(
             &mut self,
-            input: &InstructionProcessorInputType<'_, u8>,
-        ) -> CarbonResult<()> {
-            assert_eq!(*input.decoded_instruction, input.raw_instruction.data[0]);
+            _context: &RouteContext<'_>,
+            input: &InstructionProcessorInput<'_, u8>,
+        ) -> crate::processor::ProcessorResult {
+            assert_eq!(*input.decoded(), input.instruction().instruction.data[0]);
             self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             Ok(())
         }
@@ -439,6 +439,10 @@ mod tests {
             io,
             sync::atomic::{AtomicUsize, Ordering},
         };
+        let pipeline_id = crate::id::Id::new("pipeline").unwrap();
+        let datasource_id = crate::id::Id::new("source").unwrap();
+        let route_id = crate::id::Id::new("instructions").unwrap();
+        let context = RouteContext::new(&pipeline_id, &datasource_id, &route_id);
         let calls = Arc::new(AtomicUsize::new(0));
         let mut pipe = InstructionPipe::new(
             Box::new(Decoder(std::cell::Cell::new(0))),
@@ -450,11 +454,14 @@ mod tests {
             let (metadata, mut instruction) = create_instruction_with_metadata(0, 1, vec![0]);
             instruction.data = data;
             let result = pipe
-                .run(&NestedInstruction {
-                    metadata,
-                    instruction,
-                    inner_instructions: NestedInstructions::default(),
-                })
+                .run(
+                    &context,
+                    &NestedInstruction {
+                        metadata,
+                        instruction,
+                        inner_instructions: NestedInstructions::default(),
+                    },
+                )
                 .await;
             if is_error {
                 let Error::Decode(error) = result.unwrap_err() else {

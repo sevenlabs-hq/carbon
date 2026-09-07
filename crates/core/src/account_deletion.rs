@@ -11,7 +11,11 @@
 
 use {
     crate::{
-        error::CarbonResult, filter::Filter, processor::Processor, update::AccountClosureUpdate,
+        error::{CarbonResult, Error},
+        filter::Filter,
+        processor::Processor,
+        route::RouteContext,
+        update::AccountClosureUpdate,
     },
     async_trait::async_trait,
 };
@@ -28,8 +32,12 @@ impl<P> AccountDeletionPipe<P> {
 }
 
 #[async_trait]
-pub trait AccountDeletionPipes: Send + Sync {
-    async fn run(&mut self, account_deletion: AccountClosureUpdate) -> CarbonResult<()>;
+pub trait AccountDeletionPipes: Send {
+    async fn run(
+        &mut self,
+        context: &RouteContext<'_>,
+        account_deletion: &AccountClosureUpdate,
+    ) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -37,10 +45,17 @@ pub trait AccountDeletionPipes: Send + Sync {
 #[async_trait]
 impl<P> AccountDeletionPipes for AccountDeletionPipe<P>
 where
-    P: Processor<AccountClosureUpdate> + Send + Sync,
+    P: Processor<AccountClosureUpdate>,
 {
-    async fn run(&mut self, account_deletion: AccountClosureUpdate) -> CarbonResult<()> {
-        self.processor.process(&account_deletion).await?;
+    async fn run(
+        &mut self,
+        context: &RouteContext<'_>,
+        account_deletion: &AccountClosureUpdate,
+    ) -> CarbonResult<()> {
+        self.processor
+            .process(context, account_deletion)
+            .await
+            .map_err(Error::Processor)?;
 
         Ok(())
     }

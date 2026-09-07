@@ -6,7 +6,7 @@
 //!   account.
 //! - [`AccountDecoder`] — user-implemented trait that turns a raw
 //!   `solana_account::Account` into decoded data.
-//! - [`AccountProcessorInputType<'a, T>`] — borrowed bundle the pipeline passes
+//! - [`AccountProcessorInput<'a, T>`] — borrowed bundle the pipeline passes
 //!   to user processors.
 //! - [`AccountPipe`] / [`AccountPipes`] — internal pipe wrapping the decoder +
 //!   processor + filters; constructed by `PipelineBuilder`.
@@ -16,6 +16,8 @@ use {
         error::{BoxError, CarbonResult, Error},
         filter::Filter,
         processor::Processor,
+        route::{AccountProcessorInput, RouteContext},
+        update::AccountUpdate,
     },
     async_trait::async_trait,
     solana_pubkey::Pubkey,
@@ -41,15 +43,14 @@ pub trait AccountDecoder {
     ) -> Result<Option<Self::AccountType>, BoxError>;
 }
 
-/// Borrowed bundle handed to a `Processor<AccountProcessorInputType<T>>`.
-///
-/// Includes both the typed decoded form and the raw account so processors
-/// that need fields the decoder discarded can recover them.
-#[derive(Debug)]
-pub struct AccountProcessorInputType<'a, T> {
-    pub metadata: &'a AccountMetadata,
-    pub decoded_account: &'a T,
-    pub raw_account: &'a solana_account::Account,
+impl From<&AccountUpdate> for AccountMetadata {
+    fn from(update: &AccountUpdate) -> Self {
+        Self {
+            slot: update.slot(),
+            pubkey: *update.pubkey(),
+            transaction_signature: update.transaction_signature().copied(),
+        }
+    }
 }
 
 pub struct AccountPipe<T, P> {
@@ -74,10 +75,8 @@ impl<T, P> AccountPipe<T, P> {
 
 #[async_trait]
 pub trait AccountPipes: Send {
-    async fn run(
-        &mut self,
-        account_with_metadata: (AccountMetadata, solana_account::Account),
-    ) -> CarbonResult<()>;
+    async fn run(&mut self, context: &RouteContext<'_>, update: &AccountUpdate)
+        -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -86,26 +85,26 @@ pub trait AccountPipes: Send {
 impl<T, P> AccountPipes for AccountPipe<T, P>
 where
     T: Send + Sync,
-    P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync,
+    P: for<'a> Processor<AccountProcessorInput<'a, T>>,
 {
     async fn run(
         &mut self,
-        account_with_metadata: (AccountMetadata, solana_account::Account),
+        context: &RouteContext<'_>,
+        update: &AccountUpdate,
     ) -> CarbonResult<()> {
-        let (account_metadata, account) = account_with_metadata;
-
         if let Some(decoded_account) = self
             .decoder
-            .decode_account(&account_metadata.pubkey, &account)
+            .decode_account(update.pubkey(), update.account())
             .map_err(Error::Decode)?
         {
-            let data = AccountProcessorInputType {
-                metadata: &account_metadata,
-                decoded_account: &decoded_account,
-                raw_account: &account,
+            let input = AccountProcessorInput {
+                update,
+                decoded: decoded_account,
             };
-
-            self.processor.process(&data).await?;
+            self.processor
+                .process(context, &input)
+                .await
+                .map_err(Error::Processor)?;
         }
         Ok(())
     }
@@ -119,6 +118,7 @@ where
 mod tests {
     use {
         super::*,
+        crate::processor::ProcessorResult,
         solana_account::Account,
         std::{
             cell::Cell,
@@ -157,10 +157,14 @@ mod tests {
 
     struct Counter(Arc<AtomicUsize>);
 
-    impl Processor<AccountProcessorInputType<'_, u8>> for Counter {
-        async fn process(&mut self, input: &AccountProcessorInputType<'_, u8>) -> CarbonResult<()> {
-            assert_eq!(*input.decoded_account, input.raw_account.data[0]);
-            assert_eq!(input.raw_account.lamports, 42);
+    impl Processor<AccountProcessorInput<'_, u8>> for Counter {
+        async fn process(
+            &mut self,
+            _context: &RouteContext<'_>,
+            input: &AccountProcessorInput<'_, u8>,
+        ) -> ProcessorResult {
+            assert_eq!(*input.decoded(), input.update().account().data[0]);
+            assert_eq!(input.update().account().lamports, 42);
             self.0.fetch_add(1, Ordering::Relaxed);
             Ok(())
         }
@@ -168,6 +172,10 @@ mod tests {
 
     #[tokio::test]
     async fn account_pipe_handles_matches_non_matches_and_errors() {
+        let pipeline_id = crate::id::Id::new("pipeline").unwrap();
+        let datasource_id = crate::id::Id::new("source").unwrap();
+        let route_id = crate::id::Id::new("accounts").unwrap();
+        let context = RouteContext::new(&pipeline_id, &datasource_id, &route_id);
         let pubkey = Pubkey::new_unique();
         let calls = Arc::new(AtomicUsize::new(0));
         let mut pipe = AccountPipe::new(
@@ -181,18 +189,18 @@ mod tests {
         for data in [vec![7], vec![0], vec![]] {
             let is_error = data.is_empty();
             let result = pipe
-                .run((
-                    AccountMetadata {
-                        slot: 1,
+                .run(
+                    &context,
+                    &AccountUpdate::new(
                         pubkey,
-                        transaction_signature: None,
-                    },
-                    Account {
-                        data,
-                        lamports: 42,
-                        ..Default::default()
-                    },
-                ))
+                        Account {
+                            data,
+                            lamports: 42,
+                            ..Default::default()
+                        },
+                        1,
+                    ),
+                )
                 .await;
             if is_error {
                 let Error::Decode(error) = result.unwrap_err() else {

@@ -14,7 +14,7 @@
 //!
 //! 1. `run()` spawns one tokio task per datasource and collects updates on an
 //!    MPSC channel.
-//! 2. For each `(Update, DatasourceId)` it calls every registered pipe whose
+//! 2. For each `(Update, Id)` it calls every registered pipe whose
 //!    update type matches and whose filters return `Accept`.
 //! 3. Each pipe decodes the payload (where applicable) and invokes its
 //!    `Processor`.
@@ -25,26 +25,29 @@
 
 use {
     crate::{
-        account::{
-            AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, AccountProcessorInputType,
-        },
+        account::{AccountDecoder, AccountMetadata, AccountPipe, AccountPipes},
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
-        datasource::{Datasource, DatasourceId},
+        datasource::Datasource,
         error::CarbonResult,
         filter::{Filter, FilterContext, FilterResult},
+        id::{Id, IdError},
         instruction::{
             extract_instructions_with_metadata, InstructionDecoder, InstructionPipe,
-            InstructionPipes, InstructionProcessorInputType, InstructionsWithMetadata,
-            NestedInstructions,
+            InstructionPipes, InstructionsWithMetadata, NestedInstructions,
         },
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
-        transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
+        route::{
+            AccountProcessorInput, InstructionProcessorInput, RouteContext, TransactionFilterInput,
+            TransactionProcessorInput,
+        },
+        transaction::{TransactionPipe, TransactionPipes},
         update::{AccountClosureUpdate, BlockUpdate, Update},
     },
     std::{
+        collections::HashSet,
         convert::TryInto,
         sync::{Arc, LazyLock},
         time::Instant,
@@ -152,18 +155,54 @@ pub enum ShutdownStrategy {
 /// pipeline loop. Override with [`PipelineBuilder::channel_buffer_size`].
 pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 
+/// Invalid pipeline or registration IDs.
+#[derive(Debug, thiserror::Error)]
+pub enum PipelineBuildError {
+    #[error("invalid pipeline ID: {source}")]
+    InvalidPipelineId { source: IdError },
+    #[error("invalid datasource ID at registration {registration_index}: {source}")]
+    InvalidDatasourceId {
+        registration_index: usize,
+        source: IdError,
+    },
+    #[error("invalid route ID {id:?}: {source}")]
+    InvalidRouteId { id: String, source: IdError },
+    #[error("duplicate datasource ID: {id}")]
+    DuplicateDatasourceId { id: Id },
+    #[error("duplicate route ID: {id}")]
+    DuplicateRouteId { id: Id },
+}
+
+fn build_routes<P: ?Sized>(
+    routes: Vec<(String, Box<P>)>,
+    ids: &mut HashSet<Id>,
+) -> Result<Vec<(Id, Box<P>)>, PipelineBuildError> {
+    routes
+        .into_iter()
+        .map(|(name, pipe)| {
+            let id = Id::new(name.clone())
+                .map_err(|source| PipelineBuildError::InvalidRouteId { id: name, source })?;
+            if !ids.insert(id.clone()) {
+                return Err(PipelineBuildError::DuplicateRouteId { id });
+            }
+            Ok((id, pipe))
+        })
+        .collect()
+}
+
 /// Built pipeline ready to execute. Construct via [`Pipeline::builder`].
 ///
 /// Owns every datasource, pipe, and exporter for the lifetime of
 /// [`run`](Self::run). Fields are public for advanced introspection but
 /// the standard construction path is the builder.
 pub struct Pipeline {
-    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
-    pub account_pipes: Vec<Box<dyn AccountPipes>>,
-    pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
-    pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
-    pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
-    pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub id: Id,
+    pub datasources: Vec<(Id, Arc<dyn Datasource>)>,
+    pub account_pipes: Vec<(Id, Box<dyn AccountPipes>)>,
+    pub account_deletion_pipes: Vec<(Id, Box<dyn AccountDeletionPipes>)>,
+    pub block_details_pipes: Vec<(Id, Box<dyn BlockDetailsPipes>)>,
+    pub instruction_pipes: Vec<(Id, Box<dyn InstructionPipes>)>,
+    pub transaction_pipes: Vec<(Id, Box<dyn TransactionPipes>)>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
@@ -171,8 +210,8 @@ pub struct Pipeline {
 }
 
 impl Pipeline {
-    pub fn builder() -> PipelineBuilder {
-        PipelineBuilder::default()
+    pub fn builder(id: impl Into<String>) -> PipelineBuilder {
+        PipelineBuilder::new(id)
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
@@ -190,7 +229,7 @@ impl Pipeline {
             MetricsExporter::initialize(exporter)?;
         }
         let (update_sender, mut update_receiver) =
-            tokio::sync::mpsc::channel::<(Update, DatasourceId)>(self.channel_buffer_size);
+            tokio::sync::mpsc::channel::<(Update, Id)>(self.channel_buffer_size);
 
         let datasource_cancellation_token = self
             .datasource_cancellation_token
@@ -295,20 +334,16 @@ impl Pipeline {
         Ok(())
     }
 
-    async fn process(&mut self, update: Update, datasource_id: DatasourceId) -> CarbonResult<()> {
+    async fn process(&mut self, update: Update, datasource_id: Id) -> CarbonResult<()> {
         match update {
             Update::Account(account_update) => {
-                let account_metadata = AccountMetadata {
-                    slot: account_update.slot(),
-                    pubkey: *account_update.pubkey(),
-                    transaction_signature: account_update.transaction_signature().copied(),
-                };
+                let account_metadata = AccountMetadata::from(&account_update);
 
                 let context = FilterContext {
                     datasource_id: &datasource_id,
                 };
 
-                for pipe in self.account_pipes.iter_mut() {
+                for (route_id, pipe) in self.account_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
                             filter.filter_account(
@@ -319,8 +354,11 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run((account_metadata.clone(), account_update.account().clone()))
-                            .await?;
+                        pipe.run(
+                            &RouteContext::new(&self.id, &datasource_id, route_id),
+                            &account_update,
+                        )
+                        .await?;
                     }
                 }
 
@@ -333,15 +371,19 @@ impl Pipeline {
                     extract_instructions_with_metadata(&transaction_metadata, &transaction_update)?;
 
                 let nested_instructions: NestedInstructions =
-                    instructions_with_metadata.clone().try_into()?;
+                    instructions_with_metadata.try_into()?;
+                let input = TransactionFilterInput {
+                    update: transaction_update,
+                    instructions: nested_instructions,
+                };
                 let mut all_instructions = Vec::new();
-                Self::flatten_nested_instructions(&nested_instructions, &mut all_instructions);
+                Self::flatten_nested_instructions(input.instructions(), &mut all_instructions);
 
                 let context = FilterContext {
                     datasource_id: &datasource_id,
                 };
 
-                for pipe in self.instruction_pipes.iter_mut() {
+                for (route_id, pipe) in self.instruction_pipes.iter_mut() {
                     for &nested_instruction in &all_instructions {
                         if pipe.filters().iter().all(|filter| {
                             matches!(
@@ -349,24 +391,32 @@ impl Pipeline {
                                 FilterResult::Accept
                             )
                         }) {
-                            pipe.run(nested_instruction).await?;
+                            pipe.run(
+                                &RouteContext::new(&self.id, &datasource_id, route_id),
+                                nested_instruction,
+                            )
+                            .await?;
                         }
                     }
                 }
 
-                for pipe in self.transaction_pipes.iter_mut() {
+                for (route_id, pipe) in self.transaction_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
                             filter.filter_transaction(
                                 &context,
                                 &transaction_metadata,
-                                &nested_instructions
+                                input.instructions()
                             ),
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(transaction_metadata.clone(), &instructions_with_metadata)
-                            .await?;
+                        pipe.run(
+                            &RouteContext::new(&self.id, &datasource_id, route_id),
+                            input.update(),
+                            &all_instructions,
+                        )
+                        .await?;
                     }
                 }
 
@@ -377,14 +427,18 @@ impl Pipeline {
                     datasource_id: &datasource_id,
                 };
 
-                for pipe in self.account_deletion_pipes.iter_mut() {
+                for (route_id, pipe) in self.account_deletion_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
                             filter.filter_account_deletion(&context, &account_deletion),
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(account_deletion.clone()).await?;
+                        pipe.run(
+                            &RouteContext::new(&self.id, &datasource_id, route_id),
+                            &account_deletion,
+                        )
+                        .await?;
                     }
                 }
 
@@ -395,14 +449,18 @@ impl Pipeline {
                     datasource_id: &datasource_id,
                 };
 
-                for pipe in self.block_details_pipes.iter_mut() {
+                for (route_id, pipe) in self.block_details_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
                             filter.filter_block_details(&context, &block_details),
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(block_details.clone()).await?;
+                        pipe.run(
+                            &RouteContext::new(&self.id, &datasource_id, route_id),
+                            &block_details,
+                        )
+                        .await?;
                     }
                 }
 
@@ -425,21 +483,23 @@ impl Pipeline {
 }
 
 pub struct PipelineBuilder {
-    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
-    pub account_pipes: Vec<Box<dyn AccountPipes>>,
-    pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
-    pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
-    pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
-    pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub id: String,
+    pub datasources: Vec<(String, Arc<dyn Datasource>)>,
+    pub account_pipes: Vec<(String, Box<dyn AccountPipes>)>,
+    pub account_deletion_pipes: Vec<(String, Box<dyn AccountDeletionPipes>)>,
+    pub block_details_pipes: Vec<(String, Box<dyn BlockDetailsPipes>)>,
+    pub instruction_pipes: Vec<(String, Box<dyn InstructionPipes>)>,
+    pub transaction_pipes: Vec<(String, Box<dyn TransactionPipes>)>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
 }
 
-impl Default for PipelineBuilder {
-    fn default() -> Self {
+impl PipelineBuilder {
+    pub fn new(id: impl Into<String>) -> Self {
         Self {
+            id: id.into(),
             datasources: Vec::new(),
             account_pipes: Vec::new(),
             account_deletion_pipes: Vec::new(),
@@ -452,25 +512,12 @@ impl Default for PipelineBuilder {
             channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
         }
     }
-}
-
-impl PipelineBuilder {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn datasource(mut self, datasource: impl Datasource + 'static) -> Self {
-        self.datasources
-            .push((DatasourceId::new_unique(), Arc::new(datasource)));
-        self
-    }
-
-    pub fn datasource_with_id(
+    pub fn datasource(
         mut self,
+        id: impl Into<String>,
         datasource: impl Datasource + 'static,
-        id: DatasourceId,
     ) -> Self {
-        self.datasources.push((id, Arc::new(datasource)));
+        self.datasources.push((id.into(), Arc::new(datasource)));
         self
     }
 
@@ -481,142 +528,158 @@ impl PipelineBuilder {
 
     pub fn account<T, P>(
         mut self,
+        route_id: impl Into<String>,
         decoder: impl AccountDecoder<AccountType = T> + Send + 'static,
         processor: P,
     ) -> Self
     where
         T: Send + Sync + 'static,
-        P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInput<'a, T>> + 'static,
     {
-        self.account_pipes.push(Box::new(AccountPipe::new(
-            Box::new(decoder),
-            processor,
-            Vec::new(),
-        )));
+        self.account_pipes.push((
+            route_id.into(),
+            Box::new(AccountPipe::new(Box::new(decoder), processor, Vec::new())),
+        ));
         self
     }
 
     pub fn account_with_filters<T, P>(
         mut self,
+        route_id: impl Into<String>,
         decoder: impl AccountDecoder<AccountType = T> + Send + 'static,
         processor: P,
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         T: Send + Sync + 'static,
-        P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInput<'a, T>> + 'static,
     {
-        self.account_pipes.push(Box::new(AccountPipe::new(
-            Box::new(decoder),
-            processor,
-            filters,
-        )));
+        self.account_pipes.push((
+            route_id.into(),
+            Box::new(AccountPipe::new(Box::new(decoder), processor, filters)),
+        ));
         self
     }
 
-    pub fn account_deletions<P>(mut self, processor: P) -> Self
+    pub fn account_deletions<P>(mut self, route_id: impl Into<String>, processor: P) -> Self
     where
-        P: Processor<AccountClosureUpdate> + Send + Sync + 'static,
+        P: Processor<AccountClosureUpdate> + 'static,
     {
-        self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe::new(processor, Vec::new())));
+        self.account_deletion_pipes.push((
+            route_id.into(),
+            Box::new(AccountDeletionPipe::new(processor, Vec::new())),
+        ));
         self
     }
 
     pub fn account_deletions_with_filters<P>(
         mut self,
+        route_id: impl Into<String>,
         processor: P,
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
-        P: Processor<AccountClosureUpdate> + Send + Sync + 'static,
+        P: Processor<AccountClosureUpdate> + 'static,
     {
-        self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe::new(processor, filters)));
+        self.account_deletion_pipes.push((
+            route_id.into(),
+            Box::new(AccountDeletionPipe::new(processor, filters)),
+        ));
         self
     }
 
-    pub fn block_details<P>(mut self, processor: P) -> Self
+    pub fn block_details<P>(mut self, route_id: impl Into<String>, processor: P) -> Self
     where
-        P: Processor<BlockUpdate> + Send + Sync + 'static,
+        P: Processor<BlockUpdate> + 'static,
     {
-        self.block_details_pipes
-            .push(Box::new(BlockDetailsPipe::new(processor, Vec::new())));
+        self.block_details_pipes.push((
+            route_id.into(),
+            Box::new(BlockDetailsPipe::new(processor, Vec::new())),
+        ));
         self
     }
 
     pub fn block_details_with_filters<P>(
         mut self,
+        route_id: impl Into<String>,
         processor: P,
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
-        P: Processor<BlockUpdate> + Send + Sync + 'static,
+        P: Processor<BlockUpdate> + 'static,
     {
-        self.block_details_pipes
-            .push(Box::new(BlockDetailsPipe::new(processor, filters)));
+        self.block_details_pipes.push((
+            route_id.into(),
+            Box::new(BlockDetailsPipe::new(processor, filters)),
+        ));
         self
     }
 
     pub fn instruction<T, P>(
         mut self,
+        route_id: impl Into<String>,
         decoder: impl InstructionDecoder<InstructionType = T> + Send + 'static,
         processor: P,
     ) -> Self
     where
         T: Send + Sync + 'static,
-        P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInput<'a, T>> + 'static,
     {
-        self.instruction_pipes.push(Box::new(InstructionPipe::new(
-            Box::new(decoder),
-            processor,
-            Vec::new(),
-        )));
+        self.instruction_pipes.push((
+            route_id.into(),
+            Box::new(InstructionPipe::new(
+                Box::new(decoder),
+                processor,
+                Vec::new(),
+            )),
+        ));
         self
     }
 
     pub fn instruction_with_filters<T, P>(
         mut self,
+        route_id: impl Into<String>,
         decoder: impl InstructionDecoder<InstructionType = T> + Send + 'static,
         processor: P,
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         T: Send + Sync + 'static,
-        P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInput<'a, T>> + 'static,
     {
-        self.instruction_pipes.push(Box::new(InstructionPipe::new(
-            Box::new(decoder),
-            processor,
-            filters,
-        )));
+        self.instruction_pipes.push((
+            route_id.into(),
+            Box::new(InstructionPipe::new(Box::new(decoder), processor, filters)),
+        ));
         self
     }
 
-    pub fn transaction<T, P>(mut self, processor: P) -> Self
+    pub fn transaction<T, P>(mut self, route_id: impl Into<String>, processor: P) -> Self
     where
         T: InstructionDecoderCollection + Send + Sync + 'static,
-        P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInput<'a, T>> + 'static,
     {
-        self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, P>::new(
-                processor,
-                Vec::new(),
-            )));
+        self.transaction_pipes.push((
+            route_id.into(),
+            Box::new(TransactionPipe::<T, P>::new(processor, Vec::new())),
+        ));
         self
     }
 
     pub fn transaction_with_filters<T, P>(
         mut self,
+        route_id: impl Into<String>,
         processor: P,
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + Send + Sync + 'static,
-        P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInput<'a, T>> + 'static,
     {
-        self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, P>::new(processor, filters)));
+        self.transaction_pipes.push((
+            route_id.into(),
+            Box::new(TransactionPipe::<T, P>::new(processor, filters)),
+        ));
         self
     }
 
@@ -635,21 +698,369 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn build(self) -> CarbonResult<Pipeline> {
-        register_pipeline_metrics();
-        #[cfg(feature = "postgres")]
-        crate::postgres::processors::register_postgres_metrics();
-        Ok(Pipeline {
-            datasources: self.datasources,
-            account_pipes: self.account_pipes,
-            account_deletion_pipes: self.account_deletion_pipes,
-            block_details_pipes: self.block_details_pipes,
-            instruction_pipes: self.instruction_pipes,
-            transaction_pipes: self.transaction_pipes,
+    pub fn build(self) -> Result<Pipeline, PipelineBuildError> {
+        let id =
+            Id::new(self.id).map_err(|source| PipelineBuildError::InvalidPipelineId { source })?;
+        let mut source_ids = HashSet::new();
+        let mut datasources = Vec::with_capacity(self.datasources.len());
+        for (registration_index, (name, datasource)) in self.datasources.into_iter().enumerate() {
+            let id = Id::new(name).map_err(|source| PipelineBuildError::InvalidDatasourceId {
+                registration_index,
+                source,
+            })?;
+            if !source_ids.insert(id.clone()) {
+                return Err(PipelineBuildError::DuplicateDatasourceId { id });
+            }
+            datasources.push((id, datasource));
+        }
+        let mut route_ids = HashSet::new();
+        let pipeline = Pipeline {
+            id,
+            datasources,
+            account_pipes: build_routes(self.account_pipes, &mut route_ids)?,
+            account_deletion_pipes: build_routes(self.account_deletion_pipes, &mut route_ids)?,
+            block_details_pipes: build_routes(self.block_details_pipes, &mut route_ids)?,
+            instruction_pipes: build_routes(self.instruction_pipes, &mut route_ids)?,
+            transaction_pipes: build_routes(self.transaction_pipes, &mut route_ids)?,
             exporters: self.exporters,
             datasource_cancellation_token: self.datasource_cancellation_token,
             shutdown_strategy: self.shutdown_strategy,
             channel_buffer_size: self.channel_buffer_size,
-        })
+        };
+        register_pipeline_metrics();
+        #[cfg(feature = "postgres")]
+        crate::postgres::processors::register_postgres_metrics();
+        Ok(pipeline)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use {
+        super::*,
+        crate::{
+            datasource::UpdateType,
+            error::{BoxError, Error},
+            processor::ProcessorResult,
+            update::{AccountUpdate, TransactionUpdate},
+        },
+        solana_account::Account,
+        solana_hash::Hash,
+        solana_instruction::Instruction,
+        solana_message::{
+            compiled_instruction::CompiledInstruction, legacy::Message, MessageHeader,
+            VersionedMessage,
+        },
+        solana_pubkey::Pubkey,
+        solana_signature::Signature,
+        solana_transaction::versioned::VersionedTransaction,
+        solana_transaction_status::{InnerInstruction, InnerInstructions, TransactionStatusMeta},
+        std::{cell::Cell, sync::Mutex},
+    };
+
+    struct Source;
+
+    #[async_trait::async_trait]
+    impl Datasource for Source {
+        async fn consume(
+            &self,
+            _id: Id,
+            _sender: tokio::sync::mpsc::Sender<(Update, Id)>,
+            _cancellation_token: CancellationToken,
+        ) -> CarbonResult<()> {
+            Ok(())
+        }
+
+        fn update_types(&self) -> Vec<UpdateType> {
+            vec![]
+        }
+    }
+
+    struct Decoder;
+
+    impl AccountDecoder for Decoder {
+        type AccountType = u8;
+        fn decode_account(
+            &self,
+            _pubkey: &Pubkey,
+            _account: &Account,
+        ) -> Result<Option<u8>, BoxError> {
+            Ok(Some(7))
+        }
+    }
+
+    impl InstructionDecoder for Decoder {
+        type InstructionType = u8;
+        fn decode_instruction(&self, instruction: &Instruction) -> Result<Option<u8>, BoxError> {
+            Ok(instruction.data.first().copied())
+        }
+    }
+
+    struct Collection;
+
+    impl InstructionDecoderCollection for Collection {
+        fn decode_instruction(_instruction: &Instruction) -> Result<Option<Self>, BoxError> {
+            Ok(Some(Self))
+        }
+    }
+
+    type Seen = Arc<Mutex<Vec<(String, String, String, usize)>>>;
+
+    struct Recorder {
+        calls: Cell<usize>,
+        seen: Seen,
+    }
+
+    impl Recorder {
+        fn new(seen: Seen) -> Self {
+            Self {
+                calls: Cell::new(0),
+                seen,
+            }
+        }
+    }
+
+    impl<T: Sync> Processor<T> for Recorder {
+        async fn process(&mut self, context: &RouteContext<'_>, _value: &T) -> ProcessorResult {
+            self.calls.set(self.calls.get() + 1);
+            tokio::task::yield_now().await;
+            self.seen.lock().unwrap().push((
+                context.pipeline_id().to_string(),
+                context.datasource_id().to_string(),
+                context.route_id().to_string(),
+                self.calls.get(),
+            ));
+            Ok(())
+        }
+    }
+
+    fn recorder() -> Recorder {
+        Recorder::new(Arc::new(Mutex::new(Vec::new())))
+    }
+
+    #[test]
+    fn builder_rejects_blank_ids_and_duplicates() {
+        assert!(matches!(
+            Pipeline::builder(" ").build(),
+            Err(PipelineBuildError::InvalidPipelineId { .. })
+        ));
+        assert!(matches!(
+            Pipeline::builder("pipeline")
+                .datasource(" ", Source)
+                .build(),
+            Err(PipelineBuildError::InvalidDatasourceId {
+                registration_index: 0,
+                ..
+            })
+        ));
+        assert!(matches!(
+            Pipeline::builder("pipeline")
+                .datasource("source", Source)
+                .datasource("source", Source)
+                .build(),
+            Err(PipelineBuildError::DuplicateDatasourceId { .. })
+        ));
+        for builder in [
+            Pipeline::builder("pipeline").account(" ", Decoder, recorder()),
+            Pipeline::builder("pipeline").account_with_filters(" ", Decoder, recorder(), vec![]),
+            Pipeline::builder("pipeline").instruction(" ", Decoder, recorder()),
+            Pipeline::builder("pipeline").instruction_with_filters(
+                " ",
+                Decoder,
+                recorder(),
+                vec![],
+            ),
+            Pipeline::builder("pipeline").transaction::<Collection, _>(" ", recorder()),
+            Pipeline::builder("pipeline").transaction_with_filters::<Collection, _>(
+                " ",
+                recorder(),
+                vec![],
+            ),
+            Pipeline::builder("pipeline").account_deletions(" ", recorder()),
+            Pipeline::builder("pipeline").account_deletions_with_filters(" ", recorder(), vec![]),
+            Pipeline::builder("pipeline").block_details(" ", recorder()),
+            Pipeline::builder("pipeline").block_details_with_filters(" ", recorder(), vec![]),
+        ] {
+            assert!(matches!(
+                builder.build(),
+                Err(PipelineBuildError::InvalidRouteId { .. })
+            ));
+        }
+        assert!(matches!(
+            Pipeline::builder("pipeline")
+                .account("same", Decoder, recorder())
+                .instruction("same", Decoder, recorder())
+                .build(),
+            Err(PipelineBuildError::DuplicateRouteId { .. })
+        ));
+        assert!(matches!(
+            Pipeline::builder("pipeline")
+                .block_details("same", recorder())
+                .block_details("same", recorder())
+                .build(),
+            Err(PipelineBuildError::DuplicateRouteId { .. })
+        ));
+        // Names are unique within their category, not across categories.
+        assert!(Pipeline::builder("same")
+            .datasource("same", Source)
+            .block_details("same", recorder())
+            .build()
+            .is_ok());
+    }
+
+    #[test]
+    fn pipeline_future_is_send_with_a_non_sync_processor() {
+        fn assert_send<T: Send>(_: T) {}
+
+        let mut pipeline = Pipeline::builder("pipeline")
+            .block_details("blocks", recorder())
+            .build()
+            .unwrap();
+        assert_send(pipeline.run());
+    }
+
+    #[tokio::test]
+    async fn every_route_receives_registered_ids_and_keeps_mutable_processor_state() {
+        let seen = Arc::new(Mutex::new(Vec::new()));
+        let mut pipeline = Pipeline::builder(" indexer ")
+            .datasource("source", Source)
+            .account("accounts", Decoder, Recorder::new(seen.clone()))
+            .instruction("instructions", Decoder, Recorder::new(seen.clone()))
+            .transaction::<Collection, _>("transactions", Recorder::new(seen.clone()))
+            .account_deletions("closures", Recorder::new(seen.clone()))
+            .block_details("blocks", Recorder::new(seen.clone()))
+            .build()
+            .unwrap();
+        let source = pipeline.datasources[0].0.clone();
+        let account = AccountUpdate::new(
+            Pubkey::new_unique(),
+            Account {
+                lamports: 1,
+                ..Default::default()
+            },
+            7,
+        );
+        pipeline
+            .process(account.clone().into(), source.clone())
+            .await
+            .unwrap();
+        pipeline
+            .process(account.into(), source.clone())
+            .await
+            .unwrap();
+
+        let instruction = CompiledInstruction {
+            program_id_index: 1,
+            accounts: vec![0],
+            data: vec![7],
+        };
+        let transaction = TransactionUpdate::new(
+            VersionedTransaction {
+                signatures: vec![Signature::default()],
+                message: VersionedMessage::Legacy(Message {
+                    header: MessageHeader {
+                        num_required_signatures: 1,
+                        num_readonly_signed_accounts: 0,
+                        num_readonly_unsigned_accounts: 1,
+                    },
+                    account_keys: vec![Pubkey::new_unique(), Pubkey::new_unique()],
+                    recent_blockhash: Hash::default(),
+                    instructions: vec![instruction.clone()],
+                }),
+            },
+            TransactionStatusMeta {
+                inner_instructions: Some(vec![InnerInstructions {
+                    index: 0,
+                    instructions: vec![InnerInstruction {
+                        instruction,
+                        stack_height: Some(2),
+                    }],
+                }]),
+                ..Default::default()
+            },
+            7,
+        )
+        .unwrap();
+        pipeline
+            .process(transaction.into(), source.clone())
+            .await
+            .unwrap();
+        pipeline
+            .process(
+                AccountClosureUpdate::new(Pubkey::new_unique(), Account::default(), 7)
+                    .unwrap()
+                    .into(),
+                source.clone(),
+            )
+            .await
+            .unwrap();
+        pipeline
+            .process(BlockUpdate::new(7).into(), source)
+            .await
+            .unwrap();
+
+        let seen = seen.lock().unwrap();
+        assert!(seen
+            .iter()
+            .all(|(pipeline, source, _, _)| pipeline == " indexer " && source == "source"));
+        let calls: Vec<_> = seen
+            .iter()
+            .map(|(_, _, route, count)| (route.as_str(), *count))
+            .collect();
+        assert_eq!(
+            calls,
+            vec![
+                ("accounts", 1),
+                ("accounts", 2),
+                ("instructions", 1),
+                ("instructions", 2),
+                ("transactions", 1),
+                ("closures", 1),
+                ("blocks", 1)
+            ]
+        );
+    }
+
+    #[derive(Debug, thiserror::Error)]
+    #[error("rejected: {0}")]
+    struct Rejected(u8);
+
+    struct Failing;
+
+    impl Processor<BlockUpdate> for Failing {
+        async fn process(
+            &mut self,
+            context: &RouteContext<'_>,
+            _value: &BlockUpdate,
+        ) -> ProcessorResult {
+            assert_eq!(context.route_id().as_str(), "blocks");
+            Err(Box::new(Rejected(7)))
+        }
+    }
+
+    #[tokio::test]
+    async fn processor_errors_preserve_the_original_source() {
+        let mut pipeline = Pipeline::builder("pipeline")
+            .datasource("source", Source)
+            .block_details("blocks", Failing)
+            .build()
+            .unwrap();
+        let source = pipeline.datasources[0].0.clone();
+        let error = pipeline
+            .process(BlockUpdate::new(7).into(), source)
+            .await
+            .unwrap_err();
+        assert_eq!(
+            std::error::Error::source(&error)
+                .unwrap()
+                .downcast_ref::<Rejected>()
+                .unwrap()
+                .0,
+            7
+        );
+        let Error::Processor(error) = error else {
+            panic!("expected processor error")
+        };
+        assert_eq!(error.downcast_ref::<Rejected>().unwrap().0, 7);
     }
 }

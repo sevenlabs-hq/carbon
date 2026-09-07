@@ -10,7 +10,13 @@
 //!   BlockDetailsPipes>`.
 
 use {
-    crate::{error::CarbonResult, filter::Filter, processor::Processor, update::BlockUpdate},
+    crate::{
+        error::{CarbonResult, Error},
+        filter::Filter,
+        processor::Processor,
+        route::RouteContext,
+        update::BlockUpdate,
+    },
     async_trait::async_trait,
 };
 
@@ -26,8 +32,12 @@ impl<P> BlockDetailsPipe<P> {
 }
 
 #[async_trait]
-pub trait BlockDetailsPipes: Send + Sync {
-    async fn run(&mut self, block_details: BlockUpdate) -> CarbonResult<()>;
+pub trait BlockDetailsPipes: Send {
+    async fn run(
+        &mut self,
+        context: &RouteContext<'_>,
+        block_details: &BlockUpdate,
+    ) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -35,10 +45,17 @@ pub trait BlockDetailsPipes: Send + Sync {
 #[async_trait]
 impl<P> BlockDetailsPipes for BlockDetailsPipe<P>
 where
-    P: Processor<BlockUpdate> + Send + Sync,
+    P: Processor<BlockUpdate>,
 {
-    async fn run(&mut self, block_details: BlockUpdate) -> CarbonResult<()> {
-        self.processor.process(&block_details).await?;
+    async fn run(
+        &mut self,
+        context: &RouteContext<'_>,
+        block_details: &BlockUpdate,
+    ) -> CarbonResult<()> {
+        self.processor
+            .process(context, block_details)
+            .await
+            .map_err(Error::Processor)?;
 
         Ok(())
     }

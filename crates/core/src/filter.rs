@@ -5,13 +5,13 @@
 //! - [`Filter`] — trait with per-`Update` hooks. Defaults to `Accept`;
 //!   implementations override only relevant variants.
 //! - [`FilterContext`] — read-only context passed to each hook (includes the
-//!   originating [`DatasourceId`]).
+//!   originating [`Id`]).
 //! - [`FilterResult`] — `Accept` / `Reject` decision returned by hooks.
 //!
 //! # Built-in implementations
 //!
 //! - [`DatasourceFilter`] — restricts processing to a fixed set of
-//!   [`DatasourceId`]s.
+//!   [`Id`]s.
 //! - [`SlotRangeFilter`] — filters updates within a half-open `[from, to)`
 //!   slot/transaction-index range.
 //! - [`DeduplicationFilter`] — drops duplicate `(signature, path)` or
@@ -20,7 +20,7 @@
 use {
     crate::{
         account::AccountMetadata,
-        datasource::DatasourceId,
+        id::Id,
         instruction::{NestedInstruction, NestedInstructions},
         transaction::TransactionMetadata,
         update::{AccountClosureUpdate, BlockUpdate},
@@ -40,7 +40,7 @@ use {
 /// Read-only context passed to each `Filter` hook.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FilterContext<'a> {
-    pub datasource_id: &'a DatasourceId,
+    pub datasource_id: &'a Id,
 }
 
 /// Decision returned by a `Filter` hook.
@@ -206,25 +206,25 @@ impl Filter for DeduplicationFilter {
     }
 }
 
-/// Accepts only updates from a predefined set of [`DatasourceId`]s.
+/// Accepts only updates from a predefined set of [`Id`]s.
 pub struct DatasourceFilter {
-    pub allowed_datasources: Vec<DatasourceId>,
+    pub allowed_datasources: Vec<Id>,
 }
 
 impl DatasourceFilter {
-    pub fn new(datasource_id: DatasourceId) -> Self {
+    pub fn new(datasource_id: Id) -> Self {
         Self {
             allowed_datasources: vec![datasource_id],
         }
     }
 
-    pub fn new_many(datasource_ids: Vec<DatasourceId>) -> Self {
+    pub fn new_many(datasource_ids: Vec<Id>) -> Self {
         Self {
             allowed_datasources: datasource_ids,
         }
     }
 
-    fn allows(&self, datasource_id: &DatasourceId) -> bool {
+    fn allows(&self, datasource_id: &Id) -> bool {
         self.allowed_datasources.contains(datasource_id)
     }
 }
