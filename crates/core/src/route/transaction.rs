@@ -1,7 +1,4 @@
-use {
-    super::InstructionProcessorInput,
-    crate::{instruction::NestedInstructions, update::TransactionUpdate},
-};
+use {super::InstructionProcessorInput, crate::update::TransactionUpdate};
 
 /// A transaction update and its decoded instructions in depth-first preorder.
 #[derive(Debug)]
@@ -20,29 +17,12 @@ impl<'a, T> TransactionProcessorInput<'a, T> {
     }
 }
 
-/// A transaction update and its complete instruction tree.
-#[derive(Debug)]
-pub struct TransactionFilterInput {
-    pub(crate) update: TransactionUpdate,
-    pub(crate) instructions: NestedInstructions,
-}
-
-impl TransactionFilterInput {
-    pub fn update(&self) -> &TransactionUpdate {
-        &self.update
-    }
-
-    pub fn instructions(&self) -> &NestedInstructions {
-        &self.instructions
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use {
         super::*,
         crate::{
-            instruction::{InstructionMetadata, NestedInstruction},
+            instruction::{InstructionMetadata, NestedInstruction, NestedInstructions},
             transaction::TransactionMetadata,
         },
         solana_instruction::Instruction,
@@ -81,29 +61,26 @@ mod tests {
         };
         let mut root = node(vec![0]);
         root.inner_instructions.push(node(vec![0, 0]));
-        let filter_input = TransactionFilterInput {
-            update,
-            instructions: NestedInstructions(vec![root]),
-        };
-        let child = &filter_input.instructions()[0].inner_instructions[0];
+        let instructions = NestedInstructions(vec![root]);
+        let child = &instructions[0].inner_instructions[0];
         let decoded = vec![InstructionProcessorInput {
             instruction: child,
             decoded: String::from("decoded child"),
         }];
         let input = TransactionProcessorInput {
-            update: filter_input.update(),
+            update: &update,
             instructions: &decoded,
         };
 
-        assert!(std::ptr::eq(input.update(), filter_input.update()));
+        assert!(std::ptr::eq(input.update(), &update));
         assert!(std::ptr::eq(input.instructions(), decoded.as_slice()));
         assert!(std::ptr::eq(input.instructions()[0].instruction(), child));
         assert_eq!(input.instructions()[0].decoded(), "decoded child");
-        assert_eq!(filter_input.instructions().len(), 1);
-        assert_eq!(filter_input.instructions()[0].inner_instructions.len(), 1);
+        assert_eq!(instructions.len(), 1);
+        assert_eq!(instructions[0].inner_instructions.len(), 1);
 
         let empty = TransactionProcessorInput::<String> {
-            update: filter_input.update(),
+            update: &update,
             instructions: &[],
         };
         assert!(empty.instructions().is_empty());

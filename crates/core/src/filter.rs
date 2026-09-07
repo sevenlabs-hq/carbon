@@ -1,212 +1,139 @@
-//! Per-pipe filtering layer applied to updates before processing.
-//!
-//! # Components
-//!
-//! - [`Filter`] — trait with per-`Update` hooks. Defaults to `Accept`;
-//!   implementations override only relevant variants.
-//! - [`FilterContext`] — read-only context passed to each hook (includes the
-//!   originating [`Id`]).
-//! - [`FilterResult`] — `Accept` / `Reject` decision returned by hooks.
-//!
-//! # Built-in implementations
-//!
-//! - [`DatasourceFilter`] — restricts processing to a fixed set of
-//!   [`Id`]s.
-//! - [`SlotRangeFilter`] — filters updates within a half-open `[from, to)`
-//!   slot/transaction-index range.
-//! - [`DeduplicationFilter`] — drops duplicate `(signature, path)` or
-//!   `(signature, pubkey)` entries within a TTL window.
+//! Filters evaluated before decoding, with a commit hook after processing.
 
 use {
     crate::{
-        account::AccountMetadata,
+        error::BoxError,
         id::Id,
-        instruction::{NestedInstruction, NestedInstructions},
-        transaction::TransactionMetadata,
-        update::{AccountClosureUpdate, BlockUpdate},
+        instruction::NestedInstruction,
+        processor::ProcessorResult,
+        route::RouteContext,
+        update::{AccountClosureUpdate, AccountUpdate, BlockUpdate, TransactionUpdate},
     },
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     std::{
         collections::HashMap,
-        sync::{
-            atomic::{AtomicU64, Ordering},
-            Arc, RwLock,
-        },
+        future::Future,
+        pin::Pin,
         time::{Duration, Instant},
     },
 };
 
-/// Read-only context passed to each `Filter` hook.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct FilterContext<'a> {
-    pub datasource_id: &'a Id,
-}
+pub trait Filter<T>: Send
+where
+    T: Sync,
+{
+    fn filter(
+        &mut self,
+        context: &RouteContext<'_>,
+        value: &T,
+    ) -> impl Future<Output = Result<bool, BoxError>> + Send;
 
-/// Decision returned by a `Filter` hook.
-///
-/// `Reject` skips the update for the current pipe only.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum FilterResult {
-    Accept,
-    Reject,
-}
-
-/// Pipe-level gate evaluated for every incoming update.
-///
-/// Each hook returns `Accept` (forward) or `Reject` (skip). All hooks
-/// default to `Accept`.
-pub trait Filter: Send + Sync {
-    fn filter_account(
-        &self,
-        _context: &FilterContext,
-        _account_metadata: &AccountMetadata,
-        _account: &solana_account::Account,
-    ) -> FilterResult {
-        FilterResult::Accept
-    }
-
-    fn filter_instruction(
-        &self,
-        _context: &FilterContext,
-        _nested_instruction: &NestedInstruction,
-    ) -> FilterResult {
-        FilterResult::Accept
-    }
-
-    fn filter_transaction(
-        &self,
-        _context: &FilterContext,
-        _transaction_metadata: &TransactionMetadata,
-        _nested_instructions: &NestedInstructions,
-    ) -> FilterResult {
-        FilterResult::Accept
-    }
-
-    fn filter_account_deletion(
-        &self,
-        _context: &FilterContext,
-        _account_deletion: &AccountClosureUpdate,
-    ) -> FilterResult {
-        FilterResult::Accept
-    }
-
-    fn filter_block_details(
-        &self,
-        _context: &FilterContext,
-        _block_details: &BlockUpdate,
-    ) -> FilterResult {
-        FilterResult::Accept
+    fn commit(
+        &mut self,
+        _context: &RouteContext<'_>,
+        _value: &T,
+        _processor_result: &ProcessorResult,
+    ) -> impl Future<Output = Result<(), BoxError>> + Send {
+        std::future::ready(Ok(()))
     }
 }
 
-const DEDUP_CLEANUP_INTERVAL_SECS: u64 = 60;
+type FilterFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T, BoxError>> + Send + 'a>>;
 
-type SeenInstructionsMap = HashMap<(Signature, Vec<u8>), Instant>;
-type SeenAccountsMap = HashMap<(Signature, Pubkey), Instant>;
-
-/// Drops duplicate instructions/accounts within a TTL window.
-///
-/// Keys instructions by `(signature, absolute_path)` and accounts by
-/// `(signature, pubkey)`. Periodically purges expired entries to bound memory.
-pub struct DeduplicationFilter {
-    seen_instructions: Arc<RwLock<SeenInstructionsMap>>,
-    seen_accounts: Arc<RwLock<SeenAccountsMap>>,
-    ttl: Duration,
-    creation: Instant,
-    last_cleanup_secs: AtomicU64,
+trait DynFilter<T>: Send {
+    fn filter<'a>(
+        &'a mut self,
+        context: &'a RouteContext<'_>,
+        value: &'a T,
+    ) -> FilterFuture<'a, bool>;
+    fn commit<'a>(
+        &'a mut self,
+        context: &'a RouteContext<'_>,
+        value: &'a T,
+        result: &'a ProcessorResult,
+    ) -> FilterFuture<'a, ()>;
 }
 
-impl DeduplicationFilter {
-    pub fn new(ttl: Duration) -> Self {
-        let creation = Instant::now();
+impl<T: Sync, F: Filter<T>> DynFilter<T> for F {
+    fn filter<'a>(
+        &'a mut self,
+        context: &'a RouteContext<'_>,
+        value: &'a T,
+    ) -> FilterFuture<'a, bool> {
+        Box::pin(Filter::filter(self, context, value))
+    }
+
+    fn commit<'a>(
+        &'a mut self,
+        context: &'a RouteContext<'_>,
+        value: &'a T,
+        result: &'a ProcessorResult,
+    ) -> FilterFuture<'a, ()> {
+        Box::pin(Filter::commit(self, context, value, result))
+    }
+}
+
+/// An ordered list of filters for one route input type.
+pub struct Filters<T> {
+    filters: Vec<Box<dyn DynFilter<T>>>,
+}
+
+impl<T> Default for Filters<T> {
+    fn default() -> Self {
         Self {
-            seen_instructions: Arc::new(RwLock::new(HashMap::new())),
-            seen_accounts: Arc::new(RwLock::new(HashMap::new())),
-            ttl,
-            creation,
-            last_cleanup_secs: AtomicU64::new(0),
-        }
-    }
-
-    pub fn cleanup_expired(&self) {
-        let cutoff = Instant::now() - self.ttl;
-
-        if let Ok(mut seen) = self.seen_instructions.write() {
-            seen.retain(|_, t| *t > cutoff);
-        }
-
-        if let Ok(mut seen) = self.seen_accounts.write() {
-            seen.retain(|_, t| *t > cutoff);
-        }
-
-        self.last_cleanup_secs
-            .store(self.creation.elapsed().as_secs(), Ordering::Relaxed);
-    }
-
-    #[inline(always)]
-    fn cleanup_if_needed(&self) {
-        let elapsed_secs = self.creation.elapsed().as_secs();
-        let last = self.last_cleanup_secs.load(Ordering::Relaxed);
-
-        if elapsed_secs.saturating_sub(last) >= DEDUP_CLEANUP_INTERVAL_SECS {
-            self.cleanup_expired();
+            filters: Vec::new(),
         }
     }
 }
 
-impl Filter for DeduplicationFilter {
-    #[inline(always)]
-    fn filter_instruction(
-        &self,
-        _context: &FilterContext,
-        nested_instruction: &NestedInstruction,
-    ) -> FilterResult {
-        self.cleanup_if_needed();
-
-        let sig = nested_instruction.metadata.transaction_metadata.signature;
-        let path = nested_instruction.metadata.absolute_path.clone();
-        let key = (sig, path);
-
-        let Ok(mut seen) = self.seen_instructions.write() else {
-            return FilterResult::Accept;
-        };
-
-        if seen.insert(key, Instant::now()).is_none() {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
-        }
+impl<T: Sync> Filters<T> {
+    pub fn new() -> Self {
+        Self::default()
     }
 
-    #[inline(always)]
-    fn filter_account(
-        &self,
-        _context: &FilterContext,
-        account_metadata: &AccountMetadata,
-        _account: &solana_account::Account,
-    ) -> FilterResult {
-        self.cleanup_if_needed();
+    pub fn push(&mut self, filter: impl Filter<T> + 'static) {
+        self.filters.push(Box::new(filter));
+    }
 
-        let Some(tx_sig) = account_metadata.transaction_signature else {
-            return FilterResult::Accept;
-        };
+    pub(crate) async fn filter(
+        &mut self,
+        context: &RouteContext<'_>,
+        value: &T,
+    ) -> Result<bool, BoxError> {
+        for filter in &mut self.filters {
+            if !filter.filter(context, value).await? {
+                return Ok(false);
+            }
+        }
+        Ok(true)
+    }
 
-        let key = (tx_sig, account_metadata.pubkey);
-
-        let Ok(mut seen) = self.seen_accounts.write() else {
-            return FilterResult::Accept;
-        };
-
-        if seen.insert(key, Instant::now()).is_none() {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
+    // Called only after every filter accepted and a processor attempt is eligible.
+    pub(crate) async fn commit(
+        &mut self,
+        context: &RouteContext<'_>,
+        value: &T,
+        result: &ProcessorResult,
+    ) -> Result<(), BoxError> {
+        let mut first_error = None;
+        for filter in &mut self.filters {
+            if let Err(error) = filter.commit(context, value, result).await {
+                if first_error.is_none() {
+                    first_error = Some(error);
+                } else {
+                    log::error!("additional filter commit failure: {error}");
+                }
+            }
+        }
+        match first_error {
+            Some(error) => Err(error),
+            None => Ok(()),
         }
     }
 }
 
-/// Accepts only updates from a predefined set of [`Id`]s.
+/// Accepts only updates from the listed datasources.
 pub struct DatasourceFilter {
     pub allowed_datasources: Vec<Id>,
 }
@@ -223,73 +150,108 @@ impl DatasourceFilter {
             allowed_datasources: datasource_ids,
         }
     }
+}
 
-    fn allows(&self, datasource_id: &Id) -> bool {
-        self.allowed_datasources.contains(datasource_id)
+impl<T: Sync> Filter<T> for DatasourceFilter {
+    async fn filter(&mut self, context: &RouteContext<'_>, _value: &T) -> Result<bool, BoxError> {
+        Ok(self.allowed_datasources.contains(context.datasource_id()))
     }
 }
 
-impl Filter for DatasourceFilter {
-    fn filter_account(
-        &self,
-        context: &FilterContext,
-        _account_metadata: &AccountMetadata,
-        _account: &solana_account::Account,
-    ) -> FilterResult {
-        if self.allows(context.datasource_id) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
+/// Drops instructions and accounts with recently committed keys.
+pub struct DeduplicationFilter {
+    seen_instructions: HashMap<(Signature, Vec<u8>), Instant>,
+    seen_accounts: HashMap<(Signature, Pubkey), Instant>,
+    ttl: Duration,
+    last_cleanup: Instant,
+}
+
+impl DeduplicationFilter {
+    pub fn new(ttl: Duration) -> Self {
+        Self {
+            seen_instructions: HashMap::new(),
+            seen_accounts: HashMap::new(),
+            ttl,
+            last_cleanup: Instant::now(),
         }
     }
 
-    fn filter_instruction(
-        &self,
-        context: &FilterContext,
-        _nested_instruction: &NestedInstruction,
-    ) -> FilterResult {
-        if self.allows(context.datasource_id) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
-        }
+    pub fn cleanup_expired(&mut self) {
+        let now = Instant::now();
+        self.seen_instructions
+            .retain(|_, time| now.duration_since(*time) < self.ttl);
+        self.seen_accounts
+            .retain(|_, time| now.duration_since(*time) < self.ttl);
+        self.last_cleanup = now;
     }
 
-    fn filter_transaction(
-        &self,
-        context: &FilterContext,
-        _transaction_metadata: &TransactionMetadata,
-        _nested_instructions: &NestedInstructions,
-    ) -> FilterResult {
-        if self.allows(context.datasource_id) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
+    fn cleanup_if_needed(&mut self) {
+        if self.last_cleanup.elapsed() >= Duration::from_secs(60) {
+            self.cleanup_expired();
         }
     }
+}
 
-    fn filter_account_deletion(
-        &self,
-        context: &FilterContext,
-        _account_deletion: &AccountClosureUpdate,
-    ) -> FilterResult {
-        if self.allows(context.datasource_id) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
-        }
+impl Filter<NestedInstruction> for DeduplicationFilter {
+    async fn filter(
+        &mut self,
+        _context: &RouteContext<'_>,
+        value: &NestedInstruction,
+    ) -> Result<bool, BoxError> {
+        self.cleanup_if_needed();
+        let key = (
+            value.metadata.transaction_metadata.signature,
+            value.metadata.absolute_path.clone(),
+        );
+        Ok(self
+            .seen_instructions
+            .get(&key)
+            .is_none_or(|time| time.elapsed() >= self.ttl))
     }
 
-    fn filter_block_details(
-        &self,
-        context: &FilterContext,
-        _block_details: &BlockUpdate,
-    ) -> FilterResult {
-        if self.allows(context.datasource_id) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
+    async fn commit(
+        &mut self,
+        _context: &RouteContext<'_>,
+        value: &NestedInstruction,
+        _result: &ProcessorResult,
+    ) -> Result<(), BoxError> {
+        let key = (
+            value.metadata.transaction_metadata.signature,
+            value.metadata.absolute_path.clone(),
+        );
+        self.seen_instructions.insert(key, Instant::now());
+        Ok(())
+    }
+}
+
+impl Filter<AccountUpdate> for DeduplicationFilter {
+    async fn filter(
+        &mut self,
+        _context: &RouteContext<'_>,
+        value: &AccountUpdate,
+    ) -> Result<bool, BoxError> {
+        self.cleanup_if_needed();
+        let Some(signature) = value.transaction_signature() else {
+            return Ok(true);
+        };
+        let key = (*signature, *value.pubkey());
+        Ok(self
+            .seen_accounts
+            .get(&key)
+            .is_none_or(|time| time.elapsed() >= self.ttl))
+    }
+
+    async fn commit(
+        &mut self,
+        _context: &RouteContext<'_>,
+        value: &AccountUpdate,
+        _result: &ProcessorResult,
+    ) -> Result<(), BoxError> {
+        if let Some(signature) = value.transaction_signature() {
+            self.seen_accounts
+                .insert((*signature, *value.pubkey()), Instant::now());
         }
+        Ok(())
     }
 }
 
@@ -370,69 +332,253 @@ impl SlotRangeFilter {
     }
 }
 
-impl Filter for SlotRangeFilter {
-    fn filter_instruction(
-        &self,
-        _context: &FilterContext,
-        nested_instruction: &NestedInstruction,
-    ) -> FilterResult {
-        let slot = nested_instruction.metadata.transaction_metadata.slot;
-        let index = nested_instruction.metadata.transaction_metadata.index;
+impl Filter<AccountUpdate> for SlotRangeFilter {
+    async fn filter(
+        &mut self,
+        _context: &RouteContext<'_>,
+        value: &AccountUpdate,
+    ) -> Result<bool, BoxError> {
+        Ok(self.contains(value.slot(), None))
+    }
+}
 
-        if self.contains(slot, index) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
+impl Filter<AccountClosureUpdate> for SlotRangeFilter {
+    async fn filter(
+        &mut self,
+        _context: &RouteContext<'_>,
+        value: &AccountClosureUpdate,
+    ) -> Result<bool, BoxError> {
+        Ok(self.contains(value.slot(), None))
+    }
+}
+
+impl Filter<BlockUpdate> for SlotRangeFilter {
+    async fn filter(
+        &mut self,
+        _context: &RouteContext<'_>,
+        value: &BlockUpdate,
+    ) -> Result<bool, BoxError> {
+        Ok(self.contains(value.slot(), None))
+    }
+}
+
+impl Filter<NestedInstruction> for SlotRangeFilter {
+    async fn filter(
+        &mut self,
+        _context: &RouteContext<'_>,
+        value: &NestedInstruction,
+    ) -> Result<bool, BoxError> {
+        Ok(self.contains(
+            value.metadata.transaction_metadata.slot,
+            value.metadata.transaction_metadata.index,
+        ))
+    }
+}
+
+impl Filter<TransactionUpdate> for SlotRangeFilter {
+    async fn filter(
+        &mut self,
+        _context: &RouteContext<'_>,
+        value: &TransactionUpdate,
+    ) -> Result<bool, BoxError> {
+        Ok(self.contains(value.slot(), value.index()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use {
+        super::*,
+        solana_account::Account,
+        std::{
+            cell::Cell,
+            sync::{Arc, Mutex},
+        },
+    };
+
+    #[derive(Debug, thiserror::Error)]
+    #[error("rejected {0}")]
+    struct Rejected(u8);
+
+    type Events = Arc<Mutex<Vec<(u8, &'static str, usize)>>>;
+
+    struct Observer {
+        id: u8,
+        calls: Cell<usize>,
+        events: Events,
+        accept: bool,
+        fail_filter: bool,
+        fail_commit: bool,
+    }
+
+    impl Filter<u8> for Observer {
+        async fn filter(
+            &mut self,
+            context: &RouteContext<'_>,
+            value: &u8,
+        ) -> Result<bool, BoxError> {
+            assert_eq!(context.pipeline_id().as_str(), "pipeline");
+            assert_eq!(context.datasource_id().as_str(), "source");
+            assert_eq!(context.route_id().as_str(), "route");
+            assert_eq!(*value, 7);
+            self.calls.set(self.calls.get() + 1);
+            tokio::task::yield_now().await;
+            self.events
+                .lock()
+                .unwrap()
+                .push((self.id, "filter", self.calls.get()));
+            if self.fail_filter {
+                return Err(Box::new(Rejected(self.id)));
+            }
+            Ok(self.accept)
+        }
+
+        async fn commit(
+            &mut self,
+            _context: &RouteContext<'_>,
+            _value: &u8,
+            result: &ProcessorResult,
+        ) -> Result<(), BoxError> {
+            tokio::task::yield_now().await;
+            let event = if let Err(error) = result {
+                assert_eq!(error.downcast_ref::<Rejected>().unwrap().0, 9);
+                "commit-error"
+            } else {
+                "commit"
+            };
+            self.events
+                .lock()
+                .unwrap()
+                .push((self.id, event, self.calls.get()));
+            if self.fail_commit {
+                return Err(Box::new(Rejected(self.id)));
+            }
+            Ok(())
         }
     }
 
-    fn filter_account(
-        &self,
-        _context: &FilterContext,
-        account_metadata: &AccountMetadata,
-        _account: &solana_account::Account,
-    ) -> FilterResult {
-        if self.contains(account_metadata.slot, None) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
+    fn observer(id: u8, events: &Events) -> Observer {
+        Observer {
+            id,
+            events: events.clone(),
+            calls: Cell::new(0),
+            accept: true,
+            fail_filter: false,
+            fail_commit: false,
         }
     }
 
-    fn filter_transaction(
-        &self,
-        _context: &FilterContext,
-        transaction_metadata: &TransactionMetadata,
-        _nested_instructions: &NestedInstructions,
-    ) -> FilterResult {
-        if self.contains(transaction_metadata.slot, transaction_metadata.index) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
+    fn ids() -> [Id; 3] {
+        ["pipeline", "source", "route"].map(|id| Id::new(id).unwrap())
+    }
+
+    #[tokio::test]
+    async fn mixed_filters_preserve_order_state_and_default_commit() {
+        let ids = ids();
+        let context = RouteContext::new(&ids[0], &ids[1], &ids[2]);
+        let events = Arc::new(Mutex::new(Vec::new()));
+        let mut filters = Filters::new();
+        filters.push(observer(1, &events));
+        filters.push(DatasourceFilter::new(ids[1].clone()));
+        filters.push(observer(2, &events));
+        for _ in 0..2 {
+            assert!(filters.filter(&context, &7).await.unwrap());
+            filters.commit(&context, &7, &Ok(())).await.unwrap();
+        }
+        assert_eq!(
+            *events.lock().unwrap(),
+            vec![
+                (1, "filter", 1),
+                (2, "filter", 1),
+                (1, "commit", 1),
+                (2, "commit", 1),
+                (1, "filter", 2),
+                (2, "filter", 2),
+                (1, "commit", 2),
+                (2, "commit", 2),
+            ]
+        );
+        // The concrete filter is not Sync, but both adapter futures are Send.
+        fn assert_send<T: Send>(_: T) {}
+        assert_send(filters.filter(&context, &7));
+        assert_send(filters.commit(&context, &7, &Ok(())));
+    }
+
+    #[tokio::test]
+    async fn rejection_and_errors_short_circuit_the_filter_list() {
+        let ids = ids();
+        let context = RouteContext::new(&ids[0], &ids[1], &ids[2]);
+        for fail in [false, true] {
+            let events = Arc::new(Mutex::new(Vec::new()));
+            let mut filters = Filters::new();
+            let mut first = observer(1, &events);
+            first.accept = false;
+            first.fail_filter = fail;
+            filters.push(first);
+            filters.push(observer(2, &events));
+            let result = filters.filter(&context, &7).await;
+            if fail {
+                assert_eq!(result.unwrap_err().downcast_ref::<Rejected>().unwrap().0, 1);
+            } else {
+                assert!(!result.unwrap());
+            }
+            assert_eq!(*events.lock().unwrap(), vec![(1, "filter", 1)]);
         }
     }
 
-    fn filter_account_deletion(
-        &self,
-        _context: &FilterContext,
-        account_deletion: &AccountClosureUpdate,
-    ) -> FilterResult {
-        if self.contains(account_deletion.slot(), None) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
+    #[tokio::test]
+    async fn commits_receive_the_processor_error_and_continue_after_failure() {
+        let ids = ids();
+        let context = RouteContext::new(&ids[0], &ids[1], &ids[2]);
+        let events = Arc::new(Mutex::new(Vec::new()));
+        let mut filters = Filters::new();
+        for id in 1..=3 {
+            let mut filter = observer(id, &events);
+            filter.fail_commit = id != 2;
+            filters.push(filter);
         }
+        assert!(filters.filter(&context, &7).await.unwrap());
+        let result = Err(Box::new(Rejected(9)) as BoxError);
+        let error = filters.commit(&context, &7, &result).await.unwrap_err();
+        assert_eq!(error.downcast_ref::<Rejected>().unwrap().0, 1);
+        assert_eq!(
+            *events.lock().unwrap(),
+            vec![
+                (1, "filter", 1),
+                (2, "filter", 1),
+                (3, "filter", 1),
+                (1, "commit-error", 1),
+                (2, "commit-error", 1),
+                (3, "commit-error", 1),
+            ]
+        );
     }
 
-    fn filter_block_details(
-        &self,
-        _context: &FilterContext,
-        block_details: &BlockUpdate,
-    ) -> FilterResult {
-        if self.contains(block_details.slot(), None) {
-            FilterResult::Accept
-        } else {
-            FilterResult::Reject
-        }
+    #[tokio::test]
+    async fn empty_filters_accept_and_commit() {
+        let ids = ids();
+        let context = RouteContext::new(&ids[0], &ids[1], &ids[2]);
+        let mut filters = Filters::<u8>::new();
+        assert!(filters.filter(&context, &7).await.unwrap());
+        filters.commit(&context, &7, &Ok(())).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn deduplication_only_records_committed_accounts() {
+        let ids = ids();
+        let context = RouteContext::new(&ids[0], &ids[1], &ids[2]);
+        let update = AccountUpdate::new(Pubkey::new_unique(), Account::default(), 1)
+            .with_transaction_signature(Signature::default());
+        let mut filters = Filters::new();
+        filters.push(DeduplicationFilter::new(Duration::from_secs(60)));
+        assert!(filters.filter(&context, &update).await.unwrap());
+        assert!(filters.filter(&context, &update).await.unwrap());
+        filters.commit(&context, &update, &Ok(())).await.unwrap();
+        assert!(!filters.filter(&context, &update).await.unwrap());
+
+        let mut expired = Filters::new();
+        expired.push(DeduplicationFilter::new(Duration::ZERO));
+        expired.commit(&context, &update, &Ok(())).await.unwrap();
+        assert!(expired.filter(&context, &update).await.unwrap());
     }
 }

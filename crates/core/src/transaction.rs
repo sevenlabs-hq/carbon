@@ -18,7 +18,7 @@ use {
     crate::{
         collection::InstructionDecoderCollection,
         error::{BoxError, CarbonResult, Error},
-        filter::Filter,
+        filter::Filters,
         instruction::NestedInstruction,
         processor::Processor,
         route::{InstructionProcessorInput, RouteContext, TransactionProcessorInput},
@@ -69,12 +69,12 @@ impl TryFrom<crate::update::TransactionUpdate> for TransactionMetadata {
 
 pub struct TransactionPipe<T: InstructionDecoderCollection, P> {
     processor: P,
-    filters: Vec<Box<dyn Filter + 'static>>,
+    filters: Filters<TransactionUpdate>,
     _phantom: std::marker::PhantomData<T>,
 }
 
 impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
-    pub fn new(processor: P, filters: Vec<Box<dyn Filter + 'static>>) -> Self {
+    pub fn new(processor: P, filters: Filters<TransactionUpdate>) -> Self {
         Self {
             processor,
             filters,
@@ -91,8 +91,6 @@ pub trait TransactionPipes: Send {
         update: &TransactionUpdate,
         instructions: &[&NestedInstruction],
     ) -> CarbonResult<()>;
-
-    fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
@@ -107,6 +105,15 @@ where
         update: &TransactionUpdate,
         instructions: &[&NestedInstruction],
     ) -> CarbonResult<()> {
+        if !self
+            .filters
+            .filter(context, update)
+            .await
+            .map_err(Error::Filter)?
+        {
+            return Ok(());
+        }
+
         let parsed_instructions =
             parse_instructions_flat::<T>(instructions).map_err(Error::Decode)?;
 
@@ -115,16 +122,18 @@ where
             instructions: &parsed_instructions,
         };
 
-        self.processor
-            .process(context, &data)
-            .await
-            .map_err(Error::Processor)?;
+        let result = self.processor.process(context, &data).await;
+
+        if result.is_ok() {
+            self.filters
+                .commit(context, update, &result)
+                .await
+                .map_err(Error::FilterCommit)?;
+        }
+
+        result.map_err(Error::Processor)?;
 
         Ok(())
-    }
-
-    fn filters(&self) -> &[Box<dyn Filter + 'static>] {
-        &self.filters
     }
 }
 
@@ -233,7 +242,9 @@ mod tests {
     #[tokio::test]
     async fn transaction_pipe_never_delivers_partial_collections() {
         let received = Arc::new(Mutex::new(Vec::new()));
-        let mut pipe = TransactionPipe::<Decoded, _>::new(Collector(received.clone()), vec![]);
+        let mut filters = Filters::new();
+        filters.push(crate::filter::SlotRangeFilter::from(1, None));
+        let mut pipe = TransactionPipe::<Decoded, _>::new(Collector(received.clone()), filters);
         let pipeline_id = Id::new("pipeline").unwrap();
         let datasource_id = Id::new("source").unwrap();
         let route_id = Id::new("transactions").unwrap();
@@ -256,12 +267,9 @@ mod tests {
                 .await
                 .unwrap();
         }
+        let input = instructions(&[&[7], &[], &[9]]);
         let error = pipe
-            .run(
-                &context,
-                &update,
-                &instructions(&[&[7], &[], &[9]]).iter().collect::<Vec<_>>(),
-            )
+            .run(&context, &update, &input.iter().collect::<Vec<_>>())
             .await
             .unwrap_err();
         let Error::Decode(error) = error else {

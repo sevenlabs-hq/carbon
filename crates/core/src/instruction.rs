@@ -22,7 +22,7 @@ use {
     crate::{
         deserialize::CarbonDeserialize,
         error::{BoxError, CarbonResult, Error},
-        filter::Filter,
+        filter::Filters,
         processor::Processor,
         route::{InstructionProcessorInput, RouteContext},
         transaction::TransactionMetadata,
@@ -223,14 +223,14 @@ pub trait InstructionDecoder {
 pub struct InstructionPipe<T: Send, P> {
     decoder: Box<dyn InstructionDecoder<InstructionType = T> + Send + 'static>,
     processor: P,
-    filters: Vec<Box<dyn Filter + 'static>>,
+    filters: Filters<NestedInstruction>,
 }
 
 impl<T: Send, P> InstructionPipe<T, P> {
     pub fn new(
         decoder: Box<dyn InstructionDecoder<InstructionType = T> + Send + 'static>,
         processor: P,
-        filters: Vec<Box<dyn Filter + 'static>>,
+        filters: Filters<NestedInstruction>,
     ) -> Self {
         Self {
             decoder,
@@ -247,8 +247,6 @@ pub trait InstructionPipes: Send {
         context: &RouteContext<'_>,
         nested_instruction: &NestedInstruction,
     ) -> CarbonResult<()>;
-
-    fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
@@ -262,6 +260,15 @@ where
         context: &RouteContext<'_>,
         nested_instruction: &NestedInstruction,
     ) -> CarbonResult<()> {
+        if !self
+            .filters
+            .filter(context, nested_instruction)
+            .await
+            .map_err(Error::Filter)?
+        {
+            return Ok(());
+        }
+
         if let Some(decoded_instruction) = self
             .decoder
             .decode_instruction(&nested_instruction.instruction)
@@ -272,17 +279,19 @@ where
                 decoded: decoded_instruction,
             };
 
-            self.processor
-                .process(context, &input)
-                .await
-                .map_err(Error::Processor)?;
+            let result = self.processor.process(context, &input).await;
+
+            if result.is_ok() {
+                self.filters
+                    .commit(context, nested_instruction, &result)
+                    .await
+                    .map_err(Error::FilterCommit)?;
+            }
+
+            result.map_err(Error::Processor)?;
         }
 
         Ok(())
-    }
-
-    fn filters(&self) -> &[Box<dyn Filter + 'static>] {
-        &self.filters
     }
 }
 
@@ -447,7 +456,7 @@ mod tests {
         let mut pipe = InstructionPipe::new(
             Box::new(Decoder(std::cell::Cell::new(0))),
             Counter(calls.clone()),
-            vec![],
+            Filters::new(),
         );
         for data in [vec![7], vec![0], vec![]] {
             let is_error = data.is_empty();

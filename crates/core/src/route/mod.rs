@@ -5,9 +5,8 @@ mod instruction;
 mod transaction;
 
 pub use {
-    account::AccountProcessorInput,
-    instruction::InstructionProcessorInput,
-    transaction::{TransactionFilterInput, TransactionProcessorInput},
+    account::AccountProcessorInput, instruction::InstructionProcessorInput,
+    transaction::TransactionProcessorInput,
 };
 
 use crate::id::Id;

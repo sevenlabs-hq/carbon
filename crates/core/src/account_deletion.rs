@@ -12,7 +12,7 @@
 use {
     crate::{
         error::{CarbonResult, Error},
-        filter::Filter,
+        filter::Filters,
         processor::Processor,
         route::RouteContext,
         update::AccountClosureUpdate,
@@ -22,11 +22,11 @@ use {
 
 pub struct AccountDeletionPipe<P> {
     processor: P,
-    filters: Vec<Box<dyn Filter + 'static>>,
+    filters: Filters<AccountClosureUpdate>,
 }
 
 impl<P> AccountDeletionPipe<P> {
-    pub fn new(processor: P, filters: Vec<Box<dyn Filter + 'static>>) -> Self {
+    pub fn new(processor: P, filters: Filters<AccountClosureUpdate>) -> Self {
         Self { processor, filters }
     }
 }
@@ -38,8 +38,6 @@ pub trait AccountDeletionPipes: Send {
         context: &RouteContext<'_>,
         account_deletion: &AccountClosureUpdate,
     ) -> CarbonResult<()>;
-
-    fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
@@ -52,15 +50,26 @@ where
         context: &RouteContext<'_>,
         account_deletion: &AccountClosureUpdate,
     ) -> CarbonResult<()> {
-        self.processor
-            .process(context, account_deletion)
+        if !self
+            .filters
+            .filter(context, account_deletion)
             .await
-            .map_err(Error::Processor)?;
+            .map_err(Error::Filter)?
+        {
+            return Ok(());
+        }
+
+        let result = self.processor.process(context, account_deletion).await;
+
+        if result.is_ok() {
+            self.filters
+                .commit(context, account_deletion, &result)
+                .await
+                .map_err(Error::FilterCommit)?;
+        }
+
+        result.map_err(Error::Processor)?;
 
         Ok(())
-    }
-
-    fn filters(&self) -> &[Box<dyn Filter + 'static>] {
-        &self.filters
     }
 }

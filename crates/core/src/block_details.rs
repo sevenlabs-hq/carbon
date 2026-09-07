@@ -12,7 +12,7 @@
 use {
     crate::{
         error::{CarbonResult, Error},
-        filter::Filter,
+        filter::Filters,
         processor::Processor,
         route::RouteContext,
         update::BlockUpdate,
@@ -22,11 +22,11 @@ use {
 
 pub struct BlockDetailsPipe<P> {
     processor: P,
-    filters: Vec<Box<dyn Filter + 'static>>,
+    filters: Filters<BlockUpdate>,
 }
 
 impl<P> BlockDetailsPipe<P> {
-    pub fn new(processor: P, filters: Vec<Box<dyn Filter + 'static>>) -> Self {
+    pub fn new(processor: P, filters: Filters<BlockUpdate>) -> Self {
         Self { processor, filters }
     }
 }
@@ -38,8 +38,6 @@ pub trait BlockDetailsPipes: Send {
         context: &RouteContext<'_>,
         block_details: &BlockUpdate,
     ) -> CarbonResult<()>;
-
-    fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
 
 #[async_trait]
@@ -52,15 +50,26 @@ where
         context: &RouteContext<'_>,
         block_details: &BlockUpdate,
     ) -> CarbonResult<()> {
-        self.processor
-            .process(context, block_details)
+        if !self
+            .filters
+            .filter(context, block_details)
             .await
-            .map_err(Error::Processor)?;
+            .map_err(Error::Filter)?
+        {
+            return Ok(());
+        }
+
+        let result = self.processor.process(context, block_details).await;
+
+        if result.is_ok() {
+            self.filters
+                .commit(context, block_details, &result)
+                .await
+                .map_err(Error::FilterCommit)?;
+        }
+
+        result.map_err(Error::Processor)?;
 
         Ok(())
-    }
-
-    fn filters(&self) -> &[Box<dyn Filter + 'static>] {
-        &self.filters
     }
 }

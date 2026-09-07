@@ -22,6 +22,10 @@ pub enum Error {
     Transform(#[from] crate::instruction::TransformError),
     #[error("decoding failed: {0}")]
     Decode(#[source] BoxError),
+    #[error("filter failed: {0}")]
+    Filter(#[source] BoxError),
+    #[error("filter commit failed: {0}")]
+    FilterCommit(#[source] BoxError),
     #[error("processor failed: {0}")]
     Processor(#[source] BoxError),
     #[error("Missing update type in datasource")]
