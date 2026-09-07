@@ -17,8 +17,12 @@
 
 pub mod queue;
 pub mod receipt;
+mod shutdown;
 
-pub use queue::{DatasourceOptions, OverflowPolicy};
+pub use {
+    queue::{DatasourceOptions, OverflowPolicy},
+    shutdown::ShutdownSignal,
+};
 
 use {
     crate::{error::CarbonResult, id::Id, update::Update},
