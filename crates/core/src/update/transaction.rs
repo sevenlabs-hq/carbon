@@ -1,5 +1,6 @@
 use {
     super::{Update, UpdateValidationError},
+    crate::cursor::TransactionCursor,
     solana_clock::Slot,
     solana_hash::Hash,
     solana_signature::Signature,
@@ -93,6 +94,12 @@ impl TransactionUpdate {
         self.index
     }
 
+    /// Returns the transaction's position when its block index is known.
+    pub fn cursor(&self) -> Option<TransactionCursor> {
+        self.index
+            .map(|index| TransactionCursor::new(self.slot, index))
+    }
+
     pub fn block_time(&self) -> Option<i64> {
         self.block_time
     }
@@ -129,6 +136,17 @@ mod tests {
             )
             .unwrap_err(),
             UpdateValidationError::MissingTransactionSignature,
+        );
+    }
+
+    #[test]
+    fn cursor_requires_a_block_index() {
+        let update =
+            TransactionUpdate::new(transaction(), TransactionStatusMeta::default(), 7).unwrap();
+        assert_eq!(update.cursor(), None);
+        assert_eq!(
+            update.with_index(0).cursor(),
+            Some(TransactionCursor::new(7, 0)),
         );
     }
 

@@ -24,6 +24,7 @@ pub mod account_deletion;
 pub mod account_utils;
 pub mod block_details;
 pub mod collection;
+pub mod cursor;
 pub mod datasource;
 pub mod deserialize;
 pub mod error;
