@@ -20,9 +20,10 @@
 use {
     crate::{
         account::AccountMetadata,
-        datasource::{AccountDeletion, BlockDetails, DatasourceId},
+        datasource::DatasourceId,
         instruction::{NestedInstruction, NestedInstructions},
         transaction::TransactionMetadata,
+        update::{AccountClosureUpdate, BlockUpdate},
     },
     solana_pubkey::Pubkey,
     solana_signature::Signature,
@@ -85,7 +86,7 @@ pub trait Filter: Send + Sync {
     fn filter_account_deletion(
         &self,
         _context: &FilterContext,
-        _account_deletion: &AccountDeletion,
+        _account_deletion: &AccountClosureUpdate,
     ) -> FilterResult {
         FilterResult::Accept
     }
@@ -93,7 +94,7 @@ pub trait Filter: Send + Sync {
     fn filter_block_details(
         &self,
         _context: &FilterContext,
-        _block_details: &BlockDetails,
+        _block_details: &BlockUpdate,
     ) -> FilterResult {
         FilterResult::Accept
     }
@@ -270,7 +271,7 @@ impl Filter for DatasourceFilter {
     fn filter_account_deletion(
         &self,
         context: &FilterContext,
-        _account_deletion: &AccountDeletion,
+        _account_deletion: &AccountClosureUpdate,
     ) -> FilterResult {
         if self.allows(context.datasource_id) {
             FilterResult::Accept
@@ -282,7 +283,7 @@ impl Filter for DatasourceFilter {
     fn filter_block_details(
         &self,
         context: &FilterContext,
-        _block_details: &BlockDetails,
+        _block_details: &BlockUpdate,
     ) -> FilterResult {
         if self.allows(context.datasource_id) {
             FilterResult::Accept
@@ -414,9 +415,9 @@ impl Filter for SlotRangeFilter {
     fn filter_account_deletion(
         &self,
         _context: &FilterContext,
-        account_deletion: &AccountDeletion,
+        account_deletion: &AccountClosureUpdate,
     ) -> FilterResult {
-        if self.contains(account_deletion.slot, None) {
+        if self.contains(account_deletion.slot(), None) {
             FilterResult::Accept
         } else {
             FilterResult::Reject
@@ -426,9 +427,9 @@ impl Filter for SlotRangeFilter {
     fn filter_block_details(
         &self,
         _context: &FilterContext,
-        block_details: &BlockDetails,
+        block_details: &BlockUpdate,
     ) -> FilterResult {
-        if self.contains(block_details.slot, None) {
+        if self.contains(block_details.slot(), None) {
             FilterResult::Accept
         } else {
             FilterResult::Reject

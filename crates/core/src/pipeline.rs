@@ -31,7 +31,7 @@ use {
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
-        datasource::{AccountDeletion, BlockDetails, Datasource, DatasourceId, Update},
+        datasource::{Datasource, DatasourceId},
         error::CarbonResult,
         filter::{Filter, FilterContext, FilterResult},
         instruction::{
@@ -42,6 +42,7 @@ use {
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
+        update::{AccountClosureUpdate, BlockUpdate, Update},
     },
     std::{
         convert::TryInto,
@@ -298,9 +299,9 @@ impl Pipeline {
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
-                    slot: account_update.slot,
-                    pubkey: account_update.pubkey,
-                    transaction_signature: account_update.transaction_signature,
+                    slot: account_update.slot(),
+                    pubkey: *account_update.pubkey(),
+                    transaction_signature: account_update.transaction_signature().copied(),
                 };
 
                 let context = FilterContext {
@@ -313,12 +314,12 @@ impl Pipeline {
                             filter.filter_account(
                                 &context,
                                 &account_metadata,
-                                &account_update.account
+                                account_update.account()
                             ),
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run((account_metadata.clone(), account_update.account.clone()))
+                        pipe.run((account_metadata.clone(), account_update.account().clone()))
                             .await?;
                     }
                 }
@@ -326,7 +327,7 @@ impl Pipeline {
                 ACCOUNT_UPDATES_PROCESSED.inc();
             }
             Update::Transaction(transaction_update) => {
-                let transaction_metadata = Arc::new((*transaction_update).clone().try_into()?);
+                let transaction_metadata = Arc::new(transaction_update.clone().try_into()?);
 
                 let instructions_with_metadata: InstructionsWithMetadata =
                     extract_instructions_with_metadata(&transaction_metadata, &transaction_update)?;
@@ -371,7 +372,7 @@ impl Pipeline {
 
                 TRANSACTION_UPDATES_PROCESSED.inc();
             }
-            Update::AccountDeletion(account_deletion) => {
+            Update::AccountClosure(account_deletion) => {
                 let context = FilterContext {
                     datasource_id: &datasource_id,
                 };
@@ -389,7 +390,7 @@ impl Pipeline {
 
                 ACCOUNT_DELETIONS_PROCESSED.inc();
             }
-            Update::BlockDetails(block_details) => {
+            Update::Block(block_details) => {
                 let context = FilterContext {
                     datasource_id: &datasource_id,
                 };
@@ -515,7 +516,7 @@ impl PipelineBuilder {
 
     pub fn account_deletions<P>(mut self, processor: P) -> Self
     where
-        P: Processor<AccountDeletion> + Send + Sync + 'static,
+        P: Processor<AccountClosureUpdate> + Send + Sync + 'static,
     {
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe::new(processor, Vec::new())));
@@ -528,7 +529,7 @@ impl PipelineBuilder {
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
-        P: Processor<AccountDeletion> + Send + Sync + 'static,
+        P: Processor<AccountClosureUpdate> + Send + Sync + 'static,
     {
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe::new(processor, filters)));
@@ -537,7 +538,7 @@ impl PipelineBuilder {
 
     pub fn block_details<P>(mut self, processor: P) -> Self
     where
-        P: Processor<BlockDetails> + Send + Sync + 'static,
+        P: Processor<BlockUpdate> + Send + Sync + 'static,
     {
         self.block_details_pipes
             .push(Box::new(BlockDetailsPipe::new(processor, Vec::new())));
@@ -550,7 +551,7 @@ impl PipelineBuilder {
         filters: Vec<Box<dyn Filter + 'static>>,
     ) -> Self
     where
-        P: Processor<BlockDetails> + Send + Sync + 'static,
+        P: Processor<BlockUpdate> + Send + Sync + 'static,
     {
         self.block_details_pipes
             .push(Box::new(BlockDetailsPipe::new(processor, filters)));

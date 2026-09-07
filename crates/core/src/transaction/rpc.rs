@@ -167,10 +167,10 @@ mod tests {
     use {
         super::*,
         crate::{
-            datasource::TransactionUpdate,
             instruction::{
                 extract_instructions_with_metadata, InstructionsWithMetadata, NestedInstructions,
             },
+            update::TransactionUpdate,
         },
         carbon_test_utils::base58_deserialize,
         solana_account_decoder_client_types::token::UiTokenAmount,
@@ -366,9 +366,8 @@ mod tests {
 
         let original_tx_meta = transaction_metadata_from_original_meta(tx_meta_status)
             .expect("transaction metadata from original meta");
-        let transaction_update = TransactionUpdate {
-            signature: Signature::default(),
-            transaction: VersionedTransaction {
+        let transaction_update = TransactionUpdate::new(
+            VersionedTransaction {
                 signatures: vec![Signature::default()],
                 message: VersionedMessage::Legacy(Message {
                     header: MessageHeader::default(),
@@ -410,13 +409,16 @@ mod tests {
                     ],
                 }),
             },
-            meta: original_tx_meta.clone(),
-            is_vote: false,
-            slot: 123,
-            index: Some(0),
-            block_time: Some(123),
-            block_hash: Hash::from_str("9bit9vXNX9HyHwL89aGDNmk3vbyAM96nvb6F4SaoM1CU").ok(),
-        };
+            original_tx_meta.clone(),
+            123,
+        )
+        .expect("transaction update")
+        .with_is_vote(false)
+        .with_index(0)
+        .with_block_time(123)
+        .with_block_hash(
+            Hash::from_str("9bit9vXNX9HyHwL89aGDNmk3vbyAM96nvb6F4SaoM1CU").expect("block hash"),
+        );
         let transaction_metadata = transaction_update
             .clone()
             .try_into()
@@ -769,9 +771,8 @@ mod tests {
             .expect("read fixture");
         let original_tx_meta = transaction_metadata_from_original_meta(tx_meta_status)
             .expect("transaction metadata from original meta");
-        let transaction_update = TransactionUpdate {
-            signature: Signature::default(),
-            transaction: VersionedTransaction {
+        let transaction_update = TransactionUpdate::new(
+            VersionedTransaction {
                 signatures: vec![Signature::default()],
                 message: VersionedMessage::V0(v0::Message {
                     header: MessageHeader::default(),
@@ -840,13 +841,13 @@ mod tests {
                     ],
                 }),
             },
-            meta: original_tx_meta.clone(),
-            is_vote: false,
-            slot: 123,
-            index: Some(0),
-            block_time: Some(123),
-            block_hash: None,
-        };
+            original_tx_meta.clone(),
+            123,
+        )
+        .expect("transaction update")
+        .with_is_vote(false)
+        .with_index(0)
+        .with_block_time(123);
         let transaction_metadata = transaction_update
             .clone()
             .try_into()

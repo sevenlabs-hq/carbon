@@ -3,9 +3,9 @@
 use {
     super::{InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
     crate::{
-        datasource::TransactionUpdate,
         error::{CarbonResult, Error},
         transaction::TransactionMetadata,
+        update::TransactionUpdate,
     },
     solana_instruction::AccountMeta,
     solana_message::{compiled_instruction::CompiledInstruction, VersionedMessage},
@@ -18,8 +18,8 @@ pub fn extract_instructions_with_metadata(
     transaction_metadata: &Arc<TransactionMetadata>,
     transaction_update: &TransactionUpdate,
 ) -> CarbonResult<Vec<(InstructionMetadata, solana_instruction::Instruction)>> {
-    let message = &transaction_update.transaction.message;
-    let meta = &transaction_update.meta;
+    let message = &transaction_update.transaction().message;
+    let meta = transaction_update.meta();
     let mut instructions_with_metadata = Vec::with_capacity(32);
 
     match message {
@@ -255,9 +255,8 @@ mod tests {
                 accounts: vec![0],
                 data: vec![],
             };
-            TransactionUpdate {
-                signature: Signature::default(),
-                transaction: VersionedTransaction {
+            TransactionUpdate::new(
+                VersionedTransaction {
                     signatures: vec![Signature::default()],
                     message: VersionedMessage::Legacy(Message {
                         header: MessageHeader::default(),
@@ -266,7 +265,7 @@ mod tests {
                         instructions: vec![instruction.clone()],
                     }),
                 },
-                meta: TransactionStatusMeta {
+                TransactionStatusMeta {
                     inner_instructions: Some(vec![InnerInstructions {
                         index: 0,
                         instructions: stack_heights
@@ -279,12 +278,10 @@ mod tests {
                     }]),
                     ..Default::default()
                 },
-                is_vote: false,
-                slot: 1,
-                index: None,
-                block_time: None,
-                block_hash: None,
-            }
+                1,
+            )
+            .expect("transaction update")
+            .with_is_vote(false)
         };
         let extract = |stack_heights: Vec<Option<u32>>| {
             extract_instructions_with_metadata(
@@ -327,9 +324,8 @@ mod tests {
             accounts: vec![2, 3, 1],
             data: vec![4, 5, 6],
         };
-        let transaction_update = TransactionUpdate {
-            signature: Signature::default(),
-            transaction: VersionedTransaction {
+        let transaction_update = TransactionUpdate::new(
+            VersionedTransaction {
                 signatures: vec![Signature::default(), Signature::default()],
                 message: VersionedMessage::V1(v1::Message::new(
                     MessageHeader {
@@ -349,7 +345,7 @@ mod tests {
                     vec![top_level_instruction],
                 )),
             },
-            meta: TransactionStatusMeta {
+            TransactionStatusMeta {
                 inner_instructions: Some(vec![InnerInstructions {
                     index: 0,
                     instructions: vec![InnerInstruction {
@@ -359,12 +355,11 @@ mod tests {
                 }]),
                 ..Default::default()
             },
-            is_vote: false,
-            slot: 1,
-            index: Some(0),
-            block_time: None,
-            block_hash: None,
-        };
+            1,
+        )
+        .expect("transaction update")
+        .with_is_vote(false)
+        .with_index(0);
         let transaction_metadata: TransactionMetadata = transaction_update
             .clone()
             .try_into()

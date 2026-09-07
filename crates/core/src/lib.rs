@@ -3,7 +3,8 @@
 //! # Components
 //!
 //! - [`pipeline`] — orchestrates data flow from datasources to processors.
-//! - [`datasource`] — ingestion layer defining `Datasource` and `Update` types.
+//! - [`datasource`] — ingestion layer defining `Datasource`.
+//! - [`update`] — account, closure, transaction, and block updates.
 //! - [`processor`] — user-defined handlers via `Processor<T>` trait.
 //! - [`account`], [`instruction`], [`transaction`], [`account_deletion`],
 //!   [`block_details`] — pipeline stages and update-specific models.
@@ -33,6 +34,7 @@ pub mod metrics;
 pub mod pipeline;
 pub mod processor;
 pub mod transaction;
+pub mod update;
 
 #[cfg(feature = "yellowstone")]
 pub mod yellowstone;

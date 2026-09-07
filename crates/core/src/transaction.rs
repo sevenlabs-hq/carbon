@@ -43,23 +43,23 @@ pub struct TransactionMetadata {
     pub block_hash: Option<Hash>,
 }
 
-impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
+impl TryFrom<crate::update::TransactionUpdate> for TransactionMetadata {
     type Error = crate::error::Error;
 
-    fn try_from(value: crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
-        let accounts = value.transaction.message.static_account_keys();
+    fn try_from(value: crate::update::TransactionUpdate) -> Result<Self, Self::Error> {
+        let accounts = value.transaction().message.static_account_keys();
 
         Ok(TransactionMetadata {
-            slot: value.slot,
-            signature: value.signature,
+            slot: value.slot(),
+            signature: *value.signature(),
             fee_payer: *accounts
                 .first()
                 .ok_or(crate::error::Error::MissingFeePayer)?,
-            meta: value.meta.clone(),
-            message: value.transaction.message.clone(),
-            index: value.index,
-            block_time: value.block_time,
-            block_hash: value.block_hash,
+            meta: value.meta().clone(),
+            message: value.transaction().message.clone(),
+            index: value.index(),
+            block_time: value.block_time(),
+            block_hash: value.block_hash().copied(),
         })
     }
 }

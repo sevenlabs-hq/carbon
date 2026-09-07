@@ -3,7 +3,7 @@
 //! # Components
 //!
 //! - [`AccountDeletionPipe`] — internal pipe wrapping the user processor and
-//!   filters for `Update::AccountDeletion`. Constructed by
+//!   filters for `Update::AccountClosure`. Constructed by
 //!   `PipelineBuilder::account_deletions(...)` and
 //!   `account_deletions_with_filters(...)`.
 //! - [`AccountDeletionPipes`] — dyn-dispatch trait the pipeline holds as
@@ -11,7 +11,7 @@
 
 use {
     crate::{
-        datasource::AccountDeletion, error::CarbonResult, filter::Filter, processor::Processor,
+        error::CarbonResult, filter::Filter, processor::Processor, update::AccountClosureUpdate,
     },
     async_trait::async_trait,
 };
@@ -29,7 +29,7 @@ impl<P> AccountDeletionPipe<P> {
 
 #[async_trait]
 pub trait AccountDeletionPipes: Send + Sync {
-    async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()>;
+    async fn run(&mut self, account_deletion: AccountClosureUpdate) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -37,9 +37,9 @@ pub trait AccountDeletionPipes: Send + Sync {
 #[async_trait]
 impl<P> AccountDeletionPipes for AccountDeletionPipe<P>
 where
-    P: Processor<AccountDeletion> + Send + Sync,
+    P: Processor<AccountClosureUpdate> + Send + Sync,
 {
-    async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()> {
+    async fn run(&mut self, account_deletion: AccountClosureUpdate) -> CarbonResult<()> {
         self.processor.process(&account_deletion).await?;
 
         Ok(())
