@@ -27,6 +27,7 @@ pub mod datasource;
 pub mod deserialize;
 pub mod error;
 pub mod filter;
+pub mod id;
 pub mod instruction;
 pub mod metrics;
 pub mod pipeline;
