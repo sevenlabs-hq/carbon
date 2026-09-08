@@ -24,7 +24,7 @@
 
 use {
     crate::{
-        account::{AccountDecoder, AccountPipe, AccountPipes},
+        account::AccountDecoder,
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
@@ -43,8 +43,8 @@ use {
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
         route::{
-            AccountProcessorInput, InstructionProcessorInput, RouteContext,
-            TransactionProcessorInput,
+            AccountProcessorInput, AccountRoute, DecodedRouteOptions, DynAccountRoute,
+            InstructionProcessorInput, RouteContext, TransactionProcessorInput,
         },
         transaction::{TransactionPipe, TransactionPipes},
         update::{AccountClosureUpdate, AccountUpdate, BlockUpdate, TransactionUpdate, Update},
@@ -200,7 +200,7 @@ fn build_routes<P: ?Sized>(
 pub struct Pipeline {
     pub id: Id,
     datasources: Vec<(Id, Box<dyn DynDatasource>)>,
-    pub account_pipes: Vec<(Id, Box<dyn AccountPipes>)>,
+    account_routes: Vec<(Id, Box<dyn DynAccountRoute>)>,
     pub account_deletion_pipes: Vec<(Id, Box<dyn AccountDeletionPipes>)>,
     pub block_details_pipes: Vec<(Id, Box<dyn BlockDetailsPipes>)>,
     pub instruction_pipes: Vec<(Id, Box<dyn InstructionPipes>)>,
@@ -217,10 +217,10 @@ impl Pipeline {
     }
 
     pub async fn run(mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_routes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
             self.datasources.len(),
             self.exporters.len(),
-            self.account_pipes.len(),
+            self.account_routes.len(),
             self.account_deletion_pipes.len(),
             self.instruction_pipes.len(),
             self.transaction_pipes.len(),
@@ -341,12 +341,13 @@ impl Pipeline {
     async fn process(&mut self, update: Update, datasource_id: Id) -> CarbonResult<()> {
         match update {
             Update::Account(update) => {
-                for (route_id, pipe) in &mut self.account_pipes {
-                    pipe.run(
-                        &RouteContext::new(&self.id, &datasource_id, route_id),
-                        &update,
-                    )
-                    .await?;
+                for (route_id, route) in &mut self.account_routes {
+                    route
+                        .run(
+                            &RouteContext::new(&self.id, &datasource_id, route_id),
+                            &update,
+                        )
+                        .await?;
                 }
                 ACCOUNT_UPDATES_PROCESSED.inc();
             }
@@ -412,7 +413,7 @@ impl Pipeline {
 pub struct PipelineBuilder {
     pub id: String,
     datasources: Vec<(String, Box<dyn DynDatasource>)>,
-    pub account_pipes: Vec<(String, Box<dyn AccountPipes>)>,
+    account_routes: Vec<(String, Box<dyn DynAccountRoute>)>,
     pub account_deletion_pipes: Vec<(String, Box<dyn AccountDeletionPipes>)>,
     pub block_details_pipes: Vec<(String, Box<dyn BlockDetailsPipes>)>,
     pub instruction_pipes: Vec<(String, Box<dyn InstructionPipes>)>,
@@ -428,7 +429,7 @@ impl PipelineBuilder {
         Self {
             id: id.into(),
             datasources: Vec::new(),
-            account_pipes: Vec::new(),
+            account_routes: Vec::new(),
             account_deletion_pipes: Vec::new(),
             block_details_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
@@ -453,41 +454,30 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn account<T, P>(
-        mut self,
-        route_id: impl Into<String>,
-        decoder: impl AccountDecoder<AccountType = T> + Send + 'static,
-        processor: P,
-    ) -> Self
+    pub fn account<D, P>(self, route_id: impl Into<String>, decoder: D, processor: P) -> Self
     where
-        T: Send + Sync + 'static,
-        P: for<'a> Processor<AccountProcessorInput<'a, T>> + 'static,
+        D: AccountDecoder + Send + 'static,
+        D::AccountType: Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInput<'a, D::AccountType>> + 'static,
     {
-        self.account_pipes.push((
-            route_id.into(),
-            Box::new(AccountPipe::new(
-                Box::new(decoder),
-                processor,
-                Filters::new(),
-            )),
-        ));
-        self
+        self.account_with_options(route_id, decoder, processor, DecodedRouteOptions::default())
     }
 
-    pub fn account_with_filters<T, P>(
+    pub fn account_with_options<D, P>(
         mut self,
         route_id: impl Into<String>,
-        decoder: impl AccountDecoder<AccountType = T> + Send + 'static,
+        decoder: D,
         processor: P,
-        filters: Filters<AccountUpdate>,
+        options: DecodedRouteOptions<AccountUpdate>,
     ) -> Self
     where
-        T: Send + Sync + 'static,
-        P: for<'a> Processor<AccountProcessorInput<'a, T>> + 'static,
+        D: AccountDecoder + Send + 'static,
+        D::AccountType: Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInput<'a, D::AccountType>> + 'static,
     {
-        self.account_pipes.push((
+        self.account_routes.push((
             route_id.into(),
-            Box::new(AccountPipe::new(Box::new(decoder), processor, filters)),
+            Box::new(AccountRoute::new(decoder, processor, options)),
         ));
         self
     }
@@ -648,7 +638,7 @@ impl PipelineBuilder {
         let pipeline = Pipeline {
             id,
             datasources,
-            account_pipes: build_routes(self.account_pipes, &mut route_ids)?,
+            account_routes: build_routes(self.account_routes, &mut route_ids)?,
             account_deletion_pipes: build_routes(self.account_deletion_pipes, &mut route_ids)?,
             block_details_pipes: build_routes(self.block_details_pipes, &mut route_ids)?,
             instruction_pipes: build_routes(self.instruction_pipes, &mut route_ids)?,
@@ -829,11 +819,11 @@ mod tests {
         ));
         for builder in [
             Pipeline::builder("pipeline").account(" ", Decoder, recorder()),
-            Pipeline::builder("pipeline").account_with_filters(
+            Pipeline::builder("pipeline").account_with_options(
                 " ",
                 Decoder,
                 recorder(),
-                Filters::new(),
+                DecodedRouteOptions::default(),
             ),
             Pipeline::builder("pipeline").instruction(" ", Decoder, recorder()),
             Pipeline::builder("pipeline").instruction_with_filters(
@@ -970,11 +960,14 @@ mod tests {
         }
         let mut pipeline = Pipeline::builder(" indexer ")
             .datasource("source", Source)
-            .account_with_filters(
+            .account_with_options(
                 "accounts",
                 Decoder,
                 Recorder::new(seen.clone()),
-                filters(&filtered, &committed),
+                DecodedRouteOptions::default().filter(RouteObserver {
+                    filtered: Recorder::new(filtered.clone()),
+                    committed: Recorder::new(committed.clone()),
+                }),
             )
             .instruction_with_filters(
                 "instructions",

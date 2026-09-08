@@ -1,4 +1,4 @@
-//! Route inputs and context.
+//! Routes, processor inputs, and context.
 
 mod account;
 mod instruction;
@@ -9,7 +9,51 @@ pub use {
     transaction::TransactionProcessorInput,
 };
 
-use crate::id::Id;
+pub(crate) use account::{AccountRoute, DynAccountRoute};
+
+use crate::{
+    filter::{Filter, Filters},
+    id::Id,
+};
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ErrorPolicy {
+    Exit,
+    Continue,
+}
+
+pub struct DecodedRouteOptions<T> {
+    filters: Filters<T>,
+    decode_error_policy: ErrorPolicy,
+    processor_error_policy: ErrorPolicy,
+}
+
+impl<T> Default for DecodedRouteOptions<T> {
+    fn default() -> Self {
+        Self {
+            filters: Filters::default(),
+            decode_error_policy: ErrorPolicy::Continue,
+            processor_error_policy: ErrorPolicy::Exit,
+        }
+    }
+}
+
+impl<T: Sync + 'static> DecodedRouteOptions<T> {
+    pub fn filter(mut self, filter: impl Filter<T> + 'static) -> Self {
+        self.filters.push(filter);
+        self
+    }
+
+    pub fn decode_error_policy(mut self, policy: ErrorPolicy) -> Self {
+        self.decode_error_policy = policy;
+        self
+    }
+
+    pub fn processor_error_policy(mut self, policy: ErrorPolicy) -> Self {
+        self.processor_error_policy = policy;
+        self
+    }
+}
 
 /// Identifies the pipeline, datasource, and route running a callback.
 #[derive(Clone, Copy, Debug)]
