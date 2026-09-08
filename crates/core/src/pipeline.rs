@@ -65,6 +65,8 @@ pub enum PipelineError {
     },
     #[error("pipeline task panicked: {message:?}")]
     Panicked { message: Option<String> },
+    #[error("pipeline shutdown timed out after {timeout:?}")]
+    ShutdownTimedOut { timeout: Duration },
     #[error("pipeline failed: {source}")]
     Framework { source: BoxError },
 }
@@ -133,6 +135,7 @@ pub struct PipelineStopped;
 pub struct PipelineControl {
     shutdown: watch::Sender<Option<ShutdownMode>>,
     task: AbortHandle,
+    tasks: Arc<[AbortHandle]>,
 }
 
 impl PipelineControl {
@@ -147,6 +150,14 @@ impl PipelineControl {
             *current = Some(mode);
             true
         });
+        Ok(())
+    }
+
+    pub fn abort(&self) -> Result<(), PipelineStopped> {
+        self.shutdown(ShutdownMode::Drain)?;
+        for task in self.tasks.iter() {
+            task.abort();
+        }
         Ok(())
     }
 }
@@ -172,11 +183,16 @@ impl PipelineHandle {
     pub async fn wait(mut self) -> Result<(), PipelineError> {
         (&mut self.task).await?
     }
+
+    pub async fn abort(self) -> Result<(), PipelineError> {
+        let _ = self.control.abort();
+        self.wait().await
+    }
 }
 
 impl Drop for PipelineHandle {
     fn drop(&mut self) {
-        self.task.abort();
+        let _ = self.control.abort();
     }
 }
 
@@ -240,6 +256,7 @@ impl Pipeline {
         let (shutdown, receiver) = watch::channel(None);
         let signal = ShutdownSignal::new(receiver);
         let mut tasks = JoinSet::new();
+        let mut task_handles = Vec::with_capacity(self.datasources.len() + 1);
         let mut queues = Vec::with_capacity(self.datasources.len());
         for (datasource_id, datasource, options) in self.datasources.drain(..) {
             let (sender, receiver) = mpsc::channel(options.queue_capacity);
@@ -251,7 +268,7 @@ impl Pipeline {
                 signal.clone(),
             );
             queues.push((datasource_id.clone(), receiver));
-            tasks.spawn(async move {
+            task_handles.push(tasks.spawn(async move {
                 datasource
                     .run(context)
                     .await
@@ -259,11 +276,12 @@ impl Pipeline {
                         datasource_id,
                         source,
                     })
-            });
+            }));
         }
 
-        let processing_shutdown = signal;
-        tasks.spawn(async move {
+        let processing_shutdown = signal.clone();
+        let shutdown_timeout = self.shutdown_timeout;
+        task_handles.push(tasks.spawn(async move {
             let mut next_source = 0;
             let mut draining = false;
             loop {
@@ -363,15 +381,38 @@ impl Pipeline {
                 queued.receipt_sender.send(Ok(()));
             }
             Ok(())
-        });
+        }));
 
         let coordinator_shutdown = shutdown.clone();
         let task = tokio::spawn(async move {
             let mut failure = None;
-            while let Some(result) = tasks.join_next().await {
-                let result = match result {
-                    Ok(result) => result,
-                    Err(error) => Err(PipelineError::from(error)),
+            let mut timed_out = false;
+            let timeout = async {
+                match shutdown_timeout {
+                    Some(timeout) => {
+                        signal.requested().await;
+                        tokio::time::sleep(timeout).await;
+                        timeout
+                    }
+                    None => std::future::pending().await,
+                }
+            };
+            tokio::pin!(timeout);
+
+            loop {
+                let result = tokio::select! {
+                    biased;
+                    result = tasks.join_next() => match result {
+                        Some(Ok(result)) => result,
+                        Some(Err(error)) if error.is_cancelled() => continue,
+                        Some(Err(error)) => Err(PipelineError::from(error)),
+                        None => break,
+                    },
+                    timeout = &mut timeout, if !timed_out => {
+                        tasks.abort_all();
+                        timed_out = true;
+                        Err(PipelineError::ShutdownTimedOut { timeout })
+                    }
                 };
                 if let Err(error) = result {
                     coordinator_shutdown.send_modify(|mode| {
@@ -389,6 +430,7 @@ impl Pipeline {
         let control = PipelineControl {
             shutdown,
             task: task.abort_handle(),
+            tasks: task_handles.into(),
         };
         Ok(PipelineHandle { task, control })
     }
@@ -1351,6 +1393,278 @@ mod tests {
             .await
             .unwrap()
             .unwrap();
+    }
+
+    #[tokio::test]
+    async fn abort_before_tasks_start_does_not_run_the_source() {
+        Pipeline::builder("pipeline")
+            .datasource("source", Source)
+            .build()
+            .unwrap()
+            .start()
+            .await
+            .unwrap()
+            .abort()
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    async fn abort_and_handle_drop_cancel_tasks_and_settle_receipts() {
+        for drop_handle in [false, true] {
+            for grouped in [false, true] {
+                let (receipts, received) = tokio::sync::oneshot::channel();
+                let (mut source_release, source_wait) = tokio::sync::oneshot::channel();
+                let (entered, processing) = tokio::sync::oneshot::channel();
+                let (mut release, released) = tokio::sync::oneshot::channel();
+                let seen = Arc::new(std::sync::Mutex::new(Vec::new()));
+                let observer = || Observer {
+                    calls: Cell::new(0),
+                    seen: seen.clone(),
+                };
+                let handle = Pipeline::builder("indexer")
+                    .datasource(
+                        "source",
+                        HeldSource {
+                            receipts,
+                            release: source_wait,
+                            grouped,
+                        },
+                    )
+                    .block_details_with_options(
+                        "first",
+                        WaitingProcessor {
+                            entered: Some(entered),
+                            release: released,
+                        },
+                        RouteOptions::default().filter(observer()),
+                    )
+                    .block_details("last", observer())
+                    .build()
+                    .unwrap()
+                    .start()
+                    .await
+                    .unwrap();
+                let receipts = received.await.unwrap();
+                processing.await.unwrap();
+                let control = handle.control();
+
+                if drop_handle {
+                    drop(handle);
+                    tokio::time::timeout(Duration::from_secs(1), async {
+                        source_release.closed().await;
+                        release.closed().await;
+                        while !control.task.is_finished() {
+                            tokio::task::yield_now().await;
+                        }
+                    })
+                    .await
+                    .unwrap();
+                } else {
+                    control.abort().unwrap();
+                    control.clone().abort().unwrap();
+                    control.shutdown(ShutdownMode::Drop).unwrap();
+                    tokio::time::timeout(Duration::from_secs(1), handle.abort())
+                        .await
+                        .unwrap()
+                        .unwrap();
+                }
+
+                assert!(source_release.is_closed());
+                assert!(release.is_closed());
+                assert!(seen.lock().unwrap().is_empty());
+                for receipt in receipts {
+                    assert_eq!(receipt.processed().await, Err(UpdateReceiptError::Aborted));
+                }
+                assert!(control.abort().is_err());
+                assert!(control.shutdown(ShutdownMode::Drain).is_err());
+            }
+        }
+    }
+
+    struct HeldSource {
+        receipts: tokio::sync::oneshot::Sender<Vec<crate::datasource::receipt::UpdateReceipt>>,
+        release: tokio::sync::oneshot::Receiver<()>,
+        grouped: bool,
+    }
+
+    impl Datasource for HeldSource {
+        async fn run(self, mut context: DatasourceContext) -> Result<(), BoxError> {
+            let receipts = if self.grouped {
+                let mut group = context.begin_group();
+                group.emit(BlockUpdate::new(1).into()).await?;
+                group.emit(BlockUpdate::new(2).into()).await?;
+                vec![group.seal()]
+            } else {
+                vec![
+                    context.emit(BlockUpdate::new(1).into()).await?.unwrap(),
+                    context.emit(BlockUpdate::new(2).into()).await?.unwrap(),
+                ]
+            };
+            self.receipts.send(receipts).unwrap();
+            self.release.await?;
+            Ok(())
+        }
+    }
+
+    struct EscapingSource(tokio::sync::oneshot::Sender<DatasourceContext>);
+
+    impl Datasource for EscapingSource {
+        async fn run(self, context: DatasourceContext) -> Result<(), BoxError> {
+            // Deliberately violate ownership to verify that abort revokes emission.
+            assert!(self.0.send(context).is_ok());
+            std::future::pending().await
+        }
+    }
+
+    #[tokio::test]
+    async fn cancelling_wait_revokes_emission_and_leaves_cleanup_running() {
+        use std::{
+            future::{poll_fn, Future},
+            pin::pin,
+            task::Poll,
+        };
+
+        let (context, received) = tokio::sync::oneshot::channel();
+        let handle = Pipeline::builder("pipeline")
+            .datasource("source", EscapingSource(context))
+            .build()
+            .unwrap()
+            .start()
+            .await
+            .unwrap();
+        let mut context = received.await.unwrap();
+        let control = handle.control();
+        {
+            let mut wait = pin!(handle.wait());
+            poll_fn(|cx| {
+                assert!(wait.as_mut().poll(cx).is_pending());
+                Poll::Ready(())
+            })
+            .await;
+        }
+        // No scheduler yield is needed before admission is revoked.
+        assert!(context.shutdown().is_requested());
+        assert!(matches!(
+            context.emit(BlockUpdate::new(1).into()).await,
+            Err(crate::datasource::EmitError::ShuttingDown)
+        ));
+        tokio::time::timeout(Duration::from_secs(1), async {
+            while !control.task.is_finished() {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+        assert!(control.abort().is_err());
+    }
+
+    #[tokio::test]
+    async fn timeout_starts_at_shutdown_and_aborts_unfinished_work() {
+        for mode in [ShutdownMode::Drain, ShutdownMode::Drop] {
+            let timeout = Duration::from_millis(20);
+            let (receipts, received) = tokio::sync::oneshot::channel();
+            let (source_release, source_wait) = tokio::sync::oneshot::channel();
+            let (entered, processing) = tokio::sync::oneshot::channel();
+            let (release, released) = tokio::sync::oneshot::channel();
+            let handle = Pipeline::builder("pipeline")
+                .datasource(
+                    "source",
+                    HeldSource {
+                        receipts,
+                        release: source_wait,
+                        grouped: false,
+                    },
+                )
+                .block_details(
+                    "blocks",
+                    WaitingProcessor {
+                        entered: Some(entered),
+                        release: released,
+                    },
+                )
+                .shutdown_timeout(timeout)
+                .build()
+                .unwrap()
+                .start()
+                .await
+                .unwrap();
+            let receipts = received.await.unwrap();
+            processing.await.unwrap();
+            let control = handle.control();
+            tokio::time::sleep(timeout * 2).await;
+            assert!(!control.task.is_finished());
+            control.shutdown(mode).unwrap();
+            assert!(matches!(
+                tokio::time::timeout(Duration::from_secs(1), handle.wait()).await.unwrap(),
+                Err(PipelineError::ShutdownTimedOut { timeout: elapsed }) if elapsed == timeout
+            ));
+            assert!(source_release.is_closed());
+            assert!(release.is_closed());
+            for receipt in receipts {
+                assert_eq!(receipt.processed().await, Err(UpdateReceiptError::Aborted));
+            }
+        }
+    }
+
+    struct FailingSource {
+        fail: tokio::sync::oneshot::Receiver<()>,
+        panic: bool,
+    }
+
+    impl Datasource for FailingSource {
+        async fn run(self, _context: DatasourceContext) -> Result<(), BoxError> {
+            self.fail.await?;
+            assert!(!self.panic, "source panic");
+            Err(std::io::Error::other("source failure").into())
+        }
+    }
+
+    #[tokio::test]
+    async fn cleanup_preserves_an_earlier_error_or_panic() {
+        for abort in [false, true] {
+            for panic in [false, true] {
+                let (fail, failing) = tokio::sync::oneshot::channel();
+                let (context, received) = tokio::sync::oneshot::channel();
+                let handle = Pipeline::builder("pipeline")
+                    .datasource(
+                        "failing",
+                        FailingSource {
+                            fail: failing,
+                            panic,
+                        },
+                    )
+                    .datasource("held", EscapingSource(context))
+                    .shutdown_timeout(Duration::from_millis(20))
+                    .build()
+                    .unwrap()
+                    .start()
+                    .await
+                    .unwrap();
+                let context = received.await.unwrap();
+                let control = handle.control();
+                fail.send(()).unwrap();
+                if abort {
+                    context.shutdown().requested().await;
+                    control.abort().unwrap();
+                }
+                let error = tokio::time::timeout(Duration::from_secs(1), handle.wait())
+                    .await
+                    .unwrap()
+                    .unwrap_err();
+                if panic {
+                    assert!(
+                        matches!(error, PipelineError::Panicked { message: Some(message) } if message == "source panic")
+                    );
+                } else {
+                    assert!(
+                        matches!(error, PipelineError::Datasource { datasource_id, source }
+                    if datasource_id.as_str() == "failing" && source.to_string() == "source failure")
+                    );
+                }
+                assert!(context.shutdown().is_requested());
+            }
+        }
     }
 
     #[tokio::test]
