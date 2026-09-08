@@ -21,6 +21,8 @@ use {
 };
 
 /// Produces updates through its context.
+///
+/// Implementations must own and join their child tasks before returning.
 pub trait Datasource: Send + 'static {
     fn run(self, context: DatasourceContext) -> impl Future<Output = Result<(), BoxError>> + Send;
 }
