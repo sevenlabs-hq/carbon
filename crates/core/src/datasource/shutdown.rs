@@ -1,26 +1,34 @@
 //! Read-only shutdown notification for datasources.
 
-use tokio_util::sync::CancellationToken;
+use {crate::pipeline::ShutdownMode, tokio::sync::watch};
 
 /// Observes shutdown requests. Clones observe the same request.
 #[derive(Clone, Debug)]
 pub struct ShutdownSignal {
-    token: CancellationToken,
+    receiver: watch::Receiver<Option<ShutdownMode>>,
 }
 
 impl ShutdownSignal {
-    pub(crate) fn new(token: CancellationToken) -> Self {
-        Self { token }
+    pub(crate) fn new(receiver: watch::Receiver<Option<ShutdownMode>>) -> Self {
+        Self { receiver }
+    }
+
+    pub(crate) fn mode(&self) -> Option<ShutdownMode> {
+        *self.receiver.borrow()
     }
 
     /// Returns whether shutdown has been requested.
     pub fn is_requested(&self) -> bool {
-        self.token.is_cancelled()
+        self.mode().is_some()
     }
 
     /// Waits for shutdown, returning immediately if already requested.
     pub async fn requested(&self) {
-        self.token.cancelled().await;
+        let mut receiver = self.receiver.clone();
+        if receiver.wait_for(Option::is_some).await.is_err() {
+            // Losing the sender is not a shutdown request.
+            std::future::pending::<()>().await;
+        }
     }
 }
 
@@ -41,27 +49,46 @@ mod tests {
 
     #[test]
     fn clones_observe_the_same_request() {
-        let token = CancellationToken::new();
-        let signal = ShutdownSignal::new(token.clone());
+        let (sender, receiver) = watch::channel(None);
+        let signal = ShutdownSignal::new(receiver);
         let clone = signal.clone();
         assert!(!signal.is_requested());
         assert!(!clone.is_requested());
 
-        token.cancel();
+        sender.send_replace(Some(ShutdownMode::Drain));
 
         assert!(signal.is_requested());
         assert!(clone.is_requested());
+        assert_eq!(signal.mode(), Some(ShutdownMode::Drain));
+
+        sender.send_replace(Some(ShutdownMode::Drop));
+        assert_eq!(signal.mode(), Some(ShutdownMode::Drop));
+        assert_eq!(clone.mode(), Some(ShutdownMode::Drop));
     }
 
     #[tokio::test]
     async fn an_existing_request_completes_every_wait() {
-        let token = CancellationToken::new();
-        token.cancel();
-        let signal = ShutdownSignal::new(token);
+        let (sender, receiver) = watch::channel(Some(ShutdownMode::Drain));
+        let signal = ShutdownSignal::new(receiver);
+        drop(sender);
 
         signal.requested().await;
         signal.requested().await;
         signal.clone().requested().await;
+    }
+
+    #[test]
+    fn losing_the_sender_does_not_request_shutdown() {
+        let (sender, receiver) = watch::channel(None);
+        let signal = ShutdownSignal::new(receiver);
+        let mut requested = pin!(signal.requested());
+        let mut context = Context::from_waker(Waker::noop());
+        assert!(requested.as_mut().poll(&mut context).is_pending());
+
+        drop(sender);
+
+        assert!(!signal.is_requested());
+        assert!(requested.as_mut().poll(&mut context).is_pending());
     }
 
     #[test]
@@ -74,8 +101,8 @@ mod tests {
             }
         }
 
-        let token = CancellationToken::new();
-        let signal = ShutdownSignal::new(token.clone());
+        let (sender, receiver) = watch::channel(None);
+        let signal = ShutdownSignal::new(receiver);
         let clone = signal.clone();
         let mut first = pin!(signal.requested());
         let mut second = pin!(clone.requested());
@@ -88,7 +115,7 @@ mod tests {
         assert!(first.as_mut().poll(&mut first_context).is_pending());
         assert!(second.as_mut().poll(&mut second_context).is_pending());
 
-        token.cancel();
+        sender.send_replace(Some(ShutdownMode::Drop));
 
         assert!(first_wake.0.load(Ordering::SeqCst));
         assert!(second_wake.0.load(Ordering::SeqCst));

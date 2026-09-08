@@ -151,9 +151,9 @@ impl DatasourceContext {
 mod tests {
     use {
         super::*,
-        crate::update::BlockUpdate,
+        crate::{pipeline::ShutdownMode, update::BlockUpdate},
         std::task::{Context, Waker},
-        tokio_util::sync::CancellationToken,
+        tokio::sync::watch,
     };
 
     fn context(
@@ -170,7 +170,7 @@ mod tests {
                 Id::new("source").unwrap(),
                 sender,
                 overflow_policy,
-                ShutdownSignal::new(CancellationToken::new()),
+                ShutdownSignal::new(watch::channel(None).1),
             ),
             receiver,
         )
@@ -291,10 +291,10 @@ mod tests {
         );
 
         let (mut source, _receiver) = context(1, OverflowPolicy::Wait);
-        let token = CancellationToken::new();
-        source.shutdown = ShutdownSignal::new(token.clone());
+        let (shutdown, signal) = watch::channel(None);
+        source.shutdown = ShutdownSignal::new(signal);
         let mut group = source.begin_group();
-        token.cancel();
+        shutdown.send_replace(Some(ShutdownMode::Drain));
         assert_eq!(
             group.emit(BlockUpdate::new(1).into()).await,
             Err(EmitError::ShuttingDown)
