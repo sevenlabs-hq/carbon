@@ -37,14 +37,15 @@ use {
         filter::Filters,
         id::{Id, IdError},
         instruction::{
-            extract_instructions_with_metadata, InstructionDecoder, InstructionPipe,
-            InstructionPipes, InstructionsWithMetadata, NestedInstruction, NestedInstructions,
+            extract_instructions_with_metadata, InstructionDecoder, InstructionsWithMetadata,
+            NestedInstruction, NestedInstructions,
         },
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
         route::{
             AccountProcessorInput, AccountRoute, DecodedRouteOptions, DynAccountRoute,
-            InstructionProcessorInput, RouteContext, TransactionProcessorInput,
+            DynInstructionRoute, InstructionProcessorInput, InstructionRoute, RouteContext,
+            TransactionProcessorInput,
         },
         transaction::{TransactionPipe, TransactionPipes},
         update::{AccountClosureUpdate, AccountUpdate, BlockUpdate, TransactionUpdate, Update},
@@ -203,7 +204,7 @@ pub struct Pipeline {
     account_routes: Vec<(Id, Box<dyn DynAccountRoute>)>,
     pub account_deletion_pipes: Vec<(Id, Box<dyn AccountDeletionPipes>)>,
     pub block_details_pipes: Vec<(Id, Box<dyn BlockDetailsPipes>)>,
-    pub instruction_pipes: Vec<(Id, Box<dyn InstructionPipes>)>,
+    instruction_routes: Vec<(Id, Box<dyn DynInstructionRoute>)>,
     pub transaction_pipes: Vec<(Id, Box<dyn TransactionPipes>)>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
     pub datasource_cancellation_token: Option<CancellationToken>,
@@ -217,12 +218,12 @@ impl Pipeline {
     }
 
     pub async fn run(mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_routes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_routes: {}, num_account_deletion_pipes: {}, num_instruction_routes: {}, num_transaction_pipes: {}",
             self.datasources.len(),
             self.exporters.len(),
             self.account_routes.len(),
             self.account_deletion_pipes.len(),
-            self.instruction_pipes.len(),
+            self.instruction_routes.len(),
             self.transaction_pipes.len(),
         );
 
@@ -379,10 +380,10 @@ impl Pipeline {
                 let mut all_instructions = Vec::new();
                 Self::flatten_nested_instructions(&instructions, &mut all_instructions);
 
-                for (route_id, pipe) in &mut self.instruction_pipes {
+                for (route_id, route) in &mut self.instruction_routes {
                     let context = RouteContext::new(&self.id, &datasource_id, route_id);
                     for &instruction in &all_instructions {
-                        pipe.run(&context, instruction).await?;
+                        route.run(&context, instruction).await?;
                     }
                 }
                 for (route_id, pipe) in &mut self.transaction_pipes {
@@ -416,7 +417,7 @@ pub struct PipelineBuilder {
     account_routes: Vec<(String, Box<dyn DynAccountRoute>)>,
     pub account_deletion_pipes: Vec<(String, Box<dyn AccountDeletionPipes>)>,
     pub block_details_pipes: Vec<(String, Box<dyn BlockDetailsPipes>)>,
-    pub instruction_pipes: Vec<(String, Box<dyn InstructionPipes>)>,
+    instruction_routes: Vec<(String, Box<dyn DynInstructionRoute>)>,
     pub transaction_pipes: Vec<(String, Box<dyn TransactionPipes>)>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
     pub datasource_cancellation_token: Option<CancellationToken>,
@@ -432,7 +433,7 @@ impl PipelineBuilder {
             account_routes: Vec::new(),
             account_deletion_pipes: Vec::new(),
             block_details_pipes: Vec::new(),
-            instruction_pipes: Vec::new(),
+            instruction_routes: Vec::new(),
             transaction_pipes: Vec::new(),
             exporters: Vec::new(),
             datasource_cancellation_token: None,
@@ -536,41 +537,30 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn instruction<T, P>(
-        mut self,
-        route_id: impl Into<String>,
-        decoder: impl InstructionDecoder<InstructionType = T> + Send + 'static,
-        processor: P,
-    ) -> Self
+    pub fn instruction<D, P>(self, route_id: impl Into<String>, decoder: D, processor: P) -> Self
     where
-        T: Send + Sync + 'static,
-        P: for<'a> Processor<InstructionProcessorInput<'a, T>> + 'static,
+        D: InstructionDecoder + Send + 'static,
+        D::InstructionType: Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInput<'a, D::InstructionType>> + 'static,
     {
-        self.instruction_pipes.push((
-            route_id.into(),
-            Box::new(InstructionPipe::new(
-                Box::new(decoder),
-                processor,
-                Filters::new(),
-            )),
-        ));
-        self
+        self.instruction_with_options(route_id, decoder, processor, DecodedRouteOptions::default())
     }
 
-    pub fn instruction_with_filters<T, P>(
+    pub fn instruction_with_options<D, P>(
         mut self,
         route_id: impl Into<String>,
-        decoder: impl InstructionDecoder<InstructionType = T> + Send + 'static,
+        decoder: D,
         processor: P,
-        filters: Filters<NestedInstruction>,
+        options: DecodedRouteOptions<NestedInstruction>,
     ) -> Self
     where
-        T: Send + Sync + 'static,
-        P: for<'a> Processor<InstructionProcessorInput<'a, T>> + 'static,
+        D: InstructionDecoder + Send + 'static,
+        D::InstructionType: Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInput<'a, D::InstructionType>> + 'static,
     {
-        self.instruction_pipes.push((
+        self.instruction_routes.push((
             route_id.into(),
-            Box::new(InstructionPipe::new(Box::new(decoder), processor, filters)),
+            Box::new(InstructionRoute::new(decoder, processor, options)),
         ));
         self
     }
@@ -641,7 +631,7 @@ impl PipelineBuilder {
             account_routes: build_routes(self.account_routes, &mut route_ids)?,
             account_deletion_pipes: build_routes(self.account_deletion_pipes, &mut route_ids)?,
             block_details_pipes: build_routes(self.block_details_pipes, &mut route_ids)?,
-            instruction_pipes: build_routes(self.instruction_pipes, &mut route_ids)?,
+            instruction_routes: build_routes(self.instruction_routes, &mut route_ids)?,
             transaction_pipes: build_routes(self.transaction_pipes, &mut route_ids)?,
             exporters: self.exporters,
             datasource_cancellation_token: self.datasource_cancellation_token,
@@ -826,11 +816,11 @@ mod tests {
                 DecodedRouteOptions::default(),
             ),
             Pipeline::builder("pipeline").instruction(" ", Decoder, recorder()),
-            Pipeline::builder("pipeline").instruction_with_filters(
+            Pipeline::builder("pipeline").instruction_with_options(
                 " ",
                 Decoder,
                 recorder(),
-                Filters::new(),
+                DecodedRouteOptions::default(),
             ),
             Pipeline::builder("pipeline").transaction::<Collection, _>(" ", recorder()),
             Pipeline::builder("pipeline").transaction_with_filters::<Collection, _>(
@@ -969,11 +959,14 @@ mod tests {
                     committed: Recorder::new(committed.clone()),
                 }),
             )
-            .instruction_with_filters(
+            .instruction_with_options(
                 "instructions",
                 Decoder,
                 Recorder::new(seen.clone()),
-                filters(&filtered, &committed),
+                DecodedRouteOptions::default().filter(RouteObserver {
+                    filtered: Recorder::new(filtered.clone()),
+                    committed: Recorder::new(committed.clone()),
+                }),
             )
             .transaction_with_filters::<Collection, _>(
                 "transactions",

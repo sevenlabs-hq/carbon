@@ -9,7 +9,10 @@ pub use {
     transaction::TransactionProcessorInput,
 };
 
-pub(crate) use account::{AccountRoute, DynAccountRoute};
+pub(crate) use {
+    account::{AccountRoute, DynAccountRoute},
+    instruction::{DynInstructionRoute, InstructionRoute},
+};
 
 use crate::{
     filter::{Filter, Filters},
