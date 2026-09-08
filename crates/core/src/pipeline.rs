@@ -44,10 +44,9 @@ use {
         processor::Processor,
         route::{
             AccountProcessorInput, AccountRoute, DecodedRouteOptions, DynAccountRoute,
-            DynInstructionRoute, InstructionProcessorInput, InstructionRoute, RouteContext,
-            TransactionProcessorInput,
+            DynInstructionRoute, DynTransactionRoute, InstructionProcessorInput, InstructionRoute,
+            RouteContext, TransactionProcessorInput, TransactionRoute,
         },
-        transaction::{TransactionPipe, TransactionPipes},
         update::{AccountClosureUpdate, AccountUpdate, BlockUpdate, TransactionUpdate, Update},
     },
     std::{
@@ -205,7 +204,7 @@ pub struct Pipeline {
     pub account_deletion_pipes: Vec<(Id, Box<dyn AccountDeletionPipes>)>,
     pub block_details_pipes: Vec<(Id, Box<dyn BlockDetailsPipes>)>,
     instruction_routes: Vec<(Id, Box<dyn DynInstructionRoute>)>,
-    pub transaction_pipes: Vec<(Id, Box<dyn TransactionPipes>)>,
+    transaction_routes: Vec<(Id, Box<dyn DynTransactionRoute>)>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
@@ -218,13 +217,13 @@ impl Pipeline {
     }
 
     pub async fn run(mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_routes: {}, num_account_deletion_pipes: {}, num_instruction_routes: {}, num_transaction_pipes: {}",
+        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_routes: {}, num_account_deletion_pipes: {}, num_instruction_routes: {}, num_transaction_routes: {}",
             self.datasources.len(),
             self.exporters.len(),
             self.account_routes.len(),
             self.account_deletion_pipes.len(),
             self.instruction_routes.len(),
-            self.transaction_pipes.len(),
+            self.transaction_routes.len(),
         );
 
         for exporter in &self.exporters {
@@ -386,13 +385,14 @@ impl Pipeline {
                         route.run(&context, instruction).await?;
                     }
                 }
-                for (route_id, pipe) in &mut self.transaction_pipes {
-                    pipe.run(
-                        &RouteContext::new(&self.id, &datasource_id, route_id),
-                        &update,
-                        &all_instructions,
-                    )
-                    .await?;
+                for (route_id, route) in &mut self.transaction_routes {
+                    route
+                        .run(
+                            &RouteContext::new(&self.id, &datasource_id, route_id),
+                            &update,
+                            &all_instructions,
+                        )
+                        .await?;
                 }
                 TRANSACTION_UPDATES_PROCESSED.inc();
             }
@@ -418,7 +418,7 @@ pub struct PipelineBuilder {
     pub account_deletion_pipes: Vec<(String, Box<dyn AccountDeletionPipes>)>,
     pub block_details_pipes: Vec<(String, Box<dyn BlockDetailsPipes>)>,
     instruction_routes: Vec<(String, Box<dyn DynInstructionRoute>)>,
-    pub transaction_pipes: Vec<(String, Box<dyn TransactionPipes>)>,
+    transaction_routes: Vec<(String, Box<dyn DynTransactionRoute>)>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
@@ -434,7 +434,7 @@ impl PipelineBuilder {
             account_deletion_pipes: Vec::new(),
             block_details_pipes: Vec::new(),
             instruction_routes: Vec::new(),
-            transaction_pipes: Vec::new(),
+            transaction_routes: Vec::new(),
             exporters: Vec::new(),
             datasource_cancellation_token: None,
             shutdown_strategy: ShutdownStrategy::default(),
@@ -565,31 +565,27 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn transaction<T, P>(mut self, route_id: impl Into<String>, processor: P) -> Self
+    pub fn transaction<C, P>(self, route_id: impl Into<String>, processor: P) -> Self
     where
-        T: InstructionDecoderCollection + Send + Sync + 'static,
-        P: for<'a> Processor<TransactionProcessorInput<'a, T>> + 'static,
+        C: InstructionDecoderCollection + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInput<'a, C>> + 'static,
     {
-        self.transaction_pipes.push((
-            route_id.into(),
-            Box::new(TransactionPipe::<T, P>::new(processor, Filters::new())),
-        ));
-        self
+        self.transaction_with_options::<C, P>(route_id, processor, DecodedRouteOptions::default())
     }
 
-    pub fn transaction_with_filters<T, P>(
+    pub fn transaction_with_options<C, P>(
         mut self,
         route_id: impl Into<String>,
         processor: P,
-        filters: Filters<TransactionUpdate>,
+        options: DecodedRouteOptions<TransactionUpdate>,
     ) -> Self
     where
-        T: InstructionDecoderCollection + Send + Sync + 'static,
-        P: for<'a> Processor<TransactionProcessorInput<'a, T>> + 'static,
+        C: InstructionDecoderCollection + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInput<'a, C>> + 'static,
     {
-        self.transaction_pipes.push((
+        self.transaction_routes.push((
             route_id.into(),
-            Box::new(TransactionPipe::<T, P>::new(processor, filters)),
+            Box::new(TransactionRoute::<C, P>::new(processor, options)),
         ));
         self
     }
@@ -632,7 +628,7 @@ impl PipelineBuilder {
             account_deletion_pipes: build_routes(self.account_deletion_pipes, &mut route_ids)?,
             block_details_pipes: build_routes(self.block_details_pipes, &mut route_ids)?,
             instruction_routes: build_routes(self.instruction_routes, &mut route_ids)?,
-            transaction_pipes: build_routes(self.transaction_pipes, &mut route_ids)?,
+            transaction_routes: build_routes(self.transaction_routes, &mut route_ids)?,
             exporters: self.exporters,
             datasource_cancellation_token: self.datasource_cancellation_token,
             shutdown_strategy: self.shutdown_strategy,
@@ -823,10 +819,10 @@ mod tests {
                 DecodedRouteOptions::default(),
             ),
             Pipeline::builder("pipeline").transaction::<Collection, _>(" ", recorder()),
-            Pipeline::builder("pipeline").transaction_with_filters::<Collection, _>(
+            Pipeline::builder("pipeline").transaction_with_options::<Collection, _>(
                 " ",
                 recorder(),
-                Filters::new(),
+                DecodedRouteOptions::default(),
             ),
             Pipeline::builder("pipeline").account_deletions(" ", recorder()),
             Pipeline::builder("pipeline").account_deletions_with_filters(
@@ -968,10 +964,13 @@ mod tests {
                     committed: Recorder::new(committed.clone()),
                 }),
             )
-            .transaction_with_filters::<Collection, _>(
+            .transaction_with_options::<Collection, _>(
                 "transactions",
                 Recorder::new(seen.clone()),
-                filters(&filtered, &committed),
+                DecodedRouteOptions::default().filter(RouteObserver {
+                    filtered: Recorder::new(filtered.clone()),
+                    committed: Recorder::new(committed.clone()),
+                }),
             )
             .account_deletions_with_filters(
                 "closures",

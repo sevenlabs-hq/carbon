@@ -12,6 +12,7 @@ pub use {
 pub(crate) use {
     account::{AccountRoute, DynAccountRoute},
     instruction::{DynInstructionRoute, InstructionRoute},
+    transaction::{DynTransactionRoute, TransactionRoute},
 };
 
 use crate::{
