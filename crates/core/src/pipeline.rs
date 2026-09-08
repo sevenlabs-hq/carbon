@@ -1,9 +1,9 @@
 //! Pipeline orchestrator — central runtime that wires datasources,
-//! pipes, filters, and metrics into a single `run()` loop.
+//! routes, filters, and metrics into a single `run()` loop.
 //!
 //! # Components
 //!
-//! - [`Pipeline`] — built type that owns all datasources, pipes, and exporters.
+//! - [`Pipeline`] — built type that owns all datasources, routes, and exporters.
 //!   Driven by [`Pipeline::run`].
 //! - [`PipelineBuilder`] — fluent constructor returning `Pipeline` via
 //!   `.build()`. Every framework user starts here.
@@ -13,9 +13,9 @@
 //! # Flow
 //!
 //! 1. `run()` spawns one tokio task and creates one MPSC channel per datasource.
-//! 2. It reads channels in turn and calls every registered pipe whose
+//! 2. It reads channels in turn and calls every registered route whose
 //!    update type matches and whose filters return `true`.
-//! 3. Each pipe decodes the payload (where applicable) and invokes its
+//! 3. Each route decodes the payload (where applicable) and invokes its
 //!    `Processor`.
 //! 4. Crate-wide metrics (received / processed / successful / failed / queued /
 //!    processing-time histograms) are updated per iteration.
@@ -25,7 +25,6 @@
 use {
     crate::{
         account::AccountDecoder,
-        block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
         datasource::{
             queue::{next_update, QueuedUpdate},
@@ -33,7 +32,6 @@ use {
             Datasource, DatasourceContext, DatasourceOptions, DynDatasource, ShutdownSignal,
         },
         error::{CarbonResult, Error},
-        filter::Filters,
         id::{Id, IdError},
         instruction::{
             extract_instructions_with_metadata, InstructionDecoder, InstructionsWithMetadata,
@@ -42,10 +40,10 @@ use {
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
         route::{
-            AccountClosureRoute, AccountProcessorInput, AccountRoute, DecodedRouteOptions,
-            DynAccountClosureRoute, DynAccountRoute, DynInstructionRoute, DynTransactionRoute,
-            InstructionProcessorInput, InstructionRoute, RouteContext, RouteOptions,
-            TransactionProcessorInput, TransactionRoute,
+            AccountClosureRoute, AccountProcessorInput, AccountRoute, BlockRoute,
+            DecodedRouteOptions, DynAccountClosureRoute, DynAccountRoute, DynBlockRoute,
+            DynInstructionRoute, DynTransactionRoute, InstructionProcessorInput, InstructionRoute,
+            RouteContext, RouteOptions, TransactionProcessorInput, TransactionRoute,
         },
         update::{AccountClosureUpdate, AccountUpdate, BlockUpdate, TransactionUpdate, Update},
     },
@@ -146,7 +144,7 @@ fn register_pipeline_metrics() {
 /// - `Immediate` — cancel datasources, flush metrics, exit; in-flight updates
 ///   may be dropped.
 /// - `ProcessPending` — cancel datasources, then drain the channel through the
-///   registered pipes before exiting. Default.
+///   registered routes before exiting. Default.
 #[derive(Default, PartialEq, Debug)]
 pub enum ShutdownStrategy {
     Immediate,
@@ -182,27 +180,27 @@ fn build_routes<P: ?Sized>(
 ) -> Result<Vec<(Id, Box<P>)>, PipelineBuildError> {
     routes
         .into_iter()
-        .map(|(name, pipe)| {
+        .map(|(name, route)| {
             let id = Id::new(name.clone())
                 .map_err(|source| PipelineBuildError::InvalidRouteId { id: name, source })?;
             if !ids.insert(id.clone()) {
                 return Err(PipelineBuildError::DuplicateRouteId { id });
             }
-            Ok((id, pipe))
+            Ok((id, route))
         })
         .collect()
 }
 
 /// Built pipeline ready to execute. Construct via [`Pipeline::builder`].
 ///
-/// Owns every datasource, pipe, and exporter for the lifetime of
+/// Owns every datasource, route, and exporter for the lifetime of
 /// [`run`](Self::run). Construct through the builder.
 pub struct Pipeline {
     pub id: Id,
     datasources: Vec<(Id, Box<dyn DynDatasource>)>,
     account_routes: Vec<(Id, Box<dyn DynAccountRoute>)>,
     account_closure_routes: Vec<(Id, Box<dyn DynAccountClosureRoute>)>,
-    pub block_details_pipes: Vec<(Id, Box<dyn BlockDetailsPipes>)>,
+    block_routes: Vec<(Id, Box<dyn DynBlockRoute>)>,
     instruction_routes: Vec<(Id, Box<dyn DynInstructionRoute>)>,
     transaction_routes: Vec<(Id, Box<dyn DynTransactionRoute>)>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
@@ -363,12 +361,13 @@ impl Pipeline {
                 ACCOUNT_DELETIONS_PROCESSED.inc();
             }
             Update::Block(update) => {
-                for (route_id, pipe) in &mut self.block_details_pipes {
-                    pipe.run(
-                        &RouteContext::new(&self.id, &datasource_id, route_id),
-                        &update,
-                    )
-                    .await?;
+                for (route_id, route) in &mut self.block_routes {
+                    route
+                        .run(
+                            &RouteContext::new(&self.id, &datasource_id, route_id),
+                            &update,
+                        )
+                        .await?;
                 }
                 BLOCK_DETAILS_PROCESSED.inc();
             }
@@ -417,7 +416,7 @@ pub struct PipelineBuilder {
     datasources: Vec<(String, Box<dyn DynDatasource>)>,
     account_routes: Vec<(String, Box<dyn DynAccountRoute>)>,
     account_closure_routes: Vec<(String, Box<dyn DynAccountClosureRoute>)>,
-    pub block_details_pipes: Vec<(String, Box<dyn BlockDetailsPipes>)>,
+    block_routes: Vec<(String, Box<dyn DynBlockRoute>)>,
     instruction_routes: Vec<(String, Box<dyn DynInstructionRoute>)>,
     transaction_routes: Vec<(String, Box<dyn DynTransactionRoute>)>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
@@ -433,7 +432,7 @@ impl PipelineBuilder {
             datasources: Vec::new(),
             account_routes: Vec::new(),
             account_closure_routes: Vec::new(),
-            block_details_pipes: Vec::new(),
+            block_routes: Vec::new(),
             instruction_routes: Vec::new(),
             transaction_routes: Vec::new(),
             exporters: Vec::new(),
@@ -507,29 +506,25 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn block_details<P>(mut self, route_id: impl Into<String>, processor: P) -> Self
+    pub fn block_details<P>(self, route_id: impl Into<String>, processor: P) -> Self
     where
         P: Processor<BlockUpdate> + 'static,
     {
-        self.block_details_pipes.push((
-            route_id.into(),
-            Box::new(BlockDetailsPipe::new(processor, Filters::new())),
-        ));
-        self
+        self.block_details_with_options(route_id, processor, RouteOptions::default())
     }
 
-    pub fn block_details_with_filters<P>(
+    pub fn block_details_with_options<P>(
         mut self,
         route_id: impl Into<String>,
         processor: P,
-        filters: Filters<BlockUpdate>,
+        options: RouteOptions<BlockUpdate>,
     ) -> Self
     where
         P: Processor<BlockUpdate> + 'static,
     {
-        self.block_details_pipes.push((
+        self.block_routes.push((
             route_id.into(),
-            Box::new(BlockDetailsPipe::new(processor, filters)),
+            Box::new(BlockRoute::new(processor, options)),
         ));
         self
     }
@@ -623,7 +618,7 @@ impl PipelineBuilder {
             datasources,
             account_routes: build_routes(self.account_routes, &mut route_ids)?,
             account_closure_routes: build_routes(self.account_closure_routes, &mut route_ids)?,
-            block_details_pipes: build_routes(self.block_details_pipes, &mut route_ids)?,
+            block_routes: build_routes(self.block_routes, &mut route_ids)?,
             instruction_routes: build_routes(self.instruction_routes, &mut route_ids)?,
             transaction_routes: build_routes(self.transaction_routes, &mut route_ids)?,
             exporters: self.exporters,
@@ -828,10 +823,10 @@ mod tests {
                 RouteOptions::default(),
             ),
             Pipeline::builder("pipeline").block_details(" ", recorder()),
-            Pipeline::builder("pipeline").block_details_with_filters(
+            Pipeline::builder("pipeline").block_details_with_options(
                 " ",
                 recorder(),
-                Filters::new(),
+                RouteOptions::default(),
             ),
         ] {
             assert!(matches!(
@@ -933,14 +928,6 @@ mod tests {
         let seen = Arc::new(Mutex::new(Vec::new()));
         let filtered = Arc::new(Mutex::new(Vec::new()));
         let committed = Arc::new(Mutex::new(Vec::new()));
-        fn filters<T: Sync>(filtered: &Seen, committed: &Seen) -> Filters<T> {
-            let mut filters = Filters::new();
-            filters.push(RouteObserver {
-                filtered: Recorder::new(filtered.clone()),
-                committed: Recorder::new(committed.clone()),
-            });
-            filters
-        }
         let mut pipeline = Pipeline::builder(" indexer ")
             .datasource("source", Source)
             .account_with_options(
@@ -977,10 +964,13 @@ mod tests {
                     committed: Recorder::new(committed.clone()),
                 }),
             )
-            .block_details_with_filters(
+            .block_details_with_options(
                 "blocks",
                 Recorder::new(seen.clone()),
-                filters(&filtered, &committed),
+                RouteOptions::default().filter(RouteObserver {
+                    filtered: Recorder::new(filtered.clone()),
+                    committed: Recorder::new(committed.clone()),
+                }),
             )
             .build()
             .unwrap();

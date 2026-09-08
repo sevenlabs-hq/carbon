@@ -6,9 +6,9 @@
 //! - [`datasource`] — ingestion layer defining `Datasource`.
 //! - [`update`] — account, closure, transaction, and block updates.
 //! - [`processor`] — user-defined handlers via `Processor<T>` trait.
-//! - [`account`], [`instruction`], [`transaction`], [`route`],
-//!   [`block_details`] — pipeline stages and update-specific models.
-//! - [`filter`] — routing layer applied to all pipes (scoping, deduplication,
+//! - [`account`], [`instruction`], [`transaction`] — decoders and metadata.
+//! - [`route`] — route execution, options, and processor inputs.
+//! - [`filter`] — filters applied to routes (scoping, deduplication,
 //!   slot constraints).
 //! - [`metrics`] — atomic observability primitives and global registry.
 //! - [`collection`] — multi-decoder routing for transaction instruction sets.
@@ -21,7 +21,6 @@
 
 pub mod account;
 pub mod account_utils;
-pub mod block_details;
 pub mod collection;
 pub mod cursor;
 pub mod datasource;

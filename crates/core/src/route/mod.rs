@@ -2,6 +2,7 @@
 
 mod account;
 mod account_closure;
+mod block;
 mod instruction;
 mod transaction;
 
@@ -13,6 +14,7 @@ pub use {
 pub(crate) use {
     account::{AccountRoute, DynAccountRoute},
     account_closure::{AccountClosureRoute, DynAccountClosureRoute},
+    block::{BlockRoute, DynBlockRoute},
     instruction::{DynInstructionRoute, InstructionRoute},
     transaction::{DynTransactionRoute, TransactionRoute},
 };
