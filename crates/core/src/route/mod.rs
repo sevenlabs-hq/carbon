@@ -1,6 +1,7 @@
 //! Routes, processor inputs, and context.
 
 mod account;
+mod account_closure;
 mod instruction;
 mod transaction;
 
@@ -11,6 +12,7 @@ pub use {
 
 pub(crate) use {
     account::{AccountRoute, DynAccountRoute},
+    account_closure::{AccountClosureRoute, DynAccountClosureRoute},
     instruction::{DynInstructionRoute, InstructionRoute},
     transaction::{DynTransactionRoute, TransactionRoute},
 };
@@ -24,6 +26,32 @@ use crate::{
 pub enum ErrorPolicy {
     Exit,
     Continue,
+}
+
+pub struct RouteOptions<T> {
+    filters: Filters<T>,
+    processor_error_policy: ErrorPolicy,
+}
+
+impl<T> Default for RouteOptions<T> {
+    fn default() -> Self {
+        Self {
+            filters: Filters::default(),
+            processor_error_policy: ErrorPolicy::Exit,
+        }
+    }
+}
+
+impl<T: Sync + 'static> RouteOptions<T> {
+    pub fn filter(mut self, filter: impl Filter<T> + 'static) -> Self {
+        self.filters.push(filter);
+        self
+    }
+
+    pub fn processor_error_policy(mut self, policy: ErrorPolicy) -> Self {
+        self.processor_error_policy = policy;
+        self
+    }
 }
 
 pub struct DecodedRouteOptions<T> {

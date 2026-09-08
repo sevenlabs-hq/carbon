@@ -6,7 +6,7 @@
 //! - [`datasource`] — ingestion layer defining `Datasource`.
 //! - [`update`] — account, closure, transaction, and block updates.
 //! - [`processor`] — user-defined handlers via `Processor<T>` trait.
-//! - [`account`], [`instruction`], [`transaction`], [`account_deletion`],
+//! - [`account`], [`instruction`], [`transaction`], [`route`],
 //!   [`block_details`] — pipeline stages and update-specific models.
 //! - [`filter`] — routing layer applied to all pipes (scoping, deduplication,
 //!   slot constraints).
@@ -20,7 +20,6 @@
 //! - `graphql` — GraphQL schema + Axum integration.
 
 pub mod account;
-pub mod account_deletion;
 pub mod account_utils;
 pub mod block_details;
 pub mod collection;

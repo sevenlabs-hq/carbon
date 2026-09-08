@@ -25,7 +25,6 @@
 use {
     crate::{
         account::AccountDecoder,
-        account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
         datasource::{
@@ -43,9 +42,10 @@ use {
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
         route::{
-            AccountProcessorInput, AccountRoute, DecodedRouteOptions, DynAccountRoute,
-            DynInstructionRoute, DynTransactionRoute, InstructionProcessorInput, InstructionRoute,
-            RouteContext, TransactionProcessorInput, TransactionRoute,
+            AccountClosureRoute, AccountProcessorInput, AccountRoute, DecodedRouteOptions,
+            DynAccountClosureRoute, DynAccountRoute, DynInstructionRoute, DynTransactionRoute,
+            InstructionProcessorInput, InstructionRoute, RouteContext, RouteOptions,
+            TransactionProcessorInput, TransactionRoute,
         },
         update::{AccountClosureUpdate, AccountUpdate, BlockUpdate, TransactionUpdate, Update},
     },
@@ -201,7 +201,7 @@ pub struct Pipeline {
     pub id: Id,
     datasources: Vec<(Id, Box<dyn DynDatasource>)>,
     account_routes: Vec<(Id, Box<dyn DynAccountRoute>)>,
-    pub account_deletion_pipes: Vec<(Id, Box<dyn AccountDeletionPipes>)>,
+    account_closure_routes: Vec<(Id, Box<dyn DynAccountClosureRoute>)>,
     pub block_details_pipes: Vec<(Id, Box<dyn BlockDetailsPipes>)>,
     instruction_routes: Vec<(Id, Box<dyn DynInstructionRoute>)>,
     transaction_routes: Vec<(Id, Box<dyn DynTransactionRoute>)>,
@@ -217,11 +217,11 @@ impl Pipeline {
     }
 
     pub async fn run(mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_routes: {}, num_account_deletion_pipes: {}, num_instruction_routes: {}, num_transaction_routes: {}",
+        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_routes: {}, num_account_closure_routes: {}, num_instruction_routes: {}, num_transaction_routes: {}",
             self.datasources.len(),
             self.exporters.len(),
             self.account_routes.len(),
-            self.account_deletion_pipes.len(),
+            self.account_closure_routes.len(),
             self.instruction_routes.len(),
             self.transaction_routes.len(),
         );
@@ -352,12 +352,13 @@ impl Pipeline {
                 ACCOUNT_UPDATES_PROCESSED.inc();
             }
             Update::AccountClosure(update) => {
-                for (route_id, pipe) in &mut self.account_deletion_pipes {
-                    pipe.run(
-                        &RouteContext::new(&self.id, &datasource_id, route_id),
-                        &update,
-                    )
-                    .await?;
+                for (route_id, route) in &mut self.account_closure_routes {
+                    route
+                        .run(
+                            &RouteContext::new(&self.id, &datasource_id, route_id),
+                            &update,
+                        )
+                        .await?;
                 }
                 ACCOUNT_DELETIONS_PROCESSED.inc();
             }
@@ -415,7 +416,7 @@ pub struct PipelineBuilder {
     pub id: String,
     datasources: Vec<(String, Box<dyn DynDatasource>)>,
     account_routes: Vec<(String, Box<dyn DynAccountRoute>)>,
-    pub account_deletion_pipes: Vec<(String, Box<dyn AccountDeletionPipes>)>,
+    account_closure_routes: Vec<(String, Box<dyn DynAccountClosureRoute>)>,
     pub block_details_pipes: Vec<(String, Box<dyn BlockDetailsPipes>)>,
     instruction_routes: Vec<(String, Box<dyn DynInstructionRoute>)>,
     transaction_routes: Vec<(String, Box<dyn DynTransactionRoute>)>,
@@ -431,7 +432,7 @@ impl PipelineBuilder {
             id: id.into(),
             datasources: Vec::new(),
             account_routes: Vec::new(),
-            account_deletion_pipes: Vec::new(),
+            account_closure_routes: Vec::new(),
             block_details_pipes: Vec::new(),
             instruction_routes: Vec::new(),
             transaction_routes: Vec::new(),
@@ -483,29 +484,25 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn account_deletions<P>(mut self, route_id: impl Into<String>, processor: P) -> Self
+    pub fn account_closure<P>(self, route_id: impl Into<String>, processor: P) -> Self
     where
         P: Processor<AccountClosureUpdate> + 'static,
     {
-        self.account_deletion_pipes.push((
-            route_id.into(),
-            Box::new(AccountDeletionPipe::new(processor, Filters::new())),
-        ));
-        self
+        self.account_closure_with_options(route_id, processor, RouteOptions::default())
     }
 
-    pub fn account_deletions_with_filters<P>(
+    pub fn account_closure_with_options<P>(
         mut self,
         route_id: impl Into<String>,
         processor: P,
-        filters: Filters<AccountClosureUpdate>,
+        options: RouteOptions<AccountClosureUpdate>,
     ) -> Self
     where
         P: Processor<AccountClosureUpdate> + 'static,
     {
-        self.account_deletion_pipes.push((
+        self.account_closure_routes.push((
             route_id.into(),
-            Box::new(AccountDeletionPipe::new(processor, filters)),
+            Box::new(AccountClosureRoute::new(processor, options)),
         ));
         self
     }
@@ -625,7 +622,7 @@ impl PipelineBuilder {
             id,
             datasources,
             account_routes: build_routes(self.account_routes, &mut route_ids)?,
-            account_deletion_pipes: build_routes(self.account_deletion_pipes, &mut route_ids)?,
+            account_closure_routes: build_routes(self.account_closure_routes, &mut route_ids)?,
             block_details_pipes: build_routes(self.block_details_pipes, &mut route_ids)?,
             instruction_routes: build_routes(self.instruction_routes, &mut route_ids)?,
             transaction_routes: build_routes(self.transaction_routes, &mut route_ids)?,
@@ -824,11 +821,11 @@ mod tests {
                 recorder(),
                 DecodedRouteOptions::default(),
             ),
-            Pipeline::builder("pipeline").account_deletions(" ", recorder()),
-            Pipeline::builder("pipeline").account_deletions_with_filters(
+            Pipeline::builder("pipeline").account_closure(" ", recorder()),
+            Pipeline::builder("pipeline").account_closure_with_options(
                 " ",
                 recorder(),
-                Filters::new(),
+                RouteOptions::default(),
             ),
             Pipeline::builder("pipeline").block_details(" ", recorder()),
             Pipeline::builder("pipeline").block_details_with_filters(
@@ -972,10 +969,13 @@ mod tests {
                     committed: Recorder::new(committed.clone()),
                 }),
             )
-            .account_deletions_with_filters(
+            .account_closure_with_options(
                 "closures",
                 Recorder::new(seen.clone()),
-                filters(&filtered, &committed),
+                RouteOptions::default().filter(RouteObserver {
+                    filtered: Recorder::new(filtered.clone()),
+                    committed: Recorder::new(committed.clone()),
+                }),
             )
             .block_details_with_filters(
                 "blocks",
