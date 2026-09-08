@@ -280,6 +280,7 @@ impl Pipeline {
         }
 
         let processing_shutdown = signal.clone();
+        let processing_control = shutdown.clone();
         let shutdown_timeout = self.shutdown_timeout;
         task_handles.push(tasks.spawn(async move {
             let mut next_source = 0;
@@ -375,7 +376,14 @@ impl Pipeline {
                 }
                 .await;
                 if let Err(error) = result {
+                    processing_control.send_replace(Some(ShutdownMode::Drop));
+                    for (_, receiver) in &mut queues {
+                        receiver.close();
+                    }
                     queued.receipt_sender.send(Err(UpdateReceiptError::Failed));
+                    while let Some((_, queued)) = next_update(&mut queues, &mut next_source).await {
+                        queued.receipt_sender.send(Err(UpdateReceiptError::Dropped));
+                    }
                     return Err(error);
                 }
                 queued.receipt_sender.send(Ok(()));
@@ -1486,6 +1494,112 @@ mod tests {
         receipts: tokio::sync::oneshot::Sender<Vec<crate::datasource::receipt::UpdateReceipt>>,
         release: tokio::sync::oneshot::Receiver<()>,
         grouped: bool,
+    }
+
+    struct FailingProcessor;
+
+    impl Processor<BlockUpdate> for FailingProcessor {
+        async fn process(
+            &mut self,
+            _context: &RouteContext<'_>,
+            _update: &BlockUpdate,
+        ) -> ProcessorResult {
+            Err(std::io::Error::other("processor failure").into())
+        }
+    }
+
+    #[tokio::test]
+    async fn processing_failure_discards_every_source_queue() {
+        for grouped in [false, true] {
+            for draining in [false, true] {
+                let (entered, processing) = tokio::sync::oneshot::channel();
+                let (release, released) = tokio::sync::oneshot::channel();
+                let seen = Arc::new(std::sync::Mutex::new(Vec::new()));
+                let observer = || Observer {
+                    calls: Cell::new(0),
+                    seen: seen.clone(),
+                };
+                let mut builder = Pipeline::builder("indexer")
+                    .block_details_with_options(
+                        "first",
+                        WaitingProcessor {
+                            entered: Some(entered),
+                            release: released,
+                        },
+                        RouteOptions::default().filter(observer()),
+                    )
+                    .block_details_with_options(
+                        "failing",
+                        FailingProcessor,
+                        RouteOptions::default().filter(observer()),
+                    )
+                    .block_details("last", observer());
+                let mut sources = Vec::new();
+                for name in ["first-source", "second-source"] {
+                    let (receipts, received) = tokio::sync::oneshot::channel();
+                    let (finish, finishing) = tokio::sync::oneshot::channel();
+                    builder = builder.datasource(
+                        name,
+                        HeldSource {
+                            receipts,
+                            release: finishing,
+                            grouped,
+                        },
+                    );
+                    sources.push((name, received, finish));
+                }
+                let handle = builder.build().unwrap().start().await.unwrap();
+                let mut accepted = Vec::new();
+                for (name, received, finish) in sources {
+                    accepted.push((name, received.await.unwrap(), finish));
+                }
+                processing.await.unwrap();
+                let control = handle.control();
+                if draining {
+                    control.shutdown(ShutdownMode::Drain).unwrap();
+                }
+                release.send(()).unwrap();
+
+                let mut outcomes = Vec::new();
+                for (name, receipts, finish) in accepted {
+                    for (index, receipt) in receipts.into_iter().enumerate() {
+                        let result =
+                            tokio::time::timeout(Duration::from_secs(1), receipt.processed())
+                                .await
+                                .unwrap();
+                        outcomes.push((name, index, result));
+                    }
+                    finish.send(()).unwrap();
+                }
+                let error = tokio::time::timeout(Duration::from_secs(1), handle.wait())
+                    .await
+                    .unwrap()
+                    .unwrap_err();
+                let PipelineError::Processor {
+                    datasource_id,
+                    route_id,
+                    source,
+                } = error
+                else {
+                    panic!("expected the processor error");
+                };
+                assert_eq!(route_id.as_str(), "failing");
+                assert_eq!(
+                    source.downcast_ref::<std::io::Error>().unwrap().to_string(),
+                    "processor failure"
+                );
+                for (name, index, result) in outcomes {
+                    let expected = if name == datasource_id.as_str() && index == 0 {
+                        UpdateReceiptError::Failed
+                    } else {
+                        UpdateReceiptError::Dropped
+                    };
+                    assert_eq!(result, Err(expected));
+                }
+                assert_eq!(*seen.lock().unwrap(), vec![("first commit".into(), 1)]);
+                assert_eq!(*control.shutdown.borrow(), Some(ShutdownMode::Drop));
+            }
+        }
     }
 
     impl Datasource for HeldSource {
