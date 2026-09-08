@@ -17,7 +17,7 @@ pub enum OverflowPolicy {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct DatasourceOptions {
-    queue_capacity: usize,
+    pub(crate) queue_capacity: usize,
     pub(crate) overflow_policy: OverflowPolicy,
 }
 
@@ -42,10 +42,14 @@ impl DatasourceOptions {
         self
     }
 
+    pub(crate) fn capacity_is_valid(&self) -> bool {
+        self.queue_capacity > 0 && self.queue_capacity <= Semaphore::MAX_PERMITS
+    }
+
     pub(crate) fn channel(
         &self,
     ) -> Option<(mpsc::Sender<QueuedUpdate>, mpsc::Receiver<QueuedUpdate>)> {
-        if self.queue_capacity == 0 || self.queue_capacity > Semaphore::MAX_PERMITS {
+        if !self.capacity_is_valid() {
             return None;
         }
         Some(mpsc::channel(self.queue_capacity))

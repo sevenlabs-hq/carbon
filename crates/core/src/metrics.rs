@@ -286,7 +286,6 @@ impl MetricsRegistry {
 
 /// Sink for `MetricsSnapshot`s. Implemented by `carbon-log-metrics`
 /// (stdout) and `carbon-prometheus-metrics` (HTTP scrape endpoint).
-/// Register via `PipelineBuilder::metrics(Arc::new(MyExporter))`.
 pub trait MetricsExporter: Send + Sync {
     fn initialize(self: Arc<Self>) -> CarbonResult<()> {
         let _ = self;

@@ -26,8 +26,6 @@ pub enum Error {
     FilterCommit(#[source] BoxError),
     #[error("processor failed: {0}")]
     Processor(#[source] BoxError),
-    #[error("invalid datasource queue capacity: {0}")]
-    InvalidQueueCapacity(usize),
     #[error("Failed to receive updates({0})")]
     FailedToReceiveUpdates(String),
     #[error("Transaction missing fee payer")]
