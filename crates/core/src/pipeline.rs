@@ -26,7 +26,7 @@ use {
     std::{collections::HashSet, sync::Arc, time::Duration},
     tokio::{
         sync::mpsc,
-        task::{JoinError, JoinHandle, JoinSet},
+        task::{AbortHandle, JoinError, JoinHandle, JoinSet},
     },
     tokio_util::sync::CancellationToken,
 };
@@ -119,13 +119,52 @@ impl From<JoinError> for PipelineError {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ShutdownMode {
+    Drain,
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("pipeline has stopped")]
+pub struct PipelineStopped;
+
+/// Requests shutdown without owning the running pipeline.
+#[derive(Clone)]
+pub struct PipelineControl {
+    shutdown: CancellationToken,
+    task: AbortHandle,
+}
+
+impl PipelineControl {
+    pub fn shutdown(&self, mode: ShutdownMode) -> Result<(), PipelineStopped> {
+        if self.task.is_finished() {
+            return Err(PipelineStopped);
+        }
+        match mode {
+            ShutdownMode::Drain => self.shutdown.cancel(),
+        }
+        Ok(())
+    }
+}
+
 /// Owns the running pipeline and waits for its completion.
 #[must_use]
 pub struct PipelineHandle {
     task: JoinHandle<Result<(), PipelineError>>,
+    control: PipelineControl,
 }
 
 impl PipelineHandle {
+    pub fn control(&self) -> PipelineControl {
+        self.control.clone()
+    }
+
+    pub async fn shutdown(self, mode: ShutdownMode) -> Result<(), PipelineError> {
+        // If already stopped, wait still returns the pipeline's result.
+        let _ = self.control.shutdown(mode);
+        self.wait().await
+    }
+
     pub async fn wait(mut self) -> Result<(), PipelineError> {
         (&mut self.task).await?
     }
@@ -218,11 +257,25 @@ impl Pipeline {
             });
         }
 
+        let processing_shutdown = shutdown.clone();
         tasks.spawn(async move {
             let mut next_source = 0;
-            while let Some((datasource_id, queued)) =
-                next_update(&mut queues, &mut next_source).await
-            {
+            let mut draining = false;
+            loop {
+                let next = tokio::select! {
+                    biased;
+                    _ = processing_shutdown.cancelled(), if !draining => {
+                        for (_, receiver) in &mut queues {
+                            receiver.close();
+                        }
+                        draining = true;
+                        continue;
+                    }
+                    next = next_update(&mut queues, &mut next_source) => next,
+                };
+                let Some((datasource_id, queued)) = next else {
+                    break;
+                };
                 let result: Result<(), PipelineError> = async {
                     match &queued.update {
                         Update::Account(update) => {
@@ -303,6 +356,7 @@ impl Pipeline {
             Ok(())
         });
 
+        let coordinator_shutdown = shutdown.clone();
         let task = tokio::spawn(async move {
             let mut failure = None;
             while let Some(result) = tasks.join_next().await {
@@ -311,7 +365,7 @@ impl Pipeline {
                     Err(error) => Err(PipelineError::from(error)),
                 };
                 if let Err(error) = result {
-                    shutdown.cancel();
+                    coordinator_shutdown.cancel();
                     if failure.is_none() {
                         failure = Some(error);
                     } else {
@@ -321,7 +375,11 @@ impl Pipeline {
             }
             failure.map_or(Ok(()), Err)
         });
-        Ok(PipelineHandle { task })
+        let control = PipelineControl {
+            shutdown,
+            task: task.abort_handle(),
+        };
+        Ok(PipelineHandle { task, control })
     }
 
     pub async fn run(self) -> Result<(), PipelineError> {
@@ -1021,6 +1079,170 @@ mod tests {
         for receipt in receipts {
             assert_eq!(receipt.processed().await, Ok(()));
         }
+    }
+
+    struct DrainSource {
+        ready: tokio::sync::oneshot::Sender<()>,
+        stopped: tokio::sync::oneshot::Sender<crate::datasource::EmitError>,
+        processed: tokio::sync::oneshot::Sender<()>,
+        finish: tokio::sync::oneshot::Receiver<()>,
+    }
+
+    impl Datasource for DrainSource {
+        async fn run(self, mut context: DatasourceContext) -> Result<(), BoxError> {
+            let first = context.emit(BlockUpdate::new(1).into()).await?.unwrap();
+            let second = context.emit(BlockUpdate::new(2).into()).await?.unwrap();
+            self.ready.send(()).unwrap();
+            let error = context.emit(BlockUpdate::new(3).into()).await.unwrap_err();
+            self.stopped.send(error).unwrap();
+            assert!(matches!(
+                context.emit(BlockUpdate::new(4).into()).await,
+                Err(crate::datasource::EmitError::ShuttingDown)
+            ));
+            first.processed().await?;
+            second.processed().await?;
+            self.processed.send(()).unwrap();
+            self.finish.await?;
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn drain_stops_emission_finishes_accepted_work_and_joins_the_source() {
+        use std::{
+            future::{poll_fn, Future},
+            pin::pin,
+            task::Poll,
+        };
+
+        let (ready, accepted) = tokio::sync::oneshot::channel();
+        let (stopped, rejected) = tokio::sync::oneshot::channel();
+        let (processed, receipts) = tokio::sync::oneshot::channel();
+        let (finish, finishing) = tokio::sync::oneshot::channel();
+        let (entered, processing) = tokio::sync::oneshot::channel();
+        let (release, released) = tokio::sync::oneshot::channel();
+        let handle = Pipeline::builder("pipeline")
+            .datasource_with_options(
+                "source",
+                DrainSource {
+                    ready,
+                    stopped,
+                    processed,
+                    finish: finishing,
+                },
+                DatasourceOptions::default().queue_capacity(1),
+            )
+            .block_details(
+                "blocks",
+                WaitingProcessor {
+                    entered: Some(entered),
+                    release: released,
+                },
+            )
+            .build()
+            .unwrap()
+            .start()
+            .await
+            .unwrap();
+
+        tokio::time::timeout(Duration::from_secs(1), accepted)
+            .await
+            .unwrap()
+            .unwrap();
+        processing.await.unwrap();
+        let control = handle.control();
+        control.shutdown(ShutdownMode::Drain).unwrap();
+        control.clone().shutdown(ShutdownMode::Drain).unwrap();
+        assert_eq!(
+            tokio::time::timeout(Duration::from_secs(1), rejected)
+                .await
+                .unwrap()
+                .unwrap(),
+            crate::datasource::EmitError::ShuttingDown
+        );
+
+        let mut drain = pin!(handle.shutdown(ShutdownMode::Drain));
+        poll_fn(|cx| {
+            assert!(drain.as_mut().poll(cx).is_pending());
+            Poll::Ready(())
+        })
+        .await;
+        release.send(()).unwrap();
+        tokio::time::timeout(Duration::from_secs(1), receipts)
+            .await
+            .unwrap()
+            .unwrap();
+        poll_fn(|cx| {
+            assert!(drain.as_mut().poll(cx).is_pending());
+            Poll::Ready(())
+        })
+        .await;
+        finish.send(()).unwrap();
+        tokio::time::timeout(Duration::from_secs(1), drain)
+            .await
+            .unwrap()
+            .unwrap();
+        assert!(control.shutdown(ShutdownMode::Drain).is_err());
+    }
+
+    struct IdleSource(tokio::sync::oneshot::Sender<()>);
+
+    impl Datasource for IdleSource {
+        async fn run(self, context: DatasourceContext) -> Result<(), BoxError> {
+            self.0.send(()).unwrap();
+            context.shutdown().requested().await;
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn drain_wakes_idle_sources_and_empty_receivers() {
+        let (started, ready) = tokio::sync::oneshot::channel();
+        let handle = Pipeline::builder("pipeline")
+            .datasource("idle", IdleSource(started))
+            .build()
+            .unwrap()
+            .start()
+            .await
+            .unwrap();
+        ready.await.unwrap();
+        tokio::time::timeout(Duration::from_secs(1), handle.shutdown(ShutdownMode::Drain))
+            .await
+            .unwrap()
+            .unwrap();
+    }
+
+    struct GroupedDrainSource(tokio::sync::oneshot::Sender<()>);
+
+    impl Datasource for GroupedDrainSource {
+        async fn run(self, mut context: DatasourceContext) -> Result<(), BoxError> {
+            let shutdown = context.shutdown().clone();
+            let mut group = context.begin_group();
+            group.emit(BlockUpdate::new(1).into()).await?;
+            group.emit(BlockUpdate::new(2).into()).await?;
+            self.0.send(()).unwrap();
+            shutdown.requested().await;
+            group.seal().processed().await?;
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn a_source_can_seal_and_await_its_group_during_drain() {
+        let (started, ready) = tokio::sync::oneshot::channel();
+        let handle = Pipeline::builder("pipeline")
+            .datasource("source", GroupedDrainSource(started))
+            .block_details("blocks", recorder())
+            .build()
+            .unwrap()
+            .start()
+            .await
+            .unwrap();
+        ready.await.unwrap();
+        tokio::time::timeout(Duration::from_secs(1), handle.shutdown(ShutdownMode::Drain))
+            .await
+            .unwrap()
+            .unwrap();
     }
 
     #[tokio::test]
