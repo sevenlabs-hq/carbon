@@ -1,23 +1,141 @@
-//! Pipeline configuration and registration.
+//! Pipeline configuration and execution.
 
 use {
     crate::{
         account::AccountDecoder,
         collection::InstructionDecoderCollection,
-        datasource::{Datasource, DatasourceOptions, DynDatasource},
+        datasource::{
+            queue::next_update, receipt::UpdateReceiptError, Datasource, DatasourceContext,
+            DatasourceOptions, DynDatasource, ShutdownSignal,
+        },
+        error::{BoxError, Error},
         id::{Id, IdError},
-        instruction::{InstructionDecoder, NestedInstruction},
+        instruction::{
+            extract_instructions_with_metadata, InstructionDecoder, NestedInstruction,
+            NestedInstructions, TransformError,
+        },
         processor::Processor,
         route::{
             AccountClosureRoute, AccountProcessorInput, AccountRoute, BlockRoute,
             DecodedRouteOptions, DynAccountClosureRoute, DynAccountRoute, DynBlockRoute,
             DynInstructionRoute, DynTransactionRoute, InstructionProcessorInput, InstructionRoute,
-            RouteOptions, TransactionProcessorInput, TransactionRoute,
+            RouteContext, RouteOptions, TransactionProcessorInput, TransactionRoute,
         },
-        update::{AccountClosureUpdate, AccountUpdate, BlockUpdate, TransactionUpdate},
+        update::{AccountClosureUpdate, AccountUpdate, BlockUpdate, TransactionUpdate, Update},
     },
-    std::{collections::HashSet, time::Duration},
+    std::{collections::HashSet, sync::Arc, time::Duration},
+    tokio::{
+        sync::mpsc,
+        task::{JoinError, JoinHandle, JoinSet},
+    },
+    tokio_util::sync::CancellationToken,
 };
+
+#[derive(Debug, thiserror::Error)]
+pub enum PipelineError {
+    #[error("datasource {datasource_id} failed: {source}")]
+    Datasource { datasource_id: Id, source: BoxError },
+    #[error("invalid transaction from datasource {datasource_id}: {source}")]
+    Transform {
+        datasource_id: Id,
+        source: TransformError,
+    },
+    #[error("decoding failed in route {route_id} for datasource {datasource_id}: {source}")]
+    Decode {
+        datasource_id: Id,
+        route_id: Id,
+        source: BoxError,
+    },
+    #[error("filter failed in route {route_id} for datasource {datasource_id}: {source}")]
+    Filter {
+        datasource_id: Id,
+        route_id: Id,
+        source: BoxError,
+    },
+    #[error("processor failed in route {route_id} for datasource {datasource_id}: {source}")]
+    Processor {
+        datasource_id: Id,
+        route_id: Id,
+        source: BoxError,
+    },
+    #[error("filter commit failed in route {route_id} for datasource {datasource_id}: {source}")]
+    FilterCommit {
+        datasource_id: Id,
+        route_id: Id,
+        source: BoxError,
+    },
+    #[error("pipeline task panicked: {message:?}")]
+    Panicked { message: Option<String> },
+    #[error("pipeline failed: {source}")]
+    Framework { source: BoxError },
+}
+
+impl PipelineError {
+    fn route(error: Error, context: &RouteContext<'_>) -> Self {
+        let datasource_id = context.datasource_id().clone();
+        let route_id = context.route_id().clone();
+        match error {
+            Error::Decode(source) => Self::Decode {
+                datasource_id,
+                route_id,
+                source,
+            },
+            Error::Filter(source) => Self::Filter {
+                datasource_id,
+                route_id,
+                source,
+            },
+            Error::Processor(source) => Self::Processor {
+                datasource_id,
+                route_id,
+                source,
+            },
+            Error::FilterCommit(source) => Self::FilterCommit {
+                datasource_id,
+                route_id,
+                source,
+            },
+            source => Self::Framework {
+                source: Box::new(source),
+            },
+        }
+    }
+}
+
+impl From<JoinError> for PipelineError {
+    fn from(error: JoinError) -> Self {
+        if !error.is_panic() {
+            return Self::Framework {
+                source: Box::new(error),
+            };
+        }
+        let payload = error.into_panic();
+        let message = payload.downcast_ref::<String>().cloned().or_else(|| {
+            payload
+                .downcast_ref::<&str>()
+                .map(|message| message.to_string())
+        });
+        Self::Panicked { message }
+    }
+}
+
+/// Owns the running pipeline and waits for its completion.
+#[must_use]
+pub struct PipelineHandle {
+    task: JoinHandle<Result<(), PipelineError>>,
+}
+
+impl PipelineHandle {
+    pub async fn wait(mut self) -> Result<(), PipelineError> {
+        (&mut self.task).await?
+    }
+}
+
+impl Drop for PipelineHandle {
+    fn drop(&mut self) {
+        self.task.abort();
+    }
+}
 
 /// Invalid pipeline configuration.
 #[derive(Debug, thiserror::Error)]
@@ -73,6 +191,141 @@ pub struct Pipeline {
 impl Pipeline {
     pub fn builder(id: impl Into<String>) -> PipelineBuilder {
         PipelineBuilder::new(id)
+    }
+
+    pub async fn start(mut self) -> Result<PipelineHandle, PipelineError> {
+        let shutdown = CancellationToken::new();
+        let mut tasks = JoinSet::new();
+        let mut queues = Vec::with_capacity(self.datasources.len());
+        for (datasource_id, datasource, options) in self.datasources.drain(..) {
+            let (sender, receiver) = mpsc::channel(options.queue_capacity);
+            let context = DatasourceContext::new(
+                self.id.clone(),
+                datasource_id.clone(),
+                sender,
+                options.overflow_policy,
+                ShutdownSignal::new(shutdown.clone()),
+            );
+            queues.push((datasource_id.clone(), receiver));
+            tasks.spawn(async move {
+                datasource
+                    .run(context)
+                    .await
+                    .map_err(|source| PipelineError::Datasource {
+                        datasource_id,
+                        source,
+                    })
+            });
+        }
+
+        tasks.spawn(async move {
+            let mut next_source = 0;
+            while let Some((datasource_id, queued)) =
+                next_update(&mut queues, &mut next_source).await
+            {
+                let result: Result<(), PipelineError> = async {
+                    match &queued.update {
+                        Update::Account(update) => {
+                            for (route_id, route) in &mut self.account_routes {
+                                let context = RouteContext::new(&self.id, &datasource_id, route_id);
+                                route
+                                    .run(&context, update)
+                                    .await
+                                    .map_err(|error| PipelineError::route(error, &context))?;
+                            }
+                        }
+                        Update::AccountClosure(update) => {
+                            for (route_id, route) in &mut self.account_closure_routes {
+                                let context = RouteContext::new(&self.id, &datasource_id, route_id);
+                                route
+                                    .run(&context, update)
+                                    .await
+                                    .map_err(|error| PipelineError::route(error, &context))?;
+                            }
+                        }
+                        Update::Block(update) => {
+                            for (route_id, route) in &mut self.block_routes {
+                                let context = RouteContext::new(&self.id, &datasource_id, route_id);
+                                route
+                                    .run(&context, update)
+                                    .await
+                                    .map_err(|error| PipelineError::route(error, &context))?;
+                            }
+                        }
+                        Update::Transaction(update) => {
+                            let metadata =
+                                Arc::new(update.clone().try_into().map_err(|source| {
+                                    PipelineError::Framework {
+                                        source: Box::new(source),
+                                    }
+                                })?);
+                            let instructions =
+                                extract_instructions_with_metadata(&metadata, update)
+                                    .and_then(NestedInstructions::try_from)
+                                    .map_err(|source| PipelineError::Transform {
+                                        datasource_id: datasource_id.clone(),
+                                        source,
+                                    })?;
+                            let mut pending: Vec<_> = instructions.iter().rev().collect();
+                            let mut all_instructions = Vec::new();
+                            while let Some(instruction) = pending.pop() {
+                                all_instructions.push(instruction);
+                                pending.extend(instruction.inner_instructions.iter().rev());
+                            }
+                            for instruction in &all_instructions {
+                                for (route_id, route) in &mut self.instruction_routes {
+                                    let context =
+                                        RouteContext::new(&self.id, &datasource_id, route_id);
+                                    route
+                                        .run(&context, instruction)
+                                        .await
+                                        .map_err(|error| PipelineError::route(error, &context))?;
+                                }
+                            }
+                            for (route_id, route) in &mut self.transaction_routes {
+                                let context = RouteContext::new(&self.id, &datasource_id, route_id);
+                                route
+                                    .run(&context, update, &all_instructions)
+                                    .await
+                                    .map_err(|error| PipelineError::route(error, &context))?;
+                            }
+                        }
+                    }
+                    Ok(())
+                }
+                .await;
+                if let Err(error) = result {
+                    queued.receipt_sender.send(Err(UpdateReceiptError::Failed));
+                    return Err(error);
+                }
+                queued.receipt_sender.send(Ok(()));
+            }
+            Ok(())
+        });
+
+        let task = tokio::spawn(async move {
+            let mut failure = None;
+            while let Some(result) = tasks.join_next().await {
+                let result = match result {
+                    Ok(result) => result,
+                    Err(error) => Err(PipelineError::from(error)),
+                };
+                if let Err(error) = result {
+                    shutdown.cancel();
+                    if failure.is_none() {
+                        failure = Some(error);
+                    } else {
+                        log::error!("additional pipeline failure: {error}");
+                    }
+                }
+            }
+            failure.map_or(Ok(()), Err)
+        });
+        Ok(PipelineHandle { task })
+    }
+
+    pub async fn run(self) -> Result<(), PipelineError> {
+        self.start().await?.wait().await
     }
 }
 
@@ -513,5 +766,270 @@ mod tests {
                 .build(),
             Err(PipelineBuildError::ZeroShutdownTimeout)
         ));
+    }
+
+    struct FiniteSource {
+        updates: Vec<Update>,
+        receipts: tokio::sync::oneshot::Sender<Vec<crate::datasource::receipt::UpdateReceipt>>,
+    }
+
+    impl Datasource for FiniteSource {
+        async fn run(self, mut context: DatasourceContext) -> Result<(), BoxError> {
+            let mut receipts = Vec::new();
+            for update in self.updates {
+                receipts.push(context.emit(update).await?.unwrap());
+            }
+            self.receipts.send(receipts).unwrap();
+            Ok(())
+        }
+    }
+
+    struct Observer {
+        calls: Cell<usize>,
+        seen: Arc<std::sync::Mutex<Vec<(String, usize)>>>,
+    }
+
+    impl<T: Sync> Processor<T> for Observer {
+        async fn process(&mut self, context: &RouteContext<'_>, _value: &T) -> ProcessorResult {
+            assert_eq!(context.pipeline_id().as_str(), "indexer");
+            assert_eq!(context.datasource_id().as_str(), "source");
+            self.calls.set(self.calls.get() + 1);
+            self.seen
+                .lock()
+                .unwrap()
+                .push((context.route_id().to_string(), self.calls.get()));
+            tokio::task::yield_now().await;
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn finite_source_drains_every_route_and_settles_receipts() {
+        use {
+            solana_message::{
+                compiled_instruction::CompiledInstruction, legacy::Message, VersionedMessage,
+            },
+            solana_signature::Signature,
+            solana_transaction::versioned::VersionedTransaction,
+            solana_transaction_status::{
+                InnerInstruction, InnerInstructions, TransactionStatusMeta,
+            },
+        };
+
+        let instruction = CompiledInstruction {
+            program_id_index: 0,
+            accounts: vec![0],
+            data: vec![7],
+        };
+        let transaction = TransactionUpdate::new(
+            VersionedTransaction {
+                signatures: vec![Signature::default()],
+                message: VersionedMessage::Legacy(Message {
+                    header: solana_message::MessageHeader {
+                        num_required_signatures: 1,
+                        ..Default::default()
+                    },
+                    account_keys: vec![Pubkey::new_unique()],
+                    instructions: vec![instruction.clone()],
+                    ..Message::default()
+                }),
+            },
+            TransactionStatusMeta {
+                inner_instructions: Some(vec![InnerInstructions {
+                    index: 0,
+                    instructions: vec![InnerInstruction {
+                        instruction,
+                        stack_height: Some(2),
+                    }],
+                }]),
+                ..TransactionStatusMeta::default()
+            },
+            1,
+        )
+        .unwrap();
+        let updates = vec![
+            AccountUpdate::new(
+                Pubkey::new_unique(),
+                Account {
+                    lamports: 1,
+                    ..Account::default()
+                },
+                1,
+            )
+            .into(),
+            AccountClosureUpdate::new(Pubkey::new_unique(), Account::default(), 1)
+                .unwrap()
+                .into(),
+            BlockUpdate::new(1).into(),
+            transaction.into(),
+        ];
+        let (receipts, received) = tokio::sync::oneshot::channel();
+        let seen = Arc::new(std::sync::Mutex::new(Vec::new()));
+        let observer = || Observer {
+            calls: Cell::new(0),
+            seen: seen.clone(),
+        };
+        let pipeline = Pipeline::builder("indexer")
+            .datasource_with_options(
+                "source",
+                FiniteSource { updates, receipts },
+                DatasourceOptions::default().queue_capacity(1),
+            )
+            .account("accounts", Decoder, observer())
+            .account_closure("closures", observer())
+            .block_details("blocks", observer())
+            .instruction("first", Decoder, observer())
+            .instruction("second", Decoder, observer())
+            .transaction::<Collection, _>("transactions", observer())
+            .build()
+            .unwrap();
+
+        tokio::time::timeout(Duration::from_secs(1), pipeline.run())
+            .await
+            .unwrap()
+            .unwrap();
+
+        let receipts = received.await.unwrap();
+        assert_eq!(receipts.len(), 4);
+        for receipt in receipts {
+            assert_eq!(receipt.processed().await, Ok(()));
+        }
+        assert_eq!(
+            *seen.lock().unwrap(),
+            [
+                ("accounts", 1),
+                ("closures", 1),
+                ("blocks", 1),
+                ("first", 1),
+                ("second", 1),
+                ("first", 2),
+                ("second", 2),
+                ("transactions", 1),
+            ]
+            .map(|(id, count)| (id.to_owned(), count))
+        );
+    }
+
+    struct AwaitingSource {
+        grouped: bool,
+        finished: tokio::sync::oneshot::Sender<()>,
+    }
+
+    impl Datasource for AwaitingSource {
+        async fn run(self, mut context: DatasourceContext) -> Result<(), BoxError> {
+            let receipt = if self.grouped {
+                let mut group = context.begin_group();
+                group.emit(BlockUpdate::new(1).into()).await?;
+                group.emit(BlockUpdate::new(2).into()).await?;
+                group.seal()
+            } else {
+                context.emit(BlockUpdate::new(1).into()).await?.unwrap()
+            };
+            receipt.processed().await?;
+            self.finished.send(()).unwrap();
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn sources_can_await_receipts_before_wait_is_called() {
+        let mut builder = Pipeline::builder("pipeline").block_details("blocks", recorder());
+        let mut finished_sources = Vec::new();
+        for (name, grouped) in [("single", false), ("group", true)] {
+            let (finished, received) = tokio::sync::oneshot::channel();
+            finished_sources.push(received);
+            builder = builder.datasource_with_options(
+                name,
+                AwaitingSource { grouped, finished },
+                DatasourceOptions::default().queue_capacity(1),
+            );
+        }
+        let handle = builder.build().unwrap().start().await.unwrap();
+        for finished in finished_sources {
+            tokio::time::timeout(Duration::from_secs(1), finished)
+                .await
+                .unwrap()
+                .unwrap();
+        }
+        handle.wait().await.unwrap();
+    }
+
+    struct WaitingProcessor {
+        entered: Option<tokio::sync::oneshot::Sender<()>>,
+        release: tokio::sync::oneshot::Receiver<()>,
+    }
+
+    impl Processor<BlockUpdate> for WaitingProcessor {
+        async fn process(
+            &mut self,
+            _context: &RouteContext<'_>,
+            _update: &BlockUpdate,
+        ) -> ProcessorResult {
+            if let Some(entered) = self.entered.take() {
+                entered.send(()).unwrap();
+                (&mut self.release).await?;
+            }
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn wait_keeps_running_after_source_exit_until_processing_finishes() {
+        use std::{
+            future::{poll_fn, Future},
+            pin::pin,
+            task::Poll,
+        };
+
+        let (receipts, received) = tokio::sync::oneshot::channel();
+        let (entered, processing) = tokio::sync::oneshot::channel();
+        let (release, released) = tokio::sync::oneshot::channel();
+        let handle = Pipeline::builder("pipeline")
+            .datasource(
+                "source",
+                FiniteSource {
+                    updates: vec![BlockUpdate::new(1).into(), BlockUpdate::new(2).into()],
+                    receipts,
+                },
+            )
+            .block_details(
+                "blocks",
+                WaitingProcessor {
+                    entered: Some(entered),
+                    release: released,
+                },
+            )
+            .build()
+            .unwrap()
+            .start()
+            .await
+            .unwrap();
+
+        let receipts = received.await.unwrap();
+        processing.await.unwrap();
+        let mut wait = pin!(handle.wait());
+        poll_fn(|cx| {
+            assert!(wait.as_mut().poll(cx).is_pending());
+            Poll::Ready(())
+        })
+        .await;
+        release.send(()).unwrap();
+        tokio::time::timeout(Duration::from_secs(1), wait)
+            .await
+            .unwrap()
+            .unwrap();
+        for receipt in receipts {
+            assert_eq!(receipt.processed().await, Ok(()));
+        }
+    }
+
+    #[tokio::test]
+    async fn empty_pipeline_completes() {
+        Pipeline::builder("empty")
+            .build()
+            .unwrap()
+            .run()
+            .await
+            .unwrap();
     }
 }
