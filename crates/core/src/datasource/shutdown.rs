@@ -9,7 +9,6 @@ pub struct ShutdownSignal {
 }
 
 impl ShutdownSignal {
-    #[cfg_attr(not(test), expect(dead_code))]
     pub(crate) fn new(token: CancellationToken) -> Self {
         Self { token }
     }

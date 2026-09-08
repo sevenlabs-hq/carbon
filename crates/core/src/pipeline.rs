@@ -12,9 +12,8 @@
 //!
 //! # Flow
 //!
-//! 1. `run()` spawns one tokio task per datasource and collects updates on an
-//!    MPSC channel.
-//! 2. For each `(Update, Id)` it calls every registered pipe whose
+//! 1. `run()` spawns one tokio task and creates one MPSC channel per datasource.
+//! 2. It reads channels in turn and calls every registered pipe whose
 //!    update type matches and whose filters return `true`.
 //! 3. Each pipe decodes the payload (where applicable) and invokes its
 //!    `Processor`.
@@ -29,8 +28,12 @@ use {
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
-        datasource::Datasource,
-        error::CarbonResult,
+        datasource::{
+            queue::{next_update, QueuedUpdate},
+            receipt::UpdateReceiptError,
+            Datasource, DatasourceContext, DatasourceOptions, DynDatasource, ShutdownSignal,
+        },
+        error::{CarbonResult, Error},
         filter::Filters,
         id::{Id, IdError},
         instruction::{
@@ -151,7 +154,7 @@ pub enum ShutdownStrategy {
     ProcessPending,
 }
 
-/// Default capacity of the MPSC channel between datasources and the
+/// Default capacity of each datasource's MPSC channel to the
 /// pipeline loop. Override with [`PipelineBuilder::channel_buffer_size`].
 pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 
@@ -193,11 +196,10 @@ fn build_routes<P: ?Sized>(
 /// Built pipeline ready to execute. Construct via [`Pipeline::builder`].
 ///
 /// Owns every datasource, pipe, and exporter for the lifetime of
-/// [`run`](Self::run). Fields are public for advanced introspection but
-/// the standard construction path is the builder.
+/// [`run`](Self::run). Construct through the builder.
 pub struct Pipeline {
     pub id: Id,
-    pub datasources: Vec<(Id, Arc<dyn Datasource>)>,
+    datasources: Vec<(Id, Box<dyn DynDatasource>)>,
     pub account_pipes: Vec<(Id, Box<dyn AccountPipes>)>,
     pub account_deletion_pipes: Vec<(Id, Box<dyn AccountDeletionPipes>)>,
     pub block_details_pipes: Vec<(Id, Box<dyn BlockDetailsPipes>)>,
@@ -214,7 +216,7 @@ impl Pipeline {
         PipelineBuilder::new(id)
     }
 
-    pub async fn run(&mut self) -> CarbonResult<()> {
+    pub async fn run(mut self) -> CarbonResult<()> {
         log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
             self.datasources.len(),
             self.exporters.len(),
@@ -228,36 +230,34 @@ impl Pipeline {
             let exporter = Arc::clone(exporter);
             MetricsExporter::initialize(exporter)?;
         }
-        let (update_sender, mut update_receiver) =
-            tokio::sync::mpsc::channel::<(Update, Id)>(self.channel_buffer_size);
-
         let datasource_cancellation_token = self
             .datasource_cancellation_token
             .clone()
             .unwrap_or_default();
 
-        for datasource in &self.datasources {
-            let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
-            let sender_clone = update_sender.clone();
-            let datasource_clone = Arc::clone(&datasource.1);
-            let datasource_id = datasource.0.clone();
+        let options = DatasourceOptions::default().queue_capacity(self.channel_buffer_size);
+        let mut queues = Vec::with_capacity(self.datasources.len());
+        for (datasource_id, datasource) in self.datasources.drain(..) {
+            let (sender, receiver) = options
+                .channel()
+                .ok_or(Error::InvalidQueueCapacity(self.channel_buffer_size))?;
+            let context = DatasourceContext::new(
+                self.id.clone(),
+                datasource_id.clone(),
+                sender,
+                options.overflow_policy,
+                ShutdownSignal::new(datasource_cancellation_token.clone()),
+            );
+            queues.push((datasource_id.clone(), receiver));
 
             tokio::spawn(async move {
-                if let Err(e) = datasource_clone
-                    .consume(
-                        datasource_id,
-                        sender_clone,
-                        datasource_cancellation_token_clone,
-                    )
-                    .await
-                {
-                    log::error!("error consuming datasource: {e:?}");
+                if let Err(error) = datasource.run(context).await {
+                    log::error!("datasource {datasource_id} failed: {error:?}");
                 }
             });
         }
 
-        drop(update_sender);
-
+        let mut next_source = 0;
         loop {
             tokio::select! {
                 _ = datasource_cancellation_token.cancelled() => {
@@ -277,9 +277,9 @@ impl Pipeline {
                         log::info!("shutting down the pipeline after processing pending updates.");
                     }
                 }
-                update = update_receiver.recv() => {
+                update = next_update(&mut queues, &mut next_source) => {
                     match update {
-                        Some((update, datasource_id)) => {
+                        Some((datasource_id, QueuedUpdate { update, receipt_sender })) => {
                             UPDATES_RECEIVED.inc();
 
                             let start = Instant::now();
@@ -292,19 +292,23 @@ impl Pipeline {
 
                             match process_result {
                                 Ok(_) => {
+                                    receipt_sender.send(Ok(()));
                                     UPDATES_SUCCESSFUL.inc();
                                 }
                                 Err(error) => {
+                                    receipt_sender.send(Err(UpdateReceiptError::Failed));
                                     log::error!("error processing update ({update:?}): {error:?}");
                                     UPDATES_FAILED.inc();
                                 }
                             };
 
                             UPDATES_PROCESSED.inc();
-                            UPDATES_QUEUED.set(update_receiver.len() as f64);
+                            UPDATES_QUEUED.set(
+                                queues.iter().map(|(_, receiver)| receiver.len()).sum::<usize>() as f64,
+                            );
                         }
                         None => {
-                            log::info!("update_receiver closed, shutting down.");
+                            log::info!("all datasource queues drained, shutting down.");
                             self.export_metrics()?;
                             self.shutdown_exporters()?;
                             break;
@@ -407,7 +411,7 @@ impl Pipeline {
 
 pub struct PipelineBuilder {
     pub id: String,
-    pub datasources: Vec<(String, Arc<dyn Datasource>)>,
+    datasources: Vec<(String, Box<dyn DynDatasource>)>,
     pub account_pipes: Vec<(String, Box<dyn AccountPipes>)>,
     pub account_deletion_pipes: Vec<(String, Box<dyn AccountDeletionPipes>)>,
     pub block_details_pipes: Vec<(String, Box<dyn BlockDetailsPipes>)>,
@@ -440,7 +444,7 @@ impl PipelineBuilder {
         id: impl Into<String>,
         datasource: impl Datasource + 'static,
     ) -> Self {
-        self.datasources.push((id.into(), Arc::new(datasource)));
+        self.datasources.push((id.into(), Box::new(datasource)));
         self
     }
 
@@ -666,7 +670,6 @@ mod tests {
     use {
         super::*,
         crate::{
-            datasource::UpdateType,
             error::{BoxError, Error},
             processor::ProcessorResult,
             update::{AccountUpdate, TransactionUpdate},
@@ -687,19 +690,30 @@ mod tests {
 
     struct Source;
 
-    #[async_trait::async_trait]
     impl Datasource for Source {
-        async fn consume(
-            &self,
-            _id: Id,
-            _sender: tokio::sync::mpsc::Sender<(Update, Id)>,
-            _cancellation_token: CancellationToken,
-        ) -> CarbonResult<()> {
+        async fn run(self, _context: DatasourceContext) -> Result<(), BoxError> {
             Ok(())
         }
+    }
 
-        fn update_types(&self) -> Vec<UpdateType> {
-            vec![]
+    struct ReceiptSource {
+        grouped: bool,
+        result: tokio::sync::oneshot::Sender<Result<(), UpdateReceiptError>>,
+    }
+
+    impl Datasource for ReceiptSource {
+        async fn run(self, mut context: DatasourceContext) -> Result<(), BoxError> {
+            assert_eq!(context.pipeline_id().as_str(), "pipeline");
+            let receipt = if self.grouped {
+                let mut group = context.begin_group();
+                group.emit(BlockUpdate::new(1).into()).await?;
+                group.emit(BlockUpdate::new(2).into()).await?;
+                group.seal()
+            } else {
+                context.emit(BlockUpdate::new(1).into()).await?.unwrap()
+            };
+            self.result.send(receipt.processed().await).unwrap();
+            Ok(())
         }
     }
 
@@ -878,11 +892,67 @@ mod tests {
     fn pipeline_future_is_send_with_a_non_sync_processor() {
         fn assert_send<T: Send>(_: T) {}
 
-        let mut pipeline = Pipeline::builder("pipeline")
+        let pipeline = Pipeline::builder("pipeline")
             .block_details("blocks", recorder())
             .build()
             .unwrap();
         assert_send(pipeline.run());
+    }
+
+    #[tokio::test]
+    async fn run_settles_individual_and_grouped_receipts() {
+        for fail in [false, true] {
+            let seen = Arc::new(Mutex::new(Vec::new()));
+            let mut builder = Pipeline::builder("pipeline").channel_buffer_size(1);
+            let mut results = Vec::new();
+            for (name, grouped) in [("single", false), ("group", true)] {
+                let (result, receiver) = tokio::sync::oneshot::channel();
+                builder = builder.datasource(name, ReceiptSource { grouped, result });
+                results.push(receiver);
+            }
+            builder = if fail {
+                builder.block_details("blocks", Failing)
+            } else {
+                builder.block_details("blocks", Recorder::new(seen.clone()))
+            };
+            tokio::time::timeout(
+                std::time::Duration::from_secs(5),
+                builder.build().unwrap().run(),
+            )
+            .await
+            .unwrap()
+            .unwrap();
+
+            for result in results {
+                assert_eq!(
+                    result.await.unwrap(),
+                    if fail {
+                        Err(UpdateReceiptError::Failed)
+                    } else {
+                        Ok(())
+                    }
+                );
+            }
+            if !fail {
+                let seen = seen.lock().unwrap();
+                assert_eq!(seen.iter().filter(|call| call.1 == "single").count(), 1);
+                assert_eq!(seen.iter().filter(|call| call.1 == "group").count(), 2);
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn run_rejects_invalid_queue_capacity_without_panicking() {
+        for capacity in [0, usize::MAX] {
+            let result = Pipeline::builder("pipeline")
+                .datasource("source", Source)
+                .channel_buffer_size(capacity)
+                .build()
+                .unwrap()
+                .run()
+                .await;
+            assert!(matches!(result, Err(Error::InvalidQueueCapacity(value)) if value == capacity));
+        }
     }
 
     #[tokio::test]

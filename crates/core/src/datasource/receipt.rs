@@ -1,6 +1,8 @@
 //! Completion of an admitted update or group of updates.
 
 use {
+    super::{DatasourceContext, EmitError},
+    crate::update::Update,
     std::sync::{Arc, Mutex},
     tokio::sync::oneshot,
 };
@@ -35,14 +37,12 @@ pub enum UpdateReceiptError {
     Aborted,
 }
 
-#[cfg_attr(not(test), expect(dead_code))]
 pub(crate) enum UpdateReceiptSender {
     Single(oneshot::Sender<Result<(), UpdateReceiptError>>),
     Group(GroupMember),
 }
 
 impl UpdateReceiptSender {
-    #[cfg_attr(not(test), expect(dead_code))]
     pub(crate) fn send(self, result: Result<(), UpdateReceiptError>) {
         match self {
             Self::Single(sender) => {
@@ -53,13 +53,48 @@ impl UpdateReceiptSender {
     }
 }
 
-// The datasource context will own this while a group is open.
+/// Updates sharing one receipt. Borrows the context until sealed or abandoned.
+#[must_use = "seal or abandon the group"]
+pub struct UpdateGroup<'a> {
+    context: &'a mut DatasourceContext,
+    group: ReceiptGroup,
+}
+
+impl<'a> UpdateGroup<'a> {
+    pub(super) fn new(context: &'a mut DatasourceContext) -> Self {
+        Self {
+            context,
+            group: ReceiptGroup::new(),
+        }
+    }
+
+    pub async fn emit(&mut self, update: Update) -> Result<(), EmitError> {
+        if let Err(error) = self.context.emit_inner(update, Some(&mut self.group)).await {
+            self.group.record_error(match error {
+                EmitError::QueueFull => UpdateReceiptError::Failed,
+                EmitError::ShuttingDown => UpdateReceiptError::Dropped,
+                EmitError::PipelineStopped => UpdateReceiptError::Aborted,
+            });
+            return Err(error);
+        }
+        Ok(())
+    }
+
+    pub fn seal(self) -> UpdateReceipt {
+        self.group.seal()
+    }
+
+    /// Ends the group without a receipt. Already enqueued updates continue.
+    pub fn abandon(self) {
+        drop(self);
+    }
+}
+
 pub(crate) struct ReceiptGroup {
     state: Arc<GroupState>,
     receipt: UpdateReceipt,
 }
 
-#[cfg_attr(not(test), expect(dead_code))]
 impl ReceiptGroup {
     pub(crate) fn new() -> Self {
         let (sender, receipt) = UpdateReceipt::new();

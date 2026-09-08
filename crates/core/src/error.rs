@@ -5,14 +5,12 @@
 //! - Structural data errors — missing transaction fields required for
 //!   processing: `MissingFeePayer`, `MissingInnerInstructions`,
 //!   `MissingAccountInTransaction`, `MissingInstructionData`.
-//! - Datasource contract violations —
-//!   `MissingUpdateTypeInDatasource(UpdateType)`.
 //! - Runtime failures — channel or datasource execution issues:
 //!   `FailedToReceiveUpdates(String)`, `FailedToConsumeDatasource(String)`.
 //! - `Custom(String)` — catch-all for external or feature-specific errors (e.g.
 //!   `postgres` / `sqlx` wrapping).
 
-use {crate::datasource::UpdateType, thiserror::Error};
+use thiserror::Error;
 
 pub type BoxError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -28,8 +26,8 @@ pub enum Error {
     FilterCommit(#[source] BoxError),
     #[error("processor failed: {0}")]
     Processor(#[source] BoxError),
-    #[error("Missing update type in datasource")]
-    MissingUpdateTypeInDatasource(UpdateType),
+    #[error("invalid datasource queue capacity: {0}")]
+    InvalidQueueCapacity(usize),
     #[error("Failed to receive updates({0})")]
     FailedToReceiveUpdates(String),
     #[error("Transaction missing fee payer")]

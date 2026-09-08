@@ -1,8 +1,9 @@
-//! Per-source channel configuration.
+//! Per-source channels and update selection.
 
 use {
     super::receipt::UpdateReceiptSender,
-    crate::update::Update,
+    crate::{id::Id, update::Update},
+    std::{future::poll_fn, task::Poll},
     tokio::sync::{mpsc, Semaphore},
 };
 
@@ -41,8 +42,6 @@ impl DatasourceOptions {
         self
     }
 
-    // Datasource registration will own the sender/receiver pair.
-    #[cfg_attr(not(test), expect(dead_code))]
     pub(crate) fn channel(
         &self,
     ) -> Option<(mpsc::Sender<QueuedUpdate>, mpsc::Receiver<QueuedUpdate>)> {
@@ -53,31 +52,36 @@ impl DatasourceOptions {
     }
 }
 
-#[cfg_attr(not(test), expect(dead_code))]
 pub(crate) struct QueuedUpdate {
     pub(crate) update: Update,
     pub(crate) receipt_sender: UpdateReceiptSender,
 }
 
-/// Reserves capacity before creating a receipt. None means overflow Drop.
-/// The context must coordinate the final permission check and send with shutdown.
-#[cfg_attr(not(test), expect(dead_code))]
-pub(crate) async fn reserve(
-    sender: &mpsc::Sender<QueuedUpdate>,
-    policy: OverflowPolicy,
-) -> Result<Option<mpsc::Permit<'_, QueuedUpdate>>, mpsc::error::TrySendError<()>> {
-    match policy {
-        OverflowPolicy::Wait => match sender.reserve().await {
-            Ok(permit) => Ok(Some(permit)),
-            Err(_) => Err(mpsc::error::TrySendError::Closed(())),
-        },
-        OverflowPolicy::Exit => sender.try_reserve().map(Some),
-        OverflowPolicy::Drop => match sender.try_reserve() {
-            Ok(permit) => Ok(Some(permit)),
-            Err(mpsc::error::TrySendError::Full(())) => Ok(None),
-            Err(error) => Err(error),
-        },
-    }
+pub(crate) async fn next_update(
+    queues: &mut [(Id, mpsc::Receiver<QueuedUpdate>)],
+    next: &mut usize,
+) -> Option<(Id, QueuedUpdate)> {
+    poll_fn(|cx| {
+        let mut pending = false;
+        for offset in 0..queues.len() {
+            let index = (*next + offset) % queues.len();
+            let (id, receiver) = &mut queues[index];
+            match receiver.poll_recv(cx) {
+                Poll::Ready(Some(update)) => {
+                    let id = id.clone();
+                    *next = (index + 1) % queues.len();
+                    return Poll::Ready(Some((id, update)));
+                }
+                Poll::Ready(None) => {}
+                Poll::Pending => pending = true,
+            }
+        }
+        if pending {
+            return Poll::Pending;
+        }
+        Poll::Ready(None)
+    })
+    .await
 }
 
 #[cfg(test)]
@@ -90,7 +94,11 @@ mod tests {
         },
         std::{
             future::Future,
-            task::{Context, Poll, Waker},
+            sync::{
+                atomic::{AtomicBool, Ordering},
+                Arc,
+            },
+            task::{Context, Wake, Waker},
         },
     };
 
@@ -112,26 +120,6 @@ mod tests {
         )
     }
 
-    async fn admit(
-        sender: &mpsc::Sender<QueuedUpdate>,
-        policy: OverflowPolicy,
-        slot: u64,
-    ) -> Result<Option<UpdateReceipt>, mpsc::error::TrySendError<()>> {
-        let Some(permit) = reserve(sender, policy).await? else {
-            return Ok(None);
-        };
-        let (entry, receipt) = entry(slot);
-        permit.send(entry);
-        Ok(Some(receipt))
-    }
-
-    fn slot(entry: &QueuedUpdate) -> u64 {
-        let Update::Block(update) = &entry.update else {
-            panic!("expected block update");
-        };
-        update.slot()
-    }
-
     #[test]
     fn defaults_and_capacity_validation() {
         let options = DatasourceOptions::default();
@@ -149,94 +137,60 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn receiving_frees_capacity_without_completing_the_receipt() {
-        let (sender, mut receiver) = channel(2);
-        let first = admit(&sender, OverflowPolicy::Wait, 1)
-            .await
-            .unwrap()
-            .unwrap();
-        let second = admit(&sender, OverflowPolicy::Wait, 2)
-            .await
-            .unwrap()
-            .unwrap();
-        let processing = receiver.recv().await.unwrap();
-        assert_eq!(slot(&processing), 1);
-        let third = admit(&sender, OverflowPolicy::Drop, 3)
-            .await
-            .unwrap()
-            .unwrap();
-
-        let first = first.processed();
-        tokio::pin!(first);
-        assert_eq!(
-            first.as_mut().poll(&mut Context::from_waker(Waker::noop())),
-            Poll::Pending
-        );
-        processing.receipt_sender.send(Ok(()));
-        first.await.unwrap();
-
-        for (expected_slot, receipt) in [(2, second), (3, third)] {
-            let queued = receiver.recv().await.unwrap();
-            assert_eq!(slot(&queued), expected_slot);
-            queued.receipt_sender.send(Ok(()));
-            receipt.processed().await.unwrap();
+    async fn selection_preserves_fifo_and_rotates_between_sources() {
+        let mut queues = Vec::new();
+        for source in 0..3 {
+            let (sender, receiver) = channel(2);
+            for slot in [source, source + 3] {
+                sender.try_reserve().unwrap().send(entry(slot).0);
+            }
+            queues.push((Id::new(source.to_string()).unwrap(), receiver));
         }
+
+        let mut next = 0;
+        for slot in 0..6 {
+            let (id, queued) = next_update(&mut queues, &mut next).await.unwrap();
+            assert_eq!(id, Id::new((slot % 3).to_string()).unwrap());
+            assert!(matches!(queued.update, Update::Block(block) if block.slot() == slot));
+        }
+        assert!(next_update(&mut queues, &mut next).await.is_none());
+        assert!(next_update(&mut [], &mut next).await.is_none());
     }
 
-    #[tokio::test]
-    async fn full_and_closed_channels_map_to_the_overflow_policy() {
-        let (sender, mut receiver) = channel(1);
-        let receipt = admit(&sender, OverflowPolicy::Wait, 1)
-            .await
-            .unwrap()
-            .unwrap();
-        assert!(admit(&sender, OverflowPolicy::Drop, 2)
-            .await
-            .unwrap()
-            .is_none());
-        assert_eq!(
-            admit(&sender, OverflowPolicy::Exit, 2).await.unwrap_err(),
-            mpsc::error::TrySendError::Full(())
-        );
+    #[test]
+    fn empty_queues_register_wakeups_and_closed_queues_are_skipped() {
+        struct WakeFlag(AtomicBool);
 
-        receiver.close();
-        for policy in [
-            OverflowPolicy::Wait,
-            OverflowPolicy::Drop,
-            OverflowPolicy::Exit,
-        ] {
-            assert_eq!(
-                admit(&sender, policy, 2).await.unwrap_err(),
-                mpsc::error::TrySendError::Closed(())
-            );
+        impl Wake for WakeFlag {
+            fn wake(self: Arc<Self>) {
+                self.0.store(true, Ordering::SeqCst);
+            }
         }
-        let queued = receiver.recv().await.unwrap();
-        assert_eq!(slot(&queued), 1);
-        queued.receipt_sender.send(Ok(()));
-        receipt.processed().await.unwrap();
-        assert!(receiver.recv().await.is_none());
-    }
 
-    #[tokio::test]
-    async fn wait_admits_only_after_capacity_is_available() {
-        let (sender, mut receiver) = channel(1);
-        let first = admit(&sender, OverflowPolicy::Wait, 1)
-            .await
-            .unwrap()
-            .unwrap();
-        let waiting = admit(&sender, OverflowPolicy::Wait, 2);
-        tokio::pin!(waiting);
-        assert!(waiting
-            .as_mut()
-            .poll(&mut Context::from_waker(Waker::noop()))
-            .is_pending());
-        receiver.recv().await.unwrap().receipt_sender.send(Ok(()));
-        let second = waiting.await.unwrap().unwrap();
-        let queued = receiver.recv().await.unwrap();
-        assert_eq!(slot(&queued), 2);
-        queued.receipt_sender.send(Ok(()));
-        first.processed().await.unwrap();
-        second.processed().await.unwrap();
+        let flag = Arc::new(WakeFlag(AtomicBool::new(false)));
+        let waker = Waker::from(flag.clone());
+        let mut cx = Context::from_waker(&waker);
+        let mut queues = Vec::new();
+        let mut senders = Vec::new();
+        for source in 0..3 {
+            let (sender, receiver) = channel(1);
+            queues.push((Id::new(source.to_string()).unwrap(), receiver));
+            senders.push(sender);
+        }
+        queues[0].1.close();
+
+        let mut next = 0;
+        for source in [1, 2] {
+            let mut read = std::pin::pin!(next_update(&mut queues, &mut next));
+            assert!(read.as_mut().poll(&mut cx).is_pending());
+            flag.0.store(false, Ordering::SeqCst);
+            senders[source].try_reserve().unwrap().send(entry(1).0);
+            assert!(flag.0.load(Ordering::SeqCst));
+            let Poll::Ready(Some((id, _))) = read.as_mut().poll(&mut cx) else {
+                panic!("the queued update was not returned");
+            };
+            assert_eq!(id, Id::new(source.to_string()).unwrap());
+        }
     }
 
     #[tokio::test]
@@ -244,10 +198,7 @@ mod tests {
         let (sender, mut receiver) = channel(2);
         let mut group = ReceiptGroup::new();
         for slot in 0..2 {
-            let permit = reserve(&sender, OverflowPolicy::Wait)
-                .await
-                .unwrap()
-                .unwrap();
+            let permit = sender.reserve().await.unwrap();
             permit.send(QueuedUpdate {
                 update: BlockUpdate::new(slot).into(),
                 receipt_sender: UpdateReceiptSender::Group(group.member()),
@@ -272,15 +223,10 @@ mod tests {
     #[tokio::test]
     async fn receiver_loss_aborts_individual_and_grouped_updates() {
         let (sender, receiver) = channel(2);
-        let individual = admit(&sender, OverflowPolicy::Wait, 1)
-            .await
-            .unwrap()
-            .unwrap();
+        let (queued, individual) = entry(1);
+        sender.try_reserve().unwrap().send(queued);
         let mut group = ReceiptGroup::new();
-        let permit = reserve(&sender, OverflowPolicy::Wait)
-            .await
-            .unwrap()
-            .unwrap();
+        let permit = sender.reserve().await.unwrap();
         permit.send(QueuedUpdate {
             update: BlockUpdate::new(2).into(),
             receipt_sender: UpdateReceiptSender::Group(group.member()),
@@ -294,14 +240,11 @@ mod tests {
         assert_eq!(grouped.processed().await, Err(UpdateReceiptError::Aborted));
     }
 
-    // This is why the context needs a final admission check coordinated with shutdown.
+    // Draining a closed receiver must account for outstanding permits.
     #[tokio::test]
     async fn closing_the_receiver_does_not_revoke_existing_permits() {
         let (sender, mut receiver) = channel(1);
-        let permit = reserve(&sender, OverflowPolicy::Wait)
-            .await
-            .unwrap()
-            .unwrap();
+        let permit = sender.reserve().await.unwrap();
         receiver.close();
         let (queued, receipt) = entry(1);
         permit.send(queued);
