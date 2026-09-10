@@ -14,6 +14,6 @@ export default defineConfig({
     define: {
         __ESM__: 'true',
         __TEST__: 'false',
-        __VERSION__: '"0.13.0"',
+        __VERSION__: '"2.0.0"',
     },
 });
