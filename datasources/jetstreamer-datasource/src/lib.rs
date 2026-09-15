@@ -13,7 +13,7 @@ use {
     },
     futures_util::FutureExt,
     jetstreamer_firehose::firehose::{
-        BlockData, EntryData, HandlerFn, OnErrorFn, RewardsData, Stats, StatsTracking,
+        BlockData, EntryData, FirehoseErrorContext, HandlerFn, RewardsData, Stats, StatsTracking,
         TransactionData,
     },
     solana_transaction_status_client_types::Reward,
@@ -37,6 +37,10 @@ static TRANSACTIONS_FILTERED_IN: Counter = Counter::new(
     "jetstreamer_transactions_filtered_in_total",
     "Transactions that passed filters (before send) in Jetstreamer datasource",
 );
+static FIREHOSE_ERRORS: Counter = Counter::new(
+    "jetstreamer_firehose_errors_total",
+    "Recoverable firehose worker errors reported by Jetstreamer",
+);
 static INTERNAL_SLOTS_PROCESSED: Gauge = Gauge::new(
     "jetstreamer_internal_slots_processed",
     "Internal firehose slots processed (from Stats)",
@@ -56,6 +60,7 @@ fn register_jetstreamer_metrics() {
     registry.register_counter(&TRANSACTIONS_SENT);
     registry.register_counter(&TRANSACTIONS_FILTERED_OUT);
     registry.register_counter(&TRANSACTIONS_FILTERED_IN);
+    registry.register_counter(&FIREHOSE_ERRORS);
     registry.register_gauge(&INTERNAL_SLOTS_PROCESSED);
     registry.register_gauge(&INTERNAL_BLOCKS_PROCESSED);
     registry.register_gauge(&INTERNAL_TRANSACTIONS_PROCESSED);
@@ -71,6 +76,9 @@ pub struct JetstreamerDatasource {
     pub tracking_interval_slots: Option<u64>,
     pub archive_url: Option<String>,
     pub network: Option<String>,
+    pub sequential: bool,
+    pub reverse: bool,
+    pub buffer_window_bytes: Option<u64>,
 }
 
 impl JetstreamerDatasource {
@@ -89,6 +97,9 @@ impl JetstreamerDatasource {
             tracking_interval_slots,
             archive_url,
             network,
+            sequential: false,
+            reverse: false,
+            buffer_window_bytes: None,
         }
     }
 
@@ -100,6 +111,21 @@ impl JetstreamerDatasource {
     ) -> Self {
         Self::new(range, filter, threads, tracking_interval_slots, None, None)
     }
+
+    pub fn with_sequential(mut self, sequential: bool) -> Self {
+        self.sequential = sequential;
+        self
+    }
+
+    pub fn with_reverse(mut self, reverse: bool) -> Self {
+        self.reverse = reverse;
+        self
+    }
+
+    pub fn with_buffer_window_bytes(mut self, buffer_window_bytes: Option<u64>) -> Self {
+        self.buffer_window_bytes = buffer_window_bytes;
+        self
+    }
 }
 
 #[async_trait]
@@ -108,7 +134,7 @@ impl Datasource for JetstreamerDatasource {
         &self,
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
-        _cancellation_token: CancellationToken,
+        cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_jetstreamer_metrics();
 
@@ -123,6 +149,13 @@ impl Datasource for JetstreamerDatasource {
         if let Some(network) = &self.network {
             unsafe { std::env::set_var("JETSTREAMER_NETWORK", network) }
         }
+
+        let (shutdown_tx, shutdown_rx) = tokio::sync::broadcast::channel::<()>(1);
+        let shutdown_token = cancellation_token.clone();
+        tokio::spawn(async move {
+            shutdown_token.cancelled().await;
+            let _ = shutdown_tx.send(());
+        });
 
         let sender_for_block = sender.clone();
         let id_for_block = id.clone();
@@ -150,6 +183,10 @@ impl Datasource for JetstreamerDatasource {
             async move { JetstreamerDatasource::on_stats(stats).await }.boxed()
         };
 
+        let on_error_fn = move |_thread_id: usize, context: FirehoseErrorContext| {
+            async move { JetstreamerDatasource::on_error(context).await }.boxed()
+        };
+
         let stats_tracking = self
             .tracking_interval_slots
             .map(|interval_slots| StatsTracking {
@@ -159,6 +196,9 @@ impl Datasource for JetstreamerDatasource {
 
         let result = jetstreamer_firehose::firehose::firehose(
             self.threads,
+            self.sequential,
+            self.reverse,
+            self.buffer_window_bytes,
             start_slot..end_slot,
             if include_blocks {
                 Some(on_block_fn)
@@ -172,21 +212,33 @@ impl Datasource for JetstreamerDatasource {
             },
             None::<HandlerFn<EntryData>>,
             None::<HandlerFn<RewardsData>>,
-            None::<OnErrorFn>,
+            Some(on_error_fn),
             stats_tracking,
-            None,
+            Some(shutdown_rx),
         )
         .await;
 
-        result.map_err(|(error, _)| {
-            carbon_core::error::Error::FailedToConsumeDatasource(error.to_string())
+        result.map_err(|(error, slot)| {
+            carbon_core::error::Error::FailedToConsumeDatasource(format!(
+                "jetstreamer firehose failed at slot {slot}: {error}"
+            ))
         })?;
 
         Ok(())
     }
 
     fn update_types(&self) -> Vec<carbon_core::datasource::UpdateType> {
-        vec![UpdateType::Transaction]
+        let mut update_types = Vec::new();
+
+        if self.filter.include_transactions {
+            update_types.push(UpdateType::Transaction);
+        }
+
+        if self.filter.include_blocks {
+            update_types.push(UpdateType::BlockDetails);
+        }
+
+        update_types
     }
 }
 
@@ -224,7 +276,8 @@ impl JetstreamerDatasource {
                                 lamports: reward.lamports,
                                 post_balance: reward.post_balance,
                                 reward_type: Some(reward.reward_type),
-                                commission: reward.commission,
+                                commission: reward.commission_bps.map(|bps| (bps / 100) as u8),
+                                commission_bps: reward.commission_bps,
                             })
                             .collect::<Vec<_>>(),
                     ),
@@ -302,6 +355,13 @@ impl JetstreamerDatasource {
         INTERNAL_SLOTS_PROCESSED.set(stats.slots_processed as f64);
         INTERNAL_BLOCKS_PROCESSED.set(stats.blocks_processed as f64);
         INTERNAL_TRANSACTIONS_PROCESSED.set(stats.transactions_processed as f64);
+        Ok(())
+    }
+
+    pub async fn on_error(
+        _context: FirehoseErrorContext,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        FIREHOSE_ERRORS.inc();
         Ok(())
     }
 }

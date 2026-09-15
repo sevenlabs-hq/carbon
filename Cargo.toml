@@ -1,12 +1,8 @@
 [workspace]
 members = ["crates/*", "datasources/*", "decoders/*", "examples/*", "metrics/*"]
-# These providers remain on their existing Solana v3 stacks and are intentionally
-# outside the v4 migration scope.
-exclude = [
-    "datasources/jetstreamer-datasource",
-    "datasources/jito-shredstream-grpc-datasource",
-    "examples/jetstreamer",
-]
+# Jito Shredstream remains on its existing Solana v3 stack and is intentionally
+# outside the v4 migration scope until it supports Transaction V1.
+exclude = ["datasources/jito-shredstream-grpc-datasource"]
 resolver = "2"
 
 [workspace.package]
@@ -36,8 +32,8 @@ carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-dataso
 carbon-helius-gpa-v2-datasource = { path = "datasources/helius-gpa-v2-datasource", version = "2.0.0" }
 carbon-helius-gtfa-datasource = { path = "datasources/helius-gtfa-datasource", version = "2.0.0" }
 carbon-helius-laserstream-datasource = { path = "datasources/helius-laserstream-datasource", version = "2.0.0" }
-# Legacy providers remain on Carbon 1.x until they migrate to the Solana v4 stack.
-carbon-jetstreamer-datasource = { path = "datasources/jetstreamer-datasource", version = "1.0.0" }
+carbon-jetstreamer-datasource = { path = "datasources/jetstreamer-datasource", version = "2.0.0" }
+# Jito Shredstream remains on Carbon 1.x until it migrates to the Solana v4 stack.
 carbon-jito-shredstream-grpc-datasource = { path = "datasources/jito-shredstream-grpc-datasource", version = "1.0.0" }
 carbon-rpc-block-crawler-datasource = { path = "datasources/rpc-block-crawler-datasource", version = "2.0.0" }
 carbon-rpc-block-subscribe-datasource = { path = "datasources/rpc-block-subscribe-datasource", version = "2.0.0" }
@@ -173,6 +169,9 @@ helius = "2.0.0"
 hex = "0.4.3"
 indicatif = "0.17.11"
 inquire = "0.7.5"
+# Pinned to upstream main: Transaction V1 and Agave 4.2 support landed in
+# anza-xyz/jetstreamer#95 and are not in any published release yet (latest is 0.7.0).
+jetstreamer-firehose = { git = "https://github.com/anza-xyz/jetstreamer", rev = "1047192ef145922e3098eea5ecbdc429c1e65f4d" }
 juniper = { version = "0.16.2", features = ["uuid"] }
 juniper_axum = { version = "0.2.0" }
 juniper_codegen = { version = "0.16.0" }
