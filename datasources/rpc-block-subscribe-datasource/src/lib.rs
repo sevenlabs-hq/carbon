@@ -347,6 +347,6 @@ impl Datasource for RpcBlockSubscribe {
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![UpdateType::Transaction]
+        vec![UpdateType::Transaction, UpdateType::BlockDetails]
     }
 }

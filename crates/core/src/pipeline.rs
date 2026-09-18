@@ -31,7 +31,7 @@ use {
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
-        datasource::{AccountDeletion, BlockDetails, Datasource, DatasourceId, Update},
+        datasource::{AccountDeletion, BlockDetails, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
         filter::{Filter, FilterContext, FilterResult},
         instruction::{
@@ -439,6 +439,29 @@ pub struct PipelineBuilder {
     pub channel_buffer_size: usize,
 }
 
+fn get_missing_pipes_for_declared_types(builder: &PipelineBuilder) -> Vec<UpdateType> {
+    let mut missing = Vec::new();
+
+    for (_, datasource) in &builder.datasources {
+        for update_type in datasource.update_types() {
+            let has_pipe = match update_type {
+                UpdateType::AccountUpdate => !builder.account_pipes.is_empty(),
+                UpdateType::Transaction => {
+                    !builder.transaction_pipes.is_empty() || !builder.instruction_pipes.is_empty()
+                }
+                UpdateType::AccountDeletion => !builder.account_deletion_pipes.is_empty(),
+                UpdateType::BlockDetails => !builder.block_details_pipes.is_empty(),
+            };
+
+            if !has_pipe && !missing.contains(&update_type) {
+                missing.push(update_type);
+            }
+        }
+    }
+
+    missing
+}
+
 impl Default for PipelineBuilder {
     fn default() -> Self {
         Self {
@@ -641,6 +664,15 @@ impl PipelineBuilder {
         register_pipeline_metrics();
         #[cfg(feature = "postgres")]
         crate::postgres::processors::register_postgres_metrics();
+
+        let missing_types = get_missing_pipes_for_declared_types(&self);
+        for update_type in missing_types {
+            log::warn!(
+                "datasource declares UpdateType::{:?} but no matching pipe is registered",
+                update_type
+            );
+        }
+
         Ok(Pipeline {
             datasources: self.datasources,
             account_pipes: self.account_pipes,
@@ -653,5 +685,61 @@ impl PipelineBuilder {
             shutdown_strategy: self.shutdown_strategy,
             channel_buffer_size: self.channel_buffer_size,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use {super::*, async_trait::async_trait, tokio::sync::mpsc};
+
+    struct MockDatasource {
+        update_types: Vec<UpdateType>,
+    }
+
+    #[async_trait]
+    impl Datasource for MockDatasource {
+        async fn consume(
+            &self,
+            _id: DatasourceId,
+            _sender: mpsc::Sender<(Update, DatasourceId)>,
+            _cancellation_token: CancellationToken,
+        ) -> CarbonResult<()> {
+            Ok(())
+        }
+
+        fn update_types(&self) -> Vec<UpdateType> {
+            self.update_types.clone()
+        }
+    }
+
+    struct MockProcessor;
+
+    impl Processor<BlockDetails> for MockProcessor {
+        async fn process(&mut self, _data: &BlockDetails) -> CarbonResult<()> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn missing_pipe_for_declared_types_detects_mismatch() {
+        let mut builder = PipelineBuilder::new();
+        builder = builder.datasource(MockDatasource {
+            update_types: vec![UpdateType::BlockDetails],
+        });
+
+        let missing = get_missing_pipes_for_declared_types(&builder);
+        assert_eq!(missing, vec![UpdateType::BlockDetails]);
+    }
+
+    #[test]
+    fn missing_pipe_for_declared_types_returns_empty_on_match() {
+        let mut builder = PipelineBuilder::new();
+        builder = builder.datasource(MockDatasource {
+            update_types: vec![UpdateType::BlockDetails],
+        });
+        builder = builder.block_details(MockProcessor);
+
+        let missing = get_missing_pipes_for_declared_types(&builder);
+        assert!(missing.is_empty());
     }
 }
