@@ -146,7 +146,7 @@ impl Datasource for RpcBlockCrawler {
             self.rpc_url.clone(),
             self.block_config
                 .commitment
-                .unwrap_or(CommitmentConfig::confirmed()),
+                .unwrap_or(CommitmentConfig::finalized()),
         ));
         let (block_sender, block_receiver) = mpsc::channel(self.channel_buffer_size);
 

@@ -215,7 +215,7 @@ impl Datasource for RpcTransactionCrawler {
         register_transaction_crawler_metrics();
         let rpc_client = Arc::new(RpcClient::new_with_commitment(
             self.rpc_url.clone(),
-            self.commitment.unwrap_or(CommitmentConfig::confirmed()),
+            self.commitment.unwrap_or(CommitmentConfig::finalized()),
         ));
         let account = self.account;
         let filters = self.filters.clone();
@@ -312,7 +312,7 @@ fn signature_fetcher(
                                 before: last_fetched_signature,
                                 until: until_signature,
                                 limit: Some(connection_config.batch_limit),
-                                commitment: Some(commitment.unwrap_or(CommitmentConfig::confirmed())),
+                                commitment: Some(commitment.unwrap_or(CommitmentConfig::finalized())),
                             }
                         ).await {
                             Ok(signatures) => {
@@ -434,7 +434,7 @@ fn transaction_fetcher(
                                 RpcTransactionConfig {
                                     encoding: Some(UiTransactionEncoding::Base64),
                                     commitment: Some(
-                                        commitment.unwrap_or(CommitmentConfig::confirmed()),
+                                        commitment.unwrap_or(CommitmentConfig::finalized()),
                                     ),
                                     max_supported_transaction_version: Some(1),
                                 },
