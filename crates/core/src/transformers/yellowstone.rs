@@ -1,6 +1,7 @@
 //! Yellowstone protobuf-to-Solana transaction conversion.
 
 use {
+    crate::datasource::{BlockDetails, SlotStatus, SlotStatusUpdate},
     solana_account_decoder_client_types::token::UiTokenAmount,
     solana_hash::{Hash, HASH_BYTES},
     solana_message::{
@@ -18,6 +19,7 @@ use {
         InnerInstruction, InnerInstructions, Reward, RewardType, TransactionStatusMeta,
         TransactionTokenBalance,
     },
+    std::str::FromStr,
     thiserror::Error,
     yellowstone_grpc_proto::prelude as proto,
 };
@@ -300,6 +302,7 @@ fn create_reward(reward: proto::Reward) -> ConversionResult<Reward> {
         proto::RewardType::Staking => Some(RewardType::Staking),
         proto::RewardType::Voting => Some(RewardType::Voting),
         proto::RewardType::DeactivatedStake => Some(RewardType::DeactivatedStake),
+        proto::RewardType::VatDebit => Some(RewardType::VATDebit),
     };
     let commission = parse_optional_number(reward.commission, "meta.rewards.commission")?;
     let commission_bps =
@@ -312,6 +315,67 @@ fn create_reward(reward: proto::Reward) -> ConversionResult<Reward> {
         reward_type,
         commission,
         commission_bps,
+    })
+}
+
+/// Converts a yellowstone block-meta update into Carbon's [`BlockDetails`].
+///
+/// This is the only gRPC message carrying a bank's blockhash and its
+/// `executed_transaction_count` / `entries_count`, which are what a consumer
+/// buffering by `(slot, bank_id)` needs to reconcile across connections and to
+/// know when a bank is complete.
+pub fn create_block_details(
+    meta: proto::SubscribeUpdateBlockMeta,
+) -> ConversionResult<BlockDetails> {
+    let (rewards, num_reward_partitions) = match meta.rewards {
+        Some(rewards) => (
+            Some(
+                rewards
+                    .rewards
+                    .into_iter()
+                    .map(create_reward)
+                    .collect::<ConversionResult<Vec<_>>>()?,
+            ),
+            rewards.num_partitions.map(|p| p.num_partitions),
+        ),
+        None => (None, None),
+    };
+
+    Ok(BlockDetails {
+        slot: meta.slot,
+        block_hash: Hash::from_str(&meta.blockhash).ok(),
+        previous_block_hash: Hash::from_str(&meta.parent_blockhash).ok(),
+        rewards,
+        num_reward_partitions,
+        block_time: meta.block_time.map(|t| t.timestamp),
+        block_height: meta.block_height.map(|h| h.block_height),
+        bank_id: Some(meta.bank_id),
+        executed_transaction_count: Some(meta.executed_transaction_count),
+        entries_count: Some(meta.entries_count),
+    })
+}
+
+/// Converts a yellowstone slot update into Carbon's [`SlotStatusUpdate`].
+///
+/// Returns `None` if the status is not one this proto version defines, which
+/// only happens if the server is newer than the pinned proto.
+pub fn create_slot_status_update(slot: proto::SubscribeUpdateSlot) -> Option<SlotStatusUpdate> {
+    let status = match proto::SlotStatus::try_from(slot.status).ok()? {
+        proto::SlotStatus::SlotCreatedBank => SlotStatus::CreatedBank,
+        proto::SlotStatus::SlotProcessed => SlotStatus::Processed,
+        proto::SlotStatus::SlotConfirmed => SlotStatus::Confirmed,
+        proto::SlotStatus::SlotFinalized => SlotStatus::Finalized,
+        proto::SlotStatus::SlotDead => SlotStatus::Dead,
+        proto::SlotStatus::SlotFirstShredReceived => SlotStatus::FirstShredReceived,
+        proto::SlotStatus::SlotCompleted => SlotStatus::Completed,
+    };
+
+    Some(SlotStatusUpdate {
+        slot: slot.slot,
+        bank_id: slot.bank_id,
+        status,
+        parent_slot: slot.parent,
+        dead_error: slot.dead_error,
     })
 }
 

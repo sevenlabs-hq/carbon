@@ -153,7 +153,7 @@ impl Datasource for RpcProgramSubscribe {
                                 };
 
                                 let Ok(account_pubkey) = Pubkey::from_str(&acc_event.value.pubkey) else {
-                                    log::error!("Error parsing account pubkey. Value: {}", &acc_event.value.pubkey);
+                                    log::error!("Error parsing account pubkey. Value: {}", acc_event.value.pubkey);
                                     continue;
                                 };
 
@@ -162,6 +162,7 @@ impl Datasource for RpcProgramSubscribe {
                                     account: decoded_account,
                                     slot: acc_event.context.slot,
                                     transaction_signature: None,
+                                    bank_id: None,
                                 }
                                 .into_update();
 

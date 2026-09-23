@@ -20,7 +20,7 @@
 use {
     crate::{
         account::AccountMetadata,
-        datasource::{AccountDeletion, BlockDetails, DatasourceId},
+        datasource::{AccountDeletion, BlockDetails, DatasourceId, SlotStatusUpdate},
         instruction::{NestedInstruction, NestedInstructions},
         transaction::TransactionMetadata,
     },
@@ -97,6 +97,14 @@ pub trait Filter: Send + Sync {
     ) -> FilterResult {
         FilterResult::Accept
     }
+
+    fn filter_slot_status(
+        &self,
+        _context: &FilterContext,
+        _slot_status: &SlotStatusUpdate,
+    ) -> FilterResult {
+        FilterResult::Accept
+    }
 }
 
 const DEDUP_CLEANUP_INTERVAL_SECS: u64 = 60;
@@ -108,6 +116,22 @@ type SeenAccountsMap = HashMap<(Signature, Pubkey), Instant>;
 ///
 /// Keys instructions by `(signature, absolute_path)` and accounts by
 /// `(signature, pubkey)`. Periodically purges expired entries to bound memory.
+///
+/// # Why `bank_id` is not part of the key
+///
+/// It is tempting to add it, so that the same signature arriving from a
+/// competing bank counts as a separate candidate rather than a duplicate. That
+/// breaks the filter's main job. `bank_id` is a node-local counter, so two
+/// providers streaming the same block report unrelated values for it, and every
+/// cross-provider duplicate would then pass through. The filter deduplicates on
+/// identity — a signature is globally unique — and competing banks are resolved
+/// by the consumer via [`crate::datasource::Update::SlotStatus`], which names
+/// the winning `bank_id` for a slot.
+///
+/// The consequence to be aware of: on a `processed` stream this filter keeps
+/// whichever copy of a transaction arrived first, which may be a losing bank's.
+/// A pipeline that cares about that should resolve banks itself instead of
+/// relying on this filter.
 pub struct DeduplicationFilter {
     seen_instructions: Arc<RwLock<SeenInstructionsMap>>,
     seen_accounts: Arc<RwLock<SeenAccountsMap>>,

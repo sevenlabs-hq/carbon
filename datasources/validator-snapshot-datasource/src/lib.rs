@@ -284,6 +284,7 @@ impl Datasource for SnapshotDatasource {
                         },
                         slot: snapshot_slot,
                         transaction_signature: None,
+                        bank_id: None,
                     };
 
                     let update = Update::Account(account_update);

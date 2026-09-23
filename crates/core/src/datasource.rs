@@ -84,6 +84,7 @@ pub enum Update {
     Transaction(Box<TransactionUpdate>),
     AccountDeletion(AccountDeletion),
     BlockDetails(BlockDetails),
+    SlotStatus(SlotStatusUpdate),
 }
 
 /// Declared set of update variants a datasource may emit.
@@ -95,6 +96,7 @@ pub enum UpdateType {
     Transaction,
     AccountDeletion,
     BlockDetails,
+    SlotStatus,
 }
 
 impl Update {
@@ -104,6 +106,7 @@ impl Update {
             Update::Transaction(_) => UpdateType::Transaction,
             Update::AccountDeletion(_) => UpdateType::AccountDeletion,
             Update::BlockDetails(_) => UpdateType::BlockDetails,
+            Update::SlotStatus(_) => UpdateType::SlotStatus,
         }
     }
 }
@@ -115,6 +118,7 @@ pub struct AccountUpdate {
     pub account: Account,
     pub slot: u64,
     pub transaction_signature: Option<Signature>,
+    pub bank_id: Option<u64>,
 }
 
 impl AccountUpdate {
@@ -125,6 +129,7 @@ impl AccountUpdate {
             account,
             slot,
             transaction_signature,
+            bank_id,
         } = self;
 
         if account.lamports == 0 {
@@ -133,6 +138,7 @@ impl AccountUpdate {
                 account,
                 slot,
                 transaction_signature,
+                bank_id,
             })
         } else {
             Update::Account(Self {
@@ -140,6 +146,7 @@ impl AccountUpdate {
                 account,
                 slot,
                 transaction_signature,
+                bank_id,
             })
         }
     }
@@ -156,6 +163,7 @@ pub struct TransactionUpdate {
     pub index: Option<u64>,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub bank_id: Option<u64>,
 }
 
 /// Account closure event with the source's final account state.
@@ -165,6 +173,7 @@ pub struct AccountDeletion {
     pub account: Account,
     pub slot: u64,
     pub transaction_signature: Option<Signature>,
+    pub bank_id: Option<u64>,
 }
 
 /// Block-level metadata emitted by block-aware datasources.
@@ -177,6 +186,47 @@ pub struct BlockDetails {
     pub num_reward_partitions: Option<u64>,
     pub block_time: Option<i64>,
     pub block_height: Option<u64>,
+    pub bank_id: Option<u64>,
+    pub executed_transaction_count: Option<u64>,
+    pub entries_count: Option<u64>,
+}
+
+/// Lifecycle status of a bank within a slot.
+///
+/// Under Alpenglow a slot can have several competing banks. Only
+/// [`SlotStatus::Confirmed`] and [`SlotStatus::Finalized`] identify a winner:
+/// at most one bank per slot ever reaches either. [`SlotStatus::Processed`]
+/// carries no precedence over its peers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SlotStatus {
+    /// A bank was created for this slot. A second one means a competing bank.
+    CreatedBank,
+    /// Optimistically executed. Several banks in a slot can be here at once.
+    Processed,
+    /// Won consensus. At most one bank per slot reaches this.
+    Confirmed,
+    /// Won consensus, irreversibly.
+    Finalized,
+    /// The slot was abandoned; discard everything buffered for it.
+    Dead,
+    /// The slot's first shred arrived. Not bank-scoped.
+    FirstShredReceived,
+    /// The slot's shreds are all present. Not bank-scoped.
+    Completed,
+}
+
+/// A slot lifecycle transition, used to resolve competing banks.
+///
+/// Consumers buffering by `(slot, bank_id)` promote the bank named by a
+/// [`SlotStatus::Confirmed`] or [`SlotStatus::Finalized`] update and drop every
+/// other candidate for that slot.
+#[derive(Debug, Clone)]
+pub struct SlotStatusUpdate {
+    pub slot: u64,
+    pub bank_id: Option<u64>,
+    pub status: SlotStatus,
+    pub parent_slot: Option<u64>,
+    pub dead_error: Option<String>,
 }
 
 #[cfg(test)]
@@ -201,6 +251,7 @@ mod tests {
             account,
             slot: 7,
             transaction_signature,
+            bank_id: None,
         }
         .into_update();
 
@@ -224,6 +275,7 @@ mod tests {
             },
             slot: 7,
             transaction_signature: None,
+            bank_id: None,
         }
         .into_update();
 
