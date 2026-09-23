@@ -10,7 +10,7 @@ If you're not sure which one fits, find your use case below:
 | -------------------------------------------------------------- | ---------------------------------------------------- |
 | Real-time pipeline (gRPC)                                      | [`yellowstone-grpc`](yellowstone-grpc)               |
 | Real-time pipeline (no Geyser, public RPC)                     | [`block-subscribe-rpc`](block-subscribe-rpc)         |
-| Legacy Carbon 1 archive backfill                               | [`jetstreamer`](jetstreamer)                         |
+| Bounded slot/epoch backfill from the Old Faithful archives      | [`jetstreamer`](jetstreamer)                         |
 | Per-program transaction history backfill                       | [`transaction-crawler-rpc`](transaction-crawler-rpc) |
 | Loading current state via RPC `getProgramAccounts`             | [`gpa-rpc`](gpa-rpc)                                 |
 | Loading state from a validator snapshot file                   | [`snapshot-validator`](snapshot-validator)           |

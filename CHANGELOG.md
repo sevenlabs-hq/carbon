@@ -92,4 +92,6 @@ The Carbon 2 publication contains these twelve datasource crates:
 - Validator snapshot
 - Yellowstone gRPC
 
-`carbon-jito-shredstream-grpc-datasource` and `carbon-jetstreamer-datasource` are not published on the 2.0 line. Jito Shredstream does not yet support Transaction V1, while Jetstreamer does not yet support the Solana v4 stack. Existing versions remain available, but they must not be selected as Carbon 2 dependencies.
+`carbon-jito-shredstream-grpc-datasource` and `carbon-jetstreamer-datasource` are not published on the 2.0 line. Jito Shredstream does not yet support Transaction V1; Jetstreamer's Transaction V1 and Agave 4.2 support landed in [anza-xyz/jetstreamer#95](https://github.com/anza-xyz/jetstreamer/pull/95) but has not shipped in a release, so `carbon-jetstreamer-datasource` pins `jetstreamer-firehose` to a git rev and cannot be published until it does. Existing versions remain available, but they must not be selected as Carbon 2 dependencies.
+
+`carbon-jetstreamer-datasource` is a Carbon 2 workspace member again and targets the Solana v4 stack. Use it from a git checkout.
