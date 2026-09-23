@@ -111,7 +111,7 @@ test('renders native Codama events with their IDL-defined CPI discriminator', ()
         assert.match(lib, /pub const EVENT_CPI_DISCRIMINATOR: &\[u8\] = &\[1, 2, 3, 4\];/);
 
         const cargoToml = readFileSync(join(outputDirectory, 'Cargo.toml'), 'utf8');
-        assert.match(cargoToml, /rust-version = "1\.96\.1"/);
+        assert.match(cargoToml, /rust-version = "1\.97\.1"/);
         assert.match(cargoToml, /carbon-core = \{ version = "2\.0\.0"/);
         assert.match(cargoToml, /carbon-test-utils = "2\.0\.0"/);
     } finally {
