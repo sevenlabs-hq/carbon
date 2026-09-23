@@ -265,6 +265,7 @@ impl Datasource for LaserStreamGeyserClient {
                 entry: HashMap::new(),
                 blocks: filters,
                 blocks_meta: HashMap::new(),
+                block_footer: HashMap::new(),
                 commitment: commitment.map(|x| x as i32),
                 accounts_data_slice: vec![],
                 ping: None,

@@ -300,6 +300,7 @@ fn create_reward(reward: proto::Reward) -> ConversionResult<Reward> {
         proto::RewardType::Staking => Some(RewardType::Staking),
         proto::RewardType::Voting => Some(RewardType::Voting),
         proto::RewardType::DeactivatedStake => Some(RewardType::DeactivatedStake),
+        proto::RewardType::VatDebit => Some(RewardType::VATDebit),
     };
     let commission = parse_optional_number(reward.commission, "meta.rewards.commission")?;
     let commission_bps =
