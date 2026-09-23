@@ -111,13 +111,10 @@ const RECONNECT_INITIAL_DELAY_MS: u64 = 100;
 /// Upper bound on the retry delay
 const RECONNECT_MAX_DELAY_MS: u64 = 3_000;
 
-/// Filter name for the always-on slot subscription. Slot updates are what let a
-/// consumer resolve competing banks: only `Confirmed`/`Finalized` name a winner,
-/// and at most one bank per slot ever reaches them.
+/// Filter name for the always-on slot subscription.
 const SLOT_STATUS_FILTER: &str = "carbon-slot-status";
 
-/// Filter name for the always-on block-meta subscription. Block meta is the only
-/// gRPC message carrying a bank's blockhash and its transaction/entry counts.
+/// Filter name for the always-on block-meta subscription.
 const BLOCK_META_FILTER: &str = "carbon-block-meta";
 
 #[derive(Debug)]
@@ -298,13 +295,9 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                 slots: HashMap::from([(
                     SLOT_STATUS_FILTER.to_owned(),
                     SubscribeRequestFilterSlots {
-                        // Every status, not just the subscription's commitment level:
-                        // resolution needs `Confirmed`/`Finalized` regardless of what
-                        // the stream itself is subscribed at.
+                        // Every status, not just the stream's own commitment level.
                         filter_by_commitment: Some(false),
-                        // Includes `CreatedBank` and `Dead`, which are not commitment
-                        // statuses but are needed to see a competing bank appear and to
-                        // discard an abandoned slot.
+                        // Adds CreatedBank and Dead.
                         interslot_updates: Some(true),
                     },
                 )]),

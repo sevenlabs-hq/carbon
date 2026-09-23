@@ -193,33 +193,23 @@ pub struct BlockDetails {
 
 /// Lifecycle status of a bank within a slot.
 ///
-/// Under Alpenglow a slot can have several competing banks. Only
-/// [`SlotStatus::Confirmed`] and [`SlotStatus::Finalized`] identify a winner:
-/// at most one bank per slot ever reaches either. [`SlotStatus::Processed`]
-/// carries no precedence over its peers.
+/// Only `Confirmed` and `Finalized` identify a winner: at most one bank per
+/// slot reaches either, and `Processed` carries no precedence over its peers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SlotStatus {
-    /// A bank was created for this slot. A second one means a competing bank.
     CreatedBank,
-    /// Optimistically executed. Several banks in a slot can be here at once.
     Processed,
-    /// Won consensus. At most one bank per slot reaches this.
     Confirmed,
-    /// Won consensus, irreversibly.
     Finalized,
-    /// The slot was abandoned; discard everything buffered for it.
     Dead,
-    /// The slot's first shred arrived. Not bank-scoped.
     FirstShredReceived,
-    /// The slot's shreds are all present. Not bank-scoped.
     Completed,
 }
 
-/// A slot lifecycle transition, used to resolve competing banks.
+/// Slot lifecycle transition, used to resolve competing banks.
 ///
-/// Consumers buffering by `(slot, bank_id)` promote the bank named by a
-/// [`SlotStatus::Confirmed`] or [`SlotStatus::Finalized`] update and drop every
-/// other candidate for that slot.
+/// `bank_id` is `None` for `FirstShredReceived` and `Completed`, which are not
+/// bank-scoped.
 #[derive(Debug, Clone)]
 pub struct SlotStatusUpdate {
     pub slot: u64,

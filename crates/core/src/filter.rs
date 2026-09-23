@@ -117,21 +117,9 @@ type SeenAccountsMap = HashMap<(Signature, Pubkey), Instant>;
 /// Keys instructions by `(signature, absolute_path)` and accounts by
 /// `(signature, pubkey)`. Periodically purges expired entries to bound memory.
 ///
-/// # Why `bank_id` is not part of the key
-///
-/// It is tempting to add it, so that the same signature arriving from a
-/// competing bank counts as a separate candidate rather than a duplicate. That
-/// breaks the filter's main job. `bank_id` is a node-local counter, so two
-/// providers streaming the same block report unrelated values for it, and every
-/// cross-provider duplicate would then pass through. The filter deduplicates on
-/// identity — a signature is globally unique — and competing banks are resolved
-/// by the consumer via [`crate::datasource::Update::SlotStatus`], which names
-/// the winning `bank_id` for a slot.
-///
-/// The consequence to be aware of: on a `processed` stream this filter keeps
-/// whichever copy of a transaction arrived first, which may be a losing bank's.
-/// A pipeline that cares about that should resolve banks itself instead of
-/// relying on this filter.
+/// Deliberately not keyed by `bank_id`: it is node-local, so two providers
+/// report unrelated values and every cross-provider duplicate would pass
+/// through. Competing banks are resolved via `Update::SlotStatus` instead.
 pub struct DeduplicationFilter {
     seen_instructions: Arc<RwLock<SeenInstructionsMap>>,
     seen_accounts: Arc<RwLock<SeenAccountsMap>>,

@@ -31,13 +31,10 @@ use {
     },
 };
 
-/// Filter name for the always-on slot subscription. Slot updates are what let a
-/// consumer resolve competing banks: only `Confirmed`/`Finalized` name a winner,
-/// and at most one bank per slot ever reaches them.
+/// Filter name for the always-on slot subscription.
 const SLOT_STATUS_FILTER: &str = "carbon-slot-status";
 
-/// Filter name for the always-on block-meta subscription. Block meta is the only
-/// gRPC message carrying a bank's blockhash and its transaction/entry counts.
+/// Filter name for the always-on block-meta subscription.
 const BLOCK_META_FILTER: &str = "carbon-block-meta";
 
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
@@ -273,13 +270,9 @@ impl Datasource for LaserStreamGeyserClient {
                 slots: HashMap::from([(
                     SLOT_STATUS_FILTER.to_owned(),
                     SubscribeRequestFilterSlots {
-                        // Every status, not just the subscription's commitment level:
-                        // resolution needs `Confirmed`/`Finalized` regardless of what
-                        // the stream itself is subscribed at.
+                        // Every status, not just the stream's own commitment level.
                         filter_by_commitment: Some(false),
-                        // Includes `CreatedBank` and `Dead`, which are not commitment
-                        // statuses but are needed to see a competing bank appear and to
-                        // discard an abandoned slot.
+                        // Adds CreatedBank and Dead.
                         interslot_updates: Some(true),
                     },
                 )]),
@@ -411,13 +404,8 @@ impl Datasource for LaserStreamGeyserClient {
                                                 }
                                             }
                                             Some(UpdateOneof::Slot(slot_update)) => {
-                                                // The replay cursor may only advance on the
-                                                // internal subscription, which filters by the
-                                                // stream's own commitment. The status
-                                                // subscription reports every status, including
-                                                // ones ahead of data we have processed, so
-                                                // letting it move the cursor would make a
-                                                // reconnect skip slots.
+                                                // Only the internal subscription may move the
+                                                // cursor; the status one runs ahead of it.
                                                 if let Some(ref internal_id) = internal_slot_sub_id {
                                                     if msg.filters.contains(internal_id) {
                                                         tracked_slot = slot_update.slot;

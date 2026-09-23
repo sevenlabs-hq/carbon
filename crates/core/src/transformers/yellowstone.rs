@@ -318,12 +318,8 @@ fn create_reward(reward: proto::Reward) -> ConversionResult<Reward> {
     })
 }
 
-/// Converts a yellowstone block-meta update into Carbon's [`BlockDetails`].
-///
-/// This is the only gRPC message carrying a bank's blockhash and its
-/// `executed_transaction_count` / `entries_count`, which are what a consumer
-/// buffering by `(slot, bank_id)` needs to reconcile across connections and to
-/// know when a bank is complete.
+/// Convert a protobuf block-meta update, the only gRPC message carrying a
+/// bank's blockhash and its transaction and entry counts.
 pub fn create_block_details(
     meta: proto::SubscribeUpdateBlockMeta,
 ) -> ConversionResult<BlockDetails> {
@@ -355,10 +351,8 @@ pub fn create_block_details(
     })
 }
 
-/// Converts a yellowstone slot update into Carbon's [`SlotStatusUpdate`].
-///
-/// Returns `None` if the status is not one this proto version defines, which
-/// only happens if the server is newer than the pinned proto.
+/// Convert a protobuf slot update, returning `None` for a status this proto
+/// version does not define.
 pub fn create_slot_status_update(slot: proto::SubscribeUpdateSlot) -> Option<SlotStatusUpdate> {
     let status = match proto::SlotStatus::try_from(slot.status).ok()? {
         proto::SlotStatus::SlotCreatedBank => SlotStatus::CreatedBank,
