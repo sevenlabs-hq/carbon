@@ -162,6 +162,7 @@ impl Datasource for RpcProgramSubscribe {
                                     account: decoded_account,
                                     slot: acc_event.context.slot,
                                     transaction_signature: None,
+                                    bank_id: None,
                                 }
                                 .into_update();
 

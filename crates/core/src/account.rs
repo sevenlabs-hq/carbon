@@ -26,6 +26,7 @@ pub struct AccountMetadata {
     pub slot: u64,
     pub pubkey: Pubkey,
     pub transaction_signature: Option<Signature>,
+    pub bank_id: Option<u64>,
 }
 
 /// Decoder output: the typed account body plus the standard account

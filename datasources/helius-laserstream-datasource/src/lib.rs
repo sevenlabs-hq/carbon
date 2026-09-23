@@ -6,7 +6,9 @@ use {
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
-        transformers::yellowstone::{create_tx_meta, create_tx_versioned},
+        transformers::yellowstone::{
+            create_block_details, create_slot_status_update, create_tx_meta, create_tx_versioned,
+        },
     },
     futures::{sink::SinkExt, StreamExt},
     solana_account::Account,
@@ -21,12 +23,22 @@ use {
         geyser::{
             subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
             SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,
-            SubscribeRequestFilterSlots, SubscribeRequestFilterTransactions, SubscribeRequestPing,
-            SubscribeUpdateAccountInfo, SubscribeUpdateTransactionInfo,
+            SubscribeRequestFilterBlocksMeta, SubscribeRequestFilterSlots,
+            SubscribeRequestFilterTransactions, SubscribeRequestPing, SubscribeUpdateAccountInfo,
+            SubscribeUpdateTransactionInfo,
         },
         tonic::{codec::CompressionEncoding, transport::ClientTlsConfig},
     },
 };
+
+/// Filter name for the always-on slot subscription. Slot updates are what let a
+/// consumer resolve competing banks: only `Confirmed`/`Finalized` name a winner,
+/// and at most one bank per slot ever reaches them.
+const SLOT_STATUS_FILTER: &str = "carbon-slot-status";
+
+/// Filter name for the always-on block-meta subscription. Block meta is the only
+/// gRPC message carrying a bank's blockhash and its transaction/entry counts.
+const BLOCK_META_FILTER: &str = "carbon-block-meta";
 
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
 const RECONNECTION_DELAY_MS: u64 = 3000;
@@ -258,13 +270,28 @@ impl Datasource for LaserStreamGeyserClient {
             let mut tracked_slot: u64 = 0;
 
             let mut subscribe_request = SubscribeRequest {
-                slots: HashMap::new(),
+                slots: HashMap::from([(
+                    SLOT_STATUS_FILTER.to_owned(),
+                    SubscribeRequestFilterSlots {
+                        // Every status, not just the subscription's commitment level:
+                        // resolution needs `Confirmed`/`Finalized` regardless of what
+                        // the stream itself is subscribed at.
+                        filter_by_commitment: Some(false),
+                        // Includes `CreatedBank` and `Dead`, which are not commitment
+                        // statuses but are needed to see a competing bank appear and to
+                        // discard an abandoned slot.
+                        interslot_updates: Some(true),
+                    },
+                )]),
                 accounts: account_filters,
                 transactions: transaction_filters,
                 transactions_status: HashMap::new(),
                 entry: HashMap::new(),
                 blocks: filters,
-                blocks_meta: HashMap::new(),
+                blocks_meta: HashMap::from([(
+                    BLOCK_META_FILTER.to_owned(),
+                    SubscribeRequestFilterBlocksMeta {},
+                )]),
                 block_footer: HashMap::new(),
                 commitment: commitment.map(|x| x as i32),
                 accounts_data_slice: vec![],
@@ -330,6 +357,7 @@ impl Datasource for LaserStreamGeyserClient {
                                                     &sender,
                                                     id_for_loop.clone(),
                                                     account_update.slot,
+                                                    account_update.bank_id,
                                                 )
                                                 .await
                                             }
@@ -340,6 +368,7 @@ impl Datasource for LaserStreamGeyserClient {
                                                     id_for_loop.clone(),
                                                     transaction_update.slot,
                                                     None,
+                                                    Some(transaction_update.bank_id),
                                                 ).await
                                             }
                                             Some(UpdateOneof::Block(block_update)) => {
@@ -347,7 +376,7 @@ impl Datasource for LaserStreamGeyserClient {
 
                                                 for transaction_update in block_update.transactions {
                                                     if retain_block_failed_transactions || transaction_update.meta.as_ref().map(|meta| meta.err.is_none()).unwrap_or(false) {
-                                                        send_subscribe_update_transaction_info(Some(transaction_update), &sender, id_for_loop.clone(), block_update.slot, block_time).await
+                                                        send_subscribe_update_transaction_info(Some(transaction_update), &sender, id_for_loop.clone(), block_update.slot, block_time, Some(block_update.bank_id)).await
                                                     }
                                                 }
 
@@ -357,19 +386,55 @@ impl Datasource for LaserStreamGeyserClient {
                                                         &sender,
                                                         id_for_loop.clone(),
                                                         block_update.slot,
+                                                        Some(block_update.bank_id),
                                                     )
                                                     .await;
                                                 }
                                             }
+                                            Some(UpdateOneof::BlockMeta(block_meta)) => {
+                                                let slot = block_meta.slot;
+                                                match create_block_details(block_meta) {
+                                                    Ok(block_details) => {
+                                                        let update =
+                                                            Update::BlockDetails(block_details);
+                                                        if let Err(e) = sender
+                                                            .try_send((update, id_for_loop.clone()))
+                                                        {
+                                                            log::error!(
+                                                                "Failed to send block details for slot {slot}: {e:?}"
+                                                            );
+                                                        }
+                                                    }
+                                                    Err(e) => log::error!(
+                                                        "Failed to convert block meta for slot {slot}: {e:?}"
+                                                    ),
+                                                }
+                                            }
                                             Some(UpdateOneof::Slot(slot_update)) => {
-                                                if replay_enabled {
-                                                    tracked_slot = slot_update.slot;
+                                                // The replay cursor may only advance on the
+                                                // internal subscription, which filters by the
+                                                // stream's own commitment. The status
+                                                // subscription reports every status, including
+                                                // ones ahead of data we have processed, so
+                                                // letting it move the cursor would make a
+                                                // reconnect skip slots.
+                                                if let Some(ref internal_id) = internal_slot_sub_id {
+                                                    if msg.filters.contains(internal_id) {
+                                                        tracked_slot = slot_update.slot;
+                                                    }
                                                 }
 
-                                                // Skip if this slot update is EXCLUSIVELY from our internal subscription
-                                                if let Some(ref internal_id) = internal_slot_sub_id {
-                                                    if msg.filters.len() == 1 && msg.filters.contains(internal_id) {
-                                                        continue;
+                                                let slot = slot_update.slot;
+                                                if let Some(slot_status) =
+                                                    create_slot_status_update(slot_update)
+                                                {
+                                                    let update = Update::SlotStatus(slot_status);
+                                                    if let Err(e) = sender
+                                                        .try_send((update, id_for_loop.clone()))
+                                                    {
+                                                        log::error!(
+                                                            "Failed to send slot status for slot {slot}: {e:?}"
+                                                        );
                                                     }
                                                 }
                                             }
@@ -425,6 +490,8 @@ impl Datasource for LaserStreamGeyserClient {
             UpdateType::AccountUpdate,
             UpdateType::Transaction,
             UpdateType::AccountDeletion,
+            UpdateType::SlotStatus,
+            UpdateType::BlockDetails,
         ]
     }
 }
@@ -434,6 +501,7 @@ async fn send_subscribe_account_update_info(
     sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     slot: u64,
+    bank_id: Option<u64>,
 ) {
     let start_time = std::time::Instant::now();
 
@@ -461,6 +529,7 @@ async fn send_subscribe_account_update_info(
             transaction_signature: account_info
                 .txn_signature
                 .and_then(|sig| Signature::try_from(sig).ok()),
+            bank_id,
         }
         .into_update();
         let is_deletion = matches!(&update, Update::AccountDeletion(_));
@@ -489,6 +558,7 @@ async fn send_subscribe_update_transaction_info(
     id: DatasourceId,
     slot: u64,
     block_time: Option<i64>,
+    bank_id: Option<u64>,
 ) {
     let start_time = std::time::Instant::now();
 
@@ -521,6 +591,7 @@ async fn send_subscribe_update_transaction_info(
             index: Some(transaction_info.index),
             block_time,
             block_hash: None,
+            bank_id,
         }));
         if let Err(e) = sender.try_send((update, id)) {
             log::error!(

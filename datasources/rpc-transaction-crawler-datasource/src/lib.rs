@@ -584,6 +584,7 @@ fn task_processor(
                         index: None,
                         block_time: fetched_transaction.block_time,
                         block_hash: None,
+                        bank_id: None,
                     }));
 
                     TRANSACTION_PROCESS_TIME_MILLIS.record(start.elapsed().as_millis() as f64);
