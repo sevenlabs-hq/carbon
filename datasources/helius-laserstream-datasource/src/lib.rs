@@ -129,6 +129,8 @@ pub struct LaserStreamClientConfig {
     pub tcp_nodelay: Option<bool>,
     pub replay_enabled: bool,
     pub from_slot: Option<u64>,
+    pub slot_status: bool,
+    pub block_meta: bool,
 }
 
 impl Default for LaserStreamClientConfig {
@@ -142,6 +144,8 @@ impl Default for LaserStreamClientConfig {
             tcp_nodelay: None,
             replay_enabled: true,
             from_slot: None,
+            slot_status: false,
+            block_meta: false,
         }
     }
 }
@@ -196,7 +200,19 @@ impl LaserStreamClientConfig {
             tcp_nodelay,
             replay_enabled,
             from_slot,
+            slot_status: false,
+            block_meta: false,
         }
+    }
+
+    pub const fn with_slot_status(mut self) -> Self {
+        self.slot_status = true;
+        self
+    }
+
+    pub const fn with_block_meta(mut self) -> Self {
+        self.block_meta = true;
+        self
     }
 
     pub fn geyser_config_builder(
@@ -249,6 +265,8 @@ impl Datasource for LaserStreamGeyserClient {
         let retain_block_failed_transactions = block_failed_transactions.unwrap_or(true);
         let geyser_config = self.geyser_config.clone();
         let replay_enabled = geyser_config.replay_enabled;
+        let slot_status_enabled = geyser_config.slot_status;
+        let block_meta_enabled = geyser_config.block_meta;
 
         let builder = GeyserGrpcClient::build_from_shared(endpoint.clone())
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
@@ -267,24 +285,32 @@ impl Datasource for LaserStreamGeyserClient {
             let mut tracked_slot: u64 = 0;
 
             let mut subscribe_request = SubscribeRequest {
-                slots: HashMap::from([(
-                    SLOT_STATUS_FILTER.to_owned(),
-                    SubscribeRequestFilterSlots {
-                        // Every status, not just the stream's own commitment level.
-                        filter_by_commitment: Some(false),
-                        // Adds CreatedBank and Dead.
-                        interslot_updates: Some(true),
-                    },
-                )]),
+                slots: if slot_status_enabled {
+                    HashMap::from([(
+                        SLOT_STATUS_FILTER.to_owned(),
+                        SubscribeRequestFilterSlots {
+                            // Every status, not just the stream's own commitment level.
+                            filter_by_commitment: Some(false),
+                            // Adds CreatedBank and Dead.
+                            interslot_updates: Some(true),
+                        },
+                    )])
+                } else {
+                    HashMap::new()
+                },
                 accounts: account_filters,
                 transactions: transaction_filters,
                 transactions_status: HashMap::new(),
                 entry: HashMap::new(),
                 blocks: filters,
-                blocks_meta: HashMap::from([(
-                    BLOCK_META_FILTER.to_owned(),
-                    SubscribeRequestFilterBlocksMeta {},
-                )]),
+                blocks_meta: if block_meta_enabled {
+                    HashMap::from([(
+                        BLOCK_META_FILTER.to_owned(),
+                        SubscribeRequestFilterBlocksMeta {},
+                    )])
+                } else {
+                    HashMap::new()
+                },
                 block_footer: HashMap::new(),
                 commitment: commitment.map(|x| x as i32),
                 accounts_data_slice: vec![],
@@ -413,8 +439,9 @@ impl Datasource for LaserStreamGeyserClient {
                                                 }
 
                                                 let slot = slot_update.slot;
-                                                if let Some(slot_status) =
-                                                    create_slot_status_update(slot_update)
+                                                if let Some(slot_status) = slot_status_enabled
+                                                    .then(|| create_slot_status_update(slot_update))
+                                                    .flatten()
                                                 {
                                                     let update = Update::SlotStatus(slot_status);
                                                     if let Err(e) = sender
@@ -474,13 +501,18 @@ impl Datasource for LaserStreamGeyserClient {
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![
+        let mut types = vec![
             UpdateType::AccountUpdate,
             UpdateType::Transaction,
             UpdateType::AccountDeletion,
-            UpdateType::SlotStatus,
-            UpdateType::BlockDetails,
-        ]
+        ];
+        if self.geyser_config.slot_status {
+            types.push(UpdateType::SlotStatus);
+        }
+        if self.geyser_config.block_meta {
+            types.push(UpdateType::BlockDetails);
+        }
+        types
     }
 }
 

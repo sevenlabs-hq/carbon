@@ -142,6 +142,14 @@ pub struct YellowstoneGrpcClientConfig {
     /// When set, the client reconnects and replays inside the stream instead of
     /// surfacing the disconnect. Off by default.
     pub reconnect: Option<ReconnectConfig>,
+    /// Subscribe to slot status, which is what names the bank that won a slot.
+    /// Only useful at `processed`, where competing banks are delivered. Off by
+    /// default: it costs roughly 17 messages a second whether or not anything
+    /// consumes them.
+    pub slot_status: bool,
+    /// Subscribe to block meta, the only gRPC message carrying a bank's
+    /// blockhash and its transaction and entry counts. Off by default.
+    pub block_meta: bool,
 }
 
 impl Default for YellowstoneGrpcClientConfig {
@@ -154,6 +162,8 @@ impl Default for YellowstoneGrpcClientConfig {
             tls_config: None,
             tcp_nodelay: None,
             reconnect: None,
+            slot_status: false,
+            block_meta: false,
         }
     }
 }
@@ -211,7 +221,23 @@ impl YellowstoneGrpcClientConfig {
             tls_config,
             tcp_nodelay,
             reconnect: None,
+            slot_status: false,
+            block_meta: false,
         }
+    }
+
+    /// Subscribe to slot status, which names the bank that won a slot. Needed
+    /// only at `processed`, where competing banks are delivered.
+    pub const fn with_slot_status(mut self) -> Self {
+        self.slot_status = true;
+        self
+    }
+
+    /// Subscribe to block meta, the only gRPC message carrying a bank's
+    /// blockhash and its transaction and entry counts.
+    pub const fn with_block_meta(mut self) -> Self {
+        self.block_meta = true;
+        self
     }
 
     pub fn with_reconnect(self, reconnect: ReconnectConfig) -> Self {
@@ -266,6 +292,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         let endpoint = self.endpoint.clone();
         let x_token = self.x_token.clone();
         let commitment = self.commitment;
+        let slot_status_enabled = self.geyser_config.slot_status;
+        let block_meta_enabled = self.geyser_config.block_meta;
         let account_filters = self.account_filters.clone();
         let transaction_filters = self.transaction_filters.clone();
         let BlockFilters {
@@ -292,24 +320,32 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
         tokio::spawn(async move {
             let subscribe_request = SubscribeRequest {
-                slots: HashMap::from([(
-                    SLOT_STATUS_FILTER.to_owned(),
-                    SubscribeRequestFilterSlots {
-                        // Every status, not just the stream's own commitment level.
-                        filter_by_commitment: Some(false),
-                        // Adds CreatedBank and Dead.
-                        interslot_updates: Some(true),
-                    },
-                )]),
+                slots: if slot_status_enabled {
+                    HashMap::from([(
+                        SLOT_STATUS_FILTER.to_owned(),
+                        SubscribeRequestFilterSlots {
+                            // Every status, not just the stream's own commitment level.
+                            filter_by_commitment: Some(false),
+                            // Adds CreatedBank and Dead.
+                            interslot_updates: Some(true),
+                        },
+                    )])
+                } else {
+                    HashMap::new()
+                },
                 accounts: account_filters,
                 transactions: transaction_filters,
                 transactions_status: HashMap::new(),
                 entry: HashMap::new(),
                 blocks: filters,
-                blocks_meta: HashMap::from([(
-                    BLOCK_META_FILTER.to_owned(),
-                    SubscribeRequestFilterBlocksMeta {},
-                )]),
+                blocks_meta: if block_meta_enabled {
+                    HashMap::from([(
+                        BLOCK_META_FILTER.to_owned(),
+                        SubscribeRequestFilterBlocksMeta {},
+                    )])
+                } else {
+                    HashMap::new()
+                },
                 block_footer: HashMap::new(),
                 commitment: commitment.map(|x| x as i32),
                 accounts_data_slice: vec![],
@@ -546,13 +582,18 @@ impl Datasource for YellowstoneGrpcGeyserClient {
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![
+        let mut types = vec![
             UpdateType::AccountUpdate,
             UpdateType::Transaction,
             UpdateType::AccountDeletion,
-            UpdateType::SlotStatus,
-            UpdateType::BlockDetails,
-        ]
+        ];
+        if self.geyser_config.slot_status {
+            types.push(UpdateType::SlotStatus);
+        }
+        if self.geyser_config.block_meta {
+            types.push(UpdateType::BlockDetails);
+        }
+        types
     }
 }
 
