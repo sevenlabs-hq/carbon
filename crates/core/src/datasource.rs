@@ -195,13 +195,13 @@ pub struct BlockDetails {
 ///
 /// Only `Confirmed` and `Finalized` identify a winner: at most one bank per
 /// slot reaches either, and `Processed` carries no precedence over its peers.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SlotStatus {
     CreatedBank,
     Processed,
     Confirmed,
     Finalized,
-    Dead,
+    Dead(String),
     FirstShredReceived,
     Completed,
 }
@@ -215,8 +215,7 @@ pub struct SlotStatusUpdate {
     pub slot: u64,
     pub bank_id: Option<u64>,
     pub status: SlotStatus,
-    pub parent_slot: Option<u64>,
-    pub dead_error: Option<String>,
+    pub parent: Option<u64>,
 }
 
 #[cfg(test)]

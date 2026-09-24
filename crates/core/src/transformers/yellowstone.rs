@@ -359,7 +359,7 @@ pub fn create_slot_status_update(slot: proto::SubscribeUpdateSlot) -> Option<Slo
         proto::SlotStatus::SlotProcessed => SlotStatus::Processed,
         proto::SlotStatus::SlotConfirmed => SlotStatus::Confirmed,
         proto::SlotStatus::SlotFinalized => SlotStatus::Finalized,
-        proto::SlotStatus::SlotDead => SlotStatus::Dead,
+        proto::SlotStatus::SlotDead => SlotStatus::Dead(slot.dead_error.unwrap_or_default()),
         proto::SlotStatus::SlotFirstShredReceived => SlotStatus::FirstShredReceived,
         proto::SlotStatus::SlotCompleted => SlotStatus::Completed,
     };
@@ -368,8 +368,7 @@ pub fn create_slot_status_update(slot: proto::SubscribeUpdateSlot) -> Option<Slo
         slot: slot.slot,
         bank_id: slot.bank_id,
         status,
-        parent_slot: slot.parent,
-        dead_error: slot.dead_error,
+        parent: slot.parent,
     })
 }
 
