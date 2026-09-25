@@ -2,8 +2,8 @@ use {
     async_trait::async_trait,
     carbon_core::{
         datasource::{
-            AccountUpdate, Datasource, DatasourceDisconnection, DatasourceId, TransactionUpdate,
-            Update, UpdateType,
+            AccountUpdate, Datasource, DatasourceDisconnection, DatasourceId, SlotStatus,
+            TransactionUpdate, Update, UpdateType,
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
@@ -411,6 +411,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     Some(UpdateOneof::Account(ref update)) => Some(update.slot),
                                                     Some(UpdateOneof::Transaction(ref update)) => Some(update.slot),
                                                     Some(UpdateOneof::Block(ref update)) => Some(update.slot),
+                                                    Some(UpdateOneof::BlockMeta(ref update)) => Some(update.slot),
+                                                    Some(UpdateOneof::Slot(ref update)) => Some(update.slot),
                                                     _ => None,
                                                 };
 
@@ -488,6 +490,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
                                             Some(UpdateOneof::BlockMeta(block_meta)) => {
                                                 let slot = block_meta.slot;
+                                                last_processed_slot = slot;
                                                 match create_block_details(block_meta) {
                                                     Ok(block_details) => {
                                                         let update =
@@ -510,6 +513,14 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                 if let Some(slot_status) =
                                                     create_slot_status_update(slot_update)
                                                 {
+                                                    if matches!(
+                                                        slot_status.status,
+                                                        SlotStatus::Processed
+                                                            | SlotStatus::Confirmed
+                                                            | SlotStatus::Finalized
+                                                    ) {
+                                                        last_processed_slot = slot;
+                                                    }
                                                     let update = Update::SlotStatus(slot_status);
                                                     if let Err(e) = sender
                                                         .try_send((update, id_for_loop.clone()))
