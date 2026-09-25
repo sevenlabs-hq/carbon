@@ -302,6 +302,18 @@ impl Filter for DatasourceFilter {
             FilterResult::Reject
         }
     }
+
+    fn filter_slot_status(
+        &self,
+        context: &FilterContext,
+        _slot_status: &SlotStatusUpdate,
+    ) -> FilterResult {
+        if self.allows(context.datasource_id) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
 }
 
 /// Half-open `[from, to)` slot range filter with optional transaction-index
@@ -441,6 +453,18 @@ impl Filter for SlotRangeFilter {
         block_details: &BlockDetails,
     ) -> FilterResult {
         if self.contains(block_details.slot, None) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
+
+    fn filter_slot_status(
+        &self,
+        _context: &FilterContext,
+        slot_status: &SlotStatusUpdate,
+    ) -> FilterResult {
+        if self.contains(slot_status.slot, None) {
             FilterResult::Accept
         } else {
             FilterResult::Reject
