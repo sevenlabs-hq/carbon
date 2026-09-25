@@ -158,6 +158,7 @@ impl Datasource for HttpPollDatasource {
                     index: None,
                     block_time: tx.block_time,
                     block_hash: None,
+                    bank_id: None,
                 }));
 
                 if sender.send((update, id.clone())).await.is_err() {

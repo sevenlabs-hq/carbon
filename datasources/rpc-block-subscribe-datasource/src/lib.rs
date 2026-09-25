@@ -275,6 +275,9 @@ impl Datasource for RpcBlockSubscribe {
                                                 num_reward_partitions: block.num_reward_partitions,
                                                 block_time: block.block_time,
                                                 block_height: block.block_height,
+                                        bank_id: None,
+                                        executed_transaction_count: None,
+                                        entries_count: None,
                                     });
 
                                     if let Err(err) = sender_clone.try_send((block_deteils, id_for_loop.clone())) {
@@ -315,6 +318,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 index: Some(tx_index as u64),
                                                 block_time: block.block_time,
                                                 block_hash,
+                                                bank_id: None,
                                             }));
 
                                             TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
@@ -347,6 +351,6 @@ impl Datasource for RpcBlockSubscribe {
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![UpdateType::Transaction]
+        vec![UpdateType::Transaction, UpdateType::BlockDetails]
     }
 }

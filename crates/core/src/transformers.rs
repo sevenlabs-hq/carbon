@@ -651,6 +651,7 @@ mod tests {
             index: Some(0),
             block_time: Some(123),
             block_hash: Hash::from_str("9bit9vXNX9HyHwL89aGDNmk3vbyAM96nvb6F4SaoM1CU").ok(),
+            bank_id: None,
         };
         let transaction_metadata = transaction_update
             .clone()
@@ -712,6 +713,7 @@ mod tests {
                 index: None,
                 block_time: None,
                 block_hash: None,
+                bank_id: None,
             }
         };
         let extract = |stack_heights: Vec<Option<u32>>| {
@@ -792,6 +794,7 @@ mod tests {
             index: Some(0),
             block_time: None,
             block_hash: None,
+            bank_id: None,
         };
         let transaction_metadata: TransactionMetadata = transaction_update
             .clone()
@@ -1278,6 +1281,7 @@ mod tests {
             index: Some(0),
             block_time: Some(123),
             block_hash: None,
+            bank_id: None,
         };
         let transaction_metadata = transaction_update
             .clone()

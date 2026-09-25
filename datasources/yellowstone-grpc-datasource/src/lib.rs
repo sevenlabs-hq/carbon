@@ -2,12 +2,14 @@ use {
     async_trait::async_trait,
     carbon_core::{
         datasource::{
-            AccountUpdate, Datasource, DatasourceDisconnection, DatasourceId, TransactionUpdate,
-            Update, UpdateType,
+            AccountUpdate, Datasource, DatasourceDisconnection, DatasourceId, SlotStatus,
+            TransactionUpdate, Update, UpdateType,
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
-        transformers::yellowstone::{create_tx_meta, create_tx_versioned},
+        transformers::yellowstone::{
+            create_block_details, create_slot_status_update, create_tx_meta, create_tx_versioned,
+        },
     },
     chrono::{DateTime, Utc},
     futures::{sink::SinkExt, StreamExt},
@@ -24,6 +26,7 @@ use {
         geyser::{
             subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
             SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,
+            SubscribeRequestFilterBlocksMeta, SubscribeRequestFilterSlots,
             SubscribeRequestFilterTransactions, SubscribeRequestPing, SubscribeUpdateAccountInfo,
             SubscribeUpdateTransactionInfo,
         },
@@ -108,6 +111,12 @@ const RECONNECT_INITIAL_DELAY_MS: u64 = 100;
 /// Upper bound on the retry delay
 const RECONNECT_MAX_DELAY_MS: u64 = 3_000;
 
+/// Filter name for the always-on slot subscription.
+const SLOT_STATUS_FILTER: &str = "carbon-slot-status";
+
+/// Filter name for the always-on block-meta subscription.
+const BLOCK_META_FILTER: &str = "carbon-block-meta";
+
 #[derive(Debug)]
 pub struct YellowstoneGrpcGeyserClient {
     pub endpoint: String,
@@ -133,6 +142,14 @@ pub struct YellowstoneGrpcClientConfig {
     /// When set, the client reconnects and replays inside the stream instead of
     /// surfacing the disconnect. Off by default.
     pub reconnect: Option<ReconnectConfig>,
+    /// Subscribe to slot status, which is what names the bank that won a slot.
+    /// Only useful at `processed`, where competing banks are delivered. Off by
+    /// default: it costs roughly 17 messages a second whether or not anything
+    /// consumes them.
+    pub slot_status: bool,
+    /// Subscribe to block meta, the only gRPC message carrying a bank's
+    /// blockhash and its transaction and entry counts. Off by default.
+    pub block_meta: bool,
 }
 
 impl Default for YellowstoneGrpcClientConfig {
@@ -145,6 +162,8 @@ impl Default for YellowstoneGrpcClientConfig {
             tls_config: None,
             tcp_nodelay: None,
             reconnect: None,
+            slot_status: false,
+            block_meta: false,
         }
     }
 }
@@ -202,7 +221,23 @@ impl YellowstoneGrpcClientConfig {
             tls_config,
             tcp_nodelay,
             reconnect: None,
+            slot_status: false,
+            block_meta: false,
         }
+    }
+
+    /// Subscribe to slot status, which names the bank that won a slot. Needed
+    /// only at `processed`, where competing banks are delivered.
+    pub const fn with_slot_status(mut self) -> Self {
+        self.slot_status = true;
+        self
+    }
+
+    /// Subscribe to block meta, the only gRPC message carrying a bank's
+    /// blockhash and its transaction and entry counts.
+    pub const fn with_block_meta(mut self) -> Self {
+        self.block_meta = true;
+        self
     }
 
     pub fn with_reconnect(self, reconnect: ReconnectConfig) -> Self {
@@ -257,6 +292,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         let endpoint = self.endpoint.clone();
         let x_token = self.x_token.clone();
         let commitment = self.commitment;
+        let slot_status_enabled = self.geyser_config.slot_status;
+        let block_meta_enabled = self.geyser_config.block_meta;
         let account_filters = self.account_filters.clone();
         let transaction_filters = self.transaction_filters.clone();
         let BlockFilters {
@@ -283,13 +320,33 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
         tokio::spawn(async move {
             let subscribe_request = SubscribeRequest {
-                slots: HashMap::new(),
+                slots: if slot_status_enabled {
+                    HashMap::from([(
+                        SLOT_STATUS_FILTER.to_owned(),
+                        SubscribeRequestFilterSlots {
+                            // Every status, not just the stream's own commitment level.
+                            filter_by_commitment: Some(false),
+                            // Adds CreatedBank and Dead.
+                            interslot_updates: Some(true),
+                        },
+                    )])
+                } else {
+                    HashMap::new()
+                },
                 accounts: account_filters,
                 transactions: transaction_filters,
                 transactions_status: HashMap::new(),
                 entry: HashMap::new(),
                 blocks: filters,
-                blocks_meta: HashMap::new(),
+                blocks_meta: if block_meta_enabled {
+                    HashMap::from([(
+                        BLOCK_META_FILTER.to_owned(),
+                        SubscribeRequestFilterBlocksMeta {},
+                    )])
+                } else {
+                    HashMap::new()
+                },
+                block_footer: HashMap::new(),
                 commitment: commitment.map(|x| x as i32),
                 accounts_data_slice: vec![],
                 ping: None,
@@ -354,6 +411,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     Some(UpdateOneof::Account(ref update)) => Some(update.slot),
                                                     Some(UpdateOneof::Transaction(ref update)) => Some(update.slot),
                                                     Some(UpdateOneof::Block(ref update)) => Some(update.slot),
+                                                    Some(UpdateOneof::BlockMeta(ref update)) => Some(update.slot),
+                                                    Some(UpdateOneof::Slot(ref update)) => Some(update.slot),
                                                     _ => None,
                                                 };
 
@@ -390,6 +449,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     &sender,
                                                     id_for_loop.clone(),
                                                     account_update.slot,
+                                                    account_update.bank_id,
                                                 )
                                                 .await
                                             }
@@ -402,6 +462,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     id_for_loop.clone(),
                                                     transaction_update.slot,
                                                     None,
+                                                    Some(transaction_update.bank_id),
                                                 )
                                                 .await
                                             }
@@ -411,7 +472,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
                                                 for transaction_update in block_update.transactions {
                                                     if retain_block_failed_transactions || transaction_update.meta.as_ref().map(|meta| meta.err.is_none()).unwrap_or(false) {
-                                                        send_subscribe_update_transaction_info(Some(transaction_update), &sender, id_for_loop.clone(), block_update.slot, block_time).await
+                                                        send_subscribe_update_transaction_info(Some(transaction_update), &sender, id_for_loop.clone(), block_update.slot, block_time, Some(block_update.bank_id)).await
                                                     }
                                                 }
 
@@ -421,11 +482,55 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         &sender,
                                                         id_for_loop.clone(),
                                                         block_update.slot,
+                                                        Some(block_update.bank_id),
                                                     )
                                                     .await;
                                                 }
                                             }
 
+                                            Some(UpdateOneof::BlockMeta(block_meta)) => {
+                                                let slot = block_meta.slot;
+                                                last_processed_slot = slot;
+                                                match create_block_details(block_meta) {
+                                                    Ok(block_details) => {
+                                                        let update =
+                                                            Update::BlockDetails(block_details);
+                                                        if let Err(e) = sender
+                                                            .try_send((update, id_for_loop.clone()))
+                                                        {
+                                                            log::error!(
+                                                                "Failed to send block details for slot {slot}: {e:?}"
+                                                            );
+                                                        }
+                                                    }
+                                                    Err(e) => log::error!(
+                                                        "Failed to convert block meta for slot {slot}: {e:?}"
+                                                    ),
+                                                }
+                                            }
+                                            Some(UpdateOneof::Slot(slot_update)) => {
+                                                let slot = slot_update.slot;
+                                                if let Some(slot_status) =
+                                                    create_slot_status_update(slot_update)
+                                                {
+                                                    if matches!(
+                                                        slot_status.status,
+                                                        SlotStatus::Processed
+                                                            | SlotStatus::Confirmed
+                                                            | SlotStatus::Finalized
+                                                    ) {
+                                                        last_processed_slot = slot;
+                                                    }
+                                                    let update = Update::SlotStatus(slot_status);
+                                                    if let Err(e) = sender
+                                                        .try_send((update, id_for_loop.clone()))
+                                                    {
+                                                        log::error!(
+                                                            "Failed to send slot status for slot {slot}: {e:?}"
+                                                        );
+                                                    }
+                                                }
+                                            }
                                             Some(UpdateOneof::Ping(_)) => {
                                                 // Sink replays the last request on reconnect.
                                                 match subscribe_tx
@@ -488,11 +593,18 @@ impl Datasource for YellowstoneGrpcGeyserClient {
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![
+        let mut types = vec![
             UpdateType::AccountUpdate,
             UpdateType::Transaction,
             UpdateType::AccountDeletion,
-        ]
+        ];
+        if self.geyser_config.slot_status {
+            types.push(UpdateType::SlotStatus);
+        }
+        if self.geyser_config.block_meta {
+            types.push(UpdateType::BlockDetails);
+        }
+        types
     }
 }
 
@@ -501,6 +613,7 @@ async fn send_subscribe_account_update_info(
     sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     slot: u64,
+    bank_id: Option<u64>,
 ) {
     let start_time = std::time::Instant::now();
 
@@ -528,6 +641,7 @@ async fn send_subscribe_account_update_info(
             transaction_signature: account_info
                 .txn_signature
                 .and_then(|sig| Signature::try_from(sig).ok()),
+            bank_id,
         }
         .into_update();
         let is_deletion = matches!(&update, Update::AccountDeletion(_));
@@ -556,6 +670,7 @@ async fn send_subscribe_update_transaction_info(
     id: DatasourceId,
     slot: u64,
     block_time: Option<i64>,
+    bank_id: Option<u64>,
 ) {
     let start_time = std::time::Instant::now();
 
@@ -588,6 +703,7 @@ async fn send_subscribe_update_transaction_info(
             index: Some(transaction_info.index),
             block_time,
             block_hash: None,
+            bank_id,
         }));
         if let Err(e) = sender.try_send((update, id)) {
             log::error!(

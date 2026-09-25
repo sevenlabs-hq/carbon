@@ -137,7 +137,7 @@ impl Default for HeliusGtfaConfig {
         Self {
             sort_order: Some(SortOrder::Asc),
             limit: Some(DEFAULT_LIMIT),
-            commitment: Some(CommitmentConfig::confirmed()),
+            commitment: Some(CommitmentConfig::finalized()),
             filters: None,
             min_context_slot: None,
         }
@@ -363,6 +363,7 @@ impl Datasource for HeliusGtfaDatasource {
                     index: tx.transaction_index,
                     block_time: tx.block_time,
                     block_hash: None,
+                    bank_id: None,
                 }));
 
                 if let Err(e) = sender.send((update, id_for_loop.clone())).await {
