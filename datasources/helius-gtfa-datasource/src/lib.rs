@@ -137,7 +137,7 @@ impl Default for HeliusGtfaConfig {
         Self {
             sort_order: Some(SortOrder::Asc),
             limit: Some(DEFAULT_LIMIT),
-            commitment: Some(CommitmentConfig::finalized()),
+            commitment: Some(CommitmentConfig::confirmed()),
             filters: None,
             min_context_slot: None,
         }

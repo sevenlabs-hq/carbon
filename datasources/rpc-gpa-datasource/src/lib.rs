@@ -75,7 +75,7 @@ impl Datasource for GpaDatasource {
             .config
             .account_config
             .commitment
-            .unwrap_or(CommitmentConfig::finalized());
+            .unwrap_or(CommitmentConfig::confirmed());
 
         let rpc_client = RpcClient::new_with_commitment(self.rpc_url.clone(), commitment);
         let mut rpc_config = self.config.clone();
