@@ -17,7 +17,7 @@ export type CrateDependency =
       };
 
 export const CARBON_VERSION = '2.0.0';
-export const CARBON_MSRV = '1.96.1';
+export const CARBON_MSRV = '1.97.1';
 
 export const VERSIONS: Record<string, CrateDependency> = {
     /// Carbon crates

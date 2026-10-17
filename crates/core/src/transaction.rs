@@ -39,6 +39,7 @@ pub struct TransactionMetadata {
     pub index: Option<u64>,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub bank_id: Option<u64>,
 }
 
 impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
@@ -58,6 +59,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
             index: value.index,
             block_time: value.block_time,
             block_hash: value.block_hash,
+            bank_id: value.bank_id,
         })
     }
 }

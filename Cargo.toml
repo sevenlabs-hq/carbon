@@ -2,7 +2,10 @@
 members = ["crates/*", "datasources/*", "decoders/*", "examples/*", "metrics/*"]
 # These providers remain on their existing Solana v3 stacks and are intentionally
 # outside the v4 migration scope.
+# Helius Atlas WS is excluded until the `helius` SDK supports the Agave 4.3 stack;
+# Helius superseded Atlas WebSocket with LaserStream, which remains supported.
 exclude = [
+    "datasources/helius-atlas-ws-datasource",
     "datasources/jetstreamer-datasource",
     "datasources/jito-shredstream-grpc-datasource",
     "examples/jetstreamer",
@@ -10,7 +13,7 @@ exclude = [
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.96.1"
+rust-version = "1.97.1"
 version = "2.0.0"
 edition = "2021"
 license = "MIT"
@@ -114,38 +117,43 @@ carbon-wavebreak-decoder = { path = "decoders/wavebreak-decoder", version = "2.0
 carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "2.0.0" }
 
 # solana
-agave-snapshots = { version = "=4.2.2", features = ["agave-unstable-api"] }
+agave-snapshots = { version = "=4.3.0", features = ["agave-unstable-api"] }
 solana-account = "4.3.2"
-solana-account-decoder = { version = "=4.2.2", features = ["agave-unstable-api"] }
-solana-account-decoder-client-types = { version = "=4.2.2", features = ["agave-unstable-api"] }
-solana-accounts-db = { version = "=4.2.2", features = ["agave-unstable-api"] }
-solana-client = "=4.2.2"
+solana-account-decoder = { version = "=4.3.0", features = ["agave-unstable-api"] }
+solana-account-decoder-client-types = { version = "=4.3.0", features = ["agave-unstable-api"] }
+solana-accounts-db = { version = "=4.3.0", features = ["agave-unstable-api"] }
+solana-client = "=4.3.0"
 solana-clock = "3.1.1"
 solana-commitment-config = "3.1.1"
-solana-entry = { version = "=4.2.2", features = ["agave-unstable-api"] }
-solana-genesis-utils = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-entry = { version = "=4.3.0", features = ["agave-unstable-api"] }
+solana-genesis-utils = { version = "=4.3.0", features = ["agave-unstable-api"] }
 solana-hash = { version = "4.5.0", features = ["decode"] }
 solana-instruction = { version = "3.4.1", default-features = false }
-solana-ledger = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-ledger = { version = "=4.3.0", features = ["agave-unstable-api"] }
 solana-message = { version = "4.4.1", features = ["wincode"] }
 solana-program = { version = "4.0.0", features = ["borsh"] }
 solana-program-pack = "3.1.0"
 solana-pubkey = { version = "4.2.1", features = ["borsh", "curve25519", "serde"] }
-solana-runtime = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-runtime = { version = "=4.3.0", features = ["agave-unstable-api"] }
 solana-signature = { version = "3.4.1", features = ["rand"] }
 solana-transaction = { version = "4.1.6", features = ["wincode"] }
-solana-transaction-context = { version = "=4.2.2", features = ["agave-unstable-api", "bincode"] }
+solana-transaction-context = { version = "=4.3.0", features = ["agave-unstable-api", "bincode"] }
 solana-transaction-error = "3.3.2"
-solana-transaction-status = { version = "=4.2.2", features = ["agave-unstable-api"] }
-solana-transaction-status-client-types = { version = "=4.2.2", features = ["agave-unstable-api"] }
+solana-transaction-status = { version = "=4.3.0", features = ["agave-unstable-api"] }
+solana-transaction-status-client-types = { version = "=4.3.0", features = ["agave-unstable-api"] }
 spl-pod = "0.7.3"
 spl-token-2022 = "11.0.0"
 spl-token-group-interface = "0.7.2"
 spl-token-interface = "3.0.0"
 spl-token-metadata-interface = "1.0.0"
 spl-type-length-value = "0.9.1"
-yellowstone-grpc-client = { version = "=13.5.0" }
-yellowstone-grpc-proto = { version = "=12.7.0", default-features = false }
+# Pinned to the `v16.0.0-rc10+solana.4.3.0` release commit on `4.3-transition`: carries
+# `bank_id` on every update, `SlotStatus::CreatedBank`, and the block footer. Not on
+# crates.io yet (latest published proto is 12.7.0), so this is a git rev until Triton
+# publishes 13.x. Deliberately NOT PR #886's head: that branch is still open and adds only
+# the UpdateParent markers, which are gated behind an entry subscription Carbon never sends.
+yellowstone-grpc-client = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "301e9cffb623aee5273ad751c9503db22d92baaa" }
+yellowstone-grpc-proto = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "301e9cffb623aee5273ad751c9503db22d92baaa", default-features = false }
 
 # misc
 anyhow = "1.0.100"
@@ -213,4 +221,10 @@ tonic = { version = "0.13.1", features = ["tls-native-roots", "tls-webpki-roots"
 tonic-build = "0.13.1"
 unicode-xid = "0.2"
 uuid = { version = "1.18.1", features = ["serde", "v7"] }
-wincode = "0.5.5"
+wincode = "0.6.1"
+
+# solana-ledger 4.3.0 uses RocksDB APIs that exist only in Anza's fork; Agave
+# applies the same patch in its own workspace.
+[patch.crates-io]
+librocksdb-sys = { git = "https://github.com/anza-xyz/rust-rocksdb", rev = "4dba80dfe9434e595a971f5b2985ff9ba4fb31e7" }
+rocksdb = { git = "https://github.com/anza-xyz/rust-rocksdb", rev = "4dba80dfe9434e595a971f5b2985ff9ba4fb31e7" }

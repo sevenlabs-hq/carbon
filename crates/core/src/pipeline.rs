@@ -31,7 +31,9 @@ use {
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
-        datasource::{AccountDeletion, BlockDetails, Datasource, DatasourceId, Update},
+        datasource::{
+            AccountDeletion, BlockDetails, Datasource, DatasourceId, SlotStatusUpdate, Update,
+        },
         error::CarbonResult,
         filter::{Filter, FilterContext, FilterResult},
         instruction::{
@@ -40,6 +42,7 @@ use {
         },
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
+        slot_status::{SlotStatusPipe, SlotStatusPipes},
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
         transformers,
     },
@@ -96,6 +99,11 @@ static BLOCK_DETAILS_PROCESSED: Counter = Counter::new(
     "Total block details processed",
 );
 
+static SLOT_STATUS_PROCESSED: Counter = Counter::new(
+    "carbon_slot_status_processed_total",
+    "Total slot status updates processed",
+);
+
 static PROCESSING_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
     Histogram::new(
         "carbon_updates_process_time_nanoseconds",
@@ -132,6 +140,7 @@ fn register_pipeline_metrics() {
     registry.register_counter(&TRANSACTION_UPDATES_PROCESSED);
     registry.register_counter(&ACCOUNT_DELETIONS_PROCESSED);
     registry.register_counter(&BLOCK_DETAILS_PROCESSED);
+    registry.register_counter(&SLOT_STATUS_PROCESSED);
 }
 
 /// Shutdown semantics on ctrl-C or external cancellation.
@@ -160,6 +169,7 @@ pub struct Pipeline {
     pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
+    pub slot_status_pipes: Vec<Box<dyn SlotStatusPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
@@ -301,6 +311,7 @@ impl Pipeline {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                     transaction_signature: account_update.transaction_signature,
+                    bank_id: account_update.bank_id,
                 };
 
                 let context = FilterContext {
@@ -410,6 +421,24 @@ impl Pipeline {
 
                 BLOCK_DETAILS_PROCESSED.inc();
             }
+            Update::SlotStatus(slot_status) => {
+                let context = FilterContext {
+                    datasource_id: &datasource_id,
+                };
+
+                for pipe in self.slot_status_pipes.iter_mut() {
+                    if pipe.filters().iter().all(|filter| {
+                        matches!(
+                            filter.filter_slot_status(&context, &slot_status),
+                            FilterResult::Accept
+                        )
+                    }) {
+                        pipe.run(slot_status.clone()).await?;
+                    }
+                }
+
+                SLOT_STATUS_PROCESSED.inc();
+            }
         };
 
         Ok(())
@@ -430,6 +459,7 @@ pub struct PipelineBuilder {
     pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
+    pub slot_status_pipes: Vec<Box<dyn SlotStatusPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
@@ -445,6 +475,7 @@ impl Default for PipelineBuilder {
             datasources: Vec::new(),
             account_pipes: Vec::new(),
             account_deletion_pipes: Vec::new(),
+            slot_status_pipes: Vec::new(),
             block_details_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
@@ -535,6 +566,28 @@ impl PipelineBuilder {
     {
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe::new(processor, filters)));
+        self
+    }
+
+    pub fn slot_status<P>(mut self, processor: P) -> Self
+    where
+        P: Processor<SlotStatusUpdate> + Send + Sync + 'static,
+    {
+        self.slot_status_pipes
+            .push(Box::new(SlotStatusPipe::new(processor, Vec::new())));
+        self
+    }
+
+    pub fn slot_status_with_filters<P>(
+        mut self,
+        processor: P,
+        filters: Vec<Box<dyn Filter + 'static>>,
+    ) -> Self
+    where
+        P: Processor<SlotStatusUpdate> + Send + Sync + 'static,
+    {
+        self.slot_status_pipes
+            .push(Box::new(SlotStatusPipe::new(processor, filters)));
         self
     }
 
@@ -645,6 +698,7 @@ impl PipelineBuilder {
             datasources: self.datasources,
             account_pipes: self.account_pipes,
             account_deletion_pipes: self.account_deletion_pipes,
+            slot_status_pipes: self.slot_status_pipes,
             block_details_pipes: self.block_details_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,

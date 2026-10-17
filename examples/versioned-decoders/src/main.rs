@@ -114,6 +114,7 @@ fn make_tx(slot: u64, index: Option<u64>, instruction_data: Vec<u8>) -> Update {
         block_time: None,
         block_hash: None,
         is_vote: false,
+        bank_id: None,
     }))
 }
 
