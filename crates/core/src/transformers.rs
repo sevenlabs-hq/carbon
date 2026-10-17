@@ -724,8 +724,15 @@ mod tests {
 
         assert_eq!(extract(vec![None]).len(), 1);
         assert_eq!(extract(vec![Some(1)]).len(), 1);
-        assert_eq!(extract(vec![Some(6)]).len(), 1);
+        assert_eq!(
+            extract(vec![Some(MAX_INSTRUCTION_STACK_DEPTH as u32 + 1)]).len(),
+            1
+        );
         assert_eq!(extract(vec![Some(2)]).len(), 2);
+        assert_eq!(
+            extract(vec![Some(MAX_INSTRUCTION_STACK_DEPTH as u32)]).len(),
+            2
+        );
 
         let partial = extract(vec![Some(2), None, Some(2)]);
         assert_eq!(partial.len(), 2);

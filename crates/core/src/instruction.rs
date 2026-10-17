@@ -54,8 +54,15 @@ const PRECOMPILE_PROGRAMS: &[&str] = &[
     "Secp256r1SigVerify1111111111111111111111111",
 ];
 
-// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
-pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
+/// Agave's CPI depth limit, matching its `MAX_INSTRUCTION_STACK_DEPTH_SIMD_0268`
+/// rather than the `MAX_INSTRUCTION_STACK_DEPTH` of 5 next to it.
+///
+/// Agave keeps both because it enforces the limit and has to know which one
+/// applies to the bank it is executing. Carbon only parses what already ran, and
+/// a transaction can never exceed the limit in force when it executed, so the
+/// higher value is correct for both eras.
+/// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
+pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 9;
 
 impl InstructionMetadata {
     pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
