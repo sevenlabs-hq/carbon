@@ -8,7 +8,8 @@ use {
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
         transformers::yellowstone::{
-            create_block_details, create_slot_status_update, create_tx_meta, create_tx_versioned,
+            bank_id_from_proto, create_block_details, create_slot_status_update, create_tx_meta,
+            create_tx_versioned,
         },
     },
     chrono::{DateTime, Utc},
@@ -462,7 +463,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     id_for_loop.clone(),
                                                     transaction_update.slot,
                                                     None,
-                                                    Some(transaction_update.bank_id),
+                                                    bank_id_from_proto(transaction_update.bank_id),
                                                 )
                                                 .await
                                             }
@@ -472,7 +473,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
                                                 for transaction_update in block_update.transactions {
                                                     if retain_block_failed_transactions || transaction_update.meta.as_ref().map(|meta| meta.err.is_none()).unwrap_or(false) {
-                                                        send_subscribe_update_transaction_info(Some(transaction_update), &sender, id_for_loop.clone(), block_update.slot, block_time, Some(block_update.bank_id)).await
+                                                        send_subscribe_update_transaction_info(Some(transaction_update), &sender, id_for_loop.clone(), block_update.slot, block_time, bank_id_from_proto(block_update.bank_id)).await
                                                     }
                                                 }
 
@@ -482,7 +483,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         &sender,
                                                         id_for_loop.clone(),
                                                         block_update.slot,
-                                                        Some(block_update.bank_id),
+                                                        bank_id_from_proto(block_update.bank_id),
                                                     )
                                                     .await;
                                                 }

@@ -318,8 +318,15 @@ fn create_reward(reward: proto::Reward) -> ConversionResult<Reward> {
     })
 }
 
-/// Convert a protobuf block-meta update, the only gRPC message carrying a
-/// bank's blockhash and its transaction and entry counts.
+/// Convert a non-optional protobuf `bank_id`. Servers predating the field
+/// leave it at 0, and Agave only assigns 0 to the root bank loaded at startup,
+/// which is never streamed, so 0 means the id is unknown.
+pub fn bank_id_from_proto(bank_id: u64) -> Option<u64> {
+    (bank_id != 0).then_some(bank_id)
+}
+
+/// Convert a protobuf block-meta update, which carries a bank's blockhash and
+/// its transaction and entry counts.
 pub fn create_block_details(
     meta: proto::SubscribeUpdateBlockMeta,
 ) -> ConversionResult<BlockDetails> {
@@ -345,7 +352,7 @@ pub fn create_block_details(
         num_reward_partitions,
         block_time: meta.block_time.map(|t| t.timestamp),
         block_height: meta.block_height.map(|h| h.block_height),
-        bank_id: Some(meta.bank_id),
+        bank_id: bank_id_from_proto(meta.bank_id),
         executed_transaction_count: Some(meta.executed_transaction_count),
         entries_count: Some(meta.entries_count),
     })
