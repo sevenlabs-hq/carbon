@@ -2,8 +2,8 @@ use {
     async_trait::async_trait,
     carbon_core::{
         datasource::{
-            AccountUpdate, Datasource, DatasourceDisconnection, DatasourceId, SlotStatus,
-            TransactionUpdate, Update, UpdateType,
+            AccountUpdate, Datasource, DatasourceDisconnection, DatasourceId, TransactionUpdate,
+            Update, UpdateType,
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
@@ -25,8 +25,8 @@ use {
     },
     yellowstone_grpc_proto::{
         geyser::{
-            subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
-            SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,
+            subscribe_update::UpdateOneof, CommitmentLevel, SlotStatus as ProtoSlotStatus,
+            SubscribeRequest, SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,
             SubscribeRequestFilterBlocksMeta, SubscribeRequestFilterSlots,
             SubscribeRequestFilterTransactions, SubscribeRequestPing, SubscribeUpdateAccountInfo,
             SubscribeUpdateTransactionInfo,
@@ -293,6 +293,13 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         let endpoint = self.endpoint.clone();
         let x_token = self.x_token.clone();
         let commitment = self.commitment;
+        // Slot updates arrive at every commitment level; only the stream's own
+        // level may move the reconnect cursor, or lagging statuses drag it back.
+        let stream_slot_status = match commitment.unwrap_or(CommitmentLevel::Processed) {
+            CommitmentLevel::Processed => ProtoSlotStatus::SlotProcessed,
+            CommitmentLevel::Confirmed => ProtoSlotStatus::SlotConfirmed,
+            CommitmentLevel::Finalized => ProtoSlotStatus::SlotFinalized,
+        } as i32;
         let slot_status_enabled = self.geyser_config.slot_status;
         let block_meta_enabled = self.geyser_config.block_meta;
         let account_filters = self.account_filters.clone();
@@ -413,7 +420,11 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     Some(UpdateOneof::Transaction(ref update)) => Some(update.slot),
                                                     Some(UpdateOneof::Block(ref update)) => Some(update.slot),
                                                     Some(UpdateOneof::BlockMeta(ref update)) => Some(update.slot),
-                                                    Some(UpdateOneof::Slot(ref update)) => Some(update.slot),
+                                                    Some(UpdateOneof::Slot(ref update))
+                                                        if update.status == stream_slot_status =>
+                                                    {
+                                                        Some(update.slot)
+                                                    }
                                                     _ => None,
                                                 };
 
@@ -511,17 +522,12 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             }
                                             Some(UpdateOneof::Slot(slot_update)) => {
                                                 let slot = slot_update.slot;
+                                                if slot_update.status == stream_slot_status {
+                                                    last_processed_slot = slot;
+                                                }
                                                 if let Some(slot_status) =
                                                     create_slot_status_update(slot_update)
                                                 {
-                                                    if matches!(
-                                                        slot_status.status,
-                                                        SlotStatus::Processed
-                                                            | SlotStatus::Confirmed
-                                                            | SlotStatus::Finalized
-                                                    ) {
-                                                        last_processed_slot = slot;
-                                                    }
                                                     let update = Update::SlotStatus(slot_status);
                                                     if let Err(e) = sender
                                                         .try_send((update, id_for_loop.clone()))
