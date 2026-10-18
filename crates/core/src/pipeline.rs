@@ -99,8 +99,8 @@ static BLOCK_DETAILS_PROCESSED: Counter = Counter::new(
     "Total block details processed",
 );
 
-static SLOT_STATUS_PROCESSED: Counter = Counter::new(
-    "carbon_slot_status_processed_total",
+static SLOT_STATUS_UPDATES_PROCESSED: Counter = Counter::new(
+    "carbon_slot_status_updates_processed_total",
     "Total slot status updates processed",
 );
 
@@ -140,7 +140,7 @@ fn register_pipeline_metrics() {
     registry.register_counter(&TRANSACTION_UPDATES_PROCESSED);
     registry.register_counter(&ACCOUNT_DELETIONS_PROCESSED);
     registry.register_counter(&BLOCK_DETAILS_PROCESSED);
-    registry.register_counter(&SLOT_STATUS_PROCESSED);
+    registry.register_counter(&SLOT_STATUS_UPDATES_PROCESSED);
 }
 
 /// Shutdown semantics on ctrl-C or external cancellation.
@@ -185,11 +185,13 @@ impl Pipeline {
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_slot_status_pipes: {}, num_block_details_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
             self.datasources.len(),
             self.exporters.len(),
             self.account_pipes.len(),
             self.account_deletion_pipes.len(),
+            self.slot_status_pipes.len(),
+            self.block_details_pipes.len(),
             self.instruction_pipes.len(),
             self.transaction_pipes.len(),
         );
@@ -437,7 +439,7 @@ impl Pipeline {
                     }
                 }
 
-                SLOT_STATUS_PROCESSED.inc();
+                SLOT_STATUS_UPDATES_PROCESSED.inc();
             }
         };
 
