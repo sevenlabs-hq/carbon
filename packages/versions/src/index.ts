@@ -83,7 +83,7 @@ export const VERSIONS: Record<string, CrateDependency> = {
     juniper: '0.16.2',
     axum: '0.8.7',
     rustls: '0.23',
-    helius: '2.0.0',
+    helius: '3.0.1',
     'futures-util': '0.3.31',
     serde: {
         version: '1.0.228',
