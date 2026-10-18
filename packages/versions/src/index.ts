@@ -43,10 +43,10 @@ export const VERSIONS: Record<string, CrateDependency> = {
     /// Solana crates
     'solana-account': '4.3.2',
     'solana-account-decoder': {
-        version: '=4.2.2',
+        version: '=4.3.0',
         features: ['agave-unstable-api'],
     },
-    'solana-client': '=4.2.2',
+    'solana-client': '=4.3.0',
     'solana-instruction': {
         version: '3.4.1',
         defaultFeatures: false,
@@ -57,7 +57,7 @@ export const VERSIONS: Record<string, CrateDependency> = {
     },
     'solana-commitment-config': '3.1.1',
     'solana-transaction-status': {
-        version: '=4.2.2',
+        version: '=4.3.0',
         features: ['agave-unstable-api'],
     },
     /// SPL Token 2022 dependencies
