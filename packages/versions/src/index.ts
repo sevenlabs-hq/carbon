@@ -71,10 +71,10 @@ export const VERSIONS: Record<string, CrateDependency> = {
     'spl-token-group-interface': '0.7.2',
     'spl-type-length-value': '0.9.1',
     'yellowstone-grpc-client': {
-        version: '=13.5.0',
+        version: '15.0.0',
     },
     'yellowstone-grpc-proto': {
-        version: '=12.7.0',
+        version: '14.0.1',
     },
     /// Other crates
     borsh: '1.5.1',

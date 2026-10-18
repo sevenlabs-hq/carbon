@@ -147,13 +147,8 @@ spl-token-group-interface = "0.7.2"
 spl-token-interface = "3.0.0"
 spl-token-metadata-interface = "1.0.0"
 spl-type-length-value = "0.9.1"
-# Pinned to the `v16.0.0-rc10+solana.4.3.0` release commit on `4.3-transition`: carries
-# `bank_id` on every update, `SlotStatus::CreatedBank`, and the block footer. Not on
-# crates.io yet (latest published proto is 12.7.0), so this is a git rev until Triton
-# publishes 13.x. Deliberately NOT PR #886's head: that branch is still open and adds only
-# the UpdateParent markers, which are gated behind an entry subscription Carbon never sends.
-yellowstone-grpc-client = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "301e9cffb623aee5273ad751c9503db22d92baaa" }
-yellowstone-grpc-proto = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "301e9cffb623aee5273ad751c9503db22d92baaa", default-features = false }
+yellowstone-grpc-client = "15.0.0"
+yellowstone-grpc-proto = { version = "14.0.1", default-features = false }
 
 # misc
 anyhow = "1.0.100"
