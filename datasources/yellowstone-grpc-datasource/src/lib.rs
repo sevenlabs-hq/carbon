@@ -110,10 +110,10 @@ const RECONNECT_INITIAL_DELAY_MS: u64 = 100;
 /// Upper bound on the retry delay
 const RECONNECT_MAX_DELAY_MS: u64 = 3_000;
 
-/// Filter name for the always-on slot subscription.
+/// Filter name for the opt-in slot subscription.
 const SLOT_STATUS_FILTER: &str = "carbon-slot-status";
 
-/// Filter name for the always-on block-meta subscription.
+/// Filter name for the opt-in block-meta subscription.
 const BLOCK_META_FILTER: &str = "carbon-block-meta";
 
 #[derive(Debug)]
@@ -143,8 +143,8 @@ pub struct YellowstoneGrpcClientConfig {
     /// default: it costs roughly 17 messages a second whether or not anything
     /// consumes them.
     pub slot_status: bool,
-    /// Subscribe to block meta, the only gRPC message carrying a bank's
-    /// blockhash and its transaction and entry counts. Off by default.
+    /// Subscribe to block meta, which carries a bank's blockhash and its
+    /// transaction and entry counts. Off by default.
     pub block_meta: bool,
 }
 
@@ -227,8 +227,8 @@ impl YellowstoneGrpcClientConfig {
         self
     }
 
-    /// Subscribe to block meta, the only gRPC message carrying a bank's
-    /// blockhash and its transaction and entry counts.
+    /// Subscribe to block meta, which carries a bank's blockhash and its
+    /// transaction and entry counts.
     pub const fn with_block_meta(mut self) -> Self {
         self.block_meta = true;
         self
@@ -521,7 +521,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                 }
                                             }
                                             Some(UpdateOneof::Ping(_)) => {
-                                                // Sink replays the last request on reconnect.
+                                                // The server answers a ping without touching the filters; the full
+                                                // request keeps the sink's remembered subscription complete.
                                                 match subscribe_tx
                                                     .send(SubscribeRequest {
                                                         ping: Some(SubscribeRequestPing { id: 1 }),

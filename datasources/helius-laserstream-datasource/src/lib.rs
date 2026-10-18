@@ -32,10 +32,10 @@ use {
     },
 };
 
-/// Filter name for the always-on slot subscription.
+/// Filter name for the opt-in slot subscription.
 const SLOT_STATUS_FILTER: &str = "carbon-slot-status";
 
-/// Filter name for the always-on block-meta subscription.
+/// Filter name for the opt-in block-meta subscription.
 const BLOCK_META_FILTER: &str = "carbon-block-meta";
 
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
