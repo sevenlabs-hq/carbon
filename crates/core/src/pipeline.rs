@@ -417,14 +417,12 @@ impl Pipeline {
                 BLOCK_DETAILS_PROCESSED.inc();
             }
             Update::SlotStatus(slot_status) => {
-                let context = FilterContext {
-                    datasource_id: &datasource_id,
-                };
+                let context = FilterContext { datasource_id };
 
                 for pipe in self.slot_status_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
-                            filter.filter_slot_status(&context, &slot_status),
+                            filter.filter_slot_status(&context, slot_status),
                             FilterResult::Accept
                         )
                     }) {
