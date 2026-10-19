@@ -124,6 +124,7 @@ impl Datasource for GpaDatasource {
                 )?,
                 slot: rpc_response.context.slot,
                 transaction_signature: None,
+                bank_id: None,
             });
 
             if let Err(e) = sender.send((update, id_for_loop.clone())).await {

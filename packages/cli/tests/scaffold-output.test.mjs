@@ -55,15 +55,15 @@ test('scaffolds a Carbon 2 Transaction V1-ready RPC project', () => {
         );
         assert.equal(cargoFmt.status, 0, `${cargoFmt.stdout}\n${cargoFmt.stderr}`);
 
-        assert.match(cargoToml, /rust-version = "1\.96\.1"/);
-        assert.match(decoderCargoToml, /rust-version = "1\.96\.1"/);
+        assert.match(cargoToml, /rust-version = "1\.97\.1"/);
+        assert.match(decoderCargoToml, /rust-version = "1\.97\.1"/);
         assert.match(cargoToml, /carbon-core = \{ version = "2\.0\.0", default-features = false \}/);
         assert.doesNotMatch(cargoToml, /features = \["postgres", "graphql"\]/);
         assert.match(cargoToml, /carbon-rpc-block-subscribe-datasource = "2\.0\.0"/);
-        assert.match(cargoToml, /solana-client = "=4\.2\.2"/);
+        assert.match(cargoToml, /solana-client = "=4\.3\.0"/);
         assert.match(
             cargoToml,
-            /solana-transaction-status = \{ version = "=4\.2\.2", features = \["agave-unstable-api"\] \}/,
+            /solana-transaction-status = \{ version = "=4\.3\.0", features = \["agave-unstable-api"\] \}/,
         );
         assert.match(cargoToml, /log = "0\.4\.28"/);
 

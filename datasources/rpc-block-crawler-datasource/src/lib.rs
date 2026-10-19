@@ -344,6 +344,7 @@ fn task_processor(
                                     index: Some(tx_index as u64),
                                     block_time: block.block_time,
                                     block_hash,
+                                    bank_id: None,
                                 }));
 
                                 TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);

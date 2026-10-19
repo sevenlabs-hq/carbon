@@ -20,7 +20,7 @@
 use {
     crate::{
         account::AccountMetadata,
-        datasource::{AccountDeletion, BlockDetails, DatasourceId},
+        datasource::{AccountDeletion, BlockDetails, DatasourceId, SlotStatusUpdate},
         instruction::{NestedInstruction, NestedInstructions},
         transaction::TransactionMetadata,
     },
@@ -97,6 +97,14 @@ pub trait Filter: Send + Sync {
     ) -> FilterResult {
         FilterResult::Accept
     }
+
+    fn filter_slot_status(
+        &self,
+        _context: &FilterContext,
+        _slot_status: &SlotStatusUpdate,
+    ) -> FilterResult {
+        FilterResult::Accept
+    }
 }
 
 const DEDUP_CLEANUP_INTERVAL_SECS: u64 = 60;
@@ -108,6 +116,10 @@ type SeenAccountsMap = HashMap<(Signature, Pubkey), Instant>;
 ///
 /// Keys instructions by `(signature, absolute_path)` and accounts by
 /// `(signature, pubkey)`. Periodically purges expired entries to bound memory.
+///
+/// Deliberately not keyed by `bank_id`: it is node-local, so two providers
+/// report unrelated values and every cross-provider duplicate would pass
+/// through. Competing banks are resolved via `Update::SlotStatus` instead.
 pub struct DeduplicationFilter {
     seen_instructions: Arc<RwLock<SeenInstructionsMap>>,
     seen_accounts: Arc<RwLock<SeenAccountsMap>>,
@@ -290,6 +302,18 @@ impl Filter for DatasourceFilter {
             FilterResult::Reject
         }
     }
+
+    fn filter_slot_status(
+        &self,
+        context: &FilterContext,
+        _slot_status: &SlotStatusUpdate,
+    ) -> FilterResult {
+        if self.allows(context.datasource_id) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
 }
 
 /// Half-open `[from, to)` slot range filter with optional transaction-index
@@ -429,6 +453,18 @@ impl Filter for SlotRangeFilter {
         block_details: &BlockDetails,
     ) -> FilterResult {
         if self.contains(block_details.slot, None) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
+
+    fn filter_slot_status(
+        &self,
+        _context: &FilterContext,
+        slot_status: &SlotStatusUpdate,
+    ) -> FilterResult {
+        if self.contains(slot_status.slot, None) {
             FilterResult::Accept
         } else {
             FilterResult::Reject
