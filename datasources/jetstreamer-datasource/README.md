@@ -52,9 +52,10 @@ let datasource = datasource
 ```
 
 In sequential mode `threads` configures ripget range concurrency rather than
-firehose worker partitioning. `reverse` and `buffer_window_bytes` only take
-effect when `sequential` is set; slots within an epoch are always emitted in
-ascending order, because a CAR archive can only be streamed forward.
+firehose worker partitioning. Setting `reverse` turns sequential mode on even
+without `with_sequential(true)`. `buffer_window_bytes` only takes effect in
+sequential mode. Slots within an epoch are always emitted in ascending order,
+because a CAR archive can only be streamed forward.
 
 ## Configuration
 

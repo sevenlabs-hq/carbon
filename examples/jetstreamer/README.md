@@ -12,14 +12,14 @@ No environment variables are required — the default constructor uses the Solan
 START_SLOT=415500000
 END_SLOT=415931999
 WORKER_COUNT=4
-PAGE_SIZE=100
+STATS_INTERVAL_SLOTS=100
 RUST_LOG=info
 ```
 
 - `START_SLOT`: first slot to backfill. Defaults to `415500000`.
 - `END_SLOT`: last slot to backfill. Defaults to `415931999`.
 - `WORKER_COUNT`: parallel firehose workers. Defaults to `4`.
-- `PAGE_SIZE`: Jetstreamer stats-tracking interval, in slots. Defaults to `100`.
+- `STATS_INTERVAL_SLOTS`: Jetstreamer stats-tracking interval, in slots. Defaults to `100`.
 - `RUST_LOG`: log level. `info` shows decoded Token-2022 instructions and the final `backfill complete` message.
 
 The transaction filter is still configured directly in [`src/main.rs`](src/main.rs). The default slot window is roughly one epoch's worth of data (~432k slots).
