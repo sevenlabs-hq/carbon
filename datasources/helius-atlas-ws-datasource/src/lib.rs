@@ -383,6 +383,7 @@ impl Datasource for HeliusWebsocket {
                                                     account: decoded_account,
                                                     slot: acc_event.context.slot,
                                                     transaction_signature: None,
+                                                    bank_id: None,
                                                 }
                                                 .into_update();
 
@@ -663,6 +664,7 @@ impl Datasource for HeliusWebsocket {
                                                 index: None,
                                                 block_time: None,
                                                 block_hash: None,
+                                                bank_id: None,
                                             }));
 
                                             TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);

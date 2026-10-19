@@ -17,7 +17,7 @@ export type CrateDependency =
       };
 
 export const CARBON_VERSION = '2.0.0';
-export const CARBON_MSRV = '1.96.1';
+export const CARBON_MSRV = '1.97.1';
 
 export const VERSIONS: Record<string, CrateDependency> = {
     /// Carbon crates
@@ -43,10 +43,10 @@ export const VERSIONS: Record<string, CrateDependency> = {
     /// Solana crates
     'solana-account': '4.3.2',
     'solana-account-decoder': {
-        version: '=4.2.2',
+        version: '=4.3.0',
         features: ['agave-unstable-api'],
     },
-    'solana-client': '=4.2.2',
+    'solana-client': '=4.3.0',
     'solana-instruction': {
         version: '3.4.1',
         defaultFeatures: false,
@@ -57,7 +57,7 @@ export const VERSIONS: Record<string, CrateDependency> = {
     },
     'solana-commitment-config': '3.1.1',
     'solana-transaction-status': {
-        version: '=4.2.2',
+        version: '=4.3.0',
         features: ['agave-unstable-api'],
     },
     /// SPL Token 2022 dependencies
@@ -71,10 +71,10 @@ export const VERSIONS: Record<string, CrateDependency> = {
     'spl-token-group-interface': '0.7.2',
     'spl-type-length-value': '0.9.1',
     'yellowstone-grpc-client': {
-        version: '=13.5.0',
+        version: '15.0.0',
     },
     'yellowstone-grpc-proto': {
-        version: '=12.7.0',
+        version: '14.0.1',
     },
     /// Other crates
     borsh: '1.5.1',
@@ -83,7 +83,7 @@ export const VERSIONS: Record<string, CrateDependency> = {
     juniper: '0.16.2',
     axum: '0.8.7',
     rustls: '0.23',
-    helius: '2.0.0',
+    helius: '3.0.1',
     'futures-util': '0.3.31',
     serde: {
         version: '1.0.228',
