@@ -3,10 +3,6 @@ name = "carbon-jetstreamer-datasource"
 description = "Carbon Jetstreamer Datasource"
 license = { workspace = true }
 version = "2.0.0"
-# Cargo cannot publish a crate with a git dependency, and adding a `version` to
-# the pin would silently publish against crates.io 0.7.0, still on Solana v3.
-# Remove once upstream releases anza-xyz/jetstreamer#95.
-publish = false
 rust-version = { workspace = true }
 edition = { workspace = true }
 readme = "README.md"

@@ -169,9 +169,7 @@ helius = "2.0.0"
 hex = "0.4.3"
 indicatif = "0.17.11"
 inquire = "0.7.5"
-# Pinned to upstream main: Transaction V1 and Agave 4.2 support landed in
-# anza-xyz/jetstreamer#95 and are not in any published release yet (latest is 0.7.0).
-jetstreamer-firehose = { git = "https://github.com/anza-xyz/jetstreamer", rev = "1047192ef145922e3098eea5ecbdc429c1e65f4d" }
+jetstreamer-firehose = "0.8.1"
 juniper = { version = "0.16.2", features = ["uuid"] }
 juniper_axum = { version = "0.2.0" }
 juniper_codegen = { version = "0.16.0" }

@@ -5,14 +5,9 @@ Anza's high-throughput reader for the Old Faithful CAR archives. Streams a slot
 or epoch range through Carbon's pipeline as `Transaction` and `BlockDetails`
 updates, with upstream-side filtering and multi-threaded fetch.
 
-> [!IMPORTANT]
-> This crate is **not published to crates.io**. Transaction V1 parsing and the
-> Agave 4.2 stack that Carbon 2 requires landed in
-> [anza-xyz/jetstreamer#95](https://github.com/anza-xyz/jetstreamer/pull/95),
-> which is not in any published Jetstreamer release yet — the latest is `0.7.0`,
-> still on Solana v3. `jetstreamer-firehose` is therefore pinned to a git rev in
-> the workspace manifest, and Cargo cannot publish a crate with a git
-> dependency. Use it from a git checkout of Carbon until upstream cuts a release.
+Requires `jetstreamer-firehose` 0.8.1 or newer, the first release carrying the
+Transaction V1 parsing and Agave 4.2 stack that Carbon 2 needs
+([anza-xyz/jetstreamer#95](https://github.com/anza-xyz/jetstreamer/pull/95)).
 
 ## Usage
 

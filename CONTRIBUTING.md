@@ -93,9 +93,8 @@ Update producers grouped by source — each crate ships its own README with setu
 `carbon-jito-shredstream-grpc-datasource` remains on the Carbon 1 / Solana 3
 line and is excluded from the Carbon 2 workspace; Jito Shredstream does not yet
 support Transaction V1. `carbon-jetstreamer-datasource` is a workspace member
-but is not published: it pins `jetstreamer-firehose` to a git rev for
-Transaction V1 and Agave 4.2 support, and Cargo cannot publish a crate with a
-git dependency.
+and depends on `jetstreamer-firehose` 0.8.1 or newer, the first release carrying
+Transaction V1 and Agave 4.2 support.
 
 ### Decoders (`decoders/`)
 
