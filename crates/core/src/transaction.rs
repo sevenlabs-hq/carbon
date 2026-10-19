@@ -46,16 +46,19 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
     type Error = crate::error::Error;
 
     fn try_from(value: crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
-        let accounts = value.transaction.message.static_account_keys();
+        let fee_payer = *value
+            .transaction
+            .message
+            .static_account_keys()
+            .first()
+            .ok_or(crate::error::Error::MissingFeePayer)?;
 
         Ok(TransactionMetadata {
             slot: value.slot,
             signature: value.signature,
-            fee_payer: *accounts
-                .first()
-                .ok_or(crate::error::Error::MissingFeePayer)?,
-            meta: value.meta.clone(),
-            message: value.transaction.message.clone(),
+            fee_payer,
+            meta: value.meta,
+            message: value.transaction.message,
             index: value.index,
             block_time: value.block_time,
             block_hash: value.block_hash,
