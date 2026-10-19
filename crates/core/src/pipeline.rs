@@ -303,9 +303,7 @@ impl Pipeline {
                     transaction_signature: account_update.transaction_signature,
                 };
 
-                let context = FilterContext {
-                    datasource_id,
-                };
+                let context = FilterContext { datasource_id };
 
                 for pipe in self.account_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
@@ -340,9 +338,7 @@ impl Pipeline {
                 let mut all_instructions = Vec::new();
                 Self::flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
-                let context = FilterContext {
-                    datasource_id,
-                };
+                let context = FilterContext { datasource_id };
 
                 for pipe in self.instruction_pipes.iter_mut() {
                     for &nested_instruction in &all_instructions {
@@ -376,9 +372,7 @@ impl Pipeline {
                 TRANSACTION_UPDATES_PROCESSED.inc();
             }
             Update::AccountDeletion(account_deletion) => {
-                let context = FilterContext {
-                    datasource_id,
-                };
+                let context = FilterContext { datasource_id };
 
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
@@ -394,9 +388,7 @@ impl Pipeline {
                 ACCOUNT_DELETIONS_PROCESSED.inc();
             }
             Update::BlockDetails(block_details) => {
-                let context = FilterContext {
-                    datasource_id,
-                };
+                let context = FilterContext { datasource_id };
 
                 for pipe in self.block_details_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
