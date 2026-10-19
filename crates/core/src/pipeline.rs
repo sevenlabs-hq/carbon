@@ -243,7 +243,7 @@ impl Pipeline {
                             UPDATES_RECEIVED.inc();
 
                             let start = Instant::now();
-                            let process_result = self.process(update.clone(), datasource_id.clone()).await;
+                            let process_result = self.process(&update, &datasource_id).await;
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
@@ -294,7 +294,7 @@ impl Pipeline {
         Ok(())
     }
 
-    async fn process(&mut self, update: Update, datasource_id: DatasourceId) -> CarbonResult<()> {
+    async fn process(&mut self, update: &Update, datasource_id: &DatasourceId) -> CarbonResult<()> {
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
@@ -304,7 +304,7 @@ impl Pipeline {
                 };
 
                 let context = FilterContext {
-                    datasource_id: &datasource_id,
+                    datasource_id,
                 };
 
                 for pipe in self.account_pipes.iter_mut() {
@@ -326,12 +326,13 @@ impl Pipeline {
                 ACCOUNT_UPDATES_PROCESSED.inc();
             }
             Update::Transaction(transaction_update) => {
-                let transaction_metadata = Arc::new((*transaction_update).clone().try_into()?);
+                let transaction_update = &**transaction_update;
+                let transaction_metadata = Arc::new(transaction_update.clone().try_into()?);
 
                 let instructions_with_metadata: InstructionsWithMetadata =
                     transformers::extract_instructions_with_metadata(
                         &transaction_metadata,
-                        &transaction_update,
+                        transaction_update,
                     )?;
 
                 let nested_instructions: NestedInstructions =
@@ -340,7 +341,7 @@ impl Pipeline {
                 Self::flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
                 let context = FilterContext {
-                    datasource_id: &datasource_id,
+                    datasource_id,
                 };
 
                 for pipe in self.instruction_pipes.iter_mut() {
@@ -376,13 +377,13 @@ impl Pipeline {
             }
             Update::AccountDeletion(account_deletion) => {
                 let context = FilterContext {
-                    datasource_id: &datasource_id,
+                    datasource_id,
                 };
 
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
-                            filter.filter_account_deletion(&context, &account_deletion),
+                            filter.filter_account_deletion(&context, account_deletion),
                             FilterResult::Accept
                         )
                     }) {
@@ -394,13 +395,13 @@ impl Pipeline {
             }
             Update::BlockDetails(block_details) => {
                 let context = FilterContext {
-                    datasource_id: &datasource_id,
+                    datasource_id,
                 };
 
                 for pipe in self.block_details_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
-                            filter.filter_block_details(&context, &block_details),
+                            filter.filter_block_details(&context, block_details),
                             FilterResult::Accept
                         )
                     }) {
