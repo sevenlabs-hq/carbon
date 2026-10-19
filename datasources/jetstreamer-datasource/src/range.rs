@@ -1,4 +1,5 @@
 pub enum JetstreamerRange {
+    /// First and last slot to stream, both inclusive.
     Slot(u64, u64),
     Epoch(u64),
 }
@@ -12,6 +13,7 @@ impl JetstreamerRange {
         Self::Epoch(epoch)
     }
 
+    /// Returns the first and last slot of the range, both inclusive.
     pub fn into_slots(&self) -> (u64, u64) {
         match self {
             Self::Slot(start_slot, end_slot) => (*start_slot, *end_slot),

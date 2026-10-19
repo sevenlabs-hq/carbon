@@ -199,7 +199,8 @@ impl Datasource for JetstreamerDatasource {
             self.sequential,
             self.reverse,
             self.buffer_window_bytes,
-            start_slot..end_slot,
+            // `into_slots` is inclusive, firehose takes a half-open range.
+            start_slot..end_slot.saturating_add(1),
             if include_blocks {
                 Some(on_block_fn)
             } else {
@@ -255,6 +256,7 @@ impl JetstreamerDatasource {
             rewards,
             block_time,
             block_height,
+            commission_rate_in_basis_points,
             ..
         } = block
         else {
@@ -276,8 +278,18 @@ impl JetstreamerDatasource {
                                 lamports: reward.lamports,
                                 post_balance: reward.post_balance,
                                 reward_type: Some(reward.reward_type),
-                                commission: reward.commission_bps.map(|bps| (bps / 100) as u8),
-                                commission_bps: reward.commission_bps,
+                                // Match Agave's geyser: whole-percent `commission` before
+                                // SIMD-0291, `commission_bps` after it, never both.
+                                commission: if commission_rate_in_basis_points {
+                                    None
+                                } else {
+                                    reward.commission_bps.map(|bps| (bps / 100) as u8)
+                                },
+                                commission_bps: if commission_rate_in_basis_points {
+                                    reward.commission_bps
+                                } else {
+                                    None
+                                },
                             })
                             .collect::<Vec<_>>(),
                     ),
