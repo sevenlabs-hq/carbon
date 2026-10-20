@@ -99,14 +99,15 @@ SlotRangeFilter::from(slot, Some(tx_index))
 // Open-ended up to slot S, tx index I (exclusive upper bound at boundary)
 SlotRangeFilter::to(slot, Some(tx_index))
 
-// Closed range between two points
+// Half-open range between two points
 SlotRangeFilter::between(from_slot, Some(from_tx_index), to_slot, Some(to_tx_index))
 ```
 
 Boundary semantics:
 - At `from_slot`: accepts `tx_index >= from_tx_index`
 - At `to_slot`: accepts `tx_index < to_tx_index`
-- Pass `None` for tx_index to match any transaction in that slot
+- Pass `None` for a bound's tx_index to put the boundary at the start of that slot: `from` includes the whole slot, `to` excludes it
+- Updates without a tx index, such as account updates, count as the end of their slot, so at the boundary slot only the `from` side accepts them
 
 ## Regenerating the Decoders
 
