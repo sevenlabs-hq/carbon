@@ -29,7 +29,7 @@ impl<P> SlotStatusPipe<P> {
 
 #[async_trait]
 pub trait SlotStatusPipes: Send + Sync {
-    async fn run(&mut self, slot_status: SlotStatusUpdate) -> CarbonResult<()>;
+    async fn run(&mut self, slot_status: &SlotStatusUpdate) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -39,8 +39,8 @@ impl<P> SlotStatusPipes for SlotStatusPipe<P>
 where
     P: Processor<SlotStatusUpdate> + Send + Sync,
 {
-    async fn run(&mut self, slot_status: SlotStatusUpdate) -> CarbonResult<()> {
-        self.processor.process(&slot_status).await?;
+    async fn run(&mut self, slot_status: &SlotStatusUpdate) -> CarbonResult<()> {
+        self.processor.process(slot_status).await?;
 
         Ok(())
     }

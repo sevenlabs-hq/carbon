@@ -329,8 +329,7 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run((account_metadata.clone(), account_update.account.clone()))
-                            .await?;
+                        pipe.run(&account_metadata, &account_update.account).await?;
                     }
                 }
 
@@ -394,7 +393,7 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(account_deletion.clone()).await?;
+                        pipe.run(account_deletion).await?;
                     }
                 }
 
@@ -410,7 +409,7 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(block_details.clone()).await?;
+                        pipe.run(block_details).await?;
                     }
                 }
 
@@ -426,7 +425,7 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(slot_status.clone()).await?;
+                        pipe.run(slot_status).await?;
                     }
                 }
 
