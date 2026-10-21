@@ -230,24 +230,23 @@ impl Pipeline {
 
         drop(update_sender);
 
+        let mut draining = false;
+
         loop {
             tokio::select! {
-                _ = datasource_cancellation_token.cancelled() => {
-                    self.export_metrics()?;
-                    self.shutdown_exporters()?;
-                    break;
-                }
-                _ = tokio::signal::ctrl_c() => {
-                    datasource_cancellation_token.cancel();
-
+                _ = datasource_cancellation_token.cancelled(), if !draining => {
                     if self.shutdown_strategy == ShutdownStrategy::Immediate {
                         log::info!("shutting down the pipeline immediately.");
                         self.export_metrics()?;
                         self.shutdown_exporters()?;
                         break;
-                    } else {
-                        log::info!("shutting down the pipeline after processing pending updates.");
                     }
+
+                    log::info!("shutting down the pipeline after processing pending updates.");
+                    draining = true;
+                }
+                _ = tokio::signal::ctrl_c() => {
+                    datasource_cancellation_token.cancel();
                 }
                 update = update_receiver.recv() => {
                     match update {
