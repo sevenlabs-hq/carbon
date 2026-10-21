@@ -11,7 +11,6 @@ workspace_crates=(
     carbon-log-metrics
     carbon-prometheus-metrics
 
-    carbon-helius-atlas-ws-datasource
     carbon-helius-gpa-v2-datasource
     carbon-helius-gtfa-datasource
     carbon-helius-laserstream-datasource

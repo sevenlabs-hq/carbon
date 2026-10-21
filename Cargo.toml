@@ -32,7 +32,6 @@ carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "2.
 carbon-jito-protos = { path = "misc/jito-protos", version = "0.2.4" }
 
 # datasources
-carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "2.0.0" }
 carbon-helius-gpa-v2-datasource = { path = "datasources/helius-gpa-v2-datasource", version = "2.0.0" }
 carbon-helius-gtfa-datasource = { path = "datasources/helius-gtfa-datasource", version = "2.0.0" }
 carbon-helius-laserstream-datasource = { path = "datasources/helius-laserstream-datasource", version = "2.0.0" }
@@ -169,7 +168,6 @@ flate2 = "1.1.5"
 futures = "0.3.31"
 futures-util = "0.3.31"
 heck = "0.5.0"
-helius = "3.0.1"
 hex = "0.4.3"
 indicatif = "0.17.11"
 inquire = "0.7.5"

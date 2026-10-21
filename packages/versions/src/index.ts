@@ -28,7 +28,6 @@ export const VERSIONS: Record<string, CrateDependency> = {
     'carbon-test-utils': CARBON_VERSION,
     'carbon-log-metrics': CARBON_VERSION,
     'carbon-prometheus-metrics': CARBON_VERSION,
-    'carbon-helius-atlas-ws-datasource': CARBON_VERSION,
     'carbon-helius-gpa-v2-datasource': CARBON_VERSION,
     'carbon-helius-gtfa-datasource': CARBON_VERSION,
     'carbon-helius-laserstream-datasource': CARBON_VERSION,

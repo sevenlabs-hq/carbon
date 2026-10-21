@@ -4,7 +4,6 @@ import test from 'node:test';
 import { CARBON_MSRV, CARBON_VERSION, VERSIONS } from '../dist/index.mjs';
 
 const V2_DATASOURCES = [
-    'carbon-helius-atlas-ws-datasource',
     'carbon-helius-gpa-v2-datasource',
     'carbon-helius-gtfa-datasource',
     'carbon-helius-laserstream-datasource',
