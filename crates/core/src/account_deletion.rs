@@ -29,7 +29,7 @@ impl<P> AccountDeletionPipe<P> {
 
 #[async_trait]
 pub trait AccountDeletionPipes: Send + Sync {
-    async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()>;
+    async fn run(&mut self, account_deletion: &AccountDeletion) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -39,8 +39,8 @@ impl<P> AccountDeletionPipes for AccountDeletionPipe<P>
 where
     P: Processor<AccountDeletion> + Send + Sync,
 {
-    async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()> {
-        self.processor.process(&account_deletion).await?;
+    async fn run(&mut self, account_deletion: &AccountDeletion) -> CarbonResult<()> {
+        self.processor.process(account_deletion).await?;
 
         Ok(())
     }

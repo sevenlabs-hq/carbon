@@ -331,9 +331,8 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        if let Err(error) = pipe
-                            .run((account_metadata.clone(), account_update.account.clone()))
-                            .await
+                        if let Err(error) =
+                            pipe.run(&account_metadata, &account_update.account).await
                         {
                             errors.push(error);
                         }
@@ -406,7 +405,7 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        if let Err(error) = pipe.run(account_deletion.clone()).await {
+                        if let Err(error) = pipe.run(account_deletion).await {
                             errors.push(error);
                         }
                     }
@@ -424,7 +423,7 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        if let Err(error) = pipe.run(block_details.clone()).await {
+                        if let Err(error) = pipe.run(block_details).await {
                             errors.push(error);
                         }
                     }
@@ -442,7 +441,7 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        if let Err(error) = pipe.run(slot_status.clone()).await {
+                        if let Err(error) = pipe.run(slot_status).await {
                             errors.push(error);
                         }
                     }
