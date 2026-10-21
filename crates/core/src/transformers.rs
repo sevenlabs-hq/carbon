@@ -398,10 +398,17 @@ pub fn transaction_metadata_from_original_meta(
         },
         return_data: meta_original
             .return_data
-            .map(|return_data| TransactionReturnData {
-                program_id: return_data.program_id.parse().unwrap_or_default(),
-                data: return_data.data.0.as_bytes().to_vec(),
-            }),
+            .map(|return_data| -> CarbonResult<TransactionReturnData> {
+                Ok(TransactionReturnData {
+                    program_id: return_data.program_id.parse().unwrap_or_default(),
+                    data: base64::Engine::decode(
+                        &base64::engine::general_purpose::STANDARD,
+                        return_data.data.0,
+                    )
+                    .map_err(|e| Error::Custom(format!("Invalid return data: {e}")))?,
+                })
+            })
+            .transpose()?,
         compute_units_consumed: meta_original
             .compute_units_consumed
             .map(|compute_unit_consumed| compute_unit_consumed)
@@ -1407,5 +1414,35 @@ mod tests {
         assert_eq!(nested_instructions[1].inner_instructions.len(), 0);
         assert_eq!(nested_instructions[2].inner_instructions.len(), 0);
         assert_eq!(nested_instructions[3].inner_instructions.len(), 2);
+    }
+
+    #[test]
+    fn test_transaction_metadata_from_original_meta_decodes_return_data() {
+        let meta = |data: &str| -> UiTransactionStatusMeta {
+            serde_json::from_value(serde_json::json!({
+                "err": null,
+                "status": { "Ok": null },
+                "fee": 5000,
+                "preBalances": [],
+                "postBalances": [],
+                "returnData": {
+                    "programId": "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
+                    "data": [data, "base64"]
+                }
+            }))
+            .expect("deserialize meta")
+        };
+
+        let tx_meta = transaction_metadata_from_original_meta(meta("lX/yAgAAAAA="))
+            .expect("transaction metadata from original meta");
+
+        assert_eq!(
+            tx_meta.return_data,
+            Some(TransactionReturnData {
+                program_id: Pubkey::from_str_const("JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"),
+                data: vec![149, 127, 242, 2, 0, 0, 0, 0],
+            })
+        );
+        assert!(transaction_metadata_from_original_meta(meta("not base64")).is_err());
     }
 }
