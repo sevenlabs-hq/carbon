@@ -317,7 +317,8 @@ impl Filter for DatasourceFilter {
 }
 
 /// Half-open `[from, to)` slot range filter with optional transaction-index
-/// precision.
+/// precision. An update without a transaction index counts as the last one in
+/// its slot.
 #[derive(Debug, Clone)]
 pub struct SlotRangeFilter {
     from_slot: Option<u64>,
@@ -381,10 +382,9 @@ impl SlotRangeFilter {
             }
 
             if slot == to {
-                if let (Some(to_idx), Some(tx_idx)) = (self.to_transaction_index, index) {
-                    if tx_idx >= to_idx {
-                        return false;
-                    }
+                match (self.to_transaction_index, index) {
+                    (Some(to_idx), Some(tx_idx)) if tx_idx < to_idx => {}
+                    _ => return false,
                 }
             }
         }
