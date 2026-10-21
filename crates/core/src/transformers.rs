@@ -125,6 +125,16 @@ fn process_instructions<F1, F2>(
     F2: Fn(&Pubkey, usize) -> bool,
 {
     for (i, compiled_instruction) in instructions.iter().enumerate() {
+        let Some(instruction) =
+            build_instruction(account_keys, compiled_instruction, &is_writable, &is_signer)
+        else {
+            log::warn!(
+                "unresolvable account in transaction {} at instruction {}, dropping the instruction and its inner instructions",
+                transaction_metadata.signature,
+                i,
+            );
+            continue;
+        };
         result.push((
             InstructionMetadata {
                 transaction_metadata: transaction_metadata.clone(),
@@ -132,7 +142,7 @@ fn process_instructions<F1, F2>(
                 index: i as u32,
                 absolute_path: vec![i as u8],
             },
-            build_instruction(account_keys, compiled_instruction, &is_writable, &is_signer),
+            instruction,
         ));
 
         if let Some(inner_instructions) = inner {
@@ -153,6 +163,19 @@ fn process_instructions<F1, F2>(
                             );
                             break;
                         };
+                        let Some(instruction) = build_instruction(
+                            account_keys,
+                            &inner_inst.instruction,
+                            &is_writable,
+                            &is_signer,
+                        ) else {
+                            log::warn!(
+                                "unresolvable account in transaction {} at instruction {}, dropping the remaining inner instructions of this group",
+                                transaction_metadata.signature,
+                                inner_tx.index,
+                            );
+                            break;
+                        };
                         if stack_height > prev_height {
                             path_stack[stack_height - 1] = 0;
                         } else {
@@ -166,12 +189,7 @@ fn process_instructions<F1, F2>(
                                 index: inner_tx.index as u32,
                                 absolute_path: path_stack[..stack_height].to_vec(),
                             },
-                            build_instruction(
-                                account_keys,
-                                &inner_inst.instruction,
-                                &is_writable,
-                                &is_signer,
-                            ),
+                            instruction,
                         ));
 
                         prev_height = stack_height;
@@ -196,31 +214,28 @@ fn build_instruction<F1, F2>(
     instruction: &CompiledInstruction,
     is_writable: &F1,
     is_signer: &F2,
-) -> solana_instruction::Instruction
+) -> Option<solana_instruction::Instruction>
 where
     F1: Fn(&Pubkey, usize) -> bool,
     F2: Fn(&Pubkey, usize) -> bool,
 {
-    let program_id = *account_keys
-        .get(instruction.program_id_index as usize)
-        .unwrap_or(&Pubkey::default());
+    let program_id = *account_keys.get(instruction.program_id_index as usize)?;
 
     let mut accounts = Vec::with_capacity(instruction.accounts.len());
     for account_idx in &instruction.accounts {
-        if let Some(key) = account_keys.get(*account_idx as usize) {
-            accounts.push(AccountMeta {
-                pubkey: *key,
-                is_writable: is_writable(key, *account_idx as usize),
-                is_signer: is_signer(key, *account_idx as usize),
-            });
-        }
+        let key = account_keys.get(*account_idx as usize)?;
+        accounts.push(AccountMeta {
+            pubkey: *key,
+            is_writable: is_writable(key, *account_idx as usize),
+            is_signer: is_signer(key, *account_idx as usize),
+        });
     }
 
-    solana_instruction::Instruction {
+    Some(solana_instruction::Instruction {
         program_id,
         accounts,
         data: instruction.data.clone(),
-    }
+    })
 }
 
 pub fn extract_account_metas(
@@ -740,6 +755,63 @@ mod tests {
         assert_eq!(partial.len(), 2);
         assert_eq!(partial[0].0.absolute_path, vec![0]);
         assert_eq!(partial[1].0.absolute_path, vec![0, 0]);
+    }
+
+    #[test]
+    fn test_extract_instructions_skips_instructions_with_unresolvable_accounts() {
+        let instruction = |program_id_index: u8, accounts: Vec<u8>| CompiledInstruction {
+            program_id_index,
+            accounts,
+            data: vec![],
+        };
+        let transaction_update = TransactionUpdate {
+            signature: Signature::default(),
+            transaction: VersionedTransaction {
+                signatures: vec![Signature::default()],
+                message: VersionedMessage::Legacy(Message {
+                    header: MessageHeader::default(),
+                    account_keys: vec![Pubkey::new_unique(), Pubkey::new_unique()],
+                    recent_blockhash: Hash::default(),
+                    instructions: vec![
+                        instruction(1, vec![0]),
+                        instruction(1, vec![0, 9, 0]),
+                        instruction(9, vec![0]),
+                        instruction(1, vec![0]),
+                    ],
+                }),
+            },
+            meta: TransactionStatusMeta {
+                inner_instructions: Some(vec![InnerInstructions {
+                    index: 0,
+                    instructions: [vec![0], vec![9], vec![0]]
+                        .into_iter()
+                        .map(|accounts| InnerInstruction {
+                            instruction: instruction(1, accounts),
+                            stack_height: Some(2),
+                        })
+                        .collect(),
+                }]),
+                ..Default::default()
+            },
+            is_vote: false,
+            slot: 1,
+            index: None,
+            block_time: None,
+            block_hash: None,
+            bank_id: None,
+        };
+
+        let extracted = extract_instructions_with_metadata(
+            &Arc::new(TransactionMetadata::default()),
+            &transaction_update,
+        )
+        .expect("extract instructions with metadata");
+
+        let paths: Vec<_> = extracted
+            .iter()
+            .map(|(metadata, _)| metadata.absolute_path.clone())
+            .collect();
+        assert_eq!(paths, vec![vec![0], vec![0, 0], vec![3]]);
     }
 
     #[test]
