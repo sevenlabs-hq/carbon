@@ -85,7 +85,7 @@ The TypeScript CLI (`@sevenlabs-hq/carbon-cli`) and the codama renderer live und
 Update producers grouped by source — each crate ships its own README with setup details and tradeoffs:
 
 - **Solana RPC**: `carbon-rpc-block-subscribe-datasource`, `carbon-rpc-program-subscribe-datasource`, `carbon-rpc-transaction-crawler-datasource`, `carbon-rpc-block-crawler-datasource`, `carbon-rpc-gpa-datasource`
-- **Helius**: `carbon-helius-atlas-ws-datasource`, `carbon-helius-laserstream-datasource`, `carbon-helius-gpa-v2-datasource`, `carbon-helius-gtfa-datasource`
+- **Helius**: `carbon-helius-laserstream-datasource`, `carbon-helius-gpa-v2-datasource`, `carbon-helius-gtfa-datasource`
 - **Geyser gRPC**: `carbon-yellowstone-grpc-datasource`
 - **Historical / archive**: `carbon-validator-snapshot-datasource`
 - **Adapter**: `carbon-stream-message-datasource`
