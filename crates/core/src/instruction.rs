@@ -163,26 +163,24 @@ impl InstructionMetadata {
     }
 
     fn parse_log(&self, log: &str) -> LogType {
-        if log.starts_with("Program ") && log.contains(" invoke [") {
-            let parts: Vec<&str> = log.split_whitespace().collect();
-            if parts.len() >= 4 && parts[0] == "Program" && parts[2] == "invoke" {
-                let level_str = parts[3].trim_start_matches('[').trim_end_matches(']');
-                if let Ok(level) = level_str.parse::<usize>() {
-                    return LogType::Start(level);
-                }
-            }
-        } else if log.starts_with("Program ")
-            && (log.ends_with(" success") || log.contains(" failed"))
-        {
-            let parts: Vec<&str> = log.split_whitespace().collect();
-            if parts.len() >= 3 && parts[0] == "Program" {
-                return LogType::Finish;
-            }
-        } else if log.contains("consumed") && log.contains("compute units") {
-            return LogType::CU;
+        let parts: Vec<&str> = log.split_whitespace().collect();
+        let ["Program", program_id, rest @ ..] = parts.as_slice() else {
+            return LogType::Data;
+        };
+        if program_id.ends_with(':') {
+            return LogType::Data;
         }
 
-        LogType::Data
+        match rest {
+            ["invoke", depth] => depth
+                .trim_start_matches('[')
+                .trim_end_matches(']')
+                .parse::<usize>()
+                .map_or(LogType::Data, LogType::Start),
+            ["success"] | ["failed:", ..] => LogType::Finish,
+            ["consumed", ..] => LogType::CU,
+            _ => LogType::Data,
+        }
     }
 }
 
@@ -549,6 +547,27 @@ mod tests {
             )
             .expect("decode base64")
         );
+    }
+
+    #[test]
+    fn test_extract_event_log_data_ignores_program_logs_that_look_like_exits() {
+        let logs = vec![
+            "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [1]".to_string(),
+            "Program log: route failed, retrying".to_string(),
+            "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK invoke [2]".to_string(),
+            "Program log: Swap success".to_string(),
+            "Program data: CSo=".to_string(),
+            "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK success".to_string(),
+            "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 success".to_string(),
+        ];
+        let events = |absolute_path: Vec<u8>| {
+            let stack_height = absolute_path.len() as u32;
+            create_metadata_with_message(absolute_path, stack_height, logs.clone(), vec![], vec![])
+                .extract_event_log_data()
+        };
+
+        assert_eq!(events(vec![0, 0]), vec![vec![9, 42]]);
+        assert!(!events(vec![0]).contains(&vec![9, 42]));
     }
 
     #[test]
