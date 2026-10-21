@@ -34,7 +34,7 @@ use {
         datasource::{
             AccountDeletion, BlockDetails, Datasource, DatasourceId, SlotStatusUpdate, Update,
         },
-        error::CarbonResult,
+        error::{CarbonResult, Error},
         filter::{Filter, FilterContext, FilterResult},
         instruction::{
             InstructionDecoder, InstructionPipe, InstructionPipes, InstructionProcessorInputType,
@@ -307,6 +307,8 @@ impl Pipeline {
     }
 
     async fn process(&mut self, update: &Update, datasource_id: &DatasourceId) -> CarbonResult<()> {
+        let mut errors = Vec::new();
+
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
@@ -329,8 +331,12 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run((account_metadata.clone(), account_update.account.clone()))
-                            .await?;
+                        if let Err(error) = pipe
+                            .run((account_metadata.clone(), account_update.account.clone()))
+                            .await
+                        {
+                            errors.push(error);
+                        }
                     }
                 }
 
@@ -361,7 +367,9 @@ impl Pipeline {
                                 FilterResult::Accept
                             )
                         }) {
-                            pipe.run(nested_instruction).await?;
+                            if let Err(error) = pipe.run(nested_instruction).await {
+                                errors.push(error);
+                            }
                         }
                     }
                 }
@@ -377,8 +385,12 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(transaction_metadata.clone(), &instructions_with_metadata)
-                            .await?;
+                        if let Err(error) = pipe
+                            .run(transaction_metadata.clone(), &instructions_with_metadata)
+                            .await
+                        {
+                            errors.push(error);
+                        }
                     }
                 }
 
@@ -394,7 +406,9 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(account_deletion.clone()).await?;
+                        if let Err(error) = pipe.run(account_deletion.clone()).await {
+                            errors.push(error);
+                        }
                     }
                 }
 
@@ -410,7 +424,9 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(block_details.clone()).await?;
+                        if let Err(error) = pipe.run(block_details.clone()).await {
+                            errors.push(error);
+                        }
                     }
                 }
 
@@ -426,7 +442,9 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(slot_status.clone()).await?;
+                        if let Err(error) = pipe.run(slot_status.clone()).await {
+                            errors.push(error);
+                        }
                     }
                 }
 
@@ -434,7 +452,11 @@ impl Pipeline {
             }
         };
 
-        Ok(())
+        match errors.len() {
+            0 => Ok(()),
+            1 => Err(errors.remove(0)),
+            _ => Err(Error::Custom(format!("{errors:?}"))),
+        }
     }
 
     fn flatten_nested_instructions<'a>(
