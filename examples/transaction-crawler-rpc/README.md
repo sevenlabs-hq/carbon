@@ -43,7 +43,7 @@ RPC_URL=https://api.mainnet-beta.solana.com
 RUST_LOG=info
 ```
 
-- `RPC_URL`: Solana RPC HTTP endpoint that supports `getSignaturesForAddress` and `getTransaction`. Required for the RPC variant. Public mainnet works but rate-limits hard against active programs — use a dedicated provider.
+- `RPC_URL`: Solana RPC HTTP endpoint that supports `getSignaturesForAddress` and `getTransaction`. Required for the RPC variant. Public mainnet works but rate-limits hard against active programs — use a dedicated provider, or a self-hosted [eRPC](https://github.com/erpc/erpc) proxy (e.g. `http://localhost:4000/main/svm/mainnet-beta`) that retries across several providers.
 - `UNTIL_SIGNATURE`: signature to bound the backfill at. Optional. Without it the RPC variant runs until ctrl-C.
 - `HELIUS_RPC_URL`: Helius RPC URL with API key embedded. Required for the GTFA variant.
 - `RUST_LOG`: log level. `info` shows decoded Meteora DLMM instructions.
