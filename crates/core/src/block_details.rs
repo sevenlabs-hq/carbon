@@ -27,7 +27,7 @@ impl<P> BlockDetailsPipe<P> {
 
 #[async_trait]
 pub trait BlockDetailsPipes: Send + Sync {
-    async fn run(&mut self, block_details: BlockDetails) -> CarbonResult<()>;
+    async fn run(&mut self, block_details: &BlockDetails) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
 }
@@ -37,8 +37,8 @@ impl<P> BlockDetailsPipes for BlockDetailsPipe<P>
 where
     P: Processor<BlockDetails> + Send + Sync,
 {
-    async fn run(&mut self, block_details: BlockDetails) -> CarbonResult<()> {
-        self.processor.process(&block_details).await?;
+    async fn run(&mut self, block_details: &BlockDetails) -> CarbonResult<()> {
+        self.processor.process(block_details).await?;
 
         Ok(())
     }

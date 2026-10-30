@@ -31,8 +31,10 @@ use {
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         block_details::{BlockDetailsPipe, BlockDetailsPipes},
         collection::InstructionDecoderCollection,
-        datasource::{AccountDeletion, BlockDetails, Datasource, DatasourceId, Update},
-        error::CarbonResult,
+        datasource::{
+            AccountDeletion, BlockDetails, Datasource, DatasourceId, SlotStatusUpdate, Update,
+        },
+        error::{CarbonResult, Error},
         filter::{Filter, FilterContext, FilterResult},
         instruction::{
             InstructionDecoder, InstructionPipe, InstructionPipes, InstructionProcessorInputType,
@@ -40,6 +42,7 @@ use {
         },
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
+        slot_status::{SlotStatusPipe, SlotStatusPipes},
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
         transformers,
     },
@@ -96,6 +99,11 @@ static BLOCK_DETAILS_PROCESSED: Counter = Counter::new(
     "Total block details processed",
 );
 
+static SLOT_STATUS_UPDATES_PROCESSED: Counter = Counter::new(
+    "carbon_slot_status_updates_processed_total",
+    "Total slot status updates processed",
+);
+
 static PROCESSING_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
     Histogram::new(
         "carbon_updates_process_time_nanoseconds",
@@ -132,6 +140,7 @@ fn register_pipeline_metrics() {
     registry.register_counter(&TRANSACTION_UPDATES_PROCESSED);
     registry.register_counter(&ACCOUNT_DELETIONS_PROCESSED);
     registry.register_counter(&BLOCK_DETAILS_PROCESSED);
+    registry.register_counter(&SLOT_STATUS_UPDATES_PROCESSED);
 }
 
 /// Shutdown semantics on ctrl-C or external cancellation.
@@ -160,6 +169,7 @@ pub struct Pipeline {
     pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
+    pub slot_status_pipes: Vec<Box<dyn SlotStatusPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
@@ -175,11 +185,13 @@ impl Pipeline {
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_slot_status_pipes: {}, num_block_details_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
             self.datasources.len(),
             self.exporters.len(),
             self.account_pipes.len(),
             self.account_deletion_pipes.len(),
+            self.slot_status_pipes.len(),
+            self.block_details_pipes.len(),
             self.instruction_pipes.len(),
             self.transaction_pipes.len(),
         );
@@ -218,24 +230,23 @@ impl Pipeline {
 
         drop(update_sender);
 
+        let mut draining = false;
+
         loop {
             tokio::select! {
-                _ = datasource_cancellation_token.cancelled() => {
-                    self.export_metrics()?;
-                    self.shutdown_exporters()?;
-                    break;
-                }
-                _ = tokio::signal::ctrl_c() => {
-                    datasource_cancellation_token.cancel();
-
+                _ = datasource_cancellation_token.cancelled(), if !draining => {
                     if self.shutdown_strategy == ShutdownStrategy::Immediate {
                         log::info!("shutting down the pipeline immediately.");
                         self.export_metrics()?;
                         self.shutdown_exporters()?;
                         break;
-                    } else {
-                        log::info!("shutting down the pipeline after processing pending updates.");
                     }
+
+                    log::info!("shutting down the pipeline after processing pending updates.");
+                    draining = true;
+                }
+                _ = tokio::signal::ctrl_c() => {
+                    datasource_cancellation_token.cancel();
                 }
                 update = update_receiver.recv() => {
                     match update {
@@ -243,7 +254,7 @@ impl Pipeline {
                             UPDATES_RECEIVED.inc();
 
                             let start = Instant::now();
-                            let process_result = self.process(update.clone(), datasource_id.clone()).await;
+                            let process_result = self.process(&update, &datasource_id).await;
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
@@ -294,18 +305,19 @@ impl Pipeline {
         Ok(())
     }
 
-    async fn process(&mut self, update: Update, datasource_id: DatasourceId) -> CarbonResult<()> {
+    async fn process(&mut self, update: &Update, datasource_id: &DatasourceId) -> CarbonResult<()> {
+        let mut errors = Vec::new();
+
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                     transaction_signature: account_update.transaction_signature,
+                    bank_id: account_update.bank_id,
                 };
 
-                let context = FilterContext {
-                    datasource_id: &datasource_id,
-                };
+                let context = FilterContext { datasource_id };
 
                 for pipe in self.account_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
@@ -318,20 +330,24 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run((account_metadata.clone(), account_update.account.clone()))
-                            .await?;
+                        if let Err(error) =
+                            pipe.run(&account_metadata, &account_update.account).await
+                        {
+                            errors.push(error);
+                        }
                     }
                 }
 
                 ACCOUNT_UPDATES_PROCESSED.inc();
             }
             Update::Transaction(transaction_update) => {
-                let transaction_metadata = Arc::new((*transaction_update).clone().try_into()?);
+                let transaction_update = &**transaction_update;
+                let transaction_metadata = Arc::new(transaction_update.clone().try_into()?);
 
                 let instructions_with_metadata: InstructionsWithMetadata =
                     transformers::extract_instructions_with_metadata(
                         &transaction_metadata,
-                        &transaction_update,
+                        transaction_update,
                     )?;
 
                 let nested_instructions: NestedInstructions =
@@ -339,9 +355,7 @@ impl Pipeline {
                 let mut all_instructions = Vec::new();
                 Self::flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
-                let context = FilterContext {
-                    datasource_id: &datasource_id,
-                };
+                let context = FilterContext { datasource_id };
 
                 for pipe in self.instruction_pipes.iter_mut() {
                     for &nested_instruction in &all_instructions {
@@ -351,7 +365,9 @@ impl Pipeline {
                                 FilterResult::Accept
                             )
                         }) {
-                            pipe.run(nested_instruction).await?;
+                            if let Err(error) = pipe.run(nested_instruction).await {
+                                errors.push(error);
+                            }
                         }
                     }
                 }
@@ -367,52 +383,78 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(transaction_metadata.clone(), &instructions_with_metadata)
-                            .await?;
+                        if let Err(error) = pipe
+                            .run(transaction_metadata.clone(), &instructions_with_metadata)
+                            .await
+                        {
+                            errors.push(error);
+                        }
                     }
                 }
 
                 TRANSACTION_UPDATES_PROCESSED.inc();
             }
             Update::AccountDeletion(account_deletion) => {
-                let context = FilterContext {
-                    datasource_id: &datasource_id,
-                };
+                let context = FilterContext { datasource_id };
 
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
-                            filter.filter_account_deletion(&context, &account_deletion),
+                            filter.filter_account_deletion(&context, account_deletion),
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(account_deletion.clone()).await?;
+                        if let Err(error) = pipe.run(account_deletion).await {
+                            errors.push(error);
+                        }
                     }
                 }
 
                 ACCOUNT_DELETIONS_PROCESSED.inc();
             }
             Update::BlockDetails(block_details) => {
-                let context = FilterContext {
-                    datasource_id: &datasource_id,
-                };
+                let context = FilterContext { datasource_id };
 
                 for pipe in self.block_details_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
-                            filter.filter_block_details(&context, &block_details),
+                            filter.filter_block_details(&context, block_details),
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(block_details.clone()).await?;
+                        if let Err(error) = pipe.run(block_details).await {
+                            errors.push(error);
+                        }
                     }
                 }
 
                 BLOCK_DETAILS_PROCESSED.inc();
             }
+            Update::SlotStatus(slot_status) => {
+                let context = FilterContext { datasource_id };
+
+                for pipe in self.slot_status_pipes.iter_mut() {
+                    if pipe.filters().iter().all(|filter| {
+                        matches!(
+                            filter.filter_slot_status(&context, slot_status),
+                            FilterResult::Accept
+                        )
+                    }) {
+                        if let Err(error) = pipe.run(slot_status).await {
+                            errors.push(error);
+                        }
+                    }
+                }
+
+                SLOT_STATUS_UPDATES_PROCESSED.inc();
+            }
         };
 
-        Ok(())
+        match errors.len() {
+            0 => Ok(()),
+            1 => Err(errors.remove(0)),
+            _ => Err(Error::Custom(format!("{errors:?}"))),
+        }
     }
 
     fn flatten_nested_instructions<'a>(
@@ -430,6 +472,7 @@ pub struct PipelineBuilder {
     pub datasources: Vec<(DatasourceId, Arc<dyn Datasource>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
+    pub slot_status_pipes: Vec<Box<dyn SlotStatusPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
@@ -445,6 +488,7 @@ impl Default for PipelineBuilder {
             datasources: Vec::new(),
             account_pipes: Vec::new(),
             account_deletion_pipes: Vec::new(),
+            slot_status_pipes: Vec::new(),
             block_details_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
@@ -535,6 +579,28 @@ impl PipelineBuilder {
     {
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe::new(processor, filters)));
+        self
+    }
+
+    pub fn slot_status<P>(mut self, processor: P) -> Self
+    where
+        P: Processor<SlotStatusUpdate> + Send + Sync + 'static,
+    {
+        self.slot_status_pipes
+            .push(Box::new(SlotStatusPipe::new(processor, Vec::new())));
+        self
+    }
+
+    pub fn slot_status_with_filters<P>(
+        mut self,
+        processor: P,
+        filters: Vec<Box<dyn Filter + 'static>>,
+    ) -> Self
+    where
+        P: Processor<SlotStatusUpdate> + Send + Sync + 'static,
+    {
+        self.slot_status_pipes
+            .push(Box::new(SlotStatusPipe::new(processor, filters)));
         self
     }
 
@@ -645,6 +711,7 @@ impl PipelineBuilder {
             datasources: self.datasources,
             account_pipes: self.account_pipes,
             account_deletion_pipes: self.account_deletion_pipes,
+            slot_status_pipes: self.slot_status_pipes,
             block_details_pipes: self.block_details_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,

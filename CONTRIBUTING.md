@@ -24,7 +24,7 @@ Carbon is an indexing framework for Solana that provides a modular pipeline for 
 
 ### Prerequisites
 
-- **Rust**: 1.96.1 (pinned via [`rust-toolchain.toml`](rust-toolchain.toml)). Published crates target **MSRV 1.96.1** (set in the workspace manifest and [`clippy.toml`](clippy.toml)).
+- **Rust**: 1.97.1 (pinned via [`rust-toolchain.toml`](rust-toolchain.toml)). Published crates target **MSRV 1.97.1** (set in the workspace manifest and [`clippy.toml`](clippy.toml)).
 - **Git**: For version control.
 - **Cargo**: Rust's package manager (included with Rust).
 - **System libs**: Some datasources need `libclang` (for `bindgen`) — `sudo apt-get install libclang-dev` on Debian/Ubuntu, `brew install llvm` on macOS.
@@ -85,7 +85,7 @@ The TypeScript CLI (`@sevenlabs-hq/carbon-cli`) and the codama renderer live und
 Update producers grouped by source — each crate ships its own README with setup details and tradeoffs:
 
 - **Solana RPC**: `carbon-rpc-block-subscribe-datasource`, `carbon-rpc-program-subscribe-datasource`, `carbon-rpc-transaction-crawler-datasource`, `carbon-rpc-block-crawler-datasource`, `carbon-rpc-gpa-datasource`
-- **Helius**: `carbon-helius-atlas-ws-datasource`, `carbon-helius-laserstream-datasource`, `carbon-helius-gpa-v2-datasource`, `carbon-helius-gtfa-datasource`
+- **Helius**: `carbon-helius-laserstream-datasource`, `carbon-helius-gpa-v2-datasource`, `carbon-helius-gtfa-datasource`
 - **Geyser gRPC**: `carbon-yellowstone-grpc-datasource`
 - **Historical / archive**: `carbon-validator-snapshot-datasource`, `carbon-jetstreamer-datasource`
 - **Adapter**: `carbon-stream-message-datasource`
@@ -159,7 +159,7 @@ cargo machete
 
 The project uses a strict clippy configuration defined in `clippy.toml`:
 
-- Minimum Rust version: 1.96.1
+- Minimum Rust version: 1.97.1
 - Maximum stack size for large types: 128 bytes
 - Denies warnings, default trait access, arithmetic side effects, manual let-else, and used underscore binding
 

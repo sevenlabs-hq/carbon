@@ -4,7 +4,6 @@ import test from 'node:test';
 import { CARBON_MSRV, CARBON_VERSION, VERSIONS } from '../dist/index.mjs';
 
 const V2_DATASOURCES = [
-    'carbon-helius-atlas-ws-datasource',
     'carbon-helius-gpa-v2-datasource',
     'carbon-helius-gtfa-datasource',
     'carbon-helius-laserstream-datasource',
@@ -24,7 +23,7 @@ function versionOf(dependency) {
 
 test('pins the supported Carbon release line consistently', () => {
     assert.equal(CARBON_VERSION, '2.0.0');
-    assert.equal(CARBON_MSRV, '1.96.1');
+    assert.equal(CARBON_MSRV, '1.97.1');
 
     for (const [crate, dependency] of Object.entries(VERSIONS).filter(([crate]) => crate.startsWith('carbon-'))) {
         assert.equal(versionOf(dependency), CARBON_VERSION, `${crate} must track Carbon ${CARBON_VERSION}`);

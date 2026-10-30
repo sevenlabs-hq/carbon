@@ -26,6 +26,7 @@ pub struct AccountMetadata {
     pub slot: u64,
     pub pubkey: Pubkey,
     pub transaction_signature: Option<Signature>,
+    pub bank_id: Option<u64>,
 }
 
 /// Decoder output: the typed account body plus the standard account
@@ -86,7 +87,8 @@ impl<T, P> AccountPipe<T, P> {
 pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
-        account_with_metadata: (AccountMetadata, solana_account::Account),
+        account_metadata: &AccountMetadata,
+        account: &solana_account::Account,
     ) -> CarbonResult<()>;
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>];
@@ -100,15 +102,14 @@ where
 {
     async fn run(
         &mut self,
-        account_with_metadata: (AccountMetadata, solana_account::Account),
+        account_metadata: &AccountMetadata,
+        account: &solana_account::Account,
     ) -> CarbonResult<()> {
-        let (account_metadata, account) = account_with_metadata;
-
-        if let Some(decoded_account) = self.decoder.decode_account(&account) {
+        if let Some(decoded_account) = self.decoder.decode_account(account) {
             let data = AccountProcessorInputType {
-                metadata: &account_metadata,
+                metadata: account_metadata,
                 decoded_account: &decoded_account,
-                raw_account: &account,
+                raw_account: account,
             };
 
             self.processor.process(&data).await?;
