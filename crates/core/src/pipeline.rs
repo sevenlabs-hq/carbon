@@ -360,8 +360,15 @@ impl Pipeline {
                         &transaction_metadata.meta,
                     );
 
-                let nested_instructions: NestedInstructions =
-                    instructions_with_metadata.clone().into();
+                let (nested_instructions, instructions_with_metadata): (NestedInstructions, _) =
+                    if self.transaction_pipes.is_empty() {
+                        (instructions_with_metadata.into(), Vec::new())
+                    } else {
+                        (
+                            instructions_with_metadata.clone().into(),
+                            instructions_with_metadata,
+                        )
+                    };
                 let mut all_instructions = Vec::new();
                 Self::flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
