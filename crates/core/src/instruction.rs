@@ -64,7 +64,14 @@ const PRECOMPILE_PROGRAMS: &[&str] = &[
 /// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
 pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 9;
 
+/// Prefix of the line Agave logs for `sol_log_data`, followed by one
+/// space-separated base64 string per field.
+/// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/stable_log.rs
+const PROGRAM_DATA_LOG_PREFIX: &str = "Program data: ";
+
 impl InstructionMetadata {
+    /// Decodes the events the program logged through `sol_log_data` at this
+    /// instruction's path. Each `Program data:` field is tried independently.
     pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
         self.extract_event_log_data()
             .into_iter()
@@ -124,12 +131,11 @@ impl InstructionMetadata {
                 .collect();
 
             if current_path == adjusted_absolute_path && matches!(parsed_log, LogType::Data) {
-                if let Some(data) = log.split_whitespace().last() {
-                    if let Ok(buf) =
-                        base64::Engine::decode(&base64::engine::general_purpose::STANDARD, data)
-                    {
-                        extracted_logs.push(buf);
-                    }
+                if let Some(fields) = log.strip_prefix(PROGRAM_DATA_LOG_PREFIX) {
+                    extracted_logs.extend(fields.split_whitespace().filter_map(|field| {
+                        base64::Engine::decode(&base64::engine::general_purpose::STANDARD, field)
+                            .ok()
+                    }));
                 }
             }
         }
@@ -500,22 +506,22 @@ mod tests {
         assert_eq!(nested_instructions.0[1].inner_instructions.len(), 1);
     }
 
+    #[derive(crate::borsh::BorshDeserialize)]
+    struct TinyEvent {
+        value: u8,
+    }
+
+    impl CarbonDeserialize for TinyEvent {
+        const DISCRIMINATOR: &'static [u8] = &[9];
+
+        fn deserialize(data: &[u8]) -> Option<Self> {
+            let payload = data.strip_prefix(Self::DISCRIMINATOR)?;
+            crate::borsh::BorshDeserialize::try_from_slice(payload).ok()
+        }
+    }
+
     #[test]
     fn test_decode_log_events_accepts_payloads_under_eight_bytes() {
-        #[derive(crate::borsh::BorshDeserialize)]
-        struct TinyEvent {
-            value: u8,
-        }
-
-        impl CarbonDeserialize for TinyEvent {
-            const DISCRIMINATOR: &'static [u8] = &[9];
-
-            fn deserialize(data: &[u8]) -> Option<Self> {
-                let payload = data.strip_prefix(Self::DISCRIMINATOR)?;
-                crate::borsh::BorshDeserialize::try_from_slice(payload).ok()
-            }
-        }
-
         let metadata = create_metadata_with_message(
             vec![0],
             1,
@@ -531,6 +537,25 @@ mod tests {
         let events = metadata.decode_log_events::<TinyEvent>();
         assert_eq!(events.len(), 1);
         assert_eq!(events[0].value, 42);
+    }
+
+    #[test]
+    fn test_decode_log_events_tries_each_program_data_field() {
+        let metadata = create_metadata_with_message(
+            vec![0],
+            1,
+            vec![
+                "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK invoke [1]".to_string(),
+                "Program data: Kg== CSo= CSs=".to_string(),
+                "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK success".to_string(),
+            ],
+            vec![],
+            vec![],
+        );
+
+        let events = metadata.decode_log_events::<TinyEvent>();
+        let values: Vec<u8> = events.iter().map(|event| event.value).collect();
+        assert_eq!(values, vec![42, 43]);
     }
 
     #[test]
@@ -567,7 +592,7 @@ mod tests {
         };
 
         assert_eq!(events(vec![0, 0]), vec![vec![9, 42]]);
-        assert!(!events(vec![0]).contains(&vec![9, 42]));
+        assert!(events(vec![0]).is_empty());
     }
 
     #[test]
@@ -584,7 +609,58 @@ mod tests {
         let events =
             create_metadata_with_message(vec![0], 1, logs, vec![], vec![]).extract_event_log_data();
 
-        assert!(events.contains(&vec![9, 42]));
+        assert_eq!(events, vec![vec![9, 42]]);
+    }
+
+    fn extract_from_line(line: &str) -> Vec<Vec<u8>> {
+        let logs = vec![
+            "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK invoke [1]".to_string(),
+            line.to_string(),
+            "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK success".to_string(),
+        ];
+
+        create_metadata_with_message(vec![0], 1, logs, vec![], vec![]).extract_event_log_data()
+    }
+
+    #[test]
+    fn test_extract_event_log_data_ignores_program_log_ending_in_base64_word() {
+        assert!(extract_from_line("Program log: route failed, retrying").is_empty());
+    }
+
+    #[test]
+    fn test_extract_event_log_data_ignores_program_log_instruction_name() {
+        assert!(extract_from_line("Program log: Instruction: Swap").is_empty());
+    }
+
+    #[test]
+    fn test_extract_event_log_data_ignores_base64_in_program_log() {
+        assert!(extract_from_line("Program log: CSo=").is_empty());
+    }
+
+    #[test]
+    fn test_extract_event_log_data_ignores_program_return() {
+        assert!(extract_from_line("Program return: AAA CSo=").is_empty());
+    }
+
+    #[test]
+    fn test_extract_event_log_data_returns_each_program_data_field() {
+        assert_eq!(
+            extract_from_line("Program data: CSo= Kg=="),
+            vec![vec![9, 42], vec![42]]
+        );
+    }
+
+    #[test]
+    fn test_extract_event_log_data_handles_program_data_without_fields() {
+        assert!(extract_from_line("Program data: ").is_empty());
+    }
+
+    #[test]
+    fn test_extract_event_log_data_skips_only_the_invalid_program_data_field() {
+        assert_eq!(
+            extract_from_line("Program data: CSo= not-base64 Kg=="),
+            vec![vec![9, 42], vec![42]]
+        );
     }
 
     #[test]
