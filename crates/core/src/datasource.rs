@@ -27,6 +27,7 @@ use {
     solana_signature::Signature,
     solana_transaction::versioned::VersionedTransaction,
     solana_transaction_status::{Rewards, TransactionStatusMeta},
+    std::sync::Arc,
     tokio_util::sync::CancellationToken,
 };
 
@@ -65,15 +66,15 @@ pub trait Datasource: Send + Sync {
 ///
 /// Used for filtering, routing, and per-source metrics aggregation.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct DatasourceId(String);
+pub struct DatasourceId(Arc<str>);
 
 impl DatasourceId {
     pub fn new_unique() -> Self {
-        Self(uuid::Uuid::new_v4().to_string())
+        Self(uuid::Uuid::new_v4().to_string().into())
     }
 
     pub fn new_named(name: &str) -> Self {
-        Self(name.to_string())
+        Self(name.into())
     }
 }
 

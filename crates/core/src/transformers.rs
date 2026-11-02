@@ -40,8 +40,18 @@ pub fn extract_instructions_with_metadata(
     transaction_metadata: &Arc<TransactionMetadata>,
     transaction_update: &TransactionUpdate,
 ) -> CarbonResult<Vec<(InstructionMetadata, solana_instruction::Instruction)>> {
-    let message = &transaction_update.transaction.message;
-    let meta = &transaction_update.meta;
+    Ok(extract_instructions_from_parts(
+        transaction_metadata,
+        &transaction_update.transaction.message,
+        &transaction_update.meta,
+    ))
+}
+
+pub(crate) fn extract_instructions_from_parts(
+    transaction_metadata: &Arc<TransactionMetadata>,
+    message: &VersionedMessage,
+    meta: &TransactionStatusMeta,
+) -> Vec<(InstructionMetadata, solana_instruction::Instruction)> {
     let mut instructions_with_metadata = Vec::with_capacity(32);
 
     match message {
@@ -109,7 +119,7 @@ pub fn extract_instructions_with_metadata(
         }
     }
 
-    Ok(instructions_with_metadata)
+    instructions_with_metadata
 }
 
 fn process_instructions<F1, F2>(

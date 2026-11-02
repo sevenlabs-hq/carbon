@@ -43,7 +43,9 @@ use {
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
         slot_status::{SlotStatusPipe, SlotStatusPipes},
-        transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
+        transaction::{
+            TransactionMetadata, TransactionPipe, TransactionPipes, TransactionProcessorInputType,
+        },
         transformers,
     },
     std::{
@@ -253,8 +255,15 @@ impl Pipeline {
                         Some((update, datasource_id)) => {
                             UPDATES_RECEIVED.inc();
 
+                            let transaction = match &update {
+                                Update::Transaction(transaction_update) => {
+                                    Some((transaction_update.signature, transaction_update.slot))
+                                }
+                                _ => None,
+                            };
+
                             let start = Instant::now();
-                            let process_result = self.process(&update, &datasource_id).await;
+                            let process_result = self.process(update, &datasource_id).await;
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
@@ -266,7 +275,7 @@ impl Pipeline {
                                     UPDATES_SUCCESSFUL.inc();
                                 }
                                 Err(error) => {
-                                    log::error!("error processing update ({update:?}): {error:?}");
+                                    log::error!("error processing update (datasource: {datasource_id:?}, transaction: {transaction:?}): {error:?}");
                                     UPDATES_FAILED.inc();
                                 }
                             };
@@ -305,7 +314,7 @@ impl Pipeline {
         Ok(())
     }
 
-    async fn process(&mut self, update: &Update, datasource_id: &DatasourceId) -> CarbonResult<()> {
+    async fn process(&mut self, update: Update, datasource_id: &DatasourceId) -> CarbonResult<()> {
         let mut errors = Vec::new();
 
         match update {
@@ -341,17 +350,25 @@ impl Pipeline {
                 ACCOUNT_UPDATES_PROCESSED.inc();
             }
             Update::Transaction(transaction_update) => {
-                let transaction_update = &**transaction_update;
-                let transaction_metadata = Arc::new(transaction_update.clone().try_into()?);
+                let transaction_metadata: Arc<TransactionMetadata> =
+                    Arc::new((*transaction_update).try_into()?);
 
                 let instructions_with_metadata: InstructionsWithMetadata =
-                    transformers::extract_instructions_with_metadata(
+                    transformers::extract_instructions_from_parts(
                         &transaction_metadata,
-                        transaction_update,
-                    )?;
+                        &transaction_metadata.message,
+                        &transaction_metadata.meta,
+                    );
 
-                let nested_instructions: NestedInstructions =
-                    instructions_with_metadata.clone().into();
+                let (nested_instructions, instructions_with_metadata): (NestedInstructions, _) =
+                    if self.transaction_pipes.is_empty() {
+                        (instructions_with_metadata.into(), Vec::new())
+                    } else {
+                        (
+                            instructions_with_metadata.clone().into(),
+                            instructions_with_metadata,
+                        )
+                    };
                 let mut all_instructions = Vec::new();
                 Self::flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
@@ -400,11 +417,11 @@ impl Pipeline {
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
-                            filter.filter_account_deletion(&context, account_deletion),
+                            filter.filter_account_deletion(&context, &account_deletion),
                             FilterResult::Accept
                         )
                     }) {
-                        if let Err(error) = pipe.run(account_deletion).await {
+                        if let Err(error) = pipe.run(&account_deletion).await {
                             errors.push(error);
                         }
                     }
@@ -418,11 +435,11 @@ impl Pipeline {
                 for pipe in self.block_details_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
-                            filter.filter_block_details(&context, block_details),
+                            filter.filter_block_details(&context, &block_details),
                             FilterResult::Accept
                         )
                     }) {
-                        if let Err(error) = pipe.run(block_details).await {
+                        if let Err(error) = pipe.run(&block_details).await {
                             errors.push(error);
                         }
                     }
@@ -436,11 +453,11 @@ impl Pipeline {
                 for pipe in self.slot_status_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         matches!(
-                            filter.filter_slot_status(&context, slot_status),
+                            filter.filter_slot_status(&context, &slot_status),
                             FilterResult::Accept
                         )
                     }) {
-                        if let Err(error) = pipe.run(slot_status).await {
+                        if let Err(error) = pipe.run(&slot_status).await {
                             errors.push(error);
                         }
                     }
