@@ -125,6 +125,11 @@ pub struct YellowstoneGrpcGeyserClient {
     pub transaction_filters: HashMap<String, SubscribeRequestFilterTransactions>,
     pub block_filters: BlockFilters,
     pub geyser_config: YellowstoneGrpcClientConfig,
+    /// Receives a `DatasourceDisconnection` on every reconnect. With the
+    /// default config, its slot bounds come only from account, transaction
+    /// and block updates, so on a quiet subscription they can sit well past
+    /// the real outage. `YellowstoneGrpcClientConfig::with_slot_status()` and
+    /// `with_block_meta()` tighten both bounds.
     pub disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
     /// Timeout for detecting hung/stale connections. Default: 30 seconds.
     pub stream_timeout: Duration,
@@ -141,10 +146,13 @@ pub struct YellowstoneGrpcClientConfig {
     /// Subscribe to slot status, which is what names the bank that won a slot.
     /// Only useful at `processed`, where competing banks are delivered. Off by
     /// default: it costs roughly 17 messages a second whether or not anything
-    /// consumes them.
+    /// consumes them. Also tightens the `disconnect_notifier` window: slot
+    /// status updates move the reconnect cursor independently of account,
+    /// transaction and block activity.
     pub slot_status: bool,
     /// Subscribe to block meta, which carries a bank's blockhash and its
-    /// transaction and entry counts. Off by default.
+    /// transaction and entry counts. Off by default. Also tightens the
+    /// `disconnect_notifier` window, the same way `slot_status` does.
     pub block_meta: bool,
 }
 
@@ -221,14 +229,18 @@ impl YellowstoneGrpcClientConfig {
     }
 
     /// Subscribe to slot status, which names the bank that won a slot. Needed
-    /// only at `processed`, where competing banks are delivered.
+    /// only at `processed`, where competing banks are delivered. Also
+    /// tightens the `disconnect_notifier` window: without it, the reconnect
+    /// cursor only moves on account, transaction and block updates, which on
+    /// a quiet subscription can sit well past the real outage.
     pub const fn with_slot_status(mut self) -> Self {
         self.slot_status = true;
         self
     }
 
     /// Subscribe to block meta, which carries a bank's blockhash and its
-    /// transaction and entry counts.
+    /// transaction and entry counts. Also tightens the `disconnect_notifier`
+    /// window, the same way `with_slot_status()` does.
     pub const fn with_block_meta(mut self) -> Self {
         self.block_meta = true;
         self
@@ -427,7 +439,11 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         };
 
                                                         if let Some(tx) = &disconnect_tx_clone {
-                                                            let _ = tx.try_send(disconnection);
+                                                            if let Err(e) = tx.try_send(disconnection) {
+                                                                log::error!(
+                                                                    "Failed to send disconnection event: {e:?}"
+                                                                );
+                                                            }
                                                         }
 
                                                         log::info!("Reconnected. Slots: {last_slot} -> {slot} (missed: {missed})");

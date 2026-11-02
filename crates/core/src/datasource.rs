@@ -33,14 +33,26 @@ use {
 
 /// Metadata describing a datasource disconnection event.
 ///
-/// Used for observability and gap detection in streaming sources.
+/// Used for observability and gap detection in streaming sources. To backfill
+/// what was missed, re-fetch every produced block in the closed range
+/// `[last_slot_before_disconnect, first_slot_after_reconnect]` (e.g. via
+/// `getBlocks`, which already excludes leader-skipped slots).
 #[derive(Debug, Clone)]
 pub struct DatasourceDisconnection {
     pub source: String,
     pub disconnect_time: DateTime<Utc>,
     pub last_slot_before_disconnect: Slot,
     pub first_slot_after_reconnect: Slot,
-    /// Number of slots missed during downtime.
+    /// Height delta between `last_slot_before_disconnect` and
+    /// `first_slot_after_reconnect` (`first_slot_after_reconnect -
+    /// last_slot_before_disconnect`).
+    ///
+    /// This is not a count of missed slots: it includes any leader-skipped
+    /// heights in between, which never produced a block, and it is one
+    /// short of the size of the inclusive backfill range `[last, first]`.
+    /// Use this field only as a rough gap size; for backfilling, re-fetch
+    /// the closed range `[last_slot_before_disconnect,
+    /// first_slot_after_reconnect]` instead.
     pub missed_slots: u64,
 }
 
