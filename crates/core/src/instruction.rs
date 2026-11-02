@@ -571,6 +571,42 @@ mod tests {
     }
 
     #[test]
+    fn test_extract_event_log_data_ignores_program_logs_shaped_like_exits_and_invokes() {
+        let logs = vec![
+            "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK invoke [1]".to_string(),
+            "Program log: invoke [2]".to_string(),
+            "Program log: success".to_string(),
+            "Program log: failed: x".to_string(),
+            "Program data: CSo=".to_string(),
+            "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK success".to_string(),
+        ];
+
+        let events =
+            create_metadata_with_message(vec![0], 1, logs, vec![], vec![]).extract_event_log_data();
+
+        assert!(events.contains(&vec![9, 42]));
+    }
+
+    #[test]
+    fn test_extract_event_log_data_treats_failed_program_as_exit() {
+        let logs = vec![
+            "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [1]".to_string(),
+            "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK invoke [2]".to_string(),
+            "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK failed: custom program error: 0x1"
+                .to_string(),
+            "Program data: CSo=".to_string(),
+        ];
+        let events = |absolute_path: Vec<u8>| {
+            let stack_height = absolute_path.len() as u32;
+            create_metadata_with_message(absolute_path, stack_height, logs.clone(), vec![], vec![])
+                .extract_event_log_data()
+        };
+
+        assert_eq!(events(vec![0]), vec![vec![9, 42]]);
+        assert!(events(vec![0, 0]).is_empty());
+    }
+
+    #[test]
     fn test_count_precompiles_before_index_no_precompiles() {
         use solana_message::compiled_instruction::CompiledInstruction;
 
