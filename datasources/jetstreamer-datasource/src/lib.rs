@@ -67,6 +67,16 @@ fn register_jetstreamer_metrics() {
 }
 
 pub mod filter;
+// Jetstreamer's firehose library, vendored from `jetstreamer-firehose` in
+// vaultic-win/jetstreamer at 59d4ced, its last commit on Agave 4.3. No release
+// of the crate includes that commit, and a crate published to crates.io cannot
+// depend on a git revision. The files are upstream's, minus tests and with
+// `crate::` paths starting here; rustfmt and lints skip them so they stay
+// upstream's. Replace the module with the crate once a release matches
+// Carbon's Agave version.
+#[rustfmt::skip]
+#[allow(dead_code, unexpected_cfgs, unused_imports, clippy::all)]
+mod jetstreamer_firehose;
 pub mod range;
 
 pub struct JetstreamerDatasource {
@@ -257,6 +267,8 @@ impl JetstreamerDatasource {
             block_time,
             block_height,
             commission_rate_in_basis_points,
+            executed_transaction_count,
+            entry_count,
             ..
         } = block
         else {
@@ -296,6 +308,9 @@ impl JetstreamerDatasource {
                     num_reward_partitions: rewards.num_partitions,
                     block_time,
                     block_height,
+                    bank_id: None,
+                    executed_transaction_count: Some(executed_transaction_count),
+                    entries_count: Some(entry_count),
                 }),
                 id,
             ))
@@ -354,6 +369,7 @@ impl JetstreamerDatasource {
                     index: Some(transaction.transaction_slot_index as u64),
                     block_time: None,
                     block_hash: None,
+                    bank_id: None,
                 })),
                 id,
             ))

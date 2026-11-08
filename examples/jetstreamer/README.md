@@ -41,8 +41,3 @@ cargo run --release -p jetstreamer-carbon-example
 ```
 
 The pipeline processes the configured slot range and exits via `ProcessPending`. Throughput depends on Jetstream's rate limits and `WORKER_COUNT` — for a full epoch expect tens of minutes wall time. Narrow `START_SLOT` / `END_SLOT` for a quick smoke test.
-
-> [!NOTE]
-> Requires `jetstreamer-firehose` 0.8.1 or newer, the first release carrying
-> Transaction V1 and Agave 4.2 support
-> ([anza-xyz/jetstreamer#95](https://github.com/anza-xyz/jetstreamer/pull/95)).

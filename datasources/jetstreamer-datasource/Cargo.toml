@@ -4,7 +4,8 @@ description = "Carbon Jetstreamer Datasource"
 license = { workspace = true }
 version = "2.0.0"
 rust-version = { workspace = true }
-edition = { workspace = true }
+# The vendored firehose is written for the 2024 edition.
+edition = "2024"
 readme = "README.md"
 repository = { workspace = true }
 keywords = ["solana", "indexer", "jetstreamer", "datasource"]
@@ -14,13 +15,47 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [dependencies]
+solana-accounts-db = { workspace = true }
+solana-address = { workspace = true }
+solana-hash = { workspace = true }
 solana-pubkey = { workspace = true }
+solana-reward-info = { workspace = true }
+solana-runtime = { workspace = true }
+solana-sdk-ids = { workspace = true }
+solana-signature = { workspace = true }
+solana-storage-proto = { workspace = true }
+solana-transaction = { workspace = true }
+solana-transaction-status = { workspace = true }
 solana-transaction-status-client-types = { workspace = true }
 
 carbon-core = { workspace = true }
 
+ahash = { workspace = true }
 async-trait = { workspace = true }
+bincode = { workspace = true }
+cid = { workspace = true }
+crc = { workspace = true }
+dashmap = { workspace = true }
+fnv = { workspace = true }
 futures-util = { workspace = true }
-jetstreamer-firehose = { workspace = true }
+libc = { workspace = true }
+log = { workspace = true }
+multihash = { workspace = true }
+once_cell = { workspace = true }
+ripget = { workspace = true }
+rseek = { workspace = true }
+serde = { workspace = true }
+serde_cbor = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt", "sync"] }
 tokio-util = { workspace = true }
+url = { workspace = true }
+wincode = { workspace = true }
+xxhash-rust = { workspace = true }
+zstd = { workspace = true }
+
+# The vendored firehose needs newer majors than the workspace pins.
+base64 = "0.23.1"
+prost_014 = { package = "prost", version = "0.14.4" }
+reqwest = { version = "0.13.5", default-features = false, features = ["json", "stream"] }

@@ -1,13 +1,16 @@
 # Carbon Jetstreamer Datasource
 
-Bounded-range historical backfill over [Jetstreamer](https://github.com/anza-xyz/jetstreamer),
-Anza's high-throughput reader for the Old Faithful CAR archives. Streams a slot
+Bounded-range historical backfill over [Jetstreamer](https://github.com/vaultic-win/jetstreamer),
+a high-throughput reader for the Old Faithful CAR archives. Streams a slot
 or epoch range through Carbon's pipeline as `Transaction` and `BlockDetails`
 updates, with upstream-side filtering and multi-threaded fetch.
 
-Requires `jetstreamer-firehose` 0.8.1 or newer, the first release carrying the
-Transaction V1 parsing and Agave 4.2 stack that Carbon 2 needs
-([anza-xyz/jetstreamer#95](https://github.com/anza-xyz/jetstreamer/pull/95)).
+Jetstreamer's firehose library is vendored in this crate from
+[vaultic-win/jetstreamer at `59d4ced`](https://github.com/vaultic-win/jetstreamer/tree/59d4ced90213726705e0a309b33d31372683f5a3/jetstreamer-firehose),
+its last commit on Agave 4.3, which also decodes the `VATDebit` rewards of
+epoch-boundary blocks since Alpenglow. No `jetstreamer-firehose` release
+includes that commit yet; the datasource will depend on the crate again once a
+release on crates.io matches Carbon's Agave version.
 
 ## Usage
 
@@ -66,6 +69,8 @@ because those are process-global, prefer exporting them in the environment when
 the pipeline hosts more than one datasource.
 
 Defaults target the Solana Foundation's public Old Faithful mainnet archive.
+Requests to it are paced politely, since other users share it; set
+`JETSTREAMER_TURBO=1` to stream at full speed from a private mirror.
 
 ## Rewards and SIMD-0291
 

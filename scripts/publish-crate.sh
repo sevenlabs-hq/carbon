@@ -14,6 +14,7 @@ workspace_crates=(
     carbon-helius-gpa-v2-datasource
     carbon-helius-gtfa-datasource
     carbon-helius-laserstream-datasource
+    carbon-jetstreamer-datasource
     carbon-rpc-block-crawler-datasource
     carbon-rpc-block-subscribe-datasource
     carbon-rpc-gpa-datasource

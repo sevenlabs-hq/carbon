@@ -94,4 +94,4 @@ The Carbon 2 publication contains these twelve datasource crates:
 
 `carbon-jito-shredstream-grpc-datasource` is not published on the 2.0 line: it does not yet support Transaction V1. Existing versions remain available, but they must not be selected as Carbon 2 dependencies.
 
-`carbon-jetstreamer-datasource` is a Carbon 2 workspace member again and targets the Solana v4 stack. It requires `jetstreamer-firehose` 0.8.1 or newer, the first release carrying the Transaction V1 and Agave 4.2 support from [anza-xyz/jetstreamer#95](https://github.com/anza-xyz/jetstreamer/pull/95).
+`carbon-jetstreamer-datasource` is a Carbon 2 workspace member again and targets the Solana v4 stack. It vendors Jetstreamer's firehose library from [vaultic-win/jetstreamer](https://github.com/vaultic-win/jetstreamer) at `59d4ced` (Agave 4.3), which parses Transaction V1 and decodes the `VATDebit` rewards of epoch-boundary blocks since Alpenglow, because no `jetstreamer-firehose` release builds on Agave 4.3 yet.
