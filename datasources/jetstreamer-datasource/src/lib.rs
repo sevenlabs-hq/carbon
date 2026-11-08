@@ -16,6 +16,7 @@ use {
         BlockData, EntryData, FirehoseErrorContext, HandlerFn, RewardsData, Stats, StatsTracking,
         TransactionData,
     },
+    solana_hash::Hash,
     solana_transaction_status_client_types::Reward,
     std::collections::HashSet,
     tokio_util::sync::CancellationToken,
@@ -152,6 +153,12 @@ impl Datasource for JetstreamerDatasource {
         let (include_transactions, include_blocks) =
             (self.filter.include_transactions, self.filter.include_blocks);
 
+        if !include_transactions && !include_blocks {
+            return Err(carbon_core::error::Error::FailedToConsumeDatasource(
+                "jetstreamer filter enables neither transactions nor blocks".to_string(),
+            ));
+        }
+
         if let Some(archive_url) = &self.archive_url {
             unsafe { std::env::set_var("JETSTREAMER_COMPACT_INDEX_BASE_URL", archive_url) }
         }
@@ -162,7 +169,9 @@ impl Datasource for JetstreamerDatasource {
 
         let (shutdown_tx, shutdown_rx) = tokio::sync::broadcast::channel::<()>(1);
         let shutdown_token = cancellation_token.clone();
-        tokio::spawn(async move {
+        // Exiting drops the only sender: firehose threads subscribe late and treat `Closed` as
+        // a shutdown, so keep `shutdown_tx` owned by this task.
+        let shutdown_forwarder = tokio::spawn(async move {
             shutdown_token.cancelled().await;
             let _ = shutdown_tx.send(());
         });
@@ -228,6 +237,7 @@ impl Datasource for JetstreamerDatasource {
             Some(shutdown_rx),
         )
         .await;
+        shutdown_forwarder.abort();
 
         result.map_err(|(error, slot)| {
             carbon_core::error::Error::FailedToConsumeDatasource(format!(
@@ -280,7 +290,9 @@ impl JetstreamerDatasource {
                 Update::BlockDetails(BlockDetails {
                     slot,
                     block_hash: Some(blockhash),
-                    previous_block_hash: Some(parent_blockhash),
+                    // The firehose reports an all-zero parent for the first block of each slice.
+                    previous_block_hash: (parent_blockhash != Hash::default())
+                        .then_some(parent_blockhash),
                     rewards: Some(
                         rewards
                             .keyed_rewards
@@ -314,7 +326,8 @@ impl JetstreamerDatasource {
                 }),
                 id,
             ))
-            .await?;
+            .await
+            .map_err(pipeline_closed)?;
 
         BLOCKS_SENT.inc();
         Ok(())
@@ -373,7 +386,8 @@ impl JetstreamerDatasource {
                 })),
                 id,
             ))
-            .await?;
+            .await
+            .map_err(pipeline_closed)?;
 
         TRANSACTIONS_SENT.inc();
         Ok(())
@@ -387,9 +401,65 @@ impl JetstreamerDatasource {
     }
 
     pub async fn on_error(
-        _context: FirehoseErrorContext,
+        context: FirehoseErrorContext,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        log::warn!(
+            "jetstreamer firehose thread {} failed at slot {} (epoch {}): {}",
+            context.thread_id,
+            context.slot,
+            context.epoch,
+            context.error_message
+        );
         FIREHOSE_ERRORS.inc();
         Ok(())
+    }
+}
+
+/// Reports a closed pipeline as `Interrupted`, which the firehose treats as a shutdown
+/// rather than a failure to retry.
+fn pipeline_closed<T>(
+    _: tokio::sync::mpsc::error::SendError<T>,
+) -> Box<dyn std::error::Error + Send + Sync> {
+    Box::new(std::io::Error::new(
+        std::io::ErrorKind::Interrupted,
+        "pipeline receiver dropped",
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn closed_pipeline_reads_as_interrupted() {
+        let (sender, receiver) = tokio::sync::mpsc::channel::<()>(1);
+        drop(receiver);
+
+        let error = sender.send(()).await.map_err(pipeline_closed).unwrap_err();
+
+        let io_error = error
+            .downcast_ref::<std::io::Error>()
+            .expect("closed pipeline maps to an io::Error");
+        assert_eq!(io_error.kind(), std::io::ErrorKind::Interrupted);
+    }
+
+    #[tokio::test]
+    async fn consume_rejects_a_filter_with_nothing_enabled() {
+        let datasource = JetstreamerDatasource::new_with_old_faithful_mainnet(
+            JetstreamerRange::Slot(0, 0),
+            JetstreamerFilter::default(),
+            1,
+            None,
+        );
+        let (sender, _receiver) = tokio::sync::mpsc::channel(1);
+
+        let result = datasource
+            .consume(DatasourceId::new_unique(), sender, CancellationToken::new())
+            .await;
+
+        assert!(matches!(
+            result,
+            Err(carbon_core::error::Error::FailedToConsumeDatasource(_))
+        ));
     }
 }

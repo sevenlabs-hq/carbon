@@ -58,4 +58,4 @@ zstd = { workspace = true }
 # The vendored firehose needs newer majors than the workspace pins.
 base64 = "0.23.1"
 prost_014 = { package = "prost", version = "0.14.4" }
-reqwest = { version = "0.13.5", default-features = false, features = ["json", "stream"] }
+reqwest = { version = "0.13.5", default-features = false, features = ["json", "stream", "rustls"] }
