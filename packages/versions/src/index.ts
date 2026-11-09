@@ -31,6 +31,7 @@ export const VERSIONS: Record<string, CrateDependency> = {
     'carbon-helius-gpa-v2-datasource': CARBON_VERSION,
     'carbon-helius-gtfa-datasource': CARBON_VERSION,
     'carbon-helius-laserstream-datasource': CARBON_VERSION,
+    'carbon-jetstreamer-datasource': CARBON_VERSION,
     'carbon-rpc-block-crawler-datasource': CARBON_VERSION,
     'carbon-rpc-block-subscribe-datasource': CARBON_VERSION,
     'carbon-rpc-gpa-datasource': CARBON_VERSION,
