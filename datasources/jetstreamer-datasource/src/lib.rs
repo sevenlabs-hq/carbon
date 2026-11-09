@@ -13,9 +13,10 @@ use {
     },
     futures_util::FutureExt,
     jetstreamer_firehose::firehose::{
-        BlockData, EntryData, HandlerFn, OnErrorFn, RewardsData, Stats, StatsTracking,
+        BlockData, EntryData, FirehoseErrorContext, HandlerFn, RewardsData, Stats, StatsTracking,
         TransactionData,
     },
+    solana_hash::Hash,
     solana_transaction_status_client_types::Reward,
     std::collections::HashSet,
     tokio_util::sync::CancellationToken,
@@ -37,6 +38,10 @@ static TRANSACTIONS_FILTERED_IN: Counter = Counter::new(
     "jetstreamer_transactions_filtered_in_total",
     "Transactions that passed filters (before send) in Jetstreamer datasource",
 );
+static FIREHOSE_ERRORS: Counter = Counter::new(
+    "jetstreamer_firehose_errors_total",
+    "Recoverable firehose worker errors reported by Jetstreamer",
+);
 static INTERNAL_SLOTS_PROCESSED: Gauge = Gauge::new(
     "jetstreamer_internal_slots_processed",
     "Internal firehose slots processed (from Stats)",
@@ -56,12 +61,23 @@ fn register_jetstreamer_metrics() {
     registry.register_counter(&TRANSACTIONS_SENT);
     registry.register_counter(&TRANSACTIONS_FILTERED_OUT);
     registry.register_counter(&TRANSACTIONS_FILTERED_IN);
+    registry.register_counter(&FIREHOSE_ERRORS);
     registry.register_gauge(&INTERNAL_SLOTS_PROCESSED);
     registry.register_gauge(&INTERNAL_BLOCKS_PROCESSED);
     registry.register_gauge(&INTERNAL_TRANSACTIONS_PROCESSED);
 }
 
 pub mod filter;
+// Jetstreamer's firehose library, vendored from `jetstreamer-firehose` in
+// vaultic-win/jetstreamer at 59d4ced, its last commit on Agave 4.3. No release
+// of the crate includes that commit, and a crate published to crates.io cannot
+// depend on a git revision. The files are upstream's, minus tests and with
+// `crate::` paths starting here; rustfmt and lints skip them so they stay
+// upstream's. Replace the module with the crate once a release matches
+// Carbon's Agave version.
+#[rustfmt::skip]
+#[allow(dead_code, unexpected_cfgs, unused_imports, clippy::all)]
+mod jetstreamer_firehose;
 pub mod range;
 
 pub struct JetstreamerDatasource {
@@ -71,6 +87,9 @@ pub struct JetstreamerDatasource {
     pub tracking_interval_slots: Option<u64>,
     pub archive_url: Option<String>,
     pub network: Option<String>,
+    pub sequential: bool,
+    pub reverse: bool,
+    pub buffer_window_bytes: Option<u64>,
 }
 
 impl JetstreamerDatasource {
@@ -89,6 +108,9 @@ impl JetstreamerDatasource {
             tracking_interval_slots,
             archive_url,
             network,
+            sequential: false,
+            reverse: false,
+            buffer_window_bytes: None,
         }
     }
 
@@ -100,6 +122,21 @@ impl JetstreamerDatasource {
     ) -> Self {
         Self::new(range, filter, threads, tracking_interval_slots, None, None)
     }
+
+    pub fn with_sequential(mut self, sequential: bool) -> Self {
+        self.sequential = sequential;
+        self
+    }
+
+    pub fn with_reverse(mut self, reverse: bool) -> Self {
+        self.reverse = reverse;
+        self
+    }
+
+    pub fn with_buffer_window_bytes(mut self, buffer_window_bytes: Option<u64>) -> Self {
+        self.buffer_window_bytes = buffer_window_bytes;
+        self
+    }
 }
 
 #[async_trait]
@@ -108,13 +145,19 @@ impl Datasource for JetstreamerDatasource {
         &self,
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
-        _cancellation_token: CancellationToken,
+        cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_jetstreamer_metrics();
 
         let (start_slot, end_slot) = self.range.into_slots();
         let (include_transactions, include_blocks) =
             (self.filter.include_transactions, self.filter.include_blocks);
+
+        if !include_transactions && !include_blocks {
+            return Err(carbon_core::error::Error::FailedToConsumeDatasource(
+                "jetstreamer filter enables neither transactions nor blocks".to_string(),
+            ));
+        }
 
         if let Some(archive_url) = &self.archive_url {
             unsafe { std::env::set_var("JETSTREAMER_COMPACT_INDEX_BASE_URL", archive_url) }
@@ -123,6 +166,15 @@ impl Datasource for JetstreamerDatasource {
         if let Some(network) = &self.network {
             unsafe { std::env::set_var("JETSTREAMER_NETWORK", network) }
         }
+
+        let (shutdown_tx, shutdown_rx) = tokio::sync::broadcast::channel::<()>(1);
+        let shutdown_token = cancellation_token.clone();
+        // Exiting drops the only sender: firehose threads subscribe late and treat `Closed` as
+        // a shutdown, so keep `shutdown_tx` owned by this task.
+        let shutdown_forwarder = tokio::spawn(async move {
+            shutdown_token.cancelled().await;
+            let _ = shutdown_tx.send(());
+        });
 
         let sender_for_block = sender.clone();
         let id_for_block = id.clone();
@@ -150,6 +202,10 @@ impl Datasource for JetstreamerDatasource {
             async move { JetstreamerDatasource::on_stats(stats).await }.boxed()
         };
 
+        let on_error_fn = move |_thread_id: usize, context: FirehoseErrorContext| {
+            async move { JetstreamerDatasource::on_error(context).await }.boxed()
+        };
+
         let stats_tracking = self
             .tracking_interval_slots
             .map(|interval_slots| StatsTracking {
@@ -159,7 +215,11 @@ impl Datasource for JetstreamerDatasource {
 
         let result = jetstreamer_firehose::firehose::firehose(
             self.threads,
-            start_slot..end_slot,
+            self.sequential,
+            self.reverse,
+            self.buffer_window_bytes,
+            // `into_slots` is inclusive, firehose takes a half-open range.
+            start_slot..end_slot.saturating_add(1),
             if include_blocks {
                 Some(on_block_fn)
             } else {
@@ -172,21 +232,34 @@ impl Datasource for JetstreamerDatasource {
             },
             None::<HandlerFn<EntryData>>,
             None::<HandlerFn<RewardsData>>,
-            None::<OnErrorFn>,
+            Some(on_error_fn),
             stats_tracking,
-            None,
+            Some(shutdown_rx),
         )
         .await;
+        shutdown_forwarder.abort();
 
-        result.map_err(|(error, _)| {
-            carbon_core::error::Error::FailedToConsumeDatasource(error.to_string())
+        result.map_err(|(error, slot)| {
+            carbon_core::error::Error::FailedToConsumeDatasource(format!(
+                "jetstreamer firehose failed at slot {slot}: {error}"
+            ))
         })?;
 
         Ok(())
     }
 
     fn update_types(&self) -> Vec<carbon_core::datasource::UpdateType> {
-        vec![UpdateType::Transaction]
+        let mut update_types = Vec::new();
+
+        if self.filter.include_transactions {
+            update_types.push(UpdateType::Transaction);
+        }
+
+        if self.filter.include_blocks {
+            update_types.push(UpdateType::BlockDetails);
+        }
+
+        update_types
     }
 }
 
@@ -203,6 +276,9 @@ impl JetstreamerDatasource {
             rewards,
             block_time,
             block_height,
+            commission_rate_in_basis_points,
+            executed_transaction_count,
+            entry_count,
             ..
         } = block
         else {
@@ -214,7 +290,9 @@ impl JetstreamerDatasource {
                 Update::BlockDetails(BlockDetails {
                     slot,
                     block_hash: Some(blockhash),
-                    previous_block_hash: Some(parent_blockhash),
+                    // The firehose reports an all-zero parent for the first block of each slice.
+                    previous_block_hash: (parent_blockhash != Hash::default())
+                        .then_some(parent_blockhash),
                     rewards: Some(
                         rewards
                             .keyed_rewards
@@ -224,17 +302,32 @@ impl JetstreamerDatasource {
                                 lamports: reward.lamports,
                                 post_balance: reward.post_balance,
                                 reward_type: Some(reward.reward_type),
-                                commission: reward.commission,
+                                // Match Agave's geyser: whole-percent `commission` before
+                                // SIMD-0291, `commission_bps` after it, never both.
+                                commission: if commission_rate_in_basis_points {
+                                    None
+                                } else {
+                                    reward.commission_bps.map(|bps| (bps / 100) as u8)
+                                },
+                                commission_bps: if commission_rate_in_basis_points {
+                                    reward.commission_bps
+                                } else {
+                                    None
+                                },
                             })
                             .collect::<Vec<_>>(),
                     ),
                     num_reward_partitions: rewards.num_partitions,
                     block_time,
                     block_height,
+                    bank_id: None,
+                    executed_transaction_count: Some(executed_transaction_count),
+                    entries_count: Some(entry_count),
                 }),
                 id,
             ))
-            .await?;
+            .await
+            .map_err(pipeline_closed)?;
 
         BLOCKS_SENT.inc();
         Ok(())
@@ -289,10 +382,12 @@ impl JetstreamerDatasource {
                     index: Some(transaction.transaction_slot_index as u64),
                     block_time: None,
                     block_hash: None,
+                    bank_id: None,
                 })),
                 id,
             ))
-            .await?;
+            .await
+            .map_err(pipeline_closed)?;
 
         TRANSACTIONS_SENT.inc();
         Ok(())
@@ -303,5 +398,68 @@ impl JetstreamerDatasource {
         INTERNAL_BLOCKS_PROCESSED.set(stats.blocks_processed as f64);
         INTERNAL_TRANSACTIONS_PROCESSED.set(stats.transactions_processed as f64);
         Ok(())
+    }
+
+    pub async fn on_error(
+        context: FirehoseErrorContext,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        log::warn!(
+            "jetstreamer firehose thread {} failed at slot {} (epoch {}): {}",
+            context.thread_id,
+            context.slot,
+            context.epoch,
+            context.error_message
+        );
+        FIREHOSE_ERRORS.inc();
+        Ok(())
+    }
+}
+
+/// Reports a closed pipeline as `Interrupted`, which the firehose treats as a shutdown
+/// rather than a failure to retry.
+fn pipeline_closed<T>(
+    _: tokio::sync::mpsc::error::SendError<T>,
+) -> Box<dyn std::error::Error + Send + Sync> {
+    Box::new(std::io::Error::new(
+        std::io::ErrorKind::Interrupted,
+        "pipeline receiver dropped",
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn closed_pipeline_reads_as_interrupted() {
+        let (sender, receiver) = tokio::sync::mpsc::channel::<()>(1);
+        drop(receiver);
+
+        let error = sender.send(()).await.map_err(pipeline_closed).unwrap_err();
+
+        let io_error = error
+            .downcast_ref::<std::io::Error>()
+            .expect("closed pipeline maps to an io::Error");
+        assert_eq!(io_error.kind(), std::io::ErrorKind::Interrupted);
+    }
+
+    #[tokio::test]
+    async fn consume_rejects_a_filter_with_nothing_enabled() {
+        let datasource = JetstreamerDatasource::new_with_old_faithful_mainnet(
+            JetstreamerRange::Slot(0, 0),
+            JetstreamerFilter::default(),
+            1,
+            None,
+        );
+        let (sender, _receiver) = tokio::sync::mpsc::channel(1);
+
+        let result = datasource
+            .consume(DatasourceId::new_unique(), sender, CancellationToken::new())
+            .await;
+
+        assert!(matches!(
+            result,
+            Err(carbon_core::error::Error::FailedToConsumeDatasource(_))
+        ));
     }
 }

@@ -30,7 +30,7 @@ pub async fn main() -> CarbonResult<()> {
         .ok()
         .and_then(|value| value.parse().ok())
         .unwrap_or(4);
-    let page_size = env::var("PAGE_SIZE")
+    let stats_interval_slots = env::var("STATS_INTERVAL_SLOTS")
         .ok()
         .and_then(|value| value.parse().ok())
         .unwrap_or(100);
@@ -50,7 +50,7 @@ pub async fn main() -> CarbonResult<()> {
             }],
         },
         worker_count,
-        Some(page_size),
+        Some(stats_interval_slots),
     );
 
     Pipeline::builder()

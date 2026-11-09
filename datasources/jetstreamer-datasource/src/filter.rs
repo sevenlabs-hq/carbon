@@ -34,16 +34,16 @@ impl TransactionFilter {
     }
 
     pub fn matches(&self, accounts: &HashSet<Pubkey>, is_vote: bool, is_failed: bool) -> bool {
-        if let Some(vote_filter) = self.vote {
-            if is_vote != vote_filter {
-                return false;
-            }
+        if let Some(vote_filter) = self.vote
+            && is_vote != vote_filter
+        {
+            return false;
         }
 
-        if let Some(failed_filter) = self.failed {
-            if is_failed != failed_filter {
-                return false;
-            }
+        if let Some(failed_filter) = self.failed
+            && is_failed != failed_filter
+        {
+            return false;
         }
 
         if !self.account_include.is_empty() && self.account_include.is_disjoint(accounts) {
