@@ -7,14 +7,14 @@
 //! where each variant wraps the `InstructionType` of a registered decoder.
 //! `parse_instruction` selects the matching variant for a given instruction.
 //!
-//! Typical usage is a hand-written wrapper enum over all relevant decoders,
-//! with `parse_instruction` attempting each decoder sequentially.
+//! Typical usage is `instruction_decoder_collection!`, which generates the
+//! enum and its implementation from the decoders' instruction enums.
 //!
 //! # Notes
 //!
-//! - `Eq + Hash + Serialize` are required for internal routing and persistence.
-//! - Generated decoders (e.g. Codama) usually lack these bounds, so the wrapper
-//!   enum is maintained manually or via macro.
+//! - The enum must be `Serialize`, so generated decoders need their `serde`
+//!   feature: only with it do their instruction enums derive `Serialize`,
+//!   `Deserialize` and `InstructionType`, which the macro relies on.
 
 use serde::Serialize;
 
@@ -28,7 +28,7 @@ use serde::Serialize;
 /// - [`InstructionType`](Self::InstructionType): Discriminant returned by
 ///   [`get_type`](Self::get_type), used for routing within the pipe.
 pub trait InstructionDecoderCollection:
-    Clone + std::fmt::Debug + Send + Sync + Eq + std::hash::Hash + Serialize + 'static
+    Clone + std::fmt::Debug + Send + Sync + Serialize + 'static
 {
     type InstructionType: Clone + std::fmt::Debug + PartialEq + Eq + Send + Sync + 'static;
 

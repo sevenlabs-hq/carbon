@@ -20,6 +20,7 @@ pub use self::{buy::*, claim::*, cpi_event::*, create::*, quote_buy::*, quote_se
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+#[cfg_attr(feature = "serde", derive(carbon_core::InstructionType))]
 pub enum VertigoInstruction {
     Buy {
         program_id: solana_pubkey::Pubkey,

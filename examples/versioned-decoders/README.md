@@ -15,7 +15,7 @@ The pipeline registers both decoders with `SlotRangeFilter` so each instruction 
 
 ## Why two `.instruction()` registrations instead of `InstructionDecoderCollection`?
 
-`InstructionDecoderCollection` requires `Eq + Hash + Serialize` on every inner instruction enum. Codama-generated decoders only derive `Clone + Debug + PartialEq`, so two `.instruction()` registrations with slot-based routing is the path that compiles today.
+Both versions decode the same program ID, and `InstructionDecoderCollection::parse_instruction` sees only the instruction, not its slot, so a collection can't choose between V1 and V2. Two `.instruction()` registrations, each with its own `SlotRangeFilter`, route by slot instead.
 
 ## Structure
 

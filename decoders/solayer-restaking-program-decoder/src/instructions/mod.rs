@@ -17,6 +17,7 @@ pub use self::{batch_thaw_lst_accounts::*, initialize::*, restake::*, unrestake:
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+#[cfg_attr(feature = "serde", derive(carbon_core::InstructionType))]
 pub enum SolayerRestakingProgramInstruction {
     BatchThawLstAccounts {
         program_id: solana_pubkey::Pubkey,
