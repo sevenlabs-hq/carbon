@@ -84,7 +84,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::LockClmmPositionGraphQL>> {
         let rows: Vec<crate::instructions::postgres::LockClmmPositionRow> = sqlx::query_as(
-            r#"SELECT * FROM lock_clmm_position_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM lock_clmm_position_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -122,7 +122,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectClmmFeesAndRewardsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectClmmFeesAndRewardsRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_clmm_fees_and_rewards_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM collect_clmm_fees_and_rewards_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -160,7 +160,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::LockCpLiquidityGraphQL>> {
         let rows: Vec<crate::instructions::postgres::LockCpLiquidityRow> = sqlx::query_as(
-            r#"SELECT * FROM lock_cp_liquidity_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM lock_cp_liquidity_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -198,7 +198,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CollectCpFeesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CollectCpFeesRow> = sqlx::query_as(
-            r#"SELECT * FROM collect_cp_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM collect_cp_fees_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)

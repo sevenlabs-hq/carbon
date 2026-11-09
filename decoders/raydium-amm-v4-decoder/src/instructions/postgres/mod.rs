@@ -64,6 +64,121 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumAmmV4InstructionsMigrat
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(RaydiumAmmV4InstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct RaydiumAmmV4InstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumAmmV4InstructionsAbsolutePathMigration {
+    fn app(&self) -> &str {
+        "raydium-amm-v4"
+    }
+
+    fn name(&self) -> &str {
+        "raydium_amm_v4_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "admin_cancel_orders_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_config_account_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "deposit_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "initialize_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "initialize2_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "migrate_to_open_book_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "monitor_step_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "pre_initialize_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "set_params_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "simulate_info_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "swap_base_in_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "swap_base_in_v2_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "swap_base_out_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "swap_base_out_v2_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "update_config_account_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "withdraw_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "withdraw_pnl_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "withdraw_srm_instruction",
+                ),
+            ),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(RaydiumAmmV4InstructionsMigration)]
+    }
 }
 
 pub struct RaydiumAmmV4InstructionWithMetadata(

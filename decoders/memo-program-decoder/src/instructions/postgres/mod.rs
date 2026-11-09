@@ -22,6 +22,32 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MemoProgramInstructionsMigrati
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(MemoProgramInstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct MemoProgramInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for MemoProgramInstructionsAbsolutePathMigration {
+    fn app(&self) -> &str {
+        "memo-program"
+    }
+
+    fn name(&self) -> &str {
+        "memo_program_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![Box::new(
+            carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("add_memo_instruction"),
+        )]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(MemoProgramInstructionsMigration)]
+    }
 }
 
 pub struct MemoProgramInstructionWithMetadata(

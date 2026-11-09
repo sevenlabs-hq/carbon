@@ -35,6 +35,60 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for AddressLookupTableInstructions
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(
+            AddressLookupTableInstructionsAbsolutePathMigration,
+        )]
+    }
+}
+
+pub struct AddressLookupTableInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres>
+    for AddressLookupTableInstructionsAbsolutePathMigration
+{
+    fn app(&self) -> &str {
+        "address-lookup-table"
+    }
+
+    fn name(&self) -> &str {
+        "address_lookup_table_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "close_lookup_table_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_lookup_table_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "deactivate_lookup_table_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "extend_lookup_table_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "freeze_lookup_table_instruction",
+                ),
+            ),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(AddressLookupTableInstructionsMigration)]
+    }
 }
 
 pub struct AddressLookupTableInstructionWithMetadata(

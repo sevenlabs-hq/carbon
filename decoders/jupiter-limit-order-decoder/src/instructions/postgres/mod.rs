@@ -46,6 +46,79 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterLimitOrderInstructionsM
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(JupiterLimitOrderInstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct JupiterLimitOrderInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres>
+    for JupiterLimitOrderInstructionsAbsolutePathMigration
+{
+    fn app(&self) -> &str {
+        "jupiter-limit-order"
+    }
+
+    fn name(&self) -> &str {
+        "jupiter_limit_order_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "cancel_expired_order_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "cancel_order_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "fill_order_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "flash_fill_order_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "init_fee_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "initialize_order_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "pre_flash_fill_order_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "update_fee_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "withdraw_fee_instruction",
+                ),
+            ),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("cpi_events")),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(JupiterLimitOrderInstructionsMigration)]
+    }
 }
 
 pub struct JupiterLimitOrderInstructionWithMetadata(

@@ -35,6 +35,56 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumLiquidityLockingInstruc
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(
+            RaydiumLiquidityLockingInstructionsAbsolutePathMigration,
+        )]
+    }
+}
+
+pub struct RaydiumLiquidityLockingInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres>
+    for RaydiumLiquidityLockingInstructionsAbsolutePathMigration
+{
+    fn app(&self) -> &str {
+        "raydium-liquidity-locking"
+    }
+
+    fn name(&self) -> &str {
+        "raydium_liquidity_locking_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "collect_clmm_fees_and_rewards_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "collect_cp_fees_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "lock_clmm_position_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "lock_cp_liquidity_instruction",
+                ),
+            ),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("cpi_events")),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(RaydiumLiquidityLockingInstructionsMigration)]
+    }
 }
 
 pub struct RaydiumLiquidityLockingInstructionWithMetadata(

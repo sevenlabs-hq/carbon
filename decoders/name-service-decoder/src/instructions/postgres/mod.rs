@@ -32,6 +32,56 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for NameServiceInstructionsMigrati
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(NameServiceInstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct NameServiceInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for NameServiceInstructionsAbsolutePathMigration {
+    fn app(&self) -> &str {
+        "name-service"
+    }
+
+    fn name(&self) -> &str {
+        "name_service_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "delete_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "realloc_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "transfer_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "update_instruction",
+                ),
+            ),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(NameServiceInstructionsMigration)]
+    }
 }
 
 pub struct NameServiceInstructionWithMetadata(

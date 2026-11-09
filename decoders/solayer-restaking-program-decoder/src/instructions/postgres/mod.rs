@@ -32,6 +32,55 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for SolayerRestakingProgramInstruc
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(
+            SolayerRestakingProgramInstructionsAbsolutePathMigration,
+        )]
+    }
+}
+
+pub struct SolayerRestakingProgramInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres>
+    for SolayerRestakingProgramInstructionsAbsolutePathMigration
+{
+    fn app(&self) -> &str {
+        "solayer-restaking-program"
+    }
+
+    fn name(&self) -> &str {
+        "solayer_restaking_program_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "batch_thaw_lst_accounts_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "initialize_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "restake_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "unrestake_instruction",
+                ),
+            ),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(SolayerRestakingProgramInstructionsMigration)]
+    }
 }
 
 pub struct SolayerRestakingProgramInstructionWithMetadata(

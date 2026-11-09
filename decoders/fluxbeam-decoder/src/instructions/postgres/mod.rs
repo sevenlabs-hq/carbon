@@ -38,6 +38,59 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for FluxbeamInstructionsMigration 
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(FluxbeamInstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct FluxbeamInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for FluxbeamInstructionsAbsolutePathMigration {
+    fn app(&self) -> &str {
+        "fluxbeam"
+    }
+
+    fn name(&self) -> &str {
+        "fluxbeam_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "deposit_all_token_types_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "deposit_single_token_type_exact_amount_in_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "initialize_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("swap_instruction"),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "withdraw_all_token_types_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "withdraw_single_token_type_exact_amount_out_instruction",
+                ),
+            ),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(FluxbeamInstructionsMigration)]
+    }
 }
 
 pub struct FluxbeamInstructionWithMetadata(

@@ -28,6 +28,50 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for AssociatedTokenAccountInstruct
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(
+            AssociatedTokenAccountInstructionsAbsolutePathMigration,
+        )]
+    }
+}
+
+pub struct AssociatedTokenAccountInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres>
+    for AssociatedTokenAccountInstructionsAbsolutePathMigration
+{
+    fn app(&self) -> &str {
+        "associated-token-account"
+    }
+
+    fn name(&self) -> &str {
+        "associated_token_account_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_idempotent_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "recover_nested_instruction",
+                ),
+            ),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(AssociatedTokenAccountInstructionsMigration)]
+    }
 }
 
 pub struct AssociatedTokenAccountInstructionWithMetadata(

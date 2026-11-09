@@ -39,6 +39,56 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for VertigoInstructionsMigration {
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(VertigoInstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct VertigoInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for VertigoInstructionsAbsolutePathMigration {
+    fn app(&self) -> &str {
+        "vertigo"
+    }
+
+    fn name(&self) -> &str {
+        "vertigo_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("buy_instruction"),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("claim_instruction"),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "quote_buy_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "quote_sell_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("sell_instruction"),
+            ),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("cpi_events")),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(VertigoInstructionsMigration)]
+    }
 }
 
 pub struct VertigoInstructionWithMetadata(

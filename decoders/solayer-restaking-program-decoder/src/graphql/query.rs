@@ -50,7 +50,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -88,7 +88,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::RestakeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::RestakeRow> = sqlx::query_as(
-            r#"SELECT * FROM restake_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM restake_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -126,7 +126,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UnrestakeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UnrestakeRow> = sqlx::query_as(
-            r#"SELECT * FROM unrestake_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM unrestake_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -164,7 +164,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::BatchThawLstAccountsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::BatchThawLstAccountsRow> = sqlx::query_as(
-            r#"SELECT * FROM batch_thaw_lst_accounts_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM batch_thaw_lst_accounts_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)

@@ -56,6 +56,7 @@ impl carbon_core::postgres::operations::Table
             "__signature",
             "__instruction_index",
             "__stack_height",
+            "__absolute_path",
             "__slot",
             "client_order_id",
             "asset",
@@ -72,9 +73,10 @@ impl carbon_core::postgres::operations::Insert for CancelOrderByClientOrderIdRow
             INSERT INTO cancel_order_by_client_order_id_instruction (
                 "client_order_id",
                 "asset",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
         .bind(&self.client_order_id)
@@ -82,6 +84,7 @@ impl carbon_core::postgres::operations::Insert for CancelOrderByClientOrderIdRow
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -98,11 +101,12 @@ impl carbon_core::postgres::operations::Upsert for CancelOrderByClientOrderIdRow
             r#"INSERT INTO cancel_order_by_client_order_id_instruction (
                 "client_order_id",
                 "asset",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) ON CONFLICT (
-                __signature, __instruction_index, __stack_height
+                __signature, __absolute_path
             ) DO UPDATE SET
                 "client_order_id" = EXCLUDED."client_order_id",
                 "asset" = EXCLUDED."asset",
@@ -117,6 +121,7 @@ impl carbon_core::postgres::operations::Upsert for CancelOrderByClientOrderIdRow
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -128,21 +133,16 @@ impl carbon_core::postgres::operations::Upsert for CancelOrderByClientOrderIdRow
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for CancelOrderByClientOrderIdRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"DELETE FROM cancel_order_by_client_order_id_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -152,11 +152,7 @@ impl carbon_core::postgres::operations::Delete for CancelOrderByClientOrderIdRow
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Lookup for CancelOrderByClientOrderIdRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn lookup(
         key: Self::Key,
@@ -164,12 +160,11 @@ impl carbon_core::postgres::operations::Lookup for CancelOrderByClientOrderIdRow
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
             r#"SELECT * FROM cancel_order_by_client_order_id_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .fetch_optional(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

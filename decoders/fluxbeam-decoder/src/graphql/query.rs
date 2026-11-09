@@ -14,7 +14,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -52,7 +52,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -90,7 +90,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DepositAllTokenTypesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DepositAllTokenTypesRow> = sqlx::query_as(
-            r#"SELECT * FROM deposit_all_token_types_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM deposit_all_token_types_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -128,7 +128,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawAllTokenTypesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WithdrawAllTokenTypesRow> = sqlx::query_as(
-            r#"SELECT * FROM withdraw_all_token_types_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM withdraw_all_token_types_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -167,7 +167,7 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::DepositSingleTokenTypeExactAmountInGraphQL>>
     {
         let rows: Vec<crate::instructions::postgres::DepositSingleTokenTypeExactAmountInRow> = sqlx::query_as(
-            r#"SELECT * FROM deposit_single_token_type_exact_amount_in_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM deposit_single_token_type_exact_amount_in_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -207,7 +207,7 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawSingleTokenTypeExactAmountOutGraphQL>>
     {
         let rows: Vec<crate::instructions::postgres::WithdrawSingleTokenTypeExactAmountOutRow> = sqlx::query_as(
-            r#"SELECT * FROM withdraw_single_token_type_exact_amount_out_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM withdraw_single_token_type_exact_amount_out_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)

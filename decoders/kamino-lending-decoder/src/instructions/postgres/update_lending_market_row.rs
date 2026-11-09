@@ -58,6 +58,7 @@ impl carbon_core::postgres::operations::Table
             "__signature",
             "__instruction_index",
             "__stack_height",
+            "__absolute_path",
             "__slot",
             "mode",
             "value",
@@ -74,9 +75,10 @@ impl carbon_core::postgres::operations::Insert for UpdateLendingMarketRow {
             INSERT INTO update_lending_market_instruction (
                 "mode",
                 "value",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
         .bind(&self.mode)
@@ -84,6 +86,7 @@ impl carbon_core::postgres::operations::Insert for UpdateLendingMarketRow {
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -100,11 +103,12 @@ impl carbon_core::postgres::operations::Upsert for UpdateLendingMarketRow {
             r#"INSERT INTO update_lending_market_instruction (
                 "mode",
                 "value",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) ON CONFLICT (
-                __signature, __instruction_index, __stack_height
+                __signature, __absolute_path
             ) DO UPDATE SET
                 "mode" = EXCLUDED."mode",
                 "value" = EXCLUDED."value",
@@ -119,6 +123,7 @@ impl carbon_core::postgres::operations::Upsert for UpdateLendingMarketRow {
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -130,21 +135,16 @@ impl carbon_core::postgres::operations::Upsert for UpdateLendingMarketRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for UpdateLendingMarketRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"DELETE FROM update_lending_market_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -154,11 +154,7 @@ impl carbon_core::postgres::operations::Delete for UpdateLendingMarketRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Lookup for UpdateLendingMarketRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn lookup(
         key: Self::Key,
@@ -166,12 +162,11 @@ impl carbon_core::postgres::operations::Lookup for UpdateLendingMarketRow {
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
             r#"SELECT * FROM update_lending_market_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .fetch_optional(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

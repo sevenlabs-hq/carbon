@@ -247,6 +247,122 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for Token2022InstructionsMigration
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(Token2022InstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct Token2022InstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for Token2022InstructionsAbsolutePathMigration {
+    fn app(&self) -> &str {
+        "token-2022"
+    }
+
+    fn name(&self) -> &str {
+        "token_2022_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("amount_to_ui_amount_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("apply_confidential_pending_balance_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("approve_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("approve_checked_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("approve_confidential_transfer_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("burn_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("burn_checked_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("close_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("confidential_deposit_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("confidential_transfer_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("confidential_transfer_with_fee_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("confidential_withdraw_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("configure_confidential_transfer_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("create_native_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("disable_confidential_credits_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("disable_cpi_guard_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("disable_harvest_to_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("disable_memo_transfers_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("disable_non_confidential_credits_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("emit_token_metadata_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("empty_confidential_transfer_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("enable_confidential_credits_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("enable_cpi_guard_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("enable_harvest_to_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("enable_memo_transfers_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("enable_non_confidential_credits_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("freeze_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("get_account_data_size_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("harvest_withheld_tokens_to_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_account2_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_account3_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_confidential_transfer_fee_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_confidential_transfer_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_default_account_state_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_group_member_pointer_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_group_pointer_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_immutable_owner_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_interest_bearing_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_metadata_pointer_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_mint2_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_mint_close_authority_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_multisig_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_multisig2_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_non_transferable_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_pausable_config_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_permanent_delegate_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_permissioned_burn_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_scaled_ui_amount_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_token_group_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_token_group_member_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_token_metadata_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_transfer_fee_config_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("initialize_transfer_hook_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("mint_to_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("mint_to_checked_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("pause_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("permissioned_burn_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("permissioned_burn_checked_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("reallocate_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("remove_token_metadata_key_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("resume_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("revoke_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("set_authority_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("set_transfer_fee_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("sync_native_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("thaw_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("transfer_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("transfer_checked_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("transfer_checked_with_fee_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("ui_amount_to_amount_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("unwrap_lamports_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_confidential_transfer_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_default_account_state_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_group_member_pointer_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_group_pointer_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_metadata_pointer_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_multiplier_scaled_ui_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_rate_interest_bearing_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_token_group_max_size_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_token_group_update_authority_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_token_metadata_field_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_token_metadata_update_authority_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_transfer_hook_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("withdraw_excess_lamports_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("withdraw_withheld_tokens_from_accounts_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("withdraw_withheld_tokens_from_mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_instruction")),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(Token2022InstructionsMigration)]
+    }
 }
 
 pub struct Token2022InstructionWithMetadata(

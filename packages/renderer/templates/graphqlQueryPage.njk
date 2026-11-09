@@ -52,7 +52,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL>> {
         let rows: Vec<crate::instructions::postgres::{{ instruction.name | pascalCase }}Row> = sqlx::query_as(
-            r#"SELECT * FROM {{ instruction.name | snakeCase }}_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM {{ instruction.name | snakeCase }}_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
