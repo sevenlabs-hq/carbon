@@ -561,7 +561,7 @@ impl carbon_core::postgres::operations::Insert for SpotMarketRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SpotMarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO spot_market_account (
+        sqlx::query(r#"INSERT INTO spot_market_account AS stored (
                 "pubkey",
                 "oracle",
                 "mint",
@@ -697,6 +697,8 @@ impl carbon_core::postgres::operations::Upsert for SpotMarketRow {
                 "pool_id" = EXCLUDED."pool_id",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.pubkey)
         .bind(self.oracle)

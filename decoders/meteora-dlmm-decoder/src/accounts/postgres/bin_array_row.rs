@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Insert for BinArrayRow {
 impl carbon_core::postgres::operations::Upsert for BinArrayRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO bin_array_account (
+            r#"INSERT INTO bin_array_account AS stored (
                 "index",
                 "version",
                 "padding1",
@@ -133,6 +133,8 @@ impl carbon_core::postgres::operations::Upsert for BinArrayRow {
                 "lb_pair" = EXCLUDED."lb_pair",
                 "bins" = EXCLUDED."bins",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.index)

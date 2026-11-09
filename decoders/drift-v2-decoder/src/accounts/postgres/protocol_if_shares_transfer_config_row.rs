@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Insert for ProtocolIfSharesTransferConfi
 impl carbon_core::postgres::operations::Upsert for ProtocolIfSharesTransferConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO protocol_if_shares_transfer_config_account (
+            r#"INSERT INTO protocol_if_shares_transfer_config_account AS stored (
                 "whitelisted_signers",
                 "max_transfer_per_epoch",
                 "current_epoch_transfer",
@@ -159,6 +159,8 @@ impl carbon_core::postgres::operations::Upsert for ProtocolIfSharesTransferConfi
                 "next_epoch_ts" = EXCLUDED."next_epoch_ts",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.whitelisted_signers)

@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Insert for WhirlpoolsConfigRow {
 impl carbon_core::postgres::operations::Upsert for WhirlpoolsConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO whirlpools_config_account (
+            r#"INSERT INTO whirlpools_config_account AS stored (
                 "fee_authority",
                 "collect_protocol_fees_authority",
                 "reward_emissions_super_authority",
@@ -129,6 +129,8 @@ impl carbon_core::postgres::operations::Upsert for WhirlpoolsConfigRow {
                 "default_protocol_fee_rate" = EXCLUDED."default_protocol_fee_rate",
                 "feature_flags" = EXCLUDED."feature_flags",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.fee_authority)

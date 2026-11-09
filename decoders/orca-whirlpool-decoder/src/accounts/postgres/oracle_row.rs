@@ -104,7 +104,7 @@ impl carbon_core::postgres::operations::Insert for OracleRow {
 impl carbon_core::postgres::operations::Upsert for OracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO oracle_account (
+            r#"INSERT INTO oracle_account AS stored (
                 "whirlpool",
                 "trade_enable_timestamp",
                 "adaptive_fee_constants",
@@ -122,6 +122,8 @@ impl carbon_core::postgres::operations::Upsert for OracleRow {
                 "adaptive_fee_variables" = EXCLUDED."adaptive_fee_variables",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.whirlpool)

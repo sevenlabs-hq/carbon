@@ -196,7 +196,7 @@ impl carbon_core::postgres::operations::Insert for PlatformConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PlatformConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO platform_config_account (
+        sqlx::query(r#"INSERT INTO platform_config_account AS stored (
                 "epoch",
                 "platform_fee_wallet",
                 "platform_nft_wallet",
@@ -240,6 +240,8 @@ impl carbon_core::postgres::operations::Upsert for PlatformConfigRow {
                 "padding" = EXCLUDED."padding",
                 "curve_params" = EXCLUDED."curve_params",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.epoch)
         .bind(self.platform_fee_wallet)

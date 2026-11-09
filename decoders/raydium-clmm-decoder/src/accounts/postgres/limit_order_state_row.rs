@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Insert for LimitOrderStateRow {
 impl carbon_core::postgres::operations::Upsert for LimitOrderStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO limit_order_state_account (
+            r#"INSERT INTO limit_order_state_account AS stored (
                 "pool_id",
                 "owner",
                 "tick_index",
@@ -194,6 +194,8 @@ impl carbon_core::postgres::operations::Upsert for LimitOrderStateRow {
                 "unfilled_ratio_x64" = EXCLUDED."unfilled_ratio_x64",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pool_id)

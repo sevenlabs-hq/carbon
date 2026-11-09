@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Insert for AddressLookupTableRow {
 impl carbon_core::postgres::operations::Upsert for AddressLookupTableRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO address_lookup_table_account (
+            r#"INSERT INTO address_lookup_table_account AS stored (
                 "deactivation_slot",
                 "last_extended_slot",
                 "last_extended_slot_start_index",
@@ -146,6 +146,8 @@ impl carbon_core::postgres::operations::Upsert for AddressLookupTableRow {
                 "padding" = EXCLUDED."padding",
                 "addresses" = EXCLUDED."addresses",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.deactivation_slot)

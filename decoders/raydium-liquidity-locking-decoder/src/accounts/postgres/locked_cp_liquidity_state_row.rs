@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Insert for LockedCpLiquidityStateRow {
 impl carbon_core::postgres::operations::Upsert for LockedCpLiquidityStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO locked_cp_liquidity_state_account (
+            r#"INSERT INTO locked_cp_liquidity_state_account AS stored (
                 "locked_lp_amount",
                 "claimed_lp_amount",
                 "unclaimed_lp_amount",
@@ -188,6 +188,8 @@ impl carbon_core::postgres::operations::Upsert for LockedCpLiquidityStateRow {
                 "locked_lp_mint" = EXCLUDED."locked_lp_mint",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.locked_lp_amount)

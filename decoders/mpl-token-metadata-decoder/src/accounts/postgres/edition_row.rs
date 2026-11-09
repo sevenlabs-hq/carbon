@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for EditionRow {
 impl carbon_core::postgres::operations::Upsert for EditionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO edition_account (
+            r#"INSERT INTO edition_account AS stored (
                 "key",
                 "parent",
                 "edition",
@@ -98,6 +98,8 @@ impl carbon_core::postgres::operations::Upsert for EditionRow {
                 "parent" = EXCLUDED."parent",
                 "edition" = EXCLUDED."edition",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)

@@ -81,7 +81,7 @@ impl carbon_core::postgres::operations::Insert for PermissionlessFarmSwitchRow {
 impl carbon_core::postgres::operations::Upsert for PermissionlessFarmSwitchRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO permissionless_farm_switch_account (
+            r#"INSERT INTO permissionless_farm_switch_account AS stored (
                 "bump",
                 "is_on",
                 __pubkey, __slot
@@ -93,6 +93,8 @@ impl carbon_core::postgres::operations::Upsert for PermissionlessFarmSwitchRow {
                 "bump" = EXCLUDED."bump",
                 "is_on" = EXCLUDED."is_on",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for NameRecordHeaderRow {
 impl carbon_core::postgres::operations::Upsert for NameRecordHeaderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO name_record_header_account (
+            r#"INSERT INTO name_record_header_account AS stored (
                 "parent_name",
                 "owner",
                 "class",
@@ -94,6 +94,8 @@ impl carbon_core::postgres::operations::Upsert for NameRecordHeaderRow {
                 "owner" = EXCLUDED."owner",
                 "class" = EXCLUDED."class",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.parent_name)

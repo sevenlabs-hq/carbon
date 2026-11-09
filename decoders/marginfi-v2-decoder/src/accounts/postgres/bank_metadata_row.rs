@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Insert for BankMetadataRow {
 impl carbon_core::postgres::operations::Upsert for BankMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO bank_metadata_account (
+            r#"INSERT INTO bank_metadata_account AS stored (
                 "bank",
                 "placeholder",
                 "ticker",
@@ -193,6 +193,8 @@ impl carbon_core::postgres::operations::Upsert for BankMetadataRow {
                 "bump" = EXCLUDED."bump",
                 "pad0" = EXCLUDED."pad0",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bank)

@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for TokenBadgeRow {
 impl carbon_core::postgres::operations::Upsert for TokenBadgeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_badge_account (
+            r#"INSERT INTO token_badge_account AS stored (
                 "token_mint",
                 "padding",
                 __pubkey, __slot
@@ -90,6 +90,8 @@ impl carbon_core::postgres::operations::Upsert for TokenBadgeRow {
                 "token_mint" = EXCLUDED."token_mint",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.token_mint)

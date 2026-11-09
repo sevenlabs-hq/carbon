@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for SignedMsgUserOrdersRow {
 impl carbon_core::postgres::operations::Upsert for SignedMsgUserOrdersRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO signed_msg_user_orders_account (
+            r#"INSERT INTO signed_msg_user_orders_account AS stored (
                 "authority_pubkey",
                 "padding",
                 "signed_msg_order_data",
@@ -112,6 +112,8 @@ impl carbon_core::postgres::operations::Upsert for SignedMsgUserOrdersRow {
                 "padding" = EXCLUDED."padding",
                 "signed_msg_order_data" = EXCLUDED."signed_msg_order_data",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority_pubkey)

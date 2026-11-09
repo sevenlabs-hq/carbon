@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::Insert for DynamicFeeConfigRow {
 impl carbon_core::postgres::operations::Upsert for DynamicFeeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO dynamic_fee_config_account (
+            r#"INSERT INTO dynamic_fee_config_account AS stored (
                 "index",
                 "filter_period",
                 "decay_period",
@@ -180,6 +180,8 @@ impl carbon_core::postgres::operations::Upsert for DynamicFeeConfigRow {
                 "max_volatility_accumulator" = EXCLUDED."max_volatility_accumulator",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.index)

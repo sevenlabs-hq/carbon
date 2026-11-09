@@ -66,7 +66,7 @@ impl carbon_core::postgres::operations::Insert for UnderlyingRow {
 impl carbon_core::postgres::operations::Upsert for UnderlyingRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO underlying_account (
+            r#"INSERT INTO underlying_account AS stored (
                 "mint",
                 __pubkey, __slot
             ) VALUES (
@@ -76,6 +76,8 @@ impl carbon_core::postgres::operations::Upsert for UnderlyingRow {
             ) DO UPDATE SET
                 "mint" = EXCLUDED."mint",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.mint)

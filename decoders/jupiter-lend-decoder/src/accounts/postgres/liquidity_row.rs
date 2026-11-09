@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for LiquidityRow {
 impl carbon_core::postgres::operations::Upsert for LiquidityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO liquidity_account (
+            r#"INSERT INTO liquidity_account AS stored (
                 "authority",
                 "revenue_collector",
                 "status",
@@ -113,6 +113,8 @@ impl carbon_core::postgres::operations::Upsert for LiquidityRow {
                 "status" = EXCLUDED."status",
                 "bump" = EXCLUDED."bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority)

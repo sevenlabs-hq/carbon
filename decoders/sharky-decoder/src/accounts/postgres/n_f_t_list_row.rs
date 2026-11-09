@@ -77,7 +77,7 @@ impl carbon_core::postgres::operations::Insert for NFTListRow {
 impl carbon_core::postgres::operations::Upsert for NFTListRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO n_f_t_list_account (
+            r#"INSERT INTO n_f_t_list_account AS stored (
                 "version",
                 "collection_name",
                 __pubkey, __slot
@@ -89,6 +89,8 @@ impl carbon_core::postgres::operations::Upsert for NFTListRow {
                 "version" = EXCLUDED."version",
                 "collection_name" = EXCLUDED."collection_name",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.version)

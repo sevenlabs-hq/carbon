@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for TickArrayRow {
 impl carbon_core::postgres::operations::Upsert for TickArrayRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO tick_array_account (
+            r#"INSERT INTO tick_array_account AS stored (
                 "start_tick_index",
                 "ticks",
                 "whirlpool",
@@ -111,6 +111,8 @@ impl carbon_core::postgres::operations::Upsert for TickArrayRow {
                 "ticks" = EXCLUDED."ticks",
                 "whirlpool" = EXCLUDED."whirlpool",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.start_tick_index)

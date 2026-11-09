@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
 impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO global_config_account (
+            r#"INSERT INTO global_config_account AS stored (
                 "global_admin",
                 "pending_admin",
                 "fee_collector",
@@ -111,6 +111,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "fee_collector" = EXCLUDED."fee_collector",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.global_admin)

@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for MessageSentRow {
 impl carbon_core::postgres::operations::Upsert for MessageSentRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO message_sent_account (
+            r#"INSERT INTO message_sent_account AS stored (
                 "rent_payer",
                 "created_at",
                 "message",
@@ -92,6 +92,8 @@ impl carbon_core::postgres::operations::Upsert for MessageSentRow {
                 "created_at" = EXCLUDED."created_at",
                 "message" = EXCLUDED."message",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.rent_payer)

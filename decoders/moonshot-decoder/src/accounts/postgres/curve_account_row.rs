@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Insert for CurveAccountRow {
 impl carbon_core::postgres::operations::Upsert for CurveAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO curve_account_account (
+            r#"INSERT INTO curve_account_account AS stored (
                 "total_supply",
                 "curve_amount",
                 "mint",
@@ -188,6 +188,8 @@ impl carbon_core::postgres::operations::Upsert for CurveAccountRow {
                 "bump" = EXCLUDED."bump",
                 "migration_target" = EXCLUDED."migration_target",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.total_supply)

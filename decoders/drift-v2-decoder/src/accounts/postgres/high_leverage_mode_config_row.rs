@@ -137,7 +137,7 @@ impl carbon_core::postgres::operations::Insert for HighLeverageModeConfigRow {
 impl carbon_core::postgres::operations::Upsert for HighLeverageModeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO high_leverage_mode_config_account (
+            r#"INSERT INTO high_leverage_mode_config_account AS stored (
                 "max_users",
                 "current_users",
                 "reduce_only",
@@ -157,6 +157,8 @@ impl carbon_core::postgres::operations::Upsert for HighLeverageModeConfigRow {
                 "current_maintenance_users" = EXCLUDED."current_maintenance_users",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.max_users)

@@ -334,7 +334,7 @@ impl carbon_core::postgres::operations::Insert for UserRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UserRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO user_account (
+        sqlx::query(r#"INSERT INTO user_account AS stored (
                 "authority",
                 "delegate",
                 "name",
@@ -404,6 +404,8 @@ impl carbon_core::postgres::operations::Upsert for UserRow {
                 "last_fuel_bonus_update_ts" = EXCLUDED."last_fuel_bonus_update_ts",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.authority)
         .bind(self.delegate)

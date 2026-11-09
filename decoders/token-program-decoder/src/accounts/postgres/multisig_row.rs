@@ -113,7 +113,7 @@ impl carbon_core::postgres::operations::Insert for MultisigRow {
 impl carbon_core::postgres::operations::Upsert for MultisigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO multisig_account (
+            r#"INSERT INTO multisig_account AS stored (
                 "m",
                 "n",
                 "is_initialized",
@@ -129,6 +129,8 @@ impl carbon_core::postgres::operations::Upsert for MultisigRow {
                 "is_initialized" = EXCLUDED."is_initialized",
                 "signers" = EXCLUDED."signers",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.m)

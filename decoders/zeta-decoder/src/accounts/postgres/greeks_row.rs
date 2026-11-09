@@ -461,7 +461,7 @@ impl carbon_core::postgres::operations::Insert for GreeksRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for GreeksRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO greeks_account (
+        sqlx::query(r#"INSERT INTO greeks_account AS stored (
                 "nonce",
                 "mark_prices",
                 "mark_prices_padding",
@@ -513,6 +513,8 @@ impl carbon_core::postgres::operations::Upsert for GreeksRow {
                 "perp_latest_midpoint" = EXCLUDED."perp_latest_midpoint",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.nonce)
         .bind(&self.mark_prices)

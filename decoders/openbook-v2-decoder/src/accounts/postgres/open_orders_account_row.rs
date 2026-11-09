@@ -166,7 +166,7 @@ impl carbon_core::postgres::operations::Insert for OpenOrdersAccountRow {
 impl carbon_core::postgres::operations::Upsert for OpenOrdersAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_orders_account_account (
+            r#"INSERT INTO open_orders_account_account AS stored (
                 "owner",
                 "market",
                 "name",
@@ -194,6 +194,8 @@ impl carbon_core::postgres::operations::Upsert for OpenOrdersAccountRow {
                 "position" = EXCLUDED."position",
                 "open_orders" = EXCLUDED."open_orders",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.owner)

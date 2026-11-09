@@ -163,7 +163,7 @@ impl carbon_core::postgres::operations::Insert for OpenbookV2FulfillmentConfigRo
 impl carbon_core::postgres::operations::Upsert for OpenbookV2FulfillmentConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO openbook_v2_fulfillment_config_account (
+            r#"INSERT INTO openbook_v2_fulfillment_config_account AS stored (
                 "pubkey",
                 "openbook_v2_program_id",
                 "openbook_v2_market",
@@ -197,6 +197,8 @@ impl carbon_core::postgres::operations::Upsert for OpenbookV2FulfillmentConfigRo
                 "status" = EXCLUDED."status",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pubkey)

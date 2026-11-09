@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Insert for UserMetadataRow {
 impl carbon_core::postgres::operations::Upsert for UserMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO user_metadata_account (
+            r#"INSERT INTO user_metadata_account AS stored (
                 "referrer",
                 "bump",
                 "user_lookup_table",
@@ -163,6 +163,8 @@ impl carbon_core::postgres::operations::Upsert for UserMetadataRow {
                 "padding1" = EXCLUDED."padding1",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.referrer)

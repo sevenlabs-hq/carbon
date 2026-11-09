@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for ConfigRow {
 impl carbon_core::postgres::operations::Upsert for ConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO config_account (
+            r#"INSERT INTO config_account AS stored (
                 "pool_fees",
                 "activation_duration",
                 "vault_config_key",
@@ -142,6 +142,8 @@ impl carbon_core::postgres::operations::Upsert for ConfigRow {
                 "partner_fee_numerator" = EXCLUDED."partner_fee_numerator",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.pool_fees)

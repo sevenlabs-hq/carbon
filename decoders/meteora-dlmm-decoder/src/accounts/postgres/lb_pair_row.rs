@@ -375,7 +375,7 @@ impl carbon_core::postgres::operations::Insert for LbPairRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for LbPairRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO lb_pair_account (
+        sqlx::query(r#"INSERT INTO lb_pair_account AS stored (
                 "parameters",
                 "v_parameters",
                 "bump_seed",
@@ -451,6 +451,8 @@ impl carbon_core::postgres::operations::Upsert for LbPairRow {
                 "version" = EXCLUDED."version",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.parameters)
         .bind(&self.v_parameters)

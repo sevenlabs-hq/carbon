@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Insert for VestingRow {
 impl carbon_core::postgres::operations::Upsert for VestingRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO vesting_account (
+            r#"INSERT INTO vesting_account AS stored (
                 "position",
                 "inner_vesting",
                 "padding2",
@@ -123,6 +123,8 @@ impl carbon_core::postgres::operations::Upsert for VestingRow {
                 "inner_vesting" = EXCLUDED."inner_vesting",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.position)

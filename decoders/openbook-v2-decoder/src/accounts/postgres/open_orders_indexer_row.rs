@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for OpenOrdersIndexerRow {
 impl carbon_core::postgres::operations::Upsert for OpenOrdersIndexerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_orders_indexer_account (
+            r#"INSERT INTO open_orders_indexer_account AS stored (
                 "bump",
                 "created_counter",
                 "addresses",
@@ -113,6 +113,8 @@ impl carbon_core::postgres::operations::Upsert for OpenOrdersIndexerRow {
                 "created_counter" = EXCLUDED."created_counter",
                 "addresses" = EXCLUDED."addresses",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

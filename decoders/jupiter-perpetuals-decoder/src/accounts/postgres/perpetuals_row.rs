@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for PerpetualsRow {
 impl carbon_core::postgres::operations::Upsert for PerpetualsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO perpetuals_account (
+            r#"INSERT INTO perpetuals_account AS stored (
                 "permissions",
                 "pools",
                 "admin",
@@ -140,6 +140,8 @@ impl carbon_core::postgres::operations::Upsert for PerpetualsRow {
                 "perpetuals_bump" = EXCLUDED."perpetuals_bump",
                 "inception_time" = EXCLUDED."inception_time",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.permissions)

@@ -254,7 +254,7 @@ impl carbon_core::postgres::operations::Insert for PositionV2Row {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PositionV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO position_v2_account (
+        sqlx::query(r#"INSERT INTO position_v2_account AS stored (
                 "lb_pair",
                 "owner",
                 "liquidity_shares",
@@ -298,6 +298,8 @@ impl carbon_core::postgres::operations::Upsert for PositionV2Row {
                 "permissionless_operation_bits" = EXCLUDED."permissionless_operation_bits",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.lb_pair)
         .bind(self.owner)

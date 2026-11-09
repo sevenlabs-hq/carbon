@@ -96,7 +96,7 @@ impl carbon_core::postgres::operations::Insert for PriceUpdateV2Row {
 impl carbon_core::postgres::operations::Upsert for PriceUpdateV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO price_update_v2_account (
+            r#"INSERT INTO price_update_v2_account AS stored (
                 "write_authority",
                 "verification_level",
                 "price_message",
@@ -112,6 +112,8 @@ impl carbon_core::postgres::operations::Upsert for PriceUpdateV2Row {
                 "price_message" = EXCLUDED."price_message",
                 "posted_slot" = EXCLUDED."posted_slot",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.write_authority)

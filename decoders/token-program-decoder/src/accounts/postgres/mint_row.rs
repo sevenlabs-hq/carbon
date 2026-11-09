@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Insert for MintRow {
 impl carbon_core::postgres::operations::Upsert for MintRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO mint_account (
+            r#"INSERT INTO mint_account AS stored (
                 "mint_authority",
                 "supply",
                 "decimals",
@@ -118,6 +118,8 @@ impl carbon_core::postgres::operations::Upsert for MintRow {
                 "is_initialized" = EXCLUDED."is_initialized",
                 "freeze_authority" = EXCLUDED."freeze_authority",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.mint_authority)

@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Insert for LendingRow {
 impl carbon_core::postgres::operations::Upsert for LendingRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lending_account (
+            r#"INSERT INTO lending_account AS stored (
                 "mint",
                 "f_token_mint",
                 "lending_id",
@@ -177,6 +177,8 @@ impl carbon_core::postgres::operations::Upsert for LendingRow {
                 "supply_position_on_liquidity" = EXCLUDED."supply_position_on_liquidity",
                 "bump" = EXCLUDED."bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.mint)

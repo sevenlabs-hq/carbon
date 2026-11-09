@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for ReferrerAccountRow {
 impl carbon_core::postgres::operations::Upsert for ReferrerAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO referrer_account_account (
+            r#"INSERT INTO referrer_account_account AS stored (
                 "nonce",
                 "has_alias",
                 "referrer",
@@ -123,6 +123,8 @@ impl carbon_core::postgres::operations::Upsert for ReferrerAccountRow {
                 "pending_rewards" = EXCLUDED."pending_rewards",
                 "claimed_rewards" = EXCLUDED."claimed_rewards",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.nonce)

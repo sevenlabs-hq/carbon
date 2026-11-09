@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for InsuranceDepositAccountRow {
 impl carbon_core::postgres::operations::Upsert for InsuranceDepositAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO insurance_deposit_account_account (
+            r#"INSERT INTO insurance_deposit_account_account AS stored (
                 "nonce",
                 "amount",
                 __pubkey, __slot
@@ -96,6 +96,8 @@ impl carbon_core::postgres::operations::Upsert for InsuranceDepositAccountRow {
                 "nonce" = EXCLUDED."nonce",
                 "amount" = EXCLUDED."amount",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.nonce)

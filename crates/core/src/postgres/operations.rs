@@ -16,6 +16,11 @@ pub trait Insert {
 
 /// Inserts or updates the row by primary key (`ON CONFLICT DO UPDATE`).
 /// Used by `PostgresJsonAccountProcessor` and friends on every update.
+///
+/// Carbon's account rows, `AccountRow` and the generated ones, skip an update
+/// from an older slot than the stored row: with two sources, or after a
+/// reconnect or replay, updates for one account can arrive out of slot order,
+/// and the older one would otherwise win.
 #[async_trait::async_trait]
 pub trait Upsert {
     async fn upsert(&self, pool: &sqlx::PgPool) -> CarbonResult<()>;

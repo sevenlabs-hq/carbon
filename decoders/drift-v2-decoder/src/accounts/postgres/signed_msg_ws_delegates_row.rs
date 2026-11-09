@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for SignedMsgWsDelegatesRow {
 impl carbon_core::postgres::operations::Upsert for SignedMsgWsDelegatesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO signed_msg_ws_delegates_account (
+            r#"INSERT INTO signed_msg_ws_delegates_account AS stored (
                 "delegates",
                 __pubkey, __slot
             ) VALUES (
@@ -90,6 +90,8 @@ impl carbon_core::postgres::operations::Upsert for SignedMsgWsDelegatesRow {
             ) DO UPDATE SET
                 "delegates" = EXCLUDED."delegates",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.delegates)

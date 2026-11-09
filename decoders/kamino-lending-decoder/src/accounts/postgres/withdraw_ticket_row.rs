@@ -190,7 +190,7 @@ impl carbon_core::postgres::operations::Insert for WithdrawTicketRow {
 impl carbon_core::postgres::operations::Upsert for WithdrawTicketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO withdraw_ticket_account (
+            r#"INSERT INTO withdraw_ticket_account AS stored (
                 "sequence_number",
                 "owner",
                 "reserve",
@@ -220,6 +220,8 @@ impl carbon_core::postgres::operations::Upsert for WithdrawTicketRow {
                 "progress_callback_custom_accounts" = EXCLUDED."progress_callback_custom_accounts",
                 "end_padding" = EXCLUDED."end_padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.sequence_number)

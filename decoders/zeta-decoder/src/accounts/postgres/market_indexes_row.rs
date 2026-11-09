@@ -87,7 +87,7 @@ impl carbon_core::postgres::operations::Insert for MarketIndexesRow {
 impl carbon_core::postgres::operations::Upsert for MarketIndexesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO market_indexes_account (
+            r#"INSERT INTO market_indexes_account AS stored (
                 "nonce",
                 "initialized",
                 "indexes",
@@ -101,6 +101,8 @@ impl carbon_core::postgres::operations::Upsert for MarketIndexesRow {
                 "initialized" = EXCLUDED."initialized",
                 "indexes" = EXCLUDED."indexes",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.nonce)

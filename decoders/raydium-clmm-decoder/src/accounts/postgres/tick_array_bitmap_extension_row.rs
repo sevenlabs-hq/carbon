@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Insert for TickArrayBitmapExtensionRow {
 impl carbon_core::postgres::operations::Upsert for TickArrayBitmapExtensionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO tick_array_bitmap_extension_account (
+            r#"INSERT INTO tick_array_bitmap_extension_account AS stored (
                 "pool_id",
                 "positive_tick_array_bitmap",
                 "negative_tick_array_bitmap",
@@ -171,6 +171,8 @@ impl carbon_core::postgres::operations::Upsert for TickArrayBitmapExtensionRow {
                 "positive_tick_array_bitmap" = EXCLUDED."positive_tick_array_bitmap",
                 "negative_tick_array_bitmap" = EXCLUDED."negative_tick_array_bitmap",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pool_id)

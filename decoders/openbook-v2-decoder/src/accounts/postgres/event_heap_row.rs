@@ -93,7 +93,7 @@ impl carbon_core::postgres::operations::Insert for EventHeapRow {
 impl carbon_core::postgres::operations::Upsert for EventHeapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO event_heap_account (
+            r#"INSERT INTO event_heap_account AS stored (
                 "header",
                 "nodes",
                 "reserved",
@@ -107,6 +107,8 @@ impl carbon_core::postgres::operations::Upsert for EventHeapRow {
                 "nodes" = EXCLUDED."nodes",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.header)

@@ -133,7 +133,7 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
 impl carbon_core::postgres::operations::Upsert for PoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO pool_account (
+            r#"INSERT INTO pool_account AS stored (
                 "owner",
                 "vault",
                 "mint",
@@ -161,6 +161,8 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "pending_owner" = EXCLUDED."pending_owner",
                 "max_supply" = EXCLUDED."max_supply",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.owner)

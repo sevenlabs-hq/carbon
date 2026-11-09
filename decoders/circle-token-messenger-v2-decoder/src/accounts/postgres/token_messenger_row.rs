@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Insert for TokenMessengerRow {
 impl carbon_core::postgres::operations::Upsert for TokenMessengerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_messenger_account (
+            r#"INSERT INTO token_messenger_account AS stored (
                 "denylister",
                 "owner",
                 "pending_owner",
@@ -153,6 +153,8 @@ impl carbon_core::postgres::operations::Upsert for TokenMessengerRow {
                 "min_fee_controller" = EXCLUDED."min_fee_controller",
                 "min_fee" = EXCLUDED."min_fee",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.denylister)

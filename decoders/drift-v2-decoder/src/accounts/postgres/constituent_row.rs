@@ -315,7 +315,7 @@ impl carbon_core::postgres::operations::Insert for ConstituentRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ConstituentRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO constituent_account (
+        sqlx::query(r#"INSERT INTO constituent_account AS stored (
                 "pubkey",
                 "mint",
                 "lp_pool",
@@ -389,6 +389,8 @@ impl carbon_core::postgres::operations::Upsert for ConstituentRow {
                 "paused_operations" = EXCLUDED."paused_operations",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.pubkey)
         .bind(self.mint)

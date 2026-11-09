@@ -187,7 +187,7 @@ impl carbon_core::postgres::operations::Insert for ProtocolPositionStateRow {
 impl carbon_core::postgres::operations::Upsert for ProtocolPositionStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO protocol_position_state_account (
+            r#"INSERT INTO protocol_position_state_account AS stored (
                 "bump",
                 "pool_id",
                 "tick_lower_index",
@@ -219,6 +219,8 @@ impl carbon_core::postgres::operations::Upsert for ProtocolPositionStateRow {
                 "recent_epoch" = EXCLUDED."recent_epoch",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

@@ -294,7 +294,7 @@ impl carbon_core::postgres::operations::Insert for ProtocolConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ProtocolConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO protocol_config_account (
+        sqlx::query(r#"INSERT INTO protocol_config_account AS stored (
                 "create_pool_fee",
                 "initial_token_b_amount",
                 "initial_token_a_amount",
@@ -354,6 +354,8 @@ impl carbon_core::postgres::operations::Upsert for ProtocolConfigRow {
                 "max_creator_trading_fee" = EXCLUDED."max_creator_trading_fee",
                 "slot_offset_based_fees" = EXCLUDED."slot_offset_based_fees",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.create_pool_fee)
         .bind(self.initial_token_b_amount)

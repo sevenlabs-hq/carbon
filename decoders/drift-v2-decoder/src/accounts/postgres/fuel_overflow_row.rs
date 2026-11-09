@@ -156,7 +156,7 @@ impl carbon_core::postgres::operations::Insert for FuelOverflowRow {
 impl carbon_core::postgres::operations::Upsert for FuelOverflowRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fuel_overflow_account (
+            r#"INSERT INTO fuel_overflow_account AS stored (
                 "authority",
                 "fuel_insurance",
                 "fuel_deposits",
@@ -184,6 +184,8 @@ impl carbon_core::postgres::operations::Upsert for FuelOverflowRow {
                 "last_reset_ts" = EXCLUDED."last_reset_ts",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority)

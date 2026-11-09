@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Insert for StakeInfoRow {
 impl carbon_core::postgres::operations::Upsert for StakeInfoRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO stake_info_account (
+            r#"INSERT INTO stake_info_account AS stored (
                 "pool",
                 "stake_account",
                 "current_staked_amount_lamports",
@@ -145,6 +145,8 @@ impl carbon_core::postgres::operations::Upsert for StakeInfoRow {
                 "stake_account_index" = EXCLUDED."stake_account_index",
                 "bump" = EXCLUDED."bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pool)

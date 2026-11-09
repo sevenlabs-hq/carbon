@@ -151,7 +151,7 @@ impl carbon_core::postgres::operations::Insert for MessageTransmitterRow {
 impl carbon_core::postgres::operations::Upsert for MessageTransmitterRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO message_transmitter_account (
+            r#"INSERT INTO message_transmitter_account AS stored (
                 "owner",
                 "pending_owner",
                 "attester_manager",
@@ -179,6 +179,8 @@ impl carbon_core::postgres::operations::Upsert for MessageTransmitterRow {
                 "enabled_attesters" = EXCLUDED."enabled_attesters",
                 "max_message_body_size" = EXCLUDED."max_message_body_size",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.owner)

@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Insert for BorrowPositionRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for BorrowPositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO borrow_position_account (
+        sqlx::query(r#"INSERT INTO borrow_position_account AS stored (
                 "owner",
                 "pool",
                 "custody",
@@ -163,6 +163,8 @@ impl carbon_core::postgres::operations::Upsert for BorrowPositionRow {
                 "bump" = EXCLUDED."bump",
                 "last_borrowed" = EXCLUDED."last_borrowed",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.owner)
         .bind(self.pool)

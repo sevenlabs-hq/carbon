@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Insert for RevenueShareEscrowRow {
 impl carbon_core::postgres::operations::Upsert for RevenueShareEscrowRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO revenue_share_escrow_account (
+            r#"INSERT INTO revenue_share_escrow_account AS stored (
                 "authority",
                 "referrer",
                 "referrer_boost_expire_ts",
@@ -187,6 +187,8 @@ impl carbon_core::postgres::operations::Upsert for RevenueShareEscrowRow {
                 "padding1" = EXCLUDED."padding1",
                 "approved_builders" = EXCLUDED."approved_builders",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority)

@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for ShortUrlRow {
 impl carbon_core::postgres::operations::Upsert for ShortUrlRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO short_url_account (
+            r#"INSERT INTO short_url_account AS stored (
                 "referrer",
                 "short_url",
                 __pubkey, __slot
@@ -85,6 +85,8 @@ impl carbon_core::postgres::operations::Upsert for ShortUrlRow {
                 "referrer" = EXCLUDED."referrer",
                 "short_url" = EXCLUDED."short_url",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.referrer)

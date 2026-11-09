@@ -116,7 +116,7 @@ impl carbon_core::postgres::operations::Insert for StubOracleRow {
 impl carbon_core::postgres::operations::Upsert for StubOracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO stub_oracle_account (
+            r#"INSERT INTO stub_oracle_account AS stored (
                 "owner",
                 "mint",
                 "price",
@@ -138,6 +138,8 @@ impl carbon_core::postgres::operations::Upsert for StubOracleRow {
                 "deviation" = EXCLUDED."deviation",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.owner)

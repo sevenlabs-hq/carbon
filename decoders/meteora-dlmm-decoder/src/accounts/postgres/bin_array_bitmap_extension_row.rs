@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Insert for BinArrayBitmapExtensionRow {
 impl carbon_core::postgres::operations::Upsert for BinArrayBitmapExtensionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO bin_array_bitmap_extension_account (
+            r#"INSERT INTO bin_array_bitmap_extension_account AS stored (
                 "lb_pair",
                 "positive_bin_array_bitmap",
                 "negative_bin_array_bitmap",
@@ -171,6 +171,8 @@ impl carbon_core::postgres::operations::Upsert for BinArrayBitmapExtensionRow {
                 "positive_bin_array_bitmap" = EXCLUDED."positive_bin_array_bitmap",
                 "negative_bin_array_bitmap" = EXCLUDED."negative_bin_array_bitmap",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.lb_pair)

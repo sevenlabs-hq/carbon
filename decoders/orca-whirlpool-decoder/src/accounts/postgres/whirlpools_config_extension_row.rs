@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for WhirlpoolsConfigExtensionRow 
 impl carbon_core::postgres::operations::Upsert for WhirlpoolsConfigExtensionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO whirlpools_config_extension_account (
+            r#"INSERT INTO whirlpools_config_extension_account AS stored (
                 "whirlpools_config",
                 "config_extension_authority",
                 "token_badge_authority",
@@ -102,6 +102,8 @@ impl carbon_core::postgres::operations::Upsert for WhirlpoolsConfigExtensionRow 
                 "config_extension_authority" = EXCLUDED."config_extension_authority",
                 "token_badge_authority" = EXCLUDED."token_badge_authority",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.whirlpools_config)

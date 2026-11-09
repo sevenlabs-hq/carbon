@@ -259,7 +259,7 @@ impl carbon_core::postgres::operations::Insert for AmmRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for AmmRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO amm_account (
+        sqlx::query(r#"INSERT INTO amm_account AS stored (
                 "initializer_key",
                 "initializer_deposit_token_account",
                 "initializer_receive_token_account",
@@ -325,6 +325,8 @@ impl carbon_core::postgres::operations::Upsert for AmmRow {
                 "amm_p_temp4" = EXCLUDED."amm_p_temp4",
                 "amm_p_temp5" = EXCLUDED."amm_p_temp5",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.initializer_key)
         .bind(self.initializer_deposit_token_account)

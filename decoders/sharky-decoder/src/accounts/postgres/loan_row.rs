@@ -113,7 +113,7 @@ impl carbon_core::postgres::operations::Insert for LoanRow {
 impl carbon_core::postgres::operations::Upsert for LoanRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO loan_account (
+            r#"INSERT INTO loan_account AS stored (
                 "version",
                 "principal_lamports",
                 "order_book",
@@ -133,6 +133,8 @@ impl carbon_core::postgres::operations::Upsert for LoanRow {
                 "escrow_bump_seed" = EXCLUDED."escrow_bump_seed",
                 "loan_state" = EXCLUDED."loan_state",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.version)

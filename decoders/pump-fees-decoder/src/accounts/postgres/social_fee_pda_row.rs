@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Insert for SocialFeePdaRow {
 impl carbon_core::postgres::operations::Upsert for SocialFeePdaRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO social_fee_pda_account (
+            r#"INSERT INTO social_fee_pda_account AS stored (
                 "bump",
                 "version",
                 "user_id",
@@ -165,6 +165,8 @@ impl carbon_core::postgres::operations::Upsert for SocialFeePdaRow {
                 "last_claimed" = EXCLUDED."last_claimed",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

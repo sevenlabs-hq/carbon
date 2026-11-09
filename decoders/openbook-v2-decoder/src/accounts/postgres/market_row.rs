@@ -308,7 +308,7 @@ impl carbon_core::postgres::operations::Insert for MarketRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO market_account (
+        sqlx::query(r#"INSERT INTO market_account AS stored (
                 "bump",
                 "base_decimals",
                 "quote_decimals",
@@ -388,6 +388,8 @@ impl carbon_core::postgres::operations::Upsert for MarketRow {
                 "quote_deposit_total" = EXCLUDED."quote_deposit_total",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.bump)
         .bind(self.base_decimals)

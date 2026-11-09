@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
 impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO bonding_curve_account (
+            r#"INSERT INTO bonding_curve_account AS stored (
                 "virtual_token_reserves",
                 "virtual_quote_reserves",
                 "real_token_reserves",
@@ -157,6 +157,8 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
                 "is_cashback_coin" = EXCLUDED."is_cashback_coin",
                 "quote_mint" = EXCLUDED."quote_mint",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.virtual_token_reserves)

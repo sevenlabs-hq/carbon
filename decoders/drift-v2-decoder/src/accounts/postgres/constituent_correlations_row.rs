@@ -106,7 +106,7 @@ impl carbon_core::postgres::operations::Insert for ConstituentCorrelationsRow {
 impl carbon_core::postgres::operations::Upsert for ConstituentCorrelationsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO constituent_correlations_account (
+            r#"INSERT INTO constituent_correlations_account AS stored (
                 "lp_pool",
                 "bump",
                 "padding",
@@ -122,6 +122,8 @@ impl carbon_core::postgres::operations::Upsert for ConstituentCorrelationsRow {
                 "padding" = EXCLUDED."padding",
                 "correlations" = EXCLUDED."correlations",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.lp_pool)

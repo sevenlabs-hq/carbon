@@ -327,7 +327,7 @@ impl carbon_core::postgres::operations::Insert for VaultStateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for VaultStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO vault_state_account (
+        sqlx::query(r#"INSERT INTO vault_state_account AS stored (
                 "vault_admin_authority",
                 "base_vault_authority",
                 "base_vault_authority_bump",
@@ -405,6 +405,8 @@ impl carbon_core::postgres::operations::Upsert for VaultStateRow {
                 "allocation_admin" = EXCLUDED."allocation_admin",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.vault_admin_authority)
         .bind(self.base_vault_authority)

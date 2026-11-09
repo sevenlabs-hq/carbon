@@ -82,7 +82,7 @@ impl carbon_core::postgres::operations::Insert for CrossOpenOrdersMapRow {
 impl carbon_core::postgres::operations::Upsert for CrossOpenOrdersMapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO cross_open_orders_map_account (
+            r#"INSERT INTO cross_open_orders_map_account AS stored (
                 "user_key",
                 "subaccount_index",
                 __pubkey, __slot
@@ -94,6 +94,8 @@ impl carbon_core::postgres::operations::Upsert for CrossOpenOrdersMapRow {
                 "user_key" = EXCLUDED."user_key",
                 "subaccount_index" = EXCLUDED."subaccount_index",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.user_key)

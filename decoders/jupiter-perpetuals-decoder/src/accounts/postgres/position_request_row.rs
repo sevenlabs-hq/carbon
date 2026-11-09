@@ -206,7 +206,7 @@ impl carbon_core::postgres::operations::Insert for PositionRequestRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PositionRequestRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO position_request_account (
+        sqlx::query(r#"INSERT INTO position_request_account AS stored (
                 "owner",
                 "pool",
                 "custody",
@@ -258,6 +258,8 @@ impl carbon_core::postgres::operations::Upsert for PositionRequestRow {
                 "bump" = EXCLUDED."bump",
                 "referral" = EXCLUDED."referral",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.owner)
         .bind(self.pool)

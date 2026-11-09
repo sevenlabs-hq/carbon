@@ -216,7 +216,7 @@ impl carbon_core::postgres::operations::Insert for WhirlpoolRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for WhirlpoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO whirlpool_account (
+        sqlx::query(r#"INSERT INTO whirlpool_account AS stored (
                 "whirlpools_config",
                 "whirlpool_bump",
                 "tick_spacing",
@@ -262,6 +262,8 @@ impl carbon_core::postgres::operations::Upsert for WhirlpoolRow {
                 "reward_last_updated_timestamp" = EXCLUDED."reward_last_updated_timestamp",
                 "reward_infos" = EXCLUDED."reward_infos",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.whirlpools_config)
         .bind(&self.whirlpool_bump)

@@ -195,7 +195,7 @@ impl carbon_core::postgres::operations::Insert for AdaptiveFeeTierRow {
 impl carbon_core::postgres::operations::Upsert for AdaptiveFeeTierRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO adaptive_fee_tier_account (
+            r#"INSERT INTO adaptive_fee_tier_account AS stored (
                 "whirlpools_config",
                 "fee_tier_index",
                 "tick_spacing",
@@ -229,6 +229,8 @@ impl carbon_core::postgres::operations::Upsert for AdaptiveFeeTierRow {
                 "tick_group_size" = EXCLUDED."tick_group_size",
                 "major_swap_threshold_ticks" = EXCLUDED."major_swap_threshold_ticks",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.whirlpools_config)

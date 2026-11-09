@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for UserSwapBalancesStateRow {
 impl carbon_core::postgres::operations::Upsert for UserSwapBalancesStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO user_swap_balances_state_account (
+            r#"INSERT INTO user_swap_balances_state_account AS stored (
                 "user_lamports",
                 "input_ta_balance",
                 "output_ta_balance",
@@ -102,6 +102,8 @@ impl carbon_core::postgres::operations::Upsert for UserSwapBalancesStateRow {
                 "input_ta_balance" = EXCLUDED."input_ta_balance",
                 "output_ta_balance" = EXCLUDED."output_ta_balance",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.user_lamports)

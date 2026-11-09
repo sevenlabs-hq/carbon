@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Insert for DynamicTickArrayRow {
 impl carbon_core::postgres::operations::Upsert for DynamicTickArrayRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO dynamic_tick_array_account (
+            r#"INSERT INTO dynamic_tick_array_account AS stored (
                 "start_tick_index",
                 "whirlpool",
                 "tick_bitmap",
@@ -124,6 +124,8 @@ impl carbon_core::postgres::operations::Upsert for DynamicTickArrayRow {
                 "tick_bitmap" = EXCLUDED."tick_bitmap",
                 "ticks" = EXCLUDED."ticks",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.start_tick_index)

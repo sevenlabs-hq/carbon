@@ -114,7 +114,7 @@ impl carbon_core::postgres::operations::Insert for ProtectedMakerModeConfigRow {
 impl carbon_core::postgres::operations::Upsert for ProtectedMakerModeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO protected_maker_mode_config_account (
+            r#"INSERT INTO protected_maker_mode_config_account AS stored (
                 "max_users",
                 "current_users",
                 "reduce_only",
@@ -130,6 +130,8 @@ impl carbon_core::postgres::operations::Upsert for ProtectedMakerModeConfigRow {
                 "reduce_only" = EXCLUDED."reduce_only",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.max_users)

@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for PermissionConfigRow {
 impl carbon_core::postgres::operations::Upsert for PermissionConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO permission_config_account (
+            r#"INSERT INTO permission_config_account AS stored (
                 "consumer_program",
                 "allowed_signers",
                 "padding",
@@ -136,6 +136,8 @@ impl carbon_core::postgres::operations::Upsert for PermissionConfigRow {
                 "allowed_signers" = EXCLUDED."allowed_signers",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.consumer_program)

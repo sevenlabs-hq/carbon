@@ -116,7 +116,7 @@ impl carbon_core::postgres::operations::Insert for OrderBookRow {
 impl carbon_core::postgres::operations::Upsert for OrderBookRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO order_book_account (
+            r#"INSERT INTO order_book_account AS stored (
                 "version",
                 "order_book_type",
                 "apy",
@@ -136,6 +136,8 @@ impl carbon_core::postgres::operations::Upsert for OrderBookRow {
                 "fee_permillicentage" = EXCLUDED."fee_permillicentage",
                 "fee_authority" = EXCLUDED."fee_authority",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.version)

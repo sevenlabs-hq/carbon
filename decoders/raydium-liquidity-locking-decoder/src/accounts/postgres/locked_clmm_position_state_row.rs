@@ -160,7 +160,7 @@ impl carbon_core::postgres::operations::Insert for LockedClmmPositionStateRow {
 impl carbon_core::postgres::operations::Upsert for LockedClmmPositionStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO locked_clmm_position_state_account (
+            r#"INSERT INTO locked_clmm_position_state_account AS stored (
                 "bump",
                 "position_owner",
                 "pool_id",
@@ -184,6 +184,8 @@ impl carbon_core::postgres::operations::Upsert for LockedClmmPositionStateRow {
                 "recent_epoch" = EXCLUDED."recent_epoch",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.bump)

@@ -219,7 +219,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO global_config_account (
+        sqlx::query(r#"INSERT INTO global_config_account AS stored (
                 "epoch",
                 "curve_type",
                 "index",
@@ -265,6 +265,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "padding_alignment" = EXCLUDED."padding_alignment",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.epoch)
         .bind(self.curve_type)

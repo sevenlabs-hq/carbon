@@ -100,7 +100,7 @@ impl carbon_core::postgres::operations::Insert for OperatorRow {
 impl carbon_core::postgres::operations::Upsert for OperatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO operator_account (
+            r#"INSERT INTO operator_account AS stored (
                 "signer",
                 "permission",
                 "padding",
@@ -114,6 +114,8 @@ impl carbon_core::postgres::operations::Upsert for OperatorRow {
                 "permission" = EXCLUDED."permission",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.signer)

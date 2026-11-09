@@ -393,7 +393,7 @@ impl carbon_core::postgres::operations::Insert for FarmStateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for FarmStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO farm_state_account (
+        sqlx::query(r#"INSERT INTO farm_state_account AS stored (
                 "farm_admin",
                 "global_config",
                 "token",
@@ -481,6 +481,8 @@ impl carbon_core::postgres::operations::Upsert for FarmStateRow {
                 "second_delegated_authority" = EXCLUDED."second_delegated_authority",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.farm_admin)
         .bind(self.global_config)

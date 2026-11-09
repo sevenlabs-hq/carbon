@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::Insert for LocalTokenRow {
 impl carbon_core::postgres::operations::Upsert for LocalTokenRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO local_token_account (
+            r#"INSERT INTO local_token_account AS stored (
                 "custody",
                 "mint",
                 "burn_limit_per_message",
@@ -157,6 +157,8 @@ impl carbon_core::postgres::operations::Upsert for LocalTokenRow {
                 "bump" = EXCLUDED."bump",
                 "custody_bump" = EXCLUDED."custody_bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.custody)

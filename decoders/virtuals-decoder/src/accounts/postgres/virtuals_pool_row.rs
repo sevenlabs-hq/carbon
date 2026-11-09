@@ -112,7 +112,7 @@ impl carbon_core::postgres::operations::Insert for VirtualsPoolRow {
 impl carbon_core::postgres::operations::Upsert for VirtualsPoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO virtuals_pool_account (
+            r#"INSERT INTO virtuals_pool_account AS stored (
                 "creator",
                 "mint",
                 "virtual_y",
@@ -132,6 +132,8 @@ impl carbon_core::postgres::operations::Upsert for VirtualsPoolRow {
                 "state" = EXCLUDED."state",
                 "bump" = EXCLUDED."bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.creator)

@@ -92,7 +92,7 @@ impl carbon_core::postgres::operations::Insert for CollectionAuthorityRecordRow 
 impl carbon_core::postgres::operations::Upsert for CollectionAuthorityRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO collection_authority_record_account (
+            r#"INSERT INTO collection_authority_record_account AS stored (
                 "key",
                 "bump",
                 "update_authority",
@@ -106,6 +106,8 @@ impl carbon_core::postgres::operations::Upsert for CollectionAuthorityRecordRow 
                 "bump" = EXCLUDED."bump",
                 "update_authority" = EXCLUDED."update_authority",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)

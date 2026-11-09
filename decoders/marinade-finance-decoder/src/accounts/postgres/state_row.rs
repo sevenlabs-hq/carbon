@@ -250,7 +250,7 @@ impl carbon_core::postgres::operations::Insert for StateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for StateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO state_account (
+        sqlx::query(r#"INSERT INTO state_account AS stored (
                 "msol_mint",
                 "admin_authority",
                 "operational_sol_account",
@@ -316,6 +316,8 @@ impl carbon_core::postgres::operations::Upsert for StateRow {
                 "stake_moved" = EXCLUDED."stake_moved",
                 "max_stake_moved_per_epoch" = EXCLUDED."max_stake_moved_per_epoch",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.msol_mint)
         .bind(self.admin_authority)

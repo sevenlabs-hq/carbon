@@ -117,7 +117,7 @@ impl carbon_core::postgres::operations::Insert for TokenRow {
 impl carbon_core::postgres::operations::Upsert for TokenRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_account (
+            r#"INSERT INTO token_account AS stored (
                 "mint",
                 "owner",
                 "amount",
@@ -141,6 +141,8 @@ impl carbon_core::postgres::operations::Upsert for TokenRow {
                 "delegated_amount" = EXCLUDED."delegated_amount",
                 "close_authority" = EXCLUDED."close_authority",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.mint)

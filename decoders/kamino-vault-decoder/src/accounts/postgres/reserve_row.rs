@@ -253,7 +253,7 @@ impl carbon_core::postgres::operations::Insert for ReserveRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ReserveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO reserve_account (
+        sqlx::query(r#"INSERT INTO reserve_account AS stored (
                 "version",
                 "last_update",
                 "lending_market",
@@ -289,6 +289,8 @@ impl carbon_core::postgres::operations::Upsert for ReserveRow {
                 "borrowed_amounts_against_this_reserve_in_elevation_groups" = EXCLUDED."borrowed_amounts_against_this_reserve_in_elevation_groups",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.version)
         .bind(&self.last_update)

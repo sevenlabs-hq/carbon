@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Insert for PodAlignedFeeMarketCapSchedul
 impl carbon_core::postgres::operations::Upsert for PodAlignedFeeMarketCapSchedulerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO pod_aligned_fee_market_cap_scheduler_account (
+            r#"INSERT INTO pod_aligned_fee_market_cap_scheduler_account AS stored (
                 "cliff_fee_numerator",
                 "base_fee_mode",
                 "padding",
@@ -161,6 +161,8 @@ impl carbon_core::postgres::operations::Upsert for PodAlignedFeeMarketCapSchedul
                 "scheduler_expiration_duration" = EXCLUDED."scheduler_expiration_duration",
                 "reduction_factor" = EXCLUDED."reduction_factor",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.cliff_fee_numerator)

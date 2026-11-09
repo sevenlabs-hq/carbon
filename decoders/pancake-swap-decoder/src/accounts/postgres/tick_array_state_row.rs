@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Insert for TickArrayStateRow {
 impl carbon_core::postgres::operations::Upsert for TickArrayStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO tick_array_state_account (
+            r#"INSERT INTO tick_array_state_account AS stored (
                 "pool_id",
                 "start_tick_index",
                 "ticks",
@@ -149,6 +149,8 @@ impl carbon_core::postgres::operations::Upsert for TickArrayStateRow {
                 "recent_epoch" = EXCLUDED."recent_epoch",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pool_id)

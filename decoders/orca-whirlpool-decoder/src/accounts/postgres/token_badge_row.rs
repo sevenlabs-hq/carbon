@@ -85,7 +85,7 @@ impl carbon_core::postgres::operations::Insert for TokenBadgeRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for TokenBadgeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO token_badge_account (
+        sqlx::query(r#"INSERT INTO token_badge_account AS stored (
                 "whirlpools_config",
                 "token_mint",
                 "attribute_require_non_transferable_position",
@@ -99,6 +99,8 @@ impl carbon_core::postgres::operations::Upsert for TokenBadgeRow {
                 "token_mint" = EXCLUDED."token_mint",
                 "attribute_require_non_transferable_position" = EXCLUDED."attribute_require_non_transferable_position",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.whirlpools_config)
         .bind(self.token_mint)

@@ -109,7 +109,7 @@ impl carbon_core::postgres::operations::Insert for PythLazerOracleRow {
 impl carbon_core::postgres::operations::Upsert for PythLazerOracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO pyth_lazer_oracle_account (
+            r#"INSERT INTO pyth_lazer_oracle_account AS stored (
                 "price",
                 "publish_time",
                 "posted_slot",
@@ -129,6 +129,8 @@ impl carbon_core::postgres::operations::Upsert for PythLazerOracleRow {
                 "padding" = EXCLUDED."padding",
                 "conf" = EXCLUDED."conf",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.price)

@@ -127,7 +127,7 @@ impl carbon_core::postgres::operations::Insert for UserVolumeAccumulatorRow {
 impl carbon_core::postgres::operations::Upsert for UserVolumeAccumulatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO user_volume_accumulator_account (
+            r#"INSERT INTO user_volume_accumulator_account AS stored (
                 "user",
                 "needs_claim",
                 "total_unclaimed_tokens",
@@ -153,6 +153,8 @@ impl carbon_core::postgres::operations::Upsert for UserVolumeAccumulatorRow {
                 "cashback_earned" = EXCLUDED."cashback_earned",
                 "total_cashback_claimed" = EXCLUDED."total_cashback_claimed",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.user)

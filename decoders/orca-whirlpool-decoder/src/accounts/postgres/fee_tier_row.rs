@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for FeeTierRow {
 impl carbon_core::postgres::operations::Upsert for FeeTierRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_tier_account (
+            r#"INSERT INTO fee_tier_account AS stored (
                 "whirlpools_config",
                 "tick_spacing",
                 "default_fee_rate",
@@ -109,6 +109,8 @@ impl carbon_core::postgres::operations::Upsert for FeeTierRow {
                 "tick_spacing" = EXCLUDED."tick_spacing",
                 "default_fee_rate" = EXCLUDED."default_fee_rate",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.whirlpools_config)

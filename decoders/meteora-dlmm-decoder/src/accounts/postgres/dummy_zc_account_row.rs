@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for DummyZcAccountRow {
 impl carbon_core::postgres::operations::Upsert for DummyZcAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO dummy_zc_account_account (
+            r#"INSERT INTO dummy_zc_account_account AS stored (
                 "position_bin_data",
                 __pubkey, __slot
             ) VALUES (
@@ -80,6 +80,8 @@ impl carbon_core::postgres::operations::Upsert for DummyZcAccountRow {
             ) DO UPDATE SET
                 "position_bin_data" = EXCLUDED."position_bin_data",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.position_bin_data)

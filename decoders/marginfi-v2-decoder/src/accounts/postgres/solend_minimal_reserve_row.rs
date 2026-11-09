@@ -330,7 +330,7 @@ impl carbon_core::postgres::operations::Insert for SolendMinimalReserveRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SolendMinimalReserveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO solend_minimal_reserve_account (
+        sqlx::query(r#"INSERT INTO solend_minimal_reserve_account AS stored (
                 "last_update_slot",
                 "last_update_stale",
                 "lending_market",
@@ -390,6 +390,8 @@ impl carbon_core::postgres::operations::Upsert for SolendMinimalReserveRow {
                 "padding_final32" = EXCLUDED."padding_final32",
                 "padding_final6" = EXCLUDED."padding_final6",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.last_update_slot)
         .bind(self.last_update_stale)

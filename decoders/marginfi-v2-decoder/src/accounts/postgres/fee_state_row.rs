@@ -194,7 +194,7 @@ impl carbon_core::postgres::operations::Insert for FeeStateRow {
 impl carbon_core::postgres::operations::Upsert for FeeStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_state_account (
+            r#"INSERT INTO fee_state_account AS stored (
                 "key",
                 "global_fee_admin",
                 "global_fee_wallet",
@@ -234,6 +234,8 @@ impl carbon_core::postgres::operations::Upsert for FeeStateRow {
                 "order_execution_max_fee" = EXCLUDED."order_execution_max_fee",
                 "reserved1" = EXCLUDED."reserved1",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.key)

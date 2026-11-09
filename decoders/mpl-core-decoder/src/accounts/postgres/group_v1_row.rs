@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Insert for GroupV1Row {
 impl carbon_core::postgres::operations::Upsert for GroupV1Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO group_v1_account (
+            r#"INSERT INTO group_v1_account AS stored (
                 "key",
                 "update_authority",
                 "name",
@@ -165,6 +165,8 @@ impl carbon_core::postgres::operations::Upsert for GroupV1Row {
                 "parent_groups" = EXCLUDED."parent_groups",
                 "assets" = EXCLUDED."assets",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)

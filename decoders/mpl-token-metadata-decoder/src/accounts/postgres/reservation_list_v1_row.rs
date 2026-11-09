@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for ReservationListV1Row {
 impl carbon_core::postgres::operations::Upsert for ReservationListV1Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO reservation_list_v1_account (
+            r#"INSERT INTO reservation_list_v1_account AS stored (
                 "key",
                 "master_edition",
                 "supply_snapshot",
@@ -114,6 +114,8 @@ impl carbon_core::postgres::operations::Upsert for ReservationListV1Row {
                 "supply_snapshot" = EXCLUDED."supply_snapshot",
                 "reservations" = EXCLUDED."reservations",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)

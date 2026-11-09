@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Insert for ExecuteOrderRecordRow {
 impl carbon_core::postgres::operations::Upsert for ExecuteOrderRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO execute_order_record_account (
+            r#"INSERT INTO execute_order_record_account AS stored (
                 "order",
                 "executor",
                 "balance_states",
@@ -161,6 +161,8 @@ impl carbon_core::postgres::operations::Upsert for ExecuteOrderRecordRow {
                 "reserved0" = EXCLUDED."reserved0",
                 "order_start_health" = EXCLUDED."order_start_health",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.order)

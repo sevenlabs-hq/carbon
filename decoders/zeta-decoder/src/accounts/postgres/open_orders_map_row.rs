@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Insert for OpenOrdersMapRow {
 impl carbon_core::postgres::operations::Upsert for OpenOrdersMapRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO open_orders_map_account (
+            r#"INSERT INTO open_orders_map_account AS stored (
                 "user_key",
                 __pubkey, __slot
             ) VALUES (
@@ -78,6 +78,8 @@ impl carbon_core::postgres::operations::Upsert for OpenOrdersMapRow {
             ) DO UPDATE SET
                 "user_key" = EXCLUDED."user_key",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.user_key)

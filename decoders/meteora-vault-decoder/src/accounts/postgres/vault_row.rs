@@ -164,7 +164,7 @@ impl carbon_core::postgres::operations::Insert for VaultRow {
 impl carbon_core::postgres::operations::Upsert for VaultRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO vault_account (
+            r#"INSERT INTO vault_account AS stored (
                 "enabled",
                 "bumps",
                 "total_amount",
@@ -196,6 +196,8 @@ impl carbon_core::postgres::operations::Upsert for VaultRow {
                 "operator" = EXCLUDED."operator",
                 "locked_profit_tracker" = EXCLUDED."locked_profit_tracker",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.enabled)

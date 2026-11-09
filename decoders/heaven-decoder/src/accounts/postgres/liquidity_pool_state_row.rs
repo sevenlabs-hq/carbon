@@ -311,7 +311,7 @@ impl carbon_core::postgres::operations::Insert for LiquidityPoolStateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for LiquidityPoolStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO liquidity_pool_state_account (
+        sqlx::query(r#"INSERT INTO liquidity_pool_state_account AS stored (
                 "info",
                 "market_cap_based_fees",
                 "reserve",
@@ -383,6 +383,8 @@ impl carbon_core::postgres::operations::Upsert for LiquidityPoolStateRow {
                 "slot_offset_based_fees" = EXCLUDED."slot_offset_based_fees",
                 "creator_trading_fee_receiver" = EXCLUDED."creator_trading_fee_receiver",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.info)
         .bind(&self.market_cap_based_fees)

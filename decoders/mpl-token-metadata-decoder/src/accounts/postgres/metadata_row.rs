@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Insert for MetadataRow {
 impl carbon_core::postgres::operations::Upsert for MetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO metadata_account (
+            r#"INSERT INTO metadata_account AS stored (
                 "key",
                 "update_authority",
                 "mint",
@@ -187,6 +187,8 @@ impl carbon_core::postgres::operations::Upsert for MetadataRow {
                 "collection_details" = EXCLUDED."collection_details",
                 "programmable_config" = EXCLUDED."programmable_config",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)

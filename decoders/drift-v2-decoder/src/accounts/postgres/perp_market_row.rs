@@ -479,7 +479,7 @@ impl carbon_core::postgres::operations::Insert for PerpMarketRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PerpMarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO perp_market_account (
+        sqlx::query(r#"INSERT INTO perp_market_account AS stored (
                 "pubkey",
                 "amm",
                 "pnl_pool",
@@ -575,6 +575,8 @@ impl carbon_core::postgres::operations::Upsert for PerpMarketRow {
                 "market_config" = EXCLUDED."market_config",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.pubkey)
         .bind(&self.amm)
