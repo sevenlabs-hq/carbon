@@ -20,16 +20,14 @@ use {
     std::{collections::HashMap, convert::TryFrom, sync::LazyLock, time::Duration},
     tokio::sync::{mpsc, mpsc::Sender},
     tokio_util::sync::CancellationToken,
+    tonic::{codec::CompressionEncoding, transport::ClientTlsConfig},
     yellowstone_grpc_client::{GeyserGrpcBuilder, GeyserGrpcBuilderResult, GeyserGrpcClient},
-    yellowstone_grpc_proto::{
-        geyser::{
-            subscribe_update::UpdateOneof, CommitmentLevel, SlotStatus as ProtoSlotStatus,
-            SubscribeRequest, SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,
-            SubscribeRequestFilterBlocksMeta, SubscribeRequestFilterSlots,
-            SubscribeRequestFilterTransactions, SubscribeRequestPing, SubscribeUpdateAccountInfo,
-            SubscribeUpdateTransactionInfo,
-        },
-        tonic::{codec::CompressionEncoding, transport::ClientTlsConfig},
+    yellowstone_grpc_proto::geyser::{
+        subscribe_update::UpdateOneof, CommitmentLevel, SlotStatus as ProtoSlotStatus,
+        SubscribeRequest, SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,
+        SubscribeRequestFilterBlocksMeta, SubscribeRequestFilterSlots,
+        SubscribeRequestFilterTransactions, SubscribeRequestPing, SubscribeUpdateAccountInfo,
+        SubscribeUpdateTransactionInfo,
     },
 };
 

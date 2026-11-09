@@ -1655,6 +1655,7 @@ dependencies = [
  "solana-signature",
  "tokio",
  "tokio-util",
+ "tonic",
  "uuid",
  "yellowstone-grpc-client",
  "yellowstone-grpc-proto",
@@ -2837,6 +2838,7 @@ dependencies = [
  "solana-signature",
  "tokio",
  "tokio-util",
+ "tonic",
  "yellowstone-grpc-client",
  "yellowstone-grpc-proto",
 ]

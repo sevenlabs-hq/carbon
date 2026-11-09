@@ -218,7 +218,7 @@ thiserror = { version = "2.0.17", default-features = false }
 tokio = { version = "1.48.0", features = ["rt", "time", "signal", "macros"] }
 tokio-retry = "0.3.0"
 tokio-util = "0.7.17"
-tonic = { version = "0.13.1", features = ["tls-native-roots", "tls-webpki-roots"] }
+tonic = { version = "0.14.6", default-features = false }
 tonic-build = "0.13.1"
 unicode-xid = "0.2"
 url = { version = "2.5.8", default-features = false }
