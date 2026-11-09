@@ -6,7 +6,7 @@
 
 {% if entityDocs and entityDocs.length > 0 %}
 {% for doc in entityDocs %}
-/// {{ doc }}
+/// {{ doc | closeCodeSpans }}
 {% endfor %}
 {% endif %}
 {% import "macros.njk" as macros %}
@@ -16,7 +16,7 @@ pub enum {{ entityName | pascalCase }}GraphQL {
 {% for v in variants %}
     {% if v.docs and v.docs.length > 0 %}
     {% for doc in v.docs %}
-    /// {{ doc }}
+    /// {{ doc | closeCodeSpans }}
     {% endfor %}
     {% endif %}
     {{ v.name | pascalCase }},
