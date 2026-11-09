@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import { resolve, join } from 'path';
 import { promptForParse, promptForScaffold } from './lib/prompts';
 import { generateDecoder, parseIdlSource, getIdlMetadata } from './lib/decoder';
@@ -8,6 +8,16 @@ import { parseBoolOpt, resolveRpcUrl, runCargoFmt } from './lib/utils';
 import { logger, showBanner } from './lib/logger';
 
 const program = new Command();
+
+// The legacy Rust CLI turned hinted types into events; this CLI never did. Called before any
+// spinner starts, so the warning gets its own line.
+function warnIfEventHints(eventHints: string | undefined): void {
+    if (eventHints) {
+        logger.warning(
+            '--event-hints has no effect and will be removed. Events are read from the IDL: Anchor events or Codama eventNodes.',
+        );
+    }
+}
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json');
@@ -31,7 +41,7 @@ program.addHelpText(
     `\nExamples:
   # Parse command (generate decoder only)
   $ carbon-cli parse -i packages/example/anchor-idl.json -o packages/example/generated -s anchor
-  $ carbon-cli parse -i packages/example/codama.json -o packages/example/generated -s codama --event-hints "BuyEvent,CreatePoolEvent"
+  $ carbon-cli parse -i packages/example/codama.json -o packages/example/generated -s codama
   $ carbon-cli parse -i <ProgramPubkey> -u devnet -o ./generated -s anchor
   
   # Scaffold with generated decoder from IDL
@@ -58,7 +68,8 @@ program
     )
     .option('-c, --as-crate', 'Generate as a Cargo crate layout', false)
     .option('-s, --standard <anchor|codama>', 'Specify the IDL standard to parse', 'anchor')
-    .option('--event-hints <csv>', 'Comma-separated names of defined types to parse as CPI Events (Codama only)')
+    // Has no effect; still accepted so existing scripts get a warning instead of an error.
+    .addOption(new Option('--event-hints <csv>').hideHelp())
     .option(
         '--event-cpi-discriminator <hex>',
         'Event-CPI envelope for hidden-prefix Codama events as hex bytes (default: the Anchor event tag e445a52e51cb9a1d)',
@@ -89,6 +100,7 @@ program
             const answers = await promptForParse(opts);
             Object.assign(opts, answers);
         }
+        warnIfEventHints(opts.eventHints);
 
         // Normalize boolean options
         const withPostgres = parseBoolOpt(opts.withPostgres, true);
@@ -136,7 +148,6 @@ program
                 outputDir: outDir,
                 standard: opts.standard,
                 url: opts.url,
-                eventHints: opts.eventHints,
                 eventCpiDiscriminator: opts.eventCpiDiscriminator,
                 deleteFolderBeforeRendering: Boolean(opts.clean),
                 programId: opts.programId,
@@ -186,7 +197,8 @@ program
     .option('--idl <fileOrAddress>', 'IDL file or program address')
     .option('--idl-standard <anchor|codama>', 'IDL standard')
     .option('--idl-url <rpcUrl>', 'RPC URL for fetching IDL (when using program address)')
-    .option('--event-hints <csv>', 'Event hints for Codama IDL')
+    // Has no effect; still accepted so existing scripts get a warning instead of an error.
+    .addOption(new Option('--event-hints <csv>').hideHelp())
     .option(
         '--event-cpi-discriminator <hex>',
         'Event-CPI envelope for hidden-prefix Codama events as hex bytes (default: the Anchor event tag e445a52e51cb9a1d)',
@@ -213,6 +225,7 @@ program
             const answers = await promptForScaffold(opts);
             Object.assign(opts, answers);
         }
+        warnIfEventHints(opts.eventHints);
 
         // Normalize and validate options
         const name = String(opts.name);
@@ -286,7 +299,6 @@ program
                 outputDir: decoderPath,
                 standard: opts.idlStandard,
                 url: opts.idlUrl,
-                eventHints: opts.eventHints,
                 eventCpiDiscriminator: opts.eventCpiDiscriminator,
                 deleteFolderBeforeRendering: true,
                 programId: opts.programId,
