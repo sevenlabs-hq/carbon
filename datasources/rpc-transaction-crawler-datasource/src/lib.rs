@@ -173,7 +173,7 @@ impl ConnectionConfig {
             retry_config: RetryConfig::default(),
             max_signature_channel_size: None,
             max_transaction_channel_size: None,
-            blocking_send: false,
+            blocking_send: true,
         }
     }
 }

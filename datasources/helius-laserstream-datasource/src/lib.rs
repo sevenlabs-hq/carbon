@@ -418,7 +418,8 @@ impl Datasource for LaserStreamGeyserClient {
                                                         let update =
                                                             Update::BlockDetails(block_details);
                                                         if let Err(e) = sender
-                                                            .try_send((update, id_for_loop.clone()))
+                                                            .send((update, id_for_loop.clone()))
+                                                            .await
                                                         {
                                                             log::error!(
                                                                 "Failed to send block details for slot {slot}: {e:?}"
@@ -446,7 +447,8 @@ impl Datasource for LaserStreamGeyserClient {
                                                 {
                                                     let update = Update::SlotStatus(slot_status);
                                                     if let Err(e) = sender
-                                                        .try_send((update, id_for_loop.clone()))
+                                                        .send((update, id_for_loop.clone()))
+                                                        .await
                                                     {
                                                         log::error!(
                                                             "Failed to send slot status for slot {slot}: {e:?}"
@@ -555,7 +557,7 @@ async fn send_subscribe_account_update_info(
         .into_update();
         let is_deletion = matches!(&update, Update::AccountDeletion(_));
 
-        if let Err(e) = sender.try_send((update, id)) {
+        if let Err(e) = sender.send((update, id)).await {
             log::error!(
                 "Failed to send account event for pubkey {account_pubkey:?} at slot {slot}: {e:?}"
             );
@@ -614,7 +616,7 @@ async fn send_subscribe_update_transaction_info(
             block_hash: None,
             bank_id,
         }));
-        if let Err(e) = sender.try_send((update, id)) {
+        if let Err(e) = sender.send((update, id)).await {
             log::error!(
                 "Failed to send transaction update with signature {signature:?} at slot {slot}: {e:?}"
             );
