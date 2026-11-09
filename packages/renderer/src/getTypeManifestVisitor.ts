@@ -512,15 +512,14 @@ export function getDiscriminatorManifest(
                 }
             }
 
-            // Use the size of the first discriminator for slicing (as per manually modified version)
+            // The struct holds only the fields after the discriminators, so slicing skips all of them.
             const firstDiscriminator = sorted[0];
             if (firstDiscriminator.kind === 'constantDiscriminatorNode') {
                 const firstBytes = getDiscriminatorBytes(firstDiscriminator.constant);
-                const firstSize = firstBytes.length;
                 const checkCode = checkParts.join('\n');
                 return {
                     bytes: `[${firstBytes.join(', ')}]`,
-                    size: firstSize,
+                    size: maxRequiredSize,
                     checkCode,
                 };
             }
