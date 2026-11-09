@@ -486,7 +486,7 @@ impl Datasource for LaserStreamGeyserClient {
                                 Ok(())
                             }
                             Err(e) => {
-                                log::error!("Failed to subscribe, will retry after 5s delay: {e:?}");
+                                log::error!("Failed to subscribe, will retry after {RECONNECTION_DELAY_MS} ms: {e:?}");
                                 Err(carbon_core::error::Error::FailedToConsumeDatasource(e.to_string()))
                             }
                         }
