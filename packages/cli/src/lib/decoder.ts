@@ -16,6 +16,7 @@ import {
 import { assertIsNode } from '@codama/nodes';
 import { exitWithError, isBase58Like } from './utils';
 import { fetchAnchorIdl } from './anchor';
+import { logger } from './logger';
 import {
     hasLegacyEvents,
     transformLegacyEvents,
@@ -90,12 +91,52 @@ export type IdlMetadata = {
     programId?: string;
 };
 
-function getValidIdlAddress(idlJson: any): string | undefined {
-    const addr = idlJson.address || idlJson.metadata?.address;
-    if (addr && addr.trim() !== '' && isBase58Like(addr) && addr.length >= 32 && addr.length <= 44) {
-        return addr as string;
+function isValidAddress(addr: unknown): addr is string {
+    return (
+        typeof addr === 'string' && addr.trim() !== '' && isBase58Like(addr) && addr.length >= 32 && addr.length <= 44
+    );
+}
+
+/**
+ * The program address the IDL declares, if it's a valid one. Codama IDLs keep it in
+ * `program.publicKey`. Codama's Anchor converter reads `address` from 0.1.0-spec IDLs and
+ * `metadata.address` from older ones, so for Anchor that field is tried first.
+ */
+export function getValidIdlAddress(idlJson: any, standard: IdlStandard): string | undefined {
+    const candidates =
+        standard === 'codama'
+            ? [idlJson.program?.publicKey]
+            : idlJson.metadata?.spec === '0.1.0'
+              ? [idlJson.address, idlJson.metadata?.address]
+              : [idlJson.metadata?.address, idlJson.address];
+    return candidates.find(isValidAddress);
+}
+
+/**
+ * Makes sure the IDL names its program where the renderer reads it. The IDL's own address
+ * wins, then the program the IDL was fetched from, then `--program-id`.
+ */
+function ensureIdlAddress(idlJson: any, standard: IdlStandard, programId?: string, fetchedFrom?: string): void {
+    const idlAddress = getValidIdlAddress(idlJson, standard);
+    const address = idlAddress || fetchedFrom || programId;
+    if (!address) {
+        exitWithError('Program ID is required: the IDL has no valid program address. Provide one with --program-id.');
     }
-    return undefined;
+    if (programId && programId !== address) {
+        const source = idlAddress ? "the IDL's program address" : 'the program the IDL was fetched from';
+        logger.warning(`--program-id ${programId} is ignored: ${source} is ${address}.`);
+    }
+
+    if (standard === 'codama') {
+        if (!idlJson.program) {
+            exitWithError('The IDL has no Codama program node. Is it an Anchor IDL? Pass --standard anchor.');
+        }
+        idlJson.program.publicKey = address;
+    } else {
+        // Both fields, so the converter finds it whichever format the IDL is in.
+        idlJson.address = address;
+        idlJson.metadata = { ...idlJson.metadata, address };
+    }
 }
 
 /**
@@ -222,7 +263,7 @@ export async function getIdlMetadata(
         .replace(/[\s_]+/g, '-')
         .toLowerCase();
 
-    const idlAddress = getValidIdlAddress(idlJson);
+    const idlAddress = getValidIdlAddress(idlJson, normalizedStandard);
 
     const finalAddress = idlAddress || (idlSource.type === 'program' ? idl : undefined) || programId;
 
@@ -283,33 +324,11 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     let idlJson: any;
     if (idlSource.type === 'program') {
         idlJson = await fetchAnchorIdl(idl, url!);
-        const idlAddress = getValidIdlAddress(idlJson);
-        const programAddress = idlAddress || idl || programId;
-        if (!programAddress) {
-            exitWithError(
-                'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
-            );
-        }
-        if (!idlAddress) {
-            idlJson.address = programAddress;
-            if (!idlJson.metadata) idlJson.metadata = {};
-            idlJson.metadata.address = programAddress;
-        }
+        ensureIdlAddress(idlJson, standard, programId, idl);
     } else {
         const idlPath = resolve(process.cwd(), idl);
         idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
-        const idlAddress = getValidIdlAddress(idlJson);
-        const programAddress = idlAddress || programId;
-        if (!programAddress) {
-            exitWithError(
-                'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
-            );
-        }
-        if (!idlAddress) {
-            idlJson.address = programAddress;
-            if (!idlJson.metadata) idlJson.metadata = {};
-            idlJson.metadata.address = programAddress;
-        }
+        ensureIdlAddress(idlJson, standard, programId);
     }
 
     // Codama standard: no anchor transformations needed
