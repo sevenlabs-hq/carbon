@@ -279,6 +279,7 @@ program
                 withBase58,
                 force,
                 postgresMode: opts.postgresMode,
+                versionName: opts.versionName,
             });
 
             logger.succeedSpinner('Project structure created');

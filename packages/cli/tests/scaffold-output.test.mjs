@@ -66,6 +66,7 @@ test('scaffolds a Carbon 2 Transaction V1-ready RPC project', () => {
             /solana-transaction-status = \{ version = "=4\.3\.0", features = \["agave-unstable-api"\] \}/,
         );
         assert.match(cargoToml, /log = "0\.4\.28"/);
+        assert.match(cargoToml, /^carbon-smoke-decoder = \{ path = "\.\.\/decoder", features/m);
 
         assert.match(main, /encoding: Some\(UiTransactionEncoding::Base64\)/);
         assert.match(main, /transaction_details: Some\(TransactionDetails::Full\)/);
@@ -111,6 +112,58 @@ test('rejects GraphQL scaffolding without Postgres', () => {
 
         assert.equal(result.status, 2, `${result.stdout}\n${result.stderr}`);
         assert.match(result.stderr, /GraphQL scaffolding requires Postgres/);
+    } finally {
+        rmSync(outputDirectory, { force: true, recursive: true });
+    }
+});
+
+test('scaffolds a versioned decoder under the name the indexer uses', () => {
+    const outputDirectory = mkdtempSync(join(tmpdir(), 'carbon-cli-versioned-scaffold-'));
+
+    try {
+        const result = spawnSync(
+            process.execPath,
+            [
+                join(packageDirectory, 'dist/cli.js'),
+                'scaffold',
+                '--name',
+                'versioned',
+                '--out-dir',
+                outputDirectory,
+                '--decoder',
+                'smoke',
+                '--idl',
+                join(packageDirectory, 'tests/fixtures/minimal-anchor.json'),
+                '--idl-standard',
+                'anchor',
+                '--data-source',
+                'rpc-block-subscribe',
+                '--metrics',
+                'log',
+                '--with-postgres',
+                'false',
+                '--with-graphql',
+                'false',
+                '--version-name',
+                'v1',
+            ],
+            { cwd: packageDirectory, encoding: 'utf8' },
+        );
+
+        assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+
+        const projectDirectory = join(outputDirectory, 'versioned');
+        const decoderCargoToml = readFileSync(join(projectDirectory, 'decoder/Cargo.toml'), 'utf8');
+        const indexerCargoToml = readFileSync(join(projectDirectory, 'indexer/Cargo.toml'), 'utf8');
+        const main = readFileSync(join(projectDirectory, 'indexer/src/main.rs'), 'utf8');
+
+        assert.match(decoderCargoToml, /^name = "carbon-smoke-decoder-v1"$/m);
+        // The versioned package is renamed back, so the indexer's `use carbon_smoke_decoder` paths resolve.
+        assert.match(
+            indexerCargoToml,
+            /^carbon-smoke-decoder = \{ path = "\.\.\/decoder", package = "carbon-smoke-decoder-v1"/m,
+        );
+        assert.match(main, /carbon_smoke_decoder::/);
     } finally {
         rmSync(outputDirectory, { force: true, recursive: true });
     }

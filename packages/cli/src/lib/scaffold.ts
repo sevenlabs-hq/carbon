@@ -5,7 +5,7 @@ import { exitWithError } from './utils';
 import { kebabCase } from '@codama/nodes';
 import * as Datasources from '../datasources';
 import type { DecoderMeta, DatasourceArtifact } from '../datasources';
-import { generateIndexerCargoToml } from './cargoTomlGenerator';
+import { decoderPackageName, generateIndexerCargoToml } from './cargoTomlGenerator';
 
 export type ScaffoldOptions = {
     name: string;
@@ -19,6 +19,7 @@ export type ScaffoldOptions = {
     withBase58?: boolean;
     force?: boolean;
     postgresMode?: 'generic' | 'typed';
+    versionName?: string;
 };
 
 function ensureDir(path: string) {
@@ -240,7 +241,7 @@ cargo run -p ${opts.name}-indexer
 - Metrics: ${opts.metrics}
 - Postgres: ${opts.withPostgres}
 - GraphQL: ${opts.withGraphql}
-- Decoder: carbon-${opts.decoder}-decoder (generated)
+- Decoder: ${decoderPackageName(opts.decoder, opts.versionName)} (generated)
 `;
 
     writeFileSync(join(base, 'README.md'), readme);

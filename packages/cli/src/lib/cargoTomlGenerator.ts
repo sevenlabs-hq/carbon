@@ -11,8 +11,15 @@ function requireVersion(crateName: string, context: string): NonNullable<(typeof
     return version;
 }
 
+/** The decoder's package name as the renderer writes it: a version name is added as a suffix. */
+export function decoderPackageName(decoder: string, versionName?: string): string {
+    const name = `carbon-${kebabCase(decoder)}-decoder`;
+    return versionName?.trim() ? `${name}-${kebabCase(versionName)}` : name;
+}
+
 export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
-    const decoderCrateName = `carbon-${kebabCase(opts.decoder)}-decoder`;
+    const decoderCrateName = decoderPackageName(opts.decoder);
+    const decoderPackage = decoderPackageName(opts.decoder, opts.versionName);
 
     const decoderFeatures: string[] = [];
     if (opts.withPostgres) decoderFeatures.push('postgres');
@@ -31,7 +38,9 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
 
     const decoderFeaturesStr =
         decoderFeatures.length > 0 ? `, features = [${decoderFeatures.map(f => `"${f}"`).join(', ')}]` : '';
-    const decoderDep = `${decoderCrateName} = { path = "../decoder"${decoderFeaturesStr} }`;
+    // A versioned decoder keeps its unversioned name here, so the indexer's `use` paths don't change.
+    const decoderPackageStr = decoderPackage === decoderCrateName ? '' : `, package = "${decoderPackage}"`;
+    const decoderDep = `${decoderCrateName} = { path = "../decoder"${decoderPackageStr}${decoderFeaturesStr} }`;
 
     const datasourceCrateName = `carbon-${opts.dataSource.toLowerCase()}-datasource`;
     const datasourceVersion = requireVersion(
