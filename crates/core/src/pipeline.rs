@@ -210,24 +210,26 @@ impl Pipeline {
             .clone()
             .unwrap_or_default();
 
+        let mut datasource_tasks = Vec::with_capacity(self.datasources.len());
         for datasource in &self.datasources {
             let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
             let sender_clone = update_sender.clone();
             let datasource_clone = Arc::clone(&datasource.1);
             let datasource_id = datasource.0.clone();
 
-            tokio::spawn(async move {
-                if let Err(e) = datasource_clone
+            datasource_tasks.push(tokio::spawn(async move {
+                let result = datasource_clone
                     .consume(
                         datasource_id,
                         sender_clone,
                         datasource_cancellation_token_clone,
                     )
-                    .await
-                {
+                    .await;
+                if let Err(e) = &result {
                     log::error!("error consuming datasource: {e:?}");
                 }
-            });
+                result
+            }));
         }
 
         drop(update_sender);
@@ -297,9 +299,28 @@ impl Pipeline {
             }
         }
 
+        let datasources_ended = update_receiver.is_closed();
+        let mut first_error = None;
+        for task in datasource_tasks {
+            if !datasources_ended && !task.is_finished() {
+                continue;
+            }
+            let error = match task.await {
+                Ok(Ok(())) => continue,
+                Ok(Err(error)) => error,
+                Err(join_error) => Error::FailedToConsumeDatasource(join_error.to_string()),
+            };
+            if first_error.is_none() {
+                first_error = Some(error);
+            }
+        }
+
         log::info!("pipeline shutdown complete.");
 
-        Ok(())
+        match first_error {
+            Some(error) => Err(error),
+            None => Ok(()),
+        }
     }
 
     fn export_metrics(&self) -> CarbonResult<()> {

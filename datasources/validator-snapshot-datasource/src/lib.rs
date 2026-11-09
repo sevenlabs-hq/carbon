@@ -214,7 +214,11 @@ impl Datasource for SnapshotDatasource {
         let snapshot = match &self.source {
             SnapshotSource::LocalPath(path) => SnapshotState::load_from_path(path.clone())?,
             SnapshotSource::Remote { url } => {
-                SnapshotState::load_from_remote(url, cancellation_token.clone()).await?
+                match SnapshotState::load_from_remote(url, cancellation_token.clone()).await {
+                    Ok(snapshot) => snapshot,
+                    Err(_) if cancellation_token.is_cancelled() => return Ok(()),
+                    Err(error) => return Err(error),
+                }
             }
         };
 
