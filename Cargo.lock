@@ -1487,6 +1487,7 @@ dependencies = [
  "chrono",
  "juniper",
  "juniper_axum",
+ "libc",
  "log",
  "num-traits",
  "serde",
