@@ -9,13 +9,17 @@ import { logger, showBanner } from './lib/logger';
 
 const program = new Command();
 
-// The legacy Rust CLI turned hinted types into events; this CLI never did. Called before any
-// spinner starts, so the warning gets its own line.
-function warnIfEventHints(eventHints: string | undefined): void {
-    if (eventHints) {
+// Options the legacy Rust CLI used and this CLI never did: it turned hinted types into events,
+// and generated only the decoder module unless --as-crate was passed. Called before any spinner
+// starts, so each warning gets its own line.
+function warnAboutUnusedOptions(opts: { eventHints?: string; asCrate?: boolean }): void {
+    if (opts.eventHints) {
         logger.warning(
             '--event-hints has no effect and will be removed. Events are read from the IDL: Anchor events or Codama eventNodes.',
         );
+    }
+    if (opts.asCrate) {
+        logger.warning('--as-crate has no effect and will be removed. The decoder is always generated as a crate.');
     }
 }
 
@@ -66,9 +70,9 @@ program
         '-n, --name <string>',
         'Decoder name (e.g. pumpfun). Used for crate name carbon-<name>-decoder and struct <Name>Decoder. Default: from IDL',
     )
-    .option('-c, --as-crate', 'Generate as a Cargo crate layout', false)
     .option('-s, --standard <anchor|codama>', 'Specify the IDL standard to parse', 'anchor')
-    // Has no effect; still accepted so existing scripts get a warning instead of an error.
+    // These have no effect; still accepted so existing scripts get a warning instead of an error.
+    .addOption(new Option('-c, --as-crate').hideHelp())
     .addOption(new Option('--event-hints <csv>').hideHelp())
     .option(
         '--event-cpi-discriminator <hex>',
@@ -100,7 +104,7 @@ program
             const answers = await promptForParse(opts);
             Object.assign(opts, answers);
         }
-        warnIfEventHints(opts.eventHints);
+        warnAboutUnusedOptions(opts);
 
         // Normalize boolean options
         const withPostgres = parseBoolOpt(opts.withPostgres, true);
@@ -225,7 +229,7 @@ program
             const answers = await promptForScaffold(opts);
             Object.assign(opts, answers);
         }
-        warnIfEventHints(opts.eventHints);
+        warnAboutUnusedOptions(opts);
 
         // Normalize and validate options
         const name = String(opts.name);

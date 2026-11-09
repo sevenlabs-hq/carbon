@@ -9,7 +9,6 @@ export type ParseOptions = {
     standard?: string;
     url?: string;
     clean?: boolean;
-    asCrate?: boolean;
     programId?: string;
     postgresMode?: 'generic' | 'typed';
 };
@@ -131,7 +130,6 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         standard,
         url,
         clean,
-        asCrate: existingOpts.asCrate || false,
         programId,
         postgresMode,
     };

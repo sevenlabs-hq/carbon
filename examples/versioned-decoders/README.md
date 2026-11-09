@@ -120,7 +120,6 @@ node packages/cli/dist/cli.js parse \
   --out-dir examples/versioned-decoders/decoder-v1 \
   --name simple-dex \
   --version-name v1 \
-  --as-crate \
   --standard anchor \
   --with-postgres false \
   --with-graphql false \
@@ -132,7 +131,6 @@ node packages/cli/dist/cli.js parse \
   --out-dir examples/versioned-decoders/decoder-v2 \
   --name simple-dex \
   --version-name v2 \
-  --as-crate \
   --standard anchor \
   --with-postgres false \
   --with-graphql false \

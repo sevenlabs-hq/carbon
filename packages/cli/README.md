@@ -31,10 +31,12 @@ carbon-cli parse [OPTIONS]
 
 - `-i, --idl <fileOrAddress>` - Path to an IDL json file or a Solana program address
 - `-o, --out-dir <dir>` - Output directory for generated code
-- `-c, --as-crate` - Generate as a Cargo crate layout (default: false)
 - `-s, --standard <anchor|codama>` - Specify the IDL standard to parse (default: anchor)
 - `-u, --url <rpcUrl>` - RPC URL for fetching IDL when using a program address
 - `--no-clean` - Do not delete output directory before rendering (default: false)
+
+The decoder is always generated as a Cargo crate. `-c, --as-crate` has no
+effect; it is still accepted, with a warning, and will be removed.
 
 #### Examples
 
