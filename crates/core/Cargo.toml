@@ -67,4 +67,5 @@ sqlx_migrator = { workspace = true, optional = true }
 
 [dev-dependencies]
 carbon-test-utils = { workspace = true }
+libc = { workspace = true }
 solana-account-decoder-client-types = { workspace = true }

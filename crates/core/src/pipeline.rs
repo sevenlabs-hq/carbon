@@ -233,9 +233,12 @@ impl Pipeline {
         drop(update_sender);
 
         let mut draining = false;
+        let ctrl_c = tokio::signal::ctrl_c();
+        tokio::pin!(ctrl_c);
 
         loop {
             tokio::select! {
+                biased;
                 _ = datasource_cancellation_token.cancelled(), if !draining => {
                     if self.shutdown_strategy == ShutdownStrategy::Immediate {
                         log::info!("shutting down the pipeline immediately.");
@@ -247,7 +250,7 @@ impl Pipeline {
                     log::info!("shutting down the pipeline after processing pending updates.");
                     draining = true;
                 }
-                _ = tokio::signal::ctrl_c() => {
+                _ = &mut ctrl_c, if !datasource_cancellation_token.is_cancelled() => {
                     datasource_cancellation_token.cancel();
                 }
                 update = update_receiver.recv() => {
