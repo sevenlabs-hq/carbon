@@ -140,6 +140,7 @@ pub use self::{
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+#[cfg_attr(feature = "serde", derive(carbon_core::InstructionType))]
 pub enum MarginfiV2Instruction {
     ConfigGroupFee {
         program_id: solana_pubkey::Pubkey,

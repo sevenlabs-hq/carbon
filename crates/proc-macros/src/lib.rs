@@ -129,6 +129,12 @@ impl Parse for InstructionMacroInput {
 ///
 /// 4-part entries are matched directly on `instruction.program_id`. Any
 /// remaining 3-part entries are tried in declaration order as a fallback.
+///
+/// The expansion names each instruction enum and its `*Type` enum by the last
+/// segment of its path and calls `decode_instruction` on each decoder, so the
+/// calling module needs both enums and
+/// `carbon_core::instruction::InstructionDecoder` in scope, and its crate needs
+/// `serde` and `solana-instruction` as dependencies.
 #[proc_macro]
 pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as InstructionMacroInput);
@@ -199,7 +205,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
     }
 
     let expanded = quote! {
-        #[derive(Debug, Clone, std::hash::Hash, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
+        #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
         pub enum #instructions_enum_name {
             #(#instruction_variants),*
         }
