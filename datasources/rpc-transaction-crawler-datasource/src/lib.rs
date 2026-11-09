@@ -141,6 +141,7 @@ pub struct ConnectionConfig {
     pub max_signature_channel_size: Option<usize>,
     pub max_transaction_channel_size: Option<usize>,
     pub retry_config: RetryConfig,
+    /// When false, updates are dropped with a warning while the pipeline's channel is full.
     pub blocking_send: bool,
 }
 
