@@ -295,12 +295,20 @@ impl Datasource for YellowstoneGrpcGeyserClient {
             .x_token(x_token)
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
+        if builder.endpoint.uri().scheme().is_none() {
+            return Err(carbon_core::error::Error::FailedToConsumeDatasource(
+                format!(
+                    "endpoint {} has no scheme, expected https:// or http://",
+                    builder.endpoint.uri()
+                ),
+            ));
+        }
+
         let mut geyser_client = self
             .geyser_config
             .geyser_config_builder(builder)
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
-            .connect()
-            .await
+            .connect_lazy()
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
         let disconnect_tx_clone = self.disconnect_notifier.clone();
@@ -411,7 +419,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                 if let Some(slot) = current_slot {
                                                     first_message_after_reconnect = false;
 
-                                                    if let (Some(disconnect_time), Some(last_slot)) =
+                                                    if let (Some(disconnect_time), Some(last_slot @ 1..)) =
                                                         (last_disconnect_time.take(), last_slot_before_disconnect.take())
                                                     {
                                                         let missed = slot.saturating_sub(last_slot);
