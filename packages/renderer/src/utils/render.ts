@@ -10,6 +10,12 @@ export function rustDocblock(docs: string[]): string {
     return `${lines.join('\n')}\n`;
 }
 
+// IDL docs sometimes close a one-backtick code span with two backticks, which leaves the span
+// open to the end of the line; close it with one.
+function closeCodeSpans(line: string): string {
+    return line.replace(/(?<!`)`([^`]+)``(?!`)/g, '`$1`');
+}
+
 export function formatDocComments(docs: string[], indent: string = ''): string {
     if (docs.length === 0) {
         return '';
@@ -22,7 +28,7 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
 
     for (let i = 0; i < allLines.length; i++) {
         const line = allLines[i];
-        const trimmed = line.trim();
+        const trimmed = closeCodeSpans(line.trim());
 
         // Skip empty lines completely - never output them
         if (trimmed === '') {

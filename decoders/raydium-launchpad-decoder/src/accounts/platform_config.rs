@@ -36,7 +36,7 @@ pub struct PlatformConfig {
     pub creator_fee_rate: u64,
     /// If the base token belongs to token2022, then you can choose to support
     /// the transferfeeConfig extension, which includes permissions such as
-    /// `transfer_fee_config_authority`` and `withdraw_withheld_authority`.
+    /// `transfer_fee_config_authority` and `withdraw_withheld_authority`.
     /// When initializing mint, `withdraw_withheld_authority` and
     /// `transfer_fee_config_authority` both belongs to the contract.
     /// Once the token is migrated to AMM, the authorities will be reset to this
