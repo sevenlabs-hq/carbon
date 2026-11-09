@@ -102,6 +102,7 @@ impl carbon_core::postgres::operations::Table
             "__signature",
             "__instruction_index",
             "__stack_height",
+            "__absolute_path",
             "__slot",
             "simulated_swap_amount_out",
             "simulated_ts",
@@ -130,9 +131,10 @@ impl carbon_core::postgres::operations::Insert for LogUserSwapBalancesEndRow {
                 "aggregator",
                 "next_best_aggregator",
                 "padding",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             )"#,
         )
         .bind(&self.simulated_swap_amount_out)
@@ -146,6 +148,7 @@ impl carbon_core::postgres::operations::Insert for LogUserSwapBalancesEndRow {
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -168,11 +171,12 @@ impl carbon_core::postgres::operations::Upsert for LogUserSwapBalancesEndRow {
                 "aggregator",
                 "next_best_aggregator",
                 "padding",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             ) ON CONFLICT (
-                __signature, __instruction_index, __stack_height
+                __signature, __absolute_path
             ) DO UPDATE SET
                 "simulated_swap_amount_out" = EXCLUDED."simulated_swap_amount_out",
                 "simulated_ts" = EXCLUDED."simulated_ts",
@@ -199,6 +203,7 @@ impl carbon_core::postgres::operations::Upsert for LogUserSwapBalancesEndRow {
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -210,21 +215,16 @@ impl carbon_core::postgres::operations::Upsert for LogUserSwapBalancesEndRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for LogUserSwapBalancesEndRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"DELETE FROM log_user_swap_balances_end_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -234,11 +234,7 @@ impl carbon_core::postgres::operations::Delete for LogUserSwapBalancesEndRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Lookup for LogUserSwapBalancesEndRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn lookup(
         key: Self::Key,
@@ -246,12 +242,11 @@ impl carbon_core::postgres::operations::Lookup for LogUserSwapBalancesEndRow {
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
             r#"SELECT * FROM log_user_swap_balances_end_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .fetch_optional(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

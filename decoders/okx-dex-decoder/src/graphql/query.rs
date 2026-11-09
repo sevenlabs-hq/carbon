@@ -14,7 +14,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ClaimGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ClaimRow> = sqlx::query_as(
-            r#"SELECT * FROM claim_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM claim_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -52,7 +52,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpfunGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpfunRow> = sqlx::query_as(
-            r#"SELECT * FROM claim_cashback_pumpfun_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM claim_cashback_pumpfun_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -90,7 +90,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpswapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpswapRow> = sqlx::query_as(
-            r#"SELECT * FROM claim_cashback_pumpswap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM claim_cashback_pumpswap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -128,7 +128,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM create_token_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -166,7 +166,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateTokenAccountWithSeedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateTokenAccountWithSeedRow> = sqlx::query_as(
-            r#"SELECT * FROM create_token_account_with_seed_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM create_token_account_with_seed_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -204,7 +204,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ProxySwapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ProxySwapRow> = sqlx::query_as(
-            r#"SELECT * FROM proxy_swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM proxy_swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -242,7 +242,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM swap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -280,7 +280,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobV3GraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobV3Row> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM swap_tob_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -318,7 +318,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobV3EnhancedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobV3EnhancedRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_v3_enhanced_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM swap_tob_v3_enhanced_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -356,7 +356,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobV3WithReceiverGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobV3WithReceiverRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_tob_v3_with_receiver_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM swap_tob_v3_with_receiver_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -394,7 +394,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapV3GraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapV3Row> = sqlx::query_as(
-            r#"SELECT * FROM swap_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM swap_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -432,7 +432,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapV3WithCpiEventGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapV3WithCpiEventRow> = sqlx::query_as(
-            r#"SELECT * FROM swap_v3_with_cpi_event_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM swap_v3_with_cpi_event_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -470,7 +470,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WrapUnwrapV3GraphQL>> {
         let rows: Vec<crate::instructions::postgres::WrapUnwrapV3Row> = sqlx::query_as(
-            r#"SELECT * FROM wrap_unwrap_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM wrap_unwrap_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -508,7 +508,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WrapUnwrapV3WithReceiverGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WrapUnwrapV3WithReceiverRow> = sqlx::query_as(
-            r#"SELECT * FROM wrap_unwrap_v3_with_receiver_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM wrap_unwrap_v3_with_receiver_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)

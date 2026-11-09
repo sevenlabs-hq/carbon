@@ -161,6 +161,91 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MplTokenMetadataInstructionsMi
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(MplTokenMetadataInstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct MplTokenMetadataInstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres>
+    for MplTokenMetadataInstructionsAbsolutePathMigration
+{
+    fn app(&self) -> &str {
+        "mpl-token-metadata"
+    }
+
+    fn name(&self) -> &str {
+        "mpl_token_metadata_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("approve_collection_authority_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("approve_use_authority_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("bubblegum_set_collection_size_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("burn_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("burn_edition_nft_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("burn_nft_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("close_accounts_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("close_escrow_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("collect_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("convert_master_edition_v1_to_v2_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("create_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("create_escrow_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("create_master_edition_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("create_master_edition_v3_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("create_metadata_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("create_metadata_account_v2_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("create_metadata_account_v3_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("delegate_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("deprecated_create_master_edition_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("deprecated_create_reservation_list_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("deprecated_mint_new_edition_from_master_edition_via_printing_token_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("deprecated_mint_printing_tokens_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("deprecated_mint_printing_tokens_via_token_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("deprecated_set_reservation_list_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("freeze_delegated_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("lock_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("migrate_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("mint_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("mint_new_edition_from_master_edition_via_token_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("mint_new_edition_from_master_edition_via_vault_proxy_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("print_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("puff_metadata_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("remove_creator_verification_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("resize_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("revoke_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("revoke_collection_authority_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("revoke_use_authority_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("set_and_verify_collection_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("set_and_verify_sized_collection_item_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("set_collection_size_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("set_token_standard_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("sign_metadata_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("thaw_delegated_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("transfer_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("transfer_out_of_escrow_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("unlock_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("unverify_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("unverify_collection_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("unverify_sized_collection_item_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_metadata_account_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_metadata_account_v2_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("update_primary_sale_happened_via_token_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("use_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("utilize_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("verify_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("verify_collection_instruction")),
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("verify_sized_collection_item_instruction")),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(MplTokenMetadataInstructionsMigration)]
+    }
 }
 
 pub struct MplTokenMetadataInstructionWithMetadata(

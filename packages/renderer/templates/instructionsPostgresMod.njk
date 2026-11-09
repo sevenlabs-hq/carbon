@@ -43,6 +43,37 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}I
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new({{ program.name | pascalCase }}InstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct {{ program.name | pascalCase }}InstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for {{ program.name | pascalCase }}InstructionsAbsolutePathMigration {
+    fn app(&self) -> &str {
+        "{{ program.name | kebabCase }}"
+    }
+
+    fn name(&self) -> &str {
+        "{{ program.name | snakeCase }}_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("{{ instruction.name | snakeCase }}_instruction")),
+{% endfor %}
+{% if hasAnchorEvents %}
+            Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("cpi_events")),
+{% endif %}
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new({{ program.name | pascalCase }}InstructionsMigration)]
+    }
 }
 
 pub struct {{ program.name | pascalCase }}InstructionWithMetadata(pub {{ program.name | pascalCase }}Instruction, pub carbon_core::instruction::InstructionMetadata, pub Vec<solana_instruction::AccountMeta>);

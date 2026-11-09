@@ -49,6 +49,7 @@ impl carbon_core::postgres::operations::Table for crate::instructions::update_pe
             "__signature",
             "__instruction_index",
             "__stack_height",
+            "__absolute_path",
             "__slot",
             "unrealized_initial_asset_weight",
             "unrealized_maintenance_asset_weight",
@@ -65,9 +66,10 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketUnrealizedAss
             INSERT INTO update_perp_market_unrealized_asset_weight_instruction (
                 "unrealized_initial_asset_weight",
                 "unrealized_maintenance_asset_weight",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
         .bind(self.unrealized_initial_asset_weight)
@@ -75,6 +77,7 @@ impl carbon_core::postgres::operations::Insert for UpdatePerpMarketUnrealizedAss
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -90,11 +93,12 @@ impl carbon_core::postgres::operations::Upsert for UpdatePerpMarketUnrealizedAss
         sqlx::query(r#"INSERT INTO update_perp_market_unrealized_asset_weight_instruction (
                 "unrealized_initial_asset_weight",
                 "unrealized_maintenance_asset_weight",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) ON CONFLICT (
-                __signature, __instruction_index, __stack_height
+                __signature, __absolute_path
             ) DO UPDATE SET
                 "unrealized_initial_asset_weight" = EXCLUDED."unrealized_initial_asset_weight",
                 "unrealized_maintenance_asset_weight" = EXCLUDED."unrealized_maintenance_asset_weight",
@@ -108,6 +112,7 @@ impl carbon_core::postgres::operations::Upsert for UpdatePerpMarketUnrealizedAss
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool).await
@@ -118,21 +123,16 @@ impl carbon_core::postgres::operations::Upsert for UpdatePerpMarketUnrealizedAss
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for UpdatePerpMarketUnrealizedAssetWeightRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"DELETE FROM update_perp_market_unrealized_asset_weight_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -142,11 +142,7 @@ impl carbon_core::postgres::operations::Delete for UpdatePerpMarketUnrealizedAss
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketUnrealizedAssetWeightRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn lookup(
         key: Self::Key,
@@ -154,12 +150,11 @@ impl carbon_core::postgres::operations::Lookup for UpdatePerpMarketUnrealizedAss
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
             r#"SELECT * FROM update_perp_market_unrealized_asset_weight_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .fetch_optional(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

@@ -54,6 +54,7 @@ impl carbon_core::postgres::operations::Table for crate::instructions::lending_p
             "__signature",
             "__instruction_index",
             "__stack_height",
+            "__absolute_path",
             "__slot",
             "deposit_limit",
             "borrow_limit",
@@ -72,9 +73,10 @@ impl carbon_core::postgres::operations::Insert for LendingPoolConfigureBankLimit
                 "deposit_limit",
                 "borrow_limit",
                 "total_asset_value_init_limit",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7, $8, $9
             )"#,
         )
         .bind(&self.deposit_limit)
@@ -83,6 +85,7 @@ impl carbon_core::postgres::operations::Insert for LendingPoolConfigureBankLimit
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -100,11 +103,12 @@ impl carbon_core::postgres::operations::Upsert for LendingPoolConfigureBankLimit
                 "deposit_limit",
                 "borrow_limit",
                 "total_asset_value_init_limit",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8
+                $1, $2, $3, $4, $5, $6, $7, $8, $9
             ) ON CONFLICT (
-                __signature, __instruction_index, __stack_height
+                __signature, __absolute_path
             ) DO UPDATE SET
                 "deposit_limit" = EXCLUDED."deposit_limit",
                 "borrow_limit" = EXCLUDED."borrow_limit",
@@ -121,6 +125,7 @@ impl carbon_core::postgres::operations::Upsert for LendingPoolConfigureBankLimit
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -132,21 +137,16 @@ impl carbon_core::postgres::operations::Upsert for LendingPoolConfigureBankLimit
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for LendingPoolConfigureBankLimitsOnlyRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"DELETE FROM lending_pool_configure_bank_limits_only_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -156,11 +156,7 @@ impl carbon_core::postgres::operations::Delete for LendingPoolConfigureBankLimit
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Lookup for LendingPoolConfigureBankLimitsOnlyRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn lookup(
         key: Self::Key,
@@ -168,12 +164,11 @@ impl carbon_core::postgres::operations::Lookup for LendingPoolConfigureBankLimit
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
             r#"SELECT * FROM lending_pool_configure_bank_limits_only_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .fetch_optional(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

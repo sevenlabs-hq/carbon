@@ -117,7 +117,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeMintGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeMintRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_mint_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_mint_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -155,7 +155,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -193,7 +193,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeMultisigGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeMultisigRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_multisig_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_multisig_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -231,7 +231,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM transfer_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -269,7 +269,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ApproveGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ApproveRow> = sqlx::query_as(
-            r#"SELECT * FROM approve_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM approve_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -307,7 +307,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::RevokeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::RevokeRow> = sqlx::query_as(
-            r#"SELECT * FROM revoke_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM revoke_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -345,7 +345,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SetAuthorityGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SetAuthorityRow> = sqlx::query_as(
-            r#"SELECT * FROM set_authority_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM set_authority_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -383,7 +383,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::MintToGraphQL>> {
         let rows: Vec<crate::instructions::postgres::MintToRow> = sqlx::query_as(
-            r#"SELECT * FROM mint_to_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM mint_to_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -421,7 +421,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::BurnGraphQL>> {
         let rows: Vec<crate::instructions::postgres::BurnRow> = sqlx::query_as(
-            r#"SELECT * FROM burn_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM burn_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -459,7 +459,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM close_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM close_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -497,7 +497,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::FreezeAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::FreezeAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM freeze_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM freeze_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -535,7 +535,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ThawAccountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ThawAccountRow> = sqlx::query_as(
-            r#"SELECT * FROM thaw_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM thaw_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -573,7 +573,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::TransferCheckedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::TransferCheckedRow> = sqlx::query_as(
-            r#"SELECT * FROM transfer_checked_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM transfer_checked_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -611,7 +611,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ApproveCheckedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ApproveCheckedRow> = sqlx::query_as(
-            r#"SELECT * FROM approve_checked_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM approve_checked_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -649,7 +649,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::MintToCheckedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::MintToCheckedRow> = sqlx::query_as(
-            r#"SELECT * FROM mint_to_checked_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM mint_to_checked_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -687,7 +687,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::BurnCheckedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::BurnCheckedRow> = sqlx::query_as(
-            r#"SELECT * FROM burn_checked_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM burn_checked_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -725,7 +725,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeAccount2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeAccount2Row> = sqlx::query_as(
-            r#"SELECT * FROM initialize_account2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_account2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -763,7 +763,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SyncNativeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SyncNativeRow> = sqlx::query_as(
-            r#"SELECT * FROM sync_native_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM sync_native_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -801,7 +801,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeAccount3GraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeAccount3Row> = sqlx::query_as(
-            r#"SELECT * FROM initialize_account3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_account3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -839,7 +839,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeMultisig2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeMultisig2Row> = sqlx::query_as(
-            r#"SELECT * FROM initialize_multisig2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_multisig2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -877,7 +877,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeMint2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeMint2Row> = sqlx::query_as(
-            r#"SELECT * FROM initialize_mint2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_mint2_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -915,7 +915,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::GetAccountDataSizeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::GetAccountDataSizeRow> = sqlx::query_as(
-            r#"SELECT * FROM get_account_data_size_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM get_account_data_size_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -953,7 +953,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::InitializeImmutableOwnerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::InitializeImmutableOwnerRow> = sqlx::query_as(
-            r#"SELECT * FROM initialize_immutable_owner_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM initialize_immutable_owner_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -991,7 +991,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::AmountToUiAmountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::AmountToUiAmountRow> = sqlx::query_as(
-            r#"SELECT * FROM amount_to_ui_amount_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM amount_to_ui_amount_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1029,7 +1029,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UiAmountToAmountGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UiAmountToAmountRow> = sqlx::query_as(
-            r#"SELECT * FROM ui_amount_to_amount_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM ui_amount_to_amount_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1067,7 +1067,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawExcessLamportsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WithdrawExcessLamportsRow> = sqlx::query_as(
-            r#"SELECT * FROM withdraw_excess_lamports_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM withdraw_excess_lamports_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1105,7 +1105,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UnwrapLamportsGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UnwrapLamportsRow> = sqlx::query_as(
-            r#"SELECT * FROM unwrap_lamports_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM unwrap_lamports_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1143,7 +1143,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::BatchGraphQL>> {
         let rows: Vec<crate::instructions::postgres::BatchRow> = sqlx::query_as(
-            r#"SELECT * FROM batch_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM batch_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)

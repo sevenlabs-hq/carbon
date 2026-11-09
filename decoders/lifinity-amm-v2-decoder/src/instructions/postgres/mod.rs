@@ -28,6 +28,44 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for LifinityAmmV2InstructionsMigra
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
     }
+
+    fn run_before(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(LifinityAmmV2InstructionsAbsolutePathMigration)]
+    }
+}
+
+pub struct LifinityAmmV2InstructionsAbsolutePathMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for LifinityAmmV2InstructionsAbsolutePathMigration {
+    fn app(&self) -> &str {
+        "lifinity-amm-v2"
+    }
+
+    fn name(&self) -> &str {
+        "lifinity_amm_v2_instructions_absolute_path"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "deposit_all_token_types_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("swap_instruction"),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "withdraw_all_token_types_instruction",
+                ),
+            ),
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![Box::new(LifinityAmmV2InstructionsMigration)]
+    }
 }
 
 pub struct LifinityAmmV2InstructionWithMetadata(

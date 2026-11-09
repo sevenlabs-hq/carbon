@@ -50,7 +50,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateLookupTableGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateLookupTableRow> = sqlx::query_as(
-            r#"SELECT * FROM create_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM create_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -88,7 +88,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::FreezeLookupTableGraphQL>> {
         let rows: Vec<crate::instructions::postgres::FreezeLookupTableRow> = sqlx::query_as(
-            r#"SELECT * FROM freeze_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM freeze_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -126,7 +126,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::ExtendLookupTableGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ExtendLookupTableRow> = sqlx::query_as(
-            r#"SELECT * FROM extend_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM extend_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -164,7 +164,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DeactivateLookupTableGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DeactivateLookupTableRow> = sqlx::query_as(
-            r#"SELECT * FROM deactivate_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM deactivate_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -202,7 +202,7 @@ impl QueryRoot {
         instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CloseLookupTableGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CloseLookupTableRow> = sqlx::query_as(
-            r#"SELECT * FROM close_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM close_lookup_table_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)

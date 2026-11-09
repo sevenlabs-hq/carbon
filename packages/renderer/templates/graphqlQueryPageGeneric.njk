@@ -142,7 +142,7 @@ impl QueryRoot {
         use carbon_core::postgres::rows::InstructionRow;
 
         let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
-            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND decoded_instruction->>'type' = $3 ORDER BY __stack_height ASC"#
+            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND decoded_instruction->>'type' = $3 ORDER BY __absolute_path ASC"#
         )
         .bind(signature)
         .bind(instruction_index)
@@ -282,7 +282,7 @@ impl QueryRoot {
         use carbon_core::postgres::rows::InstructionRow;
 
         let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
-            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND decoded_instruction->>'type' = 'CpiEvent' ORDER BY __stack_height ASC"#
+            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND decoded_instruction->>'type' = 'CpiEvent' ORDER BY __absolute_path ASC"#
         )
         .bind(signature)
         .bind(instruction_index)

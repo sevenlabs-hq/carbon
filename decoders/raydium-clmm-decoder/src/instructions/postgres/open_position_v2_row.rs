@@ -75,6 +75,7 @@ impl carbon_core::postgres::operations::Table
             "__signature",
             "__instruction_index",
             "__stack_height",
+            "__absolute_path",
             "__slot",
             "tick_lower_index",
             "tick_upper_index",
@@ -105,9 +106,10 @@ impl carbon_core::postgres::operations::Insert for OpenPositionV2Row {
                 "amount1_max",
                 "with_metadata",
                 "base_flag",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
             )"#,
         )
         .bind(self.tick_lower_index)
@@ -122,6 +124,7 @@ impl carbon_core::postgres::operations::Insert for OpenPositionV2Row {
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -145,11 +148,12 @@ impl carbon_core::postgres::operations::Upsert for OpenPositionV2Row {
                 "amount1_max",
                 "with_metadata",
                 "base_flag",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __absolute_path,
+                __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
             ) ON CONFLICT (
-                __signature, __instruction_index, __stack_height
+                __signature, __absolute_path
             ) DO UPDATE SET
                 "tick_lower_index" = EXCLUDED."tick_lower_index",
                 "tick_upper_index" = EXCLUDED."tick_upper_index",
@@ -178,6 +182,7 @@ impl carbon_core::postgres::operations::Upsert for OpenPositionV2Row {
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
         .execute(pool)
@@ -189,21 +194,16 @@ impl carbon_core::postgres::operations::Upsert for OpenPositionV2Row {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for OpenPositionV2Row {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"DELETE FROM open_position_v2_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -213,11 +213,7 @@ impl carbon_core::postgres::operations::Delete for OpenPositionV2Row {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Lookup for OpenPositionV2Row {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, Vec<i16>);
 
     async fn lookup(
         key: Self::Key,
@@ -225,12 +221,11 @@ impl carbon_core::postgres::operations::Lookup for OpenPositionV2Row {
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
             r#"SELECT * FROM open_position_v2_instruction WHERE
-                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+                __signature = $1 AND __absolute_path = $2
             "#,
         )
         .bind(key.0)
         .bind(key.1)
-        .bind(key.2)
         .fetch_optional(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
