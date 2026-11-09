@@ -45,7 +45,7 @@ impl InitializeTransferFeeConfig {
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[1..];
+        data_slice = &data_slice[2..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
