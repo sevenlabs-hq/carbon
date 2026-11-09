@@ -8,7 +8,6 @@ export type ParseOptions = {
     outDir?: string;
     standard?: string;
     url?: string;
-    eventHints?: string;
     clean?: boolean;
     asCrate?: boolean;
     programId?: string;
@@ -43,7 +42,6 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
 
     let standard: 'anchor' | 'codama' = 'anchor';
     let url: string | undefined = existingOpts.url;
-    let eventHints: string | undefined = existingOpts.eventHints;
     let clean = existingOpts.clean !== undefined ? existingOpts.clean : true;
 
     if (looksLikeProgram) {
@@ -72,13 +70,6 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
             })) as 'anchor' | 'codama';
         } else {
             standard = existingOpts.standard as 'anchor' | 'codama';
-        }
-
-        if (standard === 'codama' && !eventHints) {
-            eventHints = await input({
-                message: 'Event hints (comma-separated names of types to parse as CPI Events):',
-                default: '',
-            });
         }
     }
 
@@ -139,7 +130,6 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         outDir,
         standard,
         url,
-        eventHints: eventHints?.trim() || undefined,
         clean,
         asCrate: existingOpts.asCrate || false,
         programId,

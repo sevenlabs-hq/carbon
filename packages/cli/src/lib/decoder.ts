@@ -67,7 +67,6 @@ export type DecoderGenerationOptions = {
     outputDir: string;
     standard?: string;
     url?: string;
-    eventHints?: string;
     eventCpiDiscriminator?: string;
     deleteFolderBeforeRendering?: boolean;
     programId?: string;
@@ -171,7 +170,6 @@ export function validateDecoderOptions(
     standard: IdlStandard,
     idlSource: IdlSource,
     url?: string,
-    eventHints?: string,
     programId?: string,
     eventCpiDiscriminator?: string,
 ): void {
@@ -182,10 +180,6 @@ export function validateDecoderOptions(
         if (standard !== 'anchor') {
             exitWithError('Only Anchor standard is supported when using a program address');
         }
-    }
-
-    if (standard === 'anchor' && eventHints) {
-        exitWithError('Event hints can only be used with Codama standard');
     }
 
     if (standard === 'anchor' && eventCpiDiscriminator) {
@@ -266,7 +260,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
 
     const idlSource = parseIdlSource(idl);
     const standard = validateIdlStandard(standardOpt || 'anchor', idlSource);
-    validateDecoderOptions(standard, idlSource, url, options.eventHints, programId, options.eventCpiDiscriminator);
+    validateDecoderOptions(standard, idlSource, url, programId, options.eventCpiDiscriminator);
 
     // Common render options shared across all branches
     const renderOpts = {
