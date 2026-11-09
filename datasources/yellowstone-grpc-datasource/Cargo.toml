@@ -27,6 +27,7 @@ log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }
 # tls-ring lets tonic fall back to ring when the application installs no rustls provider.
-tonic = { workspace = true, features = ["tls-ring"] }
+# Pinned here: the workspace entry stays on tonic 0.13 to match misc/jito-protos' tonic-build.
+tonic = { version = "0.14.6", default-features = false, features = ["tls-ring"] }
 yellowstone-grpc-client = { workspace = true }
 yellowstone-grpc-proto = { workspace = true }
