@@ -5,7 +5,7 @@
 
 {% if entityDocs and entityDocs.length > 0 %}
 {% for doc in entityDocs %}
-/// {{ doc }}
+/// {{ doc | closeCodeSpans }}
 {% endfor %}
 {% endif %}
 // Empty struct exposed as Json in GraphQL

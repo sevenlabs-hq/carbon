@@ -11,9 +11,10 @@ export function rustDocblock(docs: string[]): string {
 }
 
 // IDL docs sometimes close a one-backtick code span with two backticks, which leaves the span
-// open to the end of the line; close it with one.
+// open to the end of the line; close it with one. Only spans without spaces are repaired, so a
+// stray backtick before a real double-backtick span is left alone.
 function closeCodeSpans(line: string): string {
-    return line.replace(/(?<!`)`([^`]+)``(?!`)/g, '`$1`');
+    return line.replace(/(?<!`)`([^`\s]+)``(?!`)/g, '`$1`');
 }
 
 export function formatDocComments(docs: string[], indent: string = ''): string {
@@ -26,14 +27,23 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
     const result: string[] = [];
     const isBulletLine = (s: string): boolean => /^\* +/.test(s) || /^- +/.test(s) || /^[0-9]+\. +/.test(s);
 
+    let inCodeBlock = false;
+
     for (let i = 0; i < allLines.length; i++) {
         const line = allLines[i];
-        const trimmed = closeCodeSpans(line.trim());
+        const text = line.trim();
 
         // Skip empty lines completely - never output them
-        if (trimmed === '') {
+        if (text === '') {
             continue;
         }
+
+        // Code blocks are left as written.
+        const isFence = text.startsWith('```');
+        if (isFence) {
+            inCodeBlock = !inCodeBlock;
+        }
+        const trimmed = isFence || inCodeBlock ? text : closeCodeSpans(text);
 
         const isListItem = isBulletLine(trimmed);
 
@@ -81,6 +91,7 @@ export const render = (template: string, context?: object, options?: NunJucksOpt
     env.addFilter('titleCase', titleCase);
     env.addFilter('rustDocblock', rustDocblock);
     env.addFilter('formatDocComments', (docs: string[], indent: string = '') => formatDocComments(docs, indent));
+    env.addFilter('closeCodeSpans', closeCodeSpans);
     env.addFilter('escapeRustKeyword', escapeRustKeyword);
 
     env.addGlobal('RUST_KEYWORDS', RUST_KEYWORDS);
