@@ -272,14 +272,22 @@ impl Datasource for LaserStreamGeyserClient {
             .x_token(x_token.clone())
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
+        if builder.endpoint.uri().scheme().is_none() {
+            return Err(carbon_core::error::Error::FailedToConsumeDatasource(
+                format!(
+                    "endpoint {} has no scheme, expected https:// or http://",
+                    builder.endpoint.uri()
+                ),
+            ));
+        }
+
         let mut geyser_client = geyser_config
             .geyser_config_builder(builder)
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
-            .connect()
-            .await
+            .connect_lazy()
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
-        tokio::spawn(async move {
+        async move {
             let mut reconnect_attempts = 0;
             let mut tracked_slot: u64 = 0;
 
@@ -342,7 +350,7 @@ impl Datasource for LaserStreamGeyserClient {
                         log::info!("Cancelling Laserstream subscription.");
                         break;
                     }
-                    _ = async {
+                    result = async {
                         // Apply slot replay logic if enabled
                         if reconnect_attempts > 0 && tracked_slot > 0 && replay_enabled {
                             let commitment_level = subscribe_request.commitment.unwrap_or(0);
@@ -486,17 +494,23 @@ impl Datasource for LaserStreamGeyserClient {
                         reconnect_attempts += 1;
                         if reconnect_attempts >= MAX_RECONNECTION_ATTEMPTS {
                             log::error!("Max reconnection attempts reached: {MAX_RECONNECTION_ATTEMPTS}");
-                            break;
+                            return result;
                         }
 
                         let delay = Duration::from_millis(RECONNECTION_DELAY_MS);
-                        sleep(delay).await;
+                        tokio::select! {
+                            _ = cancellation_token.cancelled() => {
+                                log::info!("Cancelling Laserstream subscription.");
+                                return Ok(());
+                            }
+                            _ = sleep(delay) => {}
+                        }
                     }
                 }
             }
-        });
-
-        Ok(())
+            Ok(())
+        }
+        .await
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
