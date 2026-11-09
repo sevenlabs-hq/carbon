@@ -280,7 +280,7 @@ impl Datasource for RpcBlockSubscribe {
                                         entries_count: None,
                                     });
 
-                                    if let Err(err) = sender_clone.try_send((block_deteils, id_for_loop.clone())) {
+                                    if let Err(err) = sender_clone.send((block_deteils, id_for_loop.clone())).await {
                                         log::error!("Error sending block details: {err:?}");
                                         break;
                                     }
@@ -324,7 +324,7 @@ impl Datasource for RpcBlockSubscribe {
                                             TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                             TRANSACTIONS_PROCESSED.inc();
 
-                                            if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
+                                            if let Err(err) = sender_clone.send((update, id_for_loop.clone())).await {
                                                 log::error!("Error sending transaction update: {err:?}");
                                                 break;
                                             }

@@ -169,7 +169,7 @@ impl Datasource for RpcProgramSubscribe {
                                 ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                 ACCOUNTS_PROCESSED.inc();
 
-                                if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
+                                if let Err(err) = sender_clone.send((update, id_for_loop.clone())).await {
                                     log::error!("Error sending account update: {err:?}");
                                     break;
                                 }

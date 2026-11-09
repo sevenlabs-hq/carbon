@@ -350,7 +350,7 @@ fn task_processor(
                                 TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                 TRANSACTIONS_PROCESSED.inc();
 
-                                if let Err(err) = sender.try_send((update, id_for_loop.clone())) {
+                                if let Err(err) = sender.send((update, id_for_loop.clone())).await {
                                     log::error!("Error sending transaction update: {err:?}");
                                     break;
                                 }
