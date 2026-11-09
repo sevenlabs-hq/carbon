@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for PartnerMetadataRow {
 impl carbon_core::postgres::operations::Upsert for PartnerMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO partner_metadata_account (
+            r#"INSERT INTO partner_metadata_account AS stored (
                 "fee_claimer",
                 "padding",
                 "name",
@@ -138,6 +138,8 @@ impl carbon_core::postgres::operations::Upsert for PartnerMetadataRow {
                 "website" = EXCLUDED."website",
                 "logo" = EXCLUDED."logo",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.fee_claimer)

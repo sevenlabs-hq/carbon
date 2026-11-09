@@ -175,7 +175,7 @@ impl carbon_core::postgres::operations::Insert for SerumV3FulfillmentConfigRow {
 impl carbon_core::postgres::operations::Upsert for SerumV3FulfillmentConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO serum_v3_fulfillment_config_account (
+            r#"INSERT INTO serum_v3_fulfillment_config_account AS stored (
                 "pubkey",
                 "serum_program_id",
                 "serum_market",
@@ -213,6 +213,8 @@ impl carbon_core::postgres::operations::Upsert for SerumV3FulfillmentConfigRow {
                 "status" = EXCLUDED."status",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pubkey)

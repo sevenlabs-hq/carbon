@@ -183,7 +183,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
 impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO global_config_account (
+            r#"INSERT INTO global_config_account AS stored (
                 "admin",
                 "lp_fee_basis_points",
                 "protocol_fee_basis_points",
@@ -215,6 +215,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "reserved_fee_recipients" = EXCLUDED."reserved_fee_recipients",
                 "is_cashback_enabled" = EXCLUDED."is_cashback_enabled",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.admin)

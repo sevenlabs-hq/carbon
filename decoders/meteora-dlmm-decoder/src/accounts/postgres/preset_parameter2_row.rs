@@ -229,7 +229,7 @@ impl carbon_core::postgres::operations::Insert for PresetParameter2Row {
 impl carbon_core::postgres::operations::Upsert for PresetParameter2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO preset_parameter2_account (
+            r#"INSERT INTO preset_parameter2_account AS stored (
                 "bin_step",
                 "base_factor",
                 "filter_period",
@@ -265,6 +265,8 @@ impl carbon_core::postgres::operations::Upsert for PresetParameter2Row {
                 "padding0" = EXCLUDED."padding0",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bin_step)

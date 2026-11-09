@@ -102,7 +102,7 @@ impl carbon_core::postgres::operations::Insert for CrossMarginAccountManagerRow 
 impl carbon_core::postgres::operations::Upsert for CrossMarginAccountManagerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO cross_margin_account_manager_account (
+            r#"INSERT INTO cross_margin_account_manager_account AS stored (
                 "nonce",
                 "authority",
                 "accounts",
@@ -116,6 +116,8 @@ impl carbon_core::postgres::operations::Upsert for CrossMarginAccountManagerRow 
                 "authority" = EXCLUDED."authority",
                 "accounts" = EXCLUDED."accounts",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.nonce)

@@ -86,7 +86,7 @@ impl carbon_core::postgres::operations::Insert for ProgramVersionRow {
 impl carbon_core::postgres::operations::Upsert for ProgramVersionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO program_version_account (
+            r#"INSERT INTO program_version_account AS stored (
                 "version",
                 "bump",
                 "updated",
@@ -100,6 +100,8 @@ impl carbon_core::postgres::operations::Upsert for ProgramVersionRow {
                 "bump" = EXCLUDED."bump",
                 "updated" = EXCLUDED."updated",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.version)

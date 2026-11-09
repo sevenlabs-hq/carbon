@@ -266,7 +266,7 @@ impl carbon_core::postgres::operations::Insert for PoolV2Row {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PoolV2Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO pool_v2_account (
+        sqlx::query(r#"INSERT INTO pool_v2_account AS stored (
                 "token_x",
                 "token_y",
                 "pool_x_account",
@@ -332,6 +332,8 @@ impl carbon_core::postgres::operations::Upsert for PoolV2Row {
                 "lp_token_mint_bump" = EXCLUDED."lp_token_mint_bump",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.token_x)
         .bind(self.token_y)

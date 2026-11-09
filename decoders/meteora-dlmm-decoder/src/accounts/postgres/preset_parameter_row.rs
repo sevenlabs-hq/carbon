@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Insert for PresetParameterRow {
 impl carbon_core::postgres::operations::Upsert for PresetParameterRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO preset_parameter_account (
+            r#"INSERT INTO preset_parameter_account AS stored (
                 "bin_step",
                 "base_factor",
                 "filter_period",
@@ -193,6 +193,8 @@ impl carbon_core::postgres::operations::Upsert for PresetParameterRow {
                 "max_bin_id" = EXCLUDED."max_bin_id",
                 "protocol_share" = EXCLUDED."protocol_share",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bin_step)

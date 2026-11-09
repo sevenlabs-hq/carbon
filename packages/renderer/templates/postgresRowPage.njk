@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} (
+        sqlx::query(r#"INSERT INTO {{ entityName | snakeCase }}_{% if isAccount %}account AS stored{% else %}instruction{% endif %} (
 {% for field in flatFields %}
                 "{{ field.column }}",
 {% endfor %}
@@ -152,6 +152,8 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
 {% endfor %}
 {% if isAccount %}
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
 {% else %}
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,

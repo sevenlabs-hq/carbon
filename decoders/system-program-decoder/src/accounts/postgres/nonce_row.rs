@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for NonceRow {
 impl carbon_core::postgres::operations::Upsert for NonceRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO nonce_account (
+            r#"INSERT INTO nonce_account AS stored (
                 "version",
                 "state",
                 "authority",
@@ -117,6 +117,8 @@ impl carbon_core::postgres::operations::Upsert for NonceRow {
                 "blockhash" = EXCLUDED."blockhash",
                 "lamports_per_signature" = EXCLUDED."lamports_per_signature",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.version)

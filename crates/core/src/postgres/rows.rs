@@ -62,7 +62,7 @@ impl<
     > Upsert for AccountRow<T>
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO accounts (__pubkey, __slot, data) VALUES ($1, $2, $3) ON CONFLICT (__pubkey) DO UPDATE SET __slot = $2, data = $3"#)
+        sqlx::query(r#"INSERT INTO accounts AS stored (__pubkey, __slot, data) VALUES ($1, $2, $3) ON CONFLICT (__pubkey) DO UPDATE SET __slot = $2, data = $3 WHERE EXCLUDED.__slot >= stored.__slot OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL"#)
             .bind(self.metadata.pubkey)
             .bind(self.metadata.slot.clone())
             .bind(self.data.clone())

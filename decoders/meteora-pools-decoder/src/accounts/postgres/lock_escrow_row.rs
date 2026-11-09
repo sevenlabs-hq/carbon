@@ -127,7 +127,7 @@ impl carbon_core::postgres::operations::Insert for LockEscrowRow {
 impl carbon_core::postgres::operations::Upsert for LockEscrowRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lock_escrow_account (
+            r#"INSERT INTO lock_escrow_account AS stored (
                 "pool",
                 "owner",
                 "escrow_vault",
@@ -153,6 +153,8 @@ impl carbon_core::postgres::operations::Upsert for LockEscrowRow {
                 "a_fee" = EXCLUDED."a_fee",
                 "b_fee" = EXCLUDED."b_fee",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pool)

@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Insert for UserSupplyPositionRow {
 impl carbon_core::postgres::operations::Upsert for UserSupplyPositionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO user_supply_position_account (
+            r#"INSERT INTO user_supply_position_account AS stored (
                 "protocol",
                 "mint",
                 "with_interest",
@@ -171,6 +171,8 @@ impl carbon_core::postgres::operations::Upsert for UserSupplyPositionRow {
                 "base_withdrawal_limit" = EXCLUDED."base_withdrawal_limit",
                 "status" = EXCLUDED."status",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.protocol)

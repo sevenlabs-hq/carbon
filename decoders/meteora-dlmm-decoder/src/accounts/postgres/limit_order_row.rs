@@ -127,7 +127,7 @@ impl carbon_core::postgres::operations::Insert for LimitOrderRow {
 impl carbon_core::postgres::operations::Upsert for LimitOrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO limit_order_account (
+            r#"INSERT INTO limit_order_account AS stored (
                 "lb_pair",
                 "owner",
                 "bin_count",
@@ -145,6 +145,8 @@ impl carbon_core::postgres::operations::Upsert for LimitOrderRow {
                 "padding0" = EXCLUDED."padding0",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.lb_pair)

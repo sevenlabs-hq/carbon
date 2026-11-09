@@ -162,7 +162,7 @@ impl carbon_core::postgres::operations::Insert for AmmConfigRow {
 impl carbon_core::postgres::operations::Upsert for AmmConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO amm_config_account (
+            r#"INSERT INTO amm_config_account AS stored (
                 "bump",
                 "disable_create_pool",
                 "index",
@@ -192,6 +192,8 @@ impl carbon_core::postgres::operations::Upsert for AmmConfigRow {
                 "creator_fee_rate" = EXCLUDED."creator_fee_rate",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

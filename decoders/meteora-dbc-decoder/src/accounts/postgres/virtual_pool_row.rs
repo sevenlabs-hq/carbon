@@ -369,7 +369,7 @@ impl carbon_core::postgres::operations::Insert for VirtualPoolRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for VirtualPoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO virtual_pool_account (
+        sqlx::query(r#"INSERT INTO virtual_pool_account AS stored (
                 "volatility_tracker",
                 "config",
                 "creator",
@@ -447,6 +447,8 @@ impl carbon_core::postgres::operations::Upsert for VirtualPoolRow {
                 "protocol_migration_quote_fee_amount" = EXCLUDED."protocol_migration_quote_fee_amount",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.volatility_tracker)
         .bind(self.config)

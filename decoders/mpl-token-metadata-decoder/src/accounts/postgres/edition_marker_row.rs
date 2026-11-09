@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for EditionMarkerRow {
 impl carbon_core::postgres::operations::Upsert for EditionMarkerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO edition_marker_account (
+            r#"INSERT INTO edition_marker_account AS stored (
                 "key",
                 "ledger",
                 __pubkey, __slot
@@ -90,6 +90,8 @@ impl carbon_core::postgres::operations::Upsert for EditionMarkerRow {
                 "key" = EXCLUDED."key",
                 "ledger" = EXCLUDED."ledger",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)

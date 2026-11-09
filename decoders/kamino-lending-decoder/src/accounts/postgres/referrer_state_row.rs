@@ -73,7 +73,7 @@ impl carbon_core::postgres::operations::Insert for ReferrerStateRow {
 impl carbon_core::postgres::operations::Upsert for ReferrerStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO referrer_state_account (
+            r#"INSERT INTO referrer_state_account AS stored (
                 "short_url",
                 "owner",
                 __pubkey, __slot
@@ -85,6 +85,8 @@ impl carbon_core::postgres::operations::Upsert for ReferrerStateRow {
                 "short_url" = EXCLUDED."short_url",
                 "owner" = EXCLUDED."owner",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.short_url)

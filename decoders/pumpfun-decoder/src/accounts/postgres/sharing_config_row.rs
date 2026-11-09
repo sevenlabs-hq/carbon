@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for SharingConfigRow {
 impl carbon_core::postgres::operations::Upsert for SharingConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO sharing_config_account (
+            r#"INSERT INTO sharing_config_account AS stored (
                 "bump",
                 "version",
                 "status",
@@ -144,6 +144,8 @@ impl carbon_core::postgres::operations::Upsert for SharingConfigRow {
                 "admin_revoked" = EXCLUDED."admin_revoked",
                 "shareholders" = EXCLUDED."shareholders",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

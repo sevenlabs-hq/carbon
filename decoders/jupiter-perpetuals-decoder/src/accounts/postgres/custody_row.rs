@@ -295,7 +295,7 @@ impl carbon_core::postgres::operations::Insert for CustodyRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for CustodyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO custody_account (
+        sqlx::query(r#"INSERT INTO custody_account AS stored (
                 "pool",
                 "mint",
                 "token_account",
@@ -373,6 +373,8 @@ impl carbon_core::postgres::operations::Upsert for CustodyRow {
                 "withdrawal_limit_last_reset_at" = EXCLUDED."withdrawal_limit_last_reset_at",
                 "withdrawal_limit_interval_seconds" = EXCLUDED."withdrawal_limit_interval_seconds",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.pool)
         .bind(self.mint)

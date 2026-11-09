@@ -118,7 +118,7 @@ impl carbon_core::postgres::operations::Insert for LimitOrderNonceRow {
 impl carbon_core::postgres::operations::Upsert for LimitOrderNonceRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO limit_order_nonce_account (
+            r#"INSERT INTO limit_order_nonce_account AS stored (
                 "user_wallet",
                 "nonce_index",
                 "order_nonce",
@@ -134,6 +134,8 @@ impl carbon_core::postgres::operations::Upsert for LimitOrderNonceRow {
                 "order_nonce" = EXCLUDED."order_nonce",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.user_wallet)

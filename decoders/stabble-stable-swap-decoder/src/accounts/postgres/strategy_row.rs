@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Insert for StrategyRow {
 impl carbon_core::postgres::operations::Upsert for StrategyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO strategy_account (
+            r#"INSERT INTO strategy_account AS stored (
                 "pool",
                 "is_active",
                 "amp_min_factor",
@@ -165,6 +165,8 @@ impl carbon_core::postgres::operations::Upsert for StrategyRow {
                 "ramp_min_duration" = EXCLUDED."ramp_min_duration",
                 "ramp_max_duration" = EXCLUDED."ramp_max_duration",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pool)

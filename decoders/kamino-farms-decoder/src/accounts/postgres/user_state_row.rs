@@ -292,7 +292,7 @@ impl carbon_core::postgres::operations::Insert for UserStateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UserStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO user_state_account (
+        sqlx::query(r#"INSERT INTO user_state_account AS stored (
                 "user_id",
                 "farm_state",
                 "owner",
@@ -336,6 +336,8 @@ impl carbon_core::postgres::operations::Upsert for UserStateRow {
                 "rewards_issued_cumulative" = EXCLUDED."rewards_issued_cumulative",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.user_id)
         .bind(self.farm_state)

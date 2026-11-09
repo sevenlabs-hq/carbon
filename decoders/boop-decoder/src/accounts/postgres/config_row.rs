@@ -202,7 +202,7 @@ impl carbon_core::postgres::operations::Insert for ConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO config_account (
+        sqlx::query(r#"INSERT INTO config_account AS stored (
                 "is_paused",
                 "authority",
                 "pending_authority",
@@ -242,6 +242,8 @@ impl carbon_core::postgres::operations::Upsert for ConfigRow {
                 "max_graduation_price_deviation_basis_points" = EXCLUDED."max_graduation_price_deviation_basis_points",
                 "max_swap_amount_for_pool_price_correction_basis_points" = EXCLUDED."max_swap_amount_for_pool_price_correction_basis_points",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.is_paused)
         .bind(self.authority)

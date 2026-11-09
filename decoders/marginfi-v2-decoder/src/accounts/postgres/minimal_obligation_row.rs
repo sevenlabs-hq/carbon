@@ -237,7 +237,7 @@ impl carbon_core::postgres::operations::Insert for MinimalObligationRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MinimalObligationRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO minimal_obligation_account (
+        sqlx::query(r#"INSERT INTO minimal_obligation_account AS stored (
                 "tag",
                 "last_update_slot",
                 "last_update_stale",
@@ -277,6 +277,8 @@ impl carbon_core::postgres::operations::Upsert for MinimalObligationRow {
                 "padding_part5a" = EXCLUDED."padding_part5a",
                 "padding_part5c" = EXCLUDED."padding_part5c",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.tag)
         .bind(&self.last_update_slot)

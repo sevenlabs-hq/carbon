@@ -136,7 +136,7 @@ impl carbon_core::postgres::operations::Insert for PodAlignedFeeRateLimiterRow {
 impl carbon_core::postgres::operations::Upsert for PodAlignedFeeRateLimiterRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO pod_aligned_fee_rate_limiter_account (
+            r#"INSERT INTO pod_aligned_fee_rate_limiter_account AS stored (
                 "cliff_fee_numerator",
                 "base_fee_mode",
                 "padding",
@@ -158,6 +158,8 @@ impl carbon_core::postgres::operations::Upsert for PodAlignedFeeRateLimiterRow {
                 "max_fee_bps" = EXCLUDED."max_fee_bps",
                 "reference_amount" = EXCLUDED."reference_amount",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.cliff_fee_numerator)

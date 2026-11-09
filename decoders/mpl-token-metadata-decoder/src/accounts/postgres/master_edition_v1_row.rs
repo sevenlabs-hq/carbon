@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for MasterEditionV1Row {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MasterEditionV1Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO master_edition_v1_account (
+        sqlx::query(r#"INSERT INTO master_edition_v1_account AS stored (
                 "key",
                 "supply",
                 "max_supply",
@@ -123,6 +123,8 @@ impl carbon_core::postgres::operations::Upsert for MasterEditionV1Row {
                 "printing_mint" = EXCLUDED."printing_mint",
                 "one_time_printing_authorization_mint" = EXCLUDED."one_time_printing_authorization_mint",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.key)
         .bind(&self.supply)

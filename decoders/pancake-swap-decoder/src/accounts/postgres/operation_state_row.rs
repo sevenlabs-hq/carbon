@@ -129,7 +129,7 @@ impl carbon_core::postgres::operations::Insert for OperationStateRow {
 impl carbon_core::postgres::operations::Upsert for OperationStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO operation_state_account (
+            r#"INSERT INTO operation_state_account AS stored (
                 "bump",
                 "operation_owners",
                 "whitelist_mints",
@@ -143,6 +143,8 @@ impl carbon_core::postgres::operations::Upsert for OperationStateRow {
                 "operation_owners" = EXCLUDED."operation_owners",
                 "whitelist_mints" = EXCLUDED."whitelist_mints",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

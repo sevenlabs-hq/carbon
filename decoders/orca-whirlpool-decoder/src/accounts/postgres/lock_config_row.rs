@@ -102,7 +102,7 @@ impl carbon_core::postgres::operations::Insert for LockConfigRow {
 impl carbon_core::postgres::operations::Upsert for LockConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO lock_config_account (
+            r#"INSERT INTO lock_config_account AS stored (
                 "position",
                 "position_owner",
                 "whirlpool",
@@ -120,6 +120,8 @@ impl carbon_core::postgres::operations::Upsert for LockConfigRow {
                 "locked_timestamp" = EXCLUDED."locked_timestamp",
                 "lock_type" = EXCLUDED."lock_type",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.position)

@@ -116,7 +116,7 @@ impl carbon_core::postgres::operations::Insert for CollectionV1Row {
 impl carbon_core::postgres::operations::Upsert for CollectionV1Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO collection_v1_account (
+            r#"INSERT INTO collection_v1_account AS stored (
                 "key",
                 "update_authority",
                 "name",
@@ -136,6 +136,8 @@ impl carbon_core::postgres::operations::Upsert for CollectionV1Row {
                 "num_minted" = EXCLUDED."num_minted",
                 "current_size" = EXCLUDED."current_size",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)

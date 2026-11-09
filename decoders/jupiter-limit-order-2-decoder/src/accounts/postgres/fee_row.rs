@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for FeeRow {
 impl carbon_core::postgres::operations::Upsert for FeeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_account (
+            r#"INSERT INTO fee_account AS stored (
                 "normal_fee_bps",
                 "stable_fee_bps",
                 __pubkey, __slot
@@ -90,6 +90,8 @@ impl carbon_core::postgres::operations::Upsert for FeeRow {
                 "normal_fee_bps" = EXCLUDED."normal_fee_bps",
                 "stable_fee_bps" = EXCLUDED."stable_fee_bps",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.normal_fee_bps)

@@ -145,7 +145,7 @@ impl carbon_core::postgres::operations::Insert for RateModelRow {
 impl carbon_core::postgres::operations::Upsert for RateModelRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO rate_model_account (
+            r#"INSERT INTO rate_model_account AS stored (
                 "mint",
                 "version",
                 "rate_at_zero",
@@ -169,6 +169,8 @@ impl carbon_core::postgres::operations::Upsert for RateModelRow {
                 "kink2_utilization" = EXCLUDED."kink2_utilization",
                 "rate_at_kink2" = EXCLUDED."rate_at_kink2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.mint)

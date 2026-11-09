@@ -483,7 +483,7 @@ impl carbon_core::postgres::operations::Insert for MinimalReserveRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MinimalReserveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO minimal_reserve_account (
+        sqlx::query(r#"INSERT INTO minimal_reserve_account AS stored (
                 "version",
                 "slot",
                 "stale",
@@ -577,6 +577,8 @@ impl carbon_core::postgres::operations::Upsert for MinimalReserveRow {
                 "padding4_part5" = EXCLUDED."padding4_part5",
                 "padding4_part6" = EXCLUDED."padding4_part6",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.version)
         .bind(&self.slot)

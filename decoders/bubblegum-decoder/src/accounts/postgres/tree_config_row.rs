@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Insert for TreeConfigRow {
 impl carbon_core::postgres::operations::Upsert for TreeConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO tree_config_account (
+            r#"INSERT INTO tree_config_account AS stored (
                 "tree_creator",
                 "tree_delegate",
                 "total_mint_capacity",
@@ -128,6 +128,8 @@ impl carbon_core::postgres::operations::Upsert for TreeConfigRow {
                 "is_public" = EXCLUDED."is_public",
                 "is_decompressible" = EXCLUDED."is_decompressible",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.tree_creator)

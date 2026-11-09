@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Insert for OrderRow {
 impl carbon_core::postgres::operations::Upsert for OrderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO order_account (
+            r#"INSERT INTO order_account AS stored (
                 "closer",
                 "output_token_account",
                 "return_input_token_account",
@@ -214,6 +214,8 @@ impl carbon_core::postgres::operations::Upsert for OrderRow {
                 "padding2" = EXCLUDED."padding2",
                 "padding3" = EXCLUDED."padding3",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.closer)

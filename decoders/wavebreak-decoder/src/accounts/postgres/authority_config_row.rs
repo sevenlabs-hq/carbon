@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for AuthorityConfigRow {
 impl carbon_core::postgres::operations::Upsert for AuthorityConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO authority_config_account (
+            r#"INSERT INTO authority_config_account AS stored (
                 "authorities",
                 __pubkey, __slot
             ) VALUES (
@@ -90,6 +90,8 @@ impl carbon_core::postgres::operations::Upsert for AuthorityConfigRow {
             ) DO UPDATE SET
                 "authorities" = EXCLUDED."authorities",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.authorities)

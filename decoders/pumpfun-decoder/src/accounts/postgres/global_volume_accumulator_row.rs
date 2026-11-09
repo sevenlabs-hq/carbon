@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Insert for GlobalVolumeAccumulatorRow {
 impl carbon_core::postgres::operations::Upsert for GlobalVolumeAccumulatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO global_volume_accumulator_account (
+            r#"INSERT INTO global_volume_accumulator_account AS stored (
                 "start_time",
                 "end_time",
                 "seconds_in_a_day",
@@ -167,6 +167,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalVolumeAccumulatorRow {
                 "total_token_supply" = EXCLUDED."total_token_supply",
                 "sol_volumes" = EXCLUDED."sol_volumes",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.start_time)

@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Insert for ConsumedPermissionRow {
 impl carbon_core::postgres::operations::Upsert for ConsumedPermissionRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO consumed_permission_account (
+            r#"INSERT INTO consumed_permission_account AS stored (
                 "padding1",
                 "safe_to_close_slot",
                 "refund_destination",
@@ -151,6 +151,8 @@ impl carbon_core::postgres::operations::Upsert for ConsumedPermissionRow {
                 "refund_destination" = EXCLUDED."refund_destination",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.padding1)

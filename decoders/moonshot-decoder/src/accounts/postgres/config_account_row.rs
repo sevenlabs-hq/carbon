@@ -196,7 +196,7 @@ impl carbon_core::postgres::operations::Insert for ConfigAccountRow {
 impl carbon_core::postgres::operations::Upsert for ConfigAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO config_account_account (
+            r#"INSERT INTO config_account_account AS stored (
                 "migration_authority",
                 "backend_authority",
                 "config_authority",
@@ -236,6 +236,8 @@ impl carbon_core::postgres::operations::Upsert for ConfigAccountRow {
                 "bump" = EXCLUDED."bump",
                 "coef_b" = EXCLUDED."coef_b",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.migration_authority)

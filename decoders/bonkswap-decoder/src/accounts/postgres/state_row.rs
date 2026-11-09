@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for StateRow {
 impl carbon_core::postgres::operations::Upsert for StateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO state_account (
+            r#"INSERT INTO state_account AS stored (
                 "admin",
                 "program_authority",
                 "bump",
@@ -114,6 +114,8 @@ impl carbon_core::postgres::operations::Upsert for StateRow {
                 "bump" = EXCLUDED."bump",
                 "nonce" = EXCLUDED."nonce",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.admin)

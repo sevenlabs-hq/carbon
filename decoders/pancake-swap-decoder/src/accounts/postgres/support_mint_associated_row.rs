@@ -108,7 +108,7 @@ impl carbon_core::postgres::operations::Insert for SupportMintAssociatedRow {
 impl carbon_core::postgres::operations::Upsert for SupportMintAssociatedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO support_mint_associated_account (
+            r#"INSERT INTO support_mint_associated_account AS stored (
                 "bump",
                 "mint",
                 "padding",
@@ -122,6 +122,8 @@ impl carbon_core::postgres::operations::Upsert for SupportMintAssociatedRow {
                 "mint" = EXCLUDED."mint",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

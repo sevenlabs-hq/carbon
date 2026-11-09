@@ -122,7 +122,7 @@ impl carbon_core::postgres::operations::Insert for PrelaunchOracleRow {
 impl carbon_core::postgres::operations::Upsert for PrelaunchOracleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO prelaunch_oracle_account (
+            r#"INSERT INTO prelaunch_oracle_account AS stored (
                 "price",
                 "max_price",
                 "confidence",
@@ -144,6 +144,8 @@ impl carbon_core::postgres::operations::Upsert for PrelaunchOracleRow {
                 "perp_market_index" = EXCLUDED."perp_market_index",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.price)

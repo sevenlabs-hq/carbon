@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for SocializedLossAccountRow {
 impl carbon_core::postgres::operations::Upsert for SocializedLossAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO socialized_loss_account_account (
+            r#"INSERT INTO socialized_loss_account_account AS stored (
                 "nonce",
                 "overbankrupt_amount",
                 __pubkey, __slot
@@ -96,6 +96,8 @@ impl carbon_core::postgres::operations::Upsert for SocializedLossAccountRow {
                 "nonce" = EXCLUDED."nonce",
                 "overbankrupt_amount" = EXCLUDED."overbankrupt_amount",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.nonce)

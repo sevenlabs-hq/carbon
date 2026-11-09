@@ -101,7 +101,7 @@ impl carbon_core::postgres::operations::Insert for TokenPairRow {
 impl carbon_core::postgres::operations::Upsert for TokenPairRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_pair_account (
+            r#"INSERT INTO token_pair_account AS stored (
                 "remote_domain",
                 "remote_token",
                 "local_token",
@@ -117,6 +117,8 @@ impl carbon_core::postgres::operations::Upsert for TokenPairRow {
                 "local_token" = EXCLUDED."local_token",
                 "bump" = EXCLUDED."bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.remote_domain)

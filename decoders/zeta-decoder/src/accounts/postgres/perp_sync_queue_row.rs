@@ -111,7 +111,7 @@ impl carbon_core::postgres::operations::Insert for PerpSyncQueueRow {
 impl carbon_core::postgres::operations::Upsert for PerpSyncQueueRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO perp_sync_queue_account (
+            r#"INSERT INTO perp_sync_queue_account AS stored (
                 "nonce",
                 "head",
                 "length",
@@ -127,6 +127,8 @@ impl carbon_core::postgres::operations::Upsert for PerpSyncQueueRow {
                 "length" = EXCLUDED."length",
                 "queue" = EXCLUDED."queue",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.nonce)

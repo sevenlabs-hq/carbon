@@ -87,7 +87,7 @@ impl carbon_core::postgres::operations::Insert for FeeRow {
 impl carbon_core::postgres::operations::Upsert for FeeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_account (
+            r#"INSERT INTO fee_account AS stored (
                 "maker_fee",
                 "maker_stable_fee",
                 "taker_fee",
@@ -103,6 +103,8 @@ impl carbon_core::postgres::operations::Upsert for FeeRow {
                 "taker_fee" = EXCLUDED."taker_fee",
                 "taker_stable_fee" = EXCLUDED."taker_stable_fee",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.maker_fee)

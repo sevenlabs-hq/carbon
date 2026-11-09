@@ -220,7 +220,7 @@ impl carbon_core::postgres::operations::Insert for GlobalRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for GlobalRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO global_account (
+        sqlx::query(r#"INSERT INTO global_account AS stored (
                 "initialized",
                 "authority",
                 "fee_recipient",
@@ -268,6 +268,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalRow {
                 "mayhem_mode_enabled" = EXCLUDED."mayhem_mode_enabled",
                 "reserved_fee_recipients" = EXCLUDED."reserved_fee_recipients",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.initialized)
         .bind(self.authority)

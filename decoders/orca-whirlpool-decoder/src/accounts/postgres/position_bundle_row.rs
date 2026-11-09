@@ -83,7 +83,7 @@ impl carbon_core::postgres::operations::Insert for PositionBundleRow {
 impl carbon_core::postgres::operations::Upsert for PositionBundleRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO position_bundle_account (
+            r#"INSERT INTO position_bundle_account AS stored (
                 "position_bundle_mint",
                 "position_bitmap",
                 __pubkey, __slot
@@ -95,6 +95,8 @@ impl carbon_core::postgres::operations::Upsert for PositionBundleRow {
                 "position_bundle_mint" = EXCLUDED."position_bundle_mint",
                 "position_bitmap" = EXCLUDED."position_bitmap",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.position_bundle_mint)

@@ -314,7 +314,7 @@ impl carbon_core::postgres::operations::Insert for MinimalUserRow {
 impl carbon_core::postgres::operations::Upsert for MinimalUserRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO minimal_user_account (
+            r#"INSERT INTO minimal_user_account AS stored (
                 "authority",
                 "delegate",
                 "name",
@@ -350,6 +350,8 @@ impl carbon_core::postgres::operations::Upsert for MinimalUserRow {
                 "status" = EXCLUDED."status",
                 "padding8" = EXCLUDED."padding8",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority)

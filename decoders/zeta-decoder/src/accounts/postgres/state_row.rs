@@ -406,7 +406,7 @@ impl carbon_core::postgres::operations::Insert for StateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for StateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO state_account (
+        sqlx::query(r#"INSERT INTO state_account AS stored (
                 "admin",
                 "state_nonce",
                 "serum_nonce",
@@ -482,6 +482,8 @@ impl carbon_core::postgres::operations::Upsert for StateRow {
                 "halt_states_padding" = EXCLUDED."halt_states_padding",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.admin)
         .bind(self.state_nonce)

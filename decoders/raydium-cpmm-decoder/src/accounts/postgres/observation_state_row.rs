@@ -143,7 +143,7 @@ impl carbon_core::postgres::operations::Insert for ObservationStateRow {
 impl carbon_core::postgres::operations::Upsert for ObservationStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO observation_state_account (
+            r#"INSERT INTO observation_state_account AS stored (
                 "initialized",
                 "observation_index",
                 "pool_id",
@@ -163,6 +163,8 @@ impl carbon_core::postgres::operations::Upsert for ObservationStateRow {
                 "last_update_timestamp" = EXCLUDED."last_update_timestamp",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.initialized)

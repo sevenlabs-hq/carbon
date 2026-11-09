@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for RemoteTokenMessengerRow {
 impl carbon_core::postgres::operations::Upsert for RemoteTokenMessengerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO remote_token_messenger_account (
+            r#"INSERT INTO remote_token_messenger_account AS stored (
                 "domain",
                 "token_messenger",
                 __pubkey, __slot
@@ -96,6 +96,8 @@ impl carbon_core::postgres::operations::Upsert for RemoteTokenMessengerRow {
                 "domain" = EXCLUDED."domain",
                 "token_messenger" = EXCLUDED."token_messenger",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.domain)

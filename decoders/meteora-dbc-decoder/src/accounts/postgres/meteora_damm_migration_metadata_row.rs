@@ -187,7 +187,7 @@ impl carbon_core::postgres::operations::Insert for MeteoraDammMigrationMetadataR
 impl carbon_core::postgres::operations::Upsert for MeteoraDammMigrationMetadataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO meteora_damm_migration_metadata_account (
+            r#"INSERT INTO meteora_damm_migration_metadata_account AS stored (
                 "virtual_pool",
                 "padding0",
                 "partner",
@@ -223,6 +223,8 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDammMigrationMetadataR
                 "partner_claim_status" = EXCLUDED."partner_claim_status",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.virtual_pool)

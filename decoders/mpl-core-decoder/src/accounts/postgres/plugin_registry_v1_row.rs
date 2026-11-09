@@ -80,7 +80,7 @@ impl carbon_core::postgres::operations::Insert for PluginRegistryV1Row {
 impl carbon_core::postgres::operations::Upsert for PluginRegistryV1Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO plugin_registry_v1_account (
+            r#"INSERT INTO plugin_registry_v1_account AS stored (
                 "key",
                 "registry",
                 "external_registry",
@@ -94,6 +94,8 @@ impl carbon_core::postgres::operations::Upsert for PluginRegistryV1Row {
                 "registry" = EXCLUDED."registry",
                 "external_registry" = EXCLUDED."external_registry",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)

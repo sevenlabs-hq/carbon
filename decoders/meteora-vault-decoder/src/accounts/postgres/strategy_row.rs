@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Insert for StrategyRow {
 impl carbon_core::postgres::operations::Upsert for StrategyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO strategy_account (
+            r#"INSERT INTO strategy_account AS stored (
                 "reserve",
                 "collateral_vault",
                 "strategy_type",
@@ -145,6 +145,8 @@ impl carbon_core::postgres::operations::Upsert for StrategyRow {
                 "vault" = EXCLUDED."vault",
                 "is_disable" = EXCLUDED."is_disable",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.reserve)

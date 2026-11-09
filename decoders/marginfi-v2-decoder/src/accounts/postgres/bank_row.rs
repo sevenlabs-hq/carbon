@@ -403,7 +403,7 @@ impl carbon_core::postgres::operations::Insert for BankRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for BankRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO bank_account (
+        sqlx::query(r#"INSERT INTO bank_account AS stored (
                 "mint",
                 "mint_decimals",
                 "group",
@@ -491,6 +491,8 @@ impl carbon_core::postgres::operations::Upsert for BankRow {
                 "pad0_1" = EXCLUDED."pad0_1",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.mint)
         .bind(self.mint_decimals)

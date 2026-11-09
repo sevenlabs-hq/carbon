@@ -329,7 +329,7 @@ impl carbon_core::postgres::operations::Insert for MintConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MintConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO mint_config_account (
+        sqlx::query(r#"INSERT INTO mint_config_account AS stored (
                 "instruction_discriminator",
                 "quote_mint",
                 "create_requires_permission",
@@ -379,6 +379,8 @@ impl carbon_core::postgres::operations::Upsert for MintConfigRow {
                 "default_base_fee_bps" = EXCLUDED."default_base_fee_bps",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.instruction_discriminator)
         .bind(self.quote_mint)

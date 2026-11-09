@@ -296,7 +296,7 @@ impl carbon_core::postgres::operations::Insert for PoolStateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PoolStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO pool_state_account (
+        sqlx::query(r#"INSERT INTO pool_state_account AS stored (
                 "amm_config",
                 "pool_creator",
                 "token0_vault",
@@ -360,6 +360,8 @@ impl carbon_core::postgres::operations::Upsert for PoolStateRow {
                 "creator_fees_token1" = EXCLUDED."creator_fees_token1",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.amm_config)
         .bind(self.pool_creator)

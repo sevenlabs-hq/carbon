@@ -289,7 +289,7 @@ impl carbon_core::postgres::operations::Insert for UserStatsRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UserStatsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO user_stats_account (
+        sqlx::query(r#"INSERT INTO user_stats_account AS stored (
                 "authority",
                 "referrer",
                 "fees",
@@ -349,6 +349,8 @@ impl carbon_core::postgres::operations::Upsert for UserStatsRow {
                 "last_fuel_if_bonus_update_ts" = EXCLUDED."last_fuel_if_bonus_update_ts",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.authority)
         .bind(self.referrer)

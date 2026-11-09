@@ -192,7 +192,7 @@ impl carbon_core::postgres::operations::Insert for DcaRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for DcaRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO dca_account (
+        sqlx::query(r#"INSERT INTO dca_account AS stored (
                 "user",
                 "input_mint",
                 "output_mint",
@@ -242,6 +242,8 @@ impl carbon_core::postgres::operations::Upsert for DcaRow {
                 "created_at" = EXCLUDED."created_at",
                 "bump" = EXCLUDED."bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.user)
         .bind(self.input_mint)

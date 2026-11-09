@@ -358,7 +358,7 @@ impl carbon_core::postgres::operations::Insert for ObligationRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ObligationRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO obligation_account (
+        sqlx::query(r#"INSERT INTO obligation_account AS stored (
                 "tag",
                 "last_update",
                 "lending_market",
@@ -424,6 +424,8 @@ impl carbon_core::postgres::operations::Upsert for ObligationRow {
                 "pending_owner" = EXCLUDED."pending_owner",
                 "padding3" = EXCLUDED."padding3",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.tag)
         .bind(&self.last_update)

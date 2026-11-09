@@ -277,7 +277,7 @@ impl carbon_core::postgres::operations::Insert for AmmInfoRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for AmmInfoRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO amm_info_account (
+        sqlx::query(r#"INSERT INTO amm_info_account AS stored (
                 "status",
                 "nonce",
                 "order_num",
@@ -351,6 +351,8 @@ impl carbon_core::postgres::operations::Upsert for AmmInfoRow {
                 "recent_epoch" = EXCLUDED."recent_epoch",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.status)
         .bind(&self.nonce)

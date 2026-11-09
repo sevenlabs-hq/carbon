@@ -115,7 +115,7 @@ impl carbon_core::postgres::operations::Insert for BookSideRow {
 impl carbon_core::postgres::operations::Upsert for BookSideRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO book_side_account (
+            r#"INSERT INTO book_side_account AS stored (
                 "roots",
                 "reserved_roots",
                 "reserved",
@@ -131,6 +131,8 @@ impl carbon_core::postgres::operations::Upsert for BookSideRow {
                 "reserved" = EXCLUDED."reserved",
                 "nodes" = EXCLUDED."nodes",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.roots)

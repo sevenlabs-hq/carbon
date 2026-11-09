@@ -308,7 +308,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiGroupRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MarginfiGroupRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO marginfi_group_account (
+        sqlx::query(r#"INSERT INTO marginfi_group_account AS stored (
                 "admin",
                 "group_flags",
                 "fee_state_cache",
@@ -364,6 +364,8 @@ impl carbon_core::postgres::operations::Upsert for MarginfiGroupRow {
                 "padding0" = EXCLUDED."padding0",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.admin)
         .bind(&self.group_flags)

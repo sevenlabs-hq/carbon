@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for ReferrerNameRow {
 impl carbon_core::postgres::operations::Upsert for ReferrerNameRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO referrer_name_account (
+            r#"INSERT INTO referrer_name_account AS stored (
                 "authority",
                 "user",
                 "user_stats",
@@ -111,6 +111,8 @@ impl carbon_core::postgres::operations::Upsert for ReferrerNameRow {
                 "user_stats" = EXCLUDED."user_stats",
                 "name" = EXCLUDED."name",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority)

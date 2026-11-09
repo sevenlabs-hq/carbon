@@ -98,7 +98,7 @@ impl carbon_core::postgres::operations::Insert for RevenueShareRow {
 impl carbon_core::postgres::operations::Upsert for RevenueShareRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO revenue_share_account (
+            r#"INSERT INTO revenue_share_account AS stored (
                 "authority",
                 "total_referrer_rewards",
                 "total_builder_rewards",
@@ -114,6 +114,8 @@ impl carbon_core::postgres::operations::Upsert for RevenueShareRow {
                 "total_builder_rewards" = EXCLUDED."total_builder_rewards",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority)

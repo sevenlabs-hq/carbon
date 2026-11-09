@@ -104,7 +104,7 @@ impl carbon_core::postgres::operations::Insert for ConstituentTargetBaseRow {
 impl carbon_core::postgres::operations::Upsert for ConstituentTargetBaseRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO constituent_target_base_account (
+            r#"INSERT INTO constituent_target_base_account AS stored (
                 "lp_pool",
                 "bump",
                 "padding",
@@ -120,6 +120,8 @@ impl carbon_core::postgres::operations::Upsert for ConstituentTargetBaseRow {
                 "padding" = EXCLUDED."padding",
                 "targets" = EXCLUDED."targets",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.lp_pool)

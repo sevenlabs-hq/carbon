@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::Insert for InsuranceFundStakeRow {
 impl carbon_core::postgres::operations::Upsert for InsuranceFundStakeRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO insurance_fund_stake_account (
+            r#"INSERT INTO insurance_fund_stake_account AS stored (
                 "authority",
                 "if_shares",
                 "last_withdraw_request_shares",
@@ -168,6 +168,8 @@ impl carbon_core::postgres::operations::Upsert for InsuranceFundStakeRow {
                 "market_index" = EXCLUDED."market_index",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority)

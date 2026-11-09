@@ -225,7 +225,7 @@ impl carbon_core::postgres::operations::Insert for MarginAccountRow {
 impl carbon_core::postgres::operations::Upsert for MarginAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO margin_account_account (
+            r#"INSERT INTO margin_account_account AS stored (
                 "authority",
                 "nonce",
                 "balance",
@@ -265,6 +265,8 @@ impl carbon_core::postgres::operations::Upsert for MarginAccountRow {
                 "delegated_pubkey" = EXCLUDED."delegated_pubkey",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority)

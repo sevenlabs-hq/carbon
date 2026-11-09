@@ -75,7 +75,7 @@ impl carbon_core::postgres::operations::Insert for MsolTicketSolSpentRow {
 impl carbon_core::postgres::operations::Upsert for MsolTicketSolSpentRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO msol_ticket_sol_spent_account (
+            r#"INSERT INTO msol_ticket_sol_spent_account AS stored (
                 "cost_basis",
                 "msol_unstaked",
                 __pubkey, __slot
@@ -87,6 +87,8 @@ impl carbon_core::postgres::operations::Upsert for MsolTicketSolSpentRow {
                 "cost_basis" = EXCLUDED."cost_basis",
                 "msol_unstaked" = EXCLUDED."msol_unstaked",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.cost_basis)

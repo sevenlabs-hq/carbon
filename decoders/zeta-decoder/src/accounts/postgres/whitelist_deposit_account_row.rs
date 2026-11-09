@@ -84,7 +84,7 @@ impl carbon_core::postgres::operations::Insert for WhitelistDepositAccountRow {
 impl carbon_core::postgres::operations::Upsert for WhitelistDepositAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO whitelist_deposit_account_account (
+            r#"INSERT INTO whitelist_deposit_account_account AS stored (
                 "nonce",
                 "user_key",
                 __pubkey, __slot
@@ -96,6 +96,8 @@ impl carbon_core::postgres::operations::Upsert for WhitelistDepositAccountRow {
                 "nonce" = EXCLUDED."nonce",
                 "user_key" = EXCLUDED."user_key",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.nonce)

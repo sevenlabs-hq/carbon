@@ -72,7 +72,7 @@ impl carbon_core::postgres::operations::Insert for EscrowPDARow {
 impl carbon_core::postgres::operations::Upsert for EscrowPDARow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO escrow_p_d_a_account (
+            r#"INSERT INTO escrow_p_d_a_account AS stored (
                 "bump",
                 __pubkey, __slot
             ) VALUES (
@@ -82,6 +82,8 @@ impl carbon_core::postgres::operations::Upsert for EscrowPDARow {
             ) DO UPDATE SET
                 "bump" = EXCLUDED."bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

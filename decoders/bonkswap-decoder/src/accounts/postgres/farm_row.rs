@@ -203,7 +203,7 @@ impl carbon_core::postgres::operations::Insert for FarmRow {
 impl carbon_core::postgres::operations::Upsert for FarmRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO farm_account (
+            r#"INSERT INTO farm_account AS stored (
                 "pool",
                 "tokens",
                 "token_accounts",
@@ -235,6 +235,8 @@ impl carbon_core::postgres::operations::Upsert for FarmRow {
                 "bump" = EXCLUDED."bump",
                 "farm_type" = EXCLUDED."farm_type",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pool)

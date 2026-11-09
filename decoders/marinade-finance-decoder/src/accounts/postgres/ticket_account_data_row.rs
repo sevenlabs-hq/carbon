@@ -95,7 +95,7 @@ impl carbon_core::postgres::operations::Insert for TicketAccountDataRow {
 impl carbon_core::postgres::operations::Upsert for TicketAccountDataRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO ticket_account_data_account (
+            r#"INSERT INTO ticket_account_data_account AS stored (
                 "state_address",
                 "beneficiary",
                 "lamports_amount",
@@ -111,6 +111,8 @@ impl carbon_core::postgres::operations::Upsert for TicketAccountDataRow {
                 "lamports_amount" = EXCLUDED."lamports_amount",
                 "created_epoch" = EXCLUDED."created_epoch",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.state_address)

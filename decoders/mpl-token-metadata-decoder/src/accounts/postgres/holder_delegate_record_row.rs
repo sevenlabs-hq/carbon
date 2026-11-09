@@ -110,7 +110,7 @@ impl carbon_core::postgres::operations::Insert for HolderDelegateRecordRow {
 impl carbon_core::postgres::operations::Upsert for HolderDelegateRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO holder_delegate_record_account (
+            r#"INSERT INTO holder_delegate_record_account AS stored (
                 "key",
                 "bump",
                 "mint",
@@ -128,6 +128,8 @@ impl carbon_core::postgres::operations::Upsert for HolderDelegateRecordRow {
                 "delegate" = EXCLUDED."delegate",
                 "update_authority" = EXCLUDED."update_authority",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)

@@ -148,7 +148,7 @@ impl carbon_core::postgres::operations::Insert for ProviderRow {
 impl carbon_core::postgres::operations::Upsert for ProviderRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO provider_account (
+            r#"INSERT INTO provider_account AS stored (
                 "token_x",
                 "token_y",
                 "owner",
@@ -180,6 +180,8 @@ impl carbon_core::postgres::operations::Upsert for ProviderRow {
                 "current_farm_count" = EXCLUDED."current_farm_count",
                 "bump" = EXCLUDED."bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.token_x)

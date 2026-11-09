@@ -372,7 +372,7 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO bonding_curve_account (
+        sqlx::query(r#"INSERT INTO bonding_curve_account AS stored (
                 "base_mint",
                 "quote_mint",
                 "creator",
@@ -438,6 +438,8 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
                 "preminted_supply" = EXCLUDED."preminted_supply",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.base_mint)
         .bind(self.quote_mint)

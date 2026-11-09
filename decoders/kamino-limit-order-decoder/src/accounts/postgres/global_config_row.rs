@@ -254,7 +254,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO global_config_account (
+        sqlx::query(r#"INSERT INTO global_config_account AS stored (
                 "emergency_mode",
                 "flash_take_order_blocked",
                 "new_orders_blocked",
@@ -298,6 +298,8 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "ata_creation_cost" = EXCLUDED."ata_creation_cost",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.emergency_mode)
         .bind(self.flash_take_order_blocked)

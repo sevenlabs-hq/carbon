@@ -615,7 +615,7 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO lending_market_account (
+        sqlx::query(r#"INSERT INTO lending_market_account AS stored (
                 "version",
                 "bump_seed",
                 "lending_market_owner",
@@ -725,6 +725,8 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
                 "permissioned_ops" = EXCLUDED."permissioned_ops",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.version)
         .bind(&self.bump_seed)

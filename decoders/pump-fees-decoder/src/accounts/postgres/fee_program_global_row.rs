@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Insert for FeeProgramGlobalRow {
 impl carbon_core::postgres::operations::Upsert for FeeProgramGlobalRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO fee_program_global_account (
+            r#"INSERT INTO fee_program_global_account AS stored (
                 "bump",
                 "authority",
                 "disable_flags",
@@ -155,6 +155,8 @@ impl carbon_core::postgres::operations::Upsert for FeeProgramGlobalRow {
                 "claim_rate_limit" = EXCLUDED."claim_rate_limit",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

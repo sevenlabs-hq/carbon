@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Insert for SpreadAccountRow {
 impl carbon_core::postgres::operations::Upsert for SpreadAccountRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO spread_account_account (
+            r#"INSERT INTO spread_account_account AS stored (
                 "authority",
                 "nonce",
                 "balance",
@@ -200,6 +200,8 @@ impl carbon_core::postgres::operations::Upsert for SpreadAccountRow {
                 "asset" = EXCLUDED."asset",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.authority)

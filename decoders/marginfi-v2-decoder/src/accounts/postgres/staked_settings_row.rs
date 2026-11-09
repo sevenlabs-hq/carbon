@@ -174,7 +174,7 @@ impl carbon_core::postgres::operations::Insert for StakedSettingsRow {
 impl carbon_core::postgres::operations::Upsert for StakedSettingsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO staked_settings_account (
+            r#"INSERT INTO staked_settings_account AS stored (
                 "key",
                 "marginfi_group",
                 "oracle",
@@ -208,6 +208,8 @@ impl carbon_core::postgres::operations::Upsert for StakedSettingsRow {
                 "reserved1" = EXCLUDED."reserved1",
                 "reserved2" = EXCLUDED."reserved2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.key)

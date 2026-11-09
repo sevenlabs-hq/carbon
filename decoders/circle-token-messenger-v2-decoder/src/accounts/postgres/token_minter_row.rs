@@ -97,7 +97,7 @@ impl carbon_core::postgres::operations::Insert for TokenMinterRow {
 impl carbon_core::postgres::operations::Upsert for TokenMinterRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_minter_account (
+            r#"INSERT INTO token_minter_account AS stored (
                 "token_controller",
                 "pauser",
                 "paused",
@@ -113,6 +113,8 @@ impl carbon_core::postgres::operations::Upsert for TokenMinterRow {
                 "paused" = EXCLUDED."paused",
                 "bump" = EXCLUDED."bump",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.token_controller)

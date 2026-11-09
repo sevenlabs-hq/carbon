@@ -146,7 +146,7 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
 impl carbon_core::postgres::operations::Upsert for PoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO pool_account (
+            r#"INSERT INTO pool_account AS stored (
                 "pool_bump",
                 "index",
                 "creator",
@@ -178,6 +178,8 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "is_mayhem_mode" = EXCLUDED."is_mayhem_mode",
                 "is_cashback_coin" = EXCLUDED."is_cashback_coin",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pool_bump)

@@ -70,7 +70,7 @@ impl carbon_core::postgres::operations::Insert for ProtocolOwnerStateRow {
 impl carbon_core::postgres::operations::Upsert for ProtocolOwnerStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO protocol_owner_state_account (
+            r#"INSERT INTO protocol_owner_state_account AS stored (
                 "current_protocol_owner",
                 __pubkey, __slot
             ) VALUES (
@@ -80,6 +80,8 @@ impl carbon_core::postgres::operations::Upsert for ProtocolOwnerStateRow {
             ) DO UPDATE SET
                 "current_protocol_owner" = EXCLUDED."current_protocol_owner",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.current_protocol_owner)

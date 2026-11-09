@@ -193,7 +193,7 @@ impl carbon_core::postgres::operations::Insert for IfRebalanceConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for IfRebalanceConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO if_rebalance_config_account (
+        sqlx::query(r#"INSERT INTO if_rebalance_config_account AS stored (
                 "pubkey",
                 "total_in_amount",
                 "current_in_amount",
@@ -233,6 +233,8 @@ impl carbon_core::postgres::operations::Upsert for IfRebalanceConfigRow {
                 "status" = EXCLUDED."status",
                 "padding2" = EXCLUDED."padding2",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(self.pubkey)
         .bind(&self.total_in_amount)

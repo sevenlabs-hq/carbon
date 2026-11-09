@@ -105,7 +105,7 @@ impl carbon_core::postgres::operations::Insert for AuthorizationListRow {
 impl carbon_core::postgres::operations::Upsert for AuthorizationListRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO authorization_list_account (
+            r#"INSERT INTO authorization_list_account AS stored (
                 "auth_users",
                 "guardians",
                 "user_classes",
@@ -119,6 +119,8 @@ impl carbon_core::postgres::operations::Upsert for AuthorizationListRow {
                 "guardians" = EXCLUDED."guardians",
                 "user_classes" = EXCLUDED."user_classes",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.auth_users)

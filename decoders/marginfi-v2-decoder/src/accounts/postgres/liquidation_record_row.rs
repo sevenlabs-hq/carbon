@@ -150,7 +150,7 @@ impl carbon_core::postgres::operations::Insert for LiquidationRecordRow {
 impl carbon_core::postgres::operations::Upsert for LiquidationRecordRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO liquidation_record_account (
+            r#"INSERT INTO liquidation_record_account AS stored (
                 "key",
                 "marginfi_account",
                 "record_payer",
@@ -176,6 +176,8 @@ impl carbon_core::postgres::operations::Upsert for LiquidationRecordRow {
                 "reserved2" = EXCLUDED."reserved2",
                 "reserved3" = EXCLUDED."reserved3",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.key)

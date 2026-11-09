@@ -121,7 +121,7 @@ impl carbon_core::postgres::operations::Insert for AmmConfigRow {
 impl carbon_core::postgres::operations::Upsert for AmmConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO amm_config_account (
+            r#"INSERT INTO amm_config_account AS stored (
                 "pnl_owner",
                 "cancel_owner",
                 "pending1",
@@ -139,6 +139,8 @@ impl carbon_core::postgres::operations::Upsert for AmmConfigRow {
                 "pending2" = EXCLUDED."pending2",
                 "create_pool_fee" = EXCLUDED."create_pool_fee",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.pnl_owner)

@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for VoucherRow {
 impl carbon_core::postgres::operations::Upsert for VoucherRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO voucher_account (
+            r#"INSERT INTO voucher_account AS stored (
                 "leaf_schema",
                 "index",
                 "merkle_tree",
@@ -102,6 +102,8 @@ impl carbon_core::postgres::operations::Upsert for VoucherRow {
                 "index" = EXCLUDED."index",
                 "merkle_tree" = EXCLUDED."merkle_tree",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.leaf_schema)

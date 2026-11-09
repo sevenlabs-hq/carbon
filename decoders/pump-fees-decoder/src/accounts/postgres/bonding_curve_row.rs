@@ -117,7 +117,7 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
 impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO bonding_curve_account (
+            r#"INSERT INTO bonding_curve_account AS stored (
                 "virtual_token_reserves",
                 "virtual_sol_reserves",
                 "real_token_reserves",
@@ -141,6 +141,8 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
                 "creator" = EXCLUDED."creator",
                 "is_mayhem_mode" = EXCLUDED."is_mayhem_mode",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.virtual_token_reserves)

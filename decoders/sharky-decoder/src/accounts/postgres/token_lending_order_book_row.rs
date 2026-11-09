@@ -176,7 +176,7 @@ impl carbon_core::postgres::operations::Insert for TokenLendingOrderBookRow {
 impl carbon_core::postgres::operations::Upsert for TokenLendingOrderBookRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO token_lending_order_book_account (
+            r#"INSERT INTO token_lending_order_book_account AS stored (
                 "fee_authority",
                 "loan_mint",
                 "collateral_mint",
@@ -210,6 +210,8 @@ impl carbon_core::postgres::operations::Upsert for TokenLendingOrderBookRow {
                 "bump" = EXCLUDED."bump",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.fee_authority)

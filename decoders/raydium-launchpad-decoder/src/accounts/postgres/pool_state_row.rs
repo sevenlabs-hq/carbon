@@ -265,7 +265,7 @@ impl carbon_core::postgres::operations::Insert for PoolStateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PoolStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO pool_state_account (
+        sqlx::query(r#"INSERT INTO pool_state_account AS stored (
                 "epoch",
                 "auth_bump",
                 "status",
@@ -329,6 +329,8 @@ impl carbon_core::postgres::operations::Upsert for PoolStateRow {
                 "platform_vesting_share" = EXCLUDED."platform_vesting_share",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#)
         .bind(&self.epoch)
         .bind(self.auth_bump)

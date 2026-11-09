@@ -120,7 +120,7 @@ impl carbon_core::postgres::operations::Insert for PlatformGlobalAccessRow {
 impl carbon_core::postgres::operations::Upsert for PlatformGlobalAccessRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO platform_global_access_account (
+            r#"INSERT INTO platform_global_access_account AS stored (
                 "bump",
                 "global_config",
                 "platform_config",
@@ -136,6 +136,8 @@ impl carbon_core::postgres::operations::Upsert for PlatformGlobalAccessRow {
                 "platform_config" = EXCLUDED."platform_config",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(self.bump)

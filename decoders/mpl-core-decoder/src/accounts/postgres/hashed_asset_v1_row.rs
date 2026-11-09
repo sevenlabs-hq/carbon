@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for HashedAssetV1Row {
 impl carbon_core::postgres::operations::Upsert for HashedAssetV1Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO hashed_asset_v1_account (
+            r#"INSERT INTO hashed_asset_v1_account AS stored (
                 "key",
                 "hash",
                 __pubkey, __slot
@@ -90,6 +90,8 @@ impl carbon_core::postgres::operations::Upsert for HashedAssetV1Row {
                 "key" = EXCLUDED."key",
                 "hash" = EXCLUDED."hash",
                 __slot = EXCLUDED.__slot
+            WHERE EXCLUDED.__slot >= stored.__slot
+                OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
             "#,
         )
         .bind(&self.key)
