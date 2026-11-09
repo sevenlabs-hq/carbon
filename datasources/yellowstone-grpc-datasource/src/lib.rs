@@ -104,7 +104,7 @@ fn register_yellowstone_metrics() {
 /// Default timeout for detecting stale connections (30 seconds)
 pub const DEFAULT_STREAM_TIMEOUT_SECS: u64 = 30;
 
-/// Initial delay before retrying a failed subscription attempt
+/// Initial delay before resubscribing after a failed subscription or stream
 const RECONNECT_INITIAL_DELAY_MS: u64 = 100;
 
 /// Upper bound on the retry delay
@@ -359,7 +359,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                     result = geyser_client.subscribe_with_request(Some(subscribe_request.clone())) => {
                         match result {
                             Ok((mut subscribe_tx, mut stream)) => {
-                                reconnect_delay = Duration::from_millis(RECONNECT_INITIAL_DELAY_MS);
                                 let mut first_message_after_reconnect = last_disconnect_time.is_some();
 
                                 loop {
@@ -396,6 +395,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
                                     match message {
                                         Ok(msg) => {
+                                            reconnect_delay = Duration::from_millis(RECONNECT_INITIAL_DELAY_MS);
                                             if first_message_after_reconnect {
                                                 let current_slot = match &msg.update_oneof {
                                                     Some(UpdateOneof::Account(ref update)) => Some(update.slot),
@@ -561,19 +561,19 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                     last_disconnect_time = Some(Utc::now());
                                     last_slot_before_disconnect = Some(last_processed_slot);
                                 }
-
-                                tokio::select! {
-                                    _ = cancellation_token.cancelled() => {
-                                        log::info!("Cancelling Yellowstone gRPC subscription.");
-                                        break;
-                                    }
-                                    _ = tokio::time::sleep(reconnect_delay) => {}
-                                }
-
-                                reconnect_delay = (reconnect_delay * 2)
-                                    .min(Duration::from_millis(RECONNECT_MAX_DELAY_MS));
                             }
                         }
+
+                        tokio::select! {
+                            _ = cancellation_token.cancelled() => {
+                                log::info!("Cancelling Yellowstone gRPC subscription.");
+                                break;
+                            }
+                            _ = tokio::time::sleep(reconnect_delay) => {}
+                        }
+
+                        reconnect_delay = (reconnect_delay * 2)
+                            .min(Duration::from_millis(RECONNECT_MAX_DELAY_MS));
                     }
                 }
             }
