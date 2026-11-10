@@ -2,7 +2,8 @@
 /// returning the first variant whose `decode` and `arrange_accounts` both
 /// succeed.
 ///
-/// Each `$ty` must implement `CarbonDeserialize` (for `decode`) and
+/// Each `$ty` needs an associated `fn decode(&[u8]) -> Option<Self>`, which
+/// generated decoders define on each instruction type, and must implement
 /// `ArrangeAccounts` (for the structured `accounts` payload). On a hit, the
 /// macro `return`s `Some(EnumName::Variant { program_id, data, accounts })`
 /// from the calling function; otherwise it yields `None`.

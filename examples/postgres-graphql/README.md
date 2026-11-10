@@ -18,7 +18,7 @@ cd carbon/examples/postgres-graphql
 Create a `.env` file in the root of the example:
 
 ```env
-DATABASE_URL=postgres://carbon:carbon@localhost:5432/carbon_example
+DATABASE_URL=postgres://carbon:carbon@localhost:5433/carbon_example
 GEYSER_URL=https://your-yellowstone-endpoint:443
 X_TOKEN=your-auth-token
 BIND_ADDR=0.0.0.0:8080
@@ -88,6 +88,6 @@ Both queries hit Postgres directly via `sqlx`, reading from the `accounts` JSONB
 You can also inspect the table directly:
 
 ```sh
-psql postgres://carbon:carbon@localhost:5432/carbon_example \
+psql postgres://carbon:carbon@localhost:5433/carbon_example \
   -c "SELECT __pubkey, __slot, data->>'type' AS kind FROM accounts LIMIT 5;"
 ```
