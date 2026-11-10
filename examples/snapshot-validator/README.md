@@ -1,6 +1,6 @@
 # snapshot-validator
 
-Loads accounts from a Solana validator snapshot — either from a remote tarball URL or a locally-extracted ledger directory. Filters at the snapshot layer by program owner and/or specific account pubkey, decodes each match through a generic passthrough decoder, and also wires the `account_deletions` pipe (the snapshot source produces both). Exits cleanly via `ProcessPending` when the snapshot drains.
+Loads accounts from a Solana validator snapshot — either downloaded from a validator's RPC endpoint or read from a locally-extracted ledger directory. Filters at the snapshot layer by program owner and/or specific account pubkey, decodes each match through a generic passthrough decoder, and also wires the `account_deletions` pipe (the snapshot source produces both). Exits cleanly via `ProcessPending` when the snapshot drains.
 
 ## Setup Instructions
 
@@ -17,7 +17,7 @@ Create a `.env` file in the example directory:
 
 ```env
 # Snapshot source — set ONE of:
-VALIDATOR_URL=https://api.mainnet-beta.solana.com/snapshot.tar.bz2
+VALIDATOR_URL=https://api.mainnet-beta.solana.com
 # SNAPSHOT_PATH=/path/to/extracted/ledger
 
 # Filters — set at least ONE of PROGRAM_OWNERS or ACCOUNT_IDS:
@@ -27,7 +27,7 @@ PROGRAM_OWNERS=TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
 RUST_LOG=info
 ```
 
-- `VALIDATOR_URL` — URL of a validator snapshot tarball. Downloaded and extracted on the fly.
+- `VALIDATOR_URL` — base URL of a validator's RPC endpoint, without a file name. Carbon appends `/genesis.tar.bz2` and `/snapshot.tar.bz2` and downloads both into `ledger/` in the working directory.
 - `SNAPSHOT_PATH` — local path to an already-extracted ledger directory (containing `genesis.tar.bz2`, `snapshots/`, `accounts/`).
 - One of `VALIDATOR_URL` or `SNAPSHOT_PATH` is required.
 - `PROGRAM_OWNERS` — comma-separated list of program owner pubkeys. Only accounts owned by one of these programs are loaded.
