@@ -11,7 +11,12 @@
 //!   [`MetricsSnapshot`]s on demand.
 //! - [`MetricsExporter`] — trait implemented by metric backends
 //!   (`carbon-log-metrics`, `carbon-prometheus-metrics`). The pipeline calls
-//!   `export(snapshot)` after each processed update.
+//!   `initialize` when it starts and, when it stops, `export(snapshot)` once
+//!   and then `shutdown`; an exporter error ends `run()` and skips the
+//!   remaining calls. A backend that reports while the pipeline runs does so
+//!   itself: `carbon-log-metrics` exports on a timer, and
+//!   `carbon-prometheus-metrics` serves the registry over HTTP when its server
+//!   runs.
 
 use {
     crate::error::CarbonResult,
