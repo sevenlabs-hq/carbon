@@ -237,3 +237,8 @@ async fn send_subscribe_update_transaction_info(
     TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
     TRANSACTION_UPDATES_RECEIVED.inc();
 }
+
+// The README's examples, compiled by `cargo test --doc`.
+#[cfg(doctest)]
+#[doc = include_str!("../README.md")]
+struct ReadmeDoctests;
