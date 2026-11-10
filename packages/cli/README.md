@@ -83,7 +83,7 @@ carbon-cli scaffold [OPTIONS]
 - `-m, --metrics <log|prometheus>` - Metrics to use (default: log)
 - `--with-postgres <boolean>` - Include Postgres wiring and deps (default: true)
 - `--with-graphql <boolean>` - Include GraphQL wiring and deps (default: true)
-- `--with-serde <boolean>` - Include serde feature for decoder (default: false)
+- `--with-serde <boolean>` - Include serde feature for decoder (default: true; `--with-postgres`, `--with-graphql` and `--with-base58` also turn it on)
 - `--force` - Overwrite output directory if it exists (default: false)
 
 #### Examples
