@@ -59,6 +59,7 @@ export function buildHeliusLaserstream(decoders: DecoderMeta[]): DatasourceArtif
         id: 'helius_laserstream',
         imports,
         init,
+        updates: ['accounts', 'transactions'],
         env: {
             required: ['GEYSER_URL', 'X_TOKEN'],
             validate: () => {

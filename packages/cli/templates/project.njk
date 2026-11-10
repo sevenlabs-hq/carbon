@@ -50,30 +50,43 @@ pub async fn main() -> CarbonResult<()> {
         {%- if withPostgres %}
         {%- if useGenericPostgres %}
         {%- for decoder in decoders %}
+        {%- if withAccountPipe %}
         .account(
             {{ decoder.name }}Decoder,
             PostgresJsonAccountProcessor::<{{ decoder.name }}Account>::new(pool.clone()),
         )
+        {%- endif %}
+        {%- if withInstructionPipe %}
         .instruction(
             {{ decoder.name }}Decoder,
             PostgresJsonInstructionProcessor::<{{ decoder.name }}Instruction>::new(pool.clone()),
         )
+        {%- endif %}
         {%- endfor %}
         {%- else %}
         {%- for decoder in decoders %}
+        {%- if withAccountPipe %}
         .account(
             {{ decoder.name }}Decoder,
             PostgresAccountProcessor::<{{ decoder.name }}Account, {{ decoder.name }}AccountWithMetadata>::new(pool.clone()),
         )
+        {%- endif %}
+        {%- if withInstructionPipe %}
         .instruction(
             {{ decoder.name }}Decoder,
             PostgresInstructionProcessor::<{{ decoder.name }}Instruction, {{ decoder.name }}InstructionWithMetadata>::new(pool.clone()),
         )
+        {%- endif %}
         {%- endfor %}
         {%- endif %}
         {%- else %}
         {%- for decoder in decoders %}
+        {%- if withAccountPipe %}
+        .account({{ decoder.name }}Decoder, {{ decoder.name }}AccountProcessor)
+        {%- endif %}
+        {%- if withInstructionPipe %}
         .instruction({{ decoder.name }}Decoder, {{ decoder.name }}InstructionProcessor)
+        {%- endif %}
         {%- endfor %}
         {%- endif %}
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
@@ -114,6 +127,29 @@ async fn run_graphql(pool: Arc<sqlx::PgPool>) -> CarbonResult<()> {
 
 {%- if not withPostgres %}
 {%- for decoder in decoders %} 
+{%- if withAccountPipe %}
+
+pub struct {{ decoder.name }}AccountProcessor;
+
+impl Processor<AccountProcessorInputType<'_, {{ decoder.name }}Account>> for {{ decoder.name }}AccountProcessor {
+    async fn process(
+        &mut self,
+        input: &AccountProcessorInputType<'_, {{ decoder.name }}Account>,
+    ) -> CarbonResult<()> {
+        let pubkey = input.metadata.pubkey;
+
+        log::info!("received the {{ decoder.name }} account, pubkey: {}", pubkey);
+
+        match &input.decoded_account.data {
+            _ => {}
+        };
+
+        Ok(())
+    }
+}
+{%- endif %}
+{%- if withInstructionPipe %}
+
 pub struct {{ decoder.name }}InstructionProcessor;
 
 impl Processor<InstructionProcessorInputType<'_, {{ decoder.name }}Instruction>> for {{ decoder.name }}InstructionProcessor {
@@ -132,5 +168,6 @@ impl Processor<InstructionProcessorInputType<'_, {{ decoder.name }}Instruction>>
         Ok(())
     }
 }
+{%- endif %}
 {%- endfor %}
 {%- endif %}

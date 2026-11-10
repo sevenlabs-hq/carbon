@@ -62,6 +62,7 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
         id: 'yellowstone_grpc',
         imports,
         init,
+        updates: ['accounts', 'transactions'],
         env: {
             required: ['GEYSER_URL', 'X_TOKEN'],
             validate: () => {},

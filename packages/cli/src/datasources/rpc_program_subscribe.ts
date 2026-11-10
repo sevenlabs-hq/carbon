@@ -32,6 +32,7 @@ export function buildRpcProgramSubscribe(decoders: DecoderMeta[]): DatasourceArt
         id: 'rpc_program_subscribe',
         imports,
         init,
+        updates: ['accounts'],
         env: {
             required: ['RPC_WS_URL'],
             validate: () => {},

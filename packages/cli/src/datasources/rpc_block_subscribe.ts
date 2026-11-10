@@ -28,6 +28,7 @@ export function buildRpcBlockSubscribe(_decoders: DecoderMeta[]): DatasourceArti
         id: 'rpc_block_subscribe',
         imports,
         init,
+        updates: ['transactions'],
         env: {
             required: ['RPC_WS_URL'],
             validate: () => {

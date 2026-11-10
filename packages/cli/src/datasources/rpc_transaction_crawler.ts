@@ -34,6 +34,7 @@ export function buildRpcTransactionCrawler(decoders: DecoderMeta[]): DatasourceA
         id: 'rpc_transaction_crawler',
         imports,
         init,
+        updates: ['transactions'],
         env: {
             required: ['RPC_URL'],
             validate: () => {},

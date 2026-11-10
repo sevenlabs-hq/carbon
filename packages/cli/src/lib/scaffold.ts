@@ -36,22 +36,29 @@ function buildProjectImports(ctx: any): string {
 
     // Feature-dependent
     if (!ctx.withPostgres) {
-        lines.push('use carbon_core::instruction::InstructionProcessorInputType;');
+        if (ctx.withAccountPipe) {
+            lines.push('use carbon_core::account::AccountProcessorInputType;');
+        }
+        if (ctx.withInstructionPipe) {
+            lines.push('use carbon_core::instruction::InstructionProcessorInputType;');
+        }
         lines.push('use carbon_core::processor::Processor;');
     }
 
     lines.push('use carbon_core::error::CarbonResult;');
 
     if (ctx.withPostgres) {
+        const [accountProcessor, instructionProcessor] = ctx.useGenericPostgres
+            ? ['PostgresJsonAccountProcessor', 'PostgresJsonInstructionProcessor']
+            : ['PostgresAccountProcessor', 'PostgresInstructionProcessor'];
+        if (ctx.withAccountPipe) {
+            lines.push(`use carbon_core::postgres::processors::${accountProcessor};`);
+        }
+        if (ctx.withInstructionPipe) {
+            lines.push(`use carbon_core::postgres::processors::${instructionProcessor};`);
+        }
         if (ctx.useGenericPostgres) {
-            lines.push(
-                'use carbon_core::postgres::processors::{PostgresJsonAccountProcessor, PostgresJsonInstructionProcessor};',
-            );
             lines.push('use carbon_core::postgres::rows::{GenericAccountsMigration, GenericInstructionMigration};');
-        } else {
-            lines.push(
-                'use carbon_core::postgres::processors::{PostgresAccountProcessor, PostgresInstructionProcessor};',
-            );
         }
         lines.push('use sqlx_migrator::{Info, Migrate, Plan};');
     }
@@ -62,21 +69,21 @@ function buildProjectImports(ctx: any): string {
     // Decoders
     for (const d of ctx.decoders as Array<{ name: string; module_name: string }>) {
         const crate = `carbon_${d.module_name}_decoder`;
-        if (ctx.withPostgres) {
-            if (!ctx.useGenericPostgres) {
-                lines.push(
-                    `use ${crate}::accounts::postgres::{${d.name}AccountWithMetadata, ${d.name}AccountsMigration};`,
-                );
-                lines.push(`use ${crate}::accounts::${d.name}Account;`);
-                lines.push(
-                    `use ${crate}::instructions::postgres::{${d.name}InstructionWithMetadata, ${d.name}InstructionsMigration};`,
-                );
-                lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
-            } else {
-                lines.push(`use ${crate}::accounts::${d.name}Account;`);
-                lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+        const typedPostgres = ctx.withPostgres && !ctx.useGenericPostgres;
+        if (typedPostgres) {
+            lines.push(`use ${crate}::accounts::postgres::${d.name}AccountsMigration;`);
+            lines.push(`use ${crate}::instructions::postgres::${d.name}InstructionsMigration;`);
+        }
+        if (ctx.withAccountPipe) {
+            if (typedPostgres) {
+                lines.push(`use ${crate}::accounts::postgres::${d.name}AccountWithMetadata;`);
             }
-        } else {
+            lines.push(`use ${crate}::accounts::${d.name}Account;`);
+        }
+        if (ctx.withInstructionPipe) {
+            if (typedPostgres) {
+                lines.push(`use ${crate}::instructions::postgres::${d.name}InstructionWithMetadata;`);
+            }
             lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
         }
         if (ctx.withGraphql) {
@@ -188,6 +195,8 @@ export function renderScaffold(opts: ScaffoldOptions) {
     const artifact = builder(decodersMeta);
     mainContext.datasource_imports = artifact.imports.map((i: string) => `use ${i};`).join('\n');
     mainContext.datasource_init = artifact.init;
+    mainContext.withAccountPipe = artifact.updates.includes('accounts');
+    mainContext.withInstructionPipe = artifact.updates.includes('transactions');
 
     // Generate workspace Cargo.toml
     const workspaceToml = env.render('workspace.njk', {});
