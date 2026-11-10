@@ -83,7 +83,10 @@ program
     .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
-    .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
+    .option(
+        '--with-serde <boolean>',
+        'Include serde feature for decoder (default: true; --with-postgres, --with-graphql and --with-base58 also turn it on)',
+    )
     .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
     .option(
         '--standalone <boolean>',
@@ -212,7 +215,10 @@ program
     .option('-m, --metrics <log|prometheus>', 'Metrics to use', 'log')
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
-    .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
+    .option(
+        '--with-serde <boolean>',
+        'Include serde feature for decoder (default: true; --with-postgres, --with-graphql and --with-base58 also turn it on)',
+    )
     .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
     .option('--package-version <string>', 'Package version in Cargo.toml (default: 0.1.0)')
     .option('--version-name <name>', 'Decoder version name (e.g., "v1", "v2")')
