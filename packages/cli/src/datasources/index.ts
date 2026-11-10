@@ -7,6 +7,8 @@ export type DatasourceArtifact = {
     id: string;
     imports: string[];
     init: string;
+    // Updates the datasource configured in `init` emits; the scaffold registers pipes only for these.
+    updates: Array<'accounts' | 'transactions'>;
     env?: { required: string[]; validate: () => void };
 };
 

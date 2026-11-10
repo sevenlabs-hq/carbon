@@ -172,3 +172,61 @@ test('scaffolds a versioned decoder under the name the indexer uses', () => {
         rmSync(outputDirectory, { force: true, recursive: true });
     }
 });
+
+const pipesByDataSource = {
+    'rpc-program-subscribe': { account: true, instruction: false },
+    'rpc-block-subscribe': { account: false, instruction: true },
+    'rpc-transaction-crawler': { account: false, instruction: true },
+    'yellowstone-grpc': { account: true, instruction: true },
+    'helius-laserstream': { account: true, instruction: true },
+};
+
+for (const [dataSource, pipes] of Object.entries(pipesByDataSource)) {
+    test(`registers only the pipes ${dataSource} feeds`, () => {
+        const outputDirectory = mkdtempSync(join(tmpdir(), 'carbon-cli-pipes-scaffold-'));
+
+        try {
+            for (const withPostgres of ['false', 'true']) {
+                const name = `pipes-postgres-${withPostgres}`;
+                const result = spawnSync(
+                    process.execPath,
+                    [
+                        join(packageDirectory, 'dist/cli.js'),
+                        'scaffold',
+                        '--name',
+                        name,
+                        '--out-dir',
+                        outputDirectory,
+                        '--decoder',
+                        'smoke',
+                        '--idl',
+                        join(packageDirectory, 'tests/fixtures/minimal-anchor.json'),
+                        '--idl-standard',
+                        'anchor',
+                        '--data-source',
+                        dataSource,
+                        '--metrics',
+                        'log',
+                        '--with-postgres',
+                        withPostgres,
+                        '--with-graphql',
+                        'false',
+                    ],
+                    { cwd: packageDirectory, encoding: 'utf8' },
+                );
+
+                assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+
+                const main = readFileSync(join(outputDirectory, name, 'indexer/src/main.rs'), 'utf8');
+                assert.equal(/\.account\(/.test(main), pipes.account, `account pipe, Postgres ${withPostgres}`);
+                assert.equal(
+                    /\.instruction\(/.test(main),
+                    pipes.instruction,
+                    `instruction pipe, Postgres ${withPostgres}`,
+                );
+            }
+        } finally {
+            rmSync(outputDirectory, { force: true, recursive: true });
+        }
+    });
+}
