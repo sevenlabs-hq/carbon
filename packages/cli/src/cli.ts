@@ -79,7 +79,7 @@ program
         'Event-CPI envelope for hidden-prefix Codama events as hex bytes (default: the Anchor event tag e445a52e51cb9a1d)',
     )
     .option('-u, --url <rpcUrl>', 'RPC URL for fetching IDL when using a program address')
-    .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
+    .option('--program-id <address>', 'Program ID (used if the IDL has no program address)')
     .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
@@ -207,7 +207,7 @@ program
         '--event-cpi-discriminator <hex>',
         'Event-CPI envelope for hidden-prefix Codama events as hex bytes (default: the Anchor event tag e445a52e51cb9a1d)',
     )
-    .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
+    .option('--program-id <address>', 'Program ID (used if the IDL has no program address)')
     .option('-s, --data-source <name>', 'Name of data source')
     .option('-m, --metrics <log|prometheus>', 'Metrics to use', 'log')
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')

@@ -52,7 +52,10 @@ export class Logger {
      * Warning message
      */
     warning(message: string): void {
+        // A running spinner redraws its own line; clear it first so the warning gets a line of its own.
+        this.spinner?.clear();
         console.log(chalk.yellow('⚠') + ' ' + chalk.yellow(message));
+        this.spinner?.render();
     }
 
     /**
