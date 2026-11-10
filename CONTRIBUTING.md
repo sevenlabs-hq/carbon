@@ -146,8 +146,8 @@ Run the following commands to ensure code quality:
 # Format code
 ./scripts/cargo-fmt.sh
 
-# Run clippy with strict settings
-./scripts/cargo-clippy.sh
+# Run clippy as CI does
+cargo clippy --all-targets --all-features -- -D warnings
 
 # Run tests
 cargo test
@@ -158,11 +158,13 @@ cargo machete
 
 ### Clippy Configuration
 
-The project uses a strict clippy configuration defined in `clippy.toml`:
+The clippy configuration in `clippy.toml` sets:
 
 - Minimum Rust version: 1.97.1
 - Maximum stack size for large types: 128 bytes
-- Denies warnings, default trait access, arithmetic side effects, manual let-else, and used underscore binding
+- Size threshold for large enum variants: 4096 bytes
+
+CI runs clippy with `-D warnings`, so any warning fails the build.
 
 ## Continuous Integration
 
@@ -221,7 +223,7 @@ The `carbon-test-utils` crate provides common testing utilities and fixtures for
 
 5. **Run quality checks**:
     ```bash
-    ./scripts/cargo-clippy.sh
+    cargo clippy --all-targets --all-features -- -D warnings
     ./scripts/cargo-fmt.sh
     cargo test
     ```
@@ -366,7 +368,7 @@ datasources/your-datasource/
 
     ```bash
     cargo test
-    ./scripts/cargo-clippy.sh
+    cargo clippy --all-targets --all-features -- -D warnings
     ./scripts/cargo-fmt.sh
     ```
 
