@@ -68,6 +68,10 @@ test('scaffolds a Carbon 2 Transaction V1-ready RPC project', () => {
         assert.match(cargoToml, /log = "0\.4\.28"/);
         assert.match(cargoToml, /^carbon-smoke-decoder = \{ path = "\.\.\/decoder", features/m);
 
+        // `.env` is loaded first, so a RUST_LOG set there reaches the logger.
+        assert.match(main, /dotenv::dotenv\(\)\.ok\(\);\s*env_logger::init\(\);/);
+        // ...and ends with a newline, so a line appended to it stays on its own line.
+        assert.match(readFileSync(join(projectDirectory, '.env'), 'utf8'), /^RPC_WS_URL=.*\n$/);
         assert.match(main, /encoding: Some\(UiTransactionEncoding::Base64\)/);
         assert.match(main, /transaction_details: Some\(TransactionDetails::Full\)/);
         assert.match(main, /max_supported_transaction_version: Some\(1\)/);

@@ -120,7 +120,8 @@ function getEnvContent(artifact: DatasourceArtifact | undefined, withPostgres: b
         lines.push(`${key}=your-${key.toLowerCase().replace(/_/g, '-')}-here`);
     }
 
-    return lines.join('\n');
+    // Every line ends with a newline, so a line appended later (`echo RUST_LOG=info >> .env`) stays separate.
+    return lines.map(line => `${line}\n`).join('');
 }
 
 export function renderScaffold(opts: ScaffoldOptions) {
