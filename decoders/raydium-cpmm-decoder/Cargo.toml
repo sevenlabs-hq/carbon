@@ -7,6 +7,7 @@ description = "Raydium CPMM Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/raydium-cpmm"
 keywords = ["solana", "decoder", "raydium", "cpmm"]
 categories = ["encoding"]
 

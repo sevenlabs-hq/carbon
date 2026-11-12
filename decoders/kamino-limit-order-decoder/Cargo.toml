@@ -7,6 +7,7 @@ description = "Kamino Limit Order Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/kamino-limit-order"
 keywords = ["solana", "decoder", "kamino", "limit-order"]
 categories = ["encoding"]
 

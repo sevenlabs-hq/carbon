@@ -7,6 +7,7 @@ description = "Carbon Token 2022 Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/token-2022"
 keywords = ["solana", "decoder", "token-2022"]
 categories = ["encoding"]
 

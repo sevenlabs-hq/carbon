@@ -7,6 +7,7 @@ description = "Stake Program Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/stake-program"
 keywords = ["solana", "decoder", "stake"]
 categories = ["encoding"]
 

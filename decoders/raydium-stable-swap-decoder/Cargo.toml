@@ -7,6 +7,7 @@ description = "Raydium Stable Swap Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/raydium-stable-swap"
 keywords = ["solana", "decoder", "raydium", "stable-swap"]
 categories = ["encoding"]
 

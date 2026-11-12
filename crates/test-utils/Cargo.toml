@@ -5,6 +5,8 @@ rust-version = { workspace = true }
 edition = { workspace = true }
 description = "Testing utilities for Carbon"
 license = { workspace = true }
+repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/reference/test-utils"
 keywords = ["solana", "indexer", "testing"]
 categories = ["encoding"]
 

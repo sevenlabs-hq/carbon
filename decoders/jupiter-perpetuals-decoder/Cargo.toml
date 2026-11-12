@@ -7,6 +7,7 @@ description = "Jupiter Perpetuals Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/jupiter-perpetuals"
 keywords = ["solana", "decoder", "jupiter"]
 categories = ["encoding"]
 

@@ -7,6 +7,7 @@ description = "PumpSwap Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/pump-swap"
 keywords = ["solana", "decoder", "pump-swap"]
 categories = ["encoding"]
 

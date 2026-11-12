@@ -7,6 +7,7 @@ description = "Carbon PancakeSwap Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/pancake-swap"
 keywords = ["solana", "decoder", "pancake-swap"]
 categories = ["encoding"]
 

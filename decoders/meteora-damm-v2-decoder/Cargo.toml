@@ -7,6 +7,7 @@ description = "Carbon Meteora Damm V2 Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/meteora-damm-v2"
 keywords = ["solana", "decoder", "meteora"]
 categories = ["encoding"]
 

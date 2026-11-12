@@ -7,6 +7,7 @@ description = "Address lookup table program decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/address-lookup-table"
 keywords = ["solana", "decoder", "address-lookup-table", "alt"]
 categories = ["encoding"]
 

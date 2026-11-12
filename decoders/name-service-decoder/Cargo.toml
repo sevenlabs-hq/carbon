@@ -7,6 +7,7 @@ description = "Name Service Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/name-service"
 keywords = ["solana", "decoder", "name"]
 categories = ["encoding"]
 

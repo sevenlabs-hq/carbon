@@ -7,6 +7,7 @@ description = "Heaven program decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/heaven"
 keywords = ["solana", "decoder", "heaven"]
 categories = ["encoding"]
 

@@ -7,6 +7,7 @@ description = "OKX DEX Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/okx-dex"
 keywords = ["solana", "decoder", "okx"]
 categories = ["encoding"]
 
