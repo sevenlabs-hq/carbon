@@ -7,6 +7,7 @@ description = "Lifinity AMM V2 Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/lifinity-amm-v2"
 keywords = ["solana", "decoder", "lifinity"]
 categories = ["encoding"]
 

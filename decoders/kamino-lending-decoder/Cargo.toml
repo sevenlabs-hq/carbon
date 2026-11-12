@@ -7,6 +7,7 @@ description = "Kamino Lending Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/kamino-lending"
 keywords = ["solana", "decoder", "kamino"]
 categories = ["encoding"]
 

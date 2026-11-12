@@ -7,6 +7,7 @@ description = "Phoenix V1 Decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/phoenix-v1"
 keywords = ["solana", "decoder", "phoenix"]
 categories = ["encoding"]
 

@@ -8,6 +8,49 @@ export type PackageMetadata = {
     categories?: string[];
 };
 
+/** Docs site for the crates in the Carbon repo; each decoder has a page at /decoders/<slug>. */
+export const CARBON_DOCS_URL = 'https://carbon.sevenlabs.org';
+
+/** The docs page of a decoder crate in the Carbon repo, e.g. carbon-raydium-amm-v4-decoder -> /decoders/raydium-amm-v4. */
+export function getDecoderDocsUrl(crateName: string): string {
+    const slug = crateName.replace(/^carbon-/, '').replace(/-decoder(?=-|$)/, '');
+    return `${CARBON_DOCS_URL}/decoders/${slug}`;
+}
+
+/** Returns the crate name the generated Cargo.toml uses, e.g. "carbon-raydium-amm-v4-decoder". */
+export function getDecoderPackageName(packageName?: string, programName?: string, versionName?: string): string {
+    let name =
+        packageName && packageName.trim()
+            ? `carbon-${kebabCase(packageName)}-decoder`
+            : programName && programName.trim()
+              ? `carbon-${kebabCase(programName)}-decoder`
+              : 'carbon-decoder';
+    if (versionName && versionName.trim()) {
+        name = `${name}-${kebabCase(versionName)}`;
+    }
+    return name;
+}
+
+/**
+ * README for a decoder crate. Crates published from the Carbon workspace link to their docs page;
+ * decoders generated elsewhere get the title only.
+ */
+export function generateDecoderReadme(options: {
+    displayName: string;
+    crateName: string;
+    programId?: string;
+    inCarbonWorkspace: boolean;
+}): string {
+    const { displayName, crateName, programId, inCarbonWorkspace } = options;
+    let md = `# Carbon ${displayName} Decoder\n`;
+    if (!inCarbonWorkspace) return md;
+    md += `\nDecodes ${displayName} instructions and accounts on Solana into typed Rust, for use in a [Carbon](https://github.com/sevenlabs-hq/carbon) pipeline.`;
+    if (programId) md += ` Program ID: \`${programId}\`.`;
+    md += `\n\nDocs, with a runnable example and every instruction, account and type: ${getDecoderDocsUrl(crateName)}\n`;
+    md += `\n\`\`\`sh\ncargo add ${crateName}\n\`\`\`\n`;
+    return md;
+}
+
 export function hasPackageMetadata(m?: PackageMetadata): boolean {
     return !!(
         m &&
@@ -90,16 +133,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     const keywords = hasMeta ? (packageMetadata!.keywords ?? deriveKeywords(packageName, programName)) : [];
     const categories = hasMeta ? (packageMetadata!.categories ?? ['encoding']) : [];
 
-    let decoderPackageName =
-        packageName && packageName.trim()
-            ? `carbon-${kebabCase(packageName)}-decoder`
-            : programName && programName.trim()
-              ? `carbon-${kebabCase(programName)}-decoder`
-              : 'carbon-decoder';
-
-    if (versionName && versionName.trim()) {
-        decoderPackageName = `${decoderPackageName}-${kebabCase(versionName)}`;
-    }
+    const decoderPackageName = getDecoderPackageName(packageName, programName, versionName);
 
     const carbonCoreDep = getCrateDependencyString(
         'carbon-core',
@@ -297,6 +331,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
                 'license = { workspace = true }',
                 'readme = "README.md"',
                 'repository = { workspace = true }',
+                `homepage = "${getDecoderDocsUrl(decoderPackageName)}"`,
             );
         } else {
             packageLines.push('readme = "README.md"');

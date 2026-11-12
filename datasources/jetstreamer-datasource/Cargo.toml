@@ -8,6 +8,7 @@ rust-version = { workspace = true }
 edition = "2024"
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/datasources"
 keywords = ["solana", "indexer", "jetstreamer", "datasource"]
 categories = ["encoding"]
 

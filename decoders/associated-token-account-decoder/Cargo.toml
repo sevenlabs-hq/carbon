@@ -7,6 +7,7 @@ description = "Associated Token Account program decoder"
 license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/decoders/associated-token-account"
 keywords = ["solana", "decoder", "associated-token", "ata"]
 categories = ["encoding"]
 

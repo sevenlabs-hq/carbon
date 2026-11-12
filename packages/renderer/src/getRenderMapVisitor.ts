@@ -27,6 +27,8 @@ import { getPostgresTypeManifestVisitor } from './getPostgresTypeManifestVisitor
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
 import {
     generateDecoderCargoToml,
+    generateDecoderReadme,
+    getDecoderPackageName,
     getReadmeDisplayName,
     hasPackageMetadata,
     type PackageMetadata,
@@ -981,7 +983,18 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             programName,
                             options.packageMetadata,
                         );
-                        map.add('README.md', `# Carbon ${readmeDisplayName} Decoder\n`);
+                        // Same rule as generateDecoderCargoToml: workspace deps mean the crate lives in the Carbon repo.
+                        const inCarbonWorkspace =
+                            options.workspaceDeps !== undefined ? options.workspaceDeps : options.standalone === false;
+                        map.add(
+                            'README.md',
+                            generateDecoderReadme({
+                                displayName: readmeDisplayName,
+                                crateName: getDecoderPackageName(options.packageName, programName, options.versionName),
+                                programId: programWithCustomName.publicKey,
+                                inCarbonWorkspace,
+                            }),
+                        );
                     }
 
                     return map.mergeWith(programRenderMap);

@@ -7,6 +7,7 @@ license = { workspace = true }
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
+homepage = "https://carbon.sevenlabs.org/reference/metrics"
 keywords = ["solana", "prometheus", "metrics"]
 categories = ["encoding"]
 
