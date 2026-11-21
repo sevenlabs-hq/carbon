@@ -86,6 +86,11 @@ static ACCOUNT_UPDATES_PROCESSED: Counter = Counter::new(
     "Total account updates processed",
 );
 
+pub(crate) static ACCOUNT_DECODE_FAILED: Counter = Counter::new(
+    "carbon_account_decode_failed_total",
+    "Accounts owned by a decoder's program that the decoder returned None for",
+);
+
 static TRANSACTION_UPDATES_PROCESSED: Counter = Counter::new(
     "carbon_transaction_updates_processed_total",
     "Total transaction updates processed",
@@ -139,6 +144,7 @@ fn register_pipeline_metrics() {
     registry.register_histogram(&PROCESSING_TIME_NANOS);
     registry.register_histogram(&PROCESSING_TIME_MILLIS);
     registry.register_counter(&ACCOUNT_UPDATES_PROCESSED);
+    registry.register_counter(&ACCOUNT_DECODE_FAILED);
     registry.register_counter(&TRANSACTION_UPDATES_PROCESSED);
     registry.register_counter(&ACCOUNT_DELETIONS_PROCESSED);
     registry.register_counter(&BLOCK_DETAILS_PROCESSED);

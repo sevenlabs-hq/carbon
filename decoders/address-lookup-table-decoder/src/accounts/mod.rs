@@ -43,4 +43,8 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for AddressLookupTableDecoder 
 
         None
     }
+
+    fn program_id(&self) -> Option<solana_pubkey::Pubkey> {
+        Some(PROGRAM_ID)
+    }
 }
