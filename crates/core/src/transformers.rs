@@ -19,7 +19,10 @@ use {
     crate::{
         datasource::TransactionUpdate,
         error::{CarbonResult, Error},
-        instruction::{InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
+        instruction::{
+            lacks_stack_heights, stack_heights_from_logs, InstructionMetadata,
+            MAX_INSTRUCTION_STACK_DEPTH,
+        },
         transaction::TransactionMetadata,
     },
     solana_instruction::AccountMeta,
@@ -29,9 +32,8 @@ use {
     solana_pubkey::Pubkey,
     solana_transaction_context::transaction::TransactionReturnData,
     solana_transaction_status::{
-        option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
-        TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
-        UiTransactionStatusMeta,
+        InnerInstruction, InnerInstructions, Reward, TransactionStatusMeta,
+        TransactionTokenBalance, UiInstruction, UiLoadedAddresses, UiTransactionStatusMeta,
     },
     std::{collections::HashSet, str::FromStr, sync::Arc},
 };
@@ -58,8 +60,8 @@ pub(crate) fn extract_instructions_from_parts(
         VersionedMessage::Legacy(legacy) => {
             process_instructions(
                 &legacy.account_keys,
-                &legacy.instructions,
-                &meta.inner_instructions,
+                message,
+                meta,
                 transaction_metadata,
                 &mut instructions_with_metadata,
                 |_, idx| {
@@ -81,8 +83,8 @@ pub(crate) fn extract_instructions_from_parts(
 
             process_instructions(
                 &account_keys,
-                &v0.instructions,
-                &meta.inner_instructions,
+                message,
+                meta,
                 transaction_metadata,
                 &mut instructions_with_metadata,
                 |key, idx| {
@@ -107,8 +109,8 @@ pub(crate) fn extract_instructions_from_parts(
         VersionedMessage::V1(v1) => {
             process_instructions(
                 &v1.account_keys,
-                &v1.instructions,
-                &meta.inner_instructions,
+                message,
+                meta,
                 transaction_metadata,
                 &mut instructions_with_metadata,
                 |_, idx| {
@@ -124,8 +126,8 @@ pub(crate) fn extract_instructions_from_parts(
 
 fn process_instructions<F1, F2>(
     account_keys: &[Pubkey],
-    instructions: &[CompiledInstruction],
-    inner: &Option<Vec<InnerInstructions>>,
+    message: &VersionedMessage,
+    meta: &TransactionStatusMeta,
     transaction_metadata: &Arc<TransactionMetadata>,
     result: &mut Vec<(InstructionMetadata, solana_instruction::Instruction)>,
     is_writable: F1,
@@ -134,7 +136,7 @@ fn process_instructions<F1, F2>(
     F1: Fn(&Pubkey, usize) -> bool,
     F2: Fn(&Pubkey, usize) -> bool,
 {
-    for (i, compiled_instruction) in instructions.iter().enumerate() {
+    for (i, compiled_instruction) in message.instructions().iter().enumerate() {
         let Some(instruction) =
             build_instruction(account_keys, compiled_instruction, &is_writable, &is_signer)
         else {
@@ -155,16 +157,30 @@ fn process_instructions<F1, F2>(
             instruction,
         ));
 
-        if let Some(inner_instructions) = inner {
+        if let Some(inner_instructions) = &meta.inner_instructions {
             for inner_tx in inner_instructions {
                 if inner_tx.index as usize == i {
                     let mut path_stack = [0; MAX_INSTRUCTION_STACK_DEPTH];
                     path_stack[0] = inner_tx.index;
                     let mut prev_height = 0;
+                    let missing_heights = if lacks_stack_heights(inner_tx) {
+                        stack_heights_from_logs(message, meta, inner_tx).unwrap_or_else(|| {
+                            log::warn!(
+                                "inner instructions without stack heights or matching logs in transaction {} at instruction {}, using stack height 2 for the whole group",
+                                transaction_metadata.signature,
+                                inner_tx.index,
+                            );
+                            vec![2; inner_tx.instructions.len()]
+                        })
+                    } else {
+                        Vec::new()
+                    };
 
-                    for inner_inst in &inner_tx.instructions {
-                        let Some(stack_height) = validated_stack_height(inner_inst.stack_height)
-                        else {
+                    for (position, inner_inst) in inner_tx.instructions.iter().enumerate() {
+                        let stack_height = inner_inst
+                            .stack_height
+                            .or(missing_heights.get(position).copied());
+                        let Some(stack_height) = validated_stack_height(stack_height) else {
                             log::warn!(
                                 "invalid inner instruction stack height ({:?}) in transaction {} at instruction {}, dropping the remaining inner instructions of this group",
                                 inner_inst.stack_height,
@@ -186,10 +202,18 @@ fn process_instructions<F1, F2>(
                             );
                             break;
                         };
+                        let sibling = &mut path_stack[stack_height - 1];
                         if stack_height > prev_height {
-                            path_stack[stack_height - 1] = 0;
+                            *sibling = 0;
+                        } else if let Some(next) = sibling.checked_add(1) {
+                            *sibling = next;
                         } else {
-                            path_stack[stack_height - 1] += 1;
+                            log::warn!(
+                                "more than 256 inner instructions under one parent in transaction {} at instruction {}, dropping the remaining inner instructions of this group",
+                                transaction_metadata.signature,
+                                inner_tx.index,
+                            );
+                            break;
                         }
 
                         result.push((
@@ -312,7 +336,7 @@ pub fn transaction_metadata_from_original_meta(
                                         accounts: vec![],
                                         data: vec![],
                                     },
-                                    stack_height: None,
+                                    stack_height: Some(0),
                                 }
                             }
                         })
@@ -330,21 +354,14 @@ pub fn transaction_metadata_from_original_meta(
                 .pre_token_balances
                 .unwrap_or_else(std::vec::Vec::new)
                 .iter()
-                .filter_map(|transaction_token_balance| {
-                    if let (OptionSerializer::Some(owner), OptionSerializer::Some(program_id)) = (
-                        transaction_token_balance.owner.as_ref(),
-                        transaction_token_balance.program_id.as_ref(),
-                    ) {
-                        Some(TransactionTokenBalance {
-                            account_index: transaction_token_balance.account_index,
-                            mint: transaction_token_balance.mint.clone(),
-                            ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
-                            owner: owner.to_string(),
-                            program_id: program_id.to_string(),
-                        })
-                    } else {
-                        None
-                    }
+                .map(|transaction_token_balance| TransactionTokenBalance {
+                    account_index: transaction_token_balance.account_index,
+                    mint: transaction_token_balance.mint.clone(),
+                    ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
+                    owner: Option::from(transaction_token_balance.owner.clone())
+                        .unwrap_or_default(),
+                    program_id: Option::from(transaction_token_balance.program_id.clone())
+                        .unwrap_or_default(),
                 })
                 .collect::<Vec<TransactionTokenBalance>>(),
         ),
@@ -353,21 +370,14 @@ pub fn transaction_metadata_from_original_meta(
                 .post_token_balances
                 .unwrap_or_else(std::vec::Vec::new)
                 .iter()
-                .filter_map(|transaction_token_balance| {
-                    if let (OptionSerializer::Some(owner), OptionSerializer::Some(program_id)) = (
-                        transaction_token_balance.owner.as_ref(),
-                        transaction_token_balance.program_id.as_ref(),
-                    ) {
-                        Some(TransactionTokenBalance {
-                            account_index: transaction_token_balance.account_index,
-                            mint: transaction_token_balance.mint.clone(),
-                            ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
-                            owner: owner.to_string(),
-                            program_id: program_id.to_string(),
-                        })
-                    } else {
-                        None
-                    }
+                .map(|transaction_token_balance| TransactionTokenBalance {
+                    account_index: transaction_token_balance.account_index,
+                    mint: transaction_token_balance.mint.clone(),
+                    ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
+                    owner: Option::from(transaction_token_balance.owner.clone())
+                        .unwrap_or_default(),
+                    program_id: Option::from(transaction_token_balance.program_id.clone())
+                        .unwrap_or_default(),
                 })
                 .collect::<Vec<TransactionTokenBalance>>(),
         ),
@@ -750,7 +760,8 @@ mod tests {
             .expect("extract instructions with metadata")
         };
 
-        assert_eq!(extract(vec![None]).len(), 1);
+        assert_eq!(extract(vec![None]).len(), 2);
+        assert_eq!(extract(vec![None, Some(2)]).len(), 1);
         assert_eq!(extract(vec![Some(1)]).len(), 1);
         assert_eq!(
             extract(vec![Some(MAX_INSTRUCTION_STACK_DEPTH as u32 + 1)]).len(),
@@ -766,6 +777,169 @@ mod tests {
         assert_eq!(partial.len(), 2);
         assert_eq!(partial[0].0.absolute_path, vec![0]);
         assert_eq!(partial[1].0.absolute_path, vec![0, 0]);
+    }
+
+    fn update_without_stack_heights(
+        programs: &[Pubkey],
+        top_level: &[u8],
+        groups: &[(u8, &[u8])],
+        logs: Option<Vec<String>>,
+    ) -> TransactionUpdate {
+        let instruction = |program_id_index: u8| CompiledInstruction {
+            program_id_index,
+            accounts: vec![],
+            data: vec![],
+        };
+        TransactionUpdate {
+            signature: Signature::default(),
+            transaction: VersionedTransaction {
+                signatures: vec![Signature::default()],
+                message: VersionedMessage::Legacy(Message {
+                    header: MessageHeader::default(),
+                    account_keys: programs.to_vec(),
+                    recent_blockhash: Hash::default(),
+                    instructions: top_level.iter().copied().map(instruction).collect(),
+                }),
+            },
+            meta: TransactionStatusMeta {
+                inner_instructions: Some(
+                    groups
+                        .iter()
+                        .map(|(index, programs)| InnerInstructions {
+                            index: *index,
+                            instructions: programs
+                                .iter()
+                                .map(|program| InnerInstruction {
+                                    instruction: instruction(*program),
+                                    stack_height: None,
+                                })
+                                .collect(),
+                        })
+                        .collect(),
+                ),
+                log_messages: logs,
+                ..Default::default()
+            },
+            is_vote: false,
+            slot: 1,
+            index: None,
+            block_time: None,
+            block_hash: None,
+            bank_id: None,
+        }
+    }
+
+    fn extracted_paths(update: &TransactionUpdate) -> Vec<Vec<u8>> {
+        extract_instructions_with_metadata(&Arc::new(TransactionMetadata::default()), update)
+            .expect("extract instructions with metadata")
+            .into_iter()
+            .map(|(metadata, _)| {
+                assert_eq!(metadata.stack_height as usize, metadata.absolute_path.len());
+                metadata.absolute_path
+            })
+            .collect()
+    }
+
+    #[test]
+    fn test_extract_instructions_takes_missing_stack_heights_from_logs() {
+        let precompile = Pubkey::from_str_const("Ed25519SigVerify111111111111111111111111111");
+        let [router, swap, token, loader] = [(); 4].map(|_| Pubkey::new_unique());
+        let groups: [(u8, &[u8]); 3] = [(1, &[4]), (2, &[2, 3, 3, 3]), (3, &[2, 3])];
+        let invoke = |program: Pubkey, depth: u8| format!("Program {program} invoke [{depth}]");
+        let logs = [
+            invoke(swap, 2),
+            invoke(router, 1),
+            invoke(router, 1),
+            invoke(swap, 2),
+            invoke(token, 3),
+            "Program log: invoke [1]".to_string(),
+            invoke(token, 3),
+            invoke(token, 2),
+            invoke(router, 1),
+            invoke(swap, 2),
+            invoke(token, 3),
+        ];
+        let paths = |logs: Option<Vec<String>>| {
+            extracted_paths(&update_without_stack_heights(
+                &[precompile, router, swap, token, loader],
+                &[0, 1, 1, 1],
+                &groups,
+                logs,
+            ))
+        };
+
+        assert_eq!(
+            paths(Some(logs.to_vec())),
+            vec![
+                vec![0],
+                vec![1],
+                vec![1, 0],
+                vec![2],
+                vec![2, 0],
+                vec![2, 0, 0],
+                vec![2, 0, 1],
+                vec![2, 1],
+                vec![3],
+                vec![3, 0],
+                vec![3, 0, 0],
+            ]
+        );
+
+        let flat = vec![
+            vec![0],
+            vec![1],
+            vec![1, 0],
+            vec![2],
+            vec![2, 0],
+            vec![2, 1],
+            vec![2, 2],
+            vec![2, 3],
+            vec![3],
+            vec![3, 0],
+            vec![3, 1],
+        ];
+        let truncated = [&logs[..5], &["Log truncated".to_string()]].concat();
+        let other_programs = logs.map(|log| log.replace(&token.to_string(), &swap.to_string()));
+        assert_eq!(paths(None), flat);
+        assert_eq!(paths(Some(truncated)), flat);
+        assert_eq!(paths(Some(other_programs.to_vec())), flat);
+    }
+
+    #[test]
+    fn test_extract_instructions_stops_at_256_inner_instructions_under_one_parent() {
+        let update =
+            update_without_stack_heights(&[Pubkey::new_unique()], &[0], &[(0, &[0; 300])], None);
+
+        let paths = extracted_paths(&update);
+
+        assert_eq!(paths.len(), 257);
+        assert_eq!(paths.iter().collect::<HashSet<_>>().len(), 257);
+    }
+
+    #[test]
+    fn test_extract_instructions_skips_parsed_inner_instructions() {
+        let meta: UiTransactionStatusMeta = serde_json::from_value(serde_json::json!({
+            "err": null,
+            "status": { "Ok": null },
+            "fee": 5000,
+            "preBalances": [],
+            "postBalances": [],
+            "innerInstructions": [{
+                "index": 0,
+                "instructions": [{
+                    "program": "spl-memo",
+                    "programId": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+                    "parsed": "gm",
+                    "stackHeight": 2
+                }]
+            }]
+        }))
+        .expect("deserialize meta");
+        let mut update = update_without_stack_heights(&[Pubkey::new_unique()], &[0], &[], None);
+        update.meta = transaction_metadata_from_original_meta(meta)
+            .expect("transaction metadata from original meta");
+
+        assert_eq!(extracted_paths(&update), vec![vec![0]]);
     }
 
     #[test]
@@ -1424,6 +1598,74 @@ mod tests {
         assert_eq!(nested_instructions[1].inner_instructions.len(), 0);
         assert_eq!(nested_instructions[2].inner_instructions.len(), 0);
         assert_eq!(nested_instructions[3].inner_instructions.len(), 2);
+    }
+
+    #[test]
+    fn test_transaction_metadata_from_original_meta_keeps_token_balances_without_owner_or_program_id(
+    ) {
+        let meta: UiTransactionStatusMeta = serde_json::from_value(serde_json::json!({
+            "err": null,
+            "status": { "Ok": null },
+            "fee": 5000,
+            "preBalances": [],
+            "postBalances": [],
+            "preTokenBalances": [{
+                "accountIndex": 8,
+                "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "uiTokenAmount": {
+                    "amount": "20265968972348",
+                    "decimals": 6,
+                    "uiAmount": 20265968.972348,
+                    "uiAmountString": "20265968.972348"
+                }
+            }],
+            "postTokenBalances": [{
+                "accountIndex": 1,
+                "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "owner": "61o5FKQ7h2BFB1SVVBXqtiGy4oAy2wcNuDXoxUdAYWQq",
+                "uiTokenAmount": {
+                    "amount": "5563807750",
+                    "decimals": 6,
+                    "uiAmount": 5563.80775,
+                    "uiAmountString": "5563.80775"
+                }
+            }]
+        }))
+        .expect("deserialize meta");
+
+        let tx_meta = transaction_metadata_from_original_meta(meta)
+            .expect("transaction metadata from original meta");
+
+        assert_eq!(
+            tx_meta.pre_token_balances,
+            Some(vec![TransactionTokenBalance {
+                account_index: 8,
+                mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v".to_owned(),
+                ui_token_amount: UiTokenAmount {
+                    ui_amount: Some(20265968.972348),
+                    decimals: 6,
+                    amount: "20265968972348".to_owned(),
+                    ui_amount_string: "20265968.972348".to_owned(),
+                },
+                owner: String::new(),
+                program_id: String::new(),
+            }])
+        );
+        assert_eq!(
+            tx_meta.post_token_balances,
+            Some(vec![TransactionTokenBalance {
+                account_index: 1,
+                mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v".to_owned(),
+                ui_token_amount: UiTokenAmount {
+                    ui_amount: Some(5563.80775),
+                    decimals: 6,
+                    amount: "5563807750".to_owned(),
+                    ui_amount_string: "5563.80775".to_owned(),
+                },
+                owner: "61o5FKQ7h2BFB1SVVBXqtiGy4oAy2wcNuDXoxUdAYWQq".to_owned(),
+                program_id: String::new(),
+            }])
+        );
     }
 
     #[test]

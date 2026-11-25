@@ -23,6 +23,9 @@ use {
         error::CarbonResult, filter::Filter, processor::Processor, transaction::TransactionMetadata,
     },
     async_trait::async_trait,
+    solana_message::{AccountKeys, VersionedMessage},
+    solana_pubkey::Pubkey,
+    solana_transaction_status::{InnerInstructions, TransactionStatusMeta},
     std::{
         ops::{Deref, DerefMut},
         sync::Arc,
@@ -71,6 +74,8 @@ const PROGRAM_DATA_LOG_PREFIX: &str = "Program data: ";
 impl InstructionMetadata {
     /// Decodes the events the program logged through `sol_log_data` at this
     /// instruction's path. Each `Program data:` field is tried independently.
+    /// Empty for an inner instruction whose stack height is neither recorded
+    /// nor in the logs.
     pub fn decode_log_events<T>(&self, mut decode: impl FnMut(&[u8]) -> Option<T>) -> Vec<T> {
         self.extract_event_log_data()
             .into_iter()
@@ -83,6 +88,10 @@ impl InstructionMetadata {
             Some(logs) => logs,
             None => return Vec::new(),
         };
+
+        if self.has_assumed_stack_height() {
+            return Vec::new();
+        }
 
         let precompile_offset = self.count_precompiles_before_index();
         let adjusted_absolute_path: Vec<u8> = if !self.absolute_path.is_empty() {
@@ -167,6 +176,17 @@ impl InstructionMetadata {
         precompile_count
     }
 
+    fn has_assumed_stack_height(&self) -> bool {
+        let TransactionMetadata { message, meta, .. } = self.transaction_metadata.as_ref();
+
+        self.stack_height > 1
+            && meta.inner_instructions.iter().flatten().any(|group| {
+                u32::from(group.index) == self.index
+                    && lacks_stack_heights(group)
+                    && stack_heights_from_logs(message, meta, group).is_none()
+            })
+    }
+
     fn parse_log(&self, log: &str) -> LogType {
         let parts: Vec<&str> = log.split_whitespace().collect();
         let ["Program", program_id, rest @ ..] = parts.as_slice() else {
@@ -187,6 +207,65 @@ impl InstructionMetadata {
             _ => LogType::Data,
         }
     }
+}
+
+pub(crate) fn lacks_stack_heights(group: &InnerInstructions) -> bool {
+    !group.instructions.is_empty()
+        && group
+            .instructions
+            .iter()
+            .all(|inner| inner.stack_height.is_none())
+}
+
+/// Stack heights of an inner instruction group recorded without them, read from
+/// the `invoke [n]` lines its top-level instruction logged. Some top-level
+/// instructions log nothing, so they are matched to the logs by program. `None`
+/// if the lines don't list the group's programs in order.
+pub(crate) fn stack_heights_from_logs(
+    message: &VersionedMessage,
+    meta: &TransactionStatusMeta,
+    group: &InnerInstructions,
+) -> Option<Vec<u32>> {
+    let account_keys =
+        AccountKeys::new(message.static_account_keys(), Some(&meta.loaded_addresses));
+    let invokes: Vec<(Pubkey, u32)> = meta
+        .log_messages
+        .iter()
+        .flatten()
+        .filter_map(|log| {
+            let invoke = log.strip_prefix("Program ")?.strip_suffix(']')?;
+            let (program_id, stack_height) = invoke.split_once(" invoke [")?;
+            Some((program_id.parse().ok()?, stack_height.parse().ok()?))
+        })
+        .collect();
+    let mut logged = invokes
+        .chunk_by(|_, (_, stack_height)| *stack_height != 1)
+        .filter(|lines| lines[0].1 == 1)
+        .peekable();
+    let (_, inner) = message
+        .instructions()
+        .iter()
+        .map(|instruction| {
+            let program_id = account_keys.get(instruction.program_id_index as usize);
+            logged.next_if(|lines| Some(&lines[0].0) == program_id)
+        })
+        .nth(group.index as usize)??
+        .split_first()?;
+    let recorded = group
+        .instructions
+        .iter()
+        .map(|inner| account_keys.get(inner.instruction.program_id_index as usize));
+
+    inner
+        .iter()
+        .map(|(program_id, _)| Some(program_id))
+        .eq(recorded)
+        .then(|| {
+            inner
+                .iter()
+                .map(|(_, stack_height)| *stack_height)
+                .collect()
+        })
 }
 
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
@@ -404,8 +483,6 @@ mod tests {
     use {
         super::*,
         solana_instruction::{AccountMeta, Instruction},
-        solana_pubkey::Pubkey,
-        solana_transaction_status::TransactionStatusMeta,
         std::str::FromStr,
     };
 
@@ -674,6 +751,68 @@ mod tests {
 
         assert_eq!(events(vec![0]), vec![vec![9, 42]]);
         assert!(events(vec![0, 0]).is_empty());
+    }
+
+    #[test]
+    fn test_extract_event_log_data_skips_inner_instructions_with_assumed_stack_heights() {
+        use {
+            solana_message::compiled_instruction::CompiledInstruction,
+            solana_transaction_status::InnerInstruction,
+        };
+
+        let [router, swap, token] = [(); 3].map(|_| Pubkey::new_unique());
+        let instruction = |program_id_index: u8| CompiledInstruction {
+            program_id_index,
+            accounts: vec![],
+            data: vec![],
+        };
+        let events = |absolute_path: Vec<u8>, inner_programs: &[u8], stack_height: Option<u32>| {
+            let logs = vec![
+                format!("Program {router} invoke [1]"),
+                "Program data: Kg==".to_string(),
+                format!("Program {swap} invoke [2]"),
+                format!("Program {token} invoke [3]"),
+                format!("Program {token} success"),
+                format!("Program {swap} success"),
+                format!("Program {swap} invoke [2]"),
+                "Program data: CSo=".to_string(),
+                "Log truncated".to_string(),
+            ];
+            let mut metadata = create_metadata_with_message(
+                absolute_path.clone(),
+                absolute_path.len() as u32,
+                logs,
+                vec![router, swap],
+                vec![instruction(0), instruction(0)],
+            );
+            let group = |index: u8, programs: &[u8], stack_height: Option<u32>| InnerInstructions {
+                index,
+                instructions: programs
+                    .iter()
+                    .map(|program| InnerInstruction {
+                        instruction: instruction(*program),
+                        stack_height,
+                    })
+                    .collect(),
+            };
+            let meta = &mut Arc::get_mut(&mut metadata.transaction_metadata)
+                .expect("unique transaction metadata")
+                .meta;
+            meta.loaded_addresses.readonly = vec![token];
+            meta.inner_instructions = Some(vec![
+                group(0, inner_programs, stack_height),
+                group(1, &[1], None),
+            ]);
+            metadata.extract_event_log_data()
+        };
+
+        assert_eq!(events(vec![0, 1], &[1, 2, 1], None), vec![vec![9, 42]]);
+        assert!(events(vec![0, 1], &[1, 2, 1, 2], None).is_empty());
+        assert_eq!(events(vec![0], &[1, 2, 1, 2], None), vec![vec![42]]);
+        assert_eq!(
+            events(vec![0, 1], &[1, 2, 1, 2], Some(2)),
+            vec![vec![9, 42]]
+        );
     }
 
     #[test]
