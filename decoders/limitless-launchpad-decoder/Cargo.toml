@@ -1,0 +1,33 @@
+[package]
+name = "carbon-limitless-launchpad-decoder"
+version = "2.0.0"
+rust-version = { workspace = true }
+edition = { workspace = true }
+description = "Limitless Solana Launchpad program decoder"
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+homepage = "https://limitless.buzz"
+keywords = ["solana", "decoder", "limitless", "launchpad"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = []
+serde = ["dep:serde", "dep:serde-big-array"]
+
+[dependencies]
+borsh = { workspace = true, features = ["derive"] }
+carbon-core = { workspace = true, features = ["macros"] }
+serde = { workspace = true, features = ["derive"], optional = true }
+serde-big-array = { workspace = true, optional = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true }
+solana-pubkey = { workspace = true, features = ["borsh"] }
+
+[dev-dependencies]
+base64 = { workspace = true }
+bs58 = { workspace = true, features = ["std"] }
+serde_json = { workspace = true }

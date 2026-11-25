@@ -67,6 +67,7 @@ carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder", vers
 carbon-kamino-limit-order-decoder = { path = "decoders/kamino-limit-order-decoder", version = "2.0.0" }
 carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder", version = "2.0.0" }
 carbon-lifinity-amm-v2-decoder = { path = "decoders/lifinity-amm-v2-decoder", version = "2.0.0" }
+carbon-limitless-launchpad-decoder = { path = "decoders/limitless-launchpad-decoder", version = "2.0.0" }
 carbon-marginfi-v2-decoder = { path = "decoders/marginfi-v2-decoder", version = "2.0.0" }
 carbon-marinade-finance-decoder = { path = "decoders/marinade-finance-decoder", version = "2.0.0" }
 carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "2.0.0" }
