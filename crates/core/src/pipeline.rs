@@ -205,10 +205,12 @@ impl Pipeline {
         let (update_sender, mut update_receiver) =
             tokio::sync::mpsc::channel::<(Update, DatasourceId)>(self.channel_buffer_size);
 
-        let datasource_cancellation_token = self
+        let cancellation_token = self
             .datasource_cancellation_token
             .clone()
             .unwrap_or_default();
+        let datasource_cancellation_token = cancellation_token.child_token();
+        let _guard = datasource_cancellation_token.clone().drop_guard();
 
         let mut datasource_tasks = Vec::with_capacity(self.datasources.len());
         for datasource in &self.datasources {
@@ -253,7 +255,7 @@ impl Pipeline {
                     draining = true;
                 }
                 _ = &mut ctrl_c, if !datasource_cancellation_token.is_cancelled() => {
-                    datasource_cancellation_token.cancel();
+                    cancellation_token.cancel();
                 }
                 update = update_receiver.recv() => {
                     match update {
