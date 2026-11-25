@@ -20,8 +20,7 @@
 
 use {
     crate::{
-        deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter, processor::Processor,
-        transaction::TransactionMetadata,
+        error::CarbonResult, filter::Filter, processor::Processor, transaction::TransactionMetadata,
     },
     async_trait::async_trait,
     solana_message::{AccountKeys, VersionedMessage},
@@ -77,10 +76,10 @@ impl InstructionMetadata {
     /// instruction's path. Each `Program data:` field is tried independently.
     /// Empty for an inner instruction whose stack height is neither recorded
     /// nor in the logs.
-    pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
+    pub fn decode_log_events<T>(&self, mut decode: impl FnMut(&[u8]) -> Option<T>) -> Vec<T> {
         self.extract_event_log_data()
             .into_iter()
-            .filter_map(|log| <T as CarbonDeserialize>::deserialize(&log))
+            .filter_map(|log| decode(&log))
             .collect()
     }
 
@@ -583,17 +582,10 @@ mod tests {
         assert_eq!(nested_instructions.0[1].inner_instructions.len(), 1);
     }
 
-    #[derive(crate::borsh::BorshDeserialize)]
-    struct TinyEvent {
-        value: u8,
-    }
-
-    impl CarbonDeserialize for TinyEvent {
-        const DISCRIMINATOR: &'static [u8] = &[9];
-
-        fn deserialize(data: &[u8]) -> Option<Self> {
-            let payload = data.strip_prefix(Self::DISCRIMINATOR)?;
-            crate::borsh::BorshDeserialize::try_from_slice(payload).ok()
+    fn decode_tiny_event(data: &[u8]) -> Option<u8> {
+        match data {
+            [9, value] => Some(*value),
+            _ => None,
         }
     }
 
@@ -611,9 +603,7 @@ mod tests {
             vec![],
         );
 
-        let events = metadata.decode_log_events::<TinyEvent>();
-        assert_eq!(events.len(), 1);
-        assert_eq!(events[0].value, 42);
+        assert_eq!(metadata.decode_log_events(decode_tiny_event), vec![42]);
     }
 
     #[test]
@@ -630,9 +620,13 @@ mod tests {
             vec![],
         );
 
-        let events = metadata.decode_log_events::<TinyEvent>();
-        let values: Vec<u8> = events.iter().map(|event| event.value).collect();
-        assert_eq!(values, vec![42, 43]);
+        let mut tried = 0;
+        let events = metadata.decode_log_events(|data| {
+            tried += 1;
+            decode_tiny_event(data)
+        });
+        assert_eq!(events, vec![42, 43]);
+        assert_eq!(tried, 3);
     }
 
     #[test]

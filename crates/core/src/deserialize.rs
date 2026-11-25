@@ -2,8 +2,6 @@
 //!
 //! # Components
 //!
-//! - [`CarbonDeserialize`] — discriminator-prefixed borsh deserialization
-//!   contract used by every generated instruction/account decoder.
 //! - [`extract_discriminator`] — splits raw bytes into `(discriminator,
 //!   payload)`.
 //! - [`ArrangeAccounts`] — turns the positional `&[AccountMeta]` of an
@@ -15,19 +13,6 @@ use std::{
     io::{Error, ErrorKind, Read, Result},
     ops::Deref,
 };
-/// Discriminator-prefixed borsh deserialization contract.
-///
-/// Implementors define a static `DISCRIMINATOR` byte slice (typically
-/// 8 bytes for Anchor-style programs) and `deserialize` is expected to
-/// peel that prefix off before delegating to `BorshDeserialize`.
-pub trait CarbonDeserialize
-where
-    Self: Sized + crate::borsh::BorshDeserialize,
-{
-    const DISCRIMINATOR: &'static [u8];
-
-    fn deserialize(data: &[u8]) -> Option<Self>;
-}
 
 pub fn extract_discriminator(length: usize, data: &[u8]) -> Option<(&[u8], &[u8])> {
     if data.len() < length {
