@@ -41,9 +41,6 @@ pub enum ConversionError {
     #[error("value {value} for `{field}` does not fit in a u8")]
     IntegerOutOfRange { field: &'static str, value: u32 },
 
-    #[error("invalid enum value {value} for `{field}`")]
-    InvalidEnum { field: &'static str, value: i32 },
-
     #[error("invalid numeric value `{value}` for `{field}`")]
     InvalidNumber { field: &'static str, value: String },
 
@@ -290,12 +287,9 @@ fn create_meta_inner_instruction(
 }
 
 fn create_reward(reward: proto::Reward) -> ConversionResult<Reward> {
-    let reward_type = match proto::RewardType::try_from(reward.reward_type).map_err(|_| {
-        ConversionError::InvalidEnum {
-            field: "meta.rewards.reward_type",
-            value: reward.reward_type,
-        }
-    })? {
+    let reward_type = match proto::RewardType::try_from(reward.reward_type)
+        .unwrap_or(proto::RewardType::Unspecified)
+    {
         proto::RewardType::Unspecified => None,
         proto::RewardType::Fee => Some(RewardType::Fee),
         proto::RewardType::Rent => Some(RewardType::Rent),
@@ -802,5 +796,30 @@ mod tests {
         assert_eq!(meta.inner_instructions, None);
         assert_eq!(meta.log_messages, None);
         assert_eq!(meta.return_data, None);
+    }
+
+    #[test]
+    fn block_details_keep_rewards_of_unknown_types() {
+        let reward = |reward_type: i32| proto::Reward {
+            pubkey: "vote-account".to_owned(),
+            lamports: 25,
+            post_balance: 1_025,
+            reward_type,
+            ..Default::default()
+        };
+        let block_details = create_block_details(proto::SubscribeUpdateBlockMeta {
+            rewards: Some(proto::Rewards {
+                rewards: vec![reward(99), reward(proto::RewardType::Voting as i32)],
+                num_partitions: None,
+            }),
+            ..Default::default()
+        })
+        .unwrap();
+
+        let rewards = block_details.rewards.unwrap();
+        assert_eq!(rewards.len(), 2);
+        assert_eq!(rewards[0].reward_type, None);
+        assert_eq!(rewards[0].lamports, 25);
+        assert_eq!(rewards[1].reward_type, Some(RewardType::Voting));
     }
 }
