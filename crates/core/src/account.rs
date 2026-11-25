@@ -14,7 +14,9 @@
 //!   processor + filters; constructed by `PipelineBuilder`.
 
 use {
-    crate::{error::CarbonResult, filter::Filter, processor::Processor},
+    crate::{
+        error::CarbonResult, filter::Filter, pipeline::ACCOUNT_DECODE_FAILED, processor::Processor,
+    },
     async_trait::async_trait,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
@@ -50,6 +52,16 @@ pub trait AccountDecoder<'a> {
         &self,
         account: &'a solana_account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>>;
+
+    /// Program these accounts belong to, when it is known statically.
+    ///
+    /// The pipe uses it to tell a foreign account (normal, not counted) apart
+    /// from an account owned by this program that failed to decode (counted in
+    /// `carbon_account_decode_failed_total`). Defaults to `None`, so decoders
+    /// that do not override it keep the old silent-skip behaviour.
+    fn program_id(&self) -> Option<Pubkey> {
+        None
+    }
 }
 
 /// Borrowed bundle handed to a `Processor<AccountProcessorInputType<T>>`.
@@ -105,19 +117,123 @@ where
         account_metadata: &AccountMetadata,
         account: &solana_account::Account,
     ) -> CarbonResult<()> {
-        if let Some(decoded_account) = self.decoder.decode_account(account) {
-            let data = AccountProcessorInputType {
-                metadata: account_metadata,
-                decoded_account: &decoded_account,
-                raw_account: account,
-            };
+        match self.decoder.decode_account(account) {
+            Some(decoded_account) => {
+                let data = AccountProcessorInputType {
+                    metadata: account_metadata,
+                    decoded_account: &decoded_account,
+                    raw_account: account,
+                };
 
-            self.processor.process(&data).await?;
+                self.processor.process(&data).await?;
+            }
+            None => {
+                if self.decoder.program_id() == Some(account.owner) {
+                    ACCOUNT_DECODE_FAILED.inc();
+                    log::debug!(
+                        "failed to decode account owned by the decoder's program. pubkey: {}, slot: {}",
+                        account_metadata.pubkey,
+                        account_metadata.slot
+                    );
+                }
+            }
         }
         Ok(())
     }
 
     fn filters(&self) -> &[Box<dyn Filter + 'static>] {
         &self.filters
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use {super::*, crate::pipeline::ACCOUNT_DECODE_FAILED};
+
+    const TEST_PROGRAM_ID: Pubkey = Pubkey::from_str_const("11111111111111111111111111111111");
+
+    struct TestAccount;
+
+    struct TestDecoder;
+
+    impl<'a> AccountDecoder<'a> for TestDecoder {
+        type AccountType = TestAccount;
+
+        fn decode_account(
+            &self,
+            account: &'a solana_account::Account,
+        ) -> Option<DecodedAccount<Self::AccountType>> {
+            if account.owner != TEST_PROGRAM_ID {
+                return None;
+            }
+
+            if account.data.is_empty() {
+                return None;
+            }
+
+            Some(DecodedAccount {
+                lamports: account.lamports,
+                data: TestAccount,
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            })
+        }
+
+        fn program_id(&self) -> Option<Pubkey> {
+            Some(TEST_PROGRAM_ID)
+        }
+    }
+
+    struct TestProcessor;
+
+    impl<'a> Processor<AccountProcessorInputType<'a, TestAccount>> for TestProcessor {
+        async fn process(
+            &mut self,
+            _data: &AccountProcessorInputType<'a, TestAccount>,
+        ) -> CarbonResult<()> {
+            Ok(())
+        }
+    }
+
+    fn account(owner: Pubkey, data: Vec<u8>) -> solana_account::Account {
+        solana_account::Account {
+            lamports: 1,
+            data,
+            owner,
+            executable: false,
+            rent_epoch: 0,
+        }
+    }
+
+    #[tokio::test]
+    async fn decode_failures_are_counted_only_for_the_decoders_own_program() {
+        let mut pipe = AccountPipe::new(Box::new(TestDecoder), TestProcessor, Vec::new());
+        let metadata = AccountMetadata {
+            slot: 1,
+            pubkey: Pubkey::new_unique(),
+            transaction_signature: None,
+            bank_id: None,
+        };
+
+        let before = ACCOUNT_DECODE_FAILED.get();
+
+        // Foreign account that also fails to decode: not counted.
+        pipe.run(&metadata, &account(Pubkey::new_unique(), Vec::new()))
+            .await
+            .unwrap();
+        assert_eq!(ACCOUNT_DECODE_FAILED.get(), before);
+
+        // Own account with valid data: not counted.
+        pipe.run(&metadata, &account(TEST_PROGRAM_ID, vec![1]))
+            .await
+            .unwrap();
+        assert_eq!(ACCOUNT_DECODE_FAILED.get(), before);
+
+        // Own account that fails to decode: counted once.
+        pipe.run(&metadata, &account(TEST_PROGRAM_ID, Vec::new()))
+            .await
+            .unwrap();
+        assert_eq!(ACCOUNT_DECODE_FAILED.get(), before + 1);
     }
 }
