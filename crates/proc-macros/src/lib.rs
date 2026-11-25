@@ -147,6 +147,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
     let mut instruction_variants = Vec::new();
     let mut instruction_type_variants = Vec::new();
     let mut program_variants = Vec::new();
+    let mut program_id_names = Vec::new();
     let mut parse_instruction_match_arms = Vec::new();
     let mut fallback_decode_blocks = Vec::new();
     let mut get_type_arms = Vec::new();
@@ -188,6 +189,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
                         .map(#instructions_enum_name::#program_variant)
                 }
             });
+            program_id_names.extend(program_id_path.get_ident().cloned());
         } else {
             // No program id path: include in slow-path fallback.
             fallback_decode_blocks.push(quote! {
@@ -226,6 +228,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             fn parse_instruction(
                 instruction: &solana_instruction::Instruction
             ) -> Option<Self> {
+                #(let _ = || instruction.program_id == #program_id_names;)*
                 match instruction.program_id {
                     #(#parse_instruction_match_arms),*
                     _ => {
