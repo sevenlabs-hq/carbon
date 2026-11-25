@@ -29,9 +29,8 @@ use {
     solana_pubkey::Pubkey,
     solana_transaction_context::transaction::TransactionReturnData,
     solana_transaction_status::{
-        option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
-        TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
-        UiTransactionStatusMeta,
+        InnerInstruction, InnerInstructions, Reward, TransactionStatusMeta,
+        TransactionTokenBalance, UiInstruction, UiLoadedAddresses, UiTransactionStatusMeta,
     },
     std::{collections::HashSet, str::FromStr, sync::Arc},
 };
@@ -330,21 +329,14 @@ pub fn transaction_metadata_from_original_meta(
                 .pre_token_balances
                 .unwrap_or_else(std::vec::Vec::new)
                 .iter()
-                .filter_map(|transaction_token_balance| {
-                    if let (OptionSerializer::Some(owner), OptionSerializer::Some(program_id)) = (
-                        transaction_token_balance.owner.as_ref(),
-                        transaction_token_balance.program_id.as_ref(),
-                    ) {
-                        Some(TransactionTokenBalance {
-                            account_index: transaction_token_balance.account_index,
-                            mint: transaction_token_balance.mint.clone(),
-                            ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
-                            owner: owner.to_string(),
-                            program_id: program_id.to_string(),
-                        })
-                    } else {
-                        None
-                    }
+                .map(|transaction_token_balance| TransactionTokenBalance {
+                    account_index: transaction_token_balance.account_index,
+                    mint: transaction_token_balance.mint.clone(),
+                    ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
+                    owner: Option::from(transaction_token_balance.owner.clone())
+                        .unwrap_or_default(),
+                    program_id: Option::from(transaction_token_balance.program_id.clone())
+                        .unwrap_or_default(),
                 })
                 .collect::<Vec<TransactionTokenBalance>>(),
         ),
@@ -353,21 +345,14 @@ pub fn transaction_metadata_from_original_meta(
                 .post_token_balances
                 .unwrap_or_else(std::vec::Vec::new)
                 .iter()
-                .filter_map(|transaction_token_balance| {
-                    if let (OptionSerializer::Some(owner), OptionSerializer::Some(program_id)) = (
-                        transaction_token_balance.owner.as_ref(),
-                        transaction_token_balance.program_id.as_ref(),
-                    ) {
-                        Some(TransactionTokenBalance {
-                            account_index: transaction_token_balance.account_index,
-                            mint: transaction_token_balance.mint.clone(),
-                            ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
-                            owner: owner.to_string(),
-                            program_id: program_id.to_string(),
-                        })
-                    } else {
-                        None
-                    }
+                .map(|transaction_token_balance| TransactionTokenBalance {
+                    account_index: transaction_token_balance.account_index,
+                    mint: transaction_token_balance.mint.clone(),
+                    ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
+                    owner: Option::from(transaction_token_balance.owner.clone())
+                        .unwrap_or_default(),
+                    program_id: Option::from(transaction_token_balance.program_id.clone())
+                        .unwrap_or_default(),
                 })
                 .collect::<Vec<TransactionTokenBalance>>(),
         ),
@@ -1424,6 +1409,74 @@ mod tests {
         assert_eq!(nested_instructions[1].inner_instructions.len(), 0);
         assert_eq!(nested_instructions[2].inner_instructions.len(), 0);
         assert_eq!(nested_instructions[3].inner_instructions.len(), 2);
+    }
+
+    #[test]
+    fn test_transaction_metadata_from_original_meta_keeps_token_balances_without_owner_or_program_id(
+    ) {
+        let meta: UiTransactionStatusMeta = serde_json::from_value(serde_json::json!({
+            "err": null,
+            "status": { "Ok": null },
+            "fee": 5000,
+            "preBalances": [],
+            "postBalances": [],
+            "preTokenBalances": [{
+                "accountIndex": 8,
+                "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "uiTokenAmount": {
+                    "amount": "20265968972348",
+                    "decimals": 6,
+                    "uiAmount": 20265968.972348,
+                    "uiAmountString": "20265968.972348"
+                }
+            }],
+            "postTokenBalances": [{
+                "accountIndex": 1,
+                "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "owner": "61o5FKQ7h2BFB1SVVBXqtiGy4oAy2wcNuDXoxUdAYWQq",
+                "uiTokenAmount": {
+                    "amount": "5563807750",
+                    "decimals": 6,
+                    "uiAmount": 5563.80775,
+                    "uiAmountString": "5563.80775"
+                }
+            }]
+        }))
+        .expect("deserialize meta");
+
+        let tx_meta = transaction_metadata_from_original_meta(meta)
+            .expect("transaction metadata from original meta");
+
+        assert_eq!(
+            tx_meta.pre_token_balances,
+            Some(vec![TransactionTokenBalance {
+                account_index: 8,
+                mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v".to_owned(),
+                ui_token_amount: UiTokenAmount {
+                    ui_amount: Some(20265968.972348),
+                    decimals: 6,
+                    amount: "20265968972348".to_owned(),
+                    ui_amount_string: "20265968.972348".to_owned(),
+                },
+                owner: String::new(),
+                program_id: String::new(),
+            }])
+        );
+        assert_eq!(
+            tx_meta.post_token_balances,
+            Some(vec![TransactionTokenBalance {
+                account_index: 1,
+                mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v".to_owned(),
+                ui_token_amount: UiTokenAmount {
+                    ui_amount: Some(5563.80775),
+                    decimals: 6,
+                    amount: "5563807750".to_owned(),
+                    ui_amount_string: "5563.80775".to_owned(),
+                },
+                owner: "61o5FKQ7h2BFB1SVVBXqtiGy4oAy2wcNuDXoxUdAYWQq".to_owned(),
+                program_id: String::new(),
+            }])
+        );
     }
 
     #[test]
