@@ -1,6 +1,6 @@
 import { kebabCase } from '@codama/nodes';
 import { CARBON_MSRV, VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
-import { isToken2022Program } from './utils/helpers';
+import { TokenProgramKind } from './utils/helpers';
 
 export type PackageMetadata = {
     description?: string;
@@ -63,7 +63,7 @@ export function hasPackageMetadata(m?: PackageMetadata): boolean {
 export type DecoderCargoTomlOptions = {
     packageName?: string;
     programName: string;
-    originalProgramName?: string; // Original program name from IDL (for token-2022 checks)
+    tokenProgramKind?: TokenProgramKind;
     version?: string;
     versionName?: string;
     withPostgres: boolean;
@@ -109,7 +109,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     const {
         packageName,
         programName,
-        originalProgramName,
+        tokenProgramKind,
         version = '0.1.0',
         versionName,
         withPostgres,
@@ -271,9 +271,14 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         dependencies.push(juniperDep);
     }
 
-    // Add SPL Token 2022 dependencies for token-2022 program
-    // Check originalProgramName or packageName to handle PascalCase transformation
-    if (isToken2022Program(undefined, originalProgramName, packageName)) {
+    if (tokenProgramKind === 'spl-token') {
+        dependencies.push('');
+        for (const crate of ['solana-program-pack', 'spl-token-interface']) {
+            dependencies.push(getCrateDependencyString(crate, VERSIONS[crate], undefined, undefined, useWorkspace));
+        }
+    }
+
+    if (tokenProgramKind === 'token-2022') {
         dependencies.push('');
         dependencies.push(
             getCrateDependencyString(

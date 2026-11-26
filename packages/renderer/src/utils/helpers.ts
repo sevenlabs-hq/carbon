@@ -1,5 +1,3 @@
-import { ProgramNode } from '@codama/nodes';
-
 export function partition<T>(
     arr: readonly T[],
     predicate: (value: T, index: number, array: readonly T[]) => boolean,
@@ -13,10 +11,14 @@ export function partition<T>(
     );
 }
 
-/**
- * Helper function to check if a program is token-2022
- * Checks program node name, original program name, and package name for consistency
- */
-export function isToken2022Program(program?: ProgramNode | null, originalName?: string, packageName?: string): boolean {
-    return program?.name === 'token-2022' || originalName === 'token-2022' || packageName === 'token-2022';
+export type TokenProgramKind = 'spl-token' | 'token-2022';
+
+const TOKEN_PROGRAM_KINDS: Record<string, TokenProgramKind> = {
+    TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA: 'spl-token',
+    TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb: 'token-2022',
+};
+
+/** Token programs use the SPL `Pack` layout, not Borsh, so they get program-specific code. */
+export function tokenProgramKind(programId?: string | null): TokenProgramKind | undefined {
+    return programId ? TOKEN_PROGRAM_KINDS[programId] : undefined;
 }

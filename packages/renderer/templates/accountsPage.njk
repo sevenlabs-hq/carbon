@@ -7,7 +7,7 @@
 {% if account.formattedDocs %}
 {{ account.formattedDocs }}
 {% endif %}
-{% if originalProgramName == 'token-2022' and (account.name | lower == 'mint' or account.name | lower == 'token' or account.name | lower == 'multisig') %}
+{% if tokenProgramKind === 'token-2022' and (account.name | lower == 'mint' or account.name | lower == 'token' or account.name | lower == 'multisig') %}
 {# Token-2022 accounts use BorshDeserialize but rely on From implementations for extension handling #}
 {# Note: decode() method is not provided for token-2022 accounts; StateWithExtensions::unpack() is used in accounts/mod.rs instead #}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -66,6 +66,54 @@ impl From<spl_token_2022::extension::StateWithExtensions<'_, spl_token_2022::sta
 {% elif account.name | lower === 'multisig' %}
 impl From<spl_token_2022::state::Multisig> for {{ account.name | pascalCase }} {
     fn from(value: spl_token_2022::state::Multisig) -> Self {
+        {{ account.name | pascalCase }} {
+            m: value.m,
+            n: value.n,
+            is_initialized: value.is_initialized,
+            signers: value.signers,
+        }
+    }
+}
+{% endif %}
+{% elif tokenProgramKind === 'spl-token' and (account.name | lower == 'mint' or account.name | lower == 'token' or account.name | lower == 'multisig') %}
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
+pub struct {{ account.name | pascalCase }} {{ typeManifest.type }}
+
+{% if account.name | lower === 'mint' %}
+impl From<spl_token_interface::state::Mint> for {{ account.name | pascalCase }} {
+    fn from(value: spl_token_interface::state::Mint) -> Self {
+        {{ account.name | pascalCase }} {
+            mint_authority: value.mint_authority.into(),
+            supply: value.supply,
+            decimals: value.decimals,
+            is_initialized: value.is_initialized,
+            freeze_authority: value.freeze_authority.into(),
+        }
+    }
+}
+{% elif account.name | lower === 'token' %}
+impl From<spl_token_interface::state::Account> for {{ account.name | pascalCase }} {
+    fn from(value: spl_token_interface::state::Account) -> Self {
+        {{ account.name | pascalCase }} {
+            mint: value.mint,
+            owner: value.owner,
+            amount: value.amount,
+            delegate: value.delegate.into(),
+            state: match value.state {
+                spl_token_interface::state::AccountState::Uninitialized => crate::types::AccountState::Uninitialized,
+                spl_token_interface::state::AccountState::Initialized => crate::types::AccountState::Initialized,
+                spl_token_interface::state::AccountState::Frozen => crate::types::AccountState::Frozen,
+            },
+            is_native: value.is_native.into(),
+            delegated_amount: value.delegated_amount,
+            close_authority: value.close_authority.into(),
+        }
+    }
+}
+{% elif account.name | lower === 'multisig' %}
+impl From<spl_token_interface::state::Multisig> for {{ account.name | pascalCase }} {
+    fn from(value: spl_token_interface::state::Multisig) -> Self {
         {{ account.name | pascalCase }} {
             m: value.m,
             n: value.n,

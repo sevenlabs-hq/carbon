@@ -28,7 +28,7 @@ import { DiscriminatorManifest, getDiscriminatorManifest, getTypeManifestVisitor
 import { getGraphQLTypeManifestVisitor } from './getGraphQLTypeManifestVisitor';
 import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
-import { isToken2022Program } from './utils/helpers';
+import { tokenProgramKind } from './utils/helpers';
 import { getPostgresTypeManifestVisitor } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
 import {
@@ -220,7 +220,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Add token-2022 specific imports for accounts that need extension handling
                     // Note: StateWithExtensions is used in accounts/mod.rs, not in individual account files
                     // Extension is only needed for Mint and Token accounts (not Multisig)
-                    if (isToken2022Program(currentProgram)) {
+                    if (tokenProgramKind(currentProgram?.publicKey) === 'token-2022') {
                         const accountNameLower = node.name.toLowerCase();
                         if (accountNameLower === 'mint' || accountNameLower === 'token') {
                             imports.add('spl_token_2022::extension::BaseStateWithExtensions');
@@ -264,7 +264,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             account: { ...newNode, formattedDocs: formattedAccountDocs },
                             imports: imports.toString(),
                             program: currentProgram,
-                            originalProgramName: currentProgram?.name,
+                            tokenProgramKind: tokenProgramKind(currentProgram?.publicKey),
                             discriminatorManifest,
                             typeManifest,
                         }),
@@ -319,7 +319,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                 visitDefinedType(node) {
                     const isToken2022Extension =
-                        isToken2022Program(currentProgram) && (node.name === 'Extension' || node.name === 'extension');
+                        tokenProgramKind(currentProgram?.publicKey) === 'token-2022' &&
+                        (node.name === 'Extension' || node.name === 'extension');
                     const renderedNode = isToken2022Extension ? preserveToken2022ExtensionNullability(node) : node;
                     const typeManifest = visit(renderedNode.type, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest);
@@ -383,11 +384,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         optionalBoolWrapperTypes.add(node.name);
                     }
 
-                    // Add token-2022 specific imports for Extension type
-                    // Use case-insensitive check to match impl block condition
-                    const isToken2022ForImports = isToken2022Program(currentProgram);
-                    const isExtensionTypeForImports = node.name === 'Extension' || node.name === 'extension';
-                    if (isToken2022ForImports && isExtensionTypeForImports) {
+                    if (isToken2022Extension) {
                         imports.add('spl_token_2022::extension::StateWithExtensions');
                         imports.add('spl_token_2022::extension::BaseStateWithExtensions as _');
                         imports.add('spl_token_2022::extension::ExtensionType');
@@ -404,14 +401,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         isOptionalBoolWrapper,
                         arraySize,
                         program: currentProgram,
-                        originalProgramName: currentProgram?.name,
                     });
 
-                    // Add Extension impl block for token-2022
-                    // Check both program name and node name (case-insensitive for node name)
-                    const isToken2022 = isToken2022Program(currentProgram);
-                    const isExtensionType = node.name === 'Extension' || node.name === 'extension';
-                    if (isToken2022 && isExtensionType) {
+                    if (isToken2022Extension) {
                         const extensionImpl = render('extensionImpl.njk', {});
                         typeContent += '\n\n' + extensionImpl;
                     }
@@ -760,8 +752,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     // Override program.name with packageName if provided (for custom decoder names)
                     // Keep original format - template filter will handle PascalCase conversion
-                    const originalProgramName = program.name || '';
-                    const programName = options.packageName || originalProgramName || 'decoder';
+                    const programName = options.packageName || program.name || 'decoder';
+                    const tokenKind = tokenProgramKind(program.publicKey);
 
                     const programWithCustomName = {
                         ...program,
@@ -802,7 +794,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         program: programWithCustomName,
                         root: renderRoot,
                         packageName: options.packageName,
-                        originalProgramName: originalProgramName, // Keep original program name for token-2022 checks
+                        tokenProgramKind: tokenKind,
                         hasAnchorEvents,
                         hasGraphQLFields,
                         events: renderEvents,
@@ -823,8 +815,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         .add('crate::PROGRAM_ID')
                         .add(`crate::${pascalCase(programName)}Decoder`);
 
-                    // Add token-2022 specific imports for StateWithExtensions unpacking
-                    if (isToken2022Program(program, originalProgramName)) {
+                    if (tokenKind) {
                         accountsModImports.add('solana_program_pack::Pack');
                         // StateWithExtensions is used directly in unpack() calls, no import needed
                     }
@@ -1003,7 +994,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const cargoToml = generateDecoderCargoToml({
                         packageName: options.packageName,
                         programName: programName,
-                        originalProgramName: originalProgramName, // Pass original program name for token-2022 checks
+                        tokenProgramKind: tokenKind,
                         version: options.version,
                         versionName: options.versionName,
                         withPostgres: options.withPostgres !== false,

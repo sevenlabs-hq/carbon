@@ -63,6 +63,7 @@ export const VERSIONS: Record<string, CrateDependency> = {
     /// SPL Token 2022 dependencies
     'solana-program-pack': '3.1.0',
     'spl-token-2022': '11.0.0',
+    'spl-token-interface': '3.0.0',
     'spl-pod': {
         version: '0.7.3',
         features: ['borsh'],
