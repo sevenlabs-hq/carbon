@@ -308,41 +308,39 @@ pub fn transaction_metadata_from_original_meta(
                 .inner_instructions
                 .unwrap_or_else(std::vec::Vec::new)
                 .iter()
-                .map(|inner_instruction_group| InnerInstructions {
-                    index: inner_instruction_group.index,
-                    instructions: inner_instruction_group
-                        .instructions
-                        .iter()
-                        .map(|ui_instruction| match ui_instruction {
-                            UiInstruction::Compiled(compiled_ui_instruction) => {
-                                let decoded_data =
-                                    bs58::decode(compiled_ui_instruction.data.clone())
-                                        .into_vec()
-                                        .unwrap_or_else(|_| vec![]);
-                                InnerInstruction {
-                                    instruction: CompiledInstruction {
-                                        program_id_index: compiled_ui_instruction.program_id_index,
-                                        accounts: compiled_ui_instruction.accounts.clone(),
-                                        data: decoded_data,
-                                    },
-                                    stack_height: compiled_ui_instruction.stack_height,
+                .map(|inner_instruction_group| {
+                    Ok(InnerInstructions {
+                        index: inner_instruction_group.index,
+                        instructions: inner_instruction_group
+                            .instructions
+                            .iter()
+                            .map(|ui_instruction| {
+                                match ui_instruction {
+                                    UiInstruction::Compiled(compiled_ui_instruction) => {
+                                        let decoded_data =
+                                            bs58::decode(compiled_ui_instruction.data.clone())
+                                                .into_vec()
+                                                .unwrap_or_else(|_| vec![]);
+                                        Ok(InnerInstruction {
+                                            instruction: CompiledInstruction {
+                                                program_id_index: compiled_ui_instruction
+                                                    .program_id_index,
+                                                accounts: compiled_ui_instruction.accounts.clone(),
+                                                data: decoded_data,
+                                            },
+                                            stack_height: compiled_ui_instruction.stack_height,
+                                        })
+                                    }
+                                    _ => Err(Error::Custom(
+                                        "inner instructions are parsed; request base64 or json encoding"
+                                            .into(),
+                                    )),
                                 }
-                            }
-                            _ => {
-                                log::error!("Unsupported instruction type encountered");
-                                InnerInstruction {
-                                    instruction: CompiledInstruction {
-                                        program_id_index: 0,
-                                        accounts: vec![],
-                                        data: vec![],
-                                    },
-                                    stack_height: Some(0),
-                                }
-                            }
-                        })
-                        .collect::<Vec<InnerInstruction>>(),
+                            })
+                            .collect::<CarbonResult<Vec<InnerInstruction>>>()?,
+                    })
                 })
-                .collect::<Vec<InnerInstructions>>(),
+                .collect::<CarbonResult<Vec<InnerInstructions>>>()?,
         ),
         log_messages: Some(
             meta_original
@@ -917,7 +915,7 @@ mod tests {
     }
 
     #[test]
-    fn test_extract_instructions_skips_parsed_inner_instructions() {
+    fn test_transaction_metadata_from_original_meta_rejects_parsed_inner_instructions() {
         let meta: UiTransactionStatusMeta = serde_json::from_value(serde_json::json!({
             "err": null,
             "status": { "Ok": null },
@@ -935,11 +933,11 @@ mod tests {
             }]
         }))
         .expect("deserialize meta");
-        let mut update = update_without_stack_heights(&[Pubkey::new_unique()], &[0], &[], None);
-        update.meta = transaction_metadata_from_original_meta(meta)
-            .expect("transaction metadata from original meta");
 
-        assert_eq!(extracted_paths(&update), vec![vec![0]]);
+        assert!(matches!(
+            transaction_metadata_from_original_meta(meta),
+            Err(Error::Custom(message)) if message.contains("inner instructions are parsed")
+        ));
     }
 
     #[test]
