@@ -1,4 +1,5 @@
 import {
+    bytesTypeNode,
     camelCase,
     DefinedTypeNode,
     EnumTypeNode,
@@ -560,9 +561,18 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                     }
 
-                    const [discriminatorArguments, regularArguments] = partition(node.arguments ?? [], arg =>
+                    const [discriminatorArguments, partitionedArguments] = partition(node.arguments ?? [], arg =>
                         discriminatorFieldNames.has(arg.name),
                     );
+
+                    // Unprefixed trailing string/bytes (e.g. SPL Memo) takes the rest of the data.
+                    const lastArgument = partitionedArguments[partitionedArguments.length - 1];
+                    const hasRemainderArgument =
+                        !!lastArgument &&
+                        (isNode(lastArgument.type, 'stringTypeNode') || isNode(lastArgument.type, 'bytesTypeNode'));
+                    const regularArguments = hasRemainderArgument
+                        ? [...partitionedArguments.slice(0, -1), { ...lastArgument, type: bytesTypeNode() }]
+                        : partitionedArguments;
 
                     const argumentTypes = regularArguments.map(arg => {
                         const manifest = visit(arg.type, typeManifestVisitor);
@@ -661,6 +671,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         `src/instructions/${snakeCase(node.name)}.rs`,
                         render('instructionsPage.njk', {
                             argumentTypes,
+                            hasRemainderArgument,
                             imports: imports.toString(),
                             instruction: instructionWithUniqueAccounts,
                             discriminatorManifest,

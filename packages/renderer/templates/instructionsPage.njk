@@ -41,6 +41,22 @@ impl {{ instruction.name | pascalCase }} {
 {{ discriminatorManifest.checkCode | safe }}
 {% endif %}
 
+{% if hasRemainderArgument %}
+        let {% if discriminatorManifest or instruction.arguments | length > 1 %}mut {% endif %}data_slice = data;
+
+{% if discriminatorManifest %}
+        data_slice = &data_slice[{{ discriminatorManifest.size }}..];
+{% endif %}
+{% for arg in instruction.arguments %}{% if not loop.last %}
+        let {{ arg.name | snakeCase }} = borsh::BorshDeserialize::deserialize(&mut data_slice).ok()?;
+{% endif %}{% endfor %}
+
+        Some({{ instruction.name | pascalCase }} {
+{% for arg in instruction.arguments %}
+            {{ arg.name | snakeCase }}{% if loop.last %}: data_slice.to_vec(){% endif %},
+{% endfor %}
+        })
+{% else %}
         let mut data_slice = data;
 
 {% if discriminatorManifest %}
@@ -48,6 +64,7 @@ impl {{ instruction.name | pascalCase }} {
 {% endif %}
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
+{% endif %}
     }
 }
 
