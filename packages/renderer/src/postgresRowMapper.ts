@@ -248,7 +248,8 @@ export class PostgresRowMapper {
         };
 
         field.expr = this.buildExpression(typeNode, `source.${field.rustPath}`);
-        field.reverseExpr = this.buildReverse(typeNode, `source.${field.rustPath}`);
+        // Row fields use the deduplicated column name.
+        field.reverseExpr = this.buildReverse(typeNode, `source.${field.column}`);
 
         out.push(field);
         return out;
@@ -432,7 +433,7 @@ export class PostgresRowMapper {
                         if (innerReverse === 'element' || innerReverse === '*element') {
                             return `${prefix}.0`;
                         }
-                        return `${prefix}.0.into_iter().map(|element| ${innerReverse}).collect()`;
+                        return collectReverseElements(`${prefix}.0`, innerReverse);
                     } else {
                         if (isNode(typeNode.item, 'publicKeyTypeNode')) {
                             return `${prefix}.into_iter().map(|element| *element).collect()`;
@@ -464,7 +465,7 @@ export class PostgresRowMapper {
                         ) {
                             return `${prefix}.0`;
                         }
-                        return `${prefix}.0.into_iter().map(|element| ${innerReverse}).collect()`;
+                        return collectReverseElements(`${prefix}.0`, innerReverse);
                     } else {
                         if (isNode(typeNode.item, 'publicKeyTypeNode')) {
                             return `${prefix}.into_iter().map(|element| *element).collect()`;
@@ -559,4 +560,13 @@ export class PostgresRowMapper {
 
         return `${prefix}.into()`;
     }
+}
+
+/** Collects fallible element conversions into a Result. */
+function collectReverseElements(source: string, innerReverse: string): string {
+    if (innerReverse.endsWith('?')) {
+        const fallible = innerReverse.replace(/\?$/, '');
+        return `${source}.into_iter().map(|element| ${fallible}).collect::<Result<Vec<_>, carbon_core::error::Error>>()?`;
+    }
+    return `${source}.into_iter().map(|element| ${innerReverse}).collect()`;
 }

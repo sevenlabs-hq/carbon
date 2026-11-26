@@ -16,6 +16,8 @@ export function isPostgresPrimitiveType(type: string): boolean {
     );
 }
 
+const JSON_COPY_TYPES = new Set(['u64', 'u128', 'i128', 'Epoch', 'Slot', 'UnixTimestamp', 'UnixTimestampMs']);
+
 /** Returns true when the Rust row type implements Copy. */
 export function isCopyType(rowType: string): boolean {
     const trimmed = rowType.trim();
@@ -51,6 +53,9 @@ export function isCopyType(rowType: string): boolean {
         const unwrappedType = innerType.replace(/^Option<(.+)>$/, '$1');
         const lowerType = unwrappedType.toLowerCase();
         if (lowerType === 'bool' || lowerType.endsWith('bool') || lowerType.includes('::bool')) {
+            return true;
+        }
+        if (JSON_COPY_TYPES.has(unwrappedType)) {
             return true;
         }
         if (optionalNumberNewtypeFormat(unwrappedType)) {

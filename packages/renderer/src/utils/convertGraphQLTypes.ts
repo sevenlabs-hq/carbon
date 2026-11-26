@@ -566,6 +566,13 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         if (isBooleanTypeAlias(typeName)) {
             return handleBooleanTypeConversion(fieldAccess, true, false);
         }
+        // Clock aliases are Json<u64/i64>; GraphQL primitives lack From<u64/i64>.
+        if (typeName === 'epoch' || typeName === 'slot') {
+            return `carbon_core::graphql::primitives::U64(${fieldAccess}.0)`;
+        }
+        if (typeName === 'unixtimestamp' || typeName === 'unixtimestampms') {
+            return `carbon_core::graphql::primitives::I64(${fieldAccess}.0)`;
+        }
         return `${fieldAccess}.0.into()`;
     }
 
