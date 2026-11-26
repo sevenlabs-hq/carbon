@@ -376,4 +376,3 @@ impl Datasource for SnapshotDatasource {
         vec![UpdateType::AccountUpdate]
     }
 }
-
