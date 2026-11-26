@@ -35,7 +35,7 @@ export function flattenTypeForGraphQL(
     };
 
     if (isNode(typeNode, 'structTypeNode')) {
-        for (const field of typeNode.fields) {
+        for (const field of typeNode.fields ?? []) {
             out.push(...flattenTypeForGraphQL(field.type, [...prefix, field.name], field.docs || [], seen));
         }
         return out;

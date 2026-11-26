@@ -104,10 +104,10 @@ export function checkRequiresBigArray(typeNode: TypeNode): boolean {
         return checkRequiresBigArray(typeNode.type);
     }
     if (isNode(typeNode, 'structTypeNode')) {
-        return typeNode.fields.some(field => checkRequiresBigArray(field.type));
+        return (typeNode.fields ?? []).some(field => checkRequiresBigArray(field.type));
     }
     if (isNode(typeNode, 'enumTypeNode')) {
-        return typeNode.variants.some(variant => {
+        return (typeNode.variants ?? []).some(variant => {
             const v = variant as any;
             if (v.kind === 'enumStructVariantTypeNode') {
                 const fields = v.fields ?? v.struct?.fields;
