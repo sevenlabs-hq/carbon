@@ -540,7 +540,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         Ok(()) => (),
                                                         Err(error) => {
                                                             log::error!("Failed to send ping error: {error:?}");
-                                                            break;
                                                         },
                                                     }
                                             }

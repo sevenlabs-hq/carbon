@@ -472,7 +472,6 @@ impl Datasource for LaserStreamGeyserClient {
                                                         Ok(()) => (),
                                                         Err(error) => {
                                                             log::error!("Failed to send ping error: {error:?}");
-                                                            break;
                                                         },
                                                     }
                                             }
