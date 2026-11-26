@@ -217,13 +217,9 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         return buildOptionMapExpression(fieldAccess, innerExpr, 'v');
     }
 
+    // Tagless option: a plain value, so it converts like the inner type.
     if (isNode(typeNode, 'zeroableOptionTypeNode')) {
-        const innerExpr = buildConversionFromOriginal(typeNode.item, 'v');
-        const convertedExpr = innerExpr === 'v' ? 'v.into()' : innerExpr;
-        if (convertedExpr !== 'v.into()') {
-            return buildOptionMapExpression(fieldAccess, convertedExpr, 'v');
-        }
-        return `${fieldAccess}.map(|v| ${convertedExpr})`;
+        return buildConversionFromOriginal(typeNode.item, fieldAccess);
     }
 
     if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
@@ -514,37 +510,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         return `${fieldAccess}.map(|v| ${innerExpr})`;
     }
 
+    // Tagless option: a plain value, so it converts like the inner type.
     if (isNode(typeNode, 'zeroableOptionTypeNode')) {
-        const postgresManifest = visit(typeNode.item, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
-        const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
-
-        if (isJson) {
-            if (isNode(typeNode.item, 'booleanTypeNode')) {
-                return handleBooleanTypeConversion(fieldAccess, true, false);
-            }
-            if (isNode(typeNode.item, 'publicKeyTypeNode')) {
-                return `carbon_core::graphql::primitives::Pubkey(${fieldAccess}.0)`;
-            }
-            if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
-                const innerExpr = buildConversionFromPostgresRow(typeNode.item, `${fieldAccess}.0.clone()`);
-                return innerExpr;
-            }
-            const innerExpr = buildConversionFromPostgresRow(typeNode.item, `${fieldAccess}.0`);
-            return innerExpr;
-        } else {
-            if (isNode(typeNode.item, 'publicKeyTypeNode')) {
-                return `${fieldAccess}.map(|v| carbon_core::graphql::primitives::Pubkey(v.0))`;
-            }
-            if (isNode(typeNode.item, 'booleanTypeNode')) {
-                return handleBooleanTypeConversion(fieldAccess, false, true);
-            }
-            if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
-                const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v.0.clone()');
-                return `${fieldAccess}.map(|v| ${innerExpr})`;
-            }
-            const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v');
-            return buildOptionMapExpression(fieldAccess, innerExpr, 'v');
-        }
+        return buildConversionFromPostgresRow(typeNode.item, fieldAccess);
     }
 
     if (isNode(typeNode, 'hiddenPrefixTypeNode')) {

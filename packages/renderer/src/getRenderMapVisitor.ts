@@ -86,14 +86,17 @@ function preserveToken2022ExtensionNullability(node: DefinedTypeNode): DefinedTy
                     return variant;
                 }
 
-                const nullableFields = TOKEN_2022_NULLABLE_EXTENSION_FIELDS.get(camelCase(variant.name));
-                if (!nullableFields) {
-                    return variant;
-                }
+                const nullableFields =
+                    TOKEN_2022_NULLABLE_EXTENSION_FIELDS.get(camelCase(variant.name)) ?? new Set<string>();
 
                 const makeNullable = (struct: StructTypeNode): StructTypeNode => ({
                     ...struct,
                     fields: (struct.fields ?? []).map(field => {
+                        // Extension state comes from spl-token-2022's unpack, not borsh, so a
+                        // tagless option has no byte layout to preserve and keeps a real `Option`.
+                        if (isNode(field.type, 'zeroableOptionTypeNode')) {
+                            return { ...field, type: optionTypeNode(field.type.item) };
+                        }
                         if (!nullableFields.has(camelCase(field.name)) || isOptionalType(field.type)) {
                             return field;
                         }
@@ -565,11 +568,15 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         discriminatorFieldNames.has(arg.name),
                     );
 
-                    // Unprefixed trailing string/bytes (e.g. SPL Memo) takes the rest of the data.
+                    // A trailing field with no length prefix takes the rest of the data: an
+                    // unprefixed string/bytes (SPL Memo), or a list with no count (p-token's `batch`).
                     const lastArgument = partitionedArguments[partitionedArguments.length - 1];
                     const hasRemainderArgument =
                         !!lastArgument &&
-                        (isNode(lastArgument.type, 'stringTypeNode') || isNode(lastArgument.type, 'bytesTypeNode'));
+                        (isNode(lastArgument.type, 'stringTypeNode') ||
+                            isNode(lastArgument.type, 'bytesTypeNode') ||
+                            (isNode(lastArgument.type, 'arrayTypeNode') &&
+                                isNode(lastArgument.type.count, 'remainderCountNode')));
                     const regularArguments = hasRemainderArgument
                         ? [...partitionedArguments.slice(0, -1), { ...lastArgument, type: bytesTypeNode() }]
                         : partitionedArguments;
@@ -671,6 +678,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         `src/instructions/${snakeCase(node.name)}.rs`,
                         render('instructionsPage.njk', {
                             argumentTypes,
+                            hasInlineDecode: argumentTypes.some(a => a.decodeInline),
                             hasRemainderArgument,
                             imports: imports.toString(),
                             instruction: instructionWithUniqueAccounts,

@@ -7,6 +7,7 @@ import {
     snakeCase,
     TypeNode,
 } from '@codama/nodes';
+import { logWarn } from '@codama/errors';
 import { extendVisitor, mergeVisitor, pipe, visit } from '@codama/visitors-core';
 
 import { ImportMap } from './ImportMap';
@@ -21,6 +22,8 @@ export type TypeManifest = {
     requiredBigArray?: number;
     isPubkey?: boolean;
     isOptionPubkey?: boolean;
+    /** Layout `#[derive(BorshDeserialize)]` reads at the wrong width, so `decode` reads it by hand. */
+    decodeInline?: 'u64PrefixString';
 };
 
 export type DiscriminatorManifest = {
@@ -320,7 +323,20 @@ export function getTypeManifestVisitor(
                 },
 
                 visitSizePrefixType(node, { self }) {
-                    return visit(node.type, self);
+                    const manifest = visit(node.type, self);
+                    // borsh's own String/Vec<u8> length prefix is u32; bincode (Solana's native
+                    // programs) writes u64, and token-2022's TLV extensions use u16 but are
+                    // unpacked by spl-token-2022 rather than borsh.
+                    const width = resolveNestedTypeNode(node.prefix).format;
+                    if (width === 'u64' && isNode(node.type, 'stringTypeNode')) {
+                        return { ...manifest, decodeInline: 'u64PrefixString' as const };
+                    }
+                    if (width !== 'u32' && width !== 'u16') {
+                        logWarn(
+                            `[Rust] a ${width} size prefix on ${node.type.kind} falls back to borsh's u32 prefix, which reads the wrong width.`,
+                        );
+                    }
+                    return manifest;
                 },
 
                 visitStringType() {
@@ -421,13 +437,9 @@ export function getTypeManifestVisitor(
                 },
 
                 visitZeroableOptionType(node, { self }) {
-                    const childManifest = visit(node.item, self);
-                    return {
-                        imports: childManifest.imports,
-                        type: `Option<${childManifest.type}>`,
-                        borshType: `Option<${childManifest.borshType}>`,
-                        isOptionPubkey: childManifest.isPubkey === true,
-                    };
+                    // Stored in full with no tag byte, so borsh already reads the right width.
+                    // Rendered as the plain value; the caller treats all-zero as unset.
+                    return visit(node.item, self);
                 },
             });
             // Attach definedTypesMap and newtypeWrapperTypes getters to the visitor so enum variants can access them

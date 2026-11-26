@@ -157,8 +157,13 @@ export class PostgresRowMapper {
             return flattenOptionType(typeNode, prefix, docsPrefix);
         }
 
-        if (isNode(typeNode, 'zeroableOptionTypeNode') || isNode(typeNode, 'remainderOptionTypeNode')) {
+        if (isNode(typeNode, 'remainderOptionTypeNode')) {
             return flattenOptionType(typeNode, prefix, docsPrefix);
+        }
+
+        // Tagless option: a plain value, so a NOT NULL column of the inner type.
+        if (isNode(typeNode, 'zeroableOptionTypeNode')) {
+            return this.flattenType(typeNode.item, prefix, docsPrefix, seen, opts);
         }
 
         if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
@@ -290,11 +295,7 @@ export class PostgresRowMapper {
                 return `${prefix}.to_vec()`;
             }
             return this.buildExpression(typeNode.type, prefix);
-        } else if (
-            isNode(typeNode, 'optionTypeNode') ||
-            isNode(typeNode, 'zeroableOptionTypeNode') ||
-            isNode(typeNode, 'remainderOptionTypeNode')
-        ) {
+        } else if (isNode(typeNode, 'optionTypeNode') || isNode(typeNode, 'remainderOptionTypeNode')) {
             return `${prefix}.map(|value| ${this.buildExpression(typeNode.item, `value`)})`;
         } else if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
             return this.buildExpression(typeNode.type, prefix);
@@ -322,11 +323,7 @@ export class PostgresRowMapper {
     }
 
     buildReverseOptionType(typeNode: TypeNode, prefix: string, manifest: PostgresTypeManifest): string {
-        if (
-            !isNode(typeNode, 'optionTypeNode') &&
-            !isNode(typeNode, 'zeroableOptionTypeNode') &&
-            !isNode(typeNode, 'remainderOptionTypeNode')
-        ) {
+        if (!isNode(typeNode, 'optionTypeNode') && !isNode(typeNode, 'remainderOptionTypeNode')) {
             throw new Error('buildReverseOptionType should only be called for option-like types');
         }
 
