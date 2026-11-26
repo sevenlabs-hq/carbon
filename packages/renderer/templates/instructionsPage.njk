@@ -56,6 +56,14 @@ impl {{ instruction.name | pascalCase }} {
 {% if not loop.last %}            data_slice = &data_slice[8 + len..];
 {% endif %}            value
         };
+{% elif argumentTypes[loop.index0].decodeInline === 'u64PrefixBytes' %}
+        // bincode writes this length as u64; borsh's own Vec<u8> prefix is u32.
+        let {{ arg.name | snakeCase }} = {
+            let len = u64::from_le_bytes(data_slice.get(..8)?.try_into().ok()?) as usize;
+            let value = data_slice.get(8..8 + len)?.to_vec();
+{% if not loop.last %}            data_slice = &data_slice[8 + len..];
+{% endif %}            value
+        };
 {% else %}
         let {{ arg.name | snakeCase }} = borsh::BorshDeserialize::deserialize(&mut data_slice).ok()?;
 {% endif %}

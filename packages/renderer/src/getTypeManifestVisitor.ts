@@ -23,7 +23,7 @@ export type TypeManifest = {
     isPubkey?: boolean;
     isOptionPubkey?: boolean;
     /** Layout `#[derive(BorshDeserialize)]` reads at the wrong width, so `decode` reads it by hand. */
-    decodeInline?: 'u64PrefixString';
+    decodeInline?: 'u64PrefixString' | 'u64PrefixBytes';
 };
 
 export type DiscriminatorManifest = {
@@ -330,6 +330,9 @@ export function getTypeManifestVisitor(
                     const width = resolveNestedTypeNode(node.prefix).format;
                     if (width === 'u64' && isNode(node.type, 'stringTypeNode')) {
                         return { ...manifest, decodeInline: 'u64PrefixString' as const };
+                    }
+                    if (width === 'u64' && isNode(node.type, 'bytesTypeNode')) {
+                        return { ...manifest, decodeInline: 'u64PrefixBytes' as const };
                     }
                     if (width !== 'u32' && width !== 'u16') {
                         logWarn(
