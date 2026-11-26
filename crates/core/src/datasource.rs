@@ -49,7 +49,7 @@ pub struct DatasourceDisconnection {
 /// Runs as a dedicated task and streams `(Update, DatasourceId)` into the
 /// pipeline. Implementations must respect the provided `CancellationToken` and
 /// exit on shutdown. `update_types` declares which `Update` variants may be
-/// emitted.
+/// emitted; it is informational, and the pipeline doesn't check it.
 #[async_trait]
 pub trait Datasource: Send + Sync {
     async fn consume(
@@ -90,7 +90,7 @@ pub enum Update {
 
 /// Declared set of update variants a datasource may emit.
 ///
-/// Used by the pipeline to validate that emitted updates match expectations.
+/// Informational: the pipeline doesn't check emitted updates against it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UpdateType {
     AccountUpdate,
