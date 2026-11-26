@@ -13,6 +13,7 @@ import {
     snakeCase,
     structFieldTypeNode,
     structTypeNode,
+    StructTypeNode,
     TypeNode,
 } from '@codama/nodes';
 import {
@@ -80,7 +81,7 @@ function preserveToken2022ExtensionNullability(node: DefinedTypeNode): DefinedTy
         type: {
             ...node.type,
             variants: (node.type.variants ?? []).map(variant => {
-                if (!isNode(variant, 'enumStructVariantTypeNode') || !isNode(variant.struct, 'structTypeNode')) {
+                if (!isNode(variant, 'enumStructVariantTypeNode')) {
                     return variant;
                 }
 
@@ -89,19 +90,25 @@ function preserveToken2022ExtensionNullability(node: DefinedTypeNode): DefinedTy
                     return variant;
                 }
 
-                return {
-                    ...variant,
-                    struct: {
-                        ...variant.struct,
-                        fields: (variant.struct.fields ?? []).map(field => {
-                            if (!nullableFields.has(camelCase(field.name)) || isOptionalType(field.type)) {
-                                return field;
-                            }
+                const makeNullable = (struct: StructTypeNode): StructTypeNode => ({
+                    ...struct,
+                    fields: (struct.fields ?? []).map(field => {
+                        if (!nullableFields.has(camelCase(field.name)) || isOptionalType(field.type)) {
+                            return field;
+                        }
 
-                            return { ...field, type: optionTypeNode(field.type) };
-                        }),
-                    },
-                };
+                        return { ...field, type: optionTypeNode(field.type) };
+                    }),
+                });
+
+                // Upstream IDL wraps each variant struct in a size prefix (TLV length).
+                if (isNode(variant.struct, 'sizePrefixTypeNode') && isNode(variant.struct.type, 'structTypeNode')) {
+                    return { ...variant, struct: { ...variant.struct, type: makeNullable(variant.struct.type) } };
+                }
+                if (isNode(variant.struct, 'structTypeNode')) {
+                    return { ...variant, struct: makeNullable(variant.struct) };
+                }
+                return variant;
             }),
         },
     };

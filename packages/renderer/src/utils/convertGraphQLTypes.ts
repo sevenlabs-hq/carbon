@@ -241,7 +241,7 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         if (isBooleanTypeAlias(typeName)) {
             return fieldAccess;
         }
-        if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
+        if (isEncryptedBytesType(typeName)) {
             return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
         }
         if (typeName === 'epoch' || typeName === 'slot') {
@@ -548,7 +548,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
 
     if (isNode(typeNode, 'definedTypeLinkNode')) {
         const typeName = typeNode.name.toLowerCase();
-        if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
+        if (isEncryptedBytesType(typeName)) {
             return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
         }
         if (isOptionalBoolNewtype(typeName)) {
@@ -572,4 +572,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     return fieldAccess;
+}
+
+/** Confidential-transfer byte newtypes, exposed as Vec<U8>. */
+function isEncryptedBytesType(typeName: string): boolean {
+    return ['decrypt', 'encrypt', 'cipher', 'elgamal'].some(part => typeName.includes(part));
 }
