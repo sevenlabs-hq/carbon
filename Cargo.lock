@@ -7300,6 +7300,7 @@ dependencies = [
  "solana-account",
  "solana-pubkey 4.4.0",
  "tokio",
+ "tokio-util",
 ]
 
 [[package]]

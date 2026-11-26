@@ -11,6 +11,7 @@ use {
     solana_account::Account,
     solana_pubkey::Pubkey,
     std::{env, sync::Arc},
+    tokio_util::sync::CancellationToken,
 };
 
 #[tokio::main]
@@ -35,6 +36,7 @@ pub async fn main() -> CarbonResult<()> {
     };
 
     let datasource = SnapshotDatasource::new(source, owners, accounts);
+    let cancellation_token = CancellationToken::new();
 
     Pipeline::builder()
         .datasource(datasource)
@@ -42,11 +44,14 @@ pub async fn main() -> CarbonResult<()> {
         .account(GenericAccountDecoder, SnapshotAccountProcessor)
         .account_deletions(AccountDeletionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::ProcessPending)
+        .datasource_cancellation_token(cancellation_token.clone())
         .build()?
         .run()
         .await?;
 
-    log::info!("snapshot bootstrap complete");
+    if !cancellation_token.is_cancelled() {
+        log::info!("snapshot bootstrap complete");
+    }
     Ok(())
 }
 

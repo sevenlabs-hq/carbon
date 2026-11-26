@@ -284,14 +284,6 @@ impl SnapshotState {
             _work_directory: work_directory,
         })
     }
-
-    pub async fn load_from_remote(
-        url: &str,
-        cancellation_token: CancellationToken,
-    ) -> CarbonResult<Self> {
-        let ledger_path = download_and_setup_ledger(url, cancellation_token).await?;
-        Self::load_from_path(ledger_path)
-    }
 }
 
 #[async_trait]
@@ -306,15 +298,34 @@ impl Datasource for SnapshotDatasource {
 
         let load_start = std::time::Instant::now();
 
-        let snapshot = match &self.source {
-            SnapshotSource::LocalPath(path) => SnapshotState::load_from_path(path.clone())?,
+        let ledger_directory = match &self.source {
+            SnapshotSource::LocalPath(path) => path.clone(),
             SnapshotSource::Remote { url } => {
-                match SnapshotState::load_from_remote(url, cancellation_token.clone()).await {
-                    Ok(snapshot) => snapshot,
+                match download_and_setup_ledger(url, cancellation_token.clone()).await {
+                    Ok(ledger_directory) => ledger_directory,
                     Err(_) if cancellation_token.is_cancelled() => return Ok(()),
                     Err(error) => return Err(error),
                 }
             }
+        };
+
+        if cancellation_token.is_cancelled() {
+            return Ok(());
+        }
+
+        let (loaded_sender, loaded) = tokio::sync::oneshot::channel();
+        std::thread::spawn(move || {
+            static LOADING: std::sync::Mutex<()> = std::sync::Mutex::new(());
+            let _loading = LOADING.lock();
+            if !loaded_sender.is_closed() {
+                let _ = loaded_sender.send(SnapshotState::load_from_path(ledger_directory));
+            }
+        });
+        let snapshot = tokio::select! {
+            snapshot = loaded => snapshot.map_err(|_| {
+                Error::FailedToConsumeDatasource("Snapshot load panicked".to_string())
+            })??,
+            _ = cancellation_token.cancelled() => return Ok(()),
         };
 
         let load_duration = load_start.elapsed();
@@ -398,7 +409,11 @@ impl Datasource for SnapshotDatasource {
             })
             .map_err(|e| Error::FailedToConsumeDatasource(format!("Scan failed: {e}")))?;
 
-            log::info!("Account scan completed");
+            if cancellation_token_clone.is_cancelled() {
+                log::info!("Account scan cancelled");
+            } else {
+                log::info!("Account scan completed");
+            }
 
             Ok(())
         })
@@ -408,10 +423,17 @@ impl Datasource for SnapshotDatasource {
         let scan_duration = scan_start.elapsed();
         SCAN_DURATION_MILLIS.record(scan_duration.as_millis() as f64);
 
-        log::info!(
-            "Snapshot processing completed in {:.2}s",
-            scan_duration.as_secs_f64()
-        );
+        if cancellation_token.is_cancelled() {
+            log::info!(
+                "Snapshot processing cancelled after {:.2}s",
+                scan_duration.as_secs_f64()
+            );
+        } else {
+            log::info!(
+                "Snapshot processing completed in {:.2}s",
+                scan_duration.as_secs_f64()
+            );
+        }
 
         Ok(())
     }

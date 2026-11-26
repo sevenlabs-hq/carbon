@@ -81,10 +81,11 @@ async fn download_file_with_retry(
             ));
         }
 
-        match download_file(url, output_path, keep_archive_name).await {
+        match download_file(url, output_path, keep_archive_name, &cancellation_token).await {
             Ok(()) => {
                 return Ok(());
             }
+            Err(e) if cancellation_token.is_cancelled() => return Err(e),
             Err(e) => {
                 retries += 1;
                 if retries >= MAX_RETRIES {
@@ -102,7 +103,12 @@ async fn download_file_with_retry(
     }
 }
 
-async fn download_file(url: &str, output_path: &Path, keep_archive_name: bool) -> CarbonResult<()> {
+async fn download_file(
+    url: &str,
+    output_path: &Path,
+    keep_archive_name: bool,
+    cancellation_token: &CancellationToken,
+) -> CarbonResult<()> {
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::limited(MAX_REDIRECTS))
         .build()
@@ -110,11 +116,15 @@ async fn download_file(url: &str, output_path: &Path, keep_archive_name: bool) -
             Error::FailedToConsumeDatasource(format!("Failed to create HTTP client: {e}"))
         })?;
 
-    let mut response = client
-        .get(url)
-        .send()
-        .await
-        .map_err(|e| Error::FailedToConsumeDatasource(format!("HTTP request failed: {e}")))?;
+    let mut response = tokio::select! {
+        response = client.get(url).send() => response
+            .map_err(|e| Error::FailedToConsumeDatasource(format!("HTTP request failed: {e}")))?,
+        _ = cancellation_token.cancelled() => {
+            return Err(Error::FailedToConsumeDatasource(
+                "Download cancelled".to_string(),
+            ));
+        }
+    };
 
     if !response.status().is_success() {
         return Err(Error::FailedToConsumeDatasource(format!(
@@ -157,7 +167,16 @@ async fn download_file(url: &str, output_path: &Path, keep_archive_name: bool) -
     let start_time = std::time::Instant::now();
 
     loop {
-        match response.chunk().await {
+        let chunk = tokio::select! {
+            chunk = response.chunk() => chunk,
+            _ = cancellation_token.cancelled() => {
+                return Err(Error::FailedToConsumeDatasource(
+                    "Download cancelled".to_string(),
+                ));
+            }
+        };
+
+        match chunk {
             Ok(Some(chunk)) => {
                 file.write_all(&chunk).map_err(|e| {
                     Error::FailedToConsumeDatasource(format!("Failed to write to file: {e}"))
