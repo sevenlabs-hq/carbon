@@ -65,6 +65,47 @@ fn register_validator_snapshot_metrics() {
     registry.register_histogram(&SCAN_DURATION_MILLIS);
 }
 
+#[cfg(unix)]
+fn raise_open_file_limit() {
+    const AGAVE_OPEN_FILE_LIMIT: libc::rlim_t = 1_000_000;
+
+    let mut limit = libc::rlimit {
+        rlim_cur: 0,
+        rlim_max: 0,
+    };
+    if unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limit) } != 0 {
+        log::warn!(
+            "Failed to read the open file limit: {}",
+            std::io::Error::last_os_error()
+        );
+        return;
+    }
+
+    let wanted = limit.rlim_max.min(AGAVE_OPEN_FILE_LIMIT);
+    if limit.rlim_cur < wanted {
+        let raised = libc::rlimit {
+            rlim_cur: wanted,
+            rlim_max: limit.rlim_max,
+        };
+        if unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &raised) } == 0 {
+            limit = raised;
+        } else {
+            log::warn!(
+                "Failed to raise the open file limit from {} to {wanted}: {}",
+                limit.rlim_cur,
+                std::io::Error::last_os_error()
+            );
+        }
+    }
+
+    if limit.rlim_cur < AGAVE_OPEN_FILE_LIMIT {
+        log::warn!(
+            "The open file limit is {}, below the 1,000,000 Agave asks for. The loader keeps a file open for each account storage, so a large snapshot can fail with `Too many open files`; raise the hard limit",
+            limit.rlim_cur
+        );
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum SnapshotSource {
     LocalPath(PathBuf),
@@ -194,6 +235,9 @@ impl SnapshotState {
             accounts_db_config: accounts_db_settings,
             ..Default::default()
         };
+
+        #[cfg(unix)]
+        raise_open_file_limit();
 
         let (bank_forks, _snapshot_hashes) = bank_forks_utils::try_load_bank_forks_from_snapshot(
             &genesis_config,

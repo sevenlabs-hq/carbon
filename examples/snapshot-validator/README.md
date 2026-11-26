@@ -37,6 +37,8 @@ RUST_LOG=info
 
 Mainnet snapshots are ~50–80GB compressed — make sure you have the disk and memory.
 
+The loader keeps a file open for each account storage, up to about 432,000 on mainnet. Carbon raises the soft limit on open files to the hard limit, or to 1,000,000 if the hard limit is higher, and logs a warning when the limit ends up below 1,000,000. If you see that warning, raise the hard limit (`ulimit -Hn`, or `LimitNOFILE=` for a systemd service). On macOS the kernel also limits each process to `kern.maxfilesperproc` open files, whatever the soft limit says.
+
 ### Step 3: Build
 
 ```sh

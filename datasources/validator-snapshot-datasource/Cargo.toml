@@ -26,6 +26,7 @@ carbon-core = { workspace = true }
 
 agave-snapshots = { workspace = true }
 async-trait = { workspace = true }
+libc = { workspace = true }
 log = { workspace = true }
 percent-encoding = { workspace = true }
 reqwest = { version = "0.12.24", default-features = false, features = ["json", "rustls-tls", "stream"] }

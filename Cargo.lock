@@ -2758,6 +2758,7 @@ dependencies = [
  "agave-snapshots",
  "async-trait",
  "carbon-core",
+ "libc",
  "log",
  "percent-encoding",
  "reqwest 0.12.28",
