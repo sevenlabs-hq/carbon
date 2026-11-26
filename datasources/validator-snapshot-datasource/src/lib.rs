@@ -1,7 +1,11 @@
 mod downloader;
 
 use {
-    agave_snapshots::snapshot_config::{SnapshotConfig, SnapshotUsage},
+    agave_snapshots::{
+        paths::get_highest_full_snapshot_archive_info,
+        snapshot_config::{SnapshotConfig, SnapshotUsage},
+        unpack_genesis_archive,
+    },
     async_trait::async_trait,
     carbon_core::{
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
@@ -23,11 +27,13 @@ use {
         path::PathBuf,
         sync::{atomic::AtomicBool, Arc, LazyLock},
     },
+    tempfile::TempDir,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
 const MAX_GENESIS_ARCHIVE_UNPACKED_SIZE: u64 = 10_485_760; // 10MB
+const WORK_DIRECTORY: &str = "carbon-snapshot";
 
 static LOAD_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
     Histogram::new(
@@ -85,6 +91,7 @@ impl SnapshotDatasource {
 struct SnapshotState {
     bank: Arc<Bank>,
     slot: u64,
+    _work_directory: TempDir,
 }
 
 impl SnapshotState {
@@ -104,8 +111,44 @@ impl SnapshotState {
             )));
         }
 
+        let snapshots_directory = ledger_directory.join("snapshots");
+        if get_highest_full_snapshot_archive_info(&snapshots_directory).is_none() {
+            return Err(Error::FailedToConsumeDatasource(format!(
+                "No loadable full snapshot archive found in {snapshots_directory:?}"
+            )));
+        }
+
+        let leftover = ledger_directory.join(WORK_DIRECTORY);
+        if leftover.exists() {
+            std::fs::remove_dir_all(&leftover).map_err(|err| {
+                Error::FailedToConsumeDatasource(format!(
+                    "Failed to remove {leftover:?}, left by an earlier run: {err}"
+                ))
+            })?;
+        }
+
+        let work_directory = tempfile::Builder::new()
+            .prefix(WORK_DIRECTORY)
+            .rand_bytes(0)
+            .tempdir_in(&ledger_directory)
+            .map_err(|err| {
+                Error::FailedToConsumeDatasource(format!(
+                    "Failed to create a working directory in {ledger_directory:?}: {err}"
+                ))
+            })?;
+
+        unpack_genesis_archive(
+            &genesis_archive,
+            work_directory.path(),
+            MAX_GENESIS_ARCHIVE_UNPACKED_SIZE,
+        )
+        .map_err(|err| {
+            Error::FailedToConsumeDatasource(format!(
+                "Unable to load genesis configuration from {ledger_directory:?}: {err}"
+            ))
+        })?;
         let genesis_config =
-            open_genesis_config(&ledger_directory, MAX_GENESIS_ARCHIVE_UNPACKED_SIZE).map_err(
+            open_genesis_config(work_directory.path(), MAX_GENESIS_ARCHIVE_UNPACKED_SIZE).map_err(
                 |err| {
                     Error::FailedToConsumeDatasource(format!(
                         "Unable to load genesis configuration from {ledger_directory:?}: {err}"
@@ -113,8 +156,12 @@ impl SnapshotState {
                 },
             )?;
 
-        let snapshots_directory = ledger_directory.join("snapshots");
-        let accounts_directory = ledger_directory.join("accounts");
+        let accounts_directory = work_directory.path().join("accounts");
+        std::fs::create_dir(&accounts_directory).map_err(|err| {
+            Error::FailedToConsumeDatasource(format!(
+                "Failed to initialize account directory structure: {err}"
+            ))
+        })?;
 
         if !snapshots_directory.parent().is_some_and(|p| p.exists()) {
             return Err(Error::FailedToConsumeDatasource(format!(
@@ -138,7 +185,7 @@ impl SnapshotState {
             usage: SnapshotUsage::LoadOnly,
             full_snapshot_archives_dir: snapshots_directory.clone(),
             incremental_snapshot_archives_dir: snapshots_directory.clone(),
-            bank_snapshots_dir: snapshots_directory.clone(),
+            bank_snapshots_dir: work_directory.path().join("snapshots"),
             ..SnapshotConfig::default()
         };
 
@@ -187,7 +234,11 @@ impl SnapshotState {
             "Snapshot initialization complete: loaded bank at slot {slot} from {ledger_directory:?}"
         );
 
-        Ok(Self { bank, slot })
+        Ok(Self {
+            bank,
+            slot,
+            _work_directory: work_directory,
+        })
     }
 
     pub async fn load_from_remote(
@@ -323,5 +374,152 @@ impl Datasource for SnapshotDatasource {
 
     fn update_types(&self) -> Vec<UpdateType> {
         vec![UpdateType::AccountUpdate]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use {
+        super::*,
+        solana_accounts_db::utils::create_accounts_run_and_snapshot_dirs,
+        solana_ledger::{blockstore::create_new_ledger, blockstore_options::LedgerColumnOptions},
+        solana_runtime::{
+            bank_forks::BankForks, genesis_utils::create_genesis_config_with_leader,
+            snapshot_bank_utils::bank_to_full_snapshot_archive,
+        },
+        std::{collections::BTreeSet, fs, path::Path},
+    };
+
+    fn ledger(with_archive: bool) -> TempDir {
+        let ledger = tempfile::tempdir().unwrap();
+        let genesis_config = create_genesis_config_with_leader(
+            1_000_000_000_000,
+            &Pubkey::new_unique(),
+            10_000_000_000,
+        )
+        .genesis_config;
+        create_new_ledger(
+            ledger.path(),
+            &genesis_config,
+            MAX_GENESIS_ARCHIVE_UNPACKED_SIZE,
+            LedgerColumnOptions::default(),
+        )
+        .unwrap();
+        fs::remove_file(ledger.path().join("genesis.bin")).unwrap();
+        fs::remove_dir_all(ledger.path().join("rocksdb")).unwrap();
+        let snapshots_directory = ledger.path().join("snapshots");
+        fs::create_dir(&snapshots_directory).unwrap();
+
+        if with_archive {
+            let bank_directory = tempfile::tempdir().unwrap();
+            let (run_directory, _) =
+                create_accounts_run_and_snapshot_dirs(bank_directory.path().join("accounts"))
+                    .unwrap();
+            let bank = Bank::new_from_genesis(
+                &genesis_config,
+                Arc::default(),
+                vec![run_directory],
+                None,
+                AccountsDbConfig::default(),
+                None,
+                None,
+                Arc::default(),
+                None,
+                None,
+            );
+            let bank_forks = BankForks::new_rw_arc(bank);
+            let parent = bank_forks.read().unwrap().working_bank();
+            parent.fill_bank_with_ticks_for_tests();
+            Bank::calculate_and_set_block_id_for_dcou(&parent);
+            let bank = Bank::new_from_parent(parent.clone(), *parent.leader(), 1);
+            bank.fill_bank_with_ticks_for_tests();
+            Bank::calculate_and_set_block_id_for_dcou(&bank);
+            let bank_snapshots_directory = bank_directory.path().join("snapshots");
+            fs::create_dir(&bank_snapshots_directory).unwrap();
+            let snapshot_config = SnapshotConfig {
+                full_snapshot_archives_dir: snapshots_directory.clone(),
+                incremental_snapshot_archives_dir: snapshots_directory,
+                bank_snapshots_dir: bank_snapshots_directory,
+                ..SnapshotConfig::default()
+            };
+            bank_to_full_snapshot_archive(&snapshot_config, &bank).unwrap();
+        }
+
+        ledger
+    }
+
+    fn write(path: &Path) {
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(path, [1]).unwrap();
+    }
+
+    fn files(directory: &Path) -> BTreeSet<PathBuf> {
+        let mut found = BTreeSet::new();
+        for entry in fs::read_dir(directory).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                found.extend(files(&path));
+            }
+            found.insert(path);
+        }
+        found
+    }
+
+    #[test]
+    fn a_ledger_without_an_archive_is_left_as_it_was() {
+        let ledger = ledger(false);
+        write(&ledger.path().join("accounts/123.1"));
+        let before = files(ledger.path());
+
+        let Err(error) = SnapshotState::load_from_path(ledger.path().to_path_buf()) else {
+            panic!("loaded a ledger without a snapshot archive");
+        };
+
+        assert!(
+            error
+                .to_string()
+                .contains("No loadable full snapshot archive"),
+            "{error}"
+        );
+        assert_eq!(files(ledger.path()), before);
+    }
+
+    async fn scan(ledger: &Path) {
+        let datasource = SnapshotDatasource::new(
+            SnapshotSource::LocalPath(ledger.to_path_buf()),
+            vec![Pubkey::from_str_const("11111111111111111111111111111111")],
+            vec![],
+        );
+        let (sender, mut receiver) = tokio::sync::mpsc::channel(1_000);
+
+        datasource
+            .consume(DatasourceId::new_unique(), sender, CancellationToken::new())
+            .await
+            .unwrap();
+
+        assert!(receiver.recv().await.is_some());
+    }
+
+    #[tokio::test]
+    async fn loading_a_ledger_leaves_its_files_alone() {
+        let ledger = ledger(true);
+        write(&ledger.path().join("accounts/run/999.1"));
+        write(&ledger.path().join("accounts/snapshot/999/999.1"));
+        let before = files(ledger.path());
+
+        scan(ledger.path()).await;
+
+        assert_eq!(files(ledger.path()), before);
+    }
+
+    #[tokio::test]
+    async fn loading_removes_what_a_killed_run_left_behind() {
+        let ledger = ledger(true);
+        let before = files(ledger.path());
+        write(&ledger.path().join("carbon-snapshot/accounts/run/0.0"));
+
+        scan(ledger.path()).await;
+
+        assert_eq!(files(ledger.path()), before);
     }
 }

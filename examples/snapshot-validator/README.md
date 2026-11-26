@@ -28,7 +28,7 @@ RUST_LOG=info
 ```
 
 - `VALIDATOR_URL` — base URL of a validator's RPC endpoint, without a file name. Carbon appends `/genesis.tar.bz2` and `/snapshot.tar.bz2` and downloads both into `ledger/` in the working directory.
-- `SNAPSHOT_PATH` — local path to an already-extracted ledger directory (containing `genesis.tar.bz2`, `snapshots/`, `accounts/`).
+- `SNAPSHOT_PATH` — local path to a ledger directory with `genesis.tar.bz2` and a full snapshot archive in `snapshots/`. Carbon only reads them: it unpacks into a `carbon-snapshot` folder inside the directory and removes it when the scan is done, or at the start of the next run if the process was killed.
 - One of `VALIDATOR_URL` or `SNAPSHOT_PATH` is required.
 - `PROGRAM_OWNERS` — comma-separated list of program owner pubkeys. Only accounts owned by one of these programs are loaded.
 - `ACCOUNT_IDS` — comma-separated list of specific account pubkeys to load.
