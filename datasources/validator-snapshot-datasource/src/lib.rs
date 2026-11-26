@@ -294,6 +294,12 @@ impl Datasource for SnapshotDatasource {
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
+        if self.owners.is_empty() && self.accounts.is_empty() {
+            return Err(Error::FailedToConsumeDatasource(
+                "No owners or accounts specified, nothing to load".to_string(),
+            ));
+        }
+
         register_validator_snapshot_metrics();
 
         let load_start = std::time::Instant::now();
@@ -349,11 +355,6 @@ impl Datasource for SnapshotDatasource {
         tokio::task::spawn_blocking(move || {
             let owners_set: HashSet<SolanaPubkey> = owners.iter().copied().collect();
             let accounts_set: HashSet<SolanaPubkey> = accounts.iter().copied().collect();
-
-            if owners_set.is_empty() && accounts_set.is_empty() {
-                log::warn!("No owners or accounts specified, skipping account scan");
-                return Ok::<(), Error>(());
-            }
 
             log::info!(
                 "Scanning accounts for {} owner(s) and {} specific account(s) at slot {}",
@@ -415,7 +416,7 @@ impl Datasource for SnapshotDatasource {
                 log::info!("Account scan completed");
             }
 
-            Ok(())
+            Ok::<(), Error>(())
         })
         .await
         .map_err(|e| Error::FailedToConsumeDatasource(format!("Scan task panicked: {e}")))??;
