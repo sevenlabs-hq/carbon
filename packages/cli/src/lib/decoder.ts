@@ -13,7 +13,7 @@ import {
     rootNodeVisitor,
     visit,
 } from '@codama/visitors';
-import { assertIsNode } from '@codama/nodes';
+import { assertIsNode, camelCase } from '@codama/nodes';
 import { exitWithError, isBase58Like } from './utils';
 import { fetchAnchorIdl } from './anchor';
 import { logger } from './logger';
@@ -26,12 +26,40 @@ import {
 } from './idl-transformer';
 
 /**
+ * Builds the Codama root from an Anchor IDL. `@codama/nodes-from-anchor` turns Anchor events into
+ * `eventNode`s but drops the docs of their struct type, so copy those docs back from the IDL.
+ */
+function rootFromAnchor(idlJson: any) {
+    const root = rootNodeFromAnchorWithoutDefaultVisitor(idlJson);
+    const typeDocs = new Map<string, string[]>(
+        (idlJson.types ?? [])
+            .filter((type: any) => Array.isArray(type.docs) && type.docs.length > 0)
+            .map((type: any) => [camelCase(type.name), type.docs]),
+    );
+    const events = root.program.events ?? [];
+    if (!events.some(event => (event.docs ?? []).length === 0 && typeDocs.has(event.name))) {
+        return root;
+    }
+    return {
+        ...root,
+        program: {
+            ...root.program,
+            events: events.map(event =>
+                (event.docs ?? []).length === 0 && typeDocs.has(event.name)
+                    ? { ...event, docs: typeDocs.get(event.name) }
+                    : event,
+            ),
+        },
+    } as typeof root;
+}
+
+/**
  * Creates a Codama root node from Anchor IDL without flattening instruction arguments
  * This preserves nested structure like Drift
  */
 function createFromRootWithoutFlattening(idlJson: any) {
     // First get the raw root node from Anchor IDL without default visitors
-    const rawRoot = rootNodeFromAnchorWithoutDefaultVisitor(idlJson);
+    const rawRoot = rootFromAnchor(idlJson);
 
     // Apply custom visitor pipeline WITHOUT flattenInstructionDataArgumentsVisitor
     const customVisitor = rootNodeVisitor(currentRoot => {
@@ -339,8 +367,11 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         return;
     }
 
-    // Anchor standard: apply event and PDA normalization
-    if (hasLegacyEvents(idlJson)) {
+    // Anchor standard: apply event and PDA normalization.
+    // Legacy (pre-0.30) events are moved into `types` and passed to the renderer explicitly; for modern
+    // IDLs, `@codama/nodes-from-anchor` produces native `eventNode`s that the renderer reads instead.
+    const legacyEvents = hasLegacyEvents(idlJson);
+    if (legacyEvents) {
         idlJson = transformLegacyEvents(idlJson);
     }
     idlJson = fixPdaSeedArgumentPaths(idlJson);
@@ -353,12 +384,12 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         // Use custom pipeline only if we have nested arguments to preserve
         const codama = needsNestedPreservation
             ? createFromRootWithoutFlattening(idlJson)
-            : createFromRoot(rootNodeFromAnchorWithoutDefaultVisitor(idlJson));
+            : createFromRoot(rootFromAnchor(idlJson));
         codama.accept(
             renderVisitor(outputDir, {
                 deleteFolderBeforeRendering,
                 packageName,
-                anchorEvents: idlJson.events,
+                anchorEvents: legacyEvents ? idlJson.events : undefined,
                 postgresMode,
                 withPostgres,
                 withGraphql,

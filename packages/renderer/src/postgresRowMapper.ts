@@ -147,7 +147,7 @@ export class PostgresRowMapper {
         };
 
         if (isNode(typeNode, 'structTypeNode')) {
-            for (const field of typeNode.fields) {
+            for (const field of typeNode.fields ?? []) {
                 out.push(...this.flattenType(field.type, [...prefix, snakeCase(field.name)], [], seen, { inOption }));
             }
             return out;
@@ -298,8 +298,8 @@ export class PostgresRowMapper {
         } else if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
             return this.buildExpression(typeNode.type, prefix);
         } else if (isNode(typeNode, 'tupleTypeNode')) {
-            if (typeNode.items.length === 1) {
-                return `${this.buildExpression(typeNode.items[0], `${prefix}`)}`;
+            if ((typeNode.items ?? []).length === 1) {
+                return `${this.buildExpression((typeNode.items ?? [])[0], `${prefix}`)}`;
             }
             return `sqlx::types::Json(serde_json::to_value(${prefix}).unwrap())`;
         } else if (isNode(typeNode, 'publicKeyTypeNode')) {
@@ -498,8 +498,8 @@ export class PostgresRowMapper {
             return `${prefix}.map(|value| ${innerReverse})`;
         }
         if (isNode(typeNode, 'tupleTypeNode')) {
-            if (typeNode.items.length === 1) {
-                return `${this.buildReverse(typeNode.items[0], `${prefix}`)}`;
+            if ((typeNode.items ?? []).length === 1) {
+                return `${this.buildReverse((typeNode.items ?? [])[0], `${prefix}`)}`;
             }
             return `serde_json::from_value(${prefix}.0).map_err(|_| carbon_core::error::Error::Custom("Failed to deserialize tuple from JSON".to_string()))?`;
         }

@@ -121,7 +121,7 @@ export function getPostgresTypeManifestVisitor() {
                     return jsonb();
                 },
                 visitTupleType(node, { self }) {
-                    const inners = node.items.map(i => visit(i, self));
+                    const inners = (node.items ?? []).map(i => visit(i, self));
                     if (inners.length === 1) {
                         return inners[0];
                     }

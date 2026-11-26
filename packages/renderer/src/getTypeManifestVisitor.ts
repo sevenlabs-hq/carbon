@@ -227,7 +227,7 @@ export function getTypeManifestVisitor(
                 },
 
                 visitEnumType(node, { self }) {
-                    const variants = node.variants.map(variant => visit(variant, self));
+                    const variants = (node.variants ?? []).map(variant => visit(variant, self));
                     const mergedImports = new ImportMap().mergeWith(...variants.map(v => v.imports));
                     const variantTypes = variants.map(v => v.type).join('\n');
                     const variantBorshTypes = variants.map(v => v.borshType).join('\n');
@@ -335,7 +335,7 @@ export function getTypeManifestVisitor(
                     // Check if this is a nested inline struct - flatten it
                     if (isNode(node.type, 'structTypeNode')) {
                         // Flatten: visit all nested fields directly
-                        const nestedFields = node.type.fields.map(field => visit(field, self));
+                        const nestedFields = (node.type.fields ?? []).map(field => visit(field, self));
                         const mergedImports = new ImportMap().mergeWith(...nestedFields.map(f => f.imports));
                         const fieldTypes = nestedFields.map(f => f.type).join('\n');
                         const fieldBorshTypes = nestedFields.map(f => f.borshType).join('\n');
@@ -388,7 +388,7 @@ export function getTypeManifestVisitor(
                 },
 
                 visitStructType(node, { self }) {
-                    const fields = node.fields.map(field => visit(field, self));
+                    const fields = (node.fields ?? []).map(field => visit(field, self));
                     const mergedImports = new ImportMap().mergeWith(...fields.map(f => f.imports));
                     const fieldTypes = fields.map(f => f.type).join('\n');
                     const fieldBorshTypes = fields.map(f => f.borshType).join('\n');
@@ -401,7 +401,7 @@ export function getTypeManifestVisitor(
                 },
 
                 visitTupleType(node, { self }) {
-                    const items = node.items.map(item => visit(item, self));
+                    const items = (node.items ?? []).map(item => visit(item, self));
                     const mergedImports = new ImportMap().mergeWith(...items.map(i => i.imports));
                     if (items.length === 1) {
                         return {
