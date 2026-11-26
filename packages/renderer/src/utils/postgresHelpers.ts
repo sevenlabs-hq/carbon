@@ -1,4 +1,5 @@
 import { isNode, TypeNode } from '@codama/nodes';
+import { optionalNumberNewtypeFormat } from './helpers';
 
 /**
  * Returns true when the Postgres sqlx type is one of the custom wrapper primitives
@@ -50,6 +51,9 @@ export function isCopyType(rowType: string): boolean {
         const unwrappedType = innerType.replace(/^Option<(.+)>$/, '$1');
         const lowerType = unwrappedType.toLowerCase();
         if (lowerType === 'bool' || lowerType.endsWith('bool') || lowerType.includes('::bool')) {
+            return true;
+        }
+        if (optionalNumberNewtypeFormat(unwrappedType)) {
             return true;
         }
         return isCopyType(unwrappedType);

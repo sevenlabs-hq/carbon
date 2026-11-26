@@ -1,3 +1,5 @@
+import type { NumberFormat } from '@codama/nodes';
+
 export function partition<T>(
     arr: readonly T[],
     predicate: (value: T, index: number, array: readonly T[]) => boolean,
@@ -21,4 +23,9 @@ const TOKEN_PROGRAM_KINDS: Record<string, TokenProgramKind> = {
 /** Token programs use the SPL `Pack` layout, not Borsh, so they get program-specific code. */
 export function tokenProgramKind(programId?: string | null): TokenProgramKind | undefined {
     return programId ? TOKEN_PROGRAM_KINDS[programId] : undefined;
+}
+
+/** Format of an `Option<int>` newtype such as pump.fun's `OptionU64`. */
+export function optionalNumberNewtypeFormat(typeName: string): NumberFormat | undefined {
+    return /^option(u8|u16|u32|u64|i8|i16|i32|i64)$/.exec(typeName.toLowerCase())?.[1] as NumberFormat | undefined;
 }

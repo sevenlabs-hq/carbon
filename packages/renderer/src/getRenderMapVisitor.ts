@@ -29,7 +29,7 @@ import { DiscriminatorManifest, getDiscriminatorManifest, getTypeManifestVisitor
 import { getGraphQLTypeManifestVisitor } from './getGraphQLTypeManifestVisitor';
 import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
-import { tokenProgramKind } from './utils/helpers';
+import { optionalNumberNewtypeFormat, tokenProgramKind } from './utils/helpers';
 import { getPostgresTypeManifestVisitor } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
 import {
@@ -391,6 +391,19 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         optionalBoolWrapperTypes.add(node.name);
                     }
 
+                    // `OptionU64`-style trailing arg: decodes as 0 when absent.
+                    const tupleItems = isNode(renderedNode.type, 'tupleTypeNode')
+                        ? (renderedNode.type.items ?? [])
+                        : [];
+                    const numberFormat = optionalNumberNewtypeFormat(node.name);
+                    const optionalNumberWrapper =
+                        numberFormat &&
+                        tupleItems.length === 1 &&
+                        isNode(tupleItems[0], 'numberTypeNode') &&
+                        tupleItems[0].format === numberFormat
+                            ? { format: numberFormat, size: Number(numberFormat.slice(1)) / 8 }
+                            : undefined;
+
                     if (isToken2022Extension) {
                         imports.add('spl_token_2022::extension::StateWithExtensions');
                         imports.add('spl_token_2022::extension::BaseStateWithExtensions as _');
@@ -406,6 +419,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         typeManifest,
                         needsNewtypeWrapper,
                         isOptionalBoolWrapper,
+                        optionalNumberWrapper,
                         arraySize,
                         program: currentProgram,
                     });

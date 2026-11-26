@@ -1,6 +1,7 @@
-import { TypeNode, isNode } from '@codama/nodes';
+import { TypeNode, isNode, numberTypeNode } from '@codama/nodes';
 import { visit } from '@codama/visitors-core';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from '../getPostgresTypeManifestVisitor';
+import { optionalNumberNewtypeFormat } from './helpers';
 /*
 GraphQL conversion rules (Rust → GraphQL values):
 
@@ -237,6 +238,10 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         const typeName = typeNode.name.toLowerCase();
         if (isOptionalBoolNewtype(typeName)) {
             return `${fieldAccess}.0`; // unwrap newtype: OptionBool(bool) -> bool
+        }
+        const optionalNumberFormat = optionalNumberNewtypeFormat(typeName);
+        if (optionalNumberFormat) {
+            return buildConversionFromOriginal(numberTypeNode(optionalNumberFormat), `${fieldAccess}.0`);
         }
         if (isBooleanTypeAlias(typeName)) {
             return fieldAccess;
@@ -553,6 +558,10 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         }
         if (isOptionalBoolNewtype(typeName)) {
             return `${fieldAccess}.0.0`; // unwrap Json<OptionBool>, then unwrap OptionBool(bool)
+        }
+        const optionalNumberFormat = optionalNumberNewtypeFormat(typeName);
+        if (optionalNumberFormat) {
+            return buildConversionFromOriginal(numberTypeNode(optionalNumberFormat), `${fieldAccess}.0.0`);
         }
         if (isBooleanTypeAlias(typeName)) {
             return handleBooleanTypeConversion(fieldAccess, true, false);
