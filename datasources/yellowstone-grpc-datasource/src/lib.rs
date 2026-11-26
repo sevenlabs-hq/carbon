@@ -239,6 +239,7 @@ impl YellowstoneGrpcClientConfig {
         builder = builder.connect_timeout(self.connect_timeout.unwrap_or(Duration::from_secs(15)));
 
         builder = builder.timeout(self.timeout.unwrap_or(Duration::from_secs(15)));
+        builder = builder.http2_keep_alive_interval(Duration::from_secs(10));
         let tls = self
             .tls_config
             .clone()
