@@ -326,8 +326,8 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         '[package]',
         `name = "${decoderPackageName}"`,
         `version = "${version}"`,
-        useWorkspace ? 'edition = { workspace = true }' : 'edition = "2021"',
         useWorkspace ? 'rust-version = { workspace = true }' : `rust-version = "${CARBON_MSRV}"`,
+        useWorkspace ? 'edition = { workspace = true }' : 'edition = "2021"',
     ];
     if (hasMeta) {
         packageLines.push(`description = "${description.replace(/"/g, '\\"')}"`);
