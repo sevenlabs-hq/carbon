@@ -36,7 +36,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
             return None;
         }
 
-{% if originalProgramName === 'token-2022' %}
+{% if tokenProgramKind === 'token-2022' %}
         {% for account in accountsToExport %}
         {% if account.name | lower === 'mint' %}
         // Try Mint (base or with extensions) - StateWithExtensions::unpack handles both
@@ -73,6 +73,45 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
         }
         {% endif %}
         {% endfor %}
+{% elif tokenProgramKind === 'spl-token' %}
+        {# SPL `Pack` layout (4-byte COption tags), not Borsh #}
+        {% for kind in ['mint', 'token', 'multisig'] %}
+        {% for account in accountsToExport %}
+        {% if account.name | lower === kind %}
+        {% if kind === 'mint' %}
+        if let Ok(data) = spl_token_interface::state::Mint::unpack(&account.data) {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(Box::new({{ macros.escapeRustKeyword(account.name | snakeCase) }}::{{ account.name | pascalCase }}::from(data))),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+        {% elif kind === 'token' %}
+        if let Ok(data) = spl_token_interface::state::Account::unpack(&account.data) {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(Box::new({{ macros.escapeRustKeyword(account.name | snakeCase) }}::{{ account.name | pascalCase }}::from(data))),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+        {% else %}
+        if let Ok(data) = spl_token_interface::state::Multisig::unpack(&account.data) {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(Box::new({{ macros.escapeRustKeyword(account.name | snakeCase) }}::{{ account.name | pascalCase }}::from(data))),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
 {% else %}
 {% if accountsToExport.length == 0 %}
         let _data = account.data.as_slice();
@@ -99,7 +138,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
     }
 }
 
-{% if originalProgramName === 'token-2022' %}
+{% if tokenProgramKind === 'token-2022' %}
 #[cfg(test)]
 mod tests {
     use {super::*, carbon_core::account::AccountDecoder, solana_pubkey::Pubkey};

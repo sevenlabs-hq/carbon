@@ -1,6 +1,7 @@
-import { TypeNode, isNode } from '@codama/nodes';
+import { TypeNode, isNode, numberTypeNode, optionTypeNode } from '@codama/nodes';
 import { visit } from '@codama/visitors-core';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from '../getPostgresTypeManifestVisitor';
+import { optionalNumberNewtypeFormat, sizePrefixNewtype } from './helpers';
 /*
 GraphQL conversion rules (Rust → GraphQL values):
 
@@ -208,7 +209,9 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
     }
 
     if (isNode(typeNode, 'sizePrefixTypeNode')) {
-        return buildConversionFromOriginal(typeNode.type, fieldAccess);
+        // A newtype carries the odd prefix width; unwrap it to the plain value.
+        const suffix = sizePrefixNewtype(typeNode) ? '.0' : '';
+        return buildConversionFromOriginal(typeNode.type, `${fieldAccess}${suffix}`);
     }
 
     if (isNode(typeNode, 'remainderOptionTypeNode')) {
@@ -216,13 +219,9 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         return buildOptionMapExpression(fieldAccess, innerExpr, 'v');
     }
 
+    // `ZeroableOptionPubkey` newtype wraps the `Option`.
     if (isNode(typeNode, 'zeroableOptionTypeNode')) {
-        const innerExpr = buildConversionFromOriginal(typeNode.item, 'v');
-        const convertedExpr = innerExpr === 'v' ? 'v.into()' : innerExpr;
-        if (convertedExpr !== 'v.into()') {
-            return buildOptionMapExpression(fieldAccess, convertedExpr, 'v');
-        }
-        return `${fieldAccess}.map(|v| ${convertedExpr})`;
+        return buildConversionFromOriginal(optionTypeNode(typeNode.item), `${fieldAccess}.0`);
     }
 
     if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
@@ -238,10 +237,14 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         if (isOptionalBoolNewtype(typeName)) {
             return `${fieldAccess}.0`; // unwrap newtype: OptionBool(bool) -> bool
         }
+        const optionalNumberFormat = optionalNumberNewtypeFormat(typeName);
+        if (optionalNumberFormat) {
+            return buildConversionFromOriginal(numberTypeNode(optionalNumberFormat), `${fieldAccess}.0`);
+        }
         if (isBooleanTypeAlias(typeName)) {
             return fieldAccess;
         }
-        if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
+        if (isEncryptedBytesType(typeName)) {
             return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
         }
         if (typeName === 'epoch' || typeName === 'slot') {
@@ -509,37 +512,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         return `${fieldAccess}.map(|v| ${innerExpr})`;
     }
 
+    // The row column is already a plain `Option`.
     if (isNode(typeNode, 'zeroableOptionTypeNode')) {
-        const postgresManifest = visit(typeNode.item, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
-        const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
-
-        if (isJson) {
-            if (isNode(typeNode.item, 'booleanTypeNode')) {
-                return handleBooleanTypeConversion(fieldAccess, true, false);
-            }
-            if (isNode(typeNode.item, 'publicKeyTypeNode')) {
-                return `carbon_core::graphql::primitives::Pubkey(${fieldAccess}.0)`;
-            }
-            if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
-                const innerExpr = buildConversionFromPostgresRow(typeNode.item, `${fieldAccess}.0.clone()`);
-                return innerExpr;
-            }
-            const innerExpr = buildConversionFromPostgresRow(typeNode.item, `${fieldAccess}.0`);
-            return innerExpr;
-        } else {
-            if (isNode(typeNode.item, 'publicKeyTypeNode')) {
-                return `${fieldAccess}.map(|v| carbon_core::graphql::primitives::Pubkey(v.0))`;
-            }
-            if (isNode(typeNode.item, 'booleanTypeNode')) {
-                return handleBooleanTypeConversion(fieldAccess, false, true);
-            }
-            if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
-                const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v.0.clone()');
-                return `${fieldAccess}.map(|v| ${innerExpr})`;
-            }
-            const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v');
-            return buildOptionMapExpression(fieldAccess, innerExpr, 'v');
-        }
+        return buildConversionFromPostgresRow(optionTypeNode(typeNode.item), fieldAccess);
     }
 
     if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
@@ -548,14 +523,25 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
 
     if (isNode(typeNode, 'definedTypeLinkNode')) {
         const typeName = typeNode.name.toLowerCase();
-        if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
+        if (isEncryptedBytesType(typeName)) {
             return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
         }
         if (isOptionalBoolNewtype(typeName)) {
             return `${fieldAccess}.0.0`; // unwrap Json<OptionBool>, then unwrap OptionBool(bool)
         }
+        const optionalNumberFormat = optionalNumberNewtypeFormat(typeName);
+        if (optionalNumberFormat) {
+            return buildConversionFromOriginal(numberTypeNode(optionalNumberFormat), `${fieldAccess}.0.0`);
+        }
         if (isBooleanTypeAlias(typeName)) {
             return handleBooleanTypeConversion(fieldAccess, true, false);
+        }
+        // Clock aliases are Json<u64/i64>; GraphQL primitives lack From<u64/i64>.
+        if (typeName === 'epoch' || typeName === 'slot') {
+            return `carbon_core::graphql::primitives::U64(${fieldAccess}.0)`;
+        }
+        if (typeName === 'unixtimestamp' || typeName === 'unixtimestampms') {
+            return `carbon_core::graphql::primitives::I64(${fieldAccess}.0)`;
         }
         return `${fieldAccess}.0.into()`;
     }
@@ -572,4 +558,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     return fieldAccess;
+}
+
+/** Confidential-transfer byte newtypes, exposed as Vec<U8>. */
+function isEncryptedBytesType(typeName: string): boolean {
+    return ['decrypt', 'encrypt', 'cipher', 'elgamal'].some(part => typeName.includes(part));
 }

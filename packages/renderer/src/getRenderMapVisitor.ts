@@ -1,4 +1,5 @@
 import {
+    bytesTypeNode,
     camelCase,
     DefinedTypeNode,
     EnumTypeNode,
@@ -13,6 +14,7 @@ import {
     snakeCase,
     structFieldTypeNode,
     structTypeNode,
+    StructTypeNode,
     TypeNode,
 } from '@codama/nodes';
 import {
@@ -28,7 +30,7 @@ import { DiscriminatorManifest, getDiscriminatorManifest, getTypeManifestVisitor
 import { getGraphQLTypeManifestVisitor } from './getGraphQLTypeManifestVisitor';
 import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
-import { isToken2022Program } from './utils/helpers';
+import { optionalNumberNewtypeFormat, tokenProgramKind } from './utils/helpers';
 import { getPostgresTypeManifestVisitor } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
 import {
@@ -80,28 +82,37 @@ function preserveToken2022ExtensionNullability(node: DefinedTypeNode): DefinedTy
         type: {
             ...node.type,
             variants: (node.type.variants ?? []).map(variant => {
-                if (!isNode(variant, 'enumStructVariantTypeNode') || !isNode(variant.struct, 'structTypeNode')) {
+                if (!isNode(variant, 'enumStructVariantTypeNode')) {
                     return variant;
                 }
 
-                const nullableFields = TOKEN_2022_NULLABLE_EXTENSION_FIELDS.get(camelCase(variant.name));
-                if (!nullableFields) {
-                    return variant;
+                const nullableFields =
+                    TOKEN_2022_NULLABLE_EXTENSION_FIELDS.get(camelCase(variant.name)) ?? new Set<string>();
+
+                const makeNullable = (struct: StructTypeNode): StructTypeNode => ({
+                    ...struct,
+                    fields: (struct.fields ?? []).map(field => {
+                        // Extension state comes from spl-token-2022's unpack, not borsh, so a
+                        // tagless option has no byte layout to preserve and keeps a real `Option`.
+                        if (isNode(field.type, 'zeroableOptionTypeNode')) {
+                            return { ...field, type: optionTypeNode(field.type.item) };
+                        }
+                        if (!nullableFields.has(camelCase(field.name)) || isOptionalType(field.type)) {
+                            return field;
+                        }
+
+                        return { ...field, type: optionTypeNode(field.type) };
+                    }),
+                });
+
+                // A variant struct may be wrapped in a size prefix (the TLV length).
+                if (isNode(variant.struct, 'sizePrefixTypeNode') && isNode(variant.struct.type, 'structTypeNode')) {
+                    return { ...variant, struct: { ...variant.struct, type: makeNullable(variant.struct.type) } };
                 }
-
-                return {
-                    ...variant,
-                    struct: {
-                        ...variant.struct,
-                        fields: (variant.struct.fields ?? []).map(field => {
-                            if (!nullableFields.has(camelCase(field.name)) || isOptionalType(field.type)) {
-                                return field;
-                            }
-
-                            return { ...field, type: optionTypeNode(field.type) };
-                        }),
-                    },
-                };
+                if (isNode(variant.struct, 'structTypeNode')) {
+                    return { ...variant, struct: makeNullable(variant.struct) };
+                }
+                return variant;
             }),
         },
     };
@@ -220,7 +231,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Add token-2022 specific imports for accounts that need extension handling
                     // Note: StateWithExtensions is used in accounts/mod.rs, not in individual account files
                     // Extension is only needed for Mint and Token accounts (not Multisig)
-                    if (isToken2022Program(currentProgram)) {
+                    if (tokenProgramKind(currentProgram?.publicKey) === 'token-2022') {
                         const accountNameLower = node.name.toLowerCase();
                         if (accountNameLower === 'mint' || accountNameLower === 'token') {
                             imports.add('spl_token_2022::extension::BaseStateWithExtensions');
@@ -245,7 +256,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             ? getDiscriminatorManifest(discriminators, currentProgram?.name, discriminatorNames)
                             : undefined;
 
-                    const flatFields = rowMapper.flattenType(newNode.data, [], [], new Set());
+                    const flatFields = rowMapper.flattenType(newNode.data, [], [], new Set(), {
+                        remainderAsNewtype: false,
+                    });
                     const postgresImports = new ImportMap()
                         .add('carbon_core::account::AccountMetadata')
                         .add('carbon_core::postgres::metadata::AccountRowMetadata');
@@ -264,7 +277,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             account: { ...newNode, formattedDocs: formattedAccountDocs },
                             imports: imports.toString(),
                             program: currentProgram,
-                            originalProgramName: currentProgram?.name,
+                            tokenProgramKind: tokenProgramKind(currentProgram?.publicKey),
                             discriminatorManifest,
                             typeManifest,
                         }),
@@ -319,7 +332,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                 visitDefinedType(node) {
                     const isToken2022Extension =
-                        isToken2022Program(currentProgram) && (node.name === 'Extension' || node.name === 'extension');
+                        tokenProgramKind(currentProgram?.publicKey) === 'token-2022' &&
+                        (node.name === 'Extension' || node.name === 'extension');
                     const renderedNode = isToken2022Extension ? preserveToken2022ExtensionNullability(node) : node;
                     const typeManifest = visit(renderedNode.type, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest);
@@ -383,11 +397,20 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         optionalBoolWrapperTypes.add(node.name);
                     }
 
-                    // Add token-2022 specific imports for Extension type
-                    // Use case-insensitive check to match impl block condition
-                    const isToken2022ForImports = isToken2022Program(currentProgram);
-                    const isExtensionTypeForImports = node.name === 'Extension' || node.name === 'extension';
-                    if (isToken2022ForImports && isExtensionTypeForImports) {
+                    // `OptionU64`-style trailing arg: decodes as 0 when absent.
+                    const tupleItems = isNode(renderedNode.type, 'tupleTypeNode')
+                        ? (renderedNode.type.items ?? [])
+                        : [];
+                    const numberFormat = optionalNumberNewtypeFormat(node.name);
+                    const optionalNumberWrapper =
+                        numberFormat &&
+                        tupleItems.length === 1 &&
+                        isNode(tupleItems[0], 'numberTypeNode') &&
+                        tupleItems[0].format === numberFormat
+                            ? { format: numberFormat, size: Number(numberFormat.slice(1)) / 8 }
+                            : undefined;
+
+                    if (isToken2022Extension) {
                         imports.add('spl_token_2022::extension::StateWithExtensions');
                         imports.add('spl_token_2022::extension::BaseStateWithExtensions as _');
                         imports.add('spl_token_2022::extension::ExtensionType');
@@ -402,16 +425,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         typeManifest,
                         needsNewtypeWrapper,
                         isOptionalBoolWrapper,
+                        optionalNumberWrapper,
                         arraySize,
                         program: currentProgram,
-                        originalProgramName: currentProgram?.name,
                     });
 
-                    // Add Extension impl block for token-2022
-                    // Check both program name and node name (case-insensitive for node name)
-                    const isToken2022 = isToken2022Program(currentProgram);
-                    const isExtensionType = node.name === 'Extension' || node.name === 'extension';
-                    if (isToken2022 && isExtensionType) {
+                    if (isToken2022Extension) {
                         const extensionImpl = render('extensionImpl.njk', {});
                         typeContent += '\n\n' + extensionImpl;
                     }
@@ -547,12 +566,31 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                     }
 
-                    const [discriminatorArguments, regularArguments] = partition(node.arguments ?? [], arg =>
+                    const [discriminatorArguments, partitionedArguments] = partition(node.arguments ?? [], arg =>
                         discriminatorFieldNames.has(arg.name),
                     );
 
+                    // An unprefixed trailing string/bytes (SPL Memo) takes the rest of the data.
+                    const lastArgument = partitionedArguments[partitionedArguments.length - 1];
+                    const hasRemainderArgument =
+                        !!lastArgument &&
+                        (isNode(lastArgument.type, 'stringTypeNode') || isNode(lastArgument.type, 'bytesTypeNode'));
+                    const regularArguments = hasRemainderArgument
+                        ? [...partitionedArguments.slice(0, -1), { ...lastArgument, type: bytesTypeNode() }]
+                        : partitionedArguments;
+
                     const argumentTypes = regularArguments.map(arg => {
-                        const manifest = visit(arg.type, typeManifestVisitor);
+                        let manifest = visit(arg.type, typeManifestVisitor);
+                        // A trailing list with no count (token's `batch`) is read until the data
+                        // runs out; borsh's own `Vec` prefix is a u32 count.
+                        if (isNode(arg.type, 'arrayTypeNode') && isNode(arg.type.count, 'remainderCountNode')) {
+                            manifest = {
+                                ...manifest,
+                                imports: manifest.imports.add('carbon_core::deserialize::RemainderVec'),
+                                type: manifest.type.replace(/^Vec</, 'RemainderVec<'),
+                                borshType: manifest.borshType.replace(/^Vec</, 'RemainderVec<'),
+                            };
+                        }
                         imports.mergeWithManifest(manifest);
 
                         // Newtype wrapper handles serialization itself, so don't apply BigArray
@@ -635,6 +673,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         [],
                         [],
                         new Set(),
+                        { remainderAsNewtype: true },
                     );
                     const postgresImports = new ImportMap()
                         .add('carbon_core::instruction::InstructionMetadata')
@@ -648,6 +687,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         `src/instructions/${snakeCase(node.name)}.rs`,
                         render('instructionsPage.njk', {
                             argumentTypes,
+                            hasRemainderArgument,
                             imports: imports.toString(),
                             instruction: instructionWithUniqueAccounts,
                             discriminatorManifest,
@@ -760,8 +800,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     // Override program.name with packageName if provided (for custom decoder names)
                     // Keep original format - template filter will handle PascalCase conversion
-                    const originalProgramName = program.name || '';
-                    const programName = options.packageName || originalProgramName || 'decoder';
+                    const programName = options.packageName || program.name || 'decoder';
+                    const tokenKind = tokenProgramKind(program.publicKey);
 
                     const programWithCustomName = {
                         ...program,
@@ -802,7 +842,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         program: programWithCustomName,
                         root: renderRoot,
                         packageName: options.packageName,
-                        originalProgramName: originalProgramName, // Keep original program name for token-2022 checks
+                        tokenProgramKind: tokenKind,
                         hasAnchorEvents,
                         hasGraphQLFields,
                         events: renderEvents,
@@ -823,8 +863,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         .add('crate::PROGRAM_ID')
                         .add(`crate::${pascalCase(programName)}Decoder`);
 
-                    // Add token-2022 specific imports for StateWithExtensions unpacking
-                    if (isToken2022Program(program, originalProgramName)) {
+                    if (tokenKind) {
                         accountsModImports.add('solana_program_pack::Pack');
                         // StateWithExtensions is used directly in unpack() calls, no import needed
                     }
@@ -1003,7 +1042,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const cargoToml = generateDecoderCargoToml({
                         packageName: options.packageName,
                         programName: programName,
-                        originalProgramName: originalProgramName, // Pass original program name for token-2022 checks
+                        tokenProgramKind: tokenKind,
                         version: options.version,
                         versionName: options.versionName,
                         withPostgres: options.withPostgres !== false,

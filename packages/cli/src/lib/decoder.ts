@@ -1,7 +1,12 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { createFromJson, createFromRoot } from 'codama';
-import { rootNodeFromAnchorWithoutDefaultVisitor, rootNodeFromAnchor } from '@codama/nodes-from-anchor';
+import {
+    definedTypeNodeFromAnchorV01,
+    extractGenerics,
+    rootNodeFromAnchorWithoutDefaultVisitor,
+    rootNodeFromAnchor,
+} from '@codama/nodes-from-anchor';
 import { renderVisitor, extractStructArrayItems, type PackageMetadata } from '@sevenlabs-hq/carbon-codama-renderer';
 import {
     deduplicateIdenticalDefinedTypesVisitor,
@@ -13,7 +18,7 @@ import {
     rootNodeVisitor,
     visit,
 } from '@codama/visitors';
-import { assertIsNode, camelCase } from '@codama/nodes';
+import { assertIsNode, camelCase, sizeDiscriminatorNode } from '@codama/nodes';
 import { exitWithError, isBase58Like } from './utils';
 import { fetchAnchorIdl } from './anchor';
 import { logger } from './logger';
@@ -36,21 +41,38 @@ function rootFromAnchor(idlJson: any) {
             .filter((type: any) => Array.isArray(type.docs) && type.docs.length > 0)
             .map((type: any) => [camelCase(type.name), type.docs]),
     );
-    const events = root.program.events ?? [];
-    if (!events.some(event => (event.docs ?? []).length === 0 && typeDocs.has(event.name))) {
-        return root;
-    }
-    return {
-        ...root,
-        program: {
-            ...root.program,
-            events: events.map(event =>
-                (event.docs ?? []).length === 0 && typeDocs.has(event.name)
-                    ? { ...event, docs: typeDocs.get(event.name) }
-                    : event,
-            ),
-        },
-    } as typeof root;
+    const events = root.program.events?.map(event =>
+        (event.docs ?? []).length === 0 && typeDocs.has(event.name)
+            ? { ...event, docs: typeDocs.get(event.name) }
+            : event,
+    );
+    // Non-Anchor accounts have no discriminator; match them by the IDL-declared size.
+    const accounts = root.program.accounts?.map(account =>
+        (account.discriminators ?? []).length === 0 && typeof account.size === 'number'
+            ? { ...account, discriminators: [sizeDiscriminatorNode(account.size)] }
+            : account,
+    );
+    const definedTypes = [...(root.program.definedTypes ?? []), ...restoreReferencedAccountTypes(idlJson, root)];
+    return { ...root, program: { ...root.program, accounts, definedTypes, events } } as typeof root;
+}
+
+/** Types named like an account or event are dropped when the root is built; restore the ones still referenced. */
+function restoreReferencedAccountTypes(idlJson: any, root: ReturnType<typeof rootNodeFromAnchorWithoutDefaultVisitor>) {
+    if (idlJson.metadata?.spec !== '0.1.0') return [];
+    const linked = new Set<string>();
+    const collect = (node: unknown): void => {
+        if (Array.isArray(node)) return node.forEach(collect);
+        if (!node || typeof node !== 'object') return;
+        const record = node as Record<string, unknown>;
+        if (record.kind === 'definedTypeLinkNode' && typeof record.name === 'string') linked.add(record.name);
+        Object.values(record).forEach(collect);
+    };
+    collect(root.program);
+    const existing = new Set((root.program.definedTypes ?? []).map(type => type.name));
+    const [types, generics] = extractGenerics(idlJson.types ?? []);
+    return types
+        .filter(type => linked.has(camelCase(type.name)) && !existing.has(camelCase(type.name)))
+        .map(type => definedTypeNodeFromAnchorV01(type, generics));
 }
 
 /**

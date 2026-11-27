@@ -118,7 +118,12 @@ impl Extension {
                 }).ok()
             }
             ExtensionType::ConfidentialMintBurn => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::confidential_mint_burn::ConfidentialMintBurn>().map(|_extension| Extension::ConfidentialMintBurn).ok()
+                state_with_extensions.get_extension::<spl_token_2022::extension::confidential_mint_burn::ConfidentialMintBurn>().map(|extension| Extension::ConfidentialMintBurn {
+                    confidential_supply: EncryptedBalance(extension.confidential_supply.0),
+                    decryptable_supply: DecryptableBalance(extension.decryptable_supply.0),
+                    supply_elgamal_pubkey: Pubkey::new_from_array(extension.supply_elgamal_pubkey.0),
+                    pending_burn: EncryptedBalance(extension.pending_burn.0),
+                }).ok()
             }
             ExtensionType::TokenGroupMember => {
                 state_with_extensions.get_extension_bytes::<spl_token_group_interface::state::TokenGroupMember>().map(|extension| spl_pod::bytemuck::pod_from_bytes::<spl_token_group_interface::state::TokenGroupMember>(extension).ok().map(|extension| Extension::TokenGroupMember {
@@ -203,7 +208,7 @@ impl Extension {
                 }).ok()
             }
             ExtensionType::PausableAccount => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::pausable::PausableAccount>().map(|_extension| Extension::PausableAccount).ok()
+                state_with_extensions.get_extension::<spl_token_2022::extension::pausable::PausableAccount>().map(|_extension| Extension::PausableAccount {}).ok()
             }
             _ => None,
         }
