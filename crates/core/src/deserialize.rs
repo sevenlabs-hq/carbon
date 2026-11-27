@@ -89,8 +89,9 @@ macro_rules! prefix_impls {
         impl crate::borsh::BorshSerialize for $name {
             #[inline]
             fn serialize<W: Write>(&self, writer: &mut W) -> Result<()> {
-                let length = <$width>::try_from(self.0.len())
-                    .map_err(|_| Error::new(ErrorKind::InvalidData, "length exceeds prefix width"))?;
+                let length = <$width>::try_from(self.0.len()).map_err(|_| {
+                    Error::new(ErrorKind::InvalidData, "length exceeds prefix width")
+                })?;
                 writer.write_all(&length.to_le_bytes())?;
                 writer.write_all(self.0.as_ref())
             }
@@ -139,7 +140,9 @@ impl crate::borsh::BorshDeserialize for ZeroableOptionPubkey {
         let mut buffer = [0u8; 32];
         reader.read_exact(&mut buffer)?;
 
-        Ok(Self((buffer != [0u8; 32]).then(|| solana_pubkey::Pubkey::new_from_array(buffer))))
+        Ok(Self(
+            (buffer != [0u8; 32]).then(|| solana_pubkey::Pubkey::new_from_array(buffer)),
+        ))
     }
 }
 
