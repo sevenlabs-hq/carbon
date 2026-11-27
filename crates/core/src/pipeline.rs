@@ -747,6 +747,12 @@ impl PipelineBuilder {
     }
 
     pub fn build(self) -> CarbonResult<Pipeline> {
+        if self.channel_buffer_size == 0 {
+            return Err(Error::Custom(
+                "channel_buffer_size must be at least 1".into(),
+            ));
+        }
+
         register_pipeline_metrics();
         #[cfg(feature = "postgres")]
         crate::postgres::processors::register_postgres_metrics();
