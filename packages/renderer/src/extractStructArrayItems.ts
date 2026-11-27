@@ -21,8 +21,8 @@ export function extractStructArrayItems() {
         const program = root.program;
         const extracted: ReturnType<typeof definedTypeNode>[] = [];
 
-        const newInstructions = program.instructions.map(instr => {
-            const newArguments = instr.arguments.map(arg => {
+        const newInstructions = (program.instructions ?? []).map(instr => {
+            const newArguments = (instr.arguments ?? []).map(arg => {
                 if (!isNode(arg.type, 'arrayTypeNode') || !isNode(arg.type.item, 'structTypeNode')) return arg;
 
                 const typeName = pascalCase(instr.name) + 'Item';
@@ -59,7 +59,7 @@ export function extractStructArrayItems() {
             programNode({
                 ...program,
                 instructions: newInstructions,
-                definedTypes: [...program.definedTypes, ...extracted],
+                definedTypes: [...(program.definedTypes ?? []), ...extracted],
             }),
             root.additionalPrograms,
         );

@@ -130,8 +130,8 @@ export function getGraphQLTypeManifestVisitor() {
                 },
                 visitTupleType(node, { self }) {
                     // Fixes wrappers -> collapse to inner type (OptionBool(pub bool) should be just a bool)
-                    if (node.items.length === 1) {
-                        return visit(node.items[0], self) as GraphQLTypeManifest;
+                    if ((node.items ?? []).length === 1) {
+                        return visit((node.items ?? [])[0], self) as GraphQLTypeManifest;
                     }
                     return m('Json', ['carbon_core::graphql::primitives::Json']);
                 },

@@ -68,7 +68,7 @@ export function normalizeCodamaEvents(
         eventNames.add(event.name);
     }
 
-    const definedTypesByName = new Map(root.program.definedTypes.map(type => [type.name as string, type]));
+    const definedTypesByName = new Map((root.program.definedTypes ?? []).map(type => [type.name as string, type]));
     const eventTypes: ReturnType<typeof definedTypeNode>[] = [];
     for (const event of nativeEvents) {
         const payload = unwrapHiddenPrefix(event.data);
@@ -100,7 +100,7 @@ export function normalizeCodamaEvents(
             ...root,
             program: {
                 ...root.program,
-                definedTypes: [...root.program.definedTypes, ...eventTypes],
+                definedTypes: [...(root.program.definedTypes ?? []), ...eventTypes],
                 events: [],
             },
         } as RootNode,
@@ -190,10 +190,10 @@ function hiddenPrefixEventShape(event: CodamaEventNode): EventShape | null {
     }
 
     const data = event.data;
-    if (!isNode(data, 'hiddenPrefixTypeNode') || data.prefix.length !== 1) {
+    if (!isNode(data, 'hiddenPrefixTypeNode') || (data.prefix ?? []).length !== 1) {
         return null;
     }
-    const prefixBytes = tryGetDiscriminatorBytes(data.prefix[0]);
+    const prefixBytes = tryGetDiscriminatorBytes((data.prefix ?? [])[0]);
     if (prefixBytes === null || !equalBytes(bytes, prefixBytes)) {
         return null;
     }

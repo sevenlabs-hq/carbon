@@ -15,7 +15,13 @@ import {
     structTypeNode,
     TypeNode,
 } from '@codama/nodes';
-import { RenderMap } from '@codama/renderers-core';
+import {
+    addToRenderMap,
+    type BaseFragment,
+    createRenderMap,
+    mergeRenderMaps,
+    type RenderMap,
+} from '@codama/renderers-core';
 import { extendVisitor, pipe, staticVisitor, visit } from '@codama/visitors-core';
 
 import { DiscriminatorManifest, getDiscriminatorManifest, getTypeManifestVisitor } from './getTypeManifestVisitor';
@@ -73,7 +79,7 @@ function preserveToken2022ExtensionNullability(node: DefinedTypeNode): DefinedTy
         ...node,
         type: {
             ...node.type,
-            variants: node.type.variants.map(variant => {
+            variants: (node.type.variants ?? []).map(variant => {
                 if (!isNode(variant, 'enumStructVariantTypeNode') || !isNode(variant.struct, 'structTypeNode')) {
                     return variant;
                 }
@@ -87,7 +93,7 @@ function preserveToken2022ExtensionNullability(node: DefinedTypeNode): DefinedTy
                     ...variant,
                     struct: {
                         ...variant.struct,
-                        fields: variant.struct.fields.map(field => {
+                        fields: (variant.struct.fields ?? []).map(field => {
                             if (!nullableFields.has(camelCase(field.name)) || isOptionalType(field.type)) {
                                 return field;
                             }
@@ -99,6 +105,11 @@ function preserveToken2022ExtensionNullability(node: DefinedTypeNode): DefinedTy
             }),
         },
     };
+}
+
+// Codama's RenderMap is an immutable map of path to fragment; this keeps call sites passing plain strings.
+function addFile(renderMap: RenderMap<BaseFragment>, path: string, content: string): RenderMap<BaseFragment> {
+    return addToRenderMap(renderMap, path, { content });
 }
 
 export type GetRenderMapOptions = {
@@ -151,7 +162,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     let requiresSerdeBigArray = false;
 
     return pipe(
-        staticVisitor(() => new RenderMap(), {
+        staticVisitor(() => createRenderMap(), {
             keys: ['rootNode', 'programNode', 'instructionNode', 'accountNode', 'definedTypeNode'],
         }),
         v =>
@@ -163,7 +174,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     if (node.data.kind == 'structTypeNode') {
                         const [discriminatorArguments, regularArguments] = partition(
-                            node.data.fields,
+                            node.data.fields ?? [],
                             arg => arg.name == 'discriminator',
                         );
 
@@ -246,7 +257,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const formattedAccountDocs =
                         newNode.docs && newNode.docs.length > 0 ? formatDocComments(newNode.docs, '') : '';
 
-                    let renderMap = new RenderMap().add(
+                    let renderMap = addFile(
+                        createRenderMap(),
                         `src/accounts/${snakeCase(node.name)}.rs`,
                         render('accountsPage.njk', {
                             account: { ...newNode, formattedDocs: formattedAccountDocs },
@@ -260,7 +272,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     // Only generate postgres files if not in generic mode and withPostgres is enabled
                     if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
-                        renderMap.add(
+                        renderMap = addFile(
+                            renderMap,
                             `src/accounts/postgres/${snakeCase(node.name)}_row.rs`,
                             render('postgresRowPage.njk', {
                                 entityDocs: node.docs,
@@ -287,7 +300,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'graphqlSchemaPageGeneric.njk'
                                     : 'graphqlSchemaPage.njk';
-                            renderMap.add(
+                            renderMap = addFile(
+                                renderMap,
                                 `src/accounts/graphql/${snakeCase(node.name)}_schema.rs`,
                                 render(schemaTemplate, {
                                     entityDocs: node.docs,
@@ -362,8 +376,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     let isOptionalBoolWrapper = false;
                     if (
                         isNode(renderedNode.type, 'tupleTypeNode') &&
-                        renderedNode.type.items.length === 1 &&
-                        isNode(renderedNode.type.items[0], 'booleanTypeNode')
+                        (renderedNode.type.items ?? []).length === 1 &&
+                        isNode((renderedNode.type.items ?? [])[0], 'booleanTypeNode')
                     ) {
                         isOptionalBoolWrapper = true;
                         optionalBoolWrapperTypes.add(node.name);
@@ -402,7 +416,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         typeContent += '\n\n' + extensionImpl;
                     }
 
-                    let renderMap = new RenderMap().add(`src/types/${snakeCase(node.name)}.rs`, typeContent);
+                    let renderMap = addFile(createRenderMap(), `src/types/${snakeCase(node.name)}.rs`, typeContent);
 
                     for (let event of renderEvents) {
                         if (camelCase(event.name) == node.name) {
@@ -418,7 +432,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         }`,
                             };
 
-                            renderMap.add(
+                            renderMap = addFile(
+                                renderMap,
                                 `src/events/${snakeCase(node.name)}.rs`,
                                 render('eventsPage.njk', {
                                     event: node,
@@ -433,14 +448,15 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // GraphQL generation for structs and enums - if withGraphql is enabled
                     if (options.withGraphql !== false) {
                         if (node.type.kind === 'structTypeNode') {
-                            if (node.type.fields.length > 0) {
+                            if ((node.type.fields ?? []).length > 0) {
                                 const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
                                 const graphqlImports = new ImportMap().add('juniper::GraphQLObject');
                                 graphqlFields.forEach((f: FlattenedGraphQLField) => {
                                     graphqlImports.mergeWith(f.graphqlManifest.imports);
                                 });
 
-                                renderMap.add(
+                                renderMap = addFile(
+                                    renderMap,
                                     `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
                                     render('graphqlTypeSchemaPage.njk', {
                                         entityDocs: node.docs,
@@ -454,7 +470,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 const emptyStructImports = new ImportMap().add(
                                     'carbon_core::graphql::primitives::Json',
                                 );
-                                renderMap.add(
+                                renderMap = addFile(
+                                    renderMap,
                                     `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
                                     render('graphqlEmptyStructSchemaPage.njk', {
                                         entityDocs: node.docs,
@@ -464,7 +481,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 );
                             }
                         } else if (node.type.kind === 'enumTypeNode') {
-                            const isFieldless = node.type.variants.every(v => v.kind === 'enumEmptyVariantTypeNode');
+                            const isFieldless = (node.type.variants ?? []).every(
+                                v => v.kind === 'enumEmptyVariantTypeNode',
+                            );
                             const imports = new ImportMap();
                             if (isFieldless) {
                                 imports.add('juniper::GraphQLEnum');
@@ -472,14 +491,15 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 imports.add('serde_json');
                                 imports.add('carbon_core::graphql::primitives::Json');
                             }
-                            renderMap.add(
+                            renderMap = addFile(
+                                renderMap,
                                 `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
                                 render('graphqlEnumSchemaPage.njk', {
                                     entityDocs: node.docs,
                                     entityName: node.name,
                                     imports: imports.toString(),
                                     isFieldless,
-                                    variants: node.type.variants.map(v => ({
+                                    variants: (node.type.variants ?? []).map(v => ({
                                         name: v.name,
                                         docs: [],
                                     })),
@@ -491,7 +511,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             const imports = graphqlManifest.imports.toString();
                             const importSection = imports ? `${imports}\n\n` : '';
 
-                            renderMap.add(
+                            renderMap = addFile(
+                                renderMap,
                                 `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
                                 `${importSection}pub type ${pascalCase(node.name)}GraphQL = ${graphqlManifest.graphqlType};\n`,
                             );
@@ -526,7 +547,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                     }
 
-                    const [discriminatorArguments, regularArguments] = partition(node.arguments, arg =>
+                    const [discriminatorArguments, regularArguments] = partition(node.arguments ?? [], arg =>
                         discriminatorFieldNames.has(arg.name),
                     );
 
@@ -582,7 +603,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const uniqueAccounts = [];
                     const seenFieldNames = new Set();
 
-                    for (const account of newNode.accounts) {
+                    for (const account of newNode.accounts ?? []) {
                         const fieldName = snakeCase(account.name);
                         if (!seenFieldNames.has(fieldName)) {
                             seenFieldNames.add(fieldName);
@@ -622,7 +643,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         postgresImports.mergeWith(f.postgresManifest.imports);
                     });
 
-                    let renderMap = new RenderMap().add(
+                    let renderMap = addFile(
+                        createRenderMap(),
                         `src/instructions/${snakeCase(node.name)}.rs`,
                         render('instructionsPage.njk', {
                             argumentTypes,
@@ -636,7 +658,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     // Only generate postgres files if not in generic mode and withPostgres is enabled
                     if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
-                        renderMap.add(
+                        renderMap = addFile(
+                            renderMap,
                             `src/instructions/postgres/${snakeCase(node.name)}_row.rs`,
                             render('postgresRowPage.njk', {
                                 entityDocs: node.docs,
@@ -677,7 +700,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             options.postgresMode === 'generic' || options.withPostgres === false
                                 ? 'graphqlSchemaPageGeneric.njk'
                                 : 'graphqlSchemaPage.njk';
-                        renderMap.add(
+                        renderMap = addFile(
+                            renderMap,
                             `src/instructions/graphql/${snakeCase(node.name)}_schema.rs`,
                             render(schemaTemplate, {
                                 entityDocs: node.docs,
@@ -694,14 +718,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                 visitProgram(node, { self }) {
                     currentProgram = node;
-                    const renderMap = new RenderMap()
-                        .mergeWith(...node.accounts.map(account => visit(account, self)))
-                        .mergeWith(...node.definedTypes.map(type => visit(type, self)))
-                        .mergeWith(
-                            ...getAllInstructionsWithSubs(node, {
-                                leavesOnly: !renderParentInstructions,
-                            }).map(ix => visit(ix, self)),
-                        );
+                    const renderMap = mergeRenderMaps([
+                        ...(node.accounts ?? []).map(account => visit(account, self)),
+                        ...(node.definedTypes ?? []).map(type => visit(type, self)),
+                        ...getAllInstructionsWithSubs(node, {
+                            leavesOnly: !renderParentInstructions,
+                        }).map(ix => visit(ix, self)),
+                    ]);
 
                     currentProgram = null;
                     return renderMap;
@@ -766,7 +789,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             // Typed mode: accounts with structTypeNode and fields, or any instructions exist
                             return (
                                 accountsToExport.some(
-                                    acc => acc.data.kind === 'structTypeNode' && acc.data.fields.length > 0,
+                                    acc => acc.data.kind === 'structTypeNode' && (acc.data.fields ?? []).length > 0,
                                 ) || instructionsToExport.length > 0
                             );
                         }
@@ -792,7 +815,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withBase58: options.withBase58 ?? false,
                     };
 
-                    const map = new RenderMap();
+                    let map: RenderMap<BaseFragment> = createRenderMap();
 
                     // Generate mod files
                     // Build mod-level imports via ImportMap
@@ -806,12 +829,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         // StateWithExtensions is used directly in unpack() calls, no import needed
                     }
 
-                    map.add(
+                    map = addFile(
+                        map,
                         'src/accounts/mod.rs',
                         render('accountsMod.njk', { ...ctx, imports: accountsModImports.toString() }),
                     );
                     if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
-                        map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
+                        map = addFile(map, 'src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
                     }
                     if (options.withGraphql !== false) {
                         const accountsGraphqlTemplate =
@@ -819,7 +843,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 ? 'accountsGraphqlModGeneric.njk'
                                 : 'accountsGraphqlMod.njk';
                         const accountsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
-                        map.add(
+                        map = addFile(
+                            map,
                             'src/accounts/graphql/mod.rs',
                             render(accountsGraphqlTemplate, { ...ctx, imports: accountsGraphqlImports.toString() }),
                         );
@@ -828,12 +853,17 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         const instructionsModImports = new ImportMap()
                             .add('crate::PROGRAM_ID')
                             .add(`crate::${pascalCase(programName)}Decoder`);
-                        map.add(
+                        map = addFile(
+                            map,
                             'src/instructions/mod.rs',
                             render('instructionsMod.njk', { ...ctx, imports: instructionsModImports.toString() }),
                         );
                         if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
-                            map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
+                            map = addFile(
+                                map,
+                                'src/instructions/postgres/mod.rs',
+                                render('instructionsPostgresMod.njk', ctx),
+                            );
                         }
                         if (options.withGraphql !== false) {
                             const instructionsGraphqlTemplate =
@@ -845,7 +875,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             const instructionsWithSchemas = instructionsToExport.filter(inst =>
                                 instructionsWithGraphQLSchemas.has(inst.name),
                             );
-                            map.add(
+                            map = addFile(
+                                map,
                                 'src/instructions/graphql/mod.rs',
                                 render(instructionsGraphqlTemplate, {
                                     ...ctx,
@@ -860,7 +891,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         const eventInstructionImports = new ImportMap()
                             .add('carbon_core::borsh')
                             .add('carbon_core::deserialize::ArrangeAccounts');
-                        map.add(
+                        map = addFile(
+                            map,
                             'src/instructions/cpi_event.rs',
                             render('eventInstructionPage.njk', { ...ctx, imports: eventInstructionImports.toString() }),
                         );
@@ -869,7 +901,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 .add('carbon_core::postgres::metadata::InstructionRowMetadata')
                                 .add('carbon_core::instruction::InstructionMetadata')
                                 .add('super::super::cpi_event::CpiEvent');
-                            map.add(
+                            map = addFile(
+                                map,
                                 'src/instructions/postgres/cpi_event_row.rs',
                                 render('eventInstructionRowPage.njk', {
                                     ...ctx,
@@ -885,18 +918,19 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             const cpiEventSchemaImports = new ImportMap()
                                 .add('juniper::GraphQLObject')
                                 .add('serde_json');
-                            map.add(
+                            map = addFile(
+                                map,
                                 'src/instructions/graphql/cpi_event_schema.rs',
                                 render(cpiEventSchemaTemplate, { ...ctx, imports: cpiEventSchemaImports.toString() }),
                             );
                         }
-                        map.add('src/events/mod.rs', render('eventsMod.njk', ctx));
+                        map = addFile(map, 'src/events/mod.rs', render('eventsMod.njk', ctx));
                     }
 
                     if (definedTypesToExport.length > 0) {
-                        map.add('src/types/mod.rs', render('typesMod.njk', ctx));
+                        map = addFile(map, 'src/types/mod.rs', render('typesMod.njk', ctx));
                         if (options.withGraphql !== false) {
-                            map.add('src/types/graphql/mod.rs', render('typesGraphqlMod.njk', ctx));
+                            map = addFile(map, 'src/types/graphql/mod.rs', render('typesGraphqlMod.njk', ctx));
                         }
                     }
 
@@ -912,13 +946,17 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             options.postgresMode === 'generic' || options.withPostgres === false
                                 ? accountsToExport.length > 0
                                 : accountsToExport.some(
-                                      acc => acc.data.kind === 'structTypeNode' && acc.data.fields.length > 0,
+                                      acc => acc.data.kind === 'structTypeNode' && (acc.data.fields ?? []).length > 0,
                                   );
                         const hasActualGraphQLFields =
                             hasAnchorEvents || hasAccountsWithFields || instructionsWithSchemas.length > 0;
 
-                        map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', { ...ctx, hasActualGraphQLFields }));
-                        map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
+                        map = addFile(
+                            map,
+                            'src/graphql/mod.rs',
+                            render('graphqlRootMod.njk', { ...ctx, hasActualGraphQLFields }),
+                        );
+                        map = addFile(map, 'src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
 
                         // Only generate query.rs if there are GraphQL fields to expose
                         if (hasActualGraphQLFields) {
@@ -928,7 +966,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 const graphqlQueryGenericImports = new ImportMap().add(
                                     'juniper::{graphql_object, FieldResult}',
                                 );
-                                map.add(
+                                map = addFile(
+                                    map,
                                     'src/graphql/query.rs',
                                     render('graphqlQueryPageGeneric.njk', {
                                         ...ctx,
@@ -945,7 +984,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 if (hasAccountsWithFields) {
                                     graphqlQueryImports.add('std::str::FromStr');
                                 }
-                                map.add(
+                                map = addFile(
+                                    map,
                                     'src/graphql/query.rs',
                                     render('graphqlQueryPage.njk', {
                                         ...ctx,
@@ -958,7 +998,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                     }
 
-                    map.add('src/lib.rs', render('lib.njk', ctx));
+                    map = addFile(map, 'src/lib.rs', render('lib.njk', ctx));
 
                     const cargoToml = generateDecoderCargoToml({
                         packageName: options.packageName,
@@ -975,7 +1015,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         workspaceDeps: options.workspaceDeps,
                         packageMetadata: options.packageMetadata,
                     });
-                    map.add('Cargo.toml', cargoToml);
+                    map = addFile(map, 'Cargo.toml', cargoToml);
 
                     if (hasPackageMetadata(options.packageMetadata)) {
                         const readmeDisplayName = getReadmeDisplayName(
@@ -986,7 +1026,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         // Same rule as generateDecoderCargoToml: workspace deps mean the crate lives in the Carbon repo.
                         const inCarbonWorkspace =
                             options.workspaceDeps !== undefined ? options.workspaceDeps : options.standalone === false;
-                        map.add(
+                        map = addFile(
+                            map,
                             'README.md',
                             generateDecoderReadme({
                                 displayName: readmeDisplayName,
@@ -997,7 +1038,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         );
                     }
 
-                    return map.mergeWith(programRenderMap);
+                    return mergeRenderMaps([map, programRenderMap]);
                 },
             }),
     );

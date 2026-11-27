@@ -561,7 +561,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     if (isNode(typeNode, 'tupleTypeNode')) {
-        if (typeNode.items.length === 1) {
+        if ((typeNode.items ?? []).length === 1) {
             return `${fieldAccess}.into()`;
         }
         // Convert tuple to JSON for GraphQL
