@@ -11,6 +11,7 @@ pub struct ApproveObligationOwnershipTransferInstructionAccounts {
     pub global_config: solana_pubkey::Pubkey,
     pub obligation: solana_pubkey::Pubkey,
     pub pending_owner: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -44,6 +45,7 @@ impl ArrangeAccounts for ApproveObligationOwnershipTransfer {
         let global_config = next_account(&mut iter)?;
         let obligation = next_account(&mut iter)?;
         let pending_owner = next_account(&mut iter)?;
+        let instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -52,6 +54,7 @@ impl ArrangeAccounts for ApproveObligationOwnershipTransfer {
             global_config,
             obligation,
             pending_owner,
+            instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })
     }

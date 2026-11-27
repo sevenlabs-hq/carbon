@@ -7,10 +7,14 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod stake_state_account;
+
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
-pub enum StakeProgramAccount {}
+pub enum StakeProgramAccount {
+    StakeStateAccount(Box<stake_state_account::StakeStateAccount>),
+}
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for StakeProgramDecoder {
     type AccountType = StakeProgramAccount;
@@ -23,7 +27,19 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for StakeProgramDecoder {
             return None;
         }
 
-        let _data = account.data.as_slice();
+        let data = account.data.as_slice();
+
+        {
+            if let Some(decoded) = stake_state_account::StakeStateAccount::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: StakeProgramAccount::StakeStateAccount(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
 
         None
     }

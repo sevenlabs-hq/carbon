@@ -4,30 +4,31 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ClaimFeeEvent {
+    /// Pool address
     pub pool: Pubkey,
+    /// Owner of lock escrow
     pub owner: Pubkey,
+    /// Lp amount
     pub amount: u64,
+    /// A fee
     pub a_fee: u64,
+    /// B fee
     pub b_fee: u64,
 }
 
 impl ClaimFeeEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 75, 122, 154, 48, 140, 74, 123, 163,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [75, 122, 154, 48, 140, 74, 123, 163] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

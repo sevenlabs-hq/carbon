@@ -9,6 +9,7 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct KaminoDeposit {
     pub amount: u64,
+    pub refresh_reserve: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

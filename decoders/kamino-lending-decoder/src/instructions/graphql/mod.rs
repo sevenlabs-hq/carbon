@@ -4,6 +4,7 @@ pub mod accept_obligation_ownership_schema;
 pub mod approve_obligation_ownership_transfer_schema;
 pub mod borrow_obligation_liquidity_schema;
 pub mod borrow_obligation_liquidity_v2_schema;
+pub mod calculate_ctoken_exchange_rate_schema;
 pub mod cancel_withdraw_ticket_schema;
 pub mod clone_reserve_config_schema;
 pub mod cpi_event_schema;
@@ -16,6 +17,7 @@ pub mod deposit_reserve_liquidity_and_obligation_collateral_v2_schema;
 pub mod deposit_reserve_liquidity_schema;
 pub mod enqueue_to_withdraw_schema;
 pub mod fill_borrow_order_schema;
+pub mod fill_borrow_order_v2_schema;
 pub mod flash_borrow_reserve_liquidity_schema;
 pub mod flash_repay_reserve_liquidity_schema;
 pub mod idl_missing_types_schema;
@@ -46,6 +48,7 @@ pub mod request_elevation_group_schema;
 pub mod rollover_fixed_term_borrow_schema;
 pub mod seed_deposit_on_init_reserve_schema;
 pub mod set_borrow_order_schema;
+pub mod set_borrow_order_v2_schema;
 pub mod set_obligation_order_schema;
 pub mod socialize_loss_schema;
 pub mod socialize_loss_v2_schema;
@@ -68,19 +71,19 @@ use juniper::GraphQLObject;
 pub use {
     abort_obligation_ownership_transfer_schema::*, accept_obligation_ownership_schema::*,
     approve_obligation_ownership_transfer_schema::*, borrow_obligation_liquidity_schema::*,
-    borrow_obligation_liquidity_v2_schema::*, cancel_withdraw_ticket_schema::*,
-    clone_reserve_config_schema::*, cpi_event_schema::*,
+    borrow_obligation_liquidity_v2_schema::*, calculate_ctoken_exchange_rate_schema::*,
+    cancel_withdraw_ticket_schema::*, clone_reserve_config_schema::*, cpi_event_schema::*,
     delete_referrer_state_and_short_url_schema::*, deposit_and_withdraw_schema::*,
     deposit_obligation_collateral_schema::*, deposit_obligation_collateral_v2_schema::*,
     deposit_reserve_liquidity_and_obligation_collateral_schema::*,
     deposit_reserve_liquidity_and_obligation_collateral_v2_schema::*,
     deposit_reserve_liquidity_schema::*, enqueue_to_withdraw_schema::*,
-    fill_borrow_order_schema::*, flash_borrow_reserve_liquidity_schema::*,
-    flash_repay_reserve_liquidity_schema::*, idl_missing_types_schema::*,
-    init_farms_for_reserve_schema::*, init_global_config_schema::*, init_lending_market_schema::*,
-    init_obligation_farms_for_reserve_schema::*, init_obligation_schema::*,
-    init_referrer_state_and_short_url_schema::*, init_referrer_token_state_schema::*,
-    init_reserve_schema::*, init_user_metadata_schema::*,
+    fill_borrow_order_schema::*, fill_borrow_order_v2_schema::*,
+    flash_borrow_reserve_liquidity_schema::*, flash_repay_reserve_liquidity_schema::*,
+    idl_missing_types_schema::*, init_farms_for_reserve_schema::*, init_global_config_schema::*,
+    init_lending_market_schema::*, init_obligation_farms_for_reserve_schema::*,
+    init_obligation_schema::*, init_referrer_state_and_short_url_schema::*,
+    init_referrer_token_state_schema::*, init_reserve_schema::*, init_user_metadata_schema::*,
     initiate_obligation_ownership_transfer_schema::*,
     liquidate_obligation_and_redeem_reserve_collateral_schema::*,
     liquidate_obligation_and_redeem_reserve_collateral_v2_schema::*,
@@ -91,8 +94,8 @@ pub use {
     repay_and_withdraw_and_redeem_schema::*, repay_obligation_liquidity_schema::*,
     repay_obligation_liquidity_v2_schema::*, request_elevation_group_schema::*,
     rollover_fixed_term_borrow_schema::*, seed_deposit_on_init_reserve_schema::*,
-    set_borrow_order_schema::*, set_obligation_order_schema::*, socialize_loss_schema::*,
-    socialize_loss_v2_schema::*, topup_reserve_rewards_schema::*,
+    set_borrow_order_schema::*, set_borrow_order_v2_schema::*, set_obligation_order_schema::*,
+    socialize_loss_schema::*, socialize_loss_v2_schema::*, topup_reserve_rewards_schema::*,
     update_global_config_admin_schema::*, update_global_config_schema::*,
     update_lending_market_owner_schema::*, update_lending_market_schema::*,
     update_obligation_config_schema::*, update_reserve_config_schema::*,

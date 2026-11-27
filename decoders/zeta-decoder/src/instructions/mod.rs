@@ -717,6 +717,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for ZetaDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            ZetaInstruction::CpiEvent => CpiEvent,
             ZetaInstruction::AddMarketIndexes => AddMarketIndexes,
             ZetaInstruction::AddPerpMarketIndex => AddPerpMarketIndex,
             ZetaInstruction::ApplyPerpFunding => ApplyPerpFunding,
@@ -824,7 +825,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for ZetaDecoder {
             ZetaInstruction::WithdrawInsuranceVault => WithdrawInsuranceVault,
             ZetaInstruction::WithdrawInsuranceVaultV2 => WithdrawInsuranceVaultV2,
             ZetaInstruction::WithdrawV2 => WithdrawV2,
-            ZetaInstruction::CpiEvent => CpiEvent,
         )
     }
 }

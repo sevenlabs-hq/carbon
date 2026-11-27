@@ -199,7 +199,18 @@ pub enum Extension {
         /// The member number.
         member_number: u64,
     },
-    ConfidentialMintBurn,
+    ConfidentialMintBurn {
+        /// The confidential supply of the mint (encrypted by
+        /// `supply_elgamal_pubkey`).
+        confidential_supply: EncryptedBalance,
+        /// The decryptable confidential supply of the mint.
+        decryptable_supply: DecryptableBalance,
+        /// The ElGamal pubkey used to encrypt the confidential supply.
+        supply_elgamal_pubkey: Pubkey,
+        /// The amount of burnt tokens that have not yet been applied to the
+        /// confidential supply (encrypted by `supply_elgamal_pubkey`).
+        pending_burn: EncryptedBalance,
+    },
     ScaledUiAmountConfig {
         authority: Option<Pubkey>,
         multiplier: f64,
@@ -210,7 +221,7 @@ pub enum Extension {
         authority: Option<Pubkey>,
         paused: bool,
     },
-    PausableAccount,
+    PausableAccount {},
     PermissionedBurn {
         /// Authority that is required for burning
         authority: Option<Pubkey>,
@@ -337,7 +348,12 @@ impl Extension {
                 }).ok()
             }
             ExtensionType::ConfidentialMintBurn => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::confidential_mint_burn::ConfidentialMintBurn>().map(|_extension| Extension::ConfidentialMintBurn).ok()
+                state_with_extensions.get_extension::<spl_token_2022::extension::confidential_mint_burn::ConfidentialMintBurn>().map(|extension| Extension::ConfidentialMintBurn {
+                    confidential_supply: EncryptedBalance(extension.confidential_supply.0),
+                    decryptable_supply: DecryptableBalance(extension.decryptable_supply.0),
+                    supply_elgamal_pubkey: Pubkey::new_from_array(extension.supply_elgamal_pubkey.0),
+                    pending_burn: EncryptedBalance(extension.pending_burn.0),
+                }).ok()
             }
             ExtensionType::TokenGroupMember => {
                 state_with_extensions.get_extension_bytes::<spl_token_group_interface::state::TokenGroupMember>().map(|extension| spl_pod::bytemuck::pod_from_bytes::<spl_token_group_interface::state::TokenGroupMember>(extension).ok().map(|extension| Extension::TokenGroupMember {
@@ -422,7 +438,7 @@ impl Extension {
                 }).ok()
             }
             ExtensionType::PausableAccount => {
-                state_with_extensions.get_extension::<spl_token_2022::extension::pausable::PausableAccount>().map(|_extension| Extension::PausableAccount).ok()
+                state_with_extensions.get_extension::<spl_token_2022::extension::pausable::PausableAccount>().map(|_extension| Extension::PausableAccount {}).ok()
             }
             _ => None,
         }

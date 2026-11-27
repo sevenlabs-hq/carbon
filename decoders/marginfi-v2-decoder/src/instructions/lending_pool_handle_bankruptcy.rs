@@ -19,6 +19,7 @@ pub struct LendingPoolHandleBankruptcyInstructionAccounts {
     pub insurance_vault: solana_pubkey::Pubkey,
     pub insurance_vault_authority: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -56,6 +57,7 @@ impl ArrangeAccounts for LendingPoolHandleBankruptcy {
         let insurance_vault = next_account(&mut iter)?;
         let insurance_vault_authority = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -68,6 +70,7 @@ impl ArrangeAccounts for LendingPoolHandleBankruptcy {
             insurance_vault,
             insurance_vault_authority,
             token_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

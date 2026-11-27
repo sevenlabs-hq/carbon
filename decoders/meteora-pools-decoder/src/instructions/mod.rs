@@ -11,11 +11,14 @@ pub mod add_balance_liquidity;
 pub mod add_imbalance_liquidity;
 pub mod bootstrap_liquidity;
 pub mod claim_fee;
+pub mod claim_protocol_fee2;
 pub mod close_config;
+pub mod close_operator_account;
 pub mod cpi_event;
 pub mod create_config;
 pub mod create_lock_escrow;
 pub mod create_mint_metadata;
+pub mod create_operator_account;
 pub mod enable_or_disable_pool;
 pub mod get_pool_info;
 pub mod initialize_customizable_permissionless_constant_product_pool;
@@ -34,11 +37,13 @@ pub mod set_whitelisted_vault;
 pub mod swap;
 pub mod update_activation_point;
 pub mod withdraw_protocol_fees;
+pub mod zap_protocol_fee;
 
 pub use self::{
     add_balance_liquidity::*, add_imbalance_liquidity::*, bootstrap_liquidity::*, claim_fee::*,
-    close_config::*, cpi_event::*, create_config::*, create_lock_escrow::*,
-    create_mint_metadata::*, enable_or_disable_pool::*, get_pool_info::*,
+    claim_protocol_fee2::*, close_config::*, close_operator_account::*, cpi_event::*,
+    create_config::*, create_lock_escrow::*, create_mint_metadata::*, create_operator_account::*,
+    enable_or_disable_pool::*, get_pool_info::*,
     initialize_customizable_permissionless_constant_product_pool::*,
     initialize_permissioned_pool::*,
     initialize_permissionless_constant_product_pool_with_config::*,
@@ -46,7 +51,7 @@ pub use self::{
     initialize_permissionless_pool::*, initialize_permissionless_pool_with_fee_tier::*, lock::*,
     override_curve_param::*, partner_claim_fee::*, remove_balance_liquidity::*,
     remove_liquidity_single_side::*, set_pool_fees::*, set_whitelisted_vault::*, swap::*,
-    update_activation_point::*, withdraw_protocol_fees::*,
+    update_activation_point::*, withdraw_protocol_fees::*, zap_protocol_fee::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -74,10 +79,20 @@ pub enum MeteoraPoolsInstruction {
         data: ClaimFee,
         accounts: ClaimFeeInstructionAccounts,
     },
+    ClaimProtocolFee2 {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimProtocolFee2,
+        accounts: ClaimProtocolFee2InstructionAccounts,
+    },
     CloseConfig {
         program_id: solana_pubkey::Pubkey,
         data: CloseConfig,
         accounts: CloseConfigInstructionAccounts,
+    },
+    CloseOperatorAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseOperatorAccount,
+        accounts: CloseOperatorAccountInstructionAccounts,
     },
     CreateConfig {
         program_id: solana_pubkey::Pubkey,
@@ -93,6 +108,11 @@ pub enum MeteoraPoolsInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CreateMintMetadata,
         accounts: CreateMintMetadataInstructionAccounts,
+    },
+    CreateOperatorAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateOperatorAccount,
+        accounts: CreateOperatorAccountInstructionAccounts,
     },
     EnableOrDisablePool {
         program_id: solana_pubkey::Pubkey,
@@ -184,6 +204,11 @@ pub enum MeteoraPoolsInstruction {
         data: WithdrawProtocolFees,
         accounts: WithdrawProtocolFeesInstructionAccounts,
     },
+    ZapProtocolFee {
+        program_id: solana_pubkey::Pubkey,
+        data: ZapProtocolFee,
+        accounts: ZapProtocolFeeInstructionAccounts,
+    },
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
@@ -205,14 +230,18 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraPoolsDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            MeteoraPoolsInstruction::CpiEvent => CpiEvent,
             MeteoraPoolsInstruction::AddBalanceLiquidity => AddBalanceLiquidity,
             MeteoraPoolsInstruction::AddImbalanceLiquidity => AddImbalanceLiquidity,
             MeteoraPoolsInstruction::BootstrapLiquidity => BootstrapLiquidity,
             MeteoraPoolsInstruction::ClaimFee => ClaimFee,
+            MeteoraPoolsInstruction::ClaimProtocolFee2 => ClaimProtocolFee2,
             MeteoraPoolsInstruction::CloseConfig => CloseConfig,
+            MeteoraPoolsInstruction::CloseOperatorAccount => CloseOperatorAccount,
             MeteoraPoolsInstruction::CreateConfig => CreateConfig,
             MeteoraPoolsInstruction::CreateLockEscrow => CreateLockEscrow,
             MeteoraPoolsInstruction::CreateMintMetadata => CreateMintMetadata,
+            MeteoraPoolsInstruction::CreateOperatorAccount => CreateOperatorAccount,
             MeteoraPoolsInstruction::EnableOrDisablePool => EnableOrDisablePool,
             MeteoraPoolsInstruction::GetPoolInfo => GetPoolInfo,
             MeteoraPoolsInstruction::InitializeCustomizablePermissionlessConstantProductPool => InitializeCustomizablePermissionlessConstantProductPool,
@@ -231,7 +260,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraPoolsDecoder {
             MeteoraPoolsInstruction::Swap => Swap,
             MeteoraPoolsInstruction::UpdateActivationPoint => UpdateActivationPoint,
             MeteoraPoolsInstruction::WithdrawProtocolFees => WithdrawProtocolFees,
-            MeteoraPoolsInstruction::CpiEvent => CpiEvent,
+            MeteoraPoolsInstruction::ZapProtocolFee => ZapProtocolFee,
         )
     }
 }

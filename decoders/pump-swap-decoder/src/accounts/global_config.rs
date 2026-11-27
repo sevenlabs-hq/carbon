@@ -25,6 +25,12 @@ pub struct GlobalConfig {
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: [Pubkey; 7],
     pub is_cashback_enabled: bool,
+    pub buyback_fee_recipients: [Pubkey; 8],
+    pub buyback_basis_points: u64,
+    pub boost_authority: Pubkey,
+    pub boost_enabled: bool,
+    pub creator_fee_configurable: bool,
+    pub max_configurable_creator_fee_bps: u64,
 }
 
 impl GlobalConfig {

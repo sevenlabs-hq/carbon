@@ -23,11 +23,13 @@ pub struct FlashTakeOrderStartInstructionAccounts {
     pub taker_output_ata: solana_pubkey::Pubkey,
     pub intermediary_output_token_account: Option<solana_pubkey::Pubkey>,
     pub maker_output_ata: Option<solana_pubkey::Pubkey>,
-    pub express_relay: solana_pubkey::Pubkey,
-    pub express_relay_metadata: solana_pubkey::Pubkey,
+    pub express_relay: Option<solana_pubkey::Pubkey>,
+    pub express_relay_metadata: Option<solana_pubkey::Pubkey>,
     pub sysvar_instructions: solana_pubkey::Pubkey,
     pub permission: Option<solana_pubkey::Pubkey>,
-    pub config_router: solana_pubkey::Pubkey,
+    pub config_router: Option<solana_pubkey::Pubkey>,
+    pub krfq_program: Option<solana_pubkey::Pubkey>,
+    pub krfq_metadata: Option<solana_pubkey::Pubkey>,
     pub input_token_program: solana_pubkey::Pubkey,
     pub output_token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
@@ -75,11 +77,13 @@ impl ArrangeAccounts for FlashTakeOrderStart {
         let taker_output_ata = next_account(&mut iter)?;
         let intermediary_output_token_account = next_account(&mut iter);
         let maker_output_ata = next_account(&mut iter);
-        let express_relay = next_account(&mut iter)?;
-        let express_relay_metadata = next_account(&mut iter)?;
+        let express_relay = next_account(&mut iter);
+        let express_relay_metadata = next_account(&mut iter);
         let sysvar_instructions = next_account(&mut iter)?;
         let permission = next_account(&mut iter);
-        let config_router = next_account(&mut iter)?;
+        let config_router = next_account(&mut iter);
+        let krfq_program = next_account(&mut iter);
+        let krfq_metadata = next_account(&mut iter);
         let input_token_program = next_account(&mut iter)?;
         let output_token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
@@ -107,6 +111,8 @@ impl ArrangeAccounts for FlashTakeOrderStart {
             sysvar_instructions,
             permission,
             config_router,
+            krfq_program,
+            krfq_metadata,
             input_token_program,
             output_token_program,
             system_program,

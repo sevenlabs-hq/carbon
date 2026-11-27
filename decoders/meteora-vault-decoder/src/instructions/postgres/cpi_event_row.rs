@@ -31,6 +31,7 @@ impl CpiEventRow {
                 CpiEvent::ClaimReward(_) => "claim_reward".to_string(),
                 CpiEvent::PerformanceFee(_) => "performance_fee".to_string(),
                 CpiEvent::ReportLoss(_) => "report_loss".to_string(),
+                CpiEvent::VaultMigrated(_) => "vault_migrated".to_string(),
                 CpiEvent::TotalAmount(_) => "total_amount".to_string(),
             },
             data: sqlx::types::Json(source),

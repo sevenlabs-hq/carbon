@@ -20,6 +20,8 @@ pub struct UserVolumeAccumulatorRow {
     pub has_total_claimed_tokens: bool,
     pub cashback_earned: U64,
     pub total_cashback_claimed: U64,
+    pub stable_cashback_earned: U64,
+    pub total_stable_cashback_claimed: U64,
 }
 
 impl UserVolumeAccumulatorRow {
@@ -38,6 +40,8 @@ impl UserVolumeAccumulatorRow {
             has_total_claimed_tokens: source.has_total_claimed_tokens,
             cashback_earned: source.cashback_earned.into(),
             total_cashback_claimed: source.total_cashback_claimed.into(),
+            stable_cashback_earned: source.stable_cashback_earned.into(),
+            total_stable_cashback_claimed: source.total_stable_cashback_claimed.into(),
         }
     }
 }
@@ -57,6 +61,8 @@ impl TryFrom<UserVolumeAccumulatorRow>
             has_total_claimed_tokens: source.has_total_claimed_tokens,
             cashback_earned: *source.cashback_earned,
             total_cashback_claimed: *source.total_cashback_claimed,
+            stable_cashback_earned: *source.stable_cashback_earned,
+            total_stable_cashback_claimed: *source.total_stable_cashback_claimed,
         })
     }
 }
@@ -81,6 +87,8 @@ impl carbon_core::postgres::operations::Table
             "has_total_claimed_tokens",
             "cashback_earned",
             "total_cashback_claimed",
+            "stable_cashback_earned",
+            "total_stable_cashback_claimed",
         ]
     }
 }
@@ -100,9 +108,11 @@ impl carbon_core::postgres::operations::Insert for UserVolumeAccumulatorRow {
                 "has_total_claimed_tokens",
                 "cashback_earned",
                 "total_cashback_claimed",
+                "stable_cashback_earned",
+                "total_stable_cashback_claimed",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
             )"#,
         )
         .bind(self.user)
@@ -114,6 +124,8 @@ impl carbon_core::postgres::operations::Insert for UserVolumeAccumulatorRow {
         .bind(self.has_total_claimed_tokens)
         .bind(&self.cashback_earned)
         .bind(&self.total_cashback_claimed)
+        .bind(&self.stable_cashback_earned)
+        .bind(&self.total_stable_cashback_claimed)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -137,9 +149,11 @@ impl carbon_core::postgres::operations::Upsert for UserVolumeAccumulatorRow {
                 "has_total_claimed_tokens",
                 "cashback_earned",
                 "total_cashback_claimed",
+                "stable_cashback_earned",
+                "total_stable_cashback_claimed",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -152,6 +166,8 @@ impl carbon_core::postgres::operations::Upsert for UserVolumeAccumulatorRow {
                 "has_total_claimed_tokens" = EXCLUDED."has_total_claimed_tokens",
                 "cashback_earned" = EXCLUDED."cashback_earned",
                 "total_cashback_claimed" = EXCLUDED."total_cashback_claimed",
+                "stable_cashback_earned" = EXCLUDED."stable_cashback_earned",
+                "total_stable_cashback_claimed" = EXCLUDED."total_stable_cashback_claimed",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
                 OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
@@ -166,6 +182,8 @@ impl carbon_core::postgres::operations::Upsert for UserVolumeAccumulatorRow {
         .bind(self.has_total_claimed_tokens)
         .bind(&self.cashback_earned)
         .bind(&self.total_cashback_claimed)
+        .bind(&self.stable_cashback_earned)
+        .bind(&self.total_stable_cashback_claimed)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -234,6 +252,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserVolumeAccumulatorMigration
                 "has_total_claimed_tokens" BOOLEAN NOT NULL,
                 "cashback_earned" NUMERIC(20) NOT NULL,
                 "total_cashback_claimed" NUMERIC(20) NOT NULL,
+                "stable_cashback_earned" NUMERIC(20) NOT NULL,
+                "total_stable_cashback_claimed" NUMERIC(20) NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

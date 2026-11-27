@@ -12,6 +12,7 @@ pub mod accept_obligation_ownership;
 pub mod approve_obligation_ownership_transfer;
 pub mod borrow_obligation_liquidity;
 pub mod borrow_obligation_liquidity_v2;
+pub mod calculate_ctoken_exchange_rate;
 pub mod cancel_withdraw_ticket;
 pub mod clone_reserve_config;
 pub mod cpi_event;
@@ -24,6 +25,7 @@ pub mod deposit_reserve_liquidity_and_obligation_collateral;
 pub mod deposit_reserve_liquidity_and_obligation_collateral_v2;
 pub mod enqueue_to_withdraw;
 pub mod fill_borrow_order;
+pub mod fill_borrow_order_v2;
 pub mod flash_borrow_reserve_liquidity;
 pub mod flash_repay_reserve_liquidity;
 pub mod idl_missing_types;
@@ -54,6 +56,7 @@ pub mod request_elevation_group;
 pub mod rollover_fixed_term_borrow;
 pub mod seed_deposit_on_init_reserve;
 pub mod set_borrow_order;
+pub mod set_borrow_order_v2;
 pub mod set_obligation_order;
 pub mod socialize_loss;
 pub mod socialize_loss_v2;
@@ -75,14 +78,16 @@ pub mod withdraw_referrer_fees;
 pub use self::{
     abort_obligation_ownership_transfer::*, accept_obligation_ownership::*,
     approve_obligation_ownership_transfer::*, borrow_obligation_liquidity::*,
-    borrow_obligation_liquidity_v2::*, cancel_withdraw_ticket::*, clone_reserve_config::*,
-    cpi_event::*, delete_referrer_state_and_short_url::*, deposit_and_withdraw::*,
+    borrow_obligation_liquidity_v2::*, calculate_ctoken_exchange_rate::*,
+    cancel_withdraw_ticket::*, clone_reserve_config::*, cpi_event::*,
+    delete_referrer_state_and_short_url::*, deposit_and_withdraw::*,
     deposit_obligation_collateral::*, deposit_obligation_collateral_v2::*,
     deposit_reserve_liquidity::*, deposit_reserve_liquidity_and_obligation_collateral::*,
     deposit_reserve_liquidity_and_obligation_collateral_v2::*, enqueue_to_withdraw::*,
-    fill_borrow_order::*, flash_borrow_reserve_liquidity::*, flash_repay_reserve_liquidity::*,
-    idl_missing_types::*, init_farms_for_reserve::*, init_global_config::*, init_lending_market::*,
-    init_obligation::*, init_obligation_farms_for_reserve::*, init_referrer_state_and_short_url::*,
+    fill_borrow_order::*, fill_borrow_order_v2::*, flash_borrow_reserve_liquidity::*,
+    flash_repay_reserve_liquidity::*, idl_missing_types::*, init_farms_for_reserve::*,
+    init_global_config::*, init_lending_market::*, init_obligation::*,
+    init_obligation_farms_for_reserve::*, init_referrer_state_and_short_url::*,
     init_referrer_token_state::*, init_reserve::*, init_user_metadata::*,
     initiate_obligation_ownership_transfer::*,
     liquidate_obligation_and_redeem_reserve_collateral::*,
@@ -91,10 +96,11 @@ pub use self::{
     refresh_obligation::*, refresh_obligation_farms_for_reserve::*, refresh_reserve::*,
     refresh_reserves_batch::*, repay_and_withdraw_and_redeem::*, repay_obligation_liquidity::*,
     repay_obligation_liquidity_v2::*, request_elevation_group::*, rollover_fixed_term_borrow::*,
-    seed_deposit_on_init_reserve::*, set_borrow_order::*, set_obligation_order::*,
-    socialize_loss::*, socialize_loss_v2::*, topup_reserve_rewards::*, update_global_config::*,
-    update_global_config_admin::*, update_lending_market::*, update_lending_market_owner::*,
-    update_obligation_config::*, update_reserve_config::*, withdraw_obligation_collateral::*,
+    seed_deposit_on_init_reserve::*, set_borrow_order::*, set_borrow_order_v2::*,
+    set_obligation_order::*, socialize_loss::*, socialize_loss_v2::*, topup_reserve_rewards::*,
+    update_global_config::*, update_global_config_admin::*, update_lending_market::*,
+    update_lending_market_owner::*, update_obligation_config::*, update_reserve_config::*,
+    withdraw_obligation_collateral::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_v2::*,
     withdraw_obligation_collateral_v2::*, withdraw_protocol_fee::*, withdraw_queued_liquidity::*,
@@ -130,6 +136,11 @@ pub enum KaminoLendingInstruction {
         program_id: solana_pubkey::Pubkey,
         data: BorrowObligationLiquidityV2,
         accounts: BorrowObligationLiquidityV2InstructionAccounts,
+    },
+    CalculateCtokenExchangeRate {
+        program_id: solana_pubkey::Pubkey,
+        data: CalculateCtokenExchangeRate,
+        accounts: CalculateCtokenExchangeRateInstructionAccounts,
     },
     CancelWithdrawTicket {
         program_id: solana_pubkey::Pubkey,
@@ -185,6 +196,11 @@ pub enum KaminoLendingInstruction {
         program_id: solana_pubkey::Pubkey,
         data: FillBorrowOrder,
         accounts: FillBorrowOrderInstructionAccounts,
+    },
+    FillBorrowOrderV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: FillBorrowOrderV2,
+        accounts: FillBorrowOrderV2InstructionAccounts,
     },
     FlashBorrowReserveLiquidity {
         program_id: solana_pubkey::Pubkey,
@@ -336,6 +352,11 @@ pub enum KaminoLendingInstruction {
         data: SetBorrowOrder,
         accounts: SetBorrowOrderInstructionAccounts,
     },
+    SetBorrowOrderV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SetBorrowOrderV2,
+        accounts: SetBorrowOrderV2InstructionAccounts,
+    },
     SetObligationOrder {
         program_id: solana_pubkey::Pubkey,
         data: SetObligationOrder,
@@ -442,11 +463,13 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            KaminoLendingInstruction::CpiEvent => CpiEvent,
             KaminoLendingInstruction::AbortObligationOwnershipTransfer => AbortObligationOwnershipTransfer,
             KaminoLendingInstruction::AcceptObligationOwnership => AcceptObligationOwnership,
             KaminoLendingInstruction::ApproveObligationOwnershipTransfer => ApproveObligationOwnershipTransfer,
             KaminoLendingInstruction::BorrowObligationLiquidity => BorrowObligationLiquidity,
             KaminoLendingInstruction::BorrowObligationLiquidityV2 => BorrowObligationLiquidityV2,
+            KaminoLendingInstruction::CalculateCtokenExchangeRate => CalculateCtokenExchangeRate,
             KaminoLendingInstruction::CancelWithdrawTicket => CancelWithdrawTicket,
             KaminoLendingInstruction::CloneReserveConfig => CloneReserveConfig,
             KaminoLendingInstruction::DeleteReferrerStateAndShortUrl => DeleteReferrerStateAndShortUrl,
@@ -458,6 +481,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
             KaminoLendingInstruction::DepositReserveLiquidityAndObligationCollateralV2 => DepositReserveLiquidityAndObligationCollateralV2,
             KaminoLendingInstruction::EnqueueToWithdraw => EnqueueToWithdraw,
             KaminoLendingInstruction::FillBorrowOrder => FillBorrowOrder,
+            KaminoLendingInstruction::FillBorrowOrderV2 => FillBorrowOrderV2,
             KaminoLendingInstruction::FlashBorrowReserveLiquidity => FlashBorrowReserveLiquidity,
             KaminoLendingInstruction::FlashRepayReserveLiquidity => FlashRepayReserveLiquidity,
             KaminoLendingInstruction::IdlMissingTypes => IdlMissingTypes,
@@ -488,6 +512,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
             KaminoLendingInstruction::RolloverFixedTermBorrow => RolloverFixedTermBorrow,
             KaminoLendingInstruction::SeedDepositOnInitReserve => SeedDepositOnInitReserve,
             KaminoLendingInstruction::SetBorrowOrder => SetBorrowOrder,
+            KaminoLendingInstruction::SetBorrowOrderV2 => SetBorrowOrderV2,
             KaminoLendingInstruction::SetObligationOrder => SetObligationOrder,
             KaminoLendingInstruction::SocializeLoss => SocializeLoss,
             KaminoLendingInstruction::SocializeLossV2 => SocializeLossV2,
@@ -505,7 +530,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
             KaminoLendingInstruction::WithdrawProtocolFee => WithdrawProtocolFee,
             KaminoLendingInstruction::WithdrawQueuedLiquidity => WithdrawQueuedLiquidity,
             KaminoLendingInstruction::WithdrawReferrerFees => WithdrawReferrerFees,
-            KaminoLendingInstruction::CpiEvent => CpiEvent,
         )
     }
 }

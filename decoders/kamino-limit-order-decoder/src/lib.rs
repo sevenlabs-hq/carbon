@@ -3,6 +3,7 @@ use solana_pubkey::Pubkey;
 pub struct KaminoLimitOrderDecoder;
 pub const PROGRAM_ID: Pubkey =
     solana_pubkey::Pubkey::from_str_const("LiMoM9rMhrdYrfzUCxQppvxCSG1FcrUK9G8uLq4A1GF");
+pub const EVENT_CPI_DISCRIMINATOR: &[u8] = &[228, 69, 165, 46, 81, 203, 154, 29];
 
 pub mod accounts;
 pub mod events;

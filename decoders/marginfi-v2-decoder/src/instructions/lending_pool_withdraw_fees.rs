@@ -17,6 +17,7 @@ pub struct LendingPoolWithdrawFeesInstructionAccounts {
     pub fee_vault_authority: solana_pubkey::Pubkey,
     pub dst_token_account: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -53,6 +54,7 @@ impl ArrangeAccounts for LendingPoolWithdrawFees {
         let fee_vault_authority = next_account(&mut iter)?;
         let dst_token_account = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -64,6 +66,7 @@ impl ArrangeAccounts for LendingPoolWithdrawFees {
             fee_vault_authority,
             dst_token_account,
             token_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

@@ -12,6 +12,9 @@ pub struct KaminoConfigCompact {
     pub oracle: Pubkey,
     pub asset_weight_init: WrappedI80F48,
     pub asset_weight_maint: WrappedI80F48,
+    /// Cap in **Kamino collateral units**, not underlying. As the reserve
+    /// collateral exchange rate grows, the same cap admits more underlying
+    /// — re-tune against the current rate.
     pub deposit_limit: u64,
     /// Either `KaminoPythPush` or `KaminoSwitchboardPull`
     pub oracle_setup: OracleSetup,

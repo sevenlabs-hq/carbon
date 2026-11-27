@@ -4,6 +4,7 @@ pub mod graphql;
 
 pub mod account_state;
 pub mod authority_type;
+pub mod batch_item;
 pub mod decryptable_balance;
 pub mod encrypted_balance;
 pub mod extension;
@@ -12,6 +13,7 @@ pub mod token_metadata_field;
 pub mod transfer_fee;
 
 pub use self::{
-    account_state::*, authority_type::*, decryptable_balance::*, encrypted_balance::*,
-    extension::*, extension_type::*, token_metadata_field::*, transfer_fee::*,
+    account_state::*, authority_type::*, batch_item::*, decryptable_balance::*,
+    encrypted_balance::*, extension::*, extension_type::*, token_metadata_field::*,
+    transfer_fee::*,
 };

@@ -19,6 +19,8 @@ pub struct ConfigMarinadeParamsGraphQL {
     pub delayed_unstake_fee: Option<FeeCentsGraphQL>,
     pub withdraw_stake_account_fee: Option<FeeCentsGraphQL>,
     pub max_stake_moved_per_epoch: Option<FeeGraphQL>,
+    pub deposit_sol_fee: Option<FeeCentsGraphQL>,
+    pub deposit_stake_account_fee: Option<FeeCentsGraphQL>,
 }
 
 impl From<crate::types::ConfigMarinadeParams> for ConfigMarinadeParamsGraphQL {
@@ -47,6 +49,8 @@ impl From<crate::types::ConfigMarinadeParams> for ConfigMarinadeParamsGraphQL {
             delayed_unstake_fee: original.delayed_unstake_fee.map(|v| v.into()),
             withdraw_stake_account_fee: original.withdraw_stake_account_fee.map(|v| v.into()),
             max_stake_moved_per_epoch: original.max_stake_moved_per_epoch.map(|v| v.into()),
+            deposit_sol_fee: original.deposit_sol_fee.map(|v| v.into()),
+            deposit_stake_account_fee: original.deposit_stake_account_fee.map(|v| v.into()),
         }
     }
 }

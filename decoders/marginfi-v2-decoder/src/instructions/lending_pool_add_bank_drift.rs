@@ -3,7 +3,7 @@ use {
     crate::types::DriftConfigCompact,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (group admin only) Add a Drift bank to the group.
+/// (governance_admin only) Add a Drift bank to the group.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingPoolAddBankDrift {
@@ -15,7 +15,7 @@ pub struct LendingPoolAddBankDrift {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LendingPoolAddBankDriftInstructionAccounts {
     pub group: solana_pubkey::Pubkey,
-    pub admin: solana_pubkey::Pubkey,
+    pub governance_admin: solana_pubkey::Pubkey,
     pub fee_payer: solana_pubkey::Pubkey,
     pub bank_mint: solana_pubkey::Pubkey,
     pub bank: solana_pubkey::Pubkey,
@@ -30,6 +30,7 @@ pub struct LendingPoolAddBankDriftInstructionAccounts {
     pub fee_vault: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -60,7 +61,7 @@ impl ArrangeAccounts for LendingPoolAddBankDrift {
         let mut iter = accounts.iter();
 
         let group = next_account(&mut iter)?;
-        let admin = next_account(&mut iter)?;
+        let governance_admin = next_account(&mut iter)?;
         let fee_payer = next_account(&mut iter)?;
         let bank_mint = next_account(&mut iter)?;
         let bank = next_account(&mut iter)?;
@@ -75,12 +76,13 @@ impl ArrangeAccounts for LendingPoolAddBankDrift {
         let fee_vault = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(LendingPoolAddBankDriftInstructionAccounts {
             group,
-            admin,
+            governance_admin,
             fee_payer,
             bank_mint,
             bank,
@@ -95,6 +97,7 @@ impl ArrangeAccounts for LendingPoolAddBankDrift {
             fee_vault,
             token_program,
             system_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

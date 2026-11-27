@@ -158,6 +158,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn create_ata_with_close_authority(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAtaWithCloseAuthorityGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateAtaWithCloseAuthorityRow> = sqlx::query_as(
+            r#"SELECT * FROM create_ata_with_close_authority_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_create_ata_with_close_authority(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAtaWithCloseAuthorityGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateAtaWithCloseAuthorityRow> = sqlx::query_as(
+            r#"SELECT * FROM create_ata_with_close_authority_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn create_token_account(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -500,6 +538,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn swap_tob_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_tob_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_tob_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_tob_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn swap_tob_with_receiver(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -576,6 +652,84 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn swap_tob_with_receiver_token_ledger_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverTokenLedgerV3GraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverTokenLedgerV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_tob_with_receiver_token_ledger_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_tob_with_receiver_token_ledger_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverTokenLedgerV3GraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverTokenLedgerV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_tob_with_receiver_token_ledger_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_tob_with_receiver_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_tob_with_receiver_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_tob_with_receiver_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithReceiverV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithReceiverV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_tob_with_receiver_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn swap_tob_with_token_ledger(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -602,6 +756,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithTokenLedgerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTobWithTokenLedgerRow> = sqlx::query_as(
             r#"SELECT * FROM swap_tob_with_token_ledger_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_tob_with_token_ledger_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithTokenLedgerV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithTokenLedgerV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_tob_with_token_ledger_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_tob_with_token_ledger_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTobWithTokenLedgerV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTobWithTokenLedgerV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_tob_with_token_ledger_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -678,6 +870,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::SwapTocV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::SwapTocV2Row> = sqlx::query_as(
             r#"SELECT * FROM swap_toc_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn swap_toc_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTocV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTocV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_toc_v3_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_swap_toc_v3(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SwapTocV3GraphQL>> {
+        let rows: Vec<crate::instructions::postgres::SwapTocV3Row> = sqlx::query_as(
+            r#"SELECT * FROM swap_toc_v3_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

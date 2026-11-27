@@ -24,6 +24,7 @@ pub mod transfer_fee;
 pub mod transfer_sol;
 pub mod transfer_to_sponsor;
 pub mod unwrap_sol;
+pub mod withdraw_fees;
 pub mod wrap_sol;
 
 pub use self::{
@@ -31,7 +32,7 @@ pub use self::{
     create_referral_token_account_idempotent::*, fill_order::*, init_market_ledger_idempotent::*,
     open_order::*, swap::*, swap2::*, swap2_with_destination::*, swap2_with_destination_native::*,
     swap_with_destination::*, swap_with_destination_native::*, transfer_fee::*, transfer_sol::*,
-    transfer_to_sponsor::*, unwrap_sol::*, wrap_sol::*,
+    transfer_to_sponsor::*, unwrap_sol::*, withdraw_fees::*, wrap_sol::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -119,6 +120,11 @@ pub enum DflowAggregatorV4Instruction {
         data: UnwrapSol,
         accounts: UnwrapSolInstructionAccounts,
     },
+    WithdrawFees {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawFees,
+        accounts: WithdrawFeesInstructionAccounts,
+    },
     WrapSol {
         program_id: solana_pubkey::Pubkey,
         data: WrapSol,
@@ -145,6 +151,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DflowAggregatorV4Decod
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            DflowAggregatorV4Instruction::CpiEvent => CpiEvent,
             DflowAggregatorV4Instruction::CloseEmptyTokenAccount => CloseEmptyTokenAccount,
             DflowAggregatorV4Instruction::CloseOrder => CloseOrder,
             DflowAggregatorV4Instruction::CreateReferralTokenAccountIdempotent => CreateReferralTokenAccountIdempotent,
@@ -161,8 +168,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DflowAggregatorV4Decod
             DflowAggregatorV4Instruction::TransferSol => TransferSol,
             DflowAggregatorV4Instruction::TransferToSponsor => TransferToSponsor,
             DflowAggregatorV4Instruction::UnwrapSol => UnwrapSol,
+            DflowAggregatorV4Instruction::WithdrawFees => WithdrawFees,
             DflowAggregatorV4Instruction::WrapSol => WrapSol,
-            DflowAggregatorV4Instruction::CpiEvent => CpiEvent,
         )
     }
 }

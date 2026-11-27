@@ -13,6 +13,8 @@ pub struct UserVolumeAccumulator {
     pub has_total_claimed_tokens: bool,
     pub cashback_earned: u64,
     pub total_cashback_claimed: u64,
+    pub stable_cashback_earned: u64,
+    pub total_stable_cashback_claimed: u64,
 }
 
 impl UserVolumeAccumulator {

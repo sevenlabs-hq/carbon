@@ -15,6 +15,7 @@ pub struct DistributeCreatorFeesEventGraphQL {
     pub admin: Pubkey,
     pub shareholders: Vec<ShareholderGraphQL>,
     pub distributed: U64,
+    pub quote_mint: Pubkey,
 }
 
 impl From<crate::types::DistributeCreatorFeesEvent> for DistributeCreatorFeesEventGraphQL {
@@ -31,6 +32,7 @@ impl From<crate::types::DistributeCreatorFeesEvent> for DistributeCreatorFeesEve
                 .map(|item| item.into())
                 .collect(),
             distributed: carbon_core::graphql::primitives::U64(original.distributed),
+            quote_mint: carbon_core::graphql::primitives::Pubkey(original.quote_mint),
         }
     }
 }

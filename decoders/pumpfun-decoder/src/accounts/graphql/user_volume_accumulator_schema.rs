@@ -17,6 +17,8 @@ pub struct UserVolumeAccumulatorGraphQL {
     pub has_total_claimed_tokens: bool,
     pub cashback_earned: U64,
     pub total_cashback_claimed: U64,
+    pub stable_cashback_earned: U64,
+    pub total_stable_cashback_claimed: U64,
 }
 
 impl TryFrom<crate::accounts::postgres::UserVolumeAccumulatorRow> for UserVolumeAccumulatorGraphQL {
@@ -38,6 +40,12 @@ impl TryFrom<crate::accounts::postgres::UserVolumeAccumulatorRow> for UserVolume
             cashback_earned: carbon_core::graphql::primitives::U64(*row.cashback_earned),
             total_cashback_claimed: carbon_core::graphql::primitives::U64(
                 *row.total_cashback_claimed,
+            ),
+            stable_cashback_earned: carbon_core::graphql::primitives::U64(
+                *row.stable_cashback_earned,
+            ),
+            total_stable_cashback_claimed: carbon_core::graphql::primitives::U64(
+                *row.total_stable_cashback_claimed,
             ),
         })
     }

@@ -1809,6 +1809,7 @@ dependencies = [
  "carbon-test-utils",
  "juniper",
  "serde",
+ "serde-big-array",
  "serde_json",
  "solana-account",
  "solana-instruction 3.5.1",
@@ -1895,6 +1896,24 @@ dependencies = [
 
 [[package]]
 name = "carbon-lifinity-amm-v2-decoder"
+version = "2.0.0"
+dependencies = [
+ "async-trait",
+ "borsh",
+ "carbon-core",
+ "carbon-test-utils",
+ "juniper",
+ "serde",
+ "serde_json",
+ "solana-account",
+ "solana-instruction 3.5.1",
+ "solana-pubkey 4.4.0",
+ "sqlx",
+ "sqlx_migrator",
+]
+
+[[package]]
+name = "carbon-loader-v3-program-decoder"
 version = "2.0.0"
 dependencies = [
  "async-trait",

@@ -22,8 +22,8 @@ impl InitializeTransferHookRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            authority: source.authority.map(|value| value.into()),
-            program_id: source.program_id.map(|value| value.into()),
+            authority: source.authority.0.map(|value| value.into()),
+            program_id: source.program_id.0.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -35,8 +35,8 @@ impl TryFrom<InitializeTransferHookRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeTransferHookRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            authority: source.authority.map(|value| *value),
-            program_id: source.program_id.map(|value| *value),
+            authority: source.authority.map(|value| *value).into(),
+            program_id: source.program_id.map(|value| *value).into(),
         })
     }
 }

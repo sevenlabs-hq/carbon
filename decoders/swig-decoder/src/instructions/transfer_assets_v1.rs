@@ -11,6 +11,7 @@ pub struct TransferAssetsV1InstructionAccounts {
     pub swig_wallet_address: solana_pubkey::Pubkey,
     pub payer: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub authority_context: Option<solana_pubkey::Pubkey>,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -44,6 +45,7 @@ impl ArrangeAccounts for TransferAssetsV1 {
         let swig_wallet_address = next_account(&mut iter)?;
         let payer = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let authority_context = next_account(&mut iter);
 
         let remaining = iter.as_slice();
 
@@ -52,6 +54,7 @@ impl ArrangeAccounts for TransferAssetsV1 {
             swig_wallet_address,
             payer,
             system_program,
+            authority_context,
             remaining: remaining.to_vec(),
         })
     }

@@ -6,7 +6,7 @@ use {carbon_core::graphql::primitives::U64, juniper::GraphQLObject, serde_json};
 pub struct LiquidateObligationAndRedeemReserveCollateralV2GraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
     pub liquidity_amount: U64,
-    pub min_acceptable_received_liquidity_amount: U64,
+    pub min_received_liquidity_amount: U64,
     pub max_allowed_ltv_override_percent: U64,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
@@ -21,8 +21,8 @@ impl TryFrom<crate::instructions::postgres::LiquidateObligationAndRedeemReserveC
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             liquidity_amount: carbon_core::graphql::primitives::U64(*row.liquidity_amount),
-            min_acceptable_received_liquidity_amount: carbon_core::graphql::primitives::U64(
-                *row.min_acceptable_received_liquidity_amount,
+            min_received_liquidity_amount: carbon_core::graphql::primitives::U64(
+                *row.min_received_liquidity_amount,
             ),
             max_allowed_ltv_override_percent: carbon_core::graphql::primitives::U64(
                 *row.max_allowed_ltv_override_percent,

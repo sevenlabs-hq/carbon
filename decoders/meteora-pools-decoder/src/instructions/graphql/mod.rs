@@ -3,11 +3,14 @@ pub mod add_balance_liquidity_schema;
 pub mod add_imbalance_liquidity_schema;
 pub mod bootstrap_liquidity_schema;
 pub mod claim_fee_schema;
+pub mod claim_protocol_fee2_schema;
 pub mod close_config_schema;
+pub mod close_operator_account_schema;
 pub mod cpi_event_schema;
 pub mod create_config_schema;
 pub mod create_lock_escrow_schema;
 pub mod create_mint_metadata_schema;
+pub mod create_operator_account_schema;
 pub mod enable_or_disable_pool_schema;
 pub mod get_pool_info_schema;
 pub mod initialize_customizable_permissionless_constant_product_pool_schema;
@@ -26,13 +29,15 @@ pub mod set_whitelisted_vault_schema;
 pub mod swap_schema;
 pub mod update_activation_point_schema;
 pub mod withdraw_protocol_fees_schema;
+pub mod zap_protocol_fee_schema;
 
 use juniper::GraphQLObject;
 pub use {
     add_balance_liquidity_schema::*, add_imbalance_liquidity_schema::*,
-    bootstrap_liquidity_schema::*, claim_fee_schema::*, close_config_schema::*,
-    cpi_event_schema::*, create_config_schema::*, create_lock_escrow_schema::*,
-    create_mint_metadata_schema::*, enable_or_disable_pool_schema::*, get_pool_info_schema::*,
+    bootstrap_liquidity_schema::*, claim_fee_schema::*, claim_protocol_fee2_schema::*,
+    close_config_schema::*, close_operator_account_schema::*, cpi_event_schema::*,
+    create_config_schema::*, create_lock_escrow_schema::*, create_mint_metadata_schema::*,
+    create_operator_account_schema::*, enable_or_disable_pool_schema::*, get_pool_info_schema::*,
     initialize_customizable_permissionless_constant_product_pool_schema::*,
     initialize_permissioned_pool_schema::*,
     initialize_permissionless_constant_product_pool_with_config2_schema::*,
@@ -43,6 +48,7 @@ pub use {
     remove_balance_liquidity_schema::*, remove_liquidity_single_side_schema::*,
     set_pool_fees_schema::*, set_whitelisted_vault_schema::*, swap_schema::*,
     update_activation_point_schema::*, withdraw_protocol_fees_schema::*,
+    zap_protocol_fee_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

@@ -8,6 +8,7 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod add_rewards;
+pub mod close_empty_user_state;
 pub mod deposit_to_farm_vault;
 pub mod harvest_reward;
 pub mod idl_missing_types;
@@ -35,12 +36,12 @@ pub mod withdraw_treasury;
 pub mod withdraw_unstaked_deposits;
 
 pub use self::{
-    add_rewards::*, deposit_to_farm_vault::*, harvest_reward::*, idl_missing_types::*,
-    initialize_farm::*, initialize_farm_delegated::*, initialize_global_config::*,
-    initialize_reward::*, initialize_user::*, refresh_farm::*, refresh_user_state::*,
-    reward_user_once::*, set_stake_delegated::*, stake::*, transfer_ownership::*, unstake::*,
-    update_farm_admin::*, update_farm_config::*, update_global_config::*,
-    update_global_config_admin::*, update_second_delegated_authority::*,
+    add_rewards::*, close_empty_user_state::*, deposit_to_farm_vault::*, harvest_reward::*,
+    idl_missing_types::*, initialize_farm::*, initialize_farm_delegated::*,
+    initialize_global_config::*, initialize_reward::*, initialize_user::*, refresh_farm::*,
+    refresh_user_state::*, reward_user_once::*, set_stake_delegated::*, stake::*,
+    transfer_ownership::*, unstake::*, update_farm_admin::*, update_farm_config::*,
+    update_global_config::*, update_global_config_admin::*, update_second_delegated_authority::*,
     withdraw_from_farm_vault::*, withdraw_reward::*, withdraw_slashed_amount::*,
     withdraw_treasury::*, withdraw_unstaked_deposits::*,
 };
@@ -54,6 +55,11 @@ pub enum KaminoFarmsInstruction {
         program_id: solana_pubkey::Pubkey,
         data: AddRewards,
         accounts: AddRewardsInstructionAccounts,
+    },
+    CloseEmptyUserState {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseEmptyUserState,
+        accounts: CloseEmptyUserStateInstructionAccounts,
     },
     DepositToFarmVault {
         program_id: solana_pubkey::Pubkey,
@@ -197,6 +203,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoFarmsDecoder {
             instruction,
             PROGRAM_ID,
             KaminoFarmsInstruction::AddRewards => AddRewards,
+            KaminoFarmsInstruction::CloseEmptyUserState => CloseEmptyUserState,
             KaminoFarmsInstruction::DepositToFarmVault => DepositToFarmVault,
             KaminoFarmsInstruction::HarvestReward => HarvestReward,
             KaminoFarmsInstruction::IdlMissingTypes => IdlMissingTypes,

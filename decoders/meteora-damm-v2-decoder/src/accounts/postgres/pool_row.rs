@@ -25,7 +25,8 @@ pub struct PoolRow {
     pub padding1: U128,
     pub protocol_a_fee: U64,
     pub protocol_b_fee: U64,
-    pub padding2: U128,
+    pub dead_liquidity_fee_checkpoint: U64,
+    pub padding2: Vec<u8>,
     pub sqrt_min_price: U128,
     pub sqrt_max_price: U128,
     pub sqrt_price: U128,
@@ -66,7 +67,8 @@ impl PoolRow {
             padding1: source.padding1.into(),
             protocol_a_fee: source.protocol_a_fee.into(),
             protocol_b_fee: source.protocol_b_fee.into(),
-            padding2: source.padding2.into(),
+            dead_liquidity_fee_checkpoint: source.dead_liquidity_fee_checkpoint.into(),
+            padding2: source.padding2.to_vec(),
             sqrt_min_price: source.sqrt_min_price.into(),
             sqrt_max_price: source.sqrt_max_price.into(),
             sqrt_price: source.sqrt_price.into(),
@@ -118,7 +120,13 @@ impl TryFrom<PoolRow> for crate::accounts::pool::Pool {
             padding1: *source.padding1,
             protocol_a_fee: *source.protocol_a_fee,
             protocol_b_fee: *source.protocol_b_fee,
-            padding2: *source.padding2,
+            dead_liquidity_fee_checkpoint: *source.dead_liquidity_fee_checkpoint,
+            padding2: source.padding2.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 8 bytes"
+                        .to_string(),
+                )
+            })?,
             sqrt_min_price: *source.sqrt_min_price,
             sqrt_max_price: *source.sqrt_max_price,
             sqrt_price: *source.sqrt_price,
@@ -246,6 +254,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool::Pool {
             "padding1",
             "protocol_a_fee",
             "protocol_b_fee",
+            "dead_liquidity_fee_checkpoint",
             "padding2",
             "sqrt_min_price",
             "sqrt_max_price",
@@ -290,6 +299,7 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
                 "padding1",
                 "protocol_a_fee",
                 "protocol_b_fee",
+                "dead_liquidity_fee_checkpoint",
                 "padding2",
                 "sqrt_min_price",
                 "sqrt_max_price",
@@ -316,7 +326,7 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
                 "reward_infos",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38
             )"#)
         .bind(&self.pool_fees)
         .bind(self.token_a_mint)
@@ -329,6 +339,7 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
         .bind(&self.padding1)
         .bind(&self.protocol_a_fee)
         .bind(&self.protocol_b_fee)
+        .bind(&self.dead_liquidity_fee_checkpoint)
         .bind(&self.padding2)
         .bind(&self.sqrt_min_price)
         .bind(&self.sqrt_max_price)
@@ -376,6 +387,7 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "padding1",
                 "protocol_a_fee",
                 "protocol_b_fee",
+                "dead_liquidity_fee_checkpoint",
                 "padding2",
                 "sqrt_min_price",
                 "sqrt_max_price",
@@ -402,7 +414,7 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "reward_infos",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -417,6 +429,7 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "padding1" = EXCLUDED."padding1",
                 "protocol_a_fee" = EXCLUDED."protocol_a_fee",
                 "protocol_b_fee" = EXCLUDED."protocol_b_fee",
+                "dead_liquidity_fee_checkpoint" = EXCLUDED."dead_liquidity_fee_checkpoint",
                 "padding2" = EXCLUDED."padding2",
                 "sqrt_min_price" = EXCLUDED."sqrt_min_price",
                 "sqrt_max_price" = EXCLUDED."sqrt_max_price",
@@ -456,6 +469,7 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
         .bind(&self.padding1)
         .bind(&self.protocol_a_fee)
         .bind(&self.protocol_b_fee)
+        .bind(&self.dead_liquidity_fee_checkpoint)
         .bind(&self.padding2)
         .bind(&self.sqrt_min_price)
         .bind(&self.sqrt_max_price)
@@ -549,7 +563,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
                 "padding1" NUMERIC(39) NOT NULL,
                 "protocol_a_fee" NUMERIC(20) NOT NULL,
                 "protocol_b_fee" NUMERIC(20) NOT NULL,
-                "padding2" NUMERIC(39) NOT NULL,
+                "dead_liquidity_fee_checkpoint" NUMERIC(20) NOT NULL,
+                "padding2" BYTEA NOT NULL,
                 "sqrt_min_price" NUMERIC(39) NOT NULL,
                 "sqrt_max_price" NUMERIC(39) NOT NULL,
                 "sqrt_price" NUMERIC(39) NOT NULL,

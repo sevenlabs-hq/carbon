@@ -8,9 +8,9 @@ use {
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "InterestRateConfig")]
 pub struct InterestRateConfigGraphQL {
-    pub optimal_utilization_rate: WrappedI80F48GraphQL,
-    pub plateau_interest_rate: WrappedI80F48GraphQL,
-    pub max_interest_rate: WrappedI80F48GraphQL,
+    pub placeholder0: WrappedI80F48GraphQL,
+    pub placeholder1: WrappedI80F48GraphQL,
+    pub placeholder2: WrappedI80F48GraphQL,
     pub insurance_fee_fixed_apr: WrappedI80F48GraphQL,
     pub insurance_ir_fee: WrappedI80F48GraphQL,
     pub protocol_fixed_fee_apr: WrappedI80F48GraphQL,
@@ -29,9 +29,9 @@ pub struct InterestRateConfigGraphQL {
 impl From<crate::types::InterestRateConfig> for InterestRateConfigGraphQL {
     fn from(original: crate::types::InterestRateConfig) -> Self {
         Self {
-            optimal_utilization_rate: original.optimal_utilization_rate.into(),
-            plateau_interest_rate: original.plateau_interest_rate.into(),
-            max_interest_rate: original.max_interest_rate.into(),
+            placeholder0: original.placeholder0.into(),
+            placeholder1: original.placeholder1.into(),
+            placeholder2: original.placeholder2.into(),
             insurance_fee_fixed_apr: original.insurance_fee_fixed_apr.into(),
             insurance_ir_fee: original.insurance_ir_fee.into(),
             protocol_fixed_fee_apr: original.protocol_fixed_fee_apr.into(),

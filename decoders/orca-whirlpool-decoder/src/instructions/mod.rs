@@ -456,6 +456,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OrcaWhirlpoolDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            OrcaWhirlpoolInstruction::CpiEvent => CpiEvent,
             OrcaWhirlpoolInstruction::CloseBundledPosition => CloseBundledPosition,
             OrcaWhirlpoolInstruction::ClosePosition => ClosePosition,
             OrcaWhirlpoolInstruction::ClosePositionWithTokenExtensions => ClosePositionWithTokenExtensions,
@@ -522,7 +523,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OrcaWhirlpoolDecoder {
             OrcaWhirlpoolInstruction::TwoHopSwap => TwoHopSwap,
             OrcaWhirlpoolInstruction::TwoHopSwapV2 => TwoHopSwapV2,
             OrcaWhirlpoolInstruction::UpdateFeesAndRewards => UpdateFeesAndRewards,
-            OrcaWhirlpoolInstruction::CpiEvent => CpiEvent,
         )
     }
 }

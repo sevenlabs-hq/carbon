@@ -2,12 +2,15 @@
 pub mod close_limit_order_row;
 pub mod close_position_row;
 pub mod close_protocol_position_row;
+pub mod close_support_mint_associated_row;
+pub mod collect_excess_lamports_row;
 pub mod collect_fund_fee_row;
 pub mod collect_protocol_fee_row;
 pub mod collect_remaining_rewards_row;
 pub mod cpi_event_row;
 pub mod create_amm_config_row;
 pub mod create_customizable_pool_row;
+pub mod create_customizable_pool_v2_row;
 pub mod create_dynamic_fee_config_row;
 pub mod create_operation_account_row;
 pub mod create_pool_row;
@@ -37,8 +40,9 @@ pub mod update_reward_infos_row;
 
 pub use self::{
     close_limit_order_row::*, close_position_row::*, close_protocol_position_row::*,
-    collect_fund_fee_row::*, collect_protocol_fee_row::*, collect_remaining_rewards_row::*,
-    cpi_event_row::*, create_amm_config_row::*, create_customizable_pool_row::*,
+    close_support_mint_associated_row::*, collect_excess_lamports_row::*, collect_fund_fee_row::*,
+    collect_protocol_fee_row::*, collect_remaining_rewards_row::*, cpi_event_row::*,
+    create_amm_config_row::*, create_customizable_pool_row::*, create_customizable_pool_v2_row::*,
     create_dynamic_fee_config_row::*, create_operation_account_row::*, create_pool_row::*,
     create_support_mint_associated_row::*, decrease_limit_order_row::*, decrease_liquidity_row::*,
     decrease_liquidity_v2_row::*, increase_limit_order_row::*, increase_liquidity_row::*,
@@ -67,11 +71,14 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumClmmInstructionsMigrati
             Box::new(CloseLimitOrderMigrationOperation),
             Box::new(ClosePositionMigrationOperation),
             Box::new(CloseProtocolPositionMigrationOperation),
+            Box::new(CloseSupportMintAssociatedMigrationOperation),
+            Box::new(CollectExcessLamportsMigrationOperation),
             Box::new(CollectFundFeeMigrationOperation),
             Box::new(CollectProtocolFeeMigrationOperation),
             Box::new(CollectRemainingRewardsMigrationOperation),
             Box::new(CreateAmmConfigMigrationOperation),
             Box::new(CreateCustomizablePoolMigrationOperation),
+            Box::new(CreateCustomizablePoolV2MigrationOperation),
             Box::new(CreateDynamicFeeConfigMigrationOperation),
             Box::new(CreateOperationAccountMigrationOperation),
             Box::new(CreatePoolMigrationOperation),
@@ -141,6 +148,16 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumClmmInstructionsAbsolut
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "close_support_mint_associated_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "collect_excess_lamports_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "collect_fund_fee_instruction",
                 ),
             ),
@@ -162,6 +179,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumClmmInstructionsAbsolut
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "create_customizable_pool_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_customizable_pool_v2_instruction",
                 ),
             ),
             Box::new(
@@ -357,6 +379,25 @@ impl carbon_core::postgres::operations::Insert for RaydiumClmmInstructionWithMet
                 row.insert(pool).await?;
                 Ok(())
             }
+            RaydiumClmmInstruction::CloseSupportMintAssociated { data, .. } => {
+                let row =
+                    close_support_mint_associated_row::CloseSupportMintAssociatedRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            RaydiumClmmInstruction::CollectExcessLamports { data, .. } => {
+                let row = collect_excess_lamports_row::CollectExcessLamportsRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             RaydiumClmmInstruction::CollectFundFee { data, .. } => {
                 let row = collect_fund_fee_row::CollectFundFeeRow::from_parts(
                     data.clone(),
@@ -395,6 +436,15 @@ impl carbon_core::postgres::operations::Insert for RaydiumClmmInstructionWithMet
             }
             RaydiumClmmInstruction::CreateCustomizablePool { data, .. } => {
                 let row = create_customizable_pool_row::CreateCustomizablePoolRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            RaydiumClmmInstruction::CreateCustomizablePoolV2 { data, .. } => {
+                let row = create_customizable_pool_v2_row::CreateCustomizablePoolV2Row::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -683,6 +733,25 @@ impl carbon_core::postgres::operations::Upsert for RaydiumClmmInstructionWithMet
                 row.upsert(pool).await?;
                 Ok(())
             }
+            RaydiumClmmInstruction::CloseSupportMintAssociated { data, .. } => {
+                let row =
+                    close_support_mint_associated_row::CloseSupportMintAssociatedRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            RaydiumClmmInstruction::CollectExcessLamports { data, .. } => {
+                let row = collect_excess_lamports_row::CollectExcessLamportsRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             RaydiumClmmInstruction::CollectFundFee { data, .. } => {
                 let row = collect_fund_fee_row::CollectFundFeeRow::from_parts(
                     data.clone(),
@@ -721,6 +790,15 @@ impl carbon_core::postgres::operations::Upsert for RaydiumClmmInstructionWithMet
             }
             RaydiumClmmInstruction::CreateCustomizablePool { data, .. } => {
                 let row = create_customizable_pool_row::CreateCustomizablePoolRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            RaydiumClmmInstruction::CreateCustomizablePoolV2 { data, .. } => {
+                let row = create_customizable_pool_v2_row::CreateCustomizablePoolV2Row::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

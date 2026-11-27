@@ -17,6 +17,7 @@ pub struct SuperAdminDepositInstructionAccounts {
     pub admin_token_account: solana_pubkey::Pubkey,
     pub liquidity_vault: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -52,6 +53,7 @@ impl ArrangeAccounts for SuperAdminDeposit {
         let admin_token_account = next_account(&mut iter)?;
         let liquidity_vault = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -62,6 +64,7 @@ impl ArrangeAccounts for SuperAdminDeposit {
             admin_token_account,
             liquidity_vault,
             token_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

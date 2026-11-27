@@ -21,7 +21,7 @@ impl UpdateGroupMemberPointerRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            member_address: source.member_address.map(|value| value.into()),
+            member_address: source.member_address.0.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -33,7 +33,7 @@ impl TryFrom<UpdateGroupMemberPointerRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: UpdateGroupMemberPointerRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            member_address: source.member_address.map(|value| *value),
+            member_address: source.member_address.map(|value| *value).into(),
         })
     }
 }

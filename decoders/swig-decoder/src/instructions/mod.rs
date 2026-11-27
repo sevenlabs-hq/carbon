@@ -8,26 +8,41 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod add_authority_v1;
+pub mod add_authorization_lock_v1;
+pub mod close_sub_account_v1;
+pub mod close_sub_account_v2;
 pub mod close_swig_v1;
 pub mod close_token_account_v1;
+pub mod create_reserved_v1;
 pub mod create_session_v1;
 pub mod create_sub_account_v1;
+pub mod create_sub_account_v2;
 pub mod create_v1;
 pub mod deprecated_sign_v1;
 pub mod migrate_to_wallet_address_v1;
 pub mod remove_authority_v1;
+pub mod remove_authorization_lock_v1;
+pub mod replace_authority_v1;
+pub mod set_rent_claimer_v1;
 pub mod sign_v2;
 pub mod sub_account_sign_v1;
+pub mod sub_account_sign_v2;
 pub mod toggle_sub_account_v1;
+pub mod toggle_sub_account_v2;
 pub mod transfer_assets_v1;
 pub mod update_authority_v1;
 pub mod withdraw_from_sub_account_v1;
+pub mod withdraw_from_sub_account_v2;
 
 pub use self::{
-    add_authority_v1::*, close_swig_v1::*, close_token_account_v1::*, create_session_v1::*,
-    create_sub_account_v1::*, create_v1::*, deprecated_sign_v1::*, migrate_to_wallet_address_v1::*,
-    remove_authority_v1::*, sign_v2::*, sub_account_sign_v1::*, toggle_sub_account_v1::*,
-    transfer_assets_v1::*, update_authority_v1::*, withdraw_from_sub_account_v1::*,
+    add_authority_v1::*, add_authorization_lock_v1::*, close_sub_account_v1::*,
+    close_sub_account_v2::*, close_swig_v1::*, close_token_account_v1::*, create_reserved_v1::*,
+    create_session_v1::*, create_sub_account_v1::*, create_sub_account_v2::*, create_v1::*,
+    deprecated_sign_v1::*, migrate_to_wallet_address_v1::*, remove_authority_v1::*,
+    remove_authorization_lock_v1::*, replace_authority_v1::*, set_rent_claimer_v1::*, sign_v2::*,
+    sub_account_sign_v1::*, sub_account_sign_v2::*, toggle_sub_account_v1::*,
+    toggle_sub_account_v2::*, transfer_assets_v1::*, update_authority_v1::*,
+    withdraw_from_sub_account_v1::*, withdraw_from_sub_account_v2::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -40,6 +55,21 @@ pub enum SwigInstruction {
         data: AddAuthorityV1,
         accounts: AddAuthorityV1InstructionAccounts,
     },
+    AddAuthorizationLockV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: AddAuthorizationLockV1,
+        accounts: AddAuthorizationLockV1InstructionAccounts,
+    },
+    CloseSubAccountV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseSubAccountV1,
+        accounts: CloseSubAccountV1InstructionAccounts,
+    },
+    CloseSubAccountV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseSubAccountV2,
+        accounts: CloseSubAccountV2InstructionAccounts,
+    },
     CloseSwigV1 {
         program_id: solana_pubkey::Pubkey,
         data: CloseSwigV1,
@@ -50,6 +80,11 @@ pub enum SwigInstruction {
         data: CloseTokenAccountV1,
         accounts: CloseTokenAccountV1InstructionAccounts,
     },
+    CreateReservedV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateReservedV1,
+        accounts: CreateReservedV1InstructionAccounts,
+    },
     CreateSessionV1 {
         program_id: solana_pubkey::Pubkey,
         data: CreateSessionV1,
@@ -59,6 +94,11 @@ pub enum SwigInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CreateSubAccountV1,
         accounts: CreateSubAccountV1InstructionAccounts,
+    },
+    CreateSubAccountV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateSubAccountV2,
+        accounts: CreateSubAccountV2InstructionAccounts,
     },
     CreateV1 {
         program_id: solana_pubkey::Pubkey,
@@ -80,6 +120,21 @@ pub enum SwigInstruction {
         data: RemoveAuthorityV1,
         accounts: RemoveAuthorityV1InstructionAccounts,
     },
+    RemoveAuthorizationLockV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: RemoveAuthorizationLockV1,
+        accounts: RemoveAuthorizationLockV1InstructionAccounts,
+    },
+    ReplaceAuthorityV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: ReplaceAuthorityV1,
+        accounts: ReplaceAuthorityV1InstructionAccounts,
+    },
+    SetRentClaimerV1 {
+        program_id: solana_pubkey::Pubkey,
+        data: SetRentClaimerV1,
+        accounts: SetRentClaimerV1InstructionAccounts,
+    },
     SignV2 {
         program_id: solana_pubkey::Pubkey,
         data: SignV2,
@@ -90,10 +145,20 @@ pub enum SwigInstruction {
         data: SubAccountSignV1,
         accounts: SubAccountSignV1InstructionAccounts,
     },
+    SubAccountSignV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SubAccountSignV2,
+        accounts: SubAccountSignV2InstructionAccounts,
+    },
     ToggleSubAccountV1 {
         program_id: solana_pubkey::Pubkey,
         data: ToggleSubAccountV1,
         accounts: ToggleSubAccountV1InstructionAccounts,
+    },
+    ToggleSubAccountV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: ToggleSubAccountV2,
+        accounts: ToggleSubAccountV2InstructionAccounts,
     },
     TransferAssetsV1 {
         program_id: solana_pubkey::Pubkey,
@@ -109,6 +174,11 @@ pub enum SwigInstruction {
         program_id: solana_pubkey::Pubkey,
         data: WithdrawFromSubAccountV1,
         accounts: WithdrawFromSubAccountV1InstructionAccounts,
+    },
+    WithdrawFromSubAccountV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawFromSubAccountV2,
+        accounts: WithdrawFromSubAccountV2InstructionAccounts,
     },
 }
 
@@ -127,20 +197,31 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
             instruction,
             PROGRAM_ID,
             SwigInstruction::AddAuthorityV1 => AddAuthorityV1,
+            SwigInstruction::AddAuthorizationLockV1 => AddAuthorizationLockV1,
+            SwigInstruction::CloseSubAccountV1 => CloseSubAccountV1,
+            SwigInstruction::CloseSubAccountV2 => CloseSubAccountV2,
             SwigInstruction::CloseSwigV1 => CloseSwigV1,
             SwigInstruction::CloseTokenAccountV1 => CloseTokenAccountV1,
+            SwigInstruction::CreateReservedV1 => CreateReservedV1,
             SwigInstruction::CreateSessionV1 => CreateSessionV1,
             SwigInstruction::CreateSubAccountV1 => CreateSubAccountV1,
+            SwigInstruction::CreateSubAccountV2 => CreateSubAccountV2,
             SwigInstruction::CreateV1 => CreateV1,
             SwigInstruction::DeprecatedSignV1 => DeprecatedSignV1,
             SwigInstruction::MigrateToWalletAddressV1 => MigrateToWalletAddressV1,
             SwigInstruction::RemoveAuthorityV1 => RemoveAuthorityV1,
+            SwigInstruction::RemoveAuthorizationLockV1 => RemoveAuthorizationLockV1,
+            SwigInstruction::ReplaceAuthorityV1 => ReplaceAuthorityV1,
+            SwigInstruction::SetRentClaimerV1 => SetRentClaimerV1,
             SwigInstruction::SignV2 => SignV2,
             SwigInstruction::SubAccountSignV1 => SubAccountSignV1,
+            SwigInstruction::SubAccountSignV2 => SubAccountSignV2,
             SwigInstruction::ToggleSubAccountV1 => ToggleSubAccountV1,
+            SwigInstruction::ToggleSubAccountV2 => ToggleSubAccountV2,
             SwigInstruction::TransferAssetsV1 => TransferAssetsV1,
             SwigInstruction::UpdateAuthorityV1 => UpdateAuthorityV1,
             SwigInstruction::WithdrawFromSubAccountV1 => WithdrawFromSubAccountV1,
+            SwigInstruction::WithdrawFromSubAccountV2 => WithdrawFromSubAccountV2,
         )
     }
 }

@@ -34,6 +34,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for KaminoLimitOrderDecoder {
         let data = account.data.as_slice();
 
         {
+            if let Some(decoded) = global_config::GlobalConfig::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: KaminoLimitOrderAccount::GlobalConfig(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
             if let Some(decoded) = order::Order::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
@@ -49,17 +60,6 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for KaminoLimitOrderDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: KaminoLimitOrderAccount::UserSwapBalancesState(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
-        }
-        {
-            if let Some(decoded) = global_config::GlobalConfig::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: KaminoLimitOrderAccount::GlobalConfig(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

@@ -41,7 +41,7 @@ pub struct AmmInfoRow {
     pub market: Pubkey,
     pub market_program: Pubkey,
     pub target_orders: Pubkey,
-    pub padding1: sqlx::types::Json<Vec<U64>>,
+    pub padding1: Vec<U64>,
     pub amm_owner: Pubkey,
     pub lp_amount: U64,
     pub client_order_id: U64,
@@ -83,7 +83,11 @@ impl AmmInfoRow {
             market: source.market.into(),
             market_program: source.market_program.into(),
             target_orders: source.target_orders.into(),
-            padding1: sqlx::types::Json(source.padding1.into_iter().map(U64).collect()),
+            padding1: source
+                .padding1
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
             amm_owner: source.amm_owner.into(),
             lp_amount: source.lp_amount.into(),
             client_order_id: source.client_order_id.into(),
@@ -126,10 +130,14 @@ impl TryFrom<AmmInfoRow> for crate::accounts::amm_info::AmmInfo {
             target_orders: *source.target_orders,
             padding1: source
                 .padding1
-                .0
                 .into_iter()
-                .map(|element| *element)
-                .collect::<Vec<u64>>()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -472,7 +480,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmInfoMigrationOperation {
                 "market" BYTEA NOT NULL,
                 "market_program" BYTEA NOT NULL,
                 "target_orders" BYTEA NOT NULL,
-                "padding1" JSONB NOT NULL,
+                "padding1" NUMERIC(20)[] NOT NULL,
                 "amm_owner" BYTEA NOT NULL,
                 "lp_amount" NUMERIC(20) NOT NULL,
                 "client_order_id" NUMERIC(20) NOT NULL,

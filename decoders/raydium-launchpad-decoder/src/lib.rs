@@ -3,6 +3,7 @@ use solana_pubkey::Pubkey;
 pub struct RaydiumLaunchpadDecoder;
 pub const PROGRAM_ID: Pubkey =
     solana_pubkey::Pubkey::from_str_const("LanMV9sAd7wArD4vJFi2qDdfnVhFxYSUg6eADduJ3uj");
+pub const EVENT_CPI_DISCRIMINATOR: &[u8] = &[228, 69, 165, 46, 81, 203, 154, 29];
 
 pub mod accounts;
 pub mod events;

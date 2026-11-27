@@ -16,6 +16,7 @@ pub mod transfer_fee_row;
 pub mod transfer_sol_row;
 pub mod transfer_to_sponsor_row;
 pub mod unwrap_sol_row;
+pub mod withdraw_fees_row;
 pub mod wrap_sol_row;
 
 pub use self::{
@@ -24,7 +25,8 @@ pub use self::{
     init_market_ledger_idempotent_row::*, open_order_row::*, swap2_row::*,
     swap2_with_destination_native_row::*, swap2_with_destination_row::*, swap_row::*,
     swap_with_destination_native_row::*, swap_with_destination_row::*, transfer_fee_row::*,
-    transfer_sol_row::*, transfer_to_sponsor_row::*, unwrap_sol_row::*, wrap_sol_row::*,
+    transfer_sol_row::*, transfer_to_sponsor_row::*, unwrap_sol_row::*, withdraw_fees_row::*,
+    wrap_sol_row::*,
 };
 use super::DflowAggregatorV4Instruction;
 
@@ -57,6 +59,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DflowAggregatorV4InstructionsM
             Box::new(TransferSolMigrationOperation),
             Box::new(TransferToSponsorMigrationOperation),
             Box::new(UnwrapSolMigrationOperation),
+            Box::new(WithdrawFeesMigrationOperation),
             Box::new(WrapSolMigrationOperation),
             Box::new(CpiEventMigrationOperation),
         ]
@@ -160,6 +163,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres>
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "unwrap_sol_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "withdraw_fees_instruction",
                 ),
             ),
             Box::new(
@@ -349,6 +357,15 @@ impl carbon_core::postgres::operations::Insert for DflowAggregatorV4InstructionW
                 row.insert(pool).await?;
                 Ok(())
             }
+            DflowAggregatorV4Instruction::WithdrawFees { data, .. } => {
+                let row = withdraw_fees_row::WithdrawFeesRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             DflowAggregatorV4Instruction::WrapSol { data, .. } => {
                 let row = wrap_sol_row::WrapSolRow::from_parts(
                     data.clone(),
@@ -513,6 +530,15 @@ impl carbon_core::postgres::operations::Upsert for DflowAggregatorV4InstructionW
             }
             DflowAggregatorV4Instruction::UnwrapSol { data, .. } => {
                 let row = unwrap_sol_row::UnwrapSolRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            DflowAggregatorV4Instruction::WithdrawFees { data, .. } => {
+                let row = withdraw_fees_row::WithdrawFeesRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

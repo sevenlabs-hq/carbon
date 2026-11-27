@@ -19,6 +19,7 @@ pub enum UpdateObligationConfigModeGraphQL {
     FixedTermRolloverMinDebtTermSeconds,
     FixedTermRolloverOpenTermAllowed,
     MigrationToFixedEnabled,
+    FixedTermRolloverWindowDurationDays,
 }
 
 impl From<crate::types::UpdateObligationConfigMode> for UpdateObligationConfigModeGraphQL {
@@ -38,6 +39,9 @@ impl From<crate::types::UpdateObligationConfigMode> for UpdateObligationConfigMo
             }
             crate::types::UpdateObligationConfigMode::MigrationToFixedEnabled => {
                 Self::MigrationToFixedEnabled
+            }
+            crate::types::UpdateObligationConfigMode::FixedTermRolloverWindowDurationDays => {
+                Self::FixedTermRolloverWindowDurationDays
             }
         }
     }

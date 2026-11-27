@@ -3,6 +3,7 @@ use {
     crate::types::MetadataArgs,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Mints a new asset and adds it to a Token Metadata collection.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct MintToCollectionV1 {

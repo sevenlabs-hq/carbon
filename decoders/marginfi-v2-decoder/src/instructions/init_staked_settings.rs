@@ -3,10 +3,10 @@ use {
     crate::types::StakedSettingsConfig,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (group admin only) Init the Staked Settings account, which is used to create
-/// staked collateral banks, and must run before any staked collateral bank can
-/// be created with `add_pool_permissionless`. Running this ix effectively opts
-/// the group into the staked collateral feature.
+/// (slow governance_admin only) Init the Staked Settings account, which is used
+/// to create staked collateral banks, and must run before any staked collateral
+/// bank can be created with `add_pool_permissionless`. Running this ix
+/// effectively opts the group into the staked collateral feature.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct InitStakedSettings {
@@ -17,10 +17,11 @@ pub struct InitStakedSettings {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct InitStakedSettingsInstructionAccounts {
     pub marginfi_group: solana_pubkey::Pubkey,
-    pub admin: solana_pubkey::Pubkey,
+    pub governance_admin: solana_pubkey::Pubkey,
     pub fee_payer: solana_pubkey::Pubkey,
     pub staked_settings: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -51,19 +52,21 @@ impl ArrangeAccounts for InitStakedSettings {
         let mut iter = accounts.iter();
 
         let marginfi_group = next_account(&mut iter)?;
-        let admin = next_account(&mut iter)?;
+        let governance_admin = next_account(&mut iter)?;
         let fee_payer = next_account(&mut iter)?;
         let staked_settings = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(InitStakedSettingsInstructionAccounts {
             marginfi_group,
-            admin,
+            governance_admin,
             fee_payer,
             staked_settings,
             system_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

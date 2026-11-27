@@ -79,7 +79,7 @@ pub struct LendingMarket {
     /// inflation Note: this amount cannot be recovered, the ctoken
     /// associated are never minted
     pub min_initial_deposit_amount: u64,
-    /// Whether the obligation orders should be evaluated during liquidations.
+    /// Whether execution of obligation orders is enabled.
     pub obligation_order_execution_enabled: u8,
     /// Whether the lending market is set as immutable.
     pub immutable: u8,
@@ -139,13 +139,25 @@ pub struct LendingMarket {
     /// recover ctokens from the queued collateral vault back to their
     /// wallet).
     pub withdraw_ticket_cancellation_enabled: u8,
-    pub padding2: [u8; 1],
+    /// When non-zero, ongoing-admin instructions targeting this market are
+    /// allowed to be part of a durable (nonce-based) transaction. Defaults
+    /// to 0 — any `advance_nonce_account` ix found in the transaction
+    /// causes admin ix to fail with `TransactionIncludesNonceInstruction`.
+    /// Intended for markets administrated via MPC wallets that require durable
+    /// nonces. Note: this flag only covers ongoing admin ix on an existing
+    /// market. Bootstrap-only ix (`init_lending_market`) and global-config
+    /// ix (`init_global_config`, `update_global_config`,
+    /// `update_global_config_admin`) remain unconditionally blocked.
+    pub disable_nonce_block: u8,
     /// Maximum APR (in basis points; `FULL_BPS = 10_000` = 100%) at which
     /// reserves on this market may distribute their
-    /// `rewards_amount_per_slot`. `0` disables rewards on this market
+    /// `rewards_amount_per_accrual_unit`. `0` disables rewards on this market
     /// entirely (`topup_reserve_rewards` is rejected). Bounded by `FULL_BPS`
-    /// (100% APR) when set. See [ReserveConfig::rewards_amount_per_slot]
-    /// for the depositor-cap interaction.
+    /// (100% APR) when set. The APR is interpreted per each reserve's
+    /// interest rate basis: a true wall-clock APR for `TrueApr` reserves, a
+    /// nominal slot-year APR for `Legacy` ones.
+    /// See [ReserveConfig::rewards_amount_per_accrual_unit] for the
+    /// depositor-cap interaction.
     pub reserve_rewards_max_apr_bps: u16,
     /// Minimum value that can be withdrawn in a single
     /// `withdraw_queued_liquidity()` call, in full units of the quote
@@ -201,8 +213,13 @@ pub struct LendingMarket {
     pub permissioning_authority: Pubkey,
     /// Bitmap of operations that require permissioning authority signature
     pub permissioned_ops: u64,
+    /// Minimum value that can be moved (borrowed for lever-up, or repaid for
+    /// deleverage) in a single `execute_obligation_order()` call, in full
+    /// units of the quote currency (e.g. `2` means "$2", not "2 lamports of
+    /// USDC").
+    pub min_obligation_order_execution_value: u64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub padding1: [u64; 153],
+    pub padding1: [u64; 152],
 }
 
 impl LendingMarket {

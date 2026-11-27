@@ -10,7 +10,7 @@ pub struct FixedTermBorrowRolloverConfigGraphQL {
     pub auto_rollover_enabled: U8,
     pub open_term_allowed: U8,
     pub migration_to_fixed_enabled: U8,
-    pub alignment_padding: Vec<U8>,
+    pub fixed_term_rollover_window_duration_days: U8,
     pub max_borrow_rate_bps: U32,
     pub min_debt_term_seconds: U64,
 }
@@ -25,11 +25,9 @@ impl From<crate::types::FixedTermBorrowRolloverConfig> for FixedTermBorrowRollov
             migration_to_fixed_enabled: carbon_core::graphql::primitives::U8(
                 original.migration_to_fixed_enabled,
             ),
-            alignment_padding: original
-                .alignment_padding
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
+            fixed_term_rollover_window_duration_days: carbon_core::graphql::primitives::U8(
+                original.fixed_term_rollover_window_duration_days,
+            ),
             max_borrow_rate_bps: carbon_core::graphql::primitives::U32(
                 original.max_borrow_rate_bps,
             ),

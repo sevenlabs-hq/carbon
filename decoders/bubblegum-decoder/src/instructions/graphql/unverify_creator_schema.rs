@@ -29,17 +29,17 @@ impl TryFrom<crate::instructions::postgres::UnverifyCreatorRow> for UnverifyCrea
             root: row
                 .root
                 .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
+                .map(|x| carbon_core::graphql::primitives::U8((*x) as u8))
                 .collect(),
             data_hash: row
                 .data_hash
                 .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
+                .map(|x| carbon_core::graphql::primitives::U8((*x) as u8))
                 .collect(),
             creator_hash: row
                 .creator_hash
                 .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
+                .map(|x| carbon_core::graphql::primitives::U8((*x) as u8))
                 .collect(),
             nonce: carbon_core::graphql::primitives::U64(*row.nonce),
             index: carbon_core::graphql::primitives::U32((*row.index) as u32),

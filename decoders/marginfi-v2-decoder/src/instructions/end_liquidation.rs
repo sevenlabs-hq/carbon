@@ -12,10 +12,12 @@ pub struct EndLiquidation {}
 pub struct EndLiquidationInstructionAccounts {
     pub marginfi_account: solana_pubkey::Pubkey,
     pub liquidation_record: solana_pubkey::Pubkey,
+    pub group: solana_pubkey::Pubkey,
     pub liquidation_receiver: solana_pubkey::Pubkey,
     pub fee_state: solana_pubkey::Pubkey,
     pub global_fee_wallet: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub fee_payer: Option<solana_pubkey::Pubkey>,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -47,20 +49,24 @@ impl ArrangeAccounts for EndLiquidation {
 
         let marginfi_account = next_account(&mut iter)?;
         let liquidation_record = next_account(&mut iter)?;
+        let group = next_account(&mut iter)?;
         let liquidation_receiver = next_account(&mut iter)?;
         let fee_state = next_account(&mut iter)?;
         let global_fee_wallet = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let fee_payer = next_account(&mut iter);
 
         let remaining = iter.as_slice();
 
         Some(EndLiquidationInstructionAccounts {
             marginfi_account,
             liquidation_record,
+            group,
             liquidation_receiver,
             fee_state,
             global_fee_wallet,
             system_program,
+            fee_payer,
             remaining: remaining.to_vec(),
         })
     }

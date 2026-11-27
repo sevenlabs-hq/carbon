@@ -1871,6 +1871,48 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn configure_confidential_transfer_account_with_registry(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<
+        Vec<crate::instructions::graphql::ConfigureConfidentialTransferAccountWithRegistryGraphQL>,
+    > {
+        let rows: Vec<crate::instructions::postgres::ConfigureConfidentialTransferAccountWithRegistryRow> = sqlx::query_as(
+            r#"SELECT * FROM configure_confidential_transfer_account_with_registry_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_configure_confidential_transfer_account_with_registry(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<
+        Vec<crate::instructions::graphql::ConfigureConfidentialTransferAccountWithRegistryGraphQL>,
+    > {
+        let rows: Vec<crate::instructions::postgres::ConfigureConfidentialTransferAccountWithRegistryRow> = sqlx::query_as(
+            r#"SELECT * FROM configure_confidential_transfer_account_with_registry_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn initialize_default_account_state(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -2899,6 +2941,238 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn initialize_confidential_mint_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialMintBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::InitializeConfidentialMintBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM initialize_confidential_mint_burn_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_initialize_confidential_mint_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialMintBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::InitializeConfidentialMintBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM initialize_confidential_mint_burn_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn rotate_supply_elgamal_pubkey(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RotateSupplyElgamalPubkeyGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RotateSupplyElgamalPubkeyRow> = sqlx::query_as(
+            r#"SELECT * FROM rotate_supply_elgamal_pubkey_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_rotate_supply_elgamal_pubkey(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RotateSupplyElgamalPubkeyGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RotateSupplyElgamalPubkeyRow> = sqlx::query_as(
+            r#"SELECT * FROM rotate_supply_elgamal_pubkey_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn update_confidential_mint_burn_decryptable_supply(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<
+        Vec<crate::instructions::graphql::UpdateConfidentialMintBurnDecryptableSupplyGraphQL>,
+    > {
+        let rows: Vec<crate::instructions::postgres::UpdateConfidentialMintBurnDecryptableSupplyRow> = sqlx::query_as(
+            r#"SELECT * FROM update_confidential_mint_burn_decryptable_supply_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_update_confidential_mint_burn_decryptable_supply(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<
+        Vec<crate::instructions::graphql::UpdateConfidentialMintBurnDecryptableSupplyGraphQL>,
+    > {
+        let rows: Vec<crate::instructions::postgres::UpdateConfidentialMintBurnDecryptableSupplyRow> = sqlx::query_as(
+            r#"SELECT * FROM update_confidential_mint_burn_decryptable_supply_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn confidential_mint(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ConfidentialMintGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ConfidentialMintRow> = sqlx::query_as(
+            r#"SELECT * FROM confidential_mint_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_confidential_mint(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ConfidentialMintGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ConfidentialMintRow> = sqlx::query_as(
+            r#"SELECT * FROM confidential_mint_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn confidential_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ConfidentialBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ConfidentialBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM confidential_burn_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_confidential_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ConfidentialBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ConfidentialBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM confidential_burn_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn apply_confidential_pending_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ApplyConfidentialPendingBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ApplyConfidentialPendingBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM apply_confidential_pending_burn_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_apply_confidential_pending_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ApplyConfidentialPendingBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ApplyConfidentialPendingBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM apply_confidential_pending_burn_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn initialize_scaled_ui_amount_mint(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -3575,6 +3849,82 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::PermissionedBurnCheckedGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PermissionedBurnCheckedRow> = sqlx::query_as(
             r#"SELECT * FROM permissioned_burn_checked_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn permissioned_confidential_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PermissionedConfidentialBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PermissionedConfidentialBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM permissioned_confidential_burn_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_permissioned_confidential_burn(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PermissionedConfidentialBurnGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PermissionedConfidentialBurnRow> = sqlx::query_as(
+            r#"SELECT * FROM permissioned_confidential_burn_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn batch(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::BatchGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::BatchRow> = sqlx::query_as(
+            r#"SELECT * FROM batch_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_batch(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::BatchGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::BatchRow> = sqlx::query_as(
+            r#"SELECT * FROM batch_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

@@ -21,7 +21,7 @@ pub struct AddLiquidityInstructionAccounts {
     pub token_a_mint: solana_pubkey::Pubkey,
     pub token_b_mint: solana_pubkey::Pubkey,
     pub position_nft_account: solana_pubkey::Pubkey,
-    pub owner: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub token_a_program: solana_pubkey::Pubkey,
     pub token_b_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
@@ -64,7 +64,7 @@ impl ArrangeAccounts for AddLiquidity {
         let token_a_mint = next_account(&mut iter)?;
         let token_b_mint = next_account(&mut iter)?;
         let position_nft_account = next_account(&mut iter)?;
-        let owner = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let token_a_program = next_account(&mut iter)?;
         let token_b_program = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
@@ -82,7 +82,7 @@ impl ArrangeAccounts for AddLiquidity {
             token_a_mint,
             token_b_mint,
             position_nft_account,
-            owner,
+            signer,
             token_a_program,
             token_b_program,
             event_authority,

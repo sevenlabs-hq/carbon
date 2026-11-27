@@ -13,4 +13,9 @@ pub struct UpdatePoolFeesParameters {
     /// - Some(with non default value): enable dynamic fee if disabled or update
     ///   dynamic fee if enabled
     pub dynamic_fee: Option<DynamicFeeParameters>,
+    /// Compounding fee update mode:
+    /// - None: skip compounding fee update
+    /// - Some: update compounding_fee_bps; pool must use
+    ///   CollectFeeMode::Compounding
+    pub compounding_fee_bps: Option<u16>,
 }

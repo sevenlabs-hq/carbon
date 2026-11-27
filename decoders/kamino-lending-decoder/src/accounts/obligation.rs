@@ -72,15 +72,24 @@ pub struct Obligation {
     /// Typical use-cases would be a stop-loss and a take-profit (possibly
     /// co-existing).
     pub obligation_orders: [ObligationOrder; 2],
-    /// Owner-defined, permissionlessly-executed borrow order applicable to this
-    /// obligation. Non-zeroed only on a newly-initialized fixed-rate,
-    /// fixed-term obligation.
-    pub borrow_order: BorrowOrder,
+    /// The first of the owner-defined, permissionlessly-executed borrow order
+    /// applicable to this obligation.
+    /// ## Why "head"?
+    /// We started with a single BO, and later needed to add support for having
+    /// multiple BOs (while the next field was already added and released).
+    /// Hence, the entire array of BOs is split between this singular field
+    /// and [Self::tail_borrow_orders]. We explicitly renamed this one
+    /// to "head_..." so that all usages are aware of the split - in fact, the
+    /// callers should use the public [Self::get_borrow_order()] /
+    /// [Self::get_borrow_order_mut()] for uniform access to the abstract
+    /// "array of BOs".
+    pub head_borrow_order: BorrowOrder,
     /// Pending owner during ownership transfer process.
     /// Pubkey::default() means no pending owner (similar to Option::None)
     pub pending_owner: Pubkey,
-    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub padding3: [u64; 69],
+    /// The tail of the BOs array (see [Self::head_borrow_order]).
+    pub tail_borrow_orders: [BorrowOrder; 2],
+    pub padding3: [u64; 29],
 }
 
 impl Obligation {

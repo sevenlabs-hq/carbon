@@ -31,7 +31,7 @@ impl TryFrom<ReallocateRow> for crate::instructions::reallocate::Reallocate {
     type Error = carbon_core::error::Error;
     fn try_from(source: ReallocateRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            new_extension_types: source.new_extension_types.0,
+            new_extension_types: source.new_extension_types.0.into(),
         })
     }
 }

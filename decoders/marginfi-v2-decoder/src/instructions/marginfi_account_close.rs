@@ -12,6 +12,7 @@ pub struct MarginfiAccountCloseInstructionAccounts {
     pub marginfi_account: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
     pub fee_payer: solana_pubkey::Pubkey,
+    pub rebalance_fee_pool: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -44,6 +45,7 @@ impl ArrangeAccounts for MarginfiAccountClose {
         let marginfi_account = next_account(&mut iter)?;
         let authority = next_account(&mut iter)?;
         let fee_payer = next_account(&mut iter)?;
+        let rebalance_fee_pool = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -51,6 +53,7 @@ impl ArrangeAccounts for MarginfiAccountClose {
             marginfi_account,
             authority,
             fee_payer,
+            rebalance_fee_pool,
             remaining: remaining.to_vec(),
         })
     }

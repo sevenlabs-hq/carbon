@@ -8,26 +8,32 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod add_strategy;
-pub mod collect_dust;
+pub mod claim_rewards;
 pub mod cpi_event;
 pub mod deposit;
 pub mod deposit_strategy;
 pub mod enable_vault;
+pub mod get_unlocked_amount;
 pub mod initialize;
+pub mod initialize_idle_vault;
 pub mod initialize_strategy;
+pub mod migrate_vault;
 pub mod remove_strategy;
 pub mod remove_strategy2;
 pub mod set_operator;
+pub mod transfer_admin;
+pub mod transfer_fee_vault;
+pub mod update_locked_profit_degradation;
 pub mod withdraw;
-pub mod withdraw2;
 pub mod withdraw_directly_from_strategy;
 pub mod withdraw_strategy;
 
 pub use self::{
-    add_strategy::*, collect_dust::*, cpi_event::*, deposit::*, deposit_strategy::*,
-    enable_vault::*, initialize::*, initialize_strategy::*, remove_strategy::*,
-    remove_strategy2::*, set_operator::*, withdraw::*, withdraw2::*,
-    withdraw_directly_from_strategy::*, withdraw_strategy::*,
+    add_strategy::*, claim_rewards::*, cpi_event::*, deposit::*, deposit_strategy::*,
+    enable_vault::*, get_unlocked_amount::*, initialize::*, initialize_idle_vault::*,
+    initialize_strategy::*, migrate_vault::*, remove_strategy::*, remove_strategy2::*,
+    set_operator::*, transfer_admin::*, transfer_fee_vault::*, update_locked_profit_degradation::*,
+    withdraw::*, withdraw_directly_from_strategy::*, withdraw_strategy::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -40,10 +46,10 @@ pub enum MeteoraVaultInstruction {
         data: AddStrategy,
         accounts: AddStrategyInstructionAccounts,
     },
-    CollectDust {
+    ClaimRewards {
         program_id: solana_pubkey::Pubkey,
-        data: CollectDust,
-        accounts: CollectDustInstructionAccounts,
+        data: ClaimRewards,
+        accounts: ClaimRewardsInstructionAccounts,
     },
     Deposit {
         program_id: solana_pubkey::Pubkey,
@@ -60,15 +66,30 @@ pub enum MeteoraVaultInstruction {
         data: EnableVault,
         accounts: EnableVaultInstructionAccounts,
     },
+    GetUnlockedAmount {
+        program_id: solana_pubkey::Pubkey,
+        data: GetUnlockedAmount,
+        accounts: GetUnlockedAmountInstructionAccounts,
+    },
     Initialize {
         program_id: solana_pubkey::Pubkey,
         data: Initialize,
         accounts: InitializeInstructionAccounts,
     },
+    InitializeIdleVault {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeIdleVault,
+        accounts: InitializeIdleVaultInstructionAccounts,
+    },
     InitializeStrategy {
         program_id: solana_pubkey::Pubkey,
         data: InitializeStrategy,
         accounts: InitializeStrategyInstructionAccounts,
+    },
+    MigrateVault {
+        program_id: solana_pubkey::Pubkey,
+        data: MigrateVault,
+        accounts: MigrateVaultInstructionAccounts,
     },
     RemoveStrategy {
         program_id: solana_pubkey::Pubkey,
@@ -85,15 +106,25 @@ pub enum MeteoraVaultInstruction {
         data: SetOperator,
         accounts: SetOperatorInstructionAccounts,
     },
+    TransferAdmin {
+        program_id: solana_pubkey::Pubkey,
+        data: TransferAdmin,
+        accounts: TransferAdminInstructionAccounts,
+    },
+    TransferFeeVault {
+        program_id: solana_pubkey::Pubkey,
+        data: TransferFeeVault,
+        accounts: TransferFeeVaultInstructionAccounts,
+    },
+    UpdateLockedProfitDegradation {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateLockedProfitDegradation,
+        accounts: UpdateLockedProfitDegradationInstructionAccounts,
+    },
     Withdraw {
         program_id: solana_pubkey::Pubkey,
         data: Withdraw,
         accounts: WithdrawInstructionAccounts,
-    },
-    Withdraw2 {
-        program_id: solana_pubkey::Pubkey,
-        data: Withdraw2,
-        accounts: Withdraw2InstructionAccounts,
     },
     WithdrawDirectlyFromStrategy {
         program_id: solana_pubkey::Pubkey,
@@ -126,21 +157,26 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraVaultDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            MeteoraVaultInstruction::CpiEvent => CpiEvent,
             MeteoraVaultInstruction::AddStrategy => AddStrategy,
-            MeteoraVaultInstruction::CollectDust => CollectDust,
+            MeteoraVaultInstruction::ClaimRewards => ClaimRewards,
             MeteoraVaultInstruction::Deposit => Deposit,
             MeteoraVaultInstruction::DepositStrategy => DepositStrategy,
             MeteoraVaultInstruction::EnableVault => EnableVault,
+            MeteoraVaultInstruction::GetUnlockedAmount => GetUnlockedAmount,
             MeteoraVaultInstruction::Initialize => Initialize,
+            MeteoraVaultInstruction::InitializeIdleVault => InitializeIdleVault,
             MeteoraVaultInstruction::InitializeStrategy => InitializeStrategy,
+            MeteoraVaultInstruction::MigrateVault => MigrateVault,
             MeteoraVaultInstruction::RemoveStrategy => RemoveStrategy,
             MeteoraVaultInstruction::RemoveStrategy2 => RemoveStrategy2,
             MeteoraVaultInstruction::SetOperator => SetOperator,
+            MeteoraVaultInstruction::TransferAdmin => TransferAdmin,
+            MeteoraVaultInstruction::TransferFeeVault => TransferFeeVault,
+            MeteoraVaultInstruction::UpdateLockedProfitDegradation => UpdateLockedProfitDegradation,
             MeteoraVaultInstruction::Withdraw => Withdraw,
-            MeteoraVaultInstruction::Withdraw2 => Withdraw2,
             MeteoraVaultInstruction::WithdrawDirectlyFromStrategy => WithdrawDirectlyFromStrategy,
             MeteoraVaultInstruction::WithdrawStrategy => WithdrawStrategy,
-            MeteoraVaultInstruction::CpiEvent => CpiEvent,
         )
     }
 }

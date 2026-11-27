@@ -5,7 +5,7 @@ use carbon_core::{instruction::InstructionMetadata, postgres::metadata::Instruct
 pub struct UiAmountToAmountRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
-    pub ui_amount: String,
+    pub ui_amount: Vec<u8>,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -166,7 +166,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UiAmountToAmountMigrationOpera
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS ui_amount_to_amount_instruction (
                 -- Instruction data
-                "ui_amount" TEXT NOT NULL,
+                "ui_amount" BYTEA NOT NULL,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

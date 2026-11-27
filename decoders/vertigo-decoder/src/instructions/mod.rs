@@ -73,13 +73,13 @@ impl carbon_core::instruction::InstructionDecoder<'_> for VertigoDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            VertigoInstruction::CpiEvent => CpiEvent,
             VertigoInstruction::Buy => Buy,
             VertigoInstruction::Claim => Claim,
             VertigoInstruction::Create => Create,
             VertigoInstruction::QuoteBuy => QuoteBuy,
             VertigoInstruction::QuoteSell => QuoteSell,
             VertigoInstruction::Sell => Sell,
-            VertigoInstruction::CpiEvent => CpiEvent,
         )
     }
 }

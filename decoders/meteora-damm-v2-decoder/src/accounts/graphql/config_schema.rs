@@ -19,6 +19,7 @@ pub struct ConfigGraphQL {
     pub index: U64,
     pub sqrt_min_price: U128,
     pub sqrt_max_price: U128,
+    pub permission: U128,
     pub padding1: Vec<U64>,
 }
 
@@ -43,6 +44,7 @@ impl TryFrom<crate::accounts::postgres::ConfigRow> for ConfigGraphQL {
             index: carbon_core::graphql::primitives::U64(*row.index),
             sqrt_min_price: carbon_core::graphql::primitives::U128(*row.sqrt_min_price),
             sqrt_max_price: carbon_core::graphql::primitives::U128(*row.sqrt_max_price),
+            permission: carbon_core::graphql::primitives::U128(*row.permission),
             padding1: row
                 .padding1
                 .into_iter()

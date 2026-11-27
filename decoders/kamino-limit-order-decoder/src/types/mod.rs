@@ -2,15 +2,8 @@
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod express_relay_metadata;
 pub mod order_display;
-pub mod order_status;
-pub mod order_type;
-pub mod update_global_config_mode;
-pub mod update_global_config_value;
-pub mod update_order_mode;
 pub mod user_swap_balance_diffs;
 
-pub use self::{
-    order_display::*, order_status::*, order_type::*, update_global_config_mode::*,
-    update_global_config_value::*, update_order_mode::*, user_swap_balance_diffs::*,
-};
+pub use self::{express_relay_metadata::*, order_display::*, user_swap_balance_diffs::*};

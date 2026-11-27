@@ -17,7 +17,8 @@ pub struct SocialFeePdaRow {
     pub platform: U8,
     pub total_claimed: U64,
     pub last_claimed: U64,
-    pub reserved: Vec<U8>,
+    pub total_stable_claimed: U64,
+    pub reserved: Vec<u8>,
 }
 
 impl SocialFeePdaRow {
@@ -33,11 +34,8 @@ impl SocialFeePdaRow {
             platform: source.platform.into(),
             total_claimed: source.total_claimed.into(),
             last_claimed: source.last_claimed.into(),
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            total_stable_claimed: source.total_stable_claimed.into(),
+            reserved: source.reserved.to_vec(),
         }
     }
 }
@@ -64,23 +62,13 @@ impl TryFrom<SocialFeePdaRow> for crate::accounts::social_fee_pda::SocialFeePda 
             })?,
             total_claimed: *source.total_claimed,
             last_claimed: *source.last_claimed,
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| {
-                    element.try_into().map_err(|_| {
-                        carbon_core::error::Error::Custom(
-                            "Failed to convert value from postgres primitive".to_string(),
-                        )
-                    })
-                })
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            total_stable_claimed: *source.total_stable_claimed,
+            reserved: source.reserved.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 120 bytes"
+                        .to_string(),
+                )
+            })?,
         })
     }
 }
@@ -100,6 +88,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::social_fee_pd
             "platform",
             "total_claimed",
             "last_claimed",
+            "total_stable_claimed",
             "reserved",
         ]
     }
@@ -117,10 +106,11 @@ impl carbon_core::postgres::operations::Insert for SocialFeePdaRow {
                 "platform",
                 "total_claimed",
                 "last_claimed",
+                "total_stable_claimed",
                 "reserved",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
             )"#,
         )
         .bind(self.bump)
@@ -129,6 +119,7 @@ impl carbon_core::postgres::operations::Insert for SocialFeePdaRow {
         .bind(self.platform)
         .bind(&self.total_claimed)
         .bind(&self.last_claimed)
+        .bind(&self.total_stable_claimed)
         .bind(&self.reserved)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -150,10 +141,11 @@ impl carbon_core::postgres::operations::Upsert for SocialFeePdaRow {
                 "platform",
                 "total_claimed",
                 "last_claimed",
+                "total_stable_claimed",
                 "reserved",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -163,6 +155,7 @@ impl carbon_core::postgres::operations::Upsert for SocialFeePdaRow {
                 "platform" = EXCLUDED."platform",
                 "total_claimed" = EXCLUDED."total_claimed",
                 "last_claimed" = EXCLUDED."last_claimed",
+                "total_stable_claimed" = EXCLUDED."total_stable_claimed",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
@@ -175,6 +168,7 @@ impl carbon_core::postgres::operations::Upsert for SocialFeePdaRow {
         .bind(self.platform)
         .bind(&self.total_claimed)
         .bind(&self.last_claimed)
+        .bind(&self.total_stable_claimed)
         .bind(&self.reserved)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -241,7 +235,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SocialFeePdaMigrationOperation
                 "platform" INT2 NOT NULL,
                 "total_claimed" NUMERIC(20) NOT NULL,
                 "last_claimed" NUMERIC(20) NOT NULL,
-                "reserved" INT2[] NOT NULL,
+                "total_stable_claimed" NUMERIC(20) NOT NULL,
+                "reserved" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

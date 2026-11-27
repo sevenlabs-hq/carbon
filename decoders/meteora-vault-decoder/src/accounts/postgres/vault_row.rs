@@ -22,6 +22,9 @@ pub struct VaultRow {
     pub token_mint: Pubkey,
     pub lp_mint: Pubkey,
     pub strategies: Vec<Pubkey>,
+    pub version: U8,
+    pub total_lp_supply: U64,
+    pub padding0: Vec<u8>,
     pub base: Pubkey,
     pub admin: Pubkey,
     pub operator: Pubkey,
@@ -44,6 +47,9 @@ impl VaultRow {
                 .into_iter()
                 .map(|element| element.into())
                 .collect(),
+            version: source.version.into(),
+            total_lp_supply: source.total_lp_supply.into(),
+            padding0: source.padding0.to_vec(),
             base: source.base.into(),
             admin: source.admin.into(),
             operator: source.operator.into(),
@@ -83,6 +89,18 @@ impl TryFrom<VaultRow> for crate::accounts::vault::Vault {
                         "Failed to convert array element to primitive".to_string(),
                     )
                 })?,
+            version: source.version.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            total_lp_supply: *source.total_lp_supply,
+            padding0: source.padding0.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 23 bytes"
+                        .to_string(),
+                )
+            })?,
             base: *source.base,
             admin: *source.admin,
             operator: *source.operator,
@@ -108,6 +126,9 @@ impl carbon_core::postgres::operations::Table for crate::accounts::vault::Vault 
             "token_mint",
             "lp_mint",
             "strategies",
+            "version",
+            "total_lp_supply",
+            "padding0",
             "base",
             "admin",
             "operator",
@@ -130,13 +151,16 @@ impl carbon_core::postgres::operations::Insert for VaultRow {
                 "token_mint",
                 "lp_mint",
                 "strategies",
+                "version",
+                "total_lp_supply",
+                "padding0",
                 "base",
                 "admin",
                 "operator",
                 "locked_profit_tracker",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
             )"#,
         )
         .bind(self.enabled)
@@ -147,6 +171,9 @@ impl carbon_core::postgres::operations::Insert for VaultRow {
         .bind(self.token_mint)
         .bind(self.lp_mint)
         .bind(&self.strategies)
+        .bind(self.version)
+        .bind(&self.total_lp_supply)
+        .bind(&self.padding0)
         .bind(self.base)
         .bind(self.admin)
         .bind(self.operator)
@@ -173,13 +200,16 @@ impl carbon_core::postgres::operations::Upsert for VaultRow {
                 "token_mint",
                 "lp_mint",
                 "strategies",
+                "version",
+                "total_lp_supply",
+                "padding0",
                 "base",
                 "admin",
                 "operator",
                 "locked_profit_tracker",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -191,6 +221,9 @@ impl carbon_core::postgres::operations::Upsert for VaultRow {
                 "token_mint" = EXCLUDED."token_mint",
                 "lp_mint" = EXCLUDED."lp_mint",
                 "strategies" = EXCLUDED."strategies",
+                "version" = EXCLUDED."version",
+                "total_lp_supply" = EXCLUDED."total_lp_supply",
+                "padding0" = EXCLUDED."padding0",
                 "base" = EXCLUDED."base",
                 "admin" = EXCLUDED."admin",
                 "operator" = EXCLUDED."operator",
@@ -208,6 +241,9 @@ impl carbon_core::postgres::operations::Upsert for VaultRow {
         .bind(self.token_mint)
         .bind(self.lp_mint)
         .bind(&self.strategies)
+        .bind(self.version)
+        .bind(&self.total_lp_supply)
+        .bind(&self.padding0)
         .bind(self.base)
         .bind(self.admin)
         .bind(self.operator)
@@ -279,6 +315,9 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for VaultMigrationOperation {
                 "token_mint" BYTEA NOT NULL,
                 "lp_mint" BYTEA NOT NULL,
                 "strategies" BYTEA[] NOT NULL,
+                "version" INT2 NOT NULL,
+                "total_lp_supply" NUMERIC(20) NOT NULL,
+                "padding0" BYTEA NOT NULL,
                 "base" BYTEA NOT NULL,
                 "admin" BYTEA NOT NULL,
                 "operator" BYTEA NOT NULL,

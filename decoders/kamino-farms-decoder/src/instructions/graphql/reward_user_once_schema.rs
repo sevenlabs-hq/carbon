@@ -7,7 +7,8 @@ pub struct RewardUserOnceGraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
     pub reward_index: U64,
     pub amount: U64,
-    pub expected_reward_issued_unclaimed: U64,
+    pub expected_rewards_issued_cumulative: U64,
+    pub user_state_id: U64,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
 
@@ -20,9 +21,10 @@ impl TryFrom<crate::instructions::postgres::RewardUserOnceRow> for RewardUserOnc
             instruction_metadata: row.instruction_metadata.into(),
             reward_index: carbon_core::graphql::primitives::U64(*row.reward_index),
             amount: carbon_core::graphql::primitives::U64(*row.amount),
-            expected_reward_issued_unclaimed: carbon_core::graphql::primitives::U64(
-                *row.expected_reward_issued_unclaimed,
+            expected_rewards_issued_cumulative: carbon_core::graphql::primitives::U64(
+                *row.expected_rewards_issued_cumulative,
             ),
+            user_state_id: carbon_core::graphql::primitives::U64(*row.user_state_id),
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,

@@ -13,4 +13,5 @@ pub struct EvtCreateConfig {
     pub collect_fee_mode: u8,
     pub index: u64,
     pub config: Pubkey,
+    pub permission: u128,
 }

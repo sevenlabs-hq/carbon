@@ -7,18 +7,20 @@ pub struct RolloverFixedTermBorrow {}
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RolloverFixedTermBorrowInstructionAccounts {
-    pub payer: solana_pubkey::Pubkey,
-    pub obligation: solana_pubkey::Pubkey,
-    pub lending_market: solana_pubkey::Pubkey,
-    pub lending_market_authority: solana_pubkey::Pubkey,
-    pub source_borrow_reserve: solana_pubkey::Pubkey,
-    pub target_borrow_reserve: solana_pubkey::Pubkey,
-    pub liquidity_mint: solana_pubkey::Pubkey,
-    pub source_borrow_reserve_liquidity: solana_pubkey::Pubkey,
-    pub target_borrow_reserve_liquidity: solana_pubkey::Pubkey,
-    pub token_program: solana_pubkey::Pubkey,
-    pub obligation_farm_user_state: Option<solana_pubkey::Pubkey>,
-    pub reserve_farm_state: Option<solana_pubkey::Pubkey>,
+    pub rollover_accounts_payer: solana_pubkey::Pubkey,
+    pub rollover_accounts_obligation: solana_pubkey::Pubkey,
+    pub rollover_accounts_lending_market: solana_pubkey::Pubkey,
+    pub rollover_accounts_lending_market_authority: solana_pubkey::Pubkey,
+    pub rollover_accounts_source_borrow_reserve: solana_pubkey::Pubkey,
+    pub rollover_accounts_target_borrow_reserve: solana_pubkey::Pubkey,
+    pub rollover_accounts_liquidity_mint: solana_pubkey::Pubkey,
+    pub rollover_accounts_source_borrow_reserve_liquidity: solana_pubkey::Pubkey,
+    pub rollover_accounts_target_borrow_reserve_liquidity: solana_pubkey::Pubkey,
+    pub rollover_accounts_token_program: solana_pubkey::Pubkey,
+    pub source_farms_accounts_obligation_farm_user_state: Option<solana_pubkey::Pubkey>,
+    pub source_farms_accounts_reserve_farm_state: Option<solana_pubkey::Pubkey>,
+    pub target_farms_accounts_obligation_farm_user_state: Option<solana_pubkey::Pubkey>,
+    pub target_farms_accounts_reserve_farm_state: Option<solana_pubkey::Pubkey>,
     pub farms_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
@@ -49,35 +51,39 @@ impl ArrangeAccounts for RolloverFixedTermBorrow {
     ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
 
-        let payer = next_account(&mut iter)?;
-        let obligation = next_account(&mut iter)?;
-        let lending_market = next_account(&mut iter)?;
-        let lending_market_authority = next_account(&mut iter)?;
-        let source_borrow_reserve = next_account(&mut iter)?;
-        let target_borrow_reserve = next_account(&mut iter)?;
-        let liquidity_mint = next_account(&mut iter)?;
-        let source_borrow_reserve_liquidity = next_account(&mut iter)?;
-        let target_borrow_reserve_liquidity = next_account(&mut iter)?;
-        let token_program = next_account(&mut iter)?;
-        let obligation_farm_user_state = next_account(&mut iter);
-        let reserve_farm_state = next_account(&mut iter);
+        let rollover_accounts_payer = next_account(&mut iter)?;
+        let rollover_accounts_obligation = next_account(&mut iter)?;
+        let rollover_accounts_lending_market = next_account(&mut iter)?;
+        let rollover_accounts_lending_market_authority = next_account(&mut iter)?;
+        let rollover_accounts_source_borrow_reserve = next_account(&mut iter)?;
+        let rollover_accounts_target_borrow_reserve = next_account(&mut iter)?;
+        let rollover_accounts_liquidity_mint = next_account(&mut iter)?;
+        let rollover_accounts_source_borrow_reserve_liquidity = next_account(&mut iter)?;
+        let rollover_accounts_target_borrow_reserve_liquidity = next_account(&mut iter)?;
+        let rollover_accounts_token_program = next_account(&mut iter)?;
+        let source_farms_accounts_obligation_farm_user_state = next_account(&mut iter);
+        let source_farms_accounts_reserve_farm_state = next_account(&mut iter);
+        let target_farms_accounts_obligation_farm_user_state = next_account(&mut iter);
+        let target_farms_accounts_reserve_farm_state = next_account(&mut iter);
         let farms_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(RolloverFixedTermBorrowInstructionAccounts {
-            payer,
-            obligation,
-            lending_market,
-            lending_market_authority,
-            source_borrow_reserve,
-            target_borrow_reserve,
-            liquidity_mint,
-            source_borrow_reserve_liquidity,
-            target_borrow_reserve_liquidity,
-            token_program,
-            obligation_farm_user_state,
-            reserve_farm_state,
+            rollover_accounts_payer,
+            rollover_accounts_obligation,
+            rollover_accounts_lending_market,
+            rollover_accounts_lending_market_authority,
+            rollover_accounts_source_borrow_reserve,
+            rollover_accounts_target_borrow_reserve,
+            rollover_accounts_liquidity_mint,
+            rollover_accounts_source_borrow_reserve_liquidity,
+            rollover_accounts_target_borrow_reserve_liquidity,
+            rollover_accounts_token_program,
+            source_farms_accounts_obligation_farm_user_state,
+            source_farms_accounts_reserve_farm_state,
+            target_farms_accounts_obligation_farm_user_state,
+            target_farms_accounts_reserve_farm_state,
             farms_program,
             remaining: remaining.to_vec(),
         })

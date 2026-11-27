@@ -18,4 +18,7 @@ pub enum PlatformConfigParam {
     VestingWallet(Pubkey),
     PlatformVestingScale(u64),
     PlatformCPCreator(Pubkey),
+    RestrictGlobalConfig(u64),
+    RestrictCurveParam(u64),
+    CurveRuleManager(Pubkey),
 }

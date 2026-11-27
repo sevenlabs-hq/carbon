@@ -17,6 +17,7 @@ pub struct WithdrawProtocolFeeInstructionAccounts {
     pub fee_vault: solana_pubkey::Pubkey,
     pub fee_collector_ata: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -54,6 +55,7 @@ impl ArrangeAccounts for WithdrawProtocolFee {
         let fee_vault = next_account(&mut iter)?;
         let fee_collector_ata = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -66,6 +68,7 @@ impl ArrangeAccounts for WithdrawProtocolFee {
             fee_vault,
             fee_collector_ata,
             token_program,
+            instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })
     }

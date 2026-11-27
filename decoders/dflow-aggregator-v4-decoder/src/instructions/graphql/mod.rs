@@ -16,6 +16,7 @@ pub mod transfer_fee_schema;
 pub mod transfer_sol_schema;
 pub mod transfer_to_sponsor_schema;
 pub mod unwrap_sol_schema;
+pub mod withdraw_fees_schema;
 pub mod wrap_sol_schema;
 
 use juniper::GraphQLObject;
@@ -26,7 +27,7 @@ pub use {
     swap2_with_destination_native_schema::*, swap2_with_destination_schema::*, swap_schema::*,
     swap_with_destination_native_schema::*, swap_with_destination_schema::*,
     transfer_fee_schema::*, transfer_sol_schema::*, transfer_to_sponsor_schema::*,
-    unwrap_sol_schema::*, wrap_sol_schema::*,
+    unwrap_sol_schema::*, withdraw_fees_schema::*, wrap_sol_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

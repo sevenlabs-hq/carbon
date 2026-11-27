@@ -4,19 +4,21 @@ use {
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
     solana_pubkey::Pubkey,
 };
-/// (global fee admin only) Adjust fees, admin, or the destination wallet
+/// (global fee admin only) Adjust fees, admin, wallet, or pause delegate admin
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct EditGlobalFeeState {
-    pub admin: Pubkey,
-    pub fee_wallet: Pubkey,
-    pub bank_init_flat_sol_fee: u32,
-    pub liquidation_flat_sol_fee: u32,
-    pub order_init_flat_sol_fee: u32,
-    pub program_fee_fixed: WrappedI80F48,
-    pub program_fee_rate: WrappedI80F48,
-    pub liquidation_max_fee: WrappedI80F48,
-    pub order_execution_max_fee: WrappedI80F48,
+    pub admin: Option<Pubkey>,
+    pub fee_wallet: Option<Pubkey>,
+    pub bank_init_flat_sol_fee: Option<u32>,
+    pub liquidation_flat_sol_fee: Option<u32>,
+    pub order_init_flat_sol_fee: Option<u32>,
+    pub program_fee_fixed: Option<WrappedI80F48>,
+    pub program_fee_rate: Option<WrappedI80F48>,
+    pub liquidation_max_fee: Option<WrappedI80F48>,
+    pub order_execution_max_fee: Option<WrappedI80F48>,
+    pub pause_delegate_admin: Option<Pubkey>,
+    pub account_transfer_fee: Option<u32>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -24,6 +26,7 @@ pub struct EditGlobalFeeState {
 pub struct EditGlobalFeeStateInstructionAccounts {
     pub global_fee_admin: solana_pubkey::Pubkey,
     pub fee_state: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -55,12 +58,14 @@ impl ArrangeAccounts for EditGlobalFeeState {
 
         let global_fee_admin = next_account(&mut iter)?;
         let fee_state = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(EditGlobalFeeStateInstructionAccounts {
             global_fee_admin,
             fee_state,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

@@ -18,6 +18,7 @@ pub struct UpdateReserveConfigInstructionAccounts {
     pub global_config: solana_pubkey::Pubkey,
     pub lending_market: solana_pubkey::Pubkey,
     pub reserve: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -51,6 +52,7 @@ impl ArrangeAccounts for UpdateReserveConfig {
         let global_config = next_account(&mut iter)?;
         let lending_market = next_account(&mut iter)?;
         let reserve = next_account(&mut iter)?;
+        let instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -59,6 +61,7 @@ impl ArrangeAccounts for UpdateReserveConfig {
             global_config,
             lending_market,
             reserve,
+            instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })
     }

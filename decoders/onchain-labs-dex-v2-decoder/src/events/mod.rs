@@ -4,5 +4,6 @@ pub mod swap_cpi_event2;
 pub mod swap_event;
 pub mod swap_tob_v2_cpi_event2;
 pub mod swap_toc_v2_cpi_event2;
+pub mod swap_with_fee_cpi_event_v3;
 pub mod swap_with_fees_cpi_event2;
 pub mod swap_with_fees_cpi_event_enhanced2;

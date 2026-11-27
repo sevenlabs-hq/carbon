@@ -33,4 +33,47 @@ pub enum CandidateSwap {
         a_to_b: bool,
         remaining_accounts_info: Option<RemainingAccountsInfo>,
     },
+    ZeroFiSwapV2,
+    BisonFiMarketBacked {
+        a_to_b: bool,
+    },
+    RaydiumClmmV2,
+    TesseraVV2 {
+        side: Side,
+    },
+    HumidiFiRouter {
+        claimed_ms: u64,
+        seed_rng: [u8; 32],
+        token: [u8; 16],
+        is_base_to_quote: bool,
+    },
+    HumidiFiRouterV2 {
+        router_id: u64,
+        claimed_ms: u64,
+        seed_rng: [u8; 32],
+        token: [u8; 16],
+        is_base_to_quote: bool,
+    },
+    HumidiFiRouterV3 {
+        router_id: u64,
+        generation: u64,
+        minted: u64,
+        expiry: u64,
+        seed_rng: [u8; 32],
+        token: [u8; 16],
+        is_base_to_quote: bool,
+    },
+    ZeroFiSwapV3,
+    BisonFiMarketBackedV2 {
+        a_to_b: bool,
+    },
+    GoonFiV4 {
+        is_bid: bool,
+    },
+    BisonFiMarketBackedV3 {
+        a_to_b: bool,
+    },
+    TesseraVV3 {
+        side: Side,
+    },
 }

@@ -3,6 +3,7 @@ use solana_pubkey::Pubkey;
 pub struct PumpSwapDecoder;
 pub const PROGRAM_ID: Pubkey =
     solana_pubkey::Pubkey::from_str_const("pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA");
+pub const EVENT_CPI_DISCRIMINATOR: &[u8] = &[228, 69, 165, 46, 81, 203, 154, 29];
 
 pub mod accounts;
 pub mod events;

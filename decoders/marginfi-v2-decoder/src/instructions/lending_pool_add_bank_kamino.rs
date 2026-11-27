@@ -3,7 +3,7 @@ use {
     crate::types::KaminoConfigCompact,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (group admin only) Add a Kamino bank to the group. Pass the oracle and
+/// (governance_admin only) Add a Kamino bank to the group. Pass the oracle and
 /// reserve in remaining accounts 0 and 1 respectively.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
@@ -16,7 +16,7 @@ pub struct LendingPoolAddBankKamino {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LendingPoolAddBankKaminoInstructionAccounts {
     pub group: solana_pubkey::Pubkey,
-    pub admin: solana_pubkey::Pubkey,
+    pub governance_admin: solana_pubkey::Pubkey,
     pub fee_payer: solana_pubkey::Pubkey,
     pub bank_mint: solana_pubkey::Pubkey,
     pub bank: solana_pubkey::Pubkey,
@@ -30,6 +30,7 @@ pub struct LendingPoolAddBankKaminoInstructionAccounts {
     pub fee_vault: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -60,7 +61,7 @@ impl ArrangeAccounts for LendingPoolAddBankKamino {
         let mut iter = accounts.iter();
 
         let group = next_account(&mut iter)?;
-        let admin = next_account(&mut iter)?;
+        let governance_admin = next_account(&mut iter)?;
         let fee_payer = next_account(&mut iter)?;
         let bank_mint = next_account(&mut iter)?;
         let bank = next_account(&mut iter)?;
@@ -74,12 +75,13 @@ impl ArrangeAccounts for LendingPoolAddBankKamino {
         let fee_vault = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(LendingPoolAddBankKaminoInstructionAccounts {
             group,
-            admin,
+            governance_admin,
             fee_payer,
             bank_mint,
             bank,
@@ -93,6 +95,7 @@ impl ArrangeAccounts for LendingPoolAddBankKamino {
             fee_vault,
             token_program,
             system_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

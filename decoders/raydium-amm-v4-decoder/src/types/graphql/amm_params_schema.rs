@@ -7,23 +7,8 @@ use juniper::GraphQLEnum;
 pub enum AmmParamsGraphQL {
     Status,
     State,
-    OrderNum,
-    Depth,
-    AmountWave,
-    MinPriceMultiplier,
-    MaxPriceMultiplier,
-    MinSize,
-    VolMaxCutRatio,
     Fees,
-    AmmOwner,
     SetOpenTime,
-    LastOrderDistance,
-    InitOrderDepth,
-    SetSwitchTime,
-    ClearOpenTime,
-    Seek,
-    EnableOrderBook,
-    DisableOrderBook,
 }
 
 impl From<crate::types::AmmParams> for AmmParamsGraphQL {
@@ -31,23 +16,8 @@ impl From<crate::types::AmmParams> for AmmParamsGraphQL {
         match original {
             crate::types::AmmParams::Status => Self::Status,
             crate::types::AmmParams::State => Self::State,
-            crate::types::AmmParams::OrderNum => Self::OrderNum,
-            crate::types::AmmParams::Depth => Self::Depth,
-            crate::types::AmmParams::AmountWave => Self::AmountWave,
-            crate::types::AmmParams::MinPriceMultiplier => Self::MinPriceMultiplier,
-            crate::types::AmmParams::MaxPriceMultiplier => Self::MaxPriceMultiplier,
-            crate::types::AmmParams::MinSize => Self::MinSize,
-            crate::types::AmmParams::VolMaxCutRatio => Self::VolMaxCutRatio,
             crate::types::AmmParams::Fees => Self::Fees,
-            crate::types::AmmParams::AmmOwner => Self::AmmOwner,
             crate::types::AmmParams::SetOpenTime => Self::SetOpenTime,
-            crate::types::AmmParams::LastOrderDistance => Self::LastOrderDistance,
-            crate::types::AmmParams::InitOrderDepth => Self::InitOrderDepth,
-            crate::types::AmmParams::SetSwitchTime => Self::SetSwitchTime,
-            crate::types::AmmParams::ClearOpenTime => Self::ClearOpenTime,
-            crate::types::AmmParams::Seek => Self::Seek,
-            crate::types::AmmParams::EnableOrderBook => Self::EnableOrderBook,
-            crate::types::AmmParams::DisableOrderBook => Self::DisableOrderBook,
         }
     }
 }

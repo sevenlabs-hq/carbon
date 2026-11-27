@@ -48,4 +48,6 @@ pub enum UpdateLendingMarketMode {
     UpdatePermissionedOps,
     DeprecatedUpdateReserveRewardsMaxAprPct,
     UpdateReserveRewardsMaxAprBps,
+    UpdateDisableNonceBlock,
+    UpdateMinObligationOrderExecutionValue,
 }

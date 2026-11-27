@@ -18,6 +18,7 @@ pub struct UpdateDeleverageWithdrawals {
 pub struct UpdateDeleverageWithdrawalsInstructionAccounts {
     pub marginfi_group: solana_pubkey::Pubkey,
     pub delegate_flow_admin: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -49,12 +50,14 @@ impl ArrangeAccounts for UpdateDeleverageWithdrawals {
 
         let marginfi_group = next_account(&mut iter)?;
         let delegate_flow_admin = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(UpdateDeleverageWithdrawalsInstructionAccounts {
             marginfi_group,
             delegate_flow_admin,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

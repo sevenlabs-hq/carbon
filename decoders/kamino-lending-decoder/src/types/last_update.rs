@@ -9,5 +9,8 @@ pub struct LastUpdate {
     pub stale: u8,
     /// Status of the prices used to calculate the last update
     pub price_status: u8,
-    pub placeholder: [u8; 6],
+    pub alignment_padding: [u8; 2],
+    /// Wall-clock timestamp (seconds) of the last update.
+    /// Note: `u32` is used here only because of space constraints.
+    pub timestamp: u32,
 }

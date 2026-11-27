@@ -3,6 +3,7 @@ use {
     crate::types::MetadataArgs,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Decompresses a leaf node from the tree.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct DecompressV1 {

@@ -4,28 +4,34 @@ pub mod claim_token_row;
 pub mod close_token_row;
 pub mod close_wsol_token_account_row;
 pub mod cpi_event_row;
+pub mod create_idempotent_associated_token_account_row;
 pub mod create_token_account_row;
 pub mod create_token_ledger_row;
 pub mod exact_out_route_row;
 pub mod exact_out_route_v2_row;
 pub mod route_row;
 pub mod route_v2_row;
+pub mod route_with_attestation_row;
 pub mod route_with_token_ledger_row;
 pub mod set_token_ledger_row;
 pub mod shared_accounts_exact_out_route_row;
 pub mod shared_accounts_exact_out_route_v2_row;
 pub mod shared_accounts_route_row;
 pub mod shared_accounts_route_v2_row;
+pub mod shared_accounts_route_with_attestation_row;
 pub mod shared_accounts_route_with_token_ledger_row;
+pub mod withdraw_token_account_excess_lamports_row;
 
 pub use self::{
     claim_row::*, claim_token_row::*, close_token_row::*, close_wsol_token_account_row::*,
-    cpi_event_row::*, create_token_account_row::*, create_token_ledger_row::*,
-    exact_out_route_row::*, exact_out_route_v2_row::*, route_row::*, route_v2_row::*,
+    cpi_event_row::*, create_idempotent_associated_token_account_row::*,
+    create_token_account_row::*, create_token_ledger_row::*, exact_out_route_row::*,
+    exact_out_route_v2_row::*, route_row::*, route_v2_row::*, route_with_attestation_row::*,
     route_with_token_ledger_row::*, set_token_ledger_row::*,
     shared_accounts_exact_out_route_row::*, shared_accounts_exact_out_route_v2_row::*,
     shared_accounts_route_row::*, shared_accounts_route_v2_row::*,
-    shared_accounts_route_with_token_ledger_row::*,
+    shared_accounts_route_with_attestation_row::*, shared_accounts_route_with_token_ledger_row::*,
+    withdraw_token_account_excess_lamports_row::*,
 };
 use super::JupiterSwapInstruction;
 
@@ -46,19 +52,23 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterSwapInstructionsMigrati
             Box::new(ClaimTokenMigrationOperation),
             Box::new(CloseTokenMigrationOperation),
             Box::new(CloseWsolTokenAccountMigrationOperation),
+            Box::new(CreateIdempotentAssociatedTokenAccountMigrationOperation),
             Box::new(CreateTokenAccountMigrationOperation),
             Box::new(CreateTokenLedgerMigrationOperation),
             Box::new(ExactOutRouteMigrationOperation),
             Box::new(ExactOutRouteV2MigrationOperation),
             Box::new(RouteMigrationOperation),
             Box::new(RouteV2MigrationOperation),
+            Box::new(RouteWithAttestationMigrationOperation),
             Box::new(RouteWithTokenLedgerMigrationOperation),
             Box::new(SetTokenLedgerMigrationOperation),
             Box::new(SharedAccountsExactOutRouteMigrationOperation),
             Box::new(SharedAccountsExactOutRouteV2MigrationOperation),
             Box::new(SharedAccountsRouteMigrationOperation),
             Box::new(SharedAccountsRouteV2MigrationOperation),
+            Box::new(SharedAccountsRouteWithAttestationMigrationOperation),
             Box::new(SharedAccountsRouteWithTokenLedgerMigrationOperation),
+            Box::new(WithdrawTokenAccountExcessLamportsMigrationOperation),
             Box::new(CpiEventMigrationOperation),
         ]
     }
@@ -105,6 +115,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterSwapInstructionsAbsolut
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_idempotent_associated_token_account_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "create_token_account_instruction",
                 ),
             ),
@@ -129,6 +144,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterSwapInstructionsAbsolut
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "route_v2_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "route_with_attestation_instruction",
                 ),
             ),
             Box::new(
@@ -163,7 +183,17 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterSwapInstructionsAbsolut
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "shared_accounts_route_with_attestation_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "shared_accounts_route_with_token_ledger_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "withdraw_token_account_excess_lamports_instruction",
                 ),
             ),
             Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("cpi_events")),
@@ -231,6 +261,16 @@ impl carbon_core::postgres::operations::Insert for JupiterSwapInstructionWithMet
                 row.insert(pool).await?;
                 Ok(())
             }
+            JupiterSwapInstruction::WithdrawTokenAccountExcessLamports { data, .. } => {
+                let row = withdraw_token_account_excess_lamports_row::WithdrawTokenAccountExcessLamportsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::CreateIdempotentAssociatedTokenAccount { data, .. } => {
+                let row = create_idempotent_associated_token_account_row::CreateIdempotentAssociatedTokenAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
             JupiterSwapInstruction::CreateTokenLedger { data, .. } => {
                 let row = create_token_ledger_row::CreateTokenLedgerRow::from_parts(
                     data.clone(),
@@ -347,6 +387,20 @@ impl carbon_core::postgres::operations::Insert for JupiterSwapInstructionWithMet
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::RouteWithAttestation { data, .. } => {
+                let row = route_with_attestation_row::RouteWithAttestationRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::SharedAccountsRouteWithAttestation { data, .. } => {
+                let row = shared_accounts_route_with_attestation_row::SharedAccountsRouteWithAttestationRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -395,6 +449,16 @@ impl carbon_core::postgres::operations::Upsert for JupiterSwapInstructionWithMet
                 row.upsert(pool).await?;
                 Ok(())
             }
+            JupiterSwapInstruction::WithdrawTokenAccountExcessLamports { data, .. } => {
+                let row = withdraw_token_account_excess_lamports_row::WithdrawTokenAccountExcessLamportsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::CreateIdempotentAssociatedTokenAccount { data, .. } => {
+                let row = create_idempotent_associated_token_account_row::CreateIdempotentAssociatedTokenAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
             JupiterSwapInstruction::CreateTokenLedger { data, .. } => {
                 let row = create_token_ledger_row::CreateTokenLedgerRow::from_parts(
                     data.clone(),
@@ -511,6 +575,20 @@ impl carbon_core::postgres::operations::Upsert for JupiterSwapInstructionWithMet
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::RouteWithAttestation { data, .. } => {
+                let row = route_with_attestation_row::RouteWithAttestationRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::SharedAccountsRouteWithAttestation { data, .. } => {
+                let row = shared_accounts_route_with_attestation_row::SharedAccountsRouteWithAttestationRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

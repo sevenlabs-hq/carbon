@@ -12,6 +12,7 @@ pub struct EndDeleverageInstructionAccounts {
     pub liquidation_record: solana_pubkey::Pubkey,
     pub group: solana_pubkey::Pubkey,
     pub risk_admin: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -45,6 +46,7 @@ impl ArrangeAccounts for EndDeleverage {
         let liquidation_record = next_account(&mut iter)?;
         let group = next_account(&mut iter)?;
         let risk_admin = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -53,6 +55,7 @@ impl ArrangeAccounts for EndDeleverage {
             liquidation_record,
             group,
             risk_admin,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

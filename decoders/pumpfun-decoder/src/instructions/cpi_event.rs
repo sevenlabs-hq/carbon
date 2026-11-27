@@ -12,7 +12,8 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
     PartialEq,
 )]
 pub enum CpiEvent {
-    AdminSetCreatorEvent(events::admin_set_creator_event::AdminSetCreatorEventEvent),
+    AddQuoteControlMintEvent(events::add_quote_control_mint_event::AddQuoteControlMintEventEvent),
+    AdminCtoEvent(events::admin_cto_event::AdminCtoEventEvent),
     AdminSetIdlAuthorityEvent(
         events::admin_set_idl_authority_event::AdminSetIdlAuthorityEventEvent,
     ),
@@ -33,6 +34,9 @@ pub enum CpiEvent {
     DistributeCreatorFeesEvent(
         events::distribute_creator_fees_event::DistributeCreatorFeesEventEvent,
     ),
+    DistributeFeeToHoldersEvent(
+        events::distribute_fee_to_holders_event::DistributeFeeToHoldersEventEvent,
+    ),
     ExtendAccountEvent(events::extend_account_event::ExtendAccountEventEvent),
     InitUserVolumeAccumulatorEvent(
         events::init_user_volume_accumulator_event::InitUserVolumeAccumulatorEventEvent,
@@ -43,16 +47,35 @@ pub enum CpiEvent {
     MinimumDistributableFeeEvent(
         events::minimum_distributable_fee_event::MinimumDistributableFeeEventEvent,
     ),
+    PostCompleteBuyEvent(events::post_complete_buy_event::PostCompleteBuyEventEvent),
+    RemoveQuoteControlMintEvent(
+        events::remove_quote_control_mint_event::RemoveQuoteControlMintEventEvent,
+    ),
     ReservedFeeRecipientsEvent(
         events::reserved_fee_recipients_event::ReservedFeeRecipientsEventEvent,
     ),
     SetCreatorEvent(events::set_creator_event::SetCreatorEventEvent),
     SetMetaplexCreatorEvent(events::set_metaplex_creator_event::SetMetaplexCreatorEventEvent),
     SetParamsEvent(events::set_params_event::SetParamsEventEvent),
+    SetQuoteControlAdminEvent(
+        events::set_quote_control_admin_event::SetQuoteControlAdminEventEvent,
+    ),
+    SetQuoteControlMintReservesEvent(
+        events::set_quote_control_mint_reserves_event::SetQuoteControlMintReservesEventEvent,
+    ),
+    SetQuoteControlReservesAdminEvent(
+        events::set_quote_control_reserves_admin_event::SetQuoteControlReservesAdminEventEvent,
+    ),
+    SweepBondingCurveFeeEvent(
+        events::sweep_bonding_curve_fee_event::SweepBondingCurveFeeEventEvent,
+    ),
     SyncUserVolumeAccumulatorEvent(
         events::sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEventEvent,
     ),
     TradeEvent(events::trade_event::TradeEventEvent),
+    UpdateCreatorFeeConfigEvent(
+        events::update_creator_fee_config_event::UpdateCreatorFeeConfigEventEvent,
+    ),
     UpdateGlobalAuthorityEvent(
         events::update_global_authority_event::UpdateGlobalAuthorityEventEvent,
     ),
@@ -82,9 +105,12 @@ impl CpiEvent {
         let event_data = &data[8..];
 
         if let Some(decoded) =
-            events::admin_set_creator_event::AdminSetCreatorEventEvent::decode(event_data)
+            events::add_quote_control_mint_event::AddQuoteControlMintEventEvent::decode(event_data)
         {
-            return Some(CpiEvent::AdminSetCreatorEvent(decoded));
+            return Some(CpiEvent::AddQuoteControlMintEvent(decoded));
+        }
+        if let Some(decoded) = events::admin_cto_event::AdminCtoEventEvent::decode(event_data) {
+            return Some(CpiEvent::AdminCtoEvent(decoded));
         }
         if let Some(decoded) =
             events::admin_set_idl_authority_event::AdminSetIdlAuthorityEventEvent::decode(
@@ -135,6 +161,13 @@ impl CpiEvent {
             return Some(CpiEvent::DistributeCreatorFeesEvent(decoded));
         }
         if let Some(decoded) =
+            events::distribute_fee_to_holders_event::DistributeFeeToHoldersEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::DistributeFeeToHoldersEvent(decoded));
+        }
+        if let Some(decoded) =
             events::extend_account_event::ExtendAccountEventEvent::decode(event_data)
         {
             return Some(CpiEvent::ExtendAccountEvent(decoded));
@@ -157,6 +190,18 @@ impl CpiEvent {
             return Some(CpiEvent::MinimumDistributableFeeEvent(decoded));
         }
         if let Some(decoded) =
+            events::post_complete_buy_event::PostCompleteBuyEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::PostCompleteBuyEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::remove_quote_control_mint_event::RemoveQuoteControlMintEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::RemoveQuoteControlMintEvent(decoded));
+        }
+        if let Some(decoded) =
             events::reserved_fee_recipients_event::ReservedFeeRecipientsEventEvent::decode(
                 event_data,
             )
@@ -175,6 +220,26 @@ impl CpiEvent {
             return Some(CpiEvent::SetParamsEvent(decoded));
         }
         if let Some(decoded) =
+            events::set_quote_control_admin_event::SetQuoteControlAdminEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::SetQuoteControlAdminEvent(decoded));
+        }
+        if let Some(decoded) = events::set_quote_control_mint_reserves_event::SetQuoteControlMintReservesEventEvent::decode(event_data) {
+            return Some(CpiEvent::SetQuoteControlMintReservesEvent(decoded));
+        }
+        if let Some(decoded) = events::set_quote_control_reserves_admin_event::SetQuoteControlReservesAdminEventEvent::decode(event_data) {
+            return Some(CpiEvent::SetQuoteControlReservesAdminEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::sweep_bonding_curve_fee_event::SweepBondingCurveFeeEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::SweepBondingCurveFeeEvent(decoded));
+        }
+        if let Some(decoded) =
             events::sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEventEvent::decode(
                 event_data,
             )
@@ -183,6 +248,13 @@ impl CpiEvent {
         }
         if let Some(decoded) = events::trade_event::TradeEventEvent::decode(event_data) {
             return Some(CpiEvent::TradeEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::update_creator_fee_config_event::UpdateCreatorFeeConfigEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::UpdateCreatorFeeConfigEvent(decoded));
         }
         if let Some(decoded) =
             events::update_global_authority_event::UpdateGlobalAuthorityEventEvent::decode(

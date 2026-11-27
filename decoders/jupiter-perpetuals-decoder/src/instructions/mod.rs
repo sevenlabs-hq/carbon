@@ -412,6 +412,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterPerpetualsDecod
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            JupiterPerpetualsInstruction::CpiEvent => CpiEvent,
             JupiterPerpetualsInstruction::AddCustody => AddCustody,
             JupiterPerpetualsInstruction::AddLiquidity2 => AddLiquidity2,
             JupiterPerpetualsInstruction::AddPool => AddPool,
@@ -471,7 +472,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterPerpetualsDecod
             JupiterPerpetualsInstruction::WithdrawCollateralForBorrows => WithdrawCollateralForBorrows,
             JupiterPerpetualsInstruction::WithdrawFees2 => WithdrawFees2,
             JupiterPerpetualsInstruction::WithdrawStake => WithdrawStake,
-            JupiterPerpetualsInstruction::CpiEvent => CpiEvent,
         )
     }
 }

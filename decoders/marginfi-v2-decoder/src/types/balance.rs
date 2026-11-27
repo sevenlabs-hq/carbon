@@ -15,16 +15,26 @@ pub struct Balance {
     /// unused/unassigned). A tag may also have a non-zero value while
     /// having no orders.
     pub tag: u16,
-    pub pad0: [u8; 4],
+    /// Collateral-weighted variable-borrow premium APR snapshot for this
+    /// liability position, encoded like interest-curve points via
+    /// `milli_to_u32` (0-1000%). Recomputed by every oracle-carrying ix
+    /// (borrow, withdraw, liquidation, order end, `pulse_health`) but not
+    /// deposit/repay, which carry no oracles. 0 = no premium.
+    pub premium_rate_snapshot: u32,
     /// The user's asset (deposit) shares in the bank. Multiply by
     /// `bank.asset_share_value` for the token amount.
     pub asset_shares: WrappedI80F48,
     /// The user's liability (borrow) shares in the bank. Multiply by
     /// `bank.liability_share_value` for the token amount.
     pub liability_shares: WrappedI80F48,
-    /// Unclaimed emissions rewards for this position
-    pub emissions_outstanding: WrappedI80F48,
-    /// Unix timestamp (u64) of the last emissions calculation for this position
+    /// Accrued (materialized) variable-borrow premium owed on this liability
+    /// position, in native token units. Settled (with real tokens) only on
+    /// repay; written off on bankruptcy, tokenless repayment, or a
+    /// liability→asset flip.
+    pub premium_outstanding: WrappedI80F48,
+    /// Unix timestamp (u64) of the last premium accrual (claim) for this
+    /// position. Set at balance creation and bumped on every
+    /// `claim_premium`.
     pub last_update: u64,
     /// Reserved for future use
     pub padding: [u64; 1],

@@ -21,7 +21,7 @@ impl UpdateTokenGroupUpdateAuthorityRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            new_update_authority: source.new_update_authority.map(|value| value.into()),
+            new_update_authority: source.new_update_authority.0.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -33,7 +33,7 @@ impl TryFrom<UpdateTokenGroupUpdateAuthorityRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: UpdateTokenGroupUpdateAuthorityRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            new_update_authority: source.new_update_authority.map(|value| *value),
+            new_update_authority: source.new_update_authority.map(|value| *value).into(),
         })
     }
 }

@@ -4,11 +4,7 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// * `ctx` - The context of accounts
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
-pub struct MigrateToAmm {
-    pub base_lot_size: u64,
-    pub quote_lot_size: u64,
-    pub market_vault_signer_nonce: u8,
-}
+pub struct MigrateToAmm {}
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -16,19 +12,10 @@ pub struct MigrateToAmmInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub base_mint: solana_pubkey::Pubkey,
     pub quote_mint: solana_pubkey::Pubkey,
-    pub openbook_program: solana_pubkey::Pubkey,
     pub market: solana_pubkey::Pubkey,
-    pub request_queue: solana_pubkey::Pubkey,
-    pub event_queue: solana_pubkey::Pubkey,
-    pub bids: solana_pubkey::Pubkey,
-    pub asks: solana_pubkey::Pubkey,
-    pub market_vault_signer: solana_pubkey::Pubkey,
-    pub market_base_vault: solana_pubkey::Pubkey,
-    pub market_quote_vault: solana_pubkey::Pubkey,
     pub amm_program: solana_pubkey::Pubkey,
     pub amm_pool: solana_pubkey::Pubkey,
     pub amm_authority: solana_pubkey::Pubkey,
-    pub amm_open_orders: solana_pubkey::Pubkey,
     pub amm_lp_mint: solana_pubkey::Pubkey,
     pub amm_base_vault: solana_pubkey::Pubkey,
     pub amm_quote_vault: solana_pubkey::Pubkey,
@@ -77,19 +64,10 @@ impl ArrangeAccounts for MigrateToAmm {
         let payer = next_account(&mut iter)?;
         let base_mint = next_account(&mut iter)?;
         let quote_mint = next_account(&mut iter)?;
-        let openbook_program = next_account(&mut iter)?;
         let market = next_account(&mut iter)?;
-        let request_queue = next_account(&mut iter)?;
-        let event_queue = next_account(&mut iter)?;
-        let bids = next_account(&mut iter)?;
-        let asks = next_account(&mut iter)?;
-        let market_vault_signer = next_account(&mut iter)?;
-        let market_base_vault = next_account(&mut iter)?;
-        let market_quote_vault = next_account(&mut iter)?;
         let amm_program = next_account(&mut iter)?;
         let amm_pool = next_account(&mut iter)?;
         let amm_authority = next_account(&mut iter)?;
-        let amm_open_orders = next_account(&mut iter)?;
         let amm_lp_mint = next_account(&mut iter)?;
         let amm_base_vault = next_account(&mut iter)?;
         let amm_quote_vault = next_account(&mut iter)?;
@@ -113,19 +91,10 @@ impl ArrangeAccounts for MigrateToAmm {
             payer,
             base_mint,
             quote_mint,
-            openbook_program,
             market,
-            request_queue,
-            event_queue,
-            bids,
-            asks,
-            market_vault_signer,
-            market_base_vault,
-            market_quote_vault,
             amm_program,
             amm_pool,
             amm_authority,
-            amm_open_orders,
             amm_lp_mint,
             amm_base_vault,
             amm_quote_vault,

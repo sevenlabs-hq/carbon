@@ -31,7 +31,7 @@ impl TryFrom<BatchRow> for crate::instructions::batch::Batch {
     type Error = carbon_core::error::Error;
     fn try_from(source: BatchRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            data: source.data.0,
+            data: source.data.0.into(),
         })
     }
 }

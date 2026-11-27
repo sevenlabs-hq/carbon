@@ -5,12 +5,14 @@ use juniper::GraphQLEnum;
 #[graphql(name = "Version")]
 pub enum VersionGraphQL {
     V1,
+    V2,
 }
 
 impl From<crate::types::Version> for VersionGraphQL {
     fn from(original: crate::types::Version) -> Self {
         match original {
             crate::types::Version::V1 => Self::V1,
+            crate::types::Version::V2 => Self::V2,
         }
     }
 }

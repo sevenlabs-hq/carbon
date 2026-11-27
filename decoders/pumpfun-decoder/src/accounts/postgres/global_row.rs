@@ -3,7 +3,7 @@ use carbon_core::{
     account::AccountMetadata,
     postgres::{
         metadata::AccountRowMetadata,
-        primitives::{Pubkey, U64},
+        primitives::{Pubkey, U64, U8},
     },
 };
 
@@ -36,6 +36,11 @@ pub struct GlobalRow {
     pub buyback_basis_points: U64,
     pub initial_virtual_quote_reserves: U64,
     pub whitelisted_quote_mints: Vec<Pubkey>,
+    pub creator_fee_configurable: bool,
+    pub max_configurable_creator_fee_bps: U64,
+    pub holder_reward_claim_authority: Pubkey,
+    pub is_holder_reward_enabled: bool,
+    pub max_curve_depth: U8,
 }
 
 impl GlobalRow {
@@ -83,6 +88,11 @@ impl GlobalRow {
                 .into_iter()
                 .map(|element| element.into())
                 .collect(),
+            creator_fee_configurable: source.creator_fee_configurable,
+            max_configurable_creator_fee_bps: source.max_configurable_creator_fee_bps.into(),
+            holder_reward_claim_authority: source.holder_reward_claim_authority.into(),
+            is_holder_reward_enabled: source.is_holder_reward_enabled,
+            max_curve_depth: source.max_curve_depth.into(),
         }
     }
 }
@@ -176,6 +186,15 @@ impl TryFrom<GlobalRow> for crate::accounts::global::Global {
                         "Failed to convert array element to primitive".to_string(),
                     )
                 })?,
+            creator_fee_configurable: source.creator_fee_configurable,
+            max_configurable_creator_fee_bps: *source.max_configurable_creator_fee_bps,
+            holder_reward_claim_authority: *source.holder_reward_claim_authority,
+            is_holder_reward_enabled: source.is_holder_reward_enabled,
+            max_curve_depth: source.max_curve_depth.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
         })
     }
 }
@@ -214,6 +233,11 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global::Globa
             "buyback_basis_points",
             "initial_virtual_quote_reserves",
             "whitelisted_quote_mints",
+            "creator_fee_configurable",
+            "max_configurable_creator_fee_bps",
+            "holder_reward_claim_authority",
+            "is_holder_reward_enabled",
+            "max_curve_depth",
         ]
     }
 }
@@ -248,9 +272,14 @@ impl carbon_core::postgres::operations::Insert for GlobalRow {
                 "buyback_basis_points",
                 "initial_virtual_quote_reserves",
                 "whitelisted_quote_mints",
+                "creator_fee_configurable",
+                "max_configurable_creator_fee_bps",
+                "holder_reward_claim_authority",
+                "is_holder_reward_enabled",
+                "max_curve_depth",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32
             )"#)
         .bind(self.initialized)
         .bind(self.authority)
@@ -277,6 +306,11 @@ impl carbon_core::postgres::operations::Insert for GlobalRow {
         .bind(&self.buyback_basis_points)
         .bind(&self.initial_virtual_quote_reserves)
         .bind(&self.whitelisted_quote_mints)
+        .bind(self.creator_fee_configurable)
+        .bind(&self.max_configurable_creator_fee_bps)
+        .bind(self.holder_reward_claim_authority)
+        .bind(self.is_holder_reward_enabled)
+        .bind(self.max_curve_depth)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool).await
@@ -314,9 +348,14 @@ impl carbon_core::postgres::operations::Upsert for GlobalRow {
                 "buyback_basis_points",
                 "initial_virtual_quote_reserves",
                 "whitelisted_quote_mints",
+                "creator_fee_configurable",
+                "max_configurable_creator_fee_bps",
+                "holder_reward_claim_authority",
+                "is_holder_reward_enabled",
+                "max_curve_depth",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -345,6 +384,11 @@ impl carbon_core::postgres::operations::Upsert for GlobalRow {
                 "buyback_basis_points" = EXCLUDED."buyback_basis_points",
                 "initial_virtual_quote_reserves" = EXCLUDED."initial_virtual_quote_reserves",
                 "whitelisted_quote_mints" = EXCLUDED."whitelisted_quote_mints",
+                "creator_fee_configurable" = EXCLUDED."creator_fee_configurable",
+                "max_configurable_creator_fee_bps" = EXCLUDED."max_configurable_creator_fee_bps",
+                "holder_reward_claim_authority" = EXCLUDED."holder_reward_claim_authority",
+                "is_holder_reward_enabled" = EXCLUDED."is_holder_reward_enabled",
+                "max_curve_depth" = EXCLUDED."max_curve_depth",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
                 OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
@@ -374,6 +418,11 @@ impl carbon_core::postgres::operations::Upsert for GlobalRow {
         .bind(&self.buyback_basis_points)
         .bind(&self.initial_virtual_quote_reserves)
         .bind(&self.whitelisted_quote_mints)
+        .bind(self.creator_fee_configurable)
+        .bind(&self.max_configurable_creator_fee_bps)
+        .bind(self.holder_reward_claim_authority)
+        .bind(self.is_holder_reward_enabled)
+        .bind(self.max_curve_depth)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool).await
@@ -457,6 +506,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalMigrationOperation {
                 "buyback_basis_points" NUMERIC(20) NOT NULL,
                 "initial_virtual_quote_reserves" NUMERIC(20) NOT NULL,
                 "whitelisted_quote_mints" BYTEA[] NOT NULL,
+                "creator_fee_configurable" BOOLEAN NOT NULL,
+                "max_configurable_creator_fee_bps" NUMERIC(20) NOT NULL,
+                "holder_reward_claim_authority" BYTEA NOT NULL,
+                "is_holder_reward_enabled" BOOLEAN NOT NULL,
+                "max_curve_depth" INT2 NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

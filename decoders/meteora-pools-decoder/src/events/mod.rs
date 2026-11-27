@@ -3,6 +3,7 @@
 pub mod add_liquidity;
 pub mod bootstrap_liquidity;
 pub mod claim_fee;
+pub mod claim_protocol_fee2;
 pub mod close_config;
 pub mod create_config;
 pub mod create_lock_escrow;

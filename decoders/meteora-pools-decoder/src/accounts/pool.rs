@@ -4,7 +4,6 @@ use {
     solana_pubkey::Pubkey,
 };
 
-/// State of pool account
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Pool {
@@ -48,6 +47,8 @@ pub struct Pool {
     /// bootstrapping config
     pub bootstrapping: Bootstrapping,
     pub partner_info: PartnerInfo,
+    /// LP mint supply tracked by the pool
+    pub lp_mint_supply: u64,
     /// Padding for future pool field
     pub padding: Padding,
     /// The type of the swap curve supported by the pool.

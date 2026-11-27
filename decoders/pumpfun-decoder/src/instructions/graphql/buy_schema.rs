@@ -11,6 +11,7 @@ pub struct BuyGraphQL {
     pub amount: U64,
     pub max_sol_cost: U64,
     pub track_volume: OptionBoolGraphQL,
+    pub partial_fill: OptionBoolGraphQL,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
 
@@ -22,6 +23,7 @@ impl TryFrom<crate::instructions::postgres::BuyRow> for BuyGraphQL {
             amount: carbon_core::graphql::primitives::U64(*row.amount),
             max_sol_cost: carbon_core::graphql::primitives::U64(*row.max_sol_cost),
             track_volume: row.track_volume.0 .0,
+            partial_fill: row.partial_fill.0 .0,
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,

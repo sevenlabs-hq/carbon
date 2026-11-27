@@ -2,20 +2,36 @@
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod accounts_type;
 pub mod dex;
+pub mod dynamic_candidate;
+pub mod dynamic_route_spec;
+pub mod multi_commission_config;
 pub mod platform_fee_wrap_unwrap_args;
+pub mod remaining_accounts_info;
+pub mod remaining_accounts_slice;
+pub mod rfq_level;
+pub mod rfq_side;
 pub mod route;
+pub mod selection_mode;
 pub mod swap_args;
 pub mod swap_args_token_ledger;
 pub mod swap_cpi_event2;
 pub mod swap_event;
 pub mod swap_tob_v2_cpi_event2;
 pub mod swap_toc_v2_cpi_event2;
+pub mod swap_with_fee_cpi_event_v3;
 pub mod swap_with_fees_cpi_event2;
 pub mod swap_with_fees_cpi_event_enhanced2;
+pub mod trim_config;
+pub mod trim_fee_info;
 
 pub use self::{
-    dex::*, platform_fee_wrap_unwrap_args::*, route::*, swap_args::*, swap_args_token_ledger::*,
-    swap_cpi_event2::*, swap_event::*, swap_tob_v2_cpi_event2::*, swap_toc_v2_cpi_event2::*,
-    swap_with_fees_cpi_event2::*, swap_with_fees_cpi_event_enhanced2::*,
+    accounts_type::*, dex::*, dynamic_candidate::*, dynamic_route_spec::*,
+    multi_commission_config::*, platform_fee_wrap_unwrap_args::*, remaining_accounts_info::*,
+    remaining_accounts_slice::*, rfq_level::*, rfq_side::*, route::*, selection_mode::*,
+    swap_args::*, swap_args_token_ledger::*, swap_cpi_event2::*, swap_event::*,
+    swap_tob_v2_cpi_event2::*, swap_toc_v2_cpi_event2::*, swap_with_fee_cpi_event_v3::*,
+    swap_with_fees_cpi_event2::*, swap_with_fees_cpi_event_enhanced2::*, trim_config::*,
+    trim_fee_info::*,
 };

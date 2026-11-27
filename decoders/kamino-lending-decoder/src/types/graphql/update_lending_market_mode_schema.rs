@@ -50,6 +50,8 @@ pub enum UpdateLendingMarketModeGraphQL {
     UpdatePermissionedOps,
     DeprecatedUpdateReserveRewardsMaxAprPct,
     UpdateReserveRewardsMaxAprBps,
+    UpdateDisableNonceBlock,
+    UpdateMinObligationOrderExecutionValue,
 }
 
 impl From<crate::types::UpdateLendingMarketMode> for UpdateLendingMarketModeGraphQL {
@@ -101,6 +103,8 @@ impl From<crate::types::UpdateLendingMarketMode> for UpdateLendingMarketModeGrap
             crate::types::UpdateLendingMarketMode::UpdatePermissionedOps => Self::UpdatePermissionedOps,
             crate::types::UpdateLendingMarketMode::DeprecatedUpdateReserveRewardsMaxAprPct => Self::DeprecatedUpdateReserveRewardsMaxAprPct,
             crate::types::UpdateLendingMarketMode::UpdateReserveRewardsMaxAprBps => Self::UpdateReserveRewardsMaxAprBps,
+            crate::types::UpdateLendingMarketMode::UpdateDisableNonceBlock => Self::UpdateDisableNonceBlock,
+            crate::types::UpdateLendingMarketMode::UpdateMinObligationOrderExecutionValue => Self::UpdateMinObligationOrderExecutionValue,
         }
     }
 }

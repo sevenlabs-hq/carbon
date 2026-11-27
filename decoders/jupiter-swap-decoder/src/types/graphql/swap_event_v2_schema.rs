@@ -11,6 +11,7 @@ pub struct SwapEventV2GraphQL {
     pub input_amount: U64,
     pub output_mint: Pubkey,
     pub output_amount: U64,
+    pub amm: Pubkey,
 }
 
 impl From<crate::types::SwapEventV2> for SwapEventV2GraphQL {
@@ -20,6 +21,7 @@ impl From<crate::types::SwapEventV2> for SwapEventV2GraphQL {
             input_amount: carbon_core::graphql::primitives::U64(original.input_amount),
             output_mint: carbon_core::graphql::primitives::Pubkey(original.output_mint),
             output_amount: carbon_core::graphql::primitives::U64(original.output_amount),
+            amm: carbon_core::graphql::primitives::Pubkey(original.amm),
         }
     }
 }

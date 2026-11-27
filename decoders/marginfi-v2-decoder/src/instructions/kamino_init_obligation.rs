@@ -29,10 +29,6 @@ pub struct KaminoInitObligationInstructionAccounts {
     pub reserve_liquidity_supply: solana_pubkey::Pubkey,
     pub reserve_collateral_mint: solana_pubkey::Pubkey,
     pub reserve_destination_deposit_collateral: solana_pubkey::Pubkey,
-    pub pyth_oracle: Option<solana_pubkey::Pubkey>,
-    pub switchboard_price_oracle: Option<solana_pubkey::Pubkey>,
-    pub switchboard_twap_oracle: Option<solana_pubkey::Pubkey>,
-    pub scope_prices: Option<solana_pubkey::Pubkey>,
     pub obligation_farm_user_state: Option<solana_pubkey::Pubkey>,
     pub reserve_farm_state: Option<solana_pubkey::Pubkey>,
     pub kamino_program: solana_pubkey::Pubkey,
@@ -85,10 +81,6 @@ impl ArrangeAccounts for KaminoInitObligation {
         let reserve_liquidity_supply = next_account(&mut iter)?;
         let reserve_collateral_mint = next_account(&mut iter)?;
         let reserve_destination_deposit_collateral = next_account(&mut iter)?;
-        let pyth_oracle = next_account(&mut iter);
-        let switchboard_price_oracle = next_account(&mut iter);
-        let switchboard_twap_oracle = next_account(&mut iter);
-        let scope_prices = next_account(&mut iter);
         let obligation_farm_user_state = next_account(&mut iter);
         let reserve_farm_state = next_account(&mut iter);
         let kamino_program = next_account(&mut iter)?;
@@ -116,10 +108,6 @@ impl ArrangeAccounts for KaminoInitObligation {
             reserve_liquidity_supply,
             reserve_collateral_mint,
             reserve_destination_deposit_collateral,
-            pyth_oracle,
-            switchboard_price_oracle,
-            switchboard_twap_oracle,
-            scope_prices,
             obligation_farm_user_state,
             reserve_farm_state,
             kamino_program,

@@ -15,7 +15,6 @@ pub struct Authorize {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AuthorizeInstructionAccounts {
     pub stake: solana_pubkey::Pubkey,
-    pub clock_sysvar: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
     pub lockup_authority: Option<solana_pubkey::Pubkey>,
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -23,17 +22,17 @@ pub struct AuthorizeInstructionAccounts {
 
 impl Authorize {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 4 {
             return None;
         }
-        let discriminator = &data[0..1];
-        if discriminator != [1] {
+        let discriminator = &data[0..4];
+        if discriminator != [1, 0, 0, 0] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[1..];
+        data_slice = &data_slice[4..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
@@ -48,7 +47,6 @@ impl ArrangeAccounts for Authorize {
         let mut iter = accounts.iter();
 
         let stake = next_account(&mut iter)?;
-        let clock_sysvar = next_account(&mut iter)?;
         let authority = next_account(&mut iter)?;
         let lockup_authority = next_account(&mut iter);
 
@@ -56,7 +54,6 @@ impl ArrangeAccounts for Authorize {
 
         Some(AuthorizeInstructionAccounts {
             stake,
-            clock_sysvar,
             authority,
             lockup_authority,
             remaining: remaining.to_vec(),

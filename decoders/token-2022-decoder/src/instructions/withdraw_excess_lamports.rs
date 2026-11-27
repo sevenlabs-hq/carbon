@@ -10,8 +10,8 @@ pub struct WithdrawExcessLamports {}
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct WithdrawExcessLamportsInstructionAccounts {
-    pub source_account: solana_pubkey::Pubkey,
-    pub destination_account: solana_pubkey::Pubkey,
+    pub source: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
@@ -42,15 +42,15 @@ impl ArrangeAccounts for WithdrawExcessLamports {
     ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
 
-        let source_account = next_account(&mut iter)?;
-        let destination_account = next_account(&mut iter)?;
+        let source = next_account(&mut iter)?;
+        let destination = next_account(&mut iter)?;
         let authority = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(WithdrawExcessLamportsInstructionAccounts {
-            source_account,
-            destination_account,
+            source,
+            destination,
             authority,
             remaining: remaining.to_vec(),
         })

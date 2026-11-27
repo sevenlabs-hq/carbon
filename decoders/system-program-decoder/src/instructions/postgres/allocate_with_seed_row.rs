@@ -28,7 +28,7 @@ impl AllocateWithSeedRow {
         Self {
             instruction_metadata: metadata.into(),
             base: source.base.into(),
-            seed: source.seed,
+            seed: source.seed.into(),
             space: source.space.into(),
             program_address: source.program_address.into(),
             accounts: sqlx::types::Json(accounts),
@@ -41,7 +41,7 @@ impl TryFrom<AllocateWithSeedRow> for crate::instructions::allocate_with_seed::A
     fn try_from(source: AllocateWithSeedRow) -> Result<Self, Self::Error> {
         Ok(Self {
             base: *source.base,
-            seed: source.seed,
+            seed: source.seed.into(),
             space: *source.space,
             program_address: *source.program_address,
         })

@@ -2,7 +2,8 @@
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
-pub mod admin_set_creator_event;
+pub mod add_quote_control_mint_event;
+pub mod admin_cto_event;
 pub mod admin_set_idl_authority_event;
 pub mod admin_update_token_incentives_event;
 pub mod claim_cashback_event;
@@ -13,7 +14,9 @@ pub mod complete_event;
 pub mod complete_pump_amm_migration_event;
 pub mod config_status;
 pub mod create_event;
+pub mod curve_run_result;
 pub mod distribute_creator_fees_event;
+pub mod distribute_fee_to_holders_event;
 pub mod extend_account_event;
 pub mod fee_tier;
 pub mod fees;
@@ -21,25 +24,38 @@ pub mod init_user_volume_accumulator_event;
 pub mod migrate_bonding_curve_creator_event;
 pub mod minimum_distributable_fee_event;
 pub mod option_bool;
+pub mod option_u64;
+pub mod post_complete_buy_event;
+pub mod quote_control_mint;
+pub mod remove_quote_control_mint_event;
 pub mod reserved_fee_recipients_event;
 pub mod set_creator_event;
 pub mod set_metaplex_creator_event;
 pub mod set_params_event;
+pub mod set_quote_control_admin_event;
+pub mod set_quote_control_mint_reserves_event;
+pub mod set_quote_control_reserves_admin_event;
 pub mod shareholder;
+pub mod sweep_bonding_curve_fee_event;
 pub mod sync_user_volume_accumulator_event;
 pub mod trade_event;
+pub mod update_creator_fee_config_event;
 pub mod update_global_authority_event;
 pub mod update_mayhem_virtual_params_event;
 
 pub use self::{
-    admin_set_creator_event::*, admin_set_idl_authority_event::*,
+    add_quote_control_mint_event::*, admin_cto_event::*, admin_set_idl_authority_event::*,
     admin_update_token_incentives_event::*, claim_cashback_event::*,
     claim_token_incentives_event::*, close_user_volume_accumulator_event::*,
     collect_creator_fee_event::*, complete_event::*, complete_pump_amm_migration_event::*,
-    config_status::*, create_event::*, distribute_creator_fees_event::*, extend_account_event::*,
-    fee_tier::*, fees::*, init_user_volume_accumulator_event::*,
-    migrate_bonding_curve_creator_event::*, minimum_distributable_fee_event::*, option_bool::*,
-    reserved_fee_recipients_event::*, set_creator_event::*, set_metaplex_creator_event::*,
-    set_params_event::*, shareholder::*, sync_user_volume_accumulator_event::*, trade_event::*,
+    config_status::*, create_event::*, curve_run_result::*, distribute_creator_fees_event::*,
+    distribute_fee_to_holders_event::*, extend_account_event::*, fee_tier::*, fees::*,
+    init_user_volume_accumulator_event::*, migrate_bonding_curve_creator_event::*,
+    minimum_distributable_fee_event::*, option_bool::*, option_u64::*, post_complete_buy_event::*,
+    quote_control_mint::*, remove_quote_control_mint_event::*, reserved_fee_recipients_event::*,
+    set_creator_event::*, set_metaplex_creator_event::*, set_params_event::*,
+    set_quote_control_admin_event::*, set_quote_control_mint_reserves_event::*,
+    set_quote_control_reserves_admin_event::*, shareholder::*, sweep_bonding_curve_fee_event::*,
+    sync_user_volume_accumulator_event::*, trade_event::*, update_creator_fee_config_event::*,
     update_global_authority_event::*, update_mayhem_virtual_params_event::*,
 };

@@ -29,7 +29,9 @@ pub struct Pool {
     pub protocol_a_fee: u64,
     /// protocol b fee
     pub protocol_b_fee: u64,
-    pub padding2: u128,
+    /// Cumulative dead-liquidity fee (Compounding Pool only)
+    pub dead_liquidity_fee_checkpoint: u64,
+    pub padding2: [u8; 8],
     /// min price
     pub sqrt_min_price: u128,
     /// max price

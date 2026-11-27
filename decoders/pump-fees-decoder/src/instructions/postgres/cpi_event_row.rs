@@ -27,6 +27,9 @@ impl CpiEventRow {
                 CpiEvent::CreateFeeSharingConfigEvent(_) => {
                     "create_fee_sharing_config_event".to_string()
                 }
+                CpiEvent::DonationFeePdaCranked(_) => "donation_fee_pda_cranked".to_string(),
+                CpiEvent::DonationFeePdaCreated(_) => "donation_fee_pda_created".to_string(),
+                CpiEvent::ExtendFeeConfigEvent(_) => "extend_fee_config_event".to_string(),
                 CpiEvent::InitializeFeeConfigEvent(_) => "initialize_fee_config_event".to_string(),
                 CpiEvent::InitializeFeeProgramGlobalEvent(_) => {
                     "initialize_fee_program_global_event".to_string()
@@ -37,15 +40,24 @@ impl CpiEventRow {
                 CpiEvent::SetAuthorityEvent(_) => "set_authority_event".to_string(),
                 CpiEvent::SetClaimRateLimitEvent(_) => "set_claim_rate_limit_event".to_string(),
                 CpiEvent::SetDisableFlagsEvent(_) => "set_disable_flags_event".to_string(),
+                CpiEvent::SetExoticFlatFeesEvent(_) => "set_exotic_flat_fees_event".to_string(),
                 CpiEvent::SetSocialClaimAuthorityEvent(_) => {
                     "set_social_claim_authority_event".to_string()
                 }
                 CpiEvent::SocialFeePdaClaimed(_) => "social_fee_pda_claimed".to_string(),
                 CpiEvent::SocialFeePdaCreated(_) => "social_fee_pda_created".to_string(),
+                CpiEvent::SweepBuybackEvent(_) => "sweep_buyback_event".to_string(),
                 CpiEvent::UpdateAdminEvent(_) => "update_admin_event".to_string(),
                 CpiEvent::UpdateFeeConfigEvent(_) => "update_fee_config_event".to_string(),
                 CpiEvent::UpdateFeeSharesEvent(_) => "update_fee_shares_event".to_string(),
+                CpiEvent::UpdateStableFeeConfigEvent(_) => {
+                    "update_stable_fee_config_event".to_string()
+                }
                 CpiEvent::UpsertFeeTiersEvent(_) => "upsert_fee_tiers_event".to_string(),
+                CpiEvent::UpsertStableFeeTiersEvent(_) => {
+                    "upsert_stable_fee_tiers_event".to_string()
+                }
+                CpiEvent::WithdrawEvent(_) => "withdraw_event".to_string(),
             },
             data: sqlx::types::Json(source),
             accounts: sqlx::types::Json(accounts),

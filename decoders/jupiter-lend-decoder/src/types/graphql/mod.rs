@@ -7,6 +7,7 @@ pub mod log_claim_schema;
 pub mod log_collect_revenue_schema;
 pub mod log_operate_schema;
 pub mod log_pause_user_schema;
+pub mod log_token_lockdown_schema;
 pub mod log_unpause_user_schema;
 pub mod log_update_authority_schema;
 pub mod log_update_auths_schema;
@@ -31,8 +32,8 @@ pub mod user_supply_config_schema;
 pub use {
     address_bool_schema::*, address_u8_schema::*, log_borrow_rate_cap_schema::*,
     log_change_status_schema::*, log_claim_schema::*, log_collect_revenue_schema::*,
-    log_operate_schema::*, log_pause_user_schema::*, log_unpause_user_schema::*,
-    log_update_authority_schema::*, log_update_auths_schema::*,
+    log_operate_schema::*, log_pause_user_schema::*, log_token_lockdown_schema::*,
+    log_unpause_user_schema::*, log_update_authority_schema::*, log_update_auths_schema::*,
     log_update_exchange_prices_schema::*, log_update_guardians_schema::*,
     log_update_rate_data_v1_schema::*, log_update_rate_data_v2_schema::*,
     log_update_revenue_collector_schema::*, log_update_token_configs_schema::*,

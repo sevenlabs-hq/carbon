@@ -21,7 +21,7 @@ impl UpdateMetadataPointerRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            metadata_address: source.metadata_address.map(|value| value.into()),
+            metadata_address: source.metadata_address.0.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -33,7 +33,7 @@ impl TryFrom<UpdateMetadataPointerRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: UpdateMetadataPointerRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            metadata_address: source.metadata_address.map(|value| *value),
+            metadata_address: source.metadata_address.map(|value| *value).into(),
         })
     }
 }

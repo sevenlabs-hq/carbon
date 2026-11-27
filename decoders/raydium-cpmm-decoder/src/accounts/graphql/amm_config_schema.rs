@@ -18,6 +18,7 @@ pub struct AmmConfigGraphQL {
     pub protocol_owner: Pubkey,
     pub fund_owner: Pubkey,
     pub creator_fee_rate: U64,
+    pub creator_fee_share_rate: U64,
     pub padding: Vec<U64>,
 }
 
@@ -36,6 +37,9 @@ impl TryFrom<crate::accounts::postgres::AmmConfigRow> for AmmConfigGraphQL {
             protocol_owner: carbon_core::graphql::primitives::Pubkey(row.protocol_owner.0),
             fund_owner: carbon_core::graphql::primitives::Pubkey(row.fund_owner.0),
             creator_fee_rate: carbon_core::graphql::primitives::U64(*row.creator_fee_rate),
+            creator_fee_share_rate: carbon_core::graphql::primitives::U64(
+                *row.creator_fee_share_rate,
+            ),
             padding: row
                 .padding
                 .into_iter()

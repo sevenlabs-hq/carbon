@@ -12,7 +12,7 @@ pub struct PermanentLockPositionInstructionAccounts {
     pub pool: solana_pubkey::Pubkey,
     pub position: solana_pubkey::Pubkey,
     pub position_nft_account: solana_pubkey::Pubkey,
-    pub owner: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
     pub program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -47,7 +47,7 @@ impl ArrangeAccounts for PermanentLockPosition {
         let pool = next_account(&mut iter)?;
         let position = next_account(&mut iter)?;
         let position_nft_account = next_account(&mut iter)?;
-        let owner = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
         let program = next_account(&mut iter)?;
 
@@ -57,7 +57,7 @@ impl ArrangeAccounts for PermanentLockPosition {
             pool,
             position,
             position_nft_account,
-            owner,
+            signer,
             event_authority,
             program,
             remaining: remaining.to_vec(),

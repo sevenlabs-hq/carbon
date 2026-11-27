@@ -9,25 +9,26 @@ pub struct Withdraw {
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct WithdrawInstructionAccounts {
-    pub user: solana_pubkey::Pubkey,
-    pub vault_state: solana_pubkey::Pubkey,
-    pub token_vault: solana_pubkey::Pubkey,
-    pub base_vault_authority: solana_pubkey::Pubkey,
-    pub user_token_ata: solana_pubkey::Pubkey,
-    pub token_mint: solana_pubkey::Pubkey,
-    pub user_shares_ata: solana_pubkey::Pubkey,
-    pub shares_mint: solana_pubkey::Pubkey,
-    pub token_program: solana_pubkey::Pubkey,
-    pub shares_token_program: solana_pubkey::Pubkey,
-    pub klend_program: solana_pubkey::Pubkey,
-    pub reserve: solana_pubkey::Pubkey,
-    pub ctoken_vault: solana_pubkey::Pubkey,
-    pub lending_market: solana_pubkey::Pubkey,
-    pub lending_market_authority: solana_pubkey::Pubkey,
-    pub reserve_liquidity_supply: solana_pubkey::Pubkey,
-    pub reserve_collateral_mint: solana_pubkey::Pubkey,
-    pub reserve_collateral_token_program: solana_pubkey::Pubkey,
-    pub instruction_sysvar_account: solana_pubkey::Pubkey,
+    pub withdraw_from_available_user: solana_pubkey::Pubkey,
+    pub withdraw_from_available_vault_state: solana_pubkey::Pubkey,
+    pub withdraw_from_available_token_vault: solana_pubkey::Pubkey,
+    pub withdraw_from_available_base_vault_authority: solana_pubkey::Pubkey,
+    pub withdraw_from_available_user_token_ata: solana_pubkey::Pubkey,
+    pub withdraw_from_available_token_mint: solana_pubkey::Pubkey,
+    pub withdraw_from_available_user_shares_ata: solana_pubkey::Pubkey,
+    pub withdraw_from_available_shares_mint: solana_pubkey::Pubkey,
+    pub withdraw_from_available_token_program: solana_pubkey::Pubkey,
+    pub withdraw_from_available_shares_token_program: solana_pubkey::Pubkey,
+    pub withdraw_from_available_klend_program: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts_vault_state: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts_reserve: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts_ctoken_vault: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts_lending_market: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts_lending_market_authority: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts_reserve_liquidity_supply: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts_reserve_collateral_mint: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts_reserve_collateral_token_program: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts_instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -57,48 +58,51 @@ impl ArrangeAccounts for Withdraw {
     ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
 
-        let user = next_account(&mut iter)?;
-        let vault_state = next_account(&mut iter)?;
-        let token_vault = next_account(&mut iter)?;
-        let base_vault_authority = next_account(&mut iter)?;
-        let user_token_ata = next_account(&mut iter)?;
-        let token_mint = next_account(&mut iter)?;
-        let user_shares_ata = next_account(&mut iter)?;
-        let shares_mint = next_account(&mut iter)?;
-        let token_program = next_account(&mut iter)?;
-        let shares_token_program = next_account(&mut iter)?;
-        let klend_program = next_account(&mut iter)?;
-        let reserve = next_account(&mut iter)?;
-        let ctoken_vault = next_account(&mut iter)?;
-        let lending_market = next_account(&mut iter)?;
-        let lending_market_authority = next_account(&mut iter)?;
-        let reserve_liquidity_supply = next_account(&mut iter)?;
-        let reserve_collateral_mint = next_account(&mut iter)?;
-        let reserve_collateral_token_program = next_account(&mut iter)?;
-        let instruction_sysvar_account = next_account(&mut iter)?;
+        let withdraw_from_available_user = next_account(&mut iter)?;
+        let withdraw_from_available_vault_state = next_account(&mut iter)?;
+        let withdraw_from_available_token_vault = next_account(&mut iter)?;
+        let withdraw_from_available_base_vault_authority = next_account(&mut iter)?;
+        let withdraw_from_available_user_token_ata = next_account(&mut iter)?;
+        let withdraw_from_available_token_mint = next_account(&mut iter)?;
+        let withdraw_from_available_user_shares_ata = next_account(&mut iter)?;
+        let withdraw_from_available_shares_mint = next_account(&mut iter)?;
+        let withdraw_from_available_token_program = next_account(&mut iter)?;
+        let withdraw_from_available_shares_token_program = next_account(&mut iter)?;
+        let withdraw_from_available_klend_program = next_account(&mut iter)?;
+        let withdraw_from_reserve_accounts_vault_state = next_account(&mut iter)?;
+        let withdraw_from_reserve_accounts_reserve = next_account(&mut iter)?;
+        let withdraw_from_reserve_accounts_ctoken_vault = next_account(&mut iter)?;
+        let withdraw_from_reserve_accounts_lending_market = next_account(&mut iter)?;
+        let withdraw_from_reserve_accounts_lending_market_authority = next_account(&mut iter)?;
+        let withdraw_from_reserve_accounts_reserve_liquidity_supply = next_account(&mut iter)?;
+        let withdraw_from_reserve_accounts_reserve_collateral_mint = next_account(&mut iter)?;
+        let withdraw_from_reserve_accounts_reserve_collateral_token_program =
+            next_account(&mut iter)?;
+        let withdraw_from_reserve_accounts_instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(WithdrawInstructionAccounts {
-            user,
-            vault_state,
-            token_vault,
-            base_vault_authority,
-            user_token_ata,
-            token_mint,
-            user_shares_ata,
-            shares_mint,
-            token_program,
-            shares_token_program,
-            klend_program,
-            reserve,
-            ctoken_vault,
-            lending_market,
-            lending_market_authority,
-            reserve_liquidity_supply,
-            reserve_collateral_mint,
-            reserve_collateral_token_program,
-            instruction_sysvar_account,
+            withdraw_from_available_user,
+            withdraw_from_available_vault_state,
+            withdraw_from_available_token_vault,
+            withdraw_from_available_base_vault_authority,
+            withdraw_from_available_user_token_ata,
+            withdraw_from_available_token_mint,
+            withdraw_from_available_user_shares_ata,
+            withdraw_from_available_shares_mint,
+            withdraw_from_available_token_program,
+            withdraw_from_available_shares_token_program,
+            withdraw_from_available_klend_program,
+            withdraw_from_reserve_accounts_vault_state,
+            withdraw_from_reserve_accounts_reserve,
+            withdraw_from_reserve_accounts_ctoken_vault,
+            withdraw_from_reserve_accounts_lending_market,
+            withdraw_from_reserve_accounts_lending_market_authority,
+            withdraw_from_reserve_accounts_reserve_liquidity_supply,
+            withdraw_from_reserve_accounts_reserve_collateral_mint,
+            withdraw_from_reserve_accounts_reserve_collateral_token_program,
+            withdraw_from_reserve_accounts_instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })
     }

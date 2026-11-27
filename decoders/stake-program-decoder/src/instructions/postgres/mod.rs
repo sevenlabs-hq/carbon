@@ -12,7 +12,6 @@ pub mod initialize_row;
 pub mod merge_row;
 pub mod move_lamports_row;
 pub mod move_stake_row;
-pub mod redelegate_row;
 pub mod set_lockup_checked_row;
 pub mod set_lockup_row;
 pub mod split_row;
@@ -22,7 +21,7 @@ pub use self::{
     authorize_checked_row::*, authorize_checked_with_seed_row::*, authorize_row::*,
     authorize_with_seed_row::*, deactivate_delinquent_row::*, deactivate_row::*,
     delegate_stake_row::*, get_minimum_delegation_row::*, initialize_checked_row::*,
-    initialize_row::*, merge_row::*, move_lamports_row::*, move_stake_row::*, redelegate_row::*,
+    initialize_row::*, merge_row::*, move_lamports_row::*, move_stake_row::*,
     set_lockup_checked_row::*, set_lockup_row::*, split_row::*, withdraw_row::*,
 };
 use super::StakeProgramInstruction;
@@ -53,7 +52,6 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for StakeProgramInstructionsMigrat
             Box::new(MergeMigrationOperation),
             Box::new(MoveLamportsMigrationOperation),
             Box::new(MoveStakeMigrationOperation),
-            Box::new(RedelegateMigrationOperation),
             Box::new(SetLockupMigrationOperation),
             Box::new(SetLockupCheckedMigrationOperation),
             Box::new(SplitMigrationOperation),
@@ -144,11 +142,6 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for StakeProgramInstructionsAbsolu
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "move_stake_instruction",
-                ),
-            ),
-            Box::new(
-                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
-                    "redelegate_instruction",
                 ),
             ),
             Box::new(
@@ -341,15 +334,6 @@ impl carbon_core::postgres::operations::Insert for StakeProgramInstructionWithMe
                 row.insert(pool).await?;
                 Ok(())
             }
-            StakeProgramInstruction::Redelegate { data, .. } => {
-                let row = redelegate_row::RedelegateRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
             StakeProgramInstruction::MoveStake { data, .. } => {
                 let row = move_stake_row::MoveStakeRow::from_parts(
                     data.clone(),
@@ -505,15 +489,6 @@ impl carbon_core::postgres::operations::Upsert for StakeProgramInstructionWithMe
             }
             StakeProgramInstruction::DeactivateDelinquent { data, .. } => {
                 let row = deactivate_delinquent_row::DeactivateDelinquentRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            StakeProgramInstruction::Redelegate { data, .. } => {
-                let row = redelegate_row::RedelegateRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

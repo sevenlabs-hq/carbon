@@ -23,9 +23,9 @@ impl InitializeConfidentialTransferMintRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            authority: source.authority.map(|value| value.into()),
+            authority: source.authority.0.map(|value| value.into()),
             auto_approve_new_accounts: source.auto_approve_new_accounts,
-            auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.map(|value| value.into()),
+            auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.0.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -35,9 +35,9 @@ impl TryFrom<InitializeConfidentialTransferMintRow> for crate::instructions::ini
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeConfidentialTransferMintRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            authority: source.authority.map(|value| *value),
+            authority: source.authority.map(|value| *value).into(),
             auto_approve_new_accounts: source.auto_approve_new_accounts,
-            auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.map(|value| *value),
+            auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.map(|value| *value).into(),
         })
     }
 }

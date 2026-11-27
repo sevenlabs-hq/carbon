@@ -2,7 +2,9 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// (account authority, or any signer during receivership) Withdraw assets from
 /// a bank. Accrues interest, records withdrawal, transfers tokens, and runs a
-/// health check (skipped during receivership).
+/// health check (skipped during receivership). If group rate limits are
+/// enabled, `remaining_accounts` must include the withdrawn bank's oracle group
+/// for USD pricing.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingAccountWithdraw {

@@ -24,10 +24,11 @@ impl CpiEventRow {
         Self {
             instruction_metadata: metadata.into(),
             name: match &source {
-                CpiEvent::AdminSetCoinCreatorEvent(_) => "admin_set_coin_creator_event".to_string(),
+                CpiEvent::AdminCtoPoolEvent(_) => "admin_cto_pool_event".to_string(),
                 CpiEvent::AdminUpdateTokenIncentivesEvent(_) => {
                     "admin_update_token_incentives_event".to_string()
                 }
+                CpiEvent::BoostBuyAndBurnEvent(_) => "boost_buy_and_burn_event".to_string(),
                 CpiEvent::BuyEvent(_) => "buy_event".to_string(),
                 CpiEvent::ClaimCashbackEvent(_) => "claim_cashback_event".to_string(),
                 CpiEvent::ClaimTokenIncentivesEvent(_) => {
@@ -44,6 +45,7 @@ impl CpiEventRow {
                 CpiEvent::DepositEvent(_) => "deposit_event".to_string(),
                 CpiEvent::DisableEvent(_) => "disable_event".to_string(),
                 CpiEvent::ExtendAccountEvent(_) => "extend_account_event".to_string(),
+                CpiEvent::InitBoostEvent(_) => "init_boost_event".to_string(),
                 CpiEvent::InitUserVolumeAccumulatorEvent(_) => {
                     "init_user_volume_accumulator_event".to_string()
                 }
@@ -57,13 +59,18 @@ impl CpiEventRow {
                 CpiEvent::SetBondingCurveCoinCreatorEvent(_) => {
                     "set_bonding_curve_coin_creator_event".to_string()
                 }
+                CpiEvent::SetBoostAuthorityEvent(_) => "set_boost_authority_event".to_string(),
                 CpiEvent::SetMetaplexCoinCreatorEvent(_) => {
                     "set_metaplex_coin_creator_event".to_string()
                 }
+                CpiEvent::SweepPoolFeeEvent(_) => "sweep_pool_fee_event".to_string(),
                 CpiEvent::SyncUserVolumeAccumulatorEvent(_) => {
                     "sync_user_volume_accumulator_event".to_string()
                 }
                 CpiEvent::UpdateAdminEvent(_) => "update_admin_event".to_string(),
+                CpiEvent::UpdateCreatorFeeConfigEvent(_) => {
+                    "update_creator_fee_config_event".to_string()
+                }
                 CpiEvent::UpdateFeeConfigEvent(_) => "update_fee_config_event".to_string(),
                 CpiEvent::WithdrawEvent(_) => "withdraw_event".to_string(),
             },

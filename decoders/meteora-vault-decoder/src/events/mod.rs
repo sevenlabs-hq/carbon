@@ -8,3 +8,4 @@ pub mod report_loss;
 pub mod strategy_deposit;
 pub mod strategy_withdraw;
 pub mod total_amount;
+pub mod vault_migrated;

@@ -5,7 +5,6 @@ pub mod amm_state_schema;
 pub mod amm_status_schema;
 pub mod config_param_schema;
 pub mod fees_schema;
-pub mod last_order_distance_schema;
 pub mod simulate_params_schema;
 pub mod state_data_schema;
 pub mod swap_instruction_base_in_schema;
@@ -14,7 +13,7 @@ pub mod target_order_schema;
 
 pub use {
     amm_params_schema::*, amm_reset_flag_schema::*, amm_state_schema::*, amm_status_schema::*,
-    config_param_schema::*, fees_schema::*, last_order_distance_schema::*,
-    simulate_params_schema::*, state_data_schema::*, swap_instruction_base_in_schema::*,
-    swap_instruction_base_out_schema::*, target_order_schema::*,
+    config_param_schema::*, fees_schema::*, simulate_params_schema::*, state_data_schema::*,
+    swap_instruction_base_in_schema::*, swap_instruction_base_out_schema::*,
+    target_order_schema::*,
 };

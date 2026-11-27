@@ -6,4 +6,6 @@ pub struct ZeroFiSwapOptions {
     pub amount: u64,
     /// Optional flags for the swap
     pub orchestrator_flags: OrchestratorFlags,
+    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
+    pub swap_auth: [u8; 40],
 }

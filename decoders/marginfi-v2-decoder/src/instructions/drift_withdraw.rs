@@ -2,6 +2,10 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// (user) Withdraw from a Drift spot market through a marginfi account
 /// * amount - in the underlying token (e.g., USDC), in native decimals
+/// * if group rate limits are enabled, include the withdrawn bank's oracle
+///   group in
+///
+/// `remaining_accounts`
 /// * withdraw_all - if true, withdraws entire position
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]

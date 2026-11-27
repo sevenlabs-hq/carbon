@@ -24,6 +24,7 @@ pub struct ConfigRow {
     pub index: U64,
     pub sqrt_min_price: U128,
     pub sqrt_max_price: U128,
+    pub permission: U128,
     pub padding1: Vec<U64>,
 }
 
@@ -41,6 +42,7 @@ impl ConfigRow {
             index: source.index.into(),
             sqrt_min_price: source.sqrt_min_price.into(),
             sqrt_max_price: source.sqrt_max_price.into(),
+            permission: source.permission.into(),
             padding1: source
                 .padding1
                 .into_iter()
@@ -81,6 +83,7 @@ impl TryFrom<ConfigRow> for crate::accounts::config::Config {
             index: *source.index,
             sqrt_min_price: *source.sqrt_min_price,
             sqrt_max_price: *source.sqrt_max_price,
+            permission: *source.permission,
             padding1: source
                 .padding1
                 .into_iter()
@@ -120,6 +123,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::config::Confi
             "index",
             "sqrt_min_price",
             "sqrt_max_price",
+            "permission",
             "padding1",
         ]
     }
@@ -141,10 +145,11 @@ impl carbon_core::postgres::operations::Insert for ConfigRow {
                 "index",
                 "sqrt_min_price",
                 "sqrt_max_price",
+                "permission",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             )"#,
         )
         .bind(self.vault_config_key)
@@ -157,6 +162,7 @@ impl carbon_core::postgres::operations::Insert for ConfigRow {
         .bind(&self.index)
         .bind(&self.sqrt_min_price)
         .bind(&self.sqrt_max_price)
+        .bind(&self.permission)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -182,10 +188,11 @@ impl carbon_core::postgres::operations::Upsert for ConfigRow {
                 "index",
                 "sqrt_min_price",
                 "sqrt_max_price",
+                "permission",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -199,6 +206,7 @@ impl carbon_core::postgres::operations::Upsert for ConfigRow {
                 "index" = EXCLUDED."index",
                 "sqrt_min_price" = EXCLUDED."sqrt_min_price",
                 "sqrt_max_price" = EXCLUDED."sqrt_max_price",
+                "permission" = EXCLUDED."permission",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
@@ -215,6 +223,7 @@ impl carbon_core::postgres::operations::Upsert for ConfigRow {
         .bind(&self.index)
         .bind(&self.sqrt_min_price)
         .bind(&self.sqrt_max_price)
+        .bind(&self.permission)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -285,6 +294,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfigMigrationOperation {
                 "index" NUMERIC(20) NOT NULL,
                 "sqrt_min_price" NUMERIC(39) NOT NULL,
                 "sqrt_max_price" NUMERIC(39) NOT NULL,
+                "permission" NUMERIC(39) NOT NULL,
                 "padding1" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

@@ -13,13 +13,16 @@ pub mod claim_creator_fee;
 pub mod claim_platform_fee;
 pub mod claim_platform_fee_from_vault;
 pub mod claim_vested_token;
-pub mod close_platform_global_access;
+pub mod close_platform_allow_config;
+pub mod close_platform_curve_rule;
+pub mod collect_excess_lamports;
 pub mod collect_fee;
 pub mod collect_migrate_fee;
 pub mod cpi_event;
 pub mod create_config;
+pub mod create_platform_allow_config;
 pub mod create_platform_config;
-pub mod create_platform_global_access;
+pub mod create_platform_curve_rule;
 pub mod create_platform_vesting_account;
 pub mod create_vesting_account;
 pub mod initialize;
@@ -27,22 +30,22 @@ pub mod initialize_v2;
 pub mod initialize_with_token2022;
 pub mod migrate_to_amm;
 pub mod migrate_to_cpswap;
-pub mod remove_platform_curve_param;
+pub mod remove_platform_curve_rule;
 pub mod sell_exact_in;
 pub mod sell_exact_out;
 pub mod update_config;
 pub mod update_platform_config;
-pub mod update_platform_curve_param;
+pub mod update_platform_curve_rule;
 
 pub use self::{
     buy_exact_in::*, buy_exact_out::*, claim_creator_fee::*, claim_platform_fee::*,
-    claim_platform_fee_from_vault::*, claim_vested_token::*, close_platform_global_access::*,
-    collect_fee::*, collect_migrate_fee::*, cpi_event::*, create_config::*,
-    create_platform_config::*, create_platform_global_access::*,
-    create_platform_vesting_account::*, create_vesting_account::*, initialize::*, initialize_v2::*,
-    initialize_with_token2022::*, migrate_to_amm::*, migrate_to_cpswap::*,
-    remove_platform_curve_param::*, sell_exact_in::*, sell_exact_out::*, update_config::*,
-    update_platform_config::*, update_platform_curve_param::*,
+    claim_platform_fee_from_vault::*, claim_vested_token::*, close_platform_allow_config::*,
+    close_platform_curve_rule::*, collect_excess_lamports::*, collect_fee::*,
+    collect_migrate_fee::*, cpi_event::*, create_config::*, create_platform_allow_config::*,
+    create_platform_config::*, create_platform_curve_rule::*, create_platform_vesting_account::*,
+    create_vesting_account::*, initialize::*, initialize_v2::*, initialize_with_token2022::*,
+    migrate_to_amm::*, migrate_to_cpswap::*, remove_platform_curve_rule::*, sell_exact_in::*,
+    sell_exact_out::*, update_config::*, update_platform_config::*, update_platform_curve_rule::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -80,10 +83,20 @@ pub enum RaydiumLaunchpadInstruction {
         data: ClaimVestedToken,
         accounts: ClaimVestedTokenInstructionAccounts,
     },
-    ClosePlatformGlobalAccess {
+    ClosePlatformAllowConfig {
         program_id: solana_pubkey::Pubkey,
-        data: ClosePlatformGlobalAccess,
-        accounts: ClosePlatformGlobalAccessInstructionAccounts,
+        data: ClosePlatformAllowConfig,
+        accounts: ClosePlatformAllowConfigInstructionAccounts,
+    },
+    ClosePlatformCurveRule {
+        program_id: solana_pubkey::Pubkey,
+        data: ClosePlatformCurveRule,
+        accounts: ClosePlatformCurveRuleInstructionAccounts,
+    },
+    CollectExcessLamports {
+        program_id: solana_pubkey::Pubkey,
+        data: CollectExcessLamports,
+        accounts: CollectExcessLamportsInstructionAccounts,
     },
     CollectFee {
         program_id: solana_pubkey::Pubkey,
@@ -100,15 +113,20 @@ pub enum RaydiumLaunchpadInstruction {
         data: CreateConfig,
         accounts: CreateConfigInstructionAccounts,
     },
+    CreatePlatformAllowConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatePlatformAllowConfig,
+        accounts: CreatePlatformAllowConfigInstructionAccounts,
+    },
     CreatePlatformConfig {
         program_id: solana_pubkey::Pubkey,
         data: CreatePlatformConfig,
         accounts: CreatePlatformConfigInstructionAccounts,
     },
-    CreatePlatformGlobalAccess {
+    CreatePlatformCurveRule {
         program_id: solana_pubkey::Pubkey,
-        data: CreatePlatformGlobalAccess,
-        accounts: CreatePlatformGlobalAccessInstructionAccounts,
+        data: CreatePlatformCurveRule,
+        accounts: CreatePlatformCurveRuleInstructionAccounts,
     },
     CreatePlatformVestingAccount {
         program_id: solana_pubkey::Pubkey,
@@ -145,10 +163,10 @@ pub enum RaydiumLaunchpadInstruction {
         data: MigrateToCpswap,
         accounts: MigrateToCpswapInstructionAccounts,
     },
-    RemovePlatformCurveParam {
+    RemovePlatformCurveRule {
         program_id: solana_pubkey::Pubkey,
-        data: RemovePlatformCurveParam,
-        accounts: RemovePlatformCurveParamInstructionAccounts,
+        data: RemovePlatformCurveRule,
+        accounts: RemovePlatformCurveRuleInstructionAccounts,
     },
     SellExactIn {
         program_id: solana_pubkey::Pubkey,
@@ -170,10 +188,10 @@ pub enum RaydiumLaunchpadInstruction {
         data: UpdatePlatformConfig,
         accounts: UpdatePlatformConfigInstructionAccounts,
     },
-    UpdatePlatformCurveParam {
+    UpdatePlatformCurveRule {
         program_id: solana_pubkey::Pubkey,
-        data: UpdatePlatformCurveParam,
-        accounts: UpdatePlatformCurveParamInstructionAccounts,
+        data: UpdatePlatformCurveRule,
+        accounts: UpdatePlatformCurveRuleInstructionAccounts,
     },
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
@@ -196,18 +214,22 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumLaunchpadDecode
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            RaydiumLaunchpadInstruction::CpiEvent => CpiEvent,
             RaydiumLaunchpadInstruction::BuyExactIn => BuyExactIn,
             RaydiumLaunchpadInstruction::BuyExactOut => BuyExactOut,
             RaydiumLaunchpadInstruction::ClaimCreatorFee => ClaimCreatorFee,
             RaydiumLaunchpadInstruction::ClaimPlatformFee => ClaimPlatformFee,
             RaydiumLaunchpadInstruction::ClaimPlatformFeeFromVault => ClaimPlatformFeeFromVault,
             RaydiumLaunchpadInstruction::ClaimVestedToken => ClaimVestedToken,
-            RaydiumLaunchpadInstruction::ClosePlatformGlobalAccess => ClosePlatformGlobalAccess,
+            RaydiumLaunchpadInstruction::ClosePlatformAllowConfig => ClosePlatformAllowConfig,
+            RaydiumLaunchpadInstruction::ClosePlatformCurveRule => ClosePlatformCurveRule,
+            RaydiumLaunchpadInstruction::CollectExcessLamports => CollectExcessLamports,
             RaydiumLaunchpadInstruction::CollectFee => CollectFee,
             RaydiumLaunchpadInstruction::CollectMigrateFee => CollectMigrateFee,
             RaydiumLaunchpadInstruction::CreateConfig => CreateConfig,
+            RaydiumLaunchpadInstruction::CreatePlatformAllowConfig => CreatePlatformAllowConfig,
             RaydiumLaunchpadInstruction::CreatePlatformConfig => CreatePlatformConfig,
-            RaydiumLaunchpadInstruction::CreatePlatformGlobalAccess => CreatePlatformGlobalAccess,
+            RaydiumLaunchpadInstruction::CreatePlatformCurveRule => CreatePlatformCurveRule,
             RaydiumLaunchpadInstruction::CreatePlatformVestingAccount => CreatePlatformVestingAccount,
             RaydiumLaunchpadInstruction::CreateVestingAccount => CreateVestingAccount,
             RaydiumLaunchpadInstruction::Initialize => Initialize,
@@ -215,13 +237,12 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumLaunchpadDecode
             RaydiumLaunchpadInstruction::InitializeWithToken2022 => InitializeWithToken2022,
             RaydiumLaunchpadInstruction::MigrateToAmm => MigrateToAmm,
             RaydiumLaunchpadInstruction::MigrateToCpswap => MigrateToCpswap,
-            RaydiumLaunchpadInstruction::RemovePlatformCurveParam => RemovePlatformCurveParam,
+            RaydiumLaunchpadInstruction::RemovePlatformCurveRule => RemovePlatformCurveRule,
             RaydiumLaunchpadInstruction::SellExactIn => SellExactIn,
             RaydiumLaunchpadInstruction::SellExactOut => SellExactOut,
             RaydiumLaunchpadInstruction::UpdateConfig => UpdateConfig,
             RaydiumLaunchpadInstruction::UpdatePlatformConfig => UpdatePlatformConfig,
-            RaydiumLaunchpadInstruction::UpdatePlatformCurveParam => UpdatePlatformCurveParam,
-            RaydiumLaunchpadInstruction::CpiEvent => CpiEvent,
+            RaydiumLaunchpadInstruction::UpdatePlatformCurveRule => UpdatePlatformCurveRule,
         )
     }
 }

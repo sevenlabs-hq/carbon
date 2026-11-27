@@ -11,4 +11,15 @@ pub enum LeafSchema {
         data_hash: [u8; 32],
         creator_hash: [u8; 32],
     },
+    V2 {
+        id: Pubkey,
+        owner: Pubkey,
+        delegate: Pubkey,
+        nonce: u64,
+        data_hash: [u8; 32],
+        creator_hash: [u8; 32],
+        collection_hash: [u8; 32],
+        asset_data_hash: [u8; 32],
+        flags: u8,
+    },
 }

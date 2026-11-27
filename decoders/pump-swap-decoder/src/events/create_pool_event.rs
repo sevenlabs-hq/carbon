@@ -25,6 +25,9 @@ pub struct CreatePoolEventEvent {
     pub user_quote_token_account: Pubkey,
     pub coin_creator: Pubkey,
     pub is_mayhem_mode: bool,
+    pub creator_fee_bps: u64,
+    pub can_edit_creator_fee: bool,
+    pub is_holder_reward: bool,
 }
 
 impl CreatePoolEventEvent {

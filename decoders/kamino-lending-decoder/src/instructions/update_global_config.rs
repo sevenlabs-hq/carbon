@@ -15,6 +15,7 @@ pub struct UpdateGlobalConfig {
 pub struct UpdateGlobalConfigInstructionAccounts {
     pub global_admin: solana_pubkey::Pubkey,
     pub global_config: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -46,12 +47,14 @@ impl ArrangeAccounts for UpdateGlobalConfig {
 
         let global_admin = next_account(&mut iter)?;
         let global_config = next_account(&mut iter)?;
+        let instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(UpdateGlobalConfigInstructionAccounts {
             global_admin,
             global_config,
+            instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })
     }

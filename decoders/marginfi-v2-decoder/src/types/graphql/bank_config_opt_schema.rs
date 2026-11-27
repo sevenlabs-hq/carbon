@@ -27,6 +27,16 @@ pub struct BankConfigOptGraphQL {
     pub permissionless_bad_debt_settlement: Option<bool>,
     pub freeze_settings: Option<bool>,
     pub tokenless_repayments_allowed: Option<bool>,
+    pub liquidation_liquidator_fee: Option<U32>,
+    pub liquidation_insurance_fee: Option<U32>,
+    pub circuit_breaker_enabled: Option<bool>,
+    pub cb_deviation_bps_tiers: Option<Vec<i32>>,
+    pub cb_tier_durations_seconds: Option<Vec<i32>>,
+    pub cb_escalation_window_mult: Option<U8>,
+    pub cb_ema_alpha_bps: Option<i32>,
+    pub cb_window_seconds: Option<U32>,
+    pub cb_window_max_up_bps: Option<i32>,
+    pub cb_window_max_down_bps: Option<i32>,
 }
 
 impl From<crate::types::BankConfigOpt> for BankConfigOptGraphQL {
@@ -56,6 +66,28 @@ impl From<crate::types::BankConfigOpt> for BankConfigOptGraphQL {
             permissionless_bad_debt_settlement: original.permissionless_bad_debt_settlement,
             freeze_settings: original.freeze_settings,
             tokenless_repayments_allowed: original.tokenless_repayments_allowed,
+            liquidation_liquidator_fee: original
+                .liquidation_liquidator_fee
+                .map(carbon_core::graphql::primitives::U32),
+            liquidation_insurance_fee: original
+                .liquidation_insurance_fee
+                .map(carbon_core::graphql::primitives::U32),
+            circuit_breaker_enabled: original.circuit_breaker_enabled,
+            cb_deviation_bps_tiers: original
+                .cb_deviation_bps_tiers
+                .map(|v| v.into_iter().map(|item| item as i32).collect()),
+            cb_tier_durations_seconds: original
+                .cb_tier_durations_seconds
+                .map(|v| v.into_iter().map(|item| item as i32).collect()),
+            cb_escalation_window_mult: original
+                .cb_escalation_window_mult
+                .map(carbon_core::graphql::primitives::U8),
+            cb_ema_alpha_bps: original.cb_ema_alpha_bps.map(|v| v as i32),
+            cb_window_seconds: original
+                .cb_window_seconds
+                .map(carbon_core::graphql::primitives::U32),
+            cb_window_max_up_bps: original.cb_window_max_up_bps.map(|v| v as i32),
+            cb_window_max_down_bps: original.cb_window_max_down_bps.map(|v| v as i32),
         }
     }
 }

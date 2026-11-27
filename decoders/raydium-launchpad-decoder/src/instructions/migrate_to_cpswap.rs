@@ -31,8 +31,8 @@ pub struct MigrateToCpswapInstructionAccounts {
     pub base_vault: solana_pubkey::Pubkey,
     pub quote_vault: solana_pubkey::Pubkey,
     pub pool_lp_token: solana_pubkey::Pubkey,
-    pub base_token_program: solana_pubkey::Pubkey,
-    pub quote_token_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_program2022: solana_pubkey::Pubkey,
     pub associated_token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub rent_program: solana_pubkey::Pubkey,
@@ -88,8 +88,8 @@ impl ArrangeAccounts for MigrateToCpswap {
         let base_vault = next_account(&mut iter)?;
         let quote_vault = next_account(&mut iter)?;
         let pool_lp_token = next_account(&mut iter)?;
-        let base_token_program = next_account(&mut iter)?;
-        let quote_token_program = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let token_program2022 = next_account(&mut iter)?;
         let associated_token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
         let rent_program = next_account(&mut iter)?;
@@ -120,8 +120,8 @@ impl ArrangeAccounts for MigrateToCpswap {
             base_vault,
             quote_vault,
             pool_lp_token,
-            base_token_program,
-            quote_token_program,
+            token_program,
+            token_program2022,
             associated_token_program,
             system_program,
             rent_program,

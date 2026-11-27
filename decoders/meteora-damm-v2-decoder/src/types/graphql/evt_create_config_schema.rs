@@ -17,6 +17,7 @@ pub struct EvtCreateConfigGraphQL {
     pub collect_fee_mode: U8,
     pub index: U64,
     pub config: Pubkey,
+    pub permission: U128,
 }
 
 impl From<crate::types::EvtCreateConfig> for EvtCreateConfigGraphQL {
@@ -33,6 +34,7 @@ impl From<crate::types::EvtCreateConfig> for EvtCreateConfigGraphQL {
             collect_fee_mode: carbon_core::graphql::primitives::U8(original.collect_fee_mode),
             index: carbon_core::graphql::primitives::U64(original.index),
             config: carbon_core::graphql::primitives::Pubkey(original.config),
+            permission: carbon_core::graphql::primitives::U128(original.permission),
         }
     }
 }

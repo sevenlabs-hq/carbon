@@ -28,6 +28,7 @@ impl CpiEventRow {
                 CpiEvent::SwapEvent(_) => "swap_event".to_string(),
                 CpiEvent::SwapTobV2CpiEvent2(_) => "swap_tob_v2_cpi_event2".to_string(),
                 CpiEvent::SwapTocV2CpiEvent2(_) => "swap_toc_v2_cpi_event2".to_string(),
+                CpiEvent::SwapWithFeeCpiEventV3(_) => "swap_with_fee_cpi_event_v3".to_string(),
                 CpiEvent::SwapWithFeesCpiEvent2(_) => "swap_with_fees_cpi_event2".to_string(),
                 CpiEvent::SwapWithFeesCpiEventEnhanced2(_) => {
                     "swap_with_fees_cpi_event_enhanced2".to_string()

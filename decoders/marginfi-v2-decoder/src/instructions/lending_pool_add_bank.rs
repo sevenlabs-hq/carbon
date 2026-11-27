@@ -3,7 +3,7 @@ use {
     crate::types::BankConfigCompact,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (admin only) Add a new bank to the lending pool
+/// (governance_admin only) Add a new bank to the lending pool
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingPoolAddBank {
@@ -14,7 +14,7 @@ pub struct LendingPoolAddBank {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LendingPoolAddBankInstructionAccounts {
     pub marginfi_group: solana_pubkey::Pubkey,
-    pub admin: solana_pubkey::Pubkey,
+    pub governance_admin: solana_pubkey::Pubkey,
     pub fee_payer: solana_pubkey::Pubkey,
     pub fee_state: solana_pubkey::Pubkey,
     pub global_fee_wallet: solana_pubkey::Pubkey,
@@ -28,6 +28,7 @@ pub struct LendingPoolAddBankInstructionAccounts {
     pub fee_vault: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -58,7 +59,7 @@ impl ArrangeAccounts for LendingPoolAddBank {
         let mut iter = accounts.iter();
 
         let marginfi_group = next_account(&mut iter)?;
-        let admin = next_account(&mut iter)?;
+        let governance_admin = next_account(&mut iter)?;
         let fee_payer = next_account(&mut iter)?;
         let fee_state = next_account(&mut iter)?;
         let global_fee_wallet = next_account(&mut iter)?;
@@ -72,12 +73,13 @@ impl ArrangeAccounts for LendingPoolAddBank {
         let fee_vault = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(LendingPoolAddBankInstructionAccounts {
             marginfi_group,
-            admin,
+            governance_admin,
             fee_payer,
             fee_state,
             global_fee_wallet,
@@ -91,6 +93,7 @@ impl ArrangeAccounts for LendingPoolAddBank {
             fee_vault,
             token_program,
             system_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

@@ -34,7 +34,7 @@ impl CpiEvent {
             return None;
         }
 
-        let event_data = data;
+        let event_data = &data[8..];
 
         if let Some(decoded) = events::order_display::OrderDisplayEvent::decode(event_data) {
             return Some(CpiEvent::OrderDisplay(decoded));

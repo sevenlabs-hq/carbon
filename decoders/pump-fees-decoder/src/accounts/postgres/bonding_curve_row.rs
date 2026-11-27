@@ -12,9 +12,9 @@ pub struct BondingCurveRow {
     #[sqlx(flatten)]
     pub account_metadata: AccountRowMetadata,
     pub virtual_token_reserves: U64,
-    pub virtual_sol_reserves: U64,
+    pub virtual_quote_reserves: U64,
     pub real_token_reserves: U64,
-    pub real_sol_reserves: U64,
+    pub real_quote_reserves: U64,
     pub token_total_supply: U64,
     pub complete: bool,
     pub creator: Pubkey,
@@ -29,9 +29,9 @@ impl BondingCurveRow {
         Self {
             account_metadata: metadata.into(),
             virtual_token_reserves: source.virtual_token_reserves.into(),
-            virtual_sol_reserves: source.virtual_sol_reserves.into(),
+            virtual_quote_reserves: source.virtual_quote_reserves.into(),
             real_token_reserves: source.real_token_reserves.into(),
-            real_sol_reserves: source.real_sol_reserves.into(),
+            real_quote_reserves: source.real_quote_reserves.into(),
             token_total_supply: source.token_total_supply.into(),
             complete: source.complete,
             creator: source.creator.into(),
@@ -45,9 +45,9 @@ impl TryFrom<BondingCurveRow> for crate::accounts::bonding_curve::BondingCurve {
     fn try_from(source: BondingCurveRow) -> Result<Self, Self::Error> {
         Ok(Self {
             virtual_token_reserves: *source.virtual_token_reserves,
-            virtual_sol_reserves: *source.virtual_sol_reserves,
+            virtual_quote_reserves: *source.virtual_quote_reserves,
             real_token_reserves: *source.real_token_reserves,
-            real_sol_reserves: *source.real_sol_reserves,
+            real_quote_reserves: *source.real_quote_reserves,
             token_total_supply: *source.token_total_supply,
             complete: source.complete,
             creator: *source.creator,
@@ -66,9 +66,9 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bonding_curve
             "__pubkey",
             "__slot",
             "virtual_token_reserves",
-            "virtual_sol_reserves",
+            "virtual_quote_reserves",
             "real_token_reserves",
-            "real_sol_reserves",
+            "real_quote_reserves",
             "token_total_supply",
             "complete",
             "creator",
@@ -84,9 +84,9 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
             r#"
             INSERT INTO bonding_curve_account (
                 "virtual_token_reserves",
-                "virtual_sol_reserves",
+                "virtual_quote_reserves",
                 "real_token_reserves",
-                "real_sol_reserves",
+                "real_quote_reserves",
                 "token_total_supply",
                 "complete",
                 "creator",
@@ -97,9 +97,9 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
             )"#,
         )
         .bind(&self.virtual_token_reserves)
-        .bind(&self.virtual_sol_reserves)
+        .bind(&self.virtual_quote_reserves)
         .bind(&self.real_token_reserves)
-        .bind(&self.real_sol_reserves)
+        .bind(&self.real_quote_reserves)
         .bind(&self.token_total_supply)
         .bind(self.complete)
         .bind(self.creator)
@@ -119,9 +119,9 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
         sqlx::query(
             r#"INSERT INTO bonding_curve_account AS stored (
                 "virtual_token_reserves",
-                "virtual_sol_reserves",
+                "virtual_quote_reserves",
                 "real_token_reserves",
-                "real_sol_reserves",
+                "real_quote_reserves",
                 "token_total_supply",
                 "complete",
                 "creator",
@@ -133,9 +133,9 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
                 __pubkey
             ) DO UPDATE SET
                 "virtual_token_reserves" = EXCLUDED."virtual_token_reserves",
-                "virtual_sol_reserves" = EXCLUDED."virtual_sol_reserves",
+                "virtual_quote_reserves" = EXCLUDED."virtual_quote_reserves",
                 "real_token_reserves" = EXCLUDED."real_token_reserves",
-                "real_sol_reserves" = EXCLUDED."real_sol_reserves",
+                "real_quote_reserves" = EXCLUDED."real_quote_reserves",
                 "token_total_supply" = EXCLUDED."token_total_supply",
                 "complete" = EXCLUDED."complete",
                 "creator" = EXCLUDED."creator",
@@ -146,9 +146,9 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
             "#,
         )
         .bind(&self.virtual_token_reserves)
-        .bind(&self.virtual_sol_reserves)
+        .bind(&self.virtual_quote_reserves)
         .bind(&self.real_token_reserves)
-        .bind(&self.real_sol_reserves)
+        .bind(&self.real_quote_reserves)
         .bind(&self.token_total_supply)
         .bind(self.complete)
         .bind(self.creator)
@@ -213,9 +213,9 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation
             r#"CREATE TABLE IF NOT EXISTS bonding_curve_account (
                 -- Account data
                 "virtual_token_reserves" NUMERIC(20) NOT NULL,
-                "virtual_sol_reserves" NUMERIC(20) NOT NULL,
+                "virtual_quote_reserves" NUMERIC(20) NOT NULL,
                 "real_token_reserves" NUMERIC(20) NOT NULL,
-                "real_sol_reserves" NUMERIC(20) NOT NULL,
+                "real_quote_reserves" NUMERIC(20) NOT NULL,
                 "token_total_supply" NUMERIC(20) NOT NULL,
                 "complete" BOOLEAN NOT NULL,
                 "creator" BYTEA NOT NULL,

@@ -10,6 +10,7 @@ pub struct Buy {
     pub amount: u64,
     pub max_sol_cost: u64,
     pub track_volume: OptionBool,
+    pub partial_fill: OptionBool,
 }
 
 #[derive(Debug, Clone, PartialEq)]

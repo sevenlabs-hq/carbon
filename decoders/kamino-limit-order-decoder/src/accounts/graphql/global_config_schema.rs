@@ -13,6 +13,7 @@ pub struct GlobalConfigGraphQL {
     pub new_orders_blocked: U8,
     pub orders_taking_blocked: U8,
     pub host_fee_bps: i32,
+    pub rfq_venues_blocked: U8,
     pub padding0: Vec<U8>,
     pub order_close_delay_seconds: U64,
     pub padding1: Vec<U64>,
@@ -44,6 +45,9 @@ impl TryFrom<crate::accounts::postgres::GlobalConfigRow> for GlobalConfigGraphQL
                 (*row.orders_taking_blocked) as u8,
             ),
             host_fee_bps: *row.host_fee_bps,
+            rfq_venues_blocked: carbon_core::graphql::primitives::U8(
+                (*row.rfq_venues_blocked) as u8,
+            ),
             padding0: row
                 .padding0
                 .into_iter()

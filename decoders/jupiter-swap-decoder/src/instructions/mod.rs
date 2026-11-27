@@ -12,27 +12,32 @@ pub mod claim_token;
 pub mod close_token;
 pub mod close_wsol_token_account;
 pub mod cpi_event;
+pub mod create_idempotent_associated_token_account;
 pub mod create_token_account;
 pub mod create_token_ledger;
 pub mod exact_out_route;
 pub mod exact_out_route_v2;
 pub mod route;
 pub mod route_v2;
+pub mod route_with_attestation;
 pub mod route_with_token_ledger;
 pub mod set_token_ledger;
 pub mod shared_accounts_exact_out_route;
 pub mod shared_accounts_exact_out_route_v2;
 pub mod shared_accounts_route;
 pub mod shared_accounts_route_v2;
+pub mod shared_accounts_route_with_attestation;
 pub mod shared_accounts_route_with_token_ledger;
+pub mod withdraw_token_account_excess_lamports;
 
 pub use self::{
     claim::*, claim_token::*, close_token::*, close_wsol_token_account::*, cpi_event::*,
-    create_token_account::*, create_token_ledger::*, exact_out_route::*, exact_out_route_v2::*,
-    route::*, route_v2::*, route_with_token_ledger::*, set_token_ledger::*,
-    shared_accounts_exact_out_route::*, shared_accounts_exact_out_route_v2::*,
-    shared_accounts_route::*, shared_accounts_route_v2::*,
-    shared_accounts_route_with_token_ledger::*,
+    create_idempotent_associated_token_account::*, create_token_account::*, create_token_ledger::*,
+    exact_out_route::*, exact_out_route_v2::*, route::*, route_v2::*, route_with_attestation::*,
+    route_with_token_ledger::*, set_token_ledger::*, shared_accounts_exact_out_route::*,
+    shared_accounts_exact_out_route_v2::*, shared_accounts_route::*, shared_accounts_route_v2::*,
+    shared_accounts_route_with_attestation::*, shared_accounts_route_with_token_ledger::*,
+    withdraw_token_account_excess_lamports::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -59,6 +64,11 @@ pub enum JupiterSwapInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CloseWsolTokenAccount,
         accounts: CloseWsolTokenAccountInstructionAccounts,
+    },
+    CreateIdempotentAssociatedTokenAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateIdempotentAssociatedTokenAccount,
+        accounts: CreateIdempotentAssociatedTokenAccountInstructionAccounts,
     },
     CreateTokenAccount {
         program_id: solana_pubkey::Pubkey,
@@ -90,6 +100,11 @@ pub enum JupiterSwapInstruction {
         data: RouteV2,
         accounts: RouteV2InstructionAccounts,
     },
+    RouteWithAttestation {
+        program_id: solana_pubkey::Pubkey,
+        data: RouteWithAttestation,
+        accounts: RouteWithAttestationInstructionAccounts,
+    },
     RouteWithTokenLedger {
         program_id: solana_pubkey::Pubkey,
         data: RouteWithTokenLedger,
@@ -120,10 +135,20 @@ pub enum JupiterSwapInstruction {
         data: SharedAccountsRouteV2,
         accounts: SharedAccountsRouteV2InstructionAccounts,
     },
+    SharedAccountsRouteWithAttestation {
+        program_id: solana_pubkey::Pubkey,
+        data: SharedAccountsRouteWithAttestation,
+        accounts: SharedAccountsRouteWithAttestationInstructionAccounts,
+    },
     SharedAccountsRouteWithTokenLedger {
         program_id: solana_pubkey::Pubkey,
         data: SharedAccountsRouteWithTokenLedger,
         accounts: SharedAccountsRouteWithTokenLedgerInstructionAccounts,
+    },
+    WithdrawTokenAccountExcessLamports {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawTokenAccountExcessLamports,
+        accounts: WithdrawTokenAccountExcessLamportsInstructionAccounts,
     },
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
@@ -146,24 +171,28 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterSwapDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            JupiterSwapInstruction::CpiEvent => CpiEvent,
             JupiterSwapInstruction::Claim => Claim,
             JupiterSwapInstruction::ClaimToken => ClaimToken,
             JupiterSwapInstruction::CloseToken => CloseToken,
             JupiterSwapInstruction::CloseWsolTokenAccount => CloseWsolTokenAccount,
+            JupiterSwapInstruction::CreateIdempotentAssociatedTokenAccount => CreateIdempotentAssociatedTokenAccount,
             JupiterSwapInstruction::CreateTokenAccount => CreateTokenAccount,
             JupiterSwapInstruction::CreateTokenLedger => CreateTokenLedger,
             JupiterSwapInstruction::ExactOutRoute => ExactOutRoute,
             JupiterSwapInstruction::ExactOutRouteV2 => ExactOutRouteV2,
             JupiterSwapInstruction::Route => Route,
             JupiterSwapInstruction::RouteV2 => RouteV2,
+            JupiterSwapInstruction::RouteWithAttestation => RouteWithAttestation,
             JupiterSwapInstruction::RouteWithTokenLedger => RouteWithTokenLedger,
             JupiterSwapInstruction::SetTokenLedger => SetTokenLedger,
             JupiterSwapInstruction::SharedAccountsExactOutRoute => SharedAccountsExactOutRoute,
             JupiterSwapInstruction::SharedAccountsExactOutRouteV2 => SharedAccountsExactOutRouteV2,
             JupiterSwapInstruction::SharedAccountsRoute => SharedAccountsRoute,
             JupiterSwapInstruction::SharedAccountsRouteV2 => SharedAccountsRouteV2,
+            JupiterSwapInstruction::SharedAccountsRouteWithAttestation => SharedAccountsRouteWithAttestation,
             JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger => SharedAccountsRouteWithTokenLedger,
-            JupiterSwapInstruction::CpiEvent => CpiEvent,
+            JupiterSwapInstruction::WithdrawTokenAccountExcessLamports => WithdrawTokenAccountExcessLamports,
         )
     }
 }

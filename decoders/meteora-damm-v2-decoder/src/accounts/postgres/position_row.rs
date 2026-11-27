@@ -5,7 +5,7 @@ use {
         account::AccountMetadata,
         postgres::{
             metadata::AccountRowMetadata,
-            primitives::{Pubkey, U128, U64},
+            primitives::{Pubkey, U128, U32, U64},
         },
     },
 };
@@ -26,7 +26,8 @@ pub struct PositionRow {
     pub metrics: sqlx::types::Json<PositionMetrics>,
     pub reward_infos: sqlx::types::Json<Vec<UserRewardInfo>>,
     pub inner_vesting: sqlx::types::Json<InnerVesting>,
-    pub padding: U128,
+    pub delegate_permission: U32,
+    pub padding: Vec<u8>,
 }
 
 impl PositionRow {
@@ -48,7 +49,8 @@ impl PositionRow {
             metrics: sqlx::types::Json(source.metrics),
             reward_infos: sqlx::types::Json(source.reward_infos.to_vec()),
             inner_vesting: sqlx::types::Json(source.inner_vesting),
-            padding: source.padding.into(),
+            delegate_permission: source.delegate_permission.into(),
+            padding: source.padding.to_vec(),
         }
     }
 }
@@ -97,7 +99,17 @@ impl TryFrom<PositionRow> for crate::accounts::position::Position {
                     )
                 })?,
             inner_vesting: source.inner_vesting.0,
-            padding: *source.padding,
+            delegate_permission: source.delegate_permission.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            padding: source.padding.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 12 bytes"
+                        .to_string(),
+                )
+            })?,
         })
     }
 }
@@ -123,6 +135,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::position::Pos
             "metrics",
             "reward_infos",
             "inner_vesting",
+            "delegate_permission",
             "padding",
         ]
     }
@@ -146,10 +159,11 @@ impl carbon_core::postgres::operations::Insert for PositionRow {
                 "metrics",
                 "reward_infos",
                 "inner_vesting",
+                "delegate_permission",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
             )"#,
         )
         .bind(self.pool)
@@ -164,6 +178,7 @@ impl carbon_core::postgres::operations::Insert for PositionRow {
         .bind(&self.metrics)
         .bind(&self.reward_infos)
         .bind(&self.inner_vesting)
+        .bind(self.delegate_permission)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -191,10 +206,11 @@ impl carbon_core::postgres::operations::Upsert for PositionRow {
                 "metrics",
                 "reward_infos",
                 "inner_vesting",
+                "delegate_permission",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -210,6 +226,7 @@ impl carbon_core::postgres::operations::Upsert for PositionRow {
                 "metrics" = EXCLUDED."metrics",
                 "reward_infos" = EXCLUDED."reward_infos",
                 "inner_vesting" = EXCLUDED."inner_vesting",
+                "delegate_permission" = EXCLUDED."delegate_permission",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
@@ -228,6 +245,7 @@ impl carbon_core::postgres::operations::Upsert for PositionRow {
         .bind(&self.metrics)
         .bind(&self.reward_infos)
         .bind(&self.inner_vesting)
+        .bind(self.delegate_permission)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -300,7 +318,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PositionMigrationOperation {
                 "metrics" JSONB NOT NULL,
                 "reward_infos" JSONB NOT NULL,
                 "inner_vesting" JSONB NOT NULL,
-                "padding" NUMERIC(39) NOT NULL,
+                "delegate_permission" INT8 NOT NULL,
+                "padding" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

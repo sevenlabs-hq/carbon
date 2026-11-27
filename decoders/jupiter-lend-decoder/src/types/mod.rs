@@ -10,6 +10,7 @@ pub mod log_claim;
 pub mod log_collect_revenue;
 pub mod log_operate;
 pub mod log_pause_user;
+pub mod log_token_lockdown;
 pub mod log_unpause_user;
 pub mod log_update_authority;
 pub mod log_update_auths;
@@ -33,10 +34,10 @@ pub mod user_supply_config;
 
 pub use self::{
     address_bool::*, address_u8::*, log_borrow_rate_cap::*, log_change_status::*, log_claim::*,
-    log_collect_revenue::*, log_operate::*, log_pause_user::*, log_unpause_user::*,
-    log_update_authority::*, log_update_auths::*, log_update_exchange_prices::*,
-    log_update_guardians::*, log_update_rate_data_v1::*, log_update_rate_data_v2::*,
-    log_update_revenue_collector::*, log_update_token_configs::*,
+    log_collect_revenue::*, log_operate::*, log_pause_user::*, log_token_lockdown::*,
+    log_unpause_user::*, log_update_authority::*, log_update_auths::*,
+    log_update_exchange_prices::*, log_update_guardians::*, log_update_rate_data_v1::*,
+    log_update_rate_data_v2::*, log_update_revenue_collector::*, log_update_token_configs::*,
     log_update_user_borrow_configs::*, log_update_user_class::*, log_update_user_supply_configs::*,
     log_update_user_withdrawal_limit::*, rate_data_v1_params::*, rate_data_v2_params::*,
     token_config::*, transfer_type::*, user_borrow_config::*, user_class::*, user_supply_config::*,

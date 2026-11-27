@@ -3,8 +3,8 @@ use {
     crate::types::BankConfigCompact,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (admin only) A copy of lending_pool_add_bank with an additional bank seed.
-/// This seed is used to create a PDA for the bank's signature.
+/// (governance_admin only) A copy of lending_pool_add_bank with an additional
+/// bank seed. This seed is used to create a PDA for the bank's signature.
 /// lending_pool_add_bank is preserved for backwards compatibility.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
@@ -17,7 +17,7 @@ pub struct LendingPoolAddBankWithSeed {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LendingPoolAddBankWithSeedInstructionAccounts {
     pub marginfi_group: solana_pubkey::Pubkey,
-    pub admin: solana_pubkey::Pubkey,
+    pub governance_admin: solana_pubkey::Pubkey,
     pub fee_payer: solana_pubkey::Pubkey,
     pub fee_state: solana_pubkey::Pubkey,
     pub global_fee_wallet: solana_pubkey::Pubkey,
@@ -31,6 +31,7 @@ pub struct LendingPoolAddBankWithSeedInstructionAccounts {
     pub fee_vault: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -61,7 +62,7 @@ impl ArrangeAccounts for LendingPoolAddBankWithSeed {
         let mut iter = accounts.iter();
 
         let marginfi_group = next_account(&mut iter)?;
-        let admin = next_account(&mut iter)?;
+        let governance_admin = next_account(&mut iter)?;
         let fee_payer = next_account(&mut iter)?;
         let fee_state = next_account(&mut iter)?;
         let global_fee_wallet = next_account(&mut iter)?;
@@ -75,12 +76,13 @@ impl ArrangeAccounts for LendingPoolAddBankWithSeed {
         let fee_vault = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(LendingPoolAddBankWithSeedInstructionAccounts {
             marginfi_group,
-            admin,
+            governance_admin,
             fee_payer,
             fee_state,
             global_fee_wallet,
@@ -94,6 +96,7 @@ impl ArrangeAccounts for LendingPoolAddBankWithSeed {
             fee_vault,
             token_program,
             system_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

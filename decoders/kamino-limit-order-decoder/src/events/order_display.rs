@@ -9,6 +9,8 @@ pub struct OrderDisplayEvent {
     pub filled_output_amount: u64,
     pub tip_amount: u64,
     pub number_of_fills: u64,
+    /// The amount of output token filled when this event was emitted - used
+    /// for volume calculations
     pub on_event_output_amount_filled: u64,
     pub on_event_tip_amount: u64,
     pub order_type: u8,
@@ -18,21 +20,17 @@ pub struct OrderDisplayEvent {
 
 impl OrderDisplayEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 92, 101, 6, 158, 248, 152, 241, 60,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [92, 101, 6, 158, 248, 152, 241, 60] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

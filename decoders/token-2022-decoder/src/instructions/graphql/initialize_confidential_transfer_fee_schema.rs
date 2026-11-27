@@ -6,7 +6,7 @@ use {carbon_core::graphql::primitives::Pubkey, juniper::GraphQLObject, serde_jso
 pub struct InitializeConfidentialTransferFeeGraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
     pub authority: Option<Pubkey>,
-    pub withdraw_withheld_authority_el_gamal_pubkey: Option<Pubkey>,
+    pub withdraw_withheld_authority_el_gamal_pubkey: Pubkey,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
 
@@ -22,9 +22,9 @@ impl TryFrom<crate::instructions::postgres::InitializeConfidentialTransferFeeRow
             authority: row
                 .authority
                 .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
-            withdraw_withheld_authority_el_gamal_pubkey: row
-                .withdraw_withheld_authority_el_gamal_pubkey
-                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            withdraw_withheld_authority_el_gamal_pubkey: carbon_core::graphql::primitives::Pubkey(
+                row.withdraw_withheld_authority_el_gamal_pubkey.0,
+            ),
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,

@@ -20,6 +20,7 @@ pub struct DepositEventGraphQL {
     pub msol_minted: U64,
     pub total_virtual_staked_lamports: U64,
     pub msol_supply: U64,
+    pub sol_fees: U64,
 }
 
 impl From<crate::types::DepositEvent> for DepositEventGraphQL {
@@ -40,6 +41,7 @@ impl From<crate::types::DepositEvent> for DepositEventGraphQL {
                 original.total_virtual_staked_lamports,
             ),
             msol_supply: carbon_core::graphql::primitives::U64(original.msol_supply),
+            sol_fees: carbon_core::graphql::primitives::U64(original.sol_fees),
         }
     }
 }

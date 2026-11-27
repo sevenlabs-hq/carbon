@@ -36,6 +36,9 @@ impl CpiEventRow {
                 CpiEvent::ReallocStakeListEvent(_) => "realloc_stake_list_event".to_string(),
                 CpiEvent::DeactivateStakeEvent(_) => "deactivate_stake_event".to_string(),
                 CpiEvent::MergeStakesEvent(_) => "merge_stakes_event".to_string(),
+                CpiEvent::CreateCanonicalStakeEvent(_) => {
+                    "create_canonical_stake_event".to_string()
+                }
                 CpiEvent::RedelegateEvent(_) => "redelegate_event".to_string(),
                 CpiEvent::StakeReserveEvent(_) => "stake_reserve_event".to_string(),
                 CpiEvent::UpdateActiveEvent(_) => "update_active_event".to_string(),

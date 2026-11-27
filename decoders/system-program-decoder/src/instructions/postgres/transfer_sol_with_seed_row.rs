@@ -27,7 +27,7 @@ impl TransferSolWithSeedRow {
         Self {
             instruction_metadata: metadata.into(),
             amount: source.amount.into(),
-            from_seed: source.from_seed,
+            from_seed: source.from_seed.into(),
             from_owner: source.from_owner.into(),
             accounts: sqlx::types::Json(accounts),
         }
@@ -41,7 +41,7 @@ impl TryFrom<TransferSolWithSeedRow>
     fn try_from(source: TransferSolWithSeedRow) -> Result<Self, Self::Error> {
         Ok(Self {
             amount: *source.amount,
-            from_seed: source.from_seed,
+            from_seed: source.from_seed.into(),
             from_owner: *source.from_owner,
         })
     }

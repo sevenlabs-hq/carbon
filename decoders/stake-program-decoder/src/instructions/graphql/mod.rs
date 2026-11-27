@@ -12,7 +12,6 @@ pub mod initialize_schema;
 pub mod merge_schema;
 pub mod move_lamports_schema;
 pub mod move_stake_schema;
-pub mod redelegate_schema;
 pub mod set_lockup_checked_schema;
 pub mod set_lockup_schema;
 pub mod split_schema;
@@ -24,8 +23,7 @@ pub use {
     authorize_with_seed_schema::*, deactivate_delinquent_schema::*, deactivate_schema::*,
     delegate_stake_schema::*, get_minimum_delegation_schema::*, initialize_checked_schema::*,
     initialize_schema::*, merge_schema::*, move_lamports_schema::*, move_stake_schema::*,
-    redelegate_schema::*, set_lockup_checked_schema::*, set_lockup_schema::*, split_schema::*,
-    withdraw_schema::*,
+    set_lockup_checked_schema::*, set_lockup_schema::*, split_schema::*, withdraw_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

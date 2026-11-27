@@ -5,13 +5,16 @@ pub mod claim_creator_fee_schema;
 pub mod claim_platform_fee_from_vault_schema;
 pub mod claim_platform_fee_schema;
 pub mod claim_vested_token_schema;
-pub mod close_platform_global_access_schema;
+pub mod close_platform_allow_config_schema;
+pub mod close_platform_curve_rule_schema;
+pub mod collect_excess_lamports_schema;
 pub mod collect_fee_schema;
 pub mod collect_migrate_fee_schema;
 pub mod cpi_event_schema;
 pub mod create_config_schema;
+pub mod create_platform_allow_config_schema;
 pub mod create_platform_config_schema;
-pub mod create_platform_global_access_schema;
+pub mod create_platform_curve_rule_schema;
 pub mod create_platform_vesting_account_schema;
 pub mod create_vesting_account_schema;
 pub mod initialize_schema;
@@ -19,25 +22,27 @@ pub mod initialize_v2_schema;
 pub mod initialize_with_token2022_schema;
 pub mod migrate_to_amm_schema;
 pub mod migrate_to_cpswap_schema;
-pub mod remove_platform_curve_param_schema;
+pub mod remove_platform_curve_rule_schema;
 pub mod sell_exact_in_schema;
 pub mod sell_exact_out_schema;
 pub mod update_config_schema;
 pub mod update_platform_config_schema;
-pub mod update_platform_curve_param_schema;
+pub mod update_platform_curve_rule_schema;
 
 use juniper::GraphQLObject;
 pub use {
     buy_exact_in_schema::*, buy_exact_out_schema::*, claim_creator_fee_schema::*,
     claim_platform_fee_from_vault_schema::*, claim_platform_fee_schema::*,
-    claim_vested_token_schema::*, close_platform_global_access_schema::*, collect_fee_schema::*,
+    claim_vested_token_schema::*, close_platform_allow_config_schema::*,
+    close_platform_curve_rule_schema::*, collect_excess_lamports_schema::*, collect_fee_schema::*,
     collect_migrate_fee_schema::*, cpi_event_schema::*, create_config_schema::*,
-    create_platform_config_schema::*, create_platform_global_access_schema::*,
-    create_platform_vesting_account_schema::*, create_vesting_account_schema::*,
-    initialize_schema::*, initialize_v2_schema::*, initialize_with_token2022_schema::*,
-    migrate_to_amm_schema::*, migrate_to_cpswap_schema::*, remove_platform_curve_param_schema::*,
-    sell_exact_in_schema::*, sell_exact_out_schema::*, update_config_schema::*,
-    update_platform_config_schema::*, update_platform_curve_param_schema::*,
+    create_platform_allow_config_schema::*, create_platform_config_schema::*,
+    create_platform_curve_rule_schema::*, create_platform_vesting_account_schema::*,
+    create_vesting_account_schema::*, initialize_schema::*, initialize_v2_schema::*,
+    initialize_with_token2022_schema::*, migrate_to_amm_schema::*, migrate_to_cpswap_schema::*,
+    remove_platform_curve_rule_schema::*, sell_exact_in_schema::*, sell_exact_out_schema::*,
+    update_config_schema::*, update_platform_config_schema::*,
+    update_platform_curve_rule_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

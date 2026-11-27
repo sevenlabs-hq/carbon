@@ -6,6 +6,7 @@ pub mod log_claim;
 pub mod log_collect_revenue;
 pub mod log_operate;
 pub mod log_pause_user;
+pub mod log_token_lockdown;
 pub mod log_unpause_user;
 pub mod log_update_authority;
 pub mod log_update_auths;

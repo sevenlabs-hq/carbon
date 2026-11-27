@@ -3,6 +3,7 @@ use solana_pubkey::Pubkey;
 pub struct JupiterLendDecoder;
 pub const PROGRAM_ID: Pubkey =
     solana_pubkey::Pubkey::from_str_const("jupeiUmn818Jg1ekPURTpr4mFo29p46vygyykFJ3wZC");
+pub const EVENT_CPI_DISCRIMINATOR: &[u8] = &[228, 69, 165, 46, 81, 203, 154, 29];
 
 pub mod accounts;
 pub mod events;

@@ -8,6 +8,7 @@ pub struct MarginfiAccountCloseOrder {}
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MarginfiAccountCloseOrderInstructionAccounts {
+    pub group: solana_pubkey::Pubkey,
     pub marginfi_account: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
     pub order: solana_pubkey::Pubkey,
@@ -42,6 +43,7 @@ impl ArrangeAccounts for MarginfiAccountCloseOrder {
     ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
 
+        let group = next_account(&mut iter)?;
         let marginfi_account = next_account(&mut iter)?;
         let authority = next_account(&mut iter)?;
         let order = next_account(&mut iter)?;
@@ -51,6 +53,7 @@ impl ArrangeAccounts for MarginfiAccountCloseOrder {
         let remaining = iter.as_slice();
 
         Some(MarginfiAccountCloseOrderInstructionAccounts {
+            group,
             marginfi_account,
             authority,
             order,

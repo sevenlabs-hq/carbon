@@ -11,16 +11,13 @@ pub mod bank;
 pub mod bank_metadata;
 pub mod execute_order_record;
 pub mod fee_state;
-pub mod lending;
 pub mod liquidation_record;
 pub mod marginfi_account;
 pub mod marginfi_group;
-pub mod minimal_obligation;
-pub mod minimal_reserve;
-pub mod minimal_spot_market;
-pub mod minimal_user;
 pub mod order;
-pub mod solend_minimal_reserve;
+pub mod rebalance_order;
+pub mod rebalance_record;
+pub mod same_asset_emode_registry;
 pub mod staked_settings;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -31,16 +28,13 @@ pub enum MarginfiV2Account {
     BankMetadata(Box<bank_metadata::BankMetadata>),
     ExecuteOrderRecord(Box<execute_order_record::ExecuteOrderRecord>),
     FeeState(Box<fee_state::FeeState>),
-    Lending(Box<lending::Lending>),
     LiquidationRecord(Box<liquidation_record::LiquidationRecord>),
     MarginfiAccount(Box<marginfi_account::MarginfiAccount>),
     MarginfiGroup(Box<marginfi_group::MarginfiGroup>),
-    MinimalObligation(Box<minimal_obligation::MinimalObligation>),
-    MinimalReserve(Box<minimal_reserve::MinimalReserve>),
-    MinimalSpotMarket(Box<minimal_spot_market::MinimalSpotMarket>),
-    MinimalUser(Box<minimal_user::MinimalUser>),
     Order(Box<order::Order>),
-    SolendMinimalReserve(Box<solend_minimal_reserve::SolendMinimalReserve>),
+    RebalanceOrder(Box<rebalance_order::RebalanceOrder>),
+    RebalanceRecord(Box<rebalance_record::RebalanceRecord>),
+    SameAssetEmodeRegistry(Box<same_asset_emode_registry::SameAssetEmodeRegistry>),
     StakedSettings(Box<staked_settings::StakedSettings>),
 }
 
@@ -102,17 +96,6 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MarginfiV2Decoder {
             }
         }
         {
-            if let Some(decoded) = lending::Lending::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: MarginfiV2Account::Lending(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
-        }
-        {
             if let Some(decoded) = liquidation_record::LiquidationRecord::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
@@ -146,50 +129,6 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MarginfiV2Decoder {
             }
         }
         {
-            if let Some(decoded) = minimal_obligation::MinimalObligation::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: MarginfiV2Account::MinimalObligation(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
-        }
-        {
-            if let Some(decoded) = minimal_reserve::MinimalReserve::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: MarginfiV2Account::MinimalReserve(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
-        }
-        {
-            if let Some(decoded) = minimal_spot_market::MinimalSpotMarket::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: MarginfiV2Account::MinimalSpotMarket(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
-        }
-        {
-            if let Some(decoded) = minimal_user::MinimalUser::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: MarginfiV2Account::MinimalUser(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
-        }
-        {
             if let Some(decoded) = order::Order::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
@@ -201,10 +140,32 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MarginfiV2Decoder {
             }
         }
         {
-            if let Some(decoded) = solend_minimal_reserve::SolendMinimalReserve::decode(data) {
+            if let Some(decoded) = rebalance_order::RebalanceOrder::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
-                    data: MarginfiV2Account::SolendMinimalReserve(Box::new(decoded)),
+                    data: MarginfiV2Account::RebalanceOrder(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = rebalance_record::RebalanceRecord::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MarginfiV2Account::RebalanceRecord(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = same_asset_emode_registry::SameAssetEmodeRegistry::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MarginfiV2Account::SameAssetEmodeRegistry(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

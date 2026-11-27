@@ -38,6 +38,7 @@ pub mod init_preset_parameters_ix;
 pub mod initialize_lb_pair2_params;
 pub mod initialize_reward;
 pub mod lb_pair_create;
+pub mod limit_order_bin_data;
 pub mod liquidity_one_side_parameter;
 pub mod liquidity_parameter;
 pub mod liquidity_parameter_by_strategy;
@@ -88,8 +89,8 @@ pub use self::{
     dynamic_fee_parameter_update::*, fee_info::*, fee_parameter_update::*, fund_reward::*,
     go_to_a_bin::*, increase_observation::*, increase_position_length::*,
     init_permission_pair_ix::*, init_preset_parameters_ix::*, initialize_lb_pair2_params::*,
-    initialize_reward::*, lb_pair_create::*, liquidity_one_side_parameter::*,
-    liquidity_parameter::*, liquidity_parameter_by_strategy::*,
+    initialize_reward::*, lb_pair_create::*, limit_order_bin_data::*,
+    liquidity_one_side_parameter::*, liquidity_parameter::*, liquidity_parameter_by_strategy::*,
     liquidity_parameter_by_strategy_one_side::*, liquidity_parameter_by_weight::*, pair_status::*,
     pair_type::*, place_limit_order_evt::*, place_limit_order_params::*, position_bin_data::*,
     position_close::*, position_create::*, protocol_fee::*, rebalance_liquidity_params::*,

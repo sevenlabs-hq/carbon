@@ -220,6 +220,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OpenbookV2Decoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            OpenbookV2Instruction::CpiEvent => CpiEvent,
             OpenbookV2Instruction::CancelAllAndPlaceOrders => CancelAllAndPlaceOrders,
             OpenbookV2Instruction::CancelAllOrders => CancelAllOrders,
             OpenbookV2Instruction::CancelOrder => CancelOrder,
@@ -249,7 +250,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OpenbookV2Decoder {
             OpenbookV2Instruction::StubOracleCreate => StubOracleCreate,
             OpenbookV2Instruction::StubOracleSet => StubOracleSet,
             OpenbookV2Instruction::SweepFees => SweepFees,
-            OpenbookV2Instruction::CpiEvent => CpiEvent,
         )
     }
 }

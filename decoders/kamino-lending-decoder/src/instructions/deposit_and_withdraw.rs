@@ -10,25 +10,38 @@ pub struct DepositAndWithdraw {
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DepositAndWithdrawInstructionAccounts {
-    pub owner: solana_pubkey::Pubkey,
-    pub obligation: solana_pubkey::Pubkey,
-    pub lending_market: solana_pubkey::Pubkey,
-    pub lending_market_authority: solana_pubkey::Pubkey,
-    pub reserve: solana_pubkey::Pubkey,
-    pub reserve_liquidity_mint: solana_pubkey::Pubkey,
-    pub reserve_liquidity_supply: solana_pubkey::Pubkey,
-    pub reserve_collateral_mint: solana_pubkey::Pubkey,
-    pub reserve_destination_deposit_collateral: solana_pubkey::Pubkey,
-    pub user_source_liquidity: solana_pubkey::Pubkey,
-    pub placeholder_user_destination_collateral: Option<solana_pubkey::Pubkey>,
-    pub collateral_token_program: solana_pubkey::Pubkey,
-    pub liquidity_token_program: solana_pubkey::Pubkey,
-    pub instruction_sysvar_account: solana_pubkey::Pubkey,
-    pub withdraw_reserve: solana_pubkey::Pubkey,
-    pub reserve_source_collateral: solana_pubkey::Pubkey,
-    pub user_destination_liquidity: solana_pubkey::Pubkey,
-    pub obligation_farm_user_state: Option<solana_pubkey::Pubkey>,
-    pub reserve_farm_state: Option<solana_pubkey::Pubkey>,
+    pub deposit_accounts_owner: solana_pubkey::Pubkey,
+    pub deposit_accounts_obligation: solana_pubkey::Pubkey,
+    pub deposit_accounts_lending_market: solana_pubkey::Pubkey,
+    pub deposit_accounts_lending_market_authority: solana_pubkey::Pubkey,
+    pub deposit_accounts_reserve: solana_pubkey::Pubkey,
+    pub deposit_accounts_reserve_liquidity_mint: solana_pubkey::Pubkey,
+    pub deposit_accounts_reserve_liquidity_supply: solana_pubkey::Pubkey,
+    pub deposit_accounts_reserve_collateral_mint: solana_pubkey::Pubkey,
+    pub deposit_accounts_reserve_destination_deposit_collateral: solana_pubkey::Pubkey,
+    pub deposit_accounts_user_source_liquidity: solana_pubkey::Pubkey,
+    pub deposit_accounts_placeholder_user_destination_collateral: Option<solana_pubkey::Pubkey>,
+    pub deposit_accounts_collateral_token_program: solana_pubkey::Pubkey,
+    pub deposit_accounts_liquidity_token_program: solana_pubkey::Pubkey,
+    pub deposit_accounts_instruction_sysvar_account: solana_pubkey::Pubkey,
+    pub withdraw_accounts_owner: solana_pubkey::Pubkey,
+    pub withdraw_accounts_obligation: solana_pubkey::Pubkey,
+    pub withdraw_accounts_lending_market: solana_pubkey::Pubkey,
+    pub withdraw_accounts_lending_market_authority: solana_pubkey::Pubkey,
+    pub withdraw_accounts_withdraw_reserve: solana_pubkey::Pubkey,
+    pub withdraw_accounts_reserve_liquidity_mint: solana_pubkey::Pubkey,
+    pub withdraw_accounts_reserve_source_collateral: solana_pubkey::Pubkey,
+    pub withdraw_accounts_reserve_collateral_mint: solana_pubkey::Pubkey,
+    pub withdraw_accounts_reserve_liquidity_supply: solana_pubkey::Pubkey,
+    pub withdraw_accounts_user_destination_liquidity: solana_pubkey::Pubkey,
+    pub withdraw_accounts_placeholder_user_destination_collateral: Option<solana_pubkey::Pubkey>,
+    pub withdraw_accounts_collateral_token_program: solana_pubkey::Pubkey,
+    pub withdraw_accounts_liquidity_token_program: solana_pubkey::Pubkey,
+    pub withdraw_accounts_instruction_sysvar_account: solana_pubkey::Pubkey,
+    pub deposit_farms_accounts_obligation_farm_user_state: Option<solana_pubkey::Pubkey>,
+    pub deposit_farms_accounts_reserve_farm_state: Option<solana_pubkey::Pubkey>,
+    pub withdraw_farms_accounts_obligation_farm_user_state: Option<solana_pubkey::Pubkey>,
+    pub withdraw_farms_accounts_reserve_farm_state: Option<solana_pubkey::Pubkey>,
     pub farms_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
@@ -59,49 +72,75 @@ impl ArrangeAccounts for DepositAndWithdraw {
     ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
 
-        let owner = next_account(&mut iter)?;
-        let obligation = next_account(&mut iter)?;
-        let lending_market = next_account(&mut iter)?;
-        let lending_market_authority = next_account(&mut iter)?;
-        let reserve = next_account(&mut iter)?;
-        let reserve_liquidity_mint = next_account(&mut iter)?;
-        let reserve_liquidity_supply = next_account(&mut iter)?;
-        let reserve_collateral_mint = next_account(&mut iter)?;
-        let reserve_destination_deposit_collateral = next_account(&mut iter)?;
-        let user_source_liquidity = next_account(&mut iter)?;
-        let placeholder_user_destination_collateral = next_account(&mut iter);
-        let collateral_token_program = next_account(&mut iter)?;
-        let liquidity_token_program = next_account(&mut iter)?;
-        let instruction_sysvar_account = next_account(&mut iter)?;
-        let withdraw_reserve = next_account(&mut iter)?;
-        let reserve_source_collateral = next_account(&mut iter)?;
-        let user_destination_liquidity = next_account(&mut iter)?;
-        let obligation_farm_user_state = next_account(&mut iter);
-        let reserve_farm_state = next_account(&mut iter);
+        let deposit_accounts_owner = next_account(&mut iter)?;
+        let deposit_accounts_obligation = next_account(&mut iter)?;
+        let deposit_accounts_lending_market = next_account(&mut iter)?;
+        let deposit_accounts_lending_market_authority = next_account(&mut iter)?;
+        let deposit_accounts_reserve = next_account(&mut iter)?;
+        let deposit_accounts_reserve_liquidity_mint = next_account(&mut iter)?;
+        let deposit_accounts_reserve_liquidity_supply = next_account(&mut iter)?;
+        let deposit_accounts_reserve_collateral_mint = next_account(&mut iter)?;
+        let deposit_accounts_reserve_destination_deposit_collateral = next_account(&mut iter)?;
+        let deposit_accounts_user_source_liquidity = next_account(&mut iter)?;
+        let deposit_accounts_placeholder_user_destination_collateral = next_account(&mut iter);
+        let deposit_accounts_collateral_token_program = next_account(&mut iter)?;
+        let deposit_accounts_liquidity_token_program = next_account(&mut iter)?;
+        let deposit_accounts_instruction_sysvar_account = next_account(&mut iter)?;
+        let withdraw_accounts_owner = next_account(&mut iter)?;
+        let withdraw_accounts_obligation = next_account(&mut iter)?;
+        let withdraw_accounts_lending_market = next_account(&mut iter)?;
+        let withdraw_accounts_lending_market_authority = next_account(&mut iter)?;
+        let withdraw_accounts_withdraw_reserve = next_account(&mut iter)?;
+        let withdraw_accounts_reserve_liquidity_mint = next_account(&mut iter)?;
+        let withdraw_accounts_reserve_source_collateral = next_account(&mut iter)?;
+        let withdraw_accounts_reserve_collateral_mint = next_account(&mut iter)?;
+        let withdraw_accounts_reserve_liquidity_supply = next_account(&mut iter)?;
+        let withdraw_accounts_user_destination_liquidity = next_account(&mut iter)?;
+        let withdraw_accounts_placeholder_user_destination_collateral = next_account(&mut iter);
+        let withdraw_accounts_collateral_token_program = next_account(&mut iter)?;
+        let withdraw_accounts_liquidity_token_program = next_account(&mut iter)?;
+        let withdraw_accounts_instruction_sysvar_account = next_account(&mut iter)?;
+        let deposit_farms_accounts_obligation_farm_user_state = next_account(&mut iter);
+        let deposit_farms_accounts_reserve_farm_state = next_account(&mut iter);
+        let withdraw_farms_accounts_obligation_farm_user_state = next_account(&mut iter);
+        let withdraw_farms_accounts_reserve_farm_state = next_account(&mut iter);
         let farms_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(DepositAndWithdrawInstructionAccounts {
-            owner,
-            obligation,
-            lending_market,
-            lending_market_authority,
-            reserve,
-            reserve_liquidity_mint,
-            reserve_liquidity_supply,
-            reserve_collateral_mint,
-            reserve_destination_deposit_collateral,
-            user_source_liquidity,
-            placeholder_user_destination_collateral,
-            collateral_token_program,
-            liquidity_token_program,
-            instruction_sysvar_account,
-            withdraw_reserve,
-            reserve_source_collateral,
-            user_destination_liquidity,
-            obligation_farm_user_state,
-            reserve_farm_state,
+            deposit_accounts_owner,
+            deposit_accounts_obligation,
+            deposit_accounts_lending_market,
+            deposit_accounts_lending_market_authority,
+            deposit_accounts_reserve,
+            deposit_accounts_reserve_liquidity_mint,
+            deposit_accounts_reserve_liquidity_supply,
+            deposit_accounts_reserve_collateral_mint,
+            deposit_accounts_reserve_destination_deposit_collateral,
+            deposit_accounts_user_source_liquidity,
+            deposit_accounts_placeholder_user_destination_collateral,
+            deposit_accounts_collateral_token_program,
+            deposit_accounts_liquidity_token_program,
+            deposit_accounts_instruction_sysvar_account,
+            withdraw_accounts_owner,
+            withdraw_accounts_obligation,
+            withdraw_accounts_lending_market,
+            withdraw_accounts_lending_market_authority,
+            withdraw_accounts_withdraw_reserve,
+            withdraw_accounts_reserve_liquidity_mint,
+            withdraw_accounts_reserve_source_collateral,
+            withdraw_accounts_reserve_collateral_mint,
+            withdraw_accounts_reserve_liquidity_supply,
+            withdraw_accounts_user_destination_liquidity,
+            withdraw_accounts_placeholder_user_destination_collateral,
+            withdraw_accounts_collateral_token_program,
+            withdraw_accounts_liquidity_token_program,
+            withdraw_accounts_instruction_sysvar_account,
+            deposit_farms_accounts_obligation_farm_user_state,
+            deposit_farms_accounts_reserve_farm_state,
+            withdraw_farms_accounts_obligation_farm_user_state,
+            withdraw_farms_accounts_reserve_farm_state,
             farms_program,
             remaining: remaining.to_vec(),
         })

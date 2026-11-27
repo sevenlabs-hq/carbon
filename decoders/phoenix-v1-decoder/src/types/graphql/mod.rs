@@ -7,6 +7,7 @@ pub mod condensed_order_schema;
 pub mod deposit_params_schema;
 pub mod evict_event_schema;
 pub mod expired_order_event_schema;
+pub mod f_i_f_o_order_id_schema;
 pub mod failed_multiple_limit_order_behavior_schema;
 pub mod fee_event_schema;
 pub mod fill_event_schema;
@@ -25,6 +26,7 @@ pub mod seat_approval_status_schema;
 pub mod seat_schema;
 pub mod self_trade_behavior_schema;
 pub mod side_schema;
+pub mod ticks_schema;
 pub mod time_in_force_event_schema;
 pub mod token_params_schema;
 pub mod withdraw_params_schema;
@@ -33,11 +35,12 @@ pub use {
     audit_log_header_schema::*, cancel_multiple_orders_by_id_params_schema::*,
     cancel_order_params_schema::*, cancel_up_to_params_schema::*, condensed_order_schema::*,
     deposit_params_schema::*, evict_event_schema::*, expired_order_event_schema::*,
-    failed_multiple_limit_order_behavior_schema::*, fee_event_schema::*, fill_event_schema::*,
-    fill_summary_event_schema::*, initialize_params_schema::*, market_header_schema::*,
-    market_size_params_schema::*, market_status_schema::*, multiple_order_packet_schema::*,
-    order_packet_schema::*, phoenix_market_event_schema::*, place_event_schema::*,
-    reduce_event_schema::*, reduce_order_params_schema::*, seat_approval_status_schema::*,
-    seat_schema::*, self_trade_behavior_schema::*, side_schema::*, time_in_force_event_schema::*,
+    f_i_f_o_order_id_schema::*, failed_multiple_limit_order_behavior_schema::*,
+    fee_event_schema::*, fill_event_schema::*, fill_summary_event_schema::*,
+    initialize_params_schema::*, market_header_schema::*, market_size_params_schema::*,
+    market_status_schema::*, multiple_order_packet_schema::*, order_packet_schema::*,
+    phoenix_market_event_schema::*, place_event_schema::*, reduce_event_schema::*,
+    reduce_order_params_schema::*, seat_approval_status_schema::*, seat_schema::*,
+    self_trade_behavior_schema::*, side_schema::*, ticks_schema::*, time_in_force_event_schema::*,
     token_params_schema::*, withdraw_params_schema::*,
 };

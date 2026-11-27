@@ -21,6 +21,9 @@ pub struct CreateEventEvent {
     pub is_cashback_enabled: bool,
     pub quote_mint: Pubkey,
     pub virtual_quote_reserves: u64,
+    pub creator_fee_bps: u64,
+    pub is_holder_reward: bool,
+    pub depth: u8,
 }
 
 impl CreateEventEvent {

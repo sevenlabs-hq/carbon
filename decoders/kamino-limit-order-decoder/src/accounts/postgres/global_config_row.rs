@@ -16,6 +16,7 @@ pub struct GlobalConfigRow {
     pub new_orders_blocked: U8,
     pub orders_taking_blocked: U8,
     pub host_fee_bps: U16,
+    pub rfq_venues_blocked: U8,
     pub padding0: Vec<U8>,
     pub order_close_delay_seconds: U64,
     pub padding1: Vec<U64>,
@@ -43,6 +44,7 @@ impl GlobalConfigRow {
             new_orders_blocked: source.new_orders_blocked.into(),
             orders_taking_blocked: source.orders_taking_blocked.into(),
             host_fee_bps: source.host_fee_bps.into(),
+            rfq_venues_blocked: source.rfq_venues_blocked.into(),
             padding0: source
                 .padding0
                 .into_iter()
@@ -99,6 +101,11 @@ impl TryFrom<GlobalConfigRow> for crate::accounts::global_config::GlobalConfig {
                 )
             })?,
             host_fee_bps: source.host_fee_bps.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            rfq_venues_blocked: source.rfq_venues_blocked.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
                 )
@@ -181,6 +188,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global_config
             "new_orders_blocked",
             "orders_taking_blocked",
             "host_fee_bps",
+            "rfq_venues_blocked",
             "padding0",
             "order_close_delay_seconds",
             "padding1",
@@ -208,6 +216,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
                 "new_orders_blocked",
                 "orders_taking_blocked",
                 "host_fee_bps",
+                "rfq_venues_blocked",
                 "padding0",
                 "order_close_delay_seconds",
                 "padding1",
@@ -223,13 +232,14 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
                 "padding2",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
             )"#)
         .bind(self.emergency_mode)
         .bind(self.flash_take_order_blocked)
         .bind(self.new_orders_blocked)
         .bind(self.orders_taking_blocked)
         .bind(self.host_fee_bps)
+        .bind(self.rfq_venues_blocked)
         .bind(&self.padding0)
         .bind(&self.order_close_delay_seconds)
         .bind(&self.padding1)
@@ -260,6 +270,7 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "new_orders_blocked",
                 "orders_taking_blocked",
                 "host_fee_bps",
+                "rfq_venues_blocked",
                 "padding0",
                 "order_close_delay_seconds",
                 "padding1",
@@ -275,7 +286,7 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "padding2",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -284,6 +295,7 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "new_orders_blocked" = EXCLUDED."new_orders_blocked",
                 "orders_taking_blocked" = EXCLUDED."orders_taking_blocked",
                 "host_fee_bps" = EXCLUDED."host_fee_bps",
+                "rfq_venues_blocked" = EXCLUDED."rfq_venues_blocked",
                 "padding0" = EXCLUDED."padding0",
                 "order_close_delay_seconds" = EXCLUDED."order_close_delay_seconds",
                 "padding1" = EXCLUDED."padding1",
@@ -306,6 +318,7 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
         .bind(self.new_orders_blocked)
         .bind(self.orders_taking_blocked)
         .bind(self.host_fee_bps)
+        .bind(self.rfq_venues_blocked)
         .bind(&self.padding0)
         .bind(&self.order_close_delay_seconds)
         .bind(&self.padding1)
@@ -382,6 +395,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
                 "new_orders_blocked" INT2 NOT NULL,
                 "orders_taking_blocked" INT2 NOT NULL,
                 "host_fee_bps" INT4 NOT NULL,
+                "rfq_venues_blocked" INT2 NOT NULL,
                 "padding0" INT2[] NOT NULL,
                 "order_close_delay_seconds" NUMERIC(20) NOT NULL,
                 "padding1" NUMERIC(20)[] NOT NULL,

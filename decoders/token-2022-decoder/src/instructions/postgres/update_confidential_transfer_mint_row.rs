@@ -23,7 +23,7 @@ impl UpdateConfidentialTransferMintRow {
         Self {
             instruction_metadata: metadata.into(),
             auto_approve_new_accounts: source.auto_approve_new_accounts,
-            auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.map(|value| value.into()),
+            auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.0.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -36,7 +36,7 @@ impl TryFrom<UpdateConfidentialTransferMintRow>
     fn try_from(source: UpdateConfidentialTransferMintRow) -> Result<Self, Self::Error> {
         Ok(Self {
             auto_approve_new_accounts: source.auto_approve_new_accounts,
-            auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.map(|value| *value),
+            auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.map(|value| *value).into(),
         })
     }
 }

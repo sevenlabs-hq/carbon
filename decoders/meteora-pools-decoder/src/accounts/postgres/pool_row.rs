@@ -33,6 +33,7 @@ pub struct PoolRow {
     pub total_locked_lp: U64,
     pub bootstrapping: sqlx::types::Json<Bootstrapping>,
     pub partner_info: sqlx::types::Json<PartnerInfo>,
+    pub lp_mint_supply: U64,
     pub padding: sqlx::types::Json<Padding>,
     pub curve_type: sqlx::types::Json<CurveType>,
 }
@@ -60,6 +61,7 @@ impl PoolRow {
             total_locked_lp: source.total_locked_lp.into(),
             bootstrapping: sqlx::types::Json(source.bootstrapping),
             partner_info: sqlx::types::Json(source.partner_info),
+            lp_mint_supply: source.lp_mint_supply.into(),
             padding: sqlx::types::Json(source.padding),
             curve_type: sqlx::types::Json(source.curve_type),
         }
@@ -98,6 +100,7 @@ impl TryFrom<PoolRow> for crate::accounts::pool::Pool {
             total_locked_lp: *source.total_locked_lp,
             bootstrapping: source.bootstrapping.0,
             partner_info: source.partner_info.0,
+            lp_mint_supply: *source.lp_mint_supply,
             padding: source.padding.0,
             curve_type: source.curve_type.0,
         })
@@ -132,6 +135,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool::Pool {
             "total_locked_lp",
             "bootstrapping",
             "partner_info",
+            "lp_mint_supply",
             "padding",
             "curve_type",
         ]
@@ -162,11 +166,12 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
                 "total_locked_lp",
                 "bootstrapping",
                 "partner_info",
+                "lp_mint_supply",
                 "padding",
                 "curve_type",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24
             )"#)
         .bind(self.lp_mint)
         .bind(self.token_a_mint)
@@ -187,6 +192,7 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
         .bind(&self.total_locked_lp)
         .bind(&self.bootstrapping)
         .bind(&self.partner_info)
+        .bind(&self.lp_mint_supply)
         .bind(&self.padding)
         .bind(&self.curve_type)
         .bind(self.account_metadata.pubkey)
@@ -220,11 +226,12 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "total_locked_lp",
                 "bootstrapping",
                 "partner_info",
+                "lp_mint_supply",
                 "padding",
                 "curve_type",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -247,6 +254,7 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "total_locked_lp" = EXCLUDED."total_locked_lp",
                 "bootstrapping" = EXCLUDED."bootstrapping",
                 "partner_info" = EXCLUDED."partner_info",
+                "lp_mint_supply" = EXCLUDED."lp_mint_supply",
                 "padding" = EXCLUDED."padding",
                 "curve_type" = EXCLUDED."curve_type",
                 __slot = EXCLUDED.__slot
@@ -272,6 +280,7 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
         .bind(&self.total_locked_lp)
         .bind(&self.bootstrapping)
         .bind(&self.partner_info)
+        .bind(&self.lp_mint_supply)
         .bind(&self.padding)
         .bind(&self.curve_type)
         .bind(self.account_metadata.pubkey)
@@ -351,6 +360,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
                 "total_locked_lp" NUMERIC(20) NOT NULL,
                 "bootstrapping" JSONB NOT NULL,
                 "partner_info" JSONB NOT NULL,
+                "lp_mint_supply" NUMERIC(20) NOT NULL,
                 "padding" JSONB NOT NULL,
                 "curve_type" JSONB NOT NULL,
                 -- Account metadata

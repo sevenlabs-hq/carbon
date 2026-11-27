@@ -9,8 +9,10 @@ pub mod init_liquidity_row;
 pub mod init_new_protocol_row;
 pub mod init_token_reserve_row;
 pub mod operate_row;
+pub mod pause_token_row;
 pub mod pause_user_row;
 pub mod pre_operate_row;
+pub mod unpause_token_row;
 pub mod unpause_user_row;
 pub mod update_authority_row;
 pub mod update_auths_row;
@@ -28,12 +30,12 @@ pub mod update_user_withdrawal_limit_row;
 pub use self::{
     change_status_row::*, claim_row::*, close_claim_account_row::*, collect_revenue_row::*,
     cpi_event_row::*, init_claim_account_row::*, init_liquidity_row::*, init_new_protocol_row::*,
-    init_token_reserve_row::*, operate_row::*, pause_user_row::*, pre_operate_row::*,
-    unpause_user_row::*, update_authority_row::*, update_auths_row::*,
-    update_exchange_price_row::*, update_guardians_row::*, update_rate_data_v1_row::*,
-    update_rate_data_v2_row::*, update_revenue_collector_row::*, update_token_config_row::*,
-    update_user_borrow_config_row::*, update_user_class_row::*, update_user_supply_config_row::*,
-    update_user_withdrawal_limit_row::*,
+    init_token_reserve_row::*, operate_row::*, pause_token_row::*, pause_user_row::*,
+    pre_operate_row::*, unpause_token_row::*, unpause_user_row::*, update_authority_row::*,
+    update_auths_row::*, update_exchange_price_row::*, update_guardians_row::*,
+    update_rate_data_v1_row::*, update_rate_data_v2_row::*, update_revenue_collector_row::*,
+    update_token_config_row::*, update_user_borrow_config_row::*, update_user_class_row::*,
+    update_user_supply_config_row::*, update_user_withdrawal_limit_row::*,
 };
 use super::JupiterLendInstruction;
 
@@ -59,8 +61,10 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterLendInstructionsMigrati
             Box::new(InitNewProtocolMigrationOperation),
             Box::new(InitTokenReserveMigrationOperation),
             Box::new(OperateMigrationOperation),
+            Box::new(PauseTokenMigrationOperation),
             Box::new(PauseUserMigrationOperation),
             Box::new(PreOperateMigrationOperation),
+            Box::new(UnpauseTokenMigrationOperation),
             Box::new(UnpauseUserMigrationOperation),
             Box::new(UpdateAuthorityMigrationOperation),
             Box::new(UpdateAuthsMigrationOperation),
@@ -145,12 +149,22 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterLendInstructionsAbsolut
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "pause_token_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "pause_user_instruction",
                 ),
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "pre_operate_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "unpause_token_instruction",
                 ),
             ),
             Box::new(
@@ -337,6 +351,15 @@ impl carbon_core::postgres::operations::Insert for JupiterLendInstructionWithMet
                 row.insert(pool).await?;
                 Ok(())
             }
+            JupiterLendInstruction::PauseToken { data, .. } => {
+                let row = pause_token_row::PauseTokenRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             JupiterLendInstruction::PauseUser { data, .. } => {
                 let row = pause_user_row::PauseUserRow::from_parts(
                     data.clone(),
@@ -348,6 +371,15 @@ impl carbon_core::postgres::operations::Insert for JupiterLendInstructionWithMet
             }
             JupiterLendInstruction::PreOperate { data, .. } => {
                 let row = pre_operate_row::PreOperateRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            JupiterLendInstruction::UnpauseToken { data, .. } => {
+                let row = unpause_token_row::UnpauseTokenRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -572,6 +604,15 @@ impl carbon_core::postgres::operations::Upsert for JupiterLendInstructionWithMet
                 row.upsert(pool).await?;
                 Ok(())
             }
+            JupiterLendInstruction::PauseToken { data, .. } => {
+                let row = pause_token_row::PauseTokenRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             JupiterLendInstruction::PauseUser { data, .. } => {
                 let row = pause_user_row::PauseUserRow::from_parts(
                     data.clone(),
@@ -583,6 +624,15 @@ impl carbon_core::postgres::operations::Upsert for JupiterLendInstructionWithMet
             }
             JupiterLendInstruction::PreOperate { data, .. } => {
                 let row = pre_operate_row::PreOperateRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            JupiterLendInstruction::UnpauseToken { data, .. } => {
+                let row = unpause_token_row::UnpauseTokenRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

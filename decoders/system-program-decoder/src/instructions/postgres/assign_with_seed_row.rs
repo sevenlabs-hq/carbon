@@ -24,7 +24,7 @@ impl AssignWithSeedRow {
         Self {
             instruction_metadata: metadata.into(),
             base: source.base.into(),
-            seed: source.seed,
+            seed: source.seed.into(),
             program_address: source.program_address.into(),
             accounts: sqlx::types::Json(accounts),
         }
@@ -36,7 +36,7 @@ impl TryFrom<AssignWithSeedRow> for crate::instructions::assign_with_seed::Assig
     fn try_from(source: AssignWithSeedRow) -> Result<Self, Self::Error> {
         Ok(Self {
             base: *source.base,
-            seed: source.seed,
+            seed: source.seed.into(),
             program_address: *source.program_address,
         })
     }

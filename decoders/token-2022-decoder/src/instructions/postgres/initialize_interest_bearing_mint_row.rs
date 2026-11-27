@@ -22,7 +22,7 @@ impl InitializeInterestBearingMintRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            rate_authority: source.rate_authority.map(|value| value.into()),
+            rate_authority: source.rate_authority.0.map(|value| value.into()),
             rate: source.rate,
             accounts: sqlx::types::Json(accounts),
         }
@@ -35,7 +35,7 @@ impl TryFrom<InitializeInterestBearingMintRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeInterestBearingMintRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            rate_authority: source.rate_authority.map(|value| *value),
+            rate_authority: source.rate_authority.map(|value| *value).into(),
             rate: source.rate,
         })
     }

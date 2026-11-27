@@ -29,7 +29,7 @@ impl CreateAccountWithSeedRow {
         Self {
             instruction_metadata: metadata.into(),
             base: source.base.into(),
-            seed: source.seed,
+            seed: source.seed.into(),
             amount: source.amount.into(),
             space: source.space.into(),
             program_address: source.program_address.into(),
@@ -45,7 +45,7 @@ impl TryFrom<CreateAccountWithSeedRow>
     fn try_from(source: CreateAccountWithSeedRow) -> Result<Self, Self::Error> {
         Ok(Self {
             base: *source.base,
-            seed: source.seed,
+            seed: source.seed.into(),
             amount: *source.amount,
             space: *source.space,
             program_address: *source.program_address,

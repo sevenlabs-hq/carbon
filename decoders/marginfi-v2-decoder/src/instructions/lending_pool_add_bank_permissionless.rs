@@ -16,7 +16,9 @@ pub struct LendingPoolAddBankPermissionlessInstructionAccounts {
     pub fee_payer: solana_pubkey::Pubkey,
     pub bank_mint: solana_pubkey::Pubkey,
     pub sol_pool: solana_pubkey::Pubkey,
+    pub pool_onramp: solana_pubkey::Pubkey,
     pub stake_pool: solana_pubkey::Pubkey,
+    pub validator_vote_account: solana_pubkey::Pubkey,
     pub bank: solana_pubkey::Pubkey,
     pub liquidity_vault_authority: solana_pubkey::Pubkey,
     pub liquidity_vault: solana_pubkey::Pubkey,
@@ -60,7 +62,9 @@ impl ArrangeAccounts for LendingPoolAddBankPermissionless {
         let fee_payer = next_account(&mut iter)?;
         let bank_mint = next_account(&mut iter)?;
         let sol_pool = next_account(&mut iter)?;
+        let pool_onramp = next_account(&mut iter)?;
         let stake_pool = next_account(&mut iter)?;
+        let validator_vote_account = next_account(&mut iter)?;
         let bank = next_account(&mut iter)?;
         let liquidity_vault_authority = next_account(&mut iter)?;
         let liquidity_vault = next_account(&mut iter)?;
@@ -79,7 +83,9 @@ impl ArrangeAccounts for LendingPoolAddBankPermissionless {
             fee_payer,
             bank_mint,
             sol_pool,
+            pool_onramp,
             stake_pool,
+            validator_vote_account,
             bank,
             liquidity_vault_authority,
             liquidity_vault,

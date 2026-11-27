@@ -11,6 +11,7 @@ pub struct BuyExactSolInGraphQL {
     pub spendable_sol_in: U64,
     pub min_tokens_out: U64,
     pub track_volume: OptionBoolGraphQL,
+    pub partial_fill: OptionBoolGraphQL,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
 
@@ -22,6 +23,7 @@ impl TryFrom<crate::instructions::postgres::BuyExactSolInRow> for BuyExactSolInG
             spendable_sol_in: carbon_core::graphql::primitives::U64(*row.spendable_sol_in),
             min_tokens_out: carbon_core::graphql::primitives::U64(*row.min_tokens_out),
             track_volume: row.track_volume.0 .0,
+            partial_fill: row.partial_fill.0 .0,
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,

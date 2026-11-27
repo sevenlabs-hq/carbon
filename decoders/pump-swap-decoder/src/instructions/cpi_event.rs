@@ -12,10 +12,11 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
     PartialEq,
 )]
 pub enum CpiEvent {
-    AdminSetCoinCreatorEvent(events::admin_set_coin_creator_event::AdminSetCoinCreatorEventEvent),
+    AdminCtoPoolEvent(events::admin_cto_pool_event::AdminCtoPoolEventEvent),
     AdminUpdateTokenIncentivesEvent(
         events::admin_update_token_incentives_event::AdminUpdateTokenIncentivesEventEvent,
     ),
+    BoostBuyAndBurnEvent(events::boost_buy_and_burn_event::BoostBuyAndBurnEventEvent),
     BuyEvent(events::buy_event::BuyEventEvent),
     ClaimCashbackEvent(events::claim_cashback_event::ClaimCashbackEventEvent),
     ClaimTokenIncentivesEvent(events::claim_token_incentives_event::ClaimTokenIncentivesEventEvent),
@@ -30,6 +31,7 @@ pub enum CpiEvent {
     DepositEvent(events::deposit_event::DepositEventEvent),
     DisableEvent(events::disable_event::DisableEventEvent),
     ExtendAccountEvent(events::extend_account_event::ExtendAccountEventEvent),
+    InitBoostEvent(events::init_boost_event::InitBoostEventEvent),
     InitUserVolumeAccumulatorEvent(
         events::init_user_volume_accumulator_event::InitUserVolumeAccumulatorEventEvent,
     ),
@@ -43,13 +45,18 @@ pub enum CpiEvent {
     SetBondingCurveCoinCreatorEvent(
         events::set_bonding_curve_coin_creator_event::SetBondingCurveCoinCreatorEventEvent,
     ),
+    SetBoostAuthorityEvent(events::set_boost_authority_event::SetBoostAuthorityEventEvent),
     SetMetaplexCoinCreatorEvent(
         events::set_metaplex_coin_creator_event::SetMetaplexCoinCreatorEventEvent,
     ),
+    SweepPoolFeeEvent(events::sweep_pool_fee_event::SweepPoolFeeEventEvent),
     SyncUserVolumeAccumulatorEvent(
         events::sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEventEvent,
     ),
     UpdateAdminEvent(events::update_admin_event::UpdateAdminEventEvent),
+    UpdateCreatorFeeConfigEvent(
+        events::update_creator_fee_config_event::UpdateCreatorFeeConfigEventEvent,
+    ),
     UpdateFeeConfigEvent(events::update_fee_config_event::UpdateFeeConfigEventEvent),
     WithdrawEvent(events::withdraw_event::WithdrawEventEvent),
 }
@@ -75,12 +82,17 @@ impl CpiEvent {
         let event_data = &data[8..];
 
         if let Some(decoded) =
-            events::admin_set_coin_creator_event::AdminSetCoinCreatorEventEvent::decode(event_data)
+            events::admin_cto_pool_event::AdminCtoPoolEventEvent::decode(event_data)
         {
-            return Some(CpiEvent::AdminSetCoinCreatorEvent(decoded));
+            return Some(CpiEvent::AdminCtoPoolEvent(decoded));
         }
         if let Some(decoded) = events::admin_update_token_incentives_event::AdminUpdateTokenIncentivesEventEvent::decode(event_data) {
             return Some(CpiEvent::AdminUpdateTokenIncentivesEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::boost_buy_and_burn_event::BoostBuyAndBurnEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::BoostBuyAndBurnEvent(decoded));
         }
         if let Some(decoded) = events::buy_event::BuyEventEvent::decode(event_data) {
             return Some(CpiEvent::BuyEvent(decoded));
@@ -124,6 +136,9 @@ impl CpiEvent {
         {
             return Some(CpiEvent::ExtendAccountEvent(decoded));
         }
+        if let Some(decoded) = events::init_boost_event::InitBoostEventEvent::decode(event_data) {
+            return Some(CpiEvent::InitBoostEvent(decoded));
+        }
         if let Some(decoded) =
             events::init_user_volume_accumulator_event::InitUserVolumeAccumulatorEventEvent::decode(
                 event_data,
@@ -152,11 +167,21 @@ impl CpiEvent {
             return Some(CpiEvent::SetBondingCurveCoinCreatorEvent(decoded));
         }
         if let Some(decoded) =
+            events::set_boost_authority_event::SetBoostAuthorityEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SetBoostAuthorityEvent(decoded));
+        }
+        if let Some(decoded) =
             events::set_metaplex_coin_creator_event::SetMetaplexCoinCreatorEventEvent::decode(
                 event_data,
             )
         {
             return Some(CpiEvent::SetMetaplexCoinCreatorEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::sweep_pool_fee_event::SweepPoolFeeEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SweepPoolFeeEvent(decoded));
         }
         if let Some(decoded) =
             events::sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEventEvent::decode(
@@ -168,6 +193,13 @@ impl CpiEvent {
         if let Some(decoded) = events::update_admin_event::UpdateAdminEventEvent::decode(event_data)
         {
             return Some(CpiEvent::UpdateAdminEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::update_creator_fee_config_event::UpdateCreatorFeeConfigEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::UpdateCreatorFeeConfigEvent(decoded));
         }
         if let Some(decoded) =
             events::update_fee_config_event::UpdateFeeConfigEventEvent::decode(event_data)

@@ -24,13 +24,27 @@ impl CpiEventRow {
         Self {
             instruction_metadata: metadata.into(),
             name: match &source {
+                CpiEvent::AdminCloseAccountEvent(_) => "admin_close_account_event".to_string(),
+                CpiEvent::CircuitBreakerAutoBrokenEvent(_) => {
+                    "circuit_breaker_auto_broken_event".to_string()
+                }
+                CpiEvent::CircuitBreakerClearedEvent(_) => {
+                    "circuit_breaker_cleared_event".to_string()
+                }
+                CpiEvent::CircuitBreakerTrippedEvent(_) => {
+                    "circuit_breaker_tripped_event".to_string()
+                }
                 CpiEvent::DeleverageEvent(_) => "deleverage_event".to_string(),
                 CpiEvent::DeleverageWithdrawFlowEvent(_) => {
                     "deleverage_withdraw_flow_event".to_string()
                 }
+                CpiEvent::DriftClaimBadDebtEvent(_) => "drift_claim_bad_debt_event".to_string(),
                 CpiEvent::EditStakedSettingsEvent(_) => "edit_staked_settings_event".to_string(),
                 CpiEvent::HealthPulseEvent(_) => "health_pulse_event".to_string(),
                 CpiEvent::KeeperCloseOrderEvent(_) => "keeper_close_order_event".to_string(),
+                CpiEvent::KeeperCloseRebalanceOrderEvent(_) => {
+                    "keeper_close_rebalance_order_event".to_string()
+                }
                 CpiEvent::LendingAccountBorrowEvent(_) => {
                     "lending_account_borrow_event".to_string()
                 }
@@ -39,6 +53,9 @@ impl CpiEventRow {
                 }
                 CpiEvent::LendingAccountLiquidateEvent(_) => {
                     "lending_account_liquidate_event".to_string()
+                }
+                CpiEvent::LendingAccountPremiumSettledEvent(_) => {
+                    "lending_account_premium_settled_event".to_string()
                 }
                 CpiEvent::LendingAccountRepayEvent(_) => "lending_account_repay_event".to_string(),
                 CpiEvent::LendingAccountWithdrawEvent(_) => {
@@ -65,8 +82,20 @@ impl CpiEventRow {
                 CpiEvent::LendingPoolBankHandleBankruptcyEvent(_) => {
                     "lending_pool_bank_handle_bankruptcy_event".to_string()
                 }
-                CpiEvent::LendingPoolBankSetFixedOraclePriceEvent(_) => {
-                    "lending_pool_bank_set_fixed_oracle_price_event".to_string()
+                CpiEvent::LendingPoolBankPremiumConfigureEvent(_) => {
+                    "lending_pool_bank_premium_configure_event".to_string()
+                }
+                CpiEvent::LendingPoolBankSetOraclePriceEvent(_) => {
+                    "lending_pool_bank_set_oracle_price_event".to_string()
+                }
+                CpiEvent::LendingPoolBankSetSameAssetEmodeEligibilityEvent(_) => {
+                    "lending_pool_bank_set_same_asset_emode_eligibility_event".to_string()
+                }
+                CpiEvent::LendingPoolGroupPremiumConfigureEvent(_) => {
+                    "lending_pool_group_premium_configure_event".to_string()
+                }
+                CpiEvent::LendingPoolPremiumFeesCollectedEvent(_) => {
+                    "lending_pool_premium_fees_collected_event".to_string()
                 }
                 CpiEvent::LendingPoolSuperAdminDepositEvent(_) => {
                     "lending_pool_super_admin_deposit_event".to_string()
@@ -75,11 +104,18 @@ impl CpiEventRow {
                     "lending_pool_super_admin_withdraw_event".to_string()
                 }
                 CpiEvent::LiquidationReceiverEvent(_) => "liquidation_receiver_event".to_string(),
+                CpiEvent::LiquidationTagEvent(_) => "liquidation_tag_event".to_string(),
                 CpiEvent::MarginfiAccountCloseOrderEvent(_) => {
                     "marginfi_account_close_order_event".to_string()
                 }
+                CpiEvent::MarginfiAccountCloseRebalanceOrderEvent(_) => {
+                    "marginfi_account_close_rebalance_order_event".to_string()
+                }
                 CpiEvent::MarginfiAccountCreateEvent(_) => {
                     "marginfi_account_create_event".to_string()
+                }
+                CpiEvent::MarginfiAccountExecuteOrderEvent(_) => {
+                    "marginfi_account_execute_order_event".to_string()
                 }
                 CpiEvent::MarginfiAccountFreezeEvent(_) => {
                     "marginfi_account_freeze_event".to_string()
@@ -87,14 +123,29 @@ impl CpiEventRow {
                 CpiEvent::MarginfiAccountPlaceOrderEvent(_) => {
                     "marginfi_account_place_order_event".to_string()
                 }
+                CpiEvent::MarginfiAccountPlaceRebalanceOrderEvent(_) => {
+                    "marginfi_account_place_rebalance_order_event".to_string()
+                }
                 CpiEvent::MarginfiAccountTransferToNewAccount(_) => {
                     "marginfi_account_transfer_to_new_account".to_string()
+                }
+                CpiEvent::MarginfiAccountUpdateRebalanceOrderEvent(_) => {
+                    "marginfi_account_update_rebalance_order_event".to_string()
                 }
                 CpiEvent::MarginfiGroupConfigureEvent(_) => {
                     "marginfi_group_configure_event".to_string()
                 }
                 CpiEvent::MarginfiGroupCreateEvent(_) => "marginfi_group_create_event".to_string(),
                 CpiEvent::RateLimitFlowEvent(_) => "rate_limit_flow_event".to_string(),
+                CpiEvent::RebalanceExecutedEvent(_) => "rebalance_executed_event".to_string(),
+                CpiEvent::RebalanceFeePoolTopUpEvent(_) => {
+                    "rebalance_fee_pool_top_up_event".to_string()
+                }
+                CpiEvent::RebalanceFeePoolWithdrawEvent(_) => {
+                    "rebalance_fee_pool_withdraw_event".to_string()
+                }
+                CpiEvent::RebalanceTipSettledEvent(_) => "rebalance_tip_settled_event".to_string(),
+                CpiEvent::SetGovernanceAdminEvent(_) => "set_governance_admin_event".to_string(),
                 CpiEvent::SetKeeperCloseFlagsEvent(_) => "set_keeper_close_flags_event".to_string(),
             },
             data: sqlx::types::Json(source),

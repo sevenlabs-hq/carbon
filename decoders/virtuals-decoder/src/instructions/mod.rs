@@ -88,6 +88,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for VirtualsDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            VirtualsInstruction::CpiEvent => CpiEvent,
             VirtualsInstruction::Buy => Buy,
             VirtualsInstruction::ClaimFees => ClaimFees,
             VirtualsInstruction::CreateMeteoraPool => CreateMeteoraPool,
@@ -96,7 +97,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for VirtualsDecoder {
             VirtualsInstruction::Launch => Launch,
             VirtualsInstruction::Sell => Sell,
             VirtualsInstruction::UpdatePoolCreator => UpdatePoolCreator,
-            VirtualsInstruction::CpiEvent => CpiEvent,
         )
     }
 }

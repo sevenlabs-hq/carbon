@@ -13,6 +13,7 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
 )]
 pub enum CpiEvent {
     FeeEvent(events::fee_event::FeeEventEvent),
+    FeeWithdrawalEvent(events::fee_withdrawal_event::FeeWithdrawalEventEvent),
     SwapEvent(events::swap_event::SwapEventEvent),
 }
 
@@ -38,6 +39,11 @@ impl CpiEvent {
 
         if let Some(decoded) = events::fee_event::FeeEventEvent::decode(event_data) {
             return Some(CpiEvent::FeeEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::fee_withdrawal_event::FeeWithdrawalEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::FeeWithdrawalEvent(decoded));
         }
         if let Some(decoded) = events::swap_event::SwapEventEvent::decode(event_data) {
             return Some(CpiEvent::SwapEvent(decoded));

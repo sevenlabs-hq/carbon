@@ -12,8 +12,10 @@ pub struct AddMemoInstructionAccounts {}
 
 impl AddMemo {
     pub fn decode(data: &[u8]) -> Option<Self> {
+        let data_slice = data;
+
         Some(AddMemo {
-            memo: data.to_vec(),
+            memo: data_slice.to_vec(),
         })
     }
 }

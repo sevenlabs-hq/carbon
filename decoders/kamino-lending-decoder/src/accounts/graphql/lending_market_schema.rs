@@ -50,7 +50,7 @@ pub struct LendingMarketGraphQL {
     pub obligation_borrow_rollover_configuration_enabled: U8,
     pub obligation_borrow_migration_to_fixed_execution_enabled: U8,
     pub withdraw_ticket_cancellation_enabled: U8,
-    pub padding2: Vec<U8>,
+    pub disable_nonce_block: U8,
     pub reserve_rewards_max_apr_bps: i32,
     pub min_withdraw_queued_liquidity_value: U64,
     pub fixed_term_rollover_window_duration_seconds: U64,
@@ -59,6 +59,7 @@ pub struct LendingMarketGraphQL {
     pub term_based_full_liquidation_duration_secs: U64,
     pub permissioning_authority: Pubkey,
     pub permissioned_ops: U64,
+    pub min_obligation_order_execution_value: U64,
     pub padding1: Vec<U64>,
 }
 
@@ -189,11 +190,9 @@ impl TryFrom<crate::accounts::postgres::LendingMarketRow> for LendingMarketGraph
             withdraw_ticket_cancellation_enabled: carbon_core::graphql::primitives::U8(
                 (*row.withdraw_ticket_cancellation_enabled) as u8,
             ),
-            padding2: row
-                .padding2
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
+            disable_nonce_block: carbon_core::graphql::primitives::U8(
+                (*row.disable_nonce_block) as u8,
+            ),
             reserve_rewards_max_apr_bps: *row.reserve_rewards_max_apr_bps,
             min_withdraw_queued_liquidity_value: carbon_core::graphql::primitives::U64(
                 *row.min_withdraw_queued_liquidity_value,
@@ -214,6 +213,9 @@ impl TryFrom<crate::accounts::postgres::LendingMarketRow> for LendingMarketGraph
                 row.permissioning_authority.0,
             ),
             permissioned_ops: carbon_core::graphql::primitives::U64(*row.permissioned_ops),
+            min_obligation_order_execution_value: carbon_core::graphql::primitives::U64(
+                *row.min_obligation_order_execution_value,
+            ),
             padding1: row
                 .padding1
                 .into_iter()

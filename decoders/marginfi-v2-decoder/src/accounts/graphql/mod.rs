@@ -3,25 +3,21 @@ pub mod bank_metadata_schema;
 pub mod bank_schema;
 pub mod execute_order_record_schema;
 pub mod fee_state_schema;
-pub mod lending_schema;
 pub mod liquidation_record_schema;
 pub mod marginfi_account_schema;
 pub mod marginfi_group_schema;
-pub mod minimal_obligation_schema;
-pub mod minimal_reserve_schema;
-pub mod minimal_spot_market_schema;
-pub mod minimal_user_schema;
 pub mod order_schema;
-pub mod solend_minimal_reserve_schema;
+pub mod rebalance_order_schema;
+pub mod rebalance_record_schema;
+pub mod same_asset_emode_registry_schema;
 pub mod staked_settings_schema;
 
 use juniper::GraphQLObject;
 pub use {
     bank_metadata_schema::*, bank_schema::*, execute_order_record_schema::*, fee_state_schema::*,
-    lending_schema::*, liquidation_record_schema::*, marginfi_account_schema::*,
-    marginfi_group_schema::*, minimal_obligation_schema::*, minimal_reserve_schema::*,
-    minimal_spot_market_schema::*, minimal_user_schema::*, order_schema::*,
-    solend_minimal_reserve_schema::*, staked_settings_schema::*,
+    liquidation_record_schema::*, marginfi_account_schema::*, marginfi_group_schema::*,
+    order_schema::*, rebalance_order_schema::*, rebalance_record_schema::*,
+    same_asset_emode_registry_schema::*, staked_settings_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

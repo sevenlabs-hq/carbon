@@ -9,8 +9,10 @@ pub mod init_liquidity_schema;
 pub mod init_new_protocol_schema;
 pub mod init_token_reserve_schema;
 pub mod operate_schema;
+pub mod pause_token_schema;
 pub mod pause_user_schema;
 pub mod pre_operate_schema;
+pub mod unpause_token_schema;
 pub mod unpause_user_schema;
 pub mod update_authority_schema;
 pub mod update_auths_schema;
@@ -30,9 +32,10 @@ pub use {
     change_status_schema::*, claim_schema::*, close_claim_account_schema::*,
     collect_revenue_schema::*, cpi_event_schema::*, init_claim_account_schema::*,
     init_liquidity_schema::*, init_new_protocol_schema::*, init_token_reserve_schema::*,
-    operate_schema::*, pause_user_schema::*, pre_operate_schema::*, unpause_user_schema::*,
-    update_authority_schema::*, update_auths_schema::*, update_exchange_price_schema::*,
-    update_guardians_schema::*, update_rate_data_v1_schema::*, update_rate_data_v2_schema::*,
+    operate_schema::*, pause_token_schema::*, pause_user_schema::*, pre_operate_schema::*,
+    unpause_token_schema::*, unpause_user_schema::*, update_authority_schema::*,
+    update_auths_schema::*, update_exchange_price_schema::*, update_guardians_schema::*,
+    update_rate_data_v1_schema::*, update_rate_data_v2_schema::*,
     update_revenue_collector_schema::*, update_token_config_schema::*,
     update_user_borrow_config_schema::*, update_user_class_schema::*,
     update_user_supply_config_schema::*, update_user_withdrawal_limit_schema::*,

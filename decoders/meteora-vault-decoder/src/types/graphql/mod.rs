@@ -11,10 +11,12 @@ pub mod strategy_type_schema;
 pub mod strategy_withdraw_schema;
 pub mod total_amount_schema;
 pub mod vault_bumps_schema;
+pub mod vault_migrated_schema;
 
 pub use {
     add_liquidity_schema::*, claim_reward_schema::*, locked_profit_tracker_schema::*,
     performance_fee_schema::*, remove_liquidity_schema::*, report_loss_schema::*,
     strategy_bumps_schema::*, strategy_deposit_schema::*, strategy_type_schema::*,
     strategy_withdraw_schema::*, total_amount_schema::*, vault_bumps_schema::*,
+    vault_migrated_schema::*,
 };

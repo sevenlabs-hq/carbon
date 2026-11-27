@@ -133,6 +133,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLimitOrderDecode
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            KaminoLimitOrderInstruction::CpiEvent => CpiEvent,
             KaminoLimitOrderInstruction::AssertUserSwapBalancesEnd => AssertUserSwapBalancesEnd,
             KaminoLimitOrderInstruction::AssertUserSwapBalancesStart => AssertUserSwapBalancesStart,
             KaminoLimitOrderInstruction::CloseOrderAndClaimTip => CloseOrderAndClaimTip,
@@ -148,7 +149,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLimitOrderDecode
             KaminoLimitOrderInstruction::UpdateGlobalConfigAdmin => UpdateGlobalConfigAdmin,
             KaminoLimitOrderInstruction::UpdateOrder => UpdateOrder,
             KaminoLimitOrderInstruction::WithdrawHostTip => WithdrawHostTip,
-            KaminoLimitOrderInstruction::CpiEvent => CpiEvent,
         )
     }
 }

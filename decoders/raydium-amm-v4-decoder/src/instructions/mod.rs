@@ -23,6 +23,7 @@ pub mod swap_base_out;
 pub mod swap_base_out_v2;
 pub mod update_config_account;
 pub mod withdraw;
+pub mod withdraw_excess_lamports;
 pub mod withdraw_pnl;
 pub mod withdraw_srm;
 
@@ -30,7 +31,8 @@ pub use self::{
     admin_cancel_orders::*, create_config_account::*, deposit::*, initialize::*, initialize2::*,
     migrate_to_open_book::*, monitor_step::*, pre_initialize::*, set_params::*, simulate_info::*,
     swap_base_in::*, swap_base_in_v2::*, swap_base_out::*, swap_base_out_v2::*,
-    update_config_account::*, withdraw::*, withdraw_pnl::*, withdraw_srm::*,
+    update_config_account::*, withdraw::*, withdraw_excess_lamports::*, withdraw_pnl::*,
+    withdraw_srm::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -118,6 +120,11 @@ pub enum RaydiumAmmV4Instruction {
         data: Withdraw,
         accounts: WithdrawInstructionAccounts,
     },
+    WithdrawExcessLamports {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawExcessLamports,
+        accounts: WithdrawExcessLamportsInstructionAccounts,
+    },
     WithdrawPnl {
         program_id: solana_pubkey::Pubkey,
         data: WithdrawPnl,
@@ -160,6 +167,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumAmmV4Decoder {
             RaydiumAmmV4Instruction::SwapBaseOutV2 => SwapBaseOutV2,
             RaydiumAmmV4Instruction::UpdateConfigAccount => UpdateConfigAccount,
             RaydiumAmmV4Instruction::Withdraw => Withdraw,
+            RaydiumAmmV4Instruction::WithdrawExcessLamports => WithdrawExcessLamports,
             RaydiumAmmV4Instruction::WithdrawPnl => WithdrawPnl,
             RaydiumAmmV4Instruction::WithdrawSrm => WithdrawSrm,
         )

@@ -519,6 +519,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            MeteoraDlmmInstruction::CpiEvent => CpiEvent,
             MeteoraDlmmInstruction::AddLiquidity => AddLiquidity,
             MeteoraDlmmInstruction::AddLiquidity2 => AddLiquidity2,
             MeteoraDlmmInstruction::AddLiquidityByStrategy => AddLiquidityByStrategy,
@@ -595,7 +596,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
             MeteoraDlmmInstruction::WithdrawIneligibleReward => WithdrawIneligibleReward,
             MeteoraDlmmInstruction::WithdrawProtocolFee => WithdrawProtocolFee,
             MeteoraDlmmInstruction::ZapProtocolFee => ZapProtocolFee,
-            MeteoraDlmmInstruction::CpiEvent => CpiEvent,
         )
     }
 }

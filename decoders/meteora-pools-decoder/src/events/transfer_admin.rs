@@ -4,28 +4,27 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct TransferAdminEvent {
+    /// Old admin of the pool
     pub admin: Pubkey,
+    /// New admin of the pool
     pub new_admin: Pubkey,
+    /// Pool address
     pub pool: Pubkey,
 }
 
 impl TransferAdminEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 228, 169, 131, 244, 61, 56, 65, 254,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [228, 169, 131, 244, 61, 56, 65, 254] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

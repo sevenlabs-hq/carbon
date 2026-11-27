@@ -119,6 +119,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for StabbleWeightedSwapDec
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            StabbleWeightedSwapInstruction::CpiEvent => CpiEvent,
             StabbleWeightedSwapInstruction::AcceptOwner => AcceptOwner,
             StabbleWeightedSwapInstruction::ChangeMaxSupply => ChangeMaxSupply,
             StabbleWeightedSwapInstruction::ChangeSwapFee => ChangeSwapFee,
@@ -132,7 +133,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for StabbleWeightedSwapDec
             StabbleWeightedSwapInstruction::TransferOwner => TransferOwner,
             StabbleWeightedSwapInstruction::Unpause => Unpause,
             StabbleWeightedSwapInstruction::Withdraw => Withdraw,
-            StabbleWeightedSwapInstruction::CpiEvent => CpiEvent,
         )
     }
 }

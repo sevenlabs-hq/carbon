@@ -4,27 +4,25 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CreateLockEscrowEvent {
+    /// Pool address
     pub pool: Pubkey,
+    /// Owner of lock escrow
     pub owner: Pubkey,
 }
 
 impl CreateLockEscrowEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 74, 94, 106, 141, 49, 17, 98, 109,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [74, 94, 106, 141, 49, 17, 98, 109] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

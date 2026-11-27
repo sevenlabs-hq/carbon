@@ -76,13 +76,13 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MoonshotDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            MoonshotInstruction::CpiEvent => CpiEvent,
             MoonshotInstruction::Buy => Buy,
             MoonshotInstruction::ConfigInit => ConfigInit,
             MoonshotInstruction::ConfigUpdate => ConfigUpdate,
             MoonshotInstruction::MigrateFunds => MigrateFunds,
             MoonshotInstruction::Sell => Sell,
             MoonshotInstruction::TokenMint => TokenMint,
-            MoonshotInstruction::CpiEvent => CpiEvent,
         )
     }
 }

@@ -209,6 +209,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PancakeSwapDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            PancakeSwapInstruction::CpiEvent => CpiEvent,
             PancakeSwapInstruction::ClosePosition => ClosePosition,
             PancakeSwapInstruction::CollectFundFee => CollectFundFee,
             PancakeSwapInstruction::CollectProtocolFee => CollectProtocolFee,
@@ -236,7 +237,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PancakeSwapDecoder {
             PancakeSwapInstruction::UpdateOperationAccount => UpdateOperationAccount,
             PancakeSwapInstruction::UpdatePoolStatus => UpdatePoolStatus,
             PancakeSwapInstruction::UpdateRewardInfos => UpdateRewardInfos,
-            PancakeSwapInstruction::CpiEvent => CpiEvent,
         )
     }
 }

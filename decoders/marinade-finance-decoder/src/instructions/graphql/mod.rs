@@ -7,10 +7,12 @@ pub mod config_lp_schema;
 pub mod config_marinade_schema;
 pub mod config_validator_system_schema;
 pub mod cpi_event_schema;
+pub mod create_canonical_stake_schema;
 pub mod deactivate_stake_schema;
 pub mod deposit_schema;
 pub mod deposit_stake_account_schema;
 pub mod emergency_unstake_schema;
+pub mod finalize_delinquent_upgrade_schema;
 pub mod initialize_schema;
 pub mod liquid_unstake_schema;
 pub mod merge_stakes_schema;
@@ -19,7 +21,6 @@ pub mod partial_unstake_schema;
 pub mod pause_schema;
 pub mod realloc_stake_list_schema;
 pub mod realloc_validator_list_schema;
-pub mod redelegate_schema;
 pub mod remove_liquidity_schema;
 pub mod remove_validator_schema;
 pub mod resume_schema;
@@ -33,11 +34,11 @@ use juniper::GraphQLObject;
 pub use {
     add_liquidity_schema::*, add_validator_schema::*, change_authority_schema::*, claim_schema::*,
     config_lp_schema::*, config_marinade_schema::*, config_validator_system_schema::*,
-    cpi_event_schema::*, deactivate_stake_schema::*, deposit_schema::*,
-    deposit_stake_account_schema::*, emergency_unstake_schema::*, initialize_schema::*,
-    liquid_unstake_schema::*, merge_stakes_schema::*, order_unstake_schema::*,
-    partial_unstake_schema::*, pause_schema::*, realloc_stake_list_schema::*,
-    realloc_validator_list_schema::*, redelegate_schema::*, remove_liquidity_schema::*,
+    cpi_event_schema::*, create_canonical_stake_schema::*, deactivate_stake_schema::*,
+    deposit_schema::*, deposit_stake_account_schema::*, emergency_unstake_schema::*,
+    finalize_delinquent_upgrade_schema::*, initialize_schema::*, liquid_unstake_schema::*,
+    merge_stakes_schema::*, order_unstake_schema::*, partial_unstake_schema::*, pause_schema::*,
+    realloc_stake_list_schema::*, realloc_validator_list_schema::*, remove_liquidity_schema::*,
     remove_validator_schema::*, resume_schema::*, set_validator_score_schema::*,
     stake_reserve_schema::*, update_active_schema::*, update_deactivated_schema::*,
     withdraw_stake_account_schema::*,

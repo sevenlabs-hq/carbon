@@ -18,6 +18,7 @@ pub enum CpiEvent {
     LogCollectRevenue(events::log_collect_revenue::LogCollectRevenueEvent),
     LogOperate(events::log_operate::LogOperateEvent),
     LogPauseUser(events::log_pause_user::LogPauseUserEvent),
+    LogTokenLockdown(events::log_token_lockdown::LogTokenLockdownEvent),
     LogUnpauseUser(events::log_unpause_user::LogUnpauseUserEvent),
     LogUpdateAuthority(events::log_update_authority::LogUpdateAuthorityEvent),
     LogUpdateAuths(events::log_update_auths::LogUpdateAuthsEvent),
@@ -80,6 +81,10 @@ impl CpiEvent {
         }
         if let Some(decoded) = events::log_pause_user::LogPauseUserEvent::decode(event_data) {
             return Some(CpiEvent::LogPauseUser(decoded));
+        }
+        if let Some(decoded) = events::log_token_lockdown::LogTokenLockdownEvent::decode(event_data)
+        {
+            return Some(CpiEvent::LogTokenLockdown(decoded));
         }
         if let Some(decoded) = events::log_unpause_user::LogUnpauseUserEvent::decode(event_data) {
             return Some(CpiEvent::LogUnpauseUser(decoded));

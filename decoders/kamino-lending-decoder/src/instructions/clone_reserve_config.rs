@@ -16,6 +16,7 @@ pub struct CloneReserveConfigInstructionAccounts {
     pub target_lending_market: solana_pubkey::Pubkey,
     pub source_reserve: solana_pubkey::Pubkey,
     pub target_reserve: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -49,6 +50,7 @@ impl ArrangeAccounts for CloneReserveConfig {
         let target_lending_market = next_account(&mut iter)?;
         let source_reserve = next_account(&mut iter)?;
         let target_reserve = next_account(&mut iter)?;
+        let instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -57,6 +59,7 @@ impl ArrangeAccounts for CloneReserveConfig {
             target_lending_market,
             source_reserve,
             target_reserve,
+            instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })
     }

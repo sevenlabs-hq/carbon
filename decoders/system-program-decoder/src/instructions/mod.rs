@@ -14,6 +14,7 @@ pub mod assign;
 pub mod assign_with_seed;
 pub mod authorize_nonce_account;
 pub mod create_account;
+pub mod create_account_allow_prefund;
 pub mod create_account_with_seed;
 pub mod initialize_nonce_account;
 pub mod transfer_sol;
@@ -23,9 +24,9 @@ pub mod withdraw_nonce_account;
 
 pub use self::{
     advance_nonce_account::*, allocate::*, allocate_with_seed::*, assign::*, assign_with_seed::*,
-    authorize_nonce_account::*, create_account::*, create_account_with_seed::*,
-    initialize_nonce_account::*, transfer_sol::*, transfer_sol_with_seed::*,
-    upgrade_nonce_account::*, withdraw_nonce_account::*,
+    authorize_nonce_account::*, create_account::*, create_account_allow_prefund::*,
+    create_account_with_seed::*, initialize_nonce_account::*, transfer_sol::*,
+    transfer_sol_with_seed::*, upgrade_nonce_account::*, withdraw_nonce_account::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -67,6 +68,11 @@ pub enum SystemProgramInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CreateAccount,
         accounts: CreateAccountInstructionAccounts,
+    },
+    CreateAccountAllowPrefund {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateAccountAllowPrefund,
+        accounts: CreateAccountAllowPrefundInstructionAccounts,
     },
     CreateAccountWithSeed {
         program_id: solana_pubkey::Pubkey,
@@ -121,6 +127,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
             SystemProgramInstruction::AssignWithSeed => AssignWithSeed,
             SystemProgramInstruction::AuthorizeNonceAccount => AuthorizeNonceAccount,
             SystemProgramInstruction::CreateAccount => CreateAccount,
+            SystemProgramInstruction::CreateAccountAllowPrefund => CreateAccountAllowPrefund,
             SystemProgramInstruction::CreateAccountWithSeed => CreateAccountWithSeed,
             SystemProgramInstruction::InitializeNonceAccount => InitializeNonceAccount,
             SystemProgramInstruction::TransferSol => TransferSol,

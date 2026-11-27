@@ -10,6 +10,9 @@ pub struct LendingPoolBankHandleBankruptcyEventEvent {
     pub bad_debt: f64,
     pub covered_amount: f64,
     pub socialized_amount: f64,
+    /// Uncollectable premium receivable written off with the bad debt (never
+    /// socialized, never covered by insurance, never credited to the bank).
+    pub premium_written_off: f64,
 }
 
 impl LendingPoolBankHandleBankruptcyEventEvent {

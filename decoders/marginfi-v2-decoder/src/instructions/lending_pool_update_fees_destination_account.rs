@@ -12,6 +12,7 @@ pub struct LendingPoolUpdateFeesDestinationAccountInstructionAccounts {
     pub bank: solana_pubkey::Pubkey,
     pub admin: solana_pubkey::Pubkey,
     pub destination_account: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -45,6 +46,7 @@ impl ArrangeAccounts for LendingPoolUpdateFeesDestinationAccount {
         let bank = next_account(&mut iter)?;
         let admin = next_account(&mut iter)?;
         let destination_account = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -53,6 +55,7 @@ impl ArrangeAccounts for LendingPoolUpdateFeesDestinationAccount {
             bank,
             admin,
             destination_account,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

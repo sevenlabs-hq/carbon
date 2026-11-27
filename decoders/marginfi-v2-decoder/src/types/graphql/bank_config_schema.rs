@@ -20,18 +20,25 @@ pub struct BankConfigGraphQL {
     pub operational_state: BankOperationalStateGraphQL,
     pub oracle_setup: OracleSetupGraphQL,
     pub oracle_keys: Vec<Pubkey>,
+    pub cb_window_max_up_bps: i32,
+    pub cb_window_max_down_bps: i32,
     pub pad0: Vec<U8>,
     pub borrow_limit: U64,
     pub risk_tier: RiskTierGraphQL,
     pub asset_tag: U8,
     pub config_flags: U8,
     pub pad1: Vec<U8>,
+    pub cb_window_seconds: U32,
     pub total_asset_value_init_limit: U64,
     pub oracle_max_age: i32,
-    pub padding0: Vec<U8>,
+    pub scope_entry_index: i32,
     pub oracle_max_confidence: U32,
     pub fixed_price: WrappedI80F48GraphQL,
-    pub padding1: Vec<U8>,
+    pub cb_deviation_bps_tiers: Vec<i32>,
+    pub cb_tier_durations_seconds: Vec<i32>,
+    pub cb_escalation_window_mult: U8,
+    pub cb_config_pad: U8,
+    pub cb_ema_alpha_bps: i32,
 }
 
 impl From<crate::types::BankConfig> for BankConfigGraphQL {
@@ -50,6 +57,8 @@ impl From<crate::types::BankConfig> for BankConfigGraphQL {
                 .into_iter()
                 .map(carbon_core::graphql::primitives::Pubkey)
                 .collect(),
+            cb_window_max_up_bps: original.cb_window_max_up_bps as i32,
+            cb_window_max_down_bps: original.cb_window_max_down_bps as i32,
             pad0: original
                 .pad0
                 .into_iter()
@@ -64,24 +73,31 @@ impl From<crate::types::BankConfig> for BankConfigGraphQL {
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),
+            cb_window_seconds: carbon_core::graphql::primitives::U32(original.cb_window_seconds),
             total_asset_value_init_limit: carbon_core::graphql::primitives::U64(
                 original.total_asset_value_init_limit,
             ),
             oracle_max_age: original.oracle_max_age as i32,
-            padding0: original
-                .padding0
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
+            scope_entry_index: original.scope_entry_index as i32,
             oracle_max_confidence: carbon_core::graphql::primitives::U32(
                 original.oracle_max_confidence,
             ),
             fixed_price: original.fixed_price.into(),
-            padding1: original
-                .padding1
+            cb_deviation_bps_tiers: original
+                .cb_deviation_bps_tiers
                 .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
+                .map(|item| item as i32)
                 .collect(),
+            cb_tier_durations_seconds: original
+                .cb_tier_durations_seconds
+                .into_iter()
+                .map(|item| item as i32)
+                .collect(),
+            cb_escalation_window_mult: carbon_core::graphql::primitives::U8(
+                original.cb_escalation_window_mult,
+            ),
+            cb_config_pad: carbon_core::graphql::primitives::U8(original.cb_config_pad),
+            cb_ema_alpha_bps: original.cb_ema_alpha_bps as i32,
         }
     }
 }

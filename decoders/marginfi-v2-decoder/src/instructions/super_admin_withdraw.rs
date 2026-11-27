@@ -18,6 +18,7 @@ pub struct SuperAdminWithdrawInstructionAccounts {
     pub liquidity_vault_authority: solana_pubkey::Pubkey,
     pub liquidity_vault: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -54,6 +55,7 @@ impl ArrangeAccounts for SuperAdminWithdraw {
         let liquidity_vault_authority = next_account(&mut iter)?;
         let liquidity_vault = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -65,6 +67,7 @@ impl ArrangeAccounts for SuperAdminWithdraw {
             liquidity_vault_authority,
             liquidity_vault,
             token_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

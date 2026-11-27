@@ -914,13 +914,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn redelegate(
+    async fn create_canonical_stake(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RedelegateGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RedelegateRow> = sqlx::query_as(
-            r#"SELECT * FROM redelegate_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateCanonicalStakeGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateCanonicalStakeRow> = sqlx::query_as(
+            r#"SELECT * FROM create_canonical_stake_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -933,13 +933,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_redelegate(
+    async fn list_create_canonical_stake(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RedelegateGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RedelegateRow> = sqlx::query_as(
-            r#"SELECT * FROM redelegate_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateCanonicalStakeGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateCanonicalStakeRow> = sqlx::query_as(
+            r#"SELECT * FROM create_canonical_stake_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1130,6 +1130,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::ReallocStakeListGraphQL>> {
         let rows: Vec<crate::instructions::postgres::ReallocStakeListRow> = sqlx::query_as(
             r#"SELECT * FROM realloc_stake_list_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn finalize_delinquent_upgrade(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::FinalizeDelinquentUpgradeGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::FinalizeDelinquentUpgradeRow> = sqlx::query_as(
+            r#"SELECT * FROM finalize_delinquent_upgrade_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_finalize_delinquent_upgrade(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::FinalizeDelinquentUpgradeGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::FinalizeDelinquentUpgradeRow> = sqlx::query_as(
+            r#"SELECT * FROM finalize_delinquent_upgrade_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

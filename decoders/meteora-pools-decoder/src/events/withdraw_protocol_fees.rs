@@ -4,30 +4,31 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct WithdrawProtocolFeesEvent {
+    /// Pool address
     pub pool: Pubkey,
+    /// Protocol A fee being withdrawn
     pub protocol_a_fee: u64,
+    /// Protocol B fee being withdrawn
     pub protocol_b_fee: u64,
+    /// Protocol A fee owner
     pub protocol_a_fee_owner: Pubkey,
+    /// Protocol B fee owner
     pub protocol_b_fee_owner: Pubkey,
 }
 
 impl WithdrawProtocolFeesEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 30, 240, 207, 196, 139, 239, 79, 28,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [30, 240, 207, 196, 139, 239, 79, 28] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

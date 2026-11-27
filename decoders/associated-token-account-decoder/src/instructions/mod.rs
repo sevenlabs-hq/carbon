@@ -9,9 +9,10 @@ pub mod graphql;
 
 pub mod create;
 pub mod create_idempotent;
+pub mod create_with_args;
 pub mod recover_nested;
 
-pub use self::{create::*, create_idempotent::*, recover_nested::*};
+pub use self::{create::*, create_idempotent::*, create_with_args::*, recover_nested::*};
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -27,6 +28,11 @@ pub enum AssociatedTokenAccountInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CreateIdempotent,
         accounts: CreateIdempotentInstructionAccounts,
+    },
+    CreateWithArgs {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateWithArgs,
+        accounts: CreateWithArgsInstructionAccounts,
     },
     RecoverNested {
         program_id: solana_pubkey::Pubkey,
@@ -51,6 +57,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for AssociatedTokenAccount
             PROGRAM_ID,
             AssociatedTokenAccountInstruction::Create => Create,
             AssociatedTokenAccountInstruction::CreateIdempotent => CreateIdempotent,
+            AssociatedTokenAccountInstruction::CreateWithArgs => CreateWithArgs,
             AssociatedTokenAccountInstruction::RecoverNested => RecoverNested,
         )
     }

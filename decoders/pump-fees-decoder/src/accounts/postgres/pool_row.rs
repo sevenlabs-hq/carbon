@@ -3,7 +3,7 @@ use carbon_core::{
     account::AccountMetadata,
     postgres::{
         metadata::AccountRowMetadata,
-        primitives::{Pubkey, U16, U64, U8},
+        primitives::{Pubkey, I128, U16, U64, U8},
     },
 };
 
@@ -22,6 +22,8 @@ pub struct PoolRow {
     pub lp_supply: U64,
     pub coin_creator: Pubkey,
     pub is_mayhem_mode: bool,
+    pub is_cashback_coin: bool,
+    pub virtual_quote_reserves: I128,
 }
 
 impl PoolRow {
@@ -39,6 +41,8 @@ impl PoolRow {
             lp_supply: source.lp_supply.into(),
             coin_creator: source.coin_creator.into(),
             is_mayhem_mode: source.is_mayhem_mode,
+            is_cashback_coin: source.is_cashback_coin,
+            virtual_quote_reserves: source.virtual_quote_reserves.into(),
         }
     }
 }
@@ -66,6 +70,8 @@ impl TryFrom<PoolRow> for crate::accounts::pool::Pool {
             lp_supply: *source.lp_supply,
             coin_creator: *source.coin_creator,
             is_mayhem_mode: source.is_mayhem_mode,
+            is_cashback_coin: source.is_cashback_coin,
+            virtual_quote_reserves: *source.virtual_quote_reserves,
         })
     }
 }
@@ -90,6 +96,8 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool::Pool {
             "lp_supply",
             "coin_creator",
             "is_mayhem_mode",
+            "is_cashback_coin",
+            "virtual_quote_reserves",
         ]
     }
 }
@@ -111,9 +119,11 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
                 "lp_supply",
                 "coin_creator",
                 "is_mayhem_mode",
+                "is_cashback_coin",
+                "virtual_quote_reserves",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
             )"#,
         )
         .bind(self.pool_bump)
@@ -127,6 +137,8 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
         .bind(&self.lp_supply)
         .bind(self.coin_creator)
         .bind(self.is_mayhem_mode)
+        .bind(self.is_cashback_coin)
+        .bind(&self.virtual_quote_reserves)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -152,9 +164,11 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "lp_supply",
                 "coin_creator",
                 "is_mayhem_mode",
+                "is_cashback_coin",
+                "virtual_quote_reserves",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -169,6 +183,8 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "lp_supply" = EXCLUDED."lp_supply",
                 "coin_creator" = EXCLUDED."coin_creator",
                 "is_mayhem_mode" = EXCLUDED."is_mayhem_mode",
+                "is_cashback_coin" = EXCLUDED."is_cashback_coin",
+                "virtual_quote_reserves" = EXCLUDED."virtual_quote_reserves",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
                 OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
@@ -185,6 +201,8 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
         .bind(&self.lp_supply)
         .bind(self.coin_creator)
         .bind(self.is_mayhem_mode)
+        .bind(self.is_cashback_coin)
+        .bind(&self.virtual_quote_reserves)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -255,6 +273,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
                 "lp_supply" NUMERIC(20) NOT NULL,
                 "coin_creator" BYTEA NOT NULL,
                 "is_mayhem_mode" BOOLEAN NOT NULL,
+                "is_cashback_coin" BOOLEAN NOT NULL,
+                "virtual_quote_reserves" NUMERIC(38) NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

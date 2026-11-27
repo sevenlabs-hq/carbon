@@ -6,6 +6,7 @@ pub mod change_authority_event;
 pub mod claim_event;
 pub mod config_lp_event;
 pub mod config_marinade_event;
+pub mod create_canonical_stake_event;
 pub mod deactivate_stake_event;
 pub mod deposit_event;
 pub mod deposit_stake_account_event;

@@ -3,7 +3,7 @@ use {
     crate::types::EmodeEntry,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (emode_admin only)
+/// (governance_admin only)
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingPoolConfigureBankEmode {
@@ -15,8 +15,9 @@ pub struct LendingPoolConfigureBankEmode {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LendingPoolConfigureBankEmodeInstructionAccounts {
     pub group: solana_pubkey::Pubkey,
-    pub emode_admin: solana_pubkey::Pubkey,
+    pub governance_admin: solana_pubkey::Pubkey,
     pub bank: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -47,15 +48,17 @@ impl ArrangeAccounts for LendingPoolConfigureBankEmode {
         let mut iter = accounts.iter();
 
         let group = next_account(&mut iter)?;
-        let emode_admin = next_account(&mut iter)?;
+        let governance_admin = next_account(&mut iter)?;
         let bank = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(LendingPoolConfigureBankEmodeInstructionAccounts {
             group,
-            emode_admin,
+            governance_admin,
             bank,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

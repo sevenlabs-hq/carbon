@@ -12,7 +12,13 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 ///   is 2
 /// * `new_owner`- The config's new owner, be set when `param` is 3
 /// * `new_fund_owner`- The config's new fund owner, be set when `param` is 4
-/// * `param`- The value can be 0 | 1 | 2 | 3 | 4, otherwise will report a error
+/// * `creator_fee_rate`- The new creator fee rate of amm config, be set when
+///   `param` is 7
+/// * `creator_fee_share_rate`- The new share of the creator fee retained by the
+///
+/// protocol, be set when `param` is 8
+/// * `param`- The value can be 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, otherwise
+///   will report a error
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateAmmConfig {
