@@ -7,7 +7,7 @@
 //! - [`ArrangeAccounts`] — turns the positional `&[AccountMeta]` of an
 //!   instruction into a typed accounts struct.
 //! - [`PrefixString`] / [`U64PrefixString`] — newtypes for `String`s serialized
-//!   with a length prefix wider than borsh's default.
+//!   with a 32-bit length prefix (borsh's default) or a 64-bit one.
 
 use std::{
     io::{Error, ErrorKind, Read, Result},

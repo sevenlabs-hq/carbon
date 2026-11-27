@@ -18,8 +18,8 @@ use {crate::error::CarbonResult, std::future::Future};
 /// Async handler invoked for each decoded update of type `T`.
 ///
 /// Registered via `PipelineBuilder` (`account`, `instruction`,
-/// `transaction`, `account_deletions`, `block_details`). The pipeline
-/// awaits `process` for every update that passes filters.
+/// `transaction`, `account_deletions`, `block_details`, `slot_status`).
+/// The pipeline awaits `process` for every update that passes filters.
 ///
 /// # Errors
 ///

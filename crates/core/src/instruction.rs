@@ -15,8 +15,7 @@
 //! - [`UnsafeNestedBuilder`] — internal builder that turns a flat list into a
 //!   nested tree without reallocating mid-build (uses raw pointers under the
 //!   hood; safety invariants documented inline).
-//! - [`MAX_INSTRUCTION_STACK_DEPTH`] — Solana's per-transaction CPI depth
-//!   ceiling (5).
+//! - [`MAX_INSTRUCTION_STACK_DEPTH`] — Agave's CPI depth limit (9).
 
 use {
     crate::{
@@ -32,8 +31,9 @@ use {
     },
 };
 
-/// Per-instruction context: which transaction it belongs to, where in
-/// the CPI tree it sits, and what its position is among siblings.
+/// Per-instruction context: which transaction it belongs to, the index of
+/// its top-level instruction (itself, or the one it runs under), and where in
+/// the CPI tree it sits.
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
     pub transaction_metadata: Arc<TransactionMetadata>,
