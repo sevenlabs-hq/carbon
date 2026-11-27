@@ -12,6 +12,7 @@ import { extendVisitor, mergeVisitor, pipe, visit } from '@codama/visitors-core'
 
 import { ImportMap } from './ImportMap';
 import { getDiscriminatorBytes } from './utils';
+import { sizePrefixNewtype } from './utils/helpers';
 import { formatDocComments } from './utils/render';
 import { escapeRustKeyword } from './constants/rustKeywords';
 
@@ -22,8 +23,6 @@ export type TypeManifest = {
     requiredBigArray?: number;
     isPubkey?: boolean;
     isOptionPubkey?: boolean;
-    /** Layout `#[derive(BorshDeserialize)]` reads at the wrong width, so `decode` reads it by hand. */
-    decodeInline?: 'u64PrefixString' | 'u64PrefixBytes';
 };
 
 export type DiscriminatorManifest = {
@@ -328,11 +327,13 @@ export function getTypeManifestVisitor(
                     // programs) writes u64, and token-2022's TLV extensions use u16 but are
                     // unpacked by spl-token-2022 rather than borsh.
                     const width = resolveNestedTypeNode(node.prefix).format;
-                    if (width === 'u64' && isNode(node.type, 'stringTypeNode')) {
-                        return { ...manifest, decodeInline: 'u64PrefixString' as const };
-                    }
-                    if (width === 'u64' && isNode(node.type, 'bytesTypeNode')) {
-                        return { ...manifest, decodeInline: 'u64PrefixBytes' as const };
+                    const newtype = sizePrefixNewtype(node);
+                    if (newtype) {
+                        return {
+                            imports: manifest.imports.add(`carbon_core::deserialize::${newtype}`),
+                            type: newtype,
+                            borshType: newtype,
+                        };
                     }
                     if (width !== 'u32' && width !== 'u16') {
                         logWarn(
@@ -440,9 +441,25 @@ export function getTypeManifestVisitor(
                 },
 
                 visitZeroableOptionType(node, { self }) {
-                    // Stored in full with no tag byte, so borsh already reads the right width.
-                    // Rendered as the plain value; the caller treats all-zero as unset.
-                    return visit(node.item, self);
+                    // Stored in full with no tag byte, so the newtype reads 32 bytes and
+                    // treats all-zero as `None`; borsh's own 1-byte tag would misalign.
+                    if (isNode(node.item, 'publicKeyTypeNode')) {
+                        return {
+                            imports: new ImportMap().add('carbon_core::deserialize::ZeroableOptionPubkey'),
+                            type: 'ZeroableOptionPubkey',
+                            borshType: 'ZeroableOptionPubkey',
+                            isOptionPubkey: true,
+                        };
+                    }
+                    logWarn(
+                        `[Rust] a tagless option on ${node.item.kind} falls back to borsh's 1-byte tag, which reads the wrong width.`,
+                    );
+                    const childManifest = visit(node.item, self);
+                    return {
+                        imports: childManifest.imports,
+                        type: `Option<${childManifest.type}>`,
+                        borshType: `Option<${childManifest.borshType}>`,
+                    };
                 },
             });
             // Attach definedTypesMap and newtypeWrapperTypes getters to the visitor so enum variants can access them

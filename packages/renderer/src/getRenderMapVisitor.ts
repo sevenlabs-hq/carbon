@@ -256,7 +256,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             ? getDiscriminatorManifest(discriminators, currentProgram?.name, discriminatorNames)
                             : undefined;
 
-                    const flatFields = rowMapper.flattenType(newNode.data, [], [], new Set());
+                    const flatFields = rowMapper.flattenType(newNode.data, [], [], new Set(), {
+                        remainderAsNewtype: false,
+                    });
                     const postgresImports = new ImportMap()
                         .add('carbon_core::account::AccountMetadata')
                         .add('carbon_core::postgres::metadata::AccountRowMetadata');
@@ -568,21 +570,27 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         discriminatorFieldNames.has(arg.name),
                     );
 
-                    // A trailing field with no length prefix takes the rest of the data: an
-                    // unprefixed string/bytes (SPL Memo), or a list with no count (p-token's `batch`).
+                    // An unprefixed trailing string/bytes (SPL Memo) takes the rest of the data.
                     const lastArgument = partitionedArguments[partitionedArguments.length - 1];
                     const hasRemainderArgument =
                         !!lastArgument &&
-                        (isNode(lastArgument.type, 'stringTypeNode') ||
-                            isNode(lastArgument.type, 'bytesTypeNode') ||
-                            (isNode(lastArgument.type, 'arrayTypeNode') &&
-                                isNode(lastArgument.type.count, 'remainderCountNode')));
+                        (isNode(lastArgument.type, 'stringTypeNode') || isNode(lastArgument.type, 'bytesTypeNode'));
                     const regularArguments = hasRemainderArgument
                         ? [...partitionedArguments.slice(0, -1), { ...lastArgument, type: bytesTypeNode() }]
                         : partitionedArguments;
 
                     const argumentTypes = regularArguments.map(arg => {
-                        const manifest = visit(arg.type, typeManifestVisitor);
+                        let manifest = visit(arg.type, typeManifestVisitor);
+                        // A trailing list with no count (token's `batch`) is read until the data
+                        // runs out; borsh's own `Vec` prefix is a u32 count.
+                        if (isNode(arg.type, 'arrayTypeNode') && isNode(arg.type.count, 'remainderCountNode')) {
+                            manifest = {
+                                ...manifest,
+                                imports: manifest.imports.add('carbon_core::deserialize::RemainderVec'),
+                                type: manifest.type.replace(/^Vec</, 'RemainderVec<'),
+                                borshType: manifest.borshType.replace(/^Vec</, 'RemainderVec<'),
+                            };
+                        }
                         imports.mergeWithManifest(manifest);
 
                         // Newtype wrapper handles serialization itself, so don't apply BigArray
@@ -665,6 +673,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         [],
                         [],
                         new Set(),
+                        { remainderAsNewtype: true },
                     );
                     const postgresImports = new ImportMap()
                         .add('carbon_core::instruction::InstructionMetadata')
@@ -678,7 +687,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         `src/instructions/${snakeCase(node.name)}.rs`,
                         render('instructionsPage.njk', {
                             argumentTypes,
-                            hasInlineDecode: argumentTypes.some(a => a.decodeInline),
                             hasRemainderArgument,
                             imports: imports.toString(),
                             instruction: instructionWithUniqueAccounts,

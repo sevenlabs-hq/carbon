@@ -140,8 +140,12 @@ export function getPostgresTypeManifestVisitor() {
                     return visit(node.type, self);
                 },
                 visitZeroableOptionType(node, { self }) {
-                    // Tagless option: a plain value whose all-zero form means unset.
-                    return visit(node.item, self);
+                    const inner = visit(node.item, self);
+                    return {
+                        imports: inner.imports,
+                        sqlxType: `Option<${inner.sqlxType}>`,
+                        postgresColumnType: inner.postgresColumnType,
+                    };
                 },
                 visitDefinedTypeLink(node) {
                     return m(`${pascalCase(node.name)}`, 'JSONB', [`crate::types::${pascalCase(node.name)}`]);

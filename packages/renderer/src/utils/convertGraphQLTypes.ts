@@ -1,7 +1,7 @@
-import { TypeNode, isNode, numberTypeNode } from '@codama/nodes';
+import { TypeNode, isNode, numberTypeNode, optionTypeNode } from '@codama/nodes';
 import { visit } from '@codama/visitors-core';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from '../getPostgresTypeManifestVisitor';
-import { optionalNumberNewtypeFormat } from './helpers';
+import { optionalNumberNewtypeFormat, sizePrefixNewtype } from './helpers';
 /*
 GraphQL conversion rules (Rust → GraphQL values):
 
@@ -209,7 +209,9 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
     }
 
     if (isNode(typeNode, 'sizePrefixTypeNode')) {
-        return buildConversionFromOriginal(typeNode.type, fieldAccess);
+        // A newtype carries the odd prefix width; unwrap it to the plain value.
+        const suffix = sizePrefixNewtype(typeNode) ? '.0' : '';
+        return buildConversionFromOriginal(typeNode.type, `${fieldAccess}${suffix}`);
     }
 
     if (isNode(typeNode, 'remainderOptionTypeNode')) {
@@ -217,9 +219,9 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         return buildOptionMapExpression(fieldAccess, innerExpr, 'v');
     }
 
-    // Tagless option: a plain value, so it converts like the inner type.
+    // `ZeroableOptionPubkey` newtype wraps the `Option`.
     if (isNode(typeNode, 'zeroableOptionTypeNode')) {
-        return buildConversionFromOriginal(typeNode.item, fieldAccess);
+        return buildConversionFromOriginal(optionTypeNode(typeNode.item), `${fieldAccess}.0`);
     }
 
     if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
@@ -510,9 +512,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         return `${fieldAccess}.map(|v| ${innerExpr})`;
     }
 
-    // Tagless option: a plain value, so it converts like the inner type.
+    // The row column is already a plain `Option`.
     if (isNode(typeNode, 'zeroableOptionTypeNode')) {
-        return buildConversionFromPostgresRow(typeNode.item, fieldAccess);
+        return buildConversionFromPostgresRow(optionTypeNode(typeNode.item), fieldAccess);
     }
 
     if (isNode(typeNode, 'hiddenPrefixTypeNode')) {

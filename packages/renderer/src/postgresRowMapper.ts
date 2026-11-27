@@ -1,4 +1,14 @@
-import { isNode, resolveNestedTypeNode, snakeCase, SnakeCaseString, TypeNode } from '@codama/nodes';
+import {
+    arrayTypeNode,
+    isNode,
+    numberTypeNode,
+    optionTypeNode,
+    prefixedCountNode,
+    resolveNestedTypeNode,
+    snakeCase,
+    SnakeCaseString,
+    TypeNode,
+} from '@codama/nodes';
 import { visit } from '@codama/visitors-core';
 import { PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { isCopyType, isPostgresPrimitiveType, typesMatch } from './utils/postgresHelpers';
@@ -37,6 +47,10 @@ export type MapperContext = {
  * always use the current visitor instances after visitRoot reinitialises them.
  */
 export class PostgresRowMapper {
+    /** Set by each top-level `flattenType`: a trailing instruction argument with a
+     *  count-less array is the `RemainderVec` newtype, an account field is a plain `Vec`. */
+    private remainderAsNewtype = false;
+
     constructor(private ctx: MapperContext) {}
 
     private get tmv() {
@@ -51,10 +65,13 @@ export class PostgresRowMapper {
         prefix: string[],
         docsPrefix: string[],
         seen: Set<string>,
-        opts: { inOption?: boolean } = {},
+        opts: { inOption?: boolean; remainderAsNewtype?: boolean } = {},
     ): FlattenedField[] {
         const out: FlattenedField[] = [];
         const { inOption } = opts;
+        if (opts.remainderAsNewtype !== undefined) {
+            this.remainderAsNewtype = opts.remainderAsNewtype;
+        }
 
         const makeName = (nameParts: string[]): string => {
             let col = snakeCase(nameParts.join('_'));
@@ -92,7 +109,9 @@ export class PostgresRowMapper {
                 ? true
                 : !typesMatch(manifest.sqlxType, innerRustManifest.type);
 
-            const sourceField = `source.${optPrefix.join('.')}`;
+            // A zeroable option is the `ZeroableOptionPubkey` newtype in Rust, so unwrap it
+            // before mapping; the row column is a plain `Option`.
+            const sourceField = `source.${optPrefix.join('.')}${isNode(optNode, 'zeroableOptionTypeNode') ? '.0' : ''}`;
             const sourceColumn = `source.${column}`;
             const needsSpecialHandling = isNode(itemType, 'arrayTypeNode') || isNode(itemType, 'tupleTypeNode');
 
@@ -157,13 +176,8 @@ export class PostgresRowMapper {
             return flattenOptionType(typeNode, prefix, docsPrefix);
         }
 
-        if (isNode(typeNode, 'remainderOptionTypeNode')) {
+        if (isNode(typeNode, 'zeroableOptionTypeNode') || isNode(typeNode, 'remainderOptionTypeNode')) {
             return flattenOptionType(typeNode, prefix, docsPrefix);
-        }
-
-        // Tagless option: a plain value, so a NOT NULL column of the inner type.
-        if (isNode(typeNode, 'zeroableOptionTypeNode')) {
-            return this.flattenType(typeNode.item, prefix, docsPrefix, seen, opts);
         }
 
         if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
@@ -295,6 +309,9 @@ export class PostgresRowMapper {
                 return `${prefix}.to_vec()`;
             }
             return this.buildExpression(typeNode.type, prefix);
+        } else if (isNode(typeNode, 'zeroableOptionTypeNode')) {
+            // `ZeroableOptionPubkey` newtype wraps the `Option`.
+            return `${prefix}.0.map(|value| ${this.buildExpression(typeNode.item, `value`)})`;
         } else if (isNode(typeNode, 'optionTypeNode') || isNode(typeNode, 'remainderOptionTypeNode')) {
             return `${prefix}.map(|value| ${this.buildExpression(typeNode.item, `value`)})`;
         } else if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
@@ -323,8 +340,16 @@ export class PostgresRowMapper {
     }
 
     buildReverseOptionType(typeNode: TypeNode, prefix: string, manifest: PostgresTypeManifest): string {
-        if (!isNode(typeNode, 'optionTypeNode') && !isNode(typeNode, 'remainderOptionTypeNode')) {
+        if (
+            !isNode(typeNode, 'optionTypeNode') &&
+            !isNode(typeNode, 'zeroableOptionTypeNode') &&
+            !isNode(typeNode, 'remainderOptionTypeNode')
+        ) {
             throw new Error('buildReverseOptionType should only be called for option-like types');
+        }
+
+        if (isNode(typeNode, 'zeroableOptionTypeNode')) {
+            return `${this.buildReverseOptionType(optionTypeNode(typeNode.item), prefix, manifest)}.into()`;
         }
 
         const innerType = typeNode.item;
@@ -369,6 +394,20 @@ export class PostgresRowMapper {
     }
 
     buildReverse(typeNode: TypeNode, prefix: string): string {
+        // A count-less array is the `RemainderVec` newtype on an instruction argument,
+        // so rebuild it; `collect` then needs its target spelled out.
+        if (
+            this.remainderAsNewtype &&
+            isNode(typeNode, 'arrayTypeNode') &&
+            isNode(typeNode.count, 'remainderCountNode')
+        ) {
+            const inner = this.buildReverse(
+                arrayTypeNode(typeNode.item, prefixedCountNode(numberTypeNode('u32'))),
+                prefix,
+            );
+            return `${inner.replace(/\.collect\(\)/g, '.collect::<Vec<_>>()')}.into()`;
+        }
+
         if (isNode(typeNode, 'arrayTypeNode')) {
             const isJson = !(
                 isNode(typeNode.item, 'numberTypeNode') ||

@@ -139,8 +139,12 @@ export function getGraphQLTypeManifestVisitor() {
                     return visit(node.type, self);
                 },
                 visitZeroableOptionType(node, { self }) {
-                    // Tagless option: a plain value whose all-zero form means unset.
-                    return visit(node.item, self);
+                    const inner = visit(node.item, self);
+                    return {
+                        imports: inner.imports,
+                        graphqlType: `Option<${inner.graphqlType}>`,
+                        isNullable: true,
+                    };
                 },
                 visitDefinedTypeLink(node) {
                     // Reference the GraphQL version of custom types

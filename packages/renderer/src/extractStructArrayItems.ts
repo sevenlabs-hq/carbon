@@ -24,8 +24,6 @@ export function extractStructArrayItems() {
         const newInstructions = (program.instructions ?? []).map(instr => {
             const newArguments = (instr.arguments ?? []).map(arg => {
                 if (!isNode(arg.type, 'arrayTypeNode') || !isNode(arg.type.item, 'structTypeNode')) return arg;
-                // Length-less arrays decode as raw trailing bytes, so an item type would go unused.
-                if (isNode(arg.type.count, 'remainderCountNode')) return arg;
 
                 const typeName = pascalCase(instr.name) + 'Item';
                 if (!extracted.some(t => t.name === typeName)) {
