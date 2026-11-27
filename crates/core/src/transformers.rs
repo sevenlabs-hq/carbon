@@ -6,8 +6,6 @@
 //! - [`extract_instructions_with_metadata`] — flattens the top-level
 //!   instructions and inner-instructions of a `TransactionUpdate` into a single
 //!   ordered list paired with `InstructionMetadata`.
-//! - [`extract_account_metas`] — builds the typed `AccountMeta` list for one
-//!   compiled instruction from the surrounding `VersionedMessage`.
 //! - [`transaction_metadata_from_original_meta`] — converts the string-typed
 //!   `UiTransactionStatusMeta` (RPC representation) into the binary
 //!   `TransactionStatusMeta` that the pipeline expects.
@@ -270,29 +268,6 @@ where
         accounts,
         data: instruction.data.clone(),
     })
-}
-
-pub fn extract_account_metas(
-    compiled_instruction: &CompiledInstruction,
-    message: &VersionedMessage,
-) -> CarbonResult<Vec<AccountMeta>> {
-    let mut accounts = Vec::<AccountMeta>::with_capacity(compiled_instruction.accounts.len());
-
-    for account_index in compiled_instruction.accounts.iter() {
-        accounts.push(AccountMeta {
-            pubkey: *message
-                .static_account_keys()
-                .get(*account_index as usize)
-                .ok_or(Error::MissingAccountInTransaction)?,
-            is_signer: message.is_signer(*account_index as usize),
-            is_writable: message.is_maybe_writable_with_reserved_addresses(
-                *account_index as usize,
-                None::<&HashSet<Pubkey>>,
-            ),
-        });
-    }
-
-    Ok(accounts)
 }
 
 pub fn transaction_metadata_from_original_meta(
@@ -1133,38 +1108,6 @@ mod tests {
                     is_signer: true,
                     is_writable: false,
                 },
-            ]
-        );
-    }
-
-    #[test]
-    fn test_extract_account_metas_keeps_writable_accounts_writable() {
-        let payer = Pubkey::new_unique();
-        let account = Pubkey::new_unique();
-        let instruction = CompiledInstruction {
-            program_id_index: 2,
-            accounts: vec![0, 1],
-            data: vec![],
-        };
-        let message = VersionedMessage::Legacy(Message {
-            header: MessageHeader {
-                num_required_signatures: 1,
-                num_readonly_signed_accounts: 0,
-                num_readonly_unsigned_accounts: 1,
-            },
-            account_keys: vec![payer, account, Pubkey::new_unique()],
-            recent_blockhash: Hash::default(),
-            instructions: vec![instruction.clone()],
-        });
-
-        let account_metas =
-            extract_account_metas(&instruction, &message).expect("extract account metas");
-
-        assert_eq!(
-            account_metas,
-            vec![
-                AccountMeta::new(payer, true),
-                AccountMeta::new(account, false)
             ]
         );
     }
