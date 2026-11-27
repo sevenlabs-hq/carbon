@@ -221,6 +221,7 @@ impl LaserStreamClientConfig {
         builder = builder.connect_timeout(self.connect_timeout.unwrap_or(Duration::from_secs(15)));
 
         builder = builder.timeout(self.timeout.unwrap_or(Duration::from_secs(15)));
+        builder = builder.http2_keep_alive_interval(Duration::from_secs(10));
         let tls = self
             .tls_config
             .clone()
@@ -472,7 +473,6 @@ impl Datasource for LaserStreamGeyserClient {
                                                         Ok(()) => (),
                                                         Err(error) => {
                                                             log::error!("Failed to send ping error: {error:?}");
-                                                            break;
                                                         },
                                                     }
                                             }
