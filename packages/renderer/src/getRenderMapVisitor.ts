@@ -105,7 +105,7 @@ function preserveToken2022ExtensionNullability(node: DefinedTypeNode): DefinedTy
                     }),
                 });
 
-                // Upstream IDL wraps each variant struct in a size prefix (TLV length).
+                // A variant struct may be wrapped in a size prefix (the TLV length).
                 if (isNode(variant.struct, 'sizePrefixTypeNode') && isNode(variant.struct.type, 'structTypeNode')) {
                     return { ...variant, struct: { ...variant.struct, type: makeNullable(variant.struct.type) } };
                 }

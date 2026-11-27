@@ -56,7 +56,7 @@ function rootFromAnchor(idlJson: any) {
     return { ...root, program: { ...root.program, accounts, definedTypes, events } } as typeof root;
 }
 
-/** Codama drops Anchor >=0.30 types named like an account or event; restore the ones still referenced. */
+/** Types named like an account or event are dropped when the root is built; restore the ones still referenced. */
 function restoreReferencedAccountTypes(idlJson: any, root: ReturnType<typeof rootNodeFromAnchorWithoutDefaultVisitor>) {
     if (idlJson.metadata?.spec !== '0.1.0') return [];
     const linked = new Set<string>();
