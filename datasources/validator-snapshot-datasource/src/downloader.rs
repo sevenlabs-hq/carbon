@@ -1,5 +1,7 @@
 use {
+    agave_snapshots::paths::parse_full_snapshot_archive_filename,
     carbon_core::error::{CarbonResult, Error},
+    percent_encoding::percent_decode_str,
     std::{
         fs::File,
         io::Write,
@@ -20,6 +22,14 @@ pub async fn download_and_setup_ledger(
     let temp_dir = std::env::current_dir()
         .unwrap_or_else(|_| std::env::temp_dir())
         .join("ledger");
+    download_ledger(base_url, temp_dir, cancellation_token).await
+}
+
+async fn download_ledger(
+    base_url: &str,
+    temp_dir: PathBuf,
+    cancellation_token: CancellationToken,
+) -> CarbonResult<PathBuf> {
     std::fs::create_dir_all(&temp_dir).map_err(|e| {
         Error::FailedToConsumeDatasource(format!("Failed to create temp directory: {e}"))
     })?;
@@ -33,11 +43,23 @@ pub async fn download_and_setup_ledger(
 
     let genesis_url = format!("{}/genesis.tar.bz2", base_url.trim_end_matches('/'));
     let genesis_path = temp_dir.join("genesis.tar.bz2");
-    download_file_with_retry(&genesis_url, &genesis_path, cancellation_token.clone()).await?;
+    download_file_with_retry(
+        &genesis_url,
+        &genesis_path,
+        false,
+        cancellation_token.clone(),
+    )
+    .await?;
 
     let snapshot_url = format!("{}/snapshot.tar.bz2", base_url.trim_end_matches('/'));
     let snapshot_path = snapshots_dir.join("snapshot.tar.bz2");
-    download_file_with_retry(&snapshot_url, &snapshot_path, cancellation_token.clone()).await?;
+    download_file_with_retry(
+        &snapshot_url,
+        &snapshot_path,
+        true,
+        cancellation_token.clone(),
+    )
+    .await?;
 
     log::info!("Ledger structure created at: {temp_dir:?}");
 
@@ -47,6 +69,7 @@ pub async fn download_and_setup_ledger(
 async fn download_file_with_retry(
     url: &str,
     output_path: &Path,
+    keep_archive_name: bool,
     cancellation_token: CancellationToken,
 ) -> CarbonResult<()> {
     let mut retries = 0;
@@ -58,10 +81,11 @@ async fn download_file_with_retry(
             ));
         }
 
-        match download_file(url, output_path).await {
+        match download_file(url, output_path, keep_archive_name, &cancellation_token).await {
             Ok(()) => {
                 return Ok(());
             }
+            Err(e) if cancellation_token.is_cancelled() => return Err(e),
             Err(e) => {
                 retries += 1;
                 if retries >= MAX_RETRIES {
@@ -79,7 +103,12 @@ async fn download_file_with_retry(
     }
 }
 
-async fn download_file(url: &str, output_path: &Path) -> CarbonResult<()> {
+async fn download_file(
+    url: &str,
+    output_path: &Path,
+    keep_archive_name: bool,
+    cancellation_token: &CancellationToken,
+) -> CarbonResult<()> {
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::limited(MAX_REDIRECTS))
         .build()
@@ -87,11 +116,15 @@ async fn download_file(url: &str, output_path: &Path) -> CarbonResult<()> {
             Error::FailedToConsumeDatasource(format!("Failed to create HTTP client: {e}"))
         })?;
 
-    let mut response = client
-        .get(url)
-        .send()
-        .await
-        .map_err(|e| Error::FailedToConsumeDatasource(format!("HTTP request failed: {e}")))?;
+    let mut response = tokio::select! {
+        response = client.get(url).send() => response
+            .map_err(|e| Error::FailedToConsumeDatasource(format!("HTTP request failed: {e}")))?,
+        _ = cancellation_token.cancelled() => {
+            return Err(Error::FailedToConsumeDatasource(
+                "Download cancelled".to_string(),
+            ));
+        }
+    };
 
     if !response.status().is_success() {
         return Err(Error::FailedToConsumeDatasource(format!(
@@ -113,6 +146,12 @@ async fn download_file(url: &str, output_path: &Path) -> CarbonResult<()> {
                 .filter(|s| !s.is_empty())
                 .map(|s| s.to_string())
         })
+        .filter(|_| keep_archive_name)
+        .and_then(|filename| {
+            let filename = Path::new(&filename).file_name()?.to_str()?;
+            parse_full_snapshot_archive_filename(filename).ok()?;
+            Some(filename.to_string())
+        })
         .map(|filename| output_path.parent().unwrap_or(output_path).join(filename))
         .unwrap_or_else(|| output_path.to_path_buf());
 
@@ -128,7 +167,16 @@ async fn download_file(url: &str, output_path: &Path) -> CarbonResult<()> {
     let start_time = std::time::Instant::now();
 
     loop {
-        match response.chunk().await {
+        let chunk = tokio::select! {
+            chunk = response.chunk() => chunk,
+            _ = cancellation_token.cancelled() => {
+                return Err(Error::FailedToConsumeDatasource(
+                    "Download cancelled".to_string(),
+                ));
+            }
+        };
+
+        match chunk {
             Ok(Some(chunk)) => {
                 file.write_all(&chunk).map_err(|e| {
                     Error::FailedToConsumeDatasource(format!("Failed to write to file: {e}"))
@@ -219,7 +267,9 @@ fn extract_filename_from_content_disposition(header_value: &str) -> Option<Strin
 
         if let Some(encoded) = part.strip_prefix("filename*=") {
             if let Some(filename) = encoded.split('\'').nth(2) {
-                return Some(filename.to_string());
+                if let Ok(filename) = percent_decode_str(filename).decode_utf8() {
+                    return Some(filename.into_owned());
+                }
             }
         }
 

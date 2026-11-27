@@ -2758,7 +2758,9 @@ dependencies = [
  "agave-snapshots",
  "async-trait",
  "carbon-core",
+ "libc",
  "log",
+ "percent-encoding",
  "reqwest 0.12.28",
  "solana-account",
  "solana-accounts-db",
@@ -2766,6 +2768,7 @@ dependencies = [
  "solana-ledger",
  "solana-pubkey 4.4.0",
  "solana-runtime",
+ "tempfile",
  "tokio",
  "tokio-util",
 ]
@@ -7297,6 +7300,7 @@ dependencies = [
  "solana-account",
  "solana-pubkey 4.4.0",
  "tokio",
+ "tokio-util",
 ]
 
 [[package]]

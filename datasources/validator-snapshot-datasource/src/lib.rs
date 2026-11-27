@@ -1,7 +1,11 @@
 mod downloader;
 
 use {
-    agave_snapshots::snapshot_config::{SnapshotConfig, SnapshotUsage},
+    agave_snapshots::{
+        paths::get_highest_full_snapshot_archive_info,
+        snapshot_config::{SnapshotConfig, SnapshotUsage},
+        unpack_genesis_archive,
+    },
     async_trait::async_trait,
     carbon_core::{
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
@@ -23,11 +27,13 @@ use {
         path::PathBuf,
         sync::{atomic::AtomicBool, Arc, LazyLock},
     },
+    tempfile::TempDir,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
 const MAX_GENESIS_ARCHIVE_UNPACKED_SIZE: u64 = 10_485_760; // 10MB
+const WORK_DIRECTORY: &str = "carbon-snapshot";
 
 static LOAD_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
     Histogram::new(
@@ -59,6 +65,47 @@ fn register_validator_snapshot_metrics() {
     registry.register_histogram(&SCAN_DURATION_MILLIS);
 }
 
+#[cfg(unix)]
+fn raise_open_file_limit() {
+    const AGAVE_OPEN_FILE_LIMIT: libc::rlim_t = 1_000_000;
+
+    let mut limit = libc::rlimit {
+        rlim_cur: 0,
+        rlim_max: 0,
+    };
+    if unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limit) } != 0 {
+        log::warn!(
+            "Failed to read the open file limit: {}",
+            std::io::Error::last_os_error()
+        );
+        return;
+    }
+
+    let wanted = limit.rlim_max.min(AGAVE_OPEN_FILE_LIMIT);
+    if limit.rlim_cur < wanted {
+        let raised = libc::rlimit {
+            rlim_cur: wanted,
+            rlim_max: limit.rlim_max,
+        };
+        if unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &raised) } == 0 {
+            limit = raised;
+        } else {
+            log::warn!(
+                "Failed to raise the open file limit from {} to {wanted}: {}",
+                limit.rlim_cur,
+                std::io::Error::last_os_error()
+            );
+        }
+    }
+
+    if limit.rlim_cur < AGAVE_OPEN_FILE_LIMIT {
+        log::warn!(
+            "The open file limit is {}, below the 1,000,000 Agave asks for. The loader keeps a file open for each account storage, so a large snapshot can fail with `Too many open files`; raise the hard limit",
+            limit.rlim_cur
+        );
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum SnapshotSource {
     LocalPath(PathBuf),
@@ -85,6 +132,7 @@ impl SnapshotDatasource {
 struct SnapshotState {
     bank: Arc<Bank>,
     slot: u64,
+    _work_directory: TempDir,
 }
 
 impl SnapshotState {
@@ -104,8 +152,44 @@ impl SnapshotState {
             )));
         }
 
+        let snapshots_directory = ledger_directory.join("snapshots");
+        if get_highest_full_snapshot_archive_info(&snapshots_directory).is_none() {
+            return Err(Error::FailedToConsumeDatasource(format!(
+                "No loadable full snapshot archive found in {snapshots_directory:?}"
+            )));
+        }
+
+        let leftover = ledger_directory.join(WORK_DIRECTORY);
+        if leftover.exists() {
+            std::fs::remove_dir_all(&leftover).map_err(|err| {
+                Error::FailedToConsumeDatasource(format!(
+                    "Failed to remove {leftover:?}, left by an earlier run: {err}"
+                ))
+            })?;
+        }
+
+        let work_directory = tempfile::Builder::new()
+            .prefix(WORK_DIRECTORY)
+            .rand_bytes(0)
+            .tempdir_in(&ledger_directory)
+            .map_err(|err| {
+                Error::FailedToConsumeDatasource(format!(
+                    "Failed to create a working directory in {ledger_directory:?}: {err}"
+                ))
+            })?;
+
+        unpack_genesis_archive(
+            &genesis_archive,
+            work_directory.path(),
+            MAX_GENESIS_ARCHIVE_UNPACKED_SIZE,
+        )
+        .map_err(|err| {
+            Error::FailedToConsumeDatasource(format!(
+                "Unable to load genesis configuration from {ledger_directory:?}: {err}"
+            ))
+        })?;
         let genesis_config =
-            open_genesis_config(&ledger_directory, MAX_GENESIS_ARCHIVE_UNPACKED_SIZE).map_err(
+            open_genesis_config(work_directory.path(), MAX_GENESIS_ARCHIVE_UNPACKED_SIZE).map_err(
                 |err| {
                     Error::FailedToConsumeDatasource(format!(
                         "Unable to load genesis configuration from {ledger_directory:?}: {err}"
@@ -113,8 +197,12 @@ impl SnapshotState {
                 },
             )?;
 
-        let snapshots_directory = ledger_directory.join("snapshots");
-        let accounts_directory = ledger_directory.join("accounts");
+        let accounts_directory = work_directory.path().join("accounts");
+        std::fs::create_dir(&accounts_directory).map_err(|err| {
+            Error::FailedToConsumeDatasource(format!(
+                "Failed to initialize account directory structure: {err}"
+            ))
+        })?;
 
         if !snapshots_directory.parent().is_some_and(|p| p.exists()) {
             return Err(Error::FailedToConsumeDatasource(format!(
@@ -138,7 +226,7 @@ impl SnapshotState {
             usage: SnapshotUsage::LoadOnly,
             full_snapshot_archives_dir: snapshots_directory.clone(),
             incremental_snapshot_archives_dir: snapshots_directory.clone(),
-            bank_snapshots_dir: snapshots_directory.clone(),
+            bank_snapshots_dir: work_directory.path().join("snapshots"),
             ..SnapshotConfig::default()
         };
 
@@ -147,6 +235,9 @@ impl SnapshotState {
             accounts_db_config: accounts_db_settings,
             ..Default::default()
         };
+
+        #[cfg(unix)]
+        raise_open_file_limit();
 
         let (bank_forks, _snapshot_hashes) = bank_forks_utils::try_load_bank_forks_from_snapshot(
             &genesis_config,
@@ -187,15 +278,11 @@ impl SnapshotState {
             "Snapshot initialization complete: loaded bank at slot {slot} from {ledger_directory:?}"
         );
 
-        Ok(Self { bank, slot })
-    }
-
-    pub async fn load_from_remote(
-        url: &str,
-        cancellation_token: CancellationToken,
-    ) -> CarbonResult<Self> {
-        let ledger_path = download_and_setup_ledger(url, cancellation_token).await?;
-        Self::load_from_path(ledger_path)
+        Ok(Self {
+            bank,
+            slot,
+            _work_directory: work_directory,
+        })
     }
 }
 
@@ -207,19 +294,44 @@ impl Datasource for SnapshotDatasource {
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
+        if self.owners.is_empty() && self.accounts.is_empty() {
+            return Err(Error::FailedToConsumeDatasource(
+                "No owners or accounts specified, nothing to load".to_string(),
+            ));
+        }
+
         register_validator_snapshot_metrics();
 
         let load_start = std::time::Instant::now();
 
-        let snapshot = match &self.source {
-            SnapshotSource::LocalPath(path) => SnapshotState::load_from_path(path.clone())?,
+        let ledger_directory = match &self.source {
+            SnapshotSource::LocalPath(path) => path.clone(),
             SnapshotSource::Remote { url } => {
-                match SnapshotState::load_from_remote(url, cancellation_token.clone()).await {
-                    Ok(snapshot) => snapshot,
+                match download_and_setup_ledger(url, cancellation_token.clone()).await {
+                    Ok(ledger_directory) => ledger_directory,
                     Err(_) if cancellation_token.is_cancelled() => return Ok(()),
                     Err(error) => return Err(error),
                 }
             }
+        };
+
+        if cancellation_token.is_cancelled() {
+            return Ok(());
+        }
+
+        let (loaded_sender, loaded) = tokio::sync::oneshot::channel();
+        std::thread::spawn(move || {
+            static LOADING: std::sync::Mutex<()> = std::sync::Mutex::new(());
+            let _loading = LOADING.lock();
+            if !loaded_sender.is_closed() {
+                let _ = loaded_sender.send(SnapshotState::load_from_path(ledger_directory));
+            }
+        });
+        let snapshot = tokio::select! {
+            snapshot = loaded => snapshot.map_err(|_| {
+                Error::FailedToConsumeDatasource("Snapshot load panicked".to_string())
+            })??,
+            _ = cancellation_token.cancelled() => return Ok(()),
         };
 
         let load_duration = load_start.elapsed();
@@ -243,11 +355,6 @@ impl Datasource for SnapshotDatasource {
         tokio::task::spawn_blocking(move || {
             let owners_set: HashSet<SolanaPubkey> = owners.iter().copied().collect();
             let accounts_set: HashSet<SolanaPubkey> = accounts.iter().copied().collect();
-
-            if owners_set.is_empty() && accounts_set.is_empty() {
-                log::warn!("No owners or accounts specified, skipping account scan");
-                return Ok::<(), Error>(());
-            }
 
             log::info!(
                 "Scanning accounts for {} owner(s) and {} specific account(s) at slot {}",
@@ -303,9 +410,13 @@ impl Datasource for SnapshotDatasource {
             })
             .map_err(|e| Error::FailedToConsumeDatasource(format!("Scan failed: {e}")))?;
 
-            log::info!("Account scan completed");
+            if cancellation_token_clone.is_cancelled() {
+                log::info!("Account scan cancelled");
+            } else {
+                log::info!("Account scan completed");
+            }
 
-            Ok(())
+            Ok::<(), Error>(())
         })
         .await
         .map_err(|e| Error::FailedToConsumeDatasource(format!("Scan task panicked: {e}")))??;
@@ -313,10 +424,17 @@ impl Datasource for SnapshotDatasource {
         let scan_duration = scan_start.elapsed();
         SCAN_DURATION_MILLIS.record(scan_duration.as_millis() as f64);
 
-        log::info!(
-            "Snapshot processing completed in {:.2}s",
-            scan_duration.as_secs_f64()
-        );
+        if cancellation_token.is_cancelled() {
+            log::info!(
+                "Snapshot processing cancelled after {:.2}s",
+                scan_duration.as_secs_f64()
+            );
+        } else {
+            log::info!(
+                "Snapshot processing completed in {:.2}s",
+                scan_duration.as_secs_f64()
+            );
+        }
 
         Ok(())
     }
