@@ -14,6 +14,7 @@ pub struct LendingPoolForceTokenlessRepayCompleteInstructionAccounts {
     pub group: solana_pubkey::Pubkey,
     pub risk_admin: solana_pubkey::Pubkey,
     pub bank: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -46,6 +47,7 @@ impl ArrangeAccounts for LendingPoolForceTokenlessRepayComplete {
         let group = next_account(&mut iter)?;
         let risk_admin = next_account(&mut iter)?;
         let bank = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -53,6 +55,7 @@ impl ArrangeAccounts for LendingPoolForceTokenlessRepayComplete {
             group,
             risk_admin,
             bank,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

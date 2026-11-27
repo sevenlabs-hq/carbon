@@ -17,6 +17,7 @@ pub struct ReserveConfigGraphQL {
     pub block_ctoken_usage: U8,
     pub early_repay_remaining_interest_pct: U8,
     pub emergency_mode: U8,
+    pub interest_rate_basis: U8,
     pub reserved1: Vec<U8>,
     pub protocol_order_execution_fee_pct: U8,
     pub protocol_take_rate_pct: U8,
@@ -46,7 +47,8 @@ pub struct ReserveConfigGraphQL {
     pub deleveraging_bonus_increase_bps_per_day: U64,
     pub debt_maturity_timestamp: U64,
     pub debt_term_seconds: U64,
-    pub rewards_amount_per_slot: U64,
+    pub rewards_amount_per_accrual_unit: U64,
+    pub permissioned_ops: U64,
 }
 
 impl From<crate::types::ReserveConfig> for ReserveConfigGraphQL {
@@ -63,6 +65,7 @@ impl From<crate::types::ReserveConfig> for ReserveConfigGraphQL {
                 original.early_repay_remaining_interest_pct,
             ),
             emergency_mode: carbon_core::graphql::primitives::U8(original.emergency_mode),
+            interest_rate_basis: carbon_core::graphql::primitives::U8(original.interest_rate_basis),
             reserved1: original
                 .reserved1
                 .into_iter()
@@ -130,9 +133,10 @@ impl From<crate::types::ReserveConfig> for ReserveConfigGraphQL {
                 original.debt_maturity_timestamp,
             ),
             debt_term_seconds: carbon_core::graphql::primitives::U64(original.debt_term_seconds),
-            rewards_amount_per_slot: carbon_core::graphql::primitives::U64(
-                original.rewards_amount_per_slot,
+            rewards_amount_per_accrual_unit: carbon_core::graphql::primitives::U64(
+                original.rewards_amount_per_accrual_unit,
             ),
+            permissioned_ops: carbon_core::graphql::primitives::U64(original.permissioned_ops),
         }
     }
 }

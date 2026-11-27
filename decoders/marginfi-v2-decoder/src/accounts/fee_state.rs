@@ -9,13 +9,19 @@ use {
 pub struct FeeState {
     /// The fee state's own key. A PDA derived from just `b"feestate"`
     pub key: Pubkey,
-    /// Can modify fees
+    /// Can modify fees, pause the protocol, etc
     pub global_fee_admin: Pubkey,
     /// The base wallet for all protocol fees. All SOL fees go to this wallet.
     /// All non-SOL fees go to the cannonical ATA of this wallet for that
     /// asset.
     pub global_fee_wallet: Pubkey,
-    pub placeholder0: u64,
+    /// Flat fee in lamports paid to the global fee wallet when initiating an
+    /// account transfer (anti-spam; 5,000,000 lamports ~= $0.50). A stored
+    /// 0 means "use the default" (`DEFAULT_ACCOUNT_TRANSFER_FEE_LAMPORTS`),
+    /// which preserves the legacy fee for FeeStates created before this
+    /// field existed.
+    pub account_transfer_fee: u32,
+    pub placeholder0: [u8; 4],
     /// Flat fee assessed when a new bank is initialized, in lamports.
     /// * In SOL, in native decimals.
     pub bank_init_flat_sol_fee: u32,
@@ -49,7 +55,23 @@ pub struct FeeState {
     /// asset seized
     /// * A percentage
     pub order_execution_max_fee: WrappedI80F48,
-    pub reserved1: [u8; 32],
+    /// Can pause (not unpause) the protocol, but cannot modify any fee
+    /// configuration.
+    pub pause_delegate_admin: Pubkey,
+    /// Destination wallet for swept variable-borrow premium fees. Premium
+    /// collected by banks is swept (permissionlessly) to the canonical ATA
+    /// of this wallet for the bank's mint.
+    /// * `Pubkey::default()` = unset (sweeps are rejected until the fee admin
+    ///   configures it),
+    ///
+    /// which is what v1-sized accounts hold after `resize_global_fee_state`
+    /// zero-fills them.
+    pub premium_wallet: Pubkey,
+    /// Reserved for future use. Accounts created before the struct grew to this
+    /// size are v1-sized (`8 + V1_LEN` bytes) and must be grown via
+    /// `resize_global_fee_state` before this program version can load them;
+    /// the new bytes are zero-filled.
+    pub reserved0: [u64; 28],
 }
 
 impl FeeState {

@@ -4,6 +4,7 @@ pub mod graphql;
 
 pub mod accounts_type;
 pub mod best_swap_out_amount_violation;
+pub mod bison_fi_predict_side;
 pub mod candidate_swap;
 pub mod candidate_swap_quote_error;
 pub mod candidate_swap_result;
@@ -12,10 +13,12 @@ pub mod candidate_swap_with_bps;
 pub mod defi_tuna_accounts_type;
 pub mod fee_event;
 pub mod hylo_swap_type;
+pub mod perena_tranche_kind;
 pub mod remaining_accounts_info;
 pub mod remaining_accounts_slice;
 pub mod route_plan_step;
 pub mod route_plan_step_v2;
+pub mod sanctum_sols_swap_type;
 pub mod side;
 pub mod swap;
 pub mod swap_event;
@@ -23,9 +26,10 @@ pub mod swap_event_v2;
 pub mod swaps_event;
 
 pub use self::{
-    accounts_type::*, best_swap_out_amount_violation::*, candidate_swap::*,
-    candidate_swap_quote_error::*, candidate_swap_result::*, candidate_swap_results::*,
-    candidate_swap_with_bps::*, defi_tuna_accounts_type::*, fee_event::*, hylo_swap_type::*,
-    remaining_accounts_info::*, remaining_accounts_slice::*, route_plan_step::*,
-    route_plan_step_v2::*, side::*, swap::*, swap_event::*, swap_event_v2::*, swaps_event::*,
+    accounts_type::*, best_swap_out_amount_violation::*, bison_fi_predict_side::*,
+    candidate_swap::*, candidate_swap_quote_error::*, candidate_swap_result::*,
+    candidate_swap_results::*, candidate_swap_with_bps::*, defi_tuna_accounts_type::*,
+    fee_event::*, hylo_swap_type::*, perena_tranche_kind::*, remaining_accounts_info::*,
+    remaining_accounts_slice::*, route_plan_step::*, route_plan_step_v2::*,
+    sanctum_sols_swap_type::*, side::*, swap::*, swap_event::*, swap_event_v2::*, swaps_event::*,
 };

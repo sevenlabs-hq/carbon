@@ -2,6 +2,10 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// (user) Withdraw from a Solend reserve through a marginfi account
 /// * amount - in collateral tokens (cTokens), in native decimals
+/// * if group rate limits are enabled, include the withdrawn bank's oracle
+///   group in
+///
+/// `remaining_accounts`
 /// * withdraw_all - withdraw entire position if true
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]

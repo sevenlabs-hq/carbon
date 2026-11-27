@@ -113,6 +113,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterDcaDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            JupiterDcaInstruction::CpiEvent => CpiEvent,
             JupiterDcaInstruction::CloseDca => CloseDca,
             JupiterDcaInstruction::Deposit => Deposit,
             JupiterDcaInstruction::EndAndClose => EndAndClose,
@@ -125,7 +126,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterDcaDecoder {
             JupiterDcaInstruction::Transfer => Transfer,
             JupiterDcaInstruction::Withdraw => Withdraw,
             JupiterDcaInstruction::WithdrawFees => WithdrawFees,
-            JupiterDcaInstruction::CpiEvent => CpiEvent,
         )
     }
 }

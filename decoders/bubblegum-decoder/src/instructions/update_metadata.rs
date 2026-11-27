@@ -3,6 +3,7 @@ use {
     crate::types::{MetadataArgs, UpdateArgs},
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Updates metadata for a leaf node.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateMetadata {

@@ -3,11 +3,14 @@ pub mod add_balance_liquidity_row;
 pub mod add_imbalance_liquidity_row;
 pub mod bootstrap_liquidity_row;
 pub mod claim_fee_row;
+pub mod claim_protocol_fee2_row;
 pub mod close_config_row;
+pub mod close_operator_account_row;
 pub mod cpi_event_row;
 pub mod create_config_row;
 pub mod create_lock_escrow_row;
 pub mod create_mint_metadata_row;
+pub mod create_operator_account_row;
 pub mod enable_or_disable_pool_row;
 pub mod get_pool_info_row;
 pub mod initialize_customizable_permissionless_constant_product_pool_row;
@@ -26,12 +29,15 @@ pub mod set_whitelisted_vault_row;
 pub mod swap_row;
 pub mod update_activation_point_row;
 pub mod withdraw_protocol_fees_row;
+pub mod zap_protocol_fee_row;
 
 pub use self::{
     add_balance_liquidity_row::*, add_imbalance_liquidity_row::*, bootstrap_liquidity_row::*,
-    claim_fee_row::*, close_config_row::*, cpi_event_row::*, create_config_row::*,
-    create_lock_escrow_row::*, create_mint_metadata_row::*, enable_or_disable_pool_row::*,
-    get_pool_info_row::*, initialize_customizable_permissionless_constant_product_pool_row::*,
+    claim_fee_row::*, claim_protocol_fee2_row::*, close_config_row::*,
+    close_operator_account_row::*, cpi_event_row::*, create_config_row::*,
+    create_lock_escrow_row::*, create_mint_metadata_row::*, create_operator_account_row::*,
+    enable_or_disable_pool_row::*, get_pool_info_row::*,
+    initialize_customizable_permissionless_constant_product_pool_row::*,
     initialize_permissioned_pool_row::*,
     initialize_permissionless_constant_product_pool_with_config2_row::*,
     initialize_permissionless_constant_product_pool_with_config_row::*,
@@ -39,7 +45,7 @@ pub use self::{
     lock_row::*, override_curve_param_row::*, partner_claim_fee_row::*,
     remove_balance_liquidity_row::*, remove_liquidity_single_side_row::*, set_pool_fees_row::*,
     set_whitelisted_vault_row::*, swap_row::*, update_activation_point_row::*,
-    withdraw_protocol_fees_row::*,
+    withdraw_protocol_fees_row::*, zap_protocol_fee_row::*,
 };
 use super::MeteoraPoolsInstruction;
 
@@ -60,10 +66,13 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraPoolsInstructionsMigrat
             Box::new(AddImbalanceLiquidityMigrationOperation),
             Box::new(BootstrapLiquidityMigrationOperation),
             Box::new(ClaimFeeMigrationOperation),
+            Box::new(ClaimProtocolFee2MigrationOperation),
             Box::new(CloseConfigMigrationOperation),
+            Box::new(CloseOperatorAccountMigrationOperation),
             Box::new(CreateConfigMigrationOperation),
             Box::new(CreateLockEscrowMigrationOperation),
             Box::new(CreateMintMetadataMigrationOperation),
+            Box::new(CreateOperatorAccountMigrationOperation),
             Box::new(EnableOrDisablePoolMigrationOperation),
             Box::new(GetPoolInfoMigrationOperation),
             Box::new(InitializeCustomizablePermissionlessConstantProductPoolMigrationOperation),
@@ -82,6 +91,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraPoolsInstructionsMigrat
             Box::new(SwapMigrationOperation),
             Box::new(UpdateActivationPointMigrationOperation),
             Box::new(WithdrawProtocolFeesMigrationOperation),
+            Box::new(ZapProtocolFeeMigrationOperation),
             Box::new(CpiEventMigrationOperation),
         ]
     }
@@ -130,7 +140,17 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraPoolsInstructionsAbsolu
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "claim_protocol_fee2_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "close_config_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "close_operator_account_instruction",
                 ),
             ),
             Box::new(
@@ -146,6 +166,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraPoolsInstructionsAbsolu
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "create_mint_metadata_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_operator_account_instruction",
                 ),
             ),
             Box::new(
@@ -234,6 +259,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraPoolsInstructionsAbsolu
                     "withdraw_protocol_fees_instruction",
                 ),
             ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "zap_protocol_fee_instruction",
+                ),
+            ),
             Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("cpi_events")),
         ]
     }
@@ -272,77 +302,6 @@ impl carbon_core::postgres::operations::Insert for MeteoraPoolsInstructionWithMe
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         let MeteoraPoolsInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
         match decoded_instruction {
-            MeteoraPoolsInstruction::InitializePermissionedPool { data, .. } => {
-                let row =
-                    initialize_permissioned_pool_row::InitializePermissionedPoolRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::InitializePermissionlessPool { data, .. } => {
-                let row =
-                    initialize_permissionless_pool_row::InitializePermissionlessPoolRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::InitializePermissionlessPoolWithFeeTier { data, .. } => {
-                let row = initialize_permissionless_pool_with_fee_tier_row::InitializePermissionlessPoolWithFeeTierRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::EnableOrDisablePool { data, .. } => {
-                let row = enable_or_disable_pool_row::EnableOrDisablePoolRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::Swap { data, .. } => {
-                let row = swap_row::SwapRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::RemoveLiquiditySingleSide { data, .. } => {
-                let row =
-                    remove_liquidity_single_side_row::RemoveLiquiditySingleSideRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::AddImbalanceLiquidity { data, .. } => {
-                let row = add_imbalance_liquidity_row::AddImbalanceLiquidityRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::RemoveBalanceLiquidity { data, .. } => {
-                let row = remove_balance_liquidity_row::RemoveBalanceLiquidityRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
             MeteoraPoolsInstruction::AddBalanceLiquidity { data, .. } => {
                 let row = add_balance_liquidity_row::AddBalanceLiquidityRow::from_parts(
                     data.clone(),
@@ -352,26 +311,8 @@ impl carbon_core::postgres::operations::Insert for MeteoraPoolsInstructionWithMe
                 row.insert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::SetPoolFees { data, .. } => {
-                let row = set_pool_fees_row::SetPoolFeesRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::OverrideCurveParam { data, .. } => {
-                let row = override_curve_param_row::OverrideCurveParamRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::GetPoolInfo { data, .. } => {
-                let row = get_pool_info_row::GetPoolInfoRow::from_parts(
+            MeteoraPoolsInstruction::AddImbalanceLiquidity { data, .. } => {
+                let row = add_imbalance_liquidity_row::AddImbalanceLiquidityRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -388,35 +329,35 @@ impl carbon_core::postgres::operations::Insert for MeteoraPoolsInstructionWithMe
                 row.insert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::CreateMintMetadata { data, .. } => {
-                let row = create_mint_metadata_row::CreateMintMetadataRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::CreateLockEscrow { data, .. } => {
-                let row = create_lock_escrow_row::CreateLockEscrowRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::Lock { data, .. } => {
-                let row = lock_row::LockRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
             MeteoraPoolsInstruction::ClaimFee { data, .. } => {
                 let row = claim_fee_row::ClaimFeeRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::ClaimProtocolFee2 { data, .. } => {
+                let row = claim_protocol_fee2_row::ClaimProtocolFee2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::CloseConfig { data, .. } => {
+                let row = close_config_row::CloseConfigRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::CloseOperatorAccount { data, .. } => {
+                let row = close_operator_account_row::CloseOperatorAccountRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -433,12 +374,66 @@ impl carbon_core::postgres::operations::Insert for MeteoraPoolsInstructionWithMe
                 row.insert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::CloseConfig { data, .. } => {
-                let row = close_config_row::CloseConfigRow::from_parts(
+            MeteoraPoolsInstruction::CreateLockEscrow { data, .. } => {
+                let row = create_lock_escrow_row::CreateLockEscrowRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::CreateMintMetadata { data, .. } => {
+                let row = create_mint_metadata_row::CreateMintMetadataRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::CreateOperatorAccount { data, .. } => {
+                let row = create_operator_account_row::CreateOperatorAccountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::EnableOrDisablePool { data, .. } => {
+                let row = enable_or_disable_pool_row::EnableOrDisablePoolRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::GetPoolInfo { data, .. } => {
+                let row = get_pool_info_row::GetPoolInfoRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::InitializeCustomizablePermissionlessConstantProductPool {
+                data,
+                ..
+            } => {
+                let row = initialize_customizable_permissionless_constant_product_pool_row::InitializeCustomizablePermissionlessConstantProductPoolRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::InitializePermissionedPool { data, .. } => {
+                let row =
+                    initialize_permissioned_pool_row::InitializePermissionedPoolRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -458,11 +453,91 @@ impl carbon_core::postgres::operations::Insert for MeteoraPoolsInstructionWithMe
                 row.insert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::InitializeCustomizablePermissionlessConstantProductPool {
-                data,
-                ..
-            } => {
-                let row = initialize_customizable_permissionless_constant_product_pool_row::InitializeCustomizablePermissionlessConstantProductPoolRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+            MeteoraPoolsInstruction::InitializePermissionlessPool { data, .. } => {
+                let row =
+                    initialize_permissionless_pool_row::InitializePermissionlessPoolRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::InitializePermissionlessPoolWithFeeTier { data, .. } => {
+                let row = initialize_permissionless_pool_with_fee_tier_row::InitializePermissionlessPoolWithFeeTierRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::Lock { data, .. } => {
+                let row = lock_row::LockRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::OverrideCurveParam { data, .. } => {
+                let row = override_curve_param_row::OverrideCurveParamRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::PartnerClaimFee { data, .. } => {
+                let row = partner_claim_fee_row::PartnerClaimFeeRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::RemoveBalanceLiquidity { data, .. } => {
+                let row = remove_balance_liquidity_row::RemoveBalanceLiquidityRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::RemoveLiquiditySingleSide { data, .. } => {
+                let row =
+                    remove_liquidity_single_side_row::RemoveLiquiditySingleSideRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::SetPoolFees { data, .. } => {
+                let row = set_pool_fees_row::SetPoolFeesRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::SetWhitelistedVault { data, .. } => {
+                let row = set_whitelisted_vault_row::SetWhitelistedVaultRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::Swap { data, .. } => {
+                let row = swap_row::SwapRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -484,17 +559,8 @@ impl carbon_core::postgres::operations::Insert for MeteoraPoolsInstructionWithMe
                 row.insert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::SetWhitelistedVault { data, .. } => {
-                let row = set_whitelisted_vault_row::SetWhitelistedVaultRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::PartnerClaimFee { data, .. } => {
-                let row = partner_claim_fee_row::PartnerClaimFeeRow::from_parts(
+            MeteoraPoolsInstruction::ZapProtocolFee { data, .. } => {
+                let row = zap_protocol_fee_row::ZapProtocolFeeRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -520,77 +586,6 @@ impl carbon_core::postgres::operations::Upsert for MeteoraPoolsInstructionWithMe
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         let MeteoraPoolsInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
         match decoded_instruction {
-            MeteoraPoolsInstruction::InitializePermissionedPool { data, .. } => {
-                let row =
-                    initialize_permissioned_pool_row::InitializePermissionedPoolRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::InitializePermissionlessPool { data, .. } => {
-                let row =
-                    initialize_permissionless_pool_row::InitializePermissionlessPoolRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::InitializePermissionlessPoolWithFeeTier { data, .. } => {
-                let row = initialize_permissionless_pool_with_fee_tier_row::InitializePermissionlessPoolWithFeeTierRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::EnableOrDisablePool { data, .. } => {
-                let row = enable_or_disable_pool_row::EnableOrDisablePoolRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::Swap { data, .. } => {
-                let row = swap_row::SwapRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::RemoveLiquiditySingleSide { data, .. } => {
-                let row =
-                    remove_liquidity_single_side_row::RemoveLiquiditySingleSideRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::AddImbalanceLiquidity { data, .. } => {
-                let row = add_imbalance_liquidity_row::AddImbalanceLiquidityRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::RemoveBalanceLiquidity { data, .. } => {
-                let row = remove_balance_liquidity_row::RemoveBalanceLiquidityRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
             MeteoraPoolsInstruction::AddBalanceLiquidity { data, .. } => {
                 let row = add_balance_liquidity_row::AddBalanceLiquidityRow::from_parts(
                     data.clone(),
@@ -600,26 +595,8 @@ impl carbon_core::postgres::operations::Upsert for MeteoraPoolsInstructionWithMe
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::SetPoolFees { data, .. } => {
-                let row = set_pool_fees_row::SetPoolFeesRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::OverrideCurveParam { data, .. } => {
-                let row = override_curve_param_row::OverrideCurveParamRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::GetPoolInfo { data, .. } => {
-                let row = get_pool_info_row::GetPoolInfoRow::from_parts(
+            MeteoraPoolsInstruction::AddImbalanceLiquidity { data, .. } => {
+                let row = add_imbalance_liquidity_row::AddImbalanceLiquidityRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -636,35 +613,35 @@ impl carbon_core::postgres::operations::Upsert for MeteoraPoolsInstructionWithMe
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::CreateMintMetadata { data, .. } => {
-                let row = create_mint_metadata_row::CreateMintMetadataRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::CreateLockEscrow { data, .. } => {
-                let row = create_lock_escrow_row::CreateLockEscrowRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::Lock { data, .. } => {
-                let row = lock_row::LockRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
             MeteoraPoolsInstruction::ClaimFee { data, .. } => {
                 let row = claim_fee_row::ClaimFeeRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::ClaimProtocolFee2 { data, .. } => {
+                let row = claim_protocol_fee2_row::ClaimProtocolFee2Row::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::CloseConfig { data, .. } => {
+                let row = close_config_row::CloseConfigRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::CloseOperatorAccount { data, .. } => {
+                let row = close_operator_account_row::CloseOperatorAccountRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -681,12 +658,66 @@ impl carbon_core::postgres::operations::Upsert for MeteoraPoolsInstructionWithMe
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::CloseConfig { data, .. } => {
-                let row = close_config_row::CloseConfigRow::from_parts(
+            MeteoraPoolsInstruction::CreateLockEscrow { data, .. } => {
+                let row = create_lock_escrow_row::CreateLockEscrowRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::CreateMintMetadata { data, .. } => {
+                let row = create_mint_metadata_row::CreateMintMetadataRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::CreateOperatorAccount { data, .. } => {
+                let row = create_operator_account_row::CreateOperatorAccountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::EnableOrDisablePool { data, .. } => {
+                let row = enable_or_disable_pool_row::EnableOrDisablePoolRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::GetPoolInfo { data, .. } => {
+                let row = get_pool_info_row::GetPoolInfoRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::InitializeCustomizablePermissionlessConstantProductPool {
+                data,
+                ..
+            } => {
+                let row = initialize_customizable_permissionless_constant_product_pool_row::InitializeCustomizablePermissionlessConstantProductPoolRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::InitializePermissionedPool { data, .. } => {
+                let row =
+                    initialize_permissioned_pool_row::InitializePermissionedPoolRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -706,11 +737,91 @@ impl carbon_core::postgres::operations::Upsert for MeteoraPoolsInstructionWithMe
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::InitializeCustomizablePermissionlessConstantProductPool {
-                data,
-                ..
-            } => {
-                let row = initialize_customizable_permissionless_constant_product_pool_row::InitializeCustomizablePermissionlessConstantProductPoolRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+            MeteoraPoolsInstruction::InitializePermissionlessPool { data, .. } => {
+                let row =
+                    initialize_permissionless_pool_row::InitializePermissionlessPoolRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::InitializePermissionlessPoolWithFeeTier { data, .. } => {
+                let row = initialize_permissionless_pool_with_fee_tier_row::InitializePermissionlessPoolWithFeeTierRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::Lock { data, .. } => {
+                let row = lock_row::LockRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::OverrideCurveParam { data, .. } => {
+                let row = override_curve_param_row::OverrideCurveParamRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::PartnerClaimFee { data, .. } => {
+                let row = partner_claim_fee_row::PartnerClaimFeeRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::RemoveBalanceLiquidity { data, .. } => {
+                let row = remove_balance_liquidity_row::RemoveBalanceLiquidityRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::RemoveLiquiditySingleSide { data, .. } => {
+                let row =
+                    remove_liquidity_single_side_row::RemoveLiquiditySingleSideRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::SetPoolFees { data, .. } => {
+                let row = set_pool_fees_row::SetPoolFeesRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::SetWhitelistedVault { data, .. } => {
+                let row = set_whitelisted_vault_row::SetWhitelistedVaultRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraPoolsInstruction::Swap { data, .. } => {
+                let row = swap_row::SwapRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -732,17 +843,8 @@ impl carbon_core::postgres::operations::Upsert for MeteoraPoolsInstructionWithMe
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MeteoraPoolsInstruction::SetWhitelistedVault { data, .. } => {
-                let row = set_whitelisted_vault_row::SetWhitelistedVaultRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MeteoraPoolsInstruction::PartnerClaimFee { data, .. } => {
-                let row = partner_claim_fee_row::PartnerClaimFeeRow::from_parts(
+            MeteoraPoolsInstruction::ZapProtocolFee { data, .. } => {
+                let row = zap_protocol_fee_row::ZapProtocolFeeRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

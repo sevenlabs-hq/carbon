@@ -196,6 +196,62 @@ impl carbon_core::postgres::operations::Insert for KaminoLimitOrderInstructionWi
         let KaminoLimitOrderInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) =
             self;
         match decoded_instruction {
+            KaminoLimitOrderInstruction::AssertUserSwapBalancesEnd { data, .. } => {
+                let row =
+                    assert_user_swap_balances_end_row::AssertUserSwapBalancesEndRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::AssertUserSwapBalancesStart { data, .. } => {
+                let row =
+                    assert_user_swap_balances_start_row::AssertUserSwapBalancesStartRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::CloseOrderAndClaimTip { data, .. } => {
+                let row = close_order_and_claim_tip_row::CloseOrderAndClaimTipRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::CreateOrder { data, .. } => {
+                let row = create_order_row::CreateOrderRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::FlashTakeOrderEnd { data, .. } => {
+                let row = flash_take_order_end_row::FlashTakeOrderEndRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::FlashTakeOrderStart { data, .. } => {
+                let row = flash_take_order_start_row::FlashTakeOrderStartRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             KaminoLimitOrderInstruction::InitializeGlobalConfig { data, .. } => {
                 let row = initialize_global_config_row::InitializeGlobalConfigRow::from_parts(
                     data.clone(),
@@ -214,8 +270,8 @@ impl carbon_core::postgres::operations::Insert for KaminoLimitOrderInstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
-            KaminoLimitOrderInstruction::CreateOrder { data, .. } => {
-                let row = create_order_row::CreateOrderRow::from_parts(
+            KaminoLimitOrderInstruction::LogUserSwapBalancesEnd { data, .. } => {
+                let row = log_user_swap_balances_end_row::LogUserSwapBalancesEndRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -223,17 +279,8 @@ impl carbon_core::postgres::operations::Insert for KaminoLimitOrderInstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
-            KaminoLimitOrderInstruction::UpdateOrder { data, .. } => {
-                let row = update_order_row::UpdateOrderRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::CloseOrderAndClaimTip { data, .. } => {
-                let row = close_order_and_claim_tip_row::CloseOrderAndClaimTipRow::from_parts(
+            KaminoLimitOrderInstruction::LogUserSwapBalancesStart { data, .. } => {
+                let row = log_user_swap_balances_start_row::LogUserSwapBalancesStartRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -243,24 +290,6 @@ impl carbon_core::postgres::operations::Insert for KaminoLimitOrderInstructionWi
             }
             KaminoLimitOrderInstruction::TakeOrder { data, .. } => {
                 let row = take_order_row::TakeOrderRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::FlashTakeOrderStart { data, .. } => {
-                let row = flash_take_order_start_row::FlashTakeOrderStartRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::FlashTakeOrderEnd { data, .. } => {
-                let row = flash_take_order_end_row::FlashTakeOrderEndRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -286,50 +315,21 @@ impl carbon_core::postgres::operations::Insert for KaminoLimitOrderInstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
+            KaminoLimitOrderInstruction::UpdateOrder { data, .. } => {
+                let row = update_order_row::UpdateOrderRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             KaminoLimitOrderInstruction::WithdrawHostTip { data, .. } => {
                 let row = withdraw_host_tip_row::WithdrawHostTipRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::LogUserSwapBalancesStart { data, .. } => {
-                let row = log_user_swap_balances_start_row::LogUserSwapBalancesStartRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::LogUserSwapBalancesEnd { data, .. } => {
-                let row = log_user_swap_balances_end_row::LogUserSwapBalancesEndRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::AssertUserSwapBalancesStart { data, .. } => {
-                let row =
-                    assert_user_swap_balances_start_row::AssertUserSwapBalancesStartRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::AssertUserSwapBalancesEnd { data, .. } => {
-                let row =
-                    assert_user_swap_balances_end_row::AssertUserSwapBalancesEndRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -352,6 +352,62 @@ impl carbon_core::postgres::operations::Upsert for KaminoLimitOrderInstructionWi
         let KaminoLimitOrderInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) =
             self;
         match decoded_instruction {
+            KaminoLimitOrderInstruction::AssertUserSwapBalancesEnd { data, .. } => {
+                let row =
+                    assert_user_swap_balances_end_row::AssertUserSwapBalancesEndRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::AssertUserSwapBalancesStart { data, .. } => {
+                let row =
+                    assert_user_swap_balances_start_row::AssertUserSwapBalancesStartRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::CloseOrderAndClaimTip { data, .. } => {
+                let row = close_order_and_claim_tip_row::CloseOrderAndClaimTipRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::CreateOrder { data, .. } => {
+                let row = create_order_row::CreateOrderRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::FlashTakeOrderEnd { data, .. } => {
+                let row = flash_take_order_end_row::FlashTakeOrderEndRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLimitOrderInstruction::FlashTakeOrderStart { data, .. } => {
+                let row = flash_take_order_start_row::FlashTakeOrderStartRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             KaminoLimitOrderInstruction::InitializeGlobalConfig { data, .. } => {
                 let row = initialize_global_config_row::InitializeGlobalConfigRow::from_parts(
                     data.clone(),
@@ -370,8 +426,8 @@ impl carbon_core::postgres::operations::Upsert for KaminoLimitOrderInstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
-            KaminoLimitOrderInstruction::CreateOrder { data, .. } => {
-                let row = create_order_row::CreateOrderRow::from_parts(
+            KaminoLimitOrderInstruction::LogUserSwapBalancesEnd { data, .. } => {
+                let row = log_user_swap_balances_end_row::LogUserSwapBalancesEndRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -379,17 +435,8 @@ impl carbon_core::postgres::operations::Upsert for KaminoLimitOrderInstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
-            KaminoLimitOrderInstruction::UpdateOrder { data, .. } => {
-                let row = update_order_row::UpdateOrderRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::CloseOrderAndClaimTip { data, .. } => {
-                let row = close_order_and_claim_tip_row::CloseOrderAndClaimTipRow::from_parts(
+            KaminoLimitOrderInstruction::LogUserSwapBalancesStart { data, .. } => {
+                let row = log_user_swap_balances_start_row::LogUserSwapBalancesStartRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -399,24 +446,6 @@ impl carbon_core::postgres::operations::Upsert for KaminoLimitOrderInstructionWi
             }
             KaminoLimitOrderInstruction::TakeOrder { data, .. } => {
                 let row = take_order_row::TakeOrderRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::FlashTakeOrderStart { data, .. } => {
-                let row = flash_take_order_start_row::FlashTakeOrderStartRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::FlashTakeOrderEnd { data, .. } => {
-                let row = flash_take_order_end_row::FlashTakeOrderEndRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -442,50 +471,21 @@ impl carbon_core::postgres::operations::Upsert for KaminoLimitOrderInstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
+            KaminoLimitOrderInstruction::UpdateOrder { data, .. } => {
+                let row = update_order_row::UpdateOrderRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             KaminoLimitOrderInstruction::WithdrawHostTip { data, .. } => {
                 let row = withdraw_host_tip_row::WithdrawHostTipRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::LogUserSwapBalancesStart { data, .. } => {
-                let row = log_user_swap_balances_start_row::LogUserSwapBalancesStartRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::LogUserSwapBalancesEnd { data, .. } => {
-                let row = log_user_swap_balances_end_row::LogUserSwapBalancesEndRow::from_parts(
-                    data.clone(),
-                    metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::AssertUserSwapBalancesStart { data, .. } => {
-                let row =
-                    assert_user_swap_balances_start_row::AssertUserSwapBalancesStartRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderInstruction::AssertUserSwapBalancesEnd { data, .. } => {
-                let row =
-                    assert_user_swap_balances_end_row::AssertUserSwapBalancesEndRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
                 row.upsert(pool).await?;
                 Ok(())
             }

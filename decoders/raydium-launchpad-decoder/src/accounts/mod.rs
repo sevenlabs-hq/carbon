@@ -8,8 +8,9 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod global_config;
+pub mod platform_allow_config;
 pub mod platform_config;
-pub mod platform_global_access;
+pub mod platform_curve_rule;
 pub mod pool_state;
 pub mod vesting_record;
 
@@ -18,8 +19,9 @@ pub mod vesting_record;
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum RaydiumLaunchpadAccount {
     GlobalConfig(Box<global_config::GlobalConfig>),
+    PlatformAllowConfig(Box<platform_allow_config::PlatformAllowConfig>),
     PlatformConfig(Box<platform_config::PlatformConfig>),
-    PlatformGlobalAccess(Box<platform_global_access::PlatformGlobalAccess>),
+    PlatformCurveRule(Box<platform_curve_rule::PlatformCurveRule>),
     PoolState(Box<pool_state::PoolState>),
     VestingRecord(Box<vesting_record::VestingRecord>),
 }
@@ -49,6 +51,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumLaunchpadDecoder {
             }
         }
         {
+            if let Some(decoded) = platform_allow_config::PlatformAllowConfig::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumLaunchpadAccount::PlatformAllowConfig(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
             if let Some(decoded) = platform_config::PlatformConfig::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
@@ -60,10 +73,10 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumLaunchpadDecoder {
             }
         }
         {
-            if let Some(decoded) = platform_global_access::PlatformGlobalAccess::decode(data) {
+            if let Some(decoded) = platform_curve_rule::PlatformCurveRule::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
-                    data: RaydiumLaunchpadAccount::PlatformGlobalAccess(Box::new(decoded)),
+                    data: RaydiumLaunchpadAccount::PlatformCurveRule(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

@@ -3,15 +3,24 @@
 pub mod graphql;
 
 pub mod account_event_header;
+pub mod admin_close_account_event;
 pub mod balance;
 pub mod bank_cache;
 pub mod bank_config;
 pub mod bank_config_compact;
+pub mod bank_config_fast;
+pub mod bank_config_gov;
 pub mod bank_config_opt;
 pub mod bank_operational_state;
 pub mod bank_rate_limiter;
+pub mod borrow_rate_curve;
+pub mod circuit_breaker_auto_broken_event;
+pub mod circuit_breaker_cleared_event;
+pub mod circuit_breaker_tripped_event;
+pub mod curve_point;
 pub mod deleverage_event;
 pub mod deleverage_withdraw_flow_event;
+pub mod drift_claim_bad_debt_event;
 pub mod drift_config_compact;
 pub mod edit_staked_settings_event;
 pub mod emode_config;
@@ -23,16 +32,21 @@ pub mod group_event_header;
 pub mod group_rate_limiter;
 pub mod health_cache;
 pub mod health_pulse_event;
+pub mod indexer_flags;
+pub mod insurance_fund;
 pub mod interest_rate_config;
 pub mod interest_rate_config_compact;
 pub mod interest_rate_config_opt;
 pub mod juplend_config_compact;
 pub mod kamino_config_compact;
 pub mod keeper_close_order_event;
+pub mod keeper_close_rebalance_order_event;
+pub mod lending;
 pub mod lending_account;
 pub mod lending_account_borrow_event;
 pub mod lending_account_deposit_event;
 pub mod lending_account_liquidate_event;
+pub mod lending_account_premium_settled_event;
 pub mod lending_account_repay_event;
 pub mod lending_account_withdraw_event;
 pub mod lending_pool_bank_accrue_interest_event;
@@ -42,32 +56,60 @@ pub mod lending_pool_bank_configure_frozen_event;
 pub mod lending_pool_bank_configure_oracle_event;
 pub mod lending_pool_bank_create_event;
 pub mod lending_pool_bank_handle_bankruptcy_event;
-pub mod lending_pool_bank_set_fixed_oracle_price_event;
+pub mod lending_pool_bank_premium_configure_event;
+pub mod lending_pool_bank_set_oracle_price_event;
+pub mod lending_pool_bank_set_same_asset_emode_eligibility_event;
+pub mod lending_pool_group_premium_configure_event;
+pub mod lending_pool_premium_fees_collected_event;
 pub mod lending_pool_super_admin_deposit_event;
 pub mod lending_pool_super_admin_withdraw_event;
 pub mod liquidation_balances;
 pub mod liquidation_cache;
 pub mod liquidation_entry;
 pub mod liquidation_receiver_event;
+pub mod liquidation_tag_event;
 pub mod marginfi_account_close_order_event;
+pub mod marginfi_account_close_rebalance_order_event;
 pub mod marginfi_account_create_event;
+pub mod marginfi_account_execute_order_event;
 pub mod marginfi_account_freeze_event;
 pub mod marginfi_account_place_order_event;
+pub mod marginfi_account_place_rebalance_order_event;
 pub mod marginfi_account_transfer_to_new_account;
+pub mod marginfi_account_update_rebalance_order_event;
 pub mod marginfi_group_configure_event;
 pub mod marginfi_group_create_event;
+pub mod minimal_lending_market;
+pub mod minimal_obligation;
 pub mod minimal_obligation_collateral;
+pub mod minimal_reserve;
+pub mod minimal_spot_market;
+pub mod minimal_user;
 pub mod oracle_setup;
 pub mod order_trigger;
 pub mod order_trigger_type;
 pub mod panic_state;
 pub mod panic_state_cache;
+pub mod premium_entry;
+pub mod premium_settings;
 pub mod rate_limit_flow_event;
 pub mod rate_limit_window;
 pub mod rate_point;
+pub mod rebalance_executed_event;
+pub mod rebalance_fee_pool_top_up_event;
+pub mod rebalance_fee_pool_withdraw_event;
+pub mod rebalance_move;
+pub mod rebalance_ref_bank;
+pub mod rebalance_tip_settled_event;
+pub mod reserve_config;
 pub mod risk_tier;
+pub mod same_asset_emode_bank;
+pub mod same_asset_emode_group;
+pub mod set_governance_admin_event;
 pub mod set_keeper_close_flags_event;
+pub mod snapshot_update_input;
 pub mod solend_config_compact;
+pub mod solend_minimal_reserve;
 pub mod spot_balance_type;
 pub mod spot_position;
 pub mod staked_settings_config;
@@ -77,29 +119,45 @@ pub mod withdraw_window_cache;
 pub mod wrapped_i80_f48;
 
 pub use self::{
-    account_event_header::*, balance::*, bank_cache::*, bank_config::*, bank_config_compact::*,
-    bank_config_opt::*, bank_operational_state::*, bank_rate_limiter::*, deleverage_event::*,
-    deleverage_withdraw_flow_event::*, drift_config_compact::*, edit_staked_settings_event::*,
-    emode_config::*, emode_entry::*, emode_settings::*, execute_order_balance_record::*,
-    fee_state_cache::*, group_event_header::*, group_rate_limiter::*, health_cache::*,
-    health_pulse_event::*, interest_rate_config::*, interest_rate_config_compact::*,
+    account_event_header::*, admin_close_account_event::*, balance::*, bank_cache::*,
+    bank_config::*, bank_config_compact::*, bank_config_fast::*, bank_config_gov::*,
+    bank_config_opt::*, bank_operational_state::*, bank_rate_limiter::*, borrow_rate_curve::*,
+    circuit_breaker_auto_broken_event::*, circuit_breaker_cleared_event::*,
+    circuit_breaker_tripped_event::*, curve_point::*, deleverage_event::*,
+    deleverage_withdraw_flow_event::*, drift_claim_bad_debt_event::*, drift_config_compact::*,
+    edit_staked_settings_event::*, emode_config::*, emode_entry::*, emode_settings::*,
+    execute_order_balance_record::*, fee_state_cache::*, group_event_header::*,
+    group_rate_limiter::*, health_cache::*, health_pulse_event::*, indexer_flags::*,
+    insurance_fund::*, interest_rate_config::*, interest_rate_config_compact::*,
     interest_rate_config_opt::*, juplend_config_compact::*, kamino_config_compact::*,
-    keeper_close_order_event::*, lending_account::*, lending_account_borrow_event::*,
-    lending_account_deposit_event::*, lending_account_liquidate_event::*,
+    keeper_close_order_event::*, keeper_close_rebalance_order_event::*, lending::*,
+    lending_account::*, lending_account_borrow_event::*, lending_account_deposit_event::*,
+    lending_account_liquidate_event::*, lending_account_premium_settled_event::*,
     lending_account_repay_event::*, lending_account_withdraw_event::*,
     lending_pool_bank_accrue_interest_event::*, lending_pool_bank_collect_fees_event::*,
     lending_pool_bank_configure_event::*, lending_pool_bank_configure_frozen_event::*,
     lending_pool_bank_configure_oracle_event::*, lending_pool_bank_create_event::*,
-    lending_pool_bank_handle_bankruptcy_event::*,
-    lending_pool_bank_set_fixed_oracle_price_event::*, lending_pool_super_admin_deposit_event::*,
-    lending_pool_super_admin_withdraw_event::*, liquidation_balances::*, liquidation_cache::*,
-    liquidation_entry::*, liquidation_receiver_event::*, marginfi_account_close_order_event::*,
-    marginfi_account_create_event::*, marginfi_account_freeze_event::*,
-    marginfi_account_place_order_event::*, marginfi_account_transfer_to_new_account::*,
-    marginfi_group_configure_event::*, marginfi_group_create_event::*,
-    minimal_obligation_collateral::*, oracle_setup::*, order_trigger::*, order_trigger_type::*,
-    panic_state::*, panic_state_cache::*, rate_limit_flow_event::*, rate_limit_window::*,
-    rate_point::*, risk_tier::*, set_keeper_close_flags_event::*, solend_config_compact::*,
+    lending_pool_bank_handle_bankruptcy_event::*, lending_pool_bank_premium_configure_event::*,
+    lending_pool_bank_set_oracle_price_event::*,
+    lending_pool_bank_set_same_asset_emode_eligibility_event::*,
+    lending_pool_group_premium_configure_event::*, lending_pool_premium_fees_collected_event::*,
+    lending_pool_super_admin_deposit_event::*, lending_pool_super_admin_withdraw_event::*,
+    liquidation_balances::*, liquidation_cache::*, liquidation_entry::*,
+    liquidation_receiver_event::*, liquidation_tag_event::*, marginfi_account_close_order_event::*,
+    marginfi_account_close_rebalance_order_event::*, marginfi_account_create_event::*,
+    marginfi_account_execute_order_event::*, marginfi_account_freeze_event::*,
+    marginfi_account_place_order_event::*, marginfi_account_place_rebalance_order_event::*,
+    marginfi_account_transfer_to_new_account::*, marginfi_account_update_rebalance_order_event::*,
+    marginfi_group_configure_event::*, marginfi_group_create_event::*, minimal_lending_market::*,
+    minimal_obligation::*, minimal_obligation_collateral::*, minimal_reserve::*,
+    minimal_spot_market::*, minimal_user::*, oracle_setup::*, order_trigger::*,
+    order_trigger_type::*, panic_state::*, panic_state_cache::*, premium_entry::*,
+    premium_settings::*, rate_limit_flow_event::*, rate_limit_window::*, rate_point::*,
+    rebalance_executed_event::*, rebalance_fee_pool_top_up_event::*,
+    rebalance_fee_pool_withdraw_event::*, rebalance_move::*, rebalance_ref_bank::*,
+    rebalance_tip_settled_event::*, reserve_config::*, risk_tier::*, same_asset_emode_bank::*,
+    same_asset_emode_group::*, set_governance_admin_event::*, set_keeper_close_flags_event::*,
+    snapshot_update_input::*, solend_config_compact::*, solend_minimal_reserve::*,
     spot_balance_type::*, spot_position::*, staked_settings_config::*,
     staked_settings_edit_config::*, user_status::*, withdraw_window_cache::*, wrapped_i80_f48::*,
 };

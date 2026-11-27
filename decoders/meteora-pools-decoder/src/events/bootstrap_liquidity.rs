@@ -4,29 +4,29 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct BootstrapLiquidityEvent {
+    /// LP amount user received upon add liquidity.
     pub lp_mint_amount: u64,
+    /// Amount of token A user deposited.
     pub token_a_amount: u64,
+    /// Amount of token B user deposited.
     pub token_b_amount: u64,
+    /// Pool address
     pub pool: Pubkey,
 }
 
 impl BootstrapLiquidityEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 121, 127, 38, 136, 92, 55, 14, 247,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [121, 127, 38, 136, 92, 55, 14, 247] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

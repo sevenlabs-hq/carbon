@@ -9,6 +9,7 @@ use {
 pub struct UpdatePoolFeesParametersGraphQL {
     pub cliff_fee_numerator: Option<U64>,
     pub dynamic_fee: Option<DynamicFeeParametersGraphQL>,
+    pub compounding_fee_bps: Option<i32>,
 }
 
 impl From<crate::types::UpdatePoolFeesParameters> for UpdatePoolFeesParametersGraphQL {
@@ -18,6 +19,7 @@ impl From<crate::types::UpdatePoolFeesParameters> for UpdatePoolFeesParametersGr
                 .cliff_fee_numerator
                 .map(carbon_core::graphql::primitives::U64),
             dynamic_fee: original.dynamic_fee.map(|v| v.into()),
+            compounding_fee_bps: original.compounding_fee_bps.map(|v| v as i32),
         }
     }
 }

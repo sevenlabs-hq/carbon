@@ -13,6 +13,7 @@ pub mod borrow_order_update_event;
 pub mod borrow_rate_curve;
 pub mod curve_point;
 pub mod elevation_group;
+pub mod exchange_rate_with_decimals;
 pub mod fee_calculation;
 pub mod fixed_term_borrow_rollover_config;
 pub mod init_obligation_args;
@@ -45,11 +46,11 @@ pub use self::{
     big_fraction_bytes::*, borrow_order::*, borrow_order_cancel_event::*,
     borrow_order_config_args::*, borrow_order_full_fill_event::*,
     borrow_order_partial_fill_event::*, borrow_order_place_event::*, borrow_order_update_event::*,
-    borrow_rate_curve::*, curve_point::*, elevation_group::*, fee_calculation::*,
-    fixed_term_borrow_rollover_config::*, init_obligation_args::*, last_update::*,
-    obligation_collateral::*, obligation_liquidity::*, obligation_order::*, price_heuristic::*,
-    progress_callback_type::*, pyth_configuration::*, reserve_collateral::*, reserve_config::*,
-    reserve_config_customization_args::*, reserve_farm_kind::*, reserve_fees::*,
+    borrow_rate_curve::*, curve_point::*, elevation_group::*, exchange_rate_with_decimals::*,
+    fee_calculation::*, fixed_term_borrow_rollover_config::*, init_obligation_args::*,
+    last_update::*, obligation_collateral::*, obligation_liquidity::*, obligation_order::*,
+    price_heuristic::*, progress_callback_type::*, pyth_configuration::*, reserve_collateral::*,
+    reserve_config::*, reserve_config_customization_args::*, reserve_farm_kind::*, reserve_fees::*,
     reserve_liquidity::*, reserve_status::*, scope_configuration::*, switchboard_configuration::*,
     token_info::*, update_config_mode::*, update_global_config_mode::*,
     update_lending_market_config_value::*, update_lending_market_mode::*,

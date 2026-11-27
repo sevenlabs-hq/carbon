@@ -17,7 +17,7 @@ pub struct ClaimRewardInstructionAccounts {
     pub reward_mint: solana_pubkey::Pubkey,
     pub user_token_account: solana_pubkey::Pubkey,
     pub position_nft_account: solana_pubkey::Pubkey,
-    pub owner: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
     pub program: solana_pubkey::Pubkey,
@@ -57,7 +57,7 @@ impl ArrangeAccounts for ClaimReward {
         let reward_mint = next_account(&mut iter)?;
         let user_token_account = next_account(&mut iter)?;
         let position_nft_account = next_account(&mut iter)?;
-        let owner = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
         let program = next_account(&mut iter)?;
@@ -72,7 +72,7 @@ impl ArrangeAccounts for ClaimReward {
             reward_mint,
             user_token_account,
             position_nft_account,
-            owner,
+            signer,
             token_program,
             event_authority,
             program,

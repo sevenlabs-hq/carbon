@@ -12,6 +12,7 @@ pub struct StartLiquidation {}
 pub struct StartLiquidationInstructionAccounts {
     pub marginfi_account: solana_pubkey::Pubkey,
     pub liquidation_record: solana_pubkey::Pubkey,
+    pub group: solana_pubkey::Pubkey,
     pub liquidation_receiver: solana_pubkey::Pubkey,
     pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -45,6 +46,7 @@ impl ArrangeAccounts for StartLiquidation {
 
         let marginfi_account = next_account(&mut iter)?;
         let liquidation_record = next_account(&mut iter)?;
+        let group = next_account(&mut iter)?;
         let liquidation_receiver = next_account(&mut iter)?;
         let instruction_sysvar = next_account(&mut iter)?;
 
@@ -53,6 +55,7 @@ impl ArrangeAccounts for StartLiquidation {
         Some(StartLiquidationInstructionAccounts {
             marginfi_account,
             liquidation_record,
+            group,
             liquidation_receiver,
             instruction_sysvar,
             remaining: remaining.to_vec(),

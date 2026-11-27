@@ -13,7 +13,7 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
 )]
 pub enum CpiEvent {
     EvtClaimPositionFee(events::evt_claim_position_fee::EvtClaimPositionFeeEvent),
-    EvtClaimProtocolFee(events::evt_claim_protocol_fee::EvtClaimProtocolFeeEvent),
+    EvtClaimProtocolFee2(events::evt_claim_protocol_fee2::EvtClaimProtocolFee2Event),
     EvtClaimReward(events::evt_claim_reward::EvtClaimRewardEvent),
     EvtCloseConfig(events::evt_close_config::EvtCloseConfigEvent),
     EvtClosePosition(events::evt_close_position::EvtClosePositionEvent),
@@ -31,9 +31,15 @@ pub enum CpiEvent {
     EvtSplitPosition2(events::evt_split_position2::EvtSplitPosition2Event),
     EvtSplitPosition3(events::evt_split_position3::EvtSplitPosition3Event),
     EvtSwap2(events::evt_swap2::EvtSwap2Event),
+    EvtUpdateDelegatePermission(
+        events::evt_update_delegate_permission::EvtUpdateDelegatePermissionEvent,
+    ),
     EvtUpdatePoolFees(events::evt_update_pool_fees::EvtUpdatePoolFeesEvent),
     EvtUpdateRewardDuration(events::evt_update_reward_duration::EvtUpdateRewardDurationEvent),
     EvtUpdateRewardFunder(events::evt_update_reward_funder::EvtUpdateRewardFunderEvent),
+    EvtWithdrawDeadLiquidityReward(
+        events::evt_withdraw_dead_liquidity_reward::EvtWithdrawDeadLiquidityRewardEvent,
+    ),
     EvtWithdrawIneligibleReward(
         events::evt_withdraw_ineligible_reward::EvtWithdrawIneligibleRewardEvent,
     ),
@@ -65,9 +71,9 @@ impl CpiEvent {
             return Some(CpiEvent::EvtClaimPositionFee(decoded));
         }
         if let Some(decoded) =
-            events::evt_claim_protocol_fee::EvtClaimProtocolFeeEvent::decode(event_data)
+            events::evt_claim_protocol_fee2::EvtClaimProtocolFee2Event::decode(event_data)
         {
-            return Some(CpiEvent::EvtClaimProtocolFee(decoded));
+            return Some(CpiEvent::EvtClaimProtocolFee2(decoded));
         }
         if let Some(decoded) = events::evt_claim_reward::EvtClaimRewardEvent::decode(event_data) {
             return Some(CpiEvent::EvtClaimReward(decoded));
@@ -142,6 +148,13 @@ impl CpiEvent {
             return Some(CpiEvent::EvtSwap2(decoded));
         }
         if let Some(decoded) =
+            events::evt_update_delegate_permission::EvtUpdateDelegatePermissionEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::EvtUpdateDelegatePermission(decoded));
+        }
+        if let Some(decoded) =
             events::evt_update_pool_fees::EvtUpdatePoolFeesEvent::decode(event_data)
         {
             return Some(CpiEvent::EvtUpdatePoolFees(decoded));
@@ -155,6 +168,13 @@ impl CpiEvent {
             events::evt_update_reward_funder::EvtUpdateRewardFunderEvent::decode(event_data)
         {
             return Some(CpiEvent::EvtUpdateRewardFunder(decoded));
+        }
+        if let Some(decoded) =
+            events::evt_withdraw_dead_liquidity_reward::EvtWithdrawDeadLiquidityRewardEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::EvtWithdrawDeadLiquidityReward(decoded));
         }
         if let Some(decoded) =
             events::evt_withdraw_ineligible_reward::EvtWithdrawIneligibleRewardEvent::decode(

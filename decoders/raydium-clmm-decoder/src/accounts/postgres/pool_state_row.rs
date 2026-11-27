@@ -37,6 +37,7 @@ pub struct PoolStateRow {
     pub padding5: Vec<U128>,
     pub status: U8,
     pub fee_on: U8,
+    pub seed_index: Vec<u8>,
     pub padding: Vec<u8>,
     pub reward_infos: sqlx::types::Json<Vec<RewardInfo>>,
     pub tick_array_bitmap: Vec<U64>,
@@ -84,6 +85,7 @@ impl PoolStateRow {
                 .collect(),
             status: source.status.into(),
             fee_on: source.fee_on.into(),
+            seed_index: source.seed_index.to_vec(),
             padding: source.padding.to_vec(),
             reward_infos: sqlx::types::Json(source.reward_infos.to_vec()),
             tick_array_bitmap: source
@@ -190,9 +192,15 @@ impl TryFrom<PoolStateRow> for crate::accounts::pool_state::PoolState {
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
+            seed_index: source.seed_index.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 2 bytes"
+                        .to_string(),
+                )
+            })?,
             padding: source.padding.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 6 bytes"
+                    "Failed to convert padding from postgres primitive: expected 4 bytes"
                         .to_string(),
                 )
             })?,
@@ -312,6 +320,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool_state::P
             "padding5",
             "status",
             "fee_on",
+            "seed_index",
             "padding",
             "reward_infos",
             "tick_array_bitmap",
@@ -355,6 +364,7 @@ impl carbon_core::postgres::operations::Insert for PoolStateRow {
                 "padding5",
                 "status",
                 "fee_on",
+                "seed_index",
                 "padding",
                 "reward_infos",
                 "tick_array_bitmap",
@@ -368,7 +378,7 @@ impl carbon_core::postgres::operations::Insert for PoolStateRow {
                 "padding2",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37
             )"#)
         .bind(&self.bump)
         .bind(self.amm_config)
@@ -393,6 +403,7 @@ impl carbon_core::postgres::operations::Insert for PoolStateRow {
         .bind(&self.padding5)
         .bind(self.status)
         .bind(self.fee_on)
+        .bind(&self.seed_index)
         .bind(&self.padding)
         .bind(&self.reward_infos)
         .bind(&self.tick_array_bitmap)
@@ -439,6 +450,7 @@ impl carbon_core::postgres::operations::Upsert for PoolStateRow {
                 "padding5",
                 "status",
                 "fee_on",
+                "seed_index",
                 "padding",
                 "reward_infos",
                 "tick_array_bitmap",
@@ -452,7 +464,7 @@ impl carbon_core::postgres::operations::Upsert for PoolStateRow {
                 "padding2",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -479,6 +491,7 @@ impl carbon_core::postgres::operations::Upsert for PoolStateRow {
                 "padding5" = EXCLUDED."padding5",
                 "status" = EXCLUDED."status",
                 "fee_on" = EXCLUDED."fee_on",
+                "seed_index" = EXCLUDED."seed_index",
                 "padding" = EXCLUDED."padding",
                 "reward_infos" = EXCLUDED."reward_infos",
                 "tick_array_bitmap" = EXCLUDED."tick_array_bitmap",
@@ -517,6 +530,7 @@ impl carbon_core::postgres::operations::Upsert for PoolStateRow {
         .bind(&self.padding5)
         .bind(self.status)
         .bind(self.fee_on)
+        .bind(&self.seed_index)
         .bind(&self.padding)
         .bind(&self.reward_infos)
         .bind(&self.tick_array_bitmap)
@@ -609,6 +623,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolStateMigrationOperation {
                 "padding5" NUMERIC(39)[] NOT NULL,
                 "status" INT2 NOT NULL,
                 "fee_on" INT2 NOT NULL,
+                "seed_index" BYTEA NOT NULL,
                 "padding" BYTEA NOT NULL,
                 "reward_infos" JSONB NOT NULL,
                 "tick_array_bitmap" NUMERIC(20)[] NOT NULL,

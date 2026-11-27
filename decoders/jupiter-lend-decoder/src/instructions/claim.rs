@@ -20,7 +20,6 @@ pub struct ClaimInstructionAccounts {
     pub vault: solana_pubkey::Pubkey,
     pub claim_account: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
-    pub associated_token_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -58,7 +57,6 @@ impl ArrangeAccounts for Claim {
         let vault = next_account(&mut iter)?;
         let claim_account = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
-        let associated_token_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -71,7 +69,6 @@ impl ArrangeAccounts for Claim {
             vault,
             claim_account,
             token_program,
-            associated_token_program,
             remaining: remaining.to_vec(),
         })
     }

@@ -55,7 +55,7 @@ pub struct LendingMarketRow {
     pub obligation_borrow_rollover_configuration_enabled: U8,
     pub obligation_borrow_migration_to_fixed_execution_enabled: U8,
     pub withdraw_ticket_cancellation_enabled: U8,
-    pub padding2: Vec<u8>,
+    pub disable_nonce_block: U8,
     pub reserve_rewards_max_apr_bps: U16,
     pub min_withdraw_queued_liquidity_value: U64,
     pub fixed_term_rollover_window_duration_seconds: U64,
@@ -64,6 +64,7 @@ pub struct LendingMarketRow {
     pub term_based_full_liquidation_duration_secs: U64,
     pub permissioning_authority: Pubkey,
     pub permissioned_ops: U64,
+    pub min_obligation_order_execution_value: U64,
     pub padding1: Vec<U64>,
 }
 
@@ -145,7 +146,7 @@ impl LendingMarketRow {
             withdraw_ticket_cancellation_enabled: source
                 .withdraw_ticket_cancellation_enabled
                 .into(),
-            padding2: source.padding2.to_vec(),
+            disable_nonce_block: source.disable_nonce_block.into(),
             reserve_rewards_max_apr_bps: source.reserve_rewards_max_apr_bps.into(),
             min_withdraw_queued_liquidity_value: source.min_withdraw_queued_liquidity_value.into(),
             fixed_term_rollover_window_duration_seconds: source
@@ -160,6 +161,9 @@ impl LendingMarketRow {
                 .into(),
             permissioning_authority: source.permissioning_authority.into(),
             permissioned_ops: source.permissioned_ops.into(),
+            min_obligation_order_execution_value: source
+                .min_obligation_order_execution_value
+                .into(),
             padding1: source
                 .padding1
                 .into_iter()
@@ -386,10 +390,9 @@ impl TryFrom<LendingMarketRow> for crate::accounts::lending_market::LendingMarke
                         "Failed to convert value from postgres primitive".to_string(),
                     )
                 })?,
-            padding2: source.padding2.as_slice().try_into().map_err(|_| {
+            disable_nonce_block: source.disable_nonce_block.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 1 bytes"
-                        .to_string(),
+                    "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
             reserve_rewards_max_apr_bps: source.reserve_rewards_max_apr_bps.try_into().map_err(
@@ -409,6 +412,7 @@ impl TryFrom<LendingMarketRow> for crate::accounts::lending_market::LendingMarke
                 .term_based_full_liquidation_duration_secs,
             permissioning_authority: *source.permissioning_authority,
             permissioned_ops: *source.permissioned_ops,
+            min_obligation_order_execution_value: *source.min_obligation_order_execution_value,
             padding1: source
                 .padding1
                 .into_iter()
@@ -479,7 +483,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::lending_marke
             "obligation_borrow_rollover_configuration_enabled",
             "obligation_borrow_migration_to_fixed_execution_enabled",
             "withdraw_ticket_cancellation_enabled",
-            "padding2",
+            "disable_nonce_block",
             "reserve_rewards_max_apr_bps",
             "min_withdraw_queued_liquidity_value",
             "fixed_term_rollover_window_duration_seconds",
@@ -488,6 +492,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::lending_marke
             "term_based_full_liquidation_duration_secs",
             "permissioning_authority",
             "permissioned_ops",
+            "min_obligation_order_execution_value",
             "padding1",
         ]
     }
@@ -539,7 +544,7 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
                 "obligation_borrow_rollover_configuration_enabled",
                 "obligation_borrow_migration_to_fixed_execution_enabled",
                 "withdraw_ticket_cancellation_enabled",
-                "padding2",
+                "disable_nonce_block",
                 "reserve_rewards_max_apr_bps",
                 "min_withdraw_queued_liquidity_value",
                 "fixed_term_rollover_window_duration_seconds",
@@ -548,10 +553,11 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
                 "term_based_full_liquidation_duration_secs",
                 "permissioning_authority",
                 "permissioned_ops",
+                "min_obligation_order_execution_value",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54
             )"#)
         .bind(&self.version)
         .bind(&self.bump_seed)
@@ -594,7 +600,7 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
         .bind(self.obligation_borrow_rollover_configuration_enabled)
         .bind(self.obligation_borrow_migration_to_fixed_execution_enabled)
         .bind(self.withdraw_ticket_cancellation_enabled)
-        .bind(&self.padding2)
+        .bind(self.disable_nonce_block)
         .bind(self.reserve_rewards_max_apr_bps)
         .bind(&self.min_withdraw_queued_liquidity_value)
         .bind(&self.fixed_term_rollover_window_duration_seconds)
@@ -603,6 +609,7 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
         .bind(&self.term_based_full_liquidation_duration_secs)
         .bind(self.permissioning_authority)
         .bind(&self.permissioned_ops)
+        .bind(&self.min_obligation_order_execution_value)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -657,7 +664,7 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
                 "obligation_borrow_rollover_configuration_enabled",
                 "obligation_borrow_migration_to_fixed_execution_enabled",
                 "withdraw_ticket_cancellation_enabled",
-                "padding2",
+                "disable_nonce_block",
                 "reserve_rewards_max_apr_bps",
                 "min_withdraw_queued_liquidity_value",
                 "fixed_term_rollover_window_duration_seconds",
@@ -666,10 +673,11 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
                 "term_based_full_liquidation_duration_secs",
                 "permissioning_authority",
                 "permissioned_ops",
+                "min_obligation_order_execution_value",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -714,7 +722,7 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
                 "obligation_borrow_rollover_configuration_enabled" = EXCLUDED."obligation_borrow_rollover_configuration_enabled",
                 "obligation_borrow_migration_to_fixed_execution_enabled" = EXCLUDED."obligation_borrow_migration_to_fixed_execution_enabled",
                 "withdraw_ticket_cancellation_enabled" = EXCLUDED."withdraw_ticket_cancellation_enabled",
-                "padding2" = EXCLUDED."padding2",
+                "disable_nonce_block" = EXCLUDED."disable_nonce_block",
                 "reserve_rewards_max_apr_bps" = EXCLUDED."reserve_rewards_max_apr_bps",
                 "min_withdraw_queued_liquidity_value" = EXCLUDED."min_withdraw_queued_liquidity_value",
                 "fixed_term_rollover_window_duration_seconds" = EXCLUDED."fixed_term_rollover_window_duration_seconds",
@@ -723,6 +731,7 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
                 "term_based_full_liquidation_duration_secs" = EXCLUDED."term_based_full_liquidation_duration_secs",
                 "permissioning_authority" = EXCLUDED."permissioning_authority",
                 "permissioned_ops" = EXCLUDED."permissioned_ops",
+                "min_obligation_order_execution_value" = EXCLUDED."min_obligation_order_execution_value",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
@@ -769,7 +778,7 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
         .bind(self.obligation_borrow_rollover_configuration_enabled)
         .bind(self.obligation_borrow_migration_to_fixed_execution_enabled)
         .bind(self.withdraw_ticket_cancellation_enabled)
-        .bind(&self.padding2)
+        .bind(self.disable_nonce_block)
         .bind(self.reserve_rewards_max_apr_bps)
         .bind(&self.min_withdraw_queued_liquidity_value)
         .bind(&self.fixed_term_rollover_window_duration_seconds)
@@ -778,6 +787,7 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
         .bind(&self.term_based_full_liquidation_duration_secs)
         .bind(self.permissioning_authority)
         .bind(&self.permissioned_ops)
+        .bind(&self.min_obligation_order_execution_value)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -878,7 +888,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingMarketMigrationOperatio
                 "obligation_borrow_rollover_configuration_enabled" INT2 NOT NULL,
                 "obligation_borrow_migration_to_fixed_execution_enabled" INT2 NOT NULL,
                 "withdraw_ticket_cancellation_enabled" INT2 NOT NULL,
-                "padding2" BYTEA NOT NULL,
+                "disable_nonce_block" INT2 NOT NULL,
                 "reserve_rewards_max_apr_bps" INT4 NOT NULL,
                 "min_withdraw_queued_liquidity_value" NUMERIC(20) NOT NULL,
                 "fixed_term_rollover_window_duration_seconds" NUMERIC(20) NOT NULL,
@@ -887,6 +897,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingMarketMigrationOperatio
                 "term_based_full_liquidation_duration_secs" NUMERIC(20) NOT NULL,
                 "permissioning_authority" BYTEA NOT NULL,
                 "permissioned_ops" NUMERIC(20) NOT NULL,
+                "min_obligation_order_execution_value" NUMERIC(20) NOT NULL,
                 "padding1" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

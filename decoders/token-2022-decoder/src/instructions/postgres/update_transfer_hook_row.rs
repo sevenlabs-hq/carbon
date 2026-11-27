@@ -21,7 +21,7 @@ impl UpdateTransferHookRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            program_id: source.program_id.map(|value| value.into()),
+            program_id: source.program_id.0.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -33,7 +33,7 @@ impl TryFrom<UpdateTransferHookRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: UpdateTransferHookRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            program_id: source.program_id.map(|value| *value),
+            program_id: source.program_id.map(|value| *value).into(),
         })
     }
 }

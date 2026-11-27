@@ -9,6 +9,7 @@ pub struct LendingAccountEndFlashloan {}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LendingAccountEndFlashloanInstructionAccounts {
     pub marginfi_account: solana_pubkey::Pubkey,
+    pub group: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
@@ -40,12 +41,14 @@ impl ArrangeAccounts for LendingAccountEndFlashloan {
         let mut iter = accounts.iter();
 
         let marginfi_account = next_account(&mut iter)?;
+        let group = next_account(&mut iter)?;
         let authority = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(LendingAccountEndFlashloanInstructionAccounts {
             marginfi_account,
+            group,
             authority,
             remaining: remaining.to_vec(),
         })

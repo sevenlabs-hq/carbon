@@ -3,23 +3,20 @@ pub mod bank_metadata_row;
 pub mod bank_row;
 pub mod execute_order_record_row;
 pub mod fee_state_row;
-pub mod lending_row;
 pub mod liquidation_record_row;
 pub mod marginfi_account_row;
 pub mod marginfi_group_row;
-pub mod minimal_obligation_row;
-pub mod minimal_reserve_row;
-pub mod minimal_spot_market_row;
-pub mod minimal_user_row;
 pub mod order_row;
-pub mod solend_minimal_reserve_row;
+pub mod rebalance_order_row;
+pub mod rebalance_record_row;
+pub mod same_asset_emode_registry_row;
 pub mod staked_settings_row;
 
 pub use self::{
     bank_metadata_row::*, bank_row::*, execute_order_record_row::*, fee_state_row::*,
-    lending_row::*, liquidation_record_row::*, marginfi_account_row::*, marginfi_group_row::*,
-    minimal_obligation_row::*, minimal_reserve_row::*, minimal_spot_market_row::*,
-    minimal_user_row::*, order_row::*, solend_minimal_reserve_row::*, staked_settings_row::*,
+    liquidation_record_row::*, marginfi_account_row::*, marginfi_group_row::*, order_row::*,
+    rebalance_order_row::*, rebalance_record_row::*, same_asset_emode_registry_row::*,
+    staked_settings_row::*,
 };
 use super::MarginfiV2Account;
 
@@ -40,16 +37,13 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MarginfiV2AccountsMigration {
             Box::new(BankMetadataMigrationOperation),
             Box::new(ExecuteOrderRecordMigrationOperation),
             Box::new(FeeStateMigrationOperation),
-            Box::new(LendingMigrationOperation),
             Box::new(LiquidationRecordMigrationOperation),
             Box::new(MarginfiAccountMigrationOperation),
             Box::new(MarginfiGroupMigrationOperation),
-            Box::new(MinimalObligationMigrationOperation),
-            Box::new(MinimalReserveMigrationOperation),
-            Box::new(MinimalSpotMarketMigrationOperation),
-            Box::new(MinimalUserMigrationOperation),
             Box::new(OrderMigrationOperation),
-            Box::new(SolendMinimalReserveMigrationOperation),
+            Box::new(RebalanceOrderMigrationOperation),
+            Box::new(RebalanceRecordMigrationOperation),
+            Box::new(SameAssetEmodeRegistryMigrationOperation),
             Box::new(StakedSettingsMigrationOperation),
         ]
     }
@@ -105,11 +99,6 @@ impl carbon_core::postgres::operations::Insert for MarginfiV2AccountWithMetadata
                 row.insert(pool).await?;
                 Ok(())
             }
-            MarginfiV2Account::Lending(account) => {
-                let row = lending_row::LendingRow::from_parts(*account.clone(), metadata.clone());
-                row.insert(pool).await?;
-                Ok(())
-            }
             MarginfiV2Account::LiquidationRecord(account) => {
                 let row = liquidation_record_row::LiquidationRecordRow::from_parts(
                     *account.clone(),
@@ -134,45 +123,29 @@ impl carbon_core::postgres::operations::Insert for MarginfiV2AccountWithMetadata
                 row.insert(pool).await?;
                 Ok(())
             }
-            MarginfiV2Account::MinimalObligation(account) => {
-                let row = minimal_obligation_row::MinimalObligationRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MarginfiV2Account::MinimalReserve(account) => {
-                let row = minimal_reserve_row::MinimalReserveRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MarginfiV2Account::MinimalSpotMarket(account) => {
-                let row = minimal_spot_market_row::MinimalSpotMarketRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            MarginfiV2Account::MinimalUser(account) => {
-                let row = minimal_user_row::MinimalUserRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
             MarginfiV2Account::Order(account) => {
                 let row = order_row::OrderRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            MarginfiV2Account::SolendMinimalReserve(account) => {
-                let row = solend_minimal_reserve_row::SolendMinimalReserveRow::from_parts(
+            MarginfiV2Account::RebalanceOrder(account) => {
+                let row = rebalance_order_row::RebalanceOrderRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MarginfiV2Account::RebalanceRecord(account) => {
+                let row = rebalance_record_row::RebalanceRecordRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MarginfiV2Account::SameAssetEmodeRegistry(account) => {
+                let row = same_asset_emode_registry_row::SameAssetEmodeRegistryRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
                 );
@@ -223,11 +196,6 @@ impl carbon_core::postgres::operations::Upsert for MarginfiV2AccountWithMetadata
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MarginfiV2Account::Lending(account) => {
-                let row = lending_row::LendingRow::from_parts(*account.clone(), metadata.clone());
-                row.upsert(pool).await?;
-                Ok(())
-            }
             MarginfiV2Account::LiquidationRecord(account) => {
                 let row = liquidation_record_row::LiquidationRecordRow::from_parts(
                     *account.clone(),
@@ -252,45 +220,29 @@ impl carbon_core::postgres::operations::Upsert for MarginfiV2AccountWithMetadata
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MarginfiV2Account::MinimalObligation(account) => {
-                let row = minimal_obligation_row::MinimalObligationRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MarginfiV2Account::MinimalReserve(account) => {
-                let row = minimal_reserve_row::MinimalReserveRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MarginfiV2Account::MinimalSpotMarket(account) => {
-                let row = minimal_spot_market_row::MinimalSpotMarketRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            MarginfiV2Account::MinimalUser(account) => {
-                let row = minimal_user_row::MinimalUserRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
             MarginfiV2Account::Order(account) => {
                 let row = order_row::OrderRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MarginfiV2Account::SolendMinimalReserve(account) => {
-                let row = solend_minimal_reserve_row::SolendMinimalReserveRow::from_parts(
+            MarginfiV2Account::RebalanceOrder(account) => {
+                let row = rebalance_order_row::RebalanceOrderRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MarginfiV2Account::RebalanceRecord(account) => {
+                let row = rebalance_record_row::RebalanceRecordRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MarginfiV2Account::SameAssetEmodeRegistry(account) => {
+                let row = same_asset_emode_registry_row::SameAssetEmodeRegistryRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
                 );

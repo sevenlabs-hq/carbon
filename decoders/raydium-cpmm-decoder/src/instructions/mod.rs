@@ -7,15 +7,22 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod close_creator_fee_share;
 pub mod close_permission_pda;
+pub mod close_support_mint_associated;
 pub mod collect_creator_fee;
+pub mod collect_creator_fee_permissionless;
+pub mod collect_excess_lamports;
 pub mod collect_fund_fee;
 pub mod collect_protocol_fee;
 pub mod cpi_event;
 pub mod create_amm_config;
+pub mod create_creator_fee_share;
 pub mod create_permission_pda;
+pub mod create_support_mint_associated;
 pub mod deposit;
 pub mod initialize;
+pub mod initialize_v2;
 pub mod initialize_with_permission;
 pub mod swap_base_input;
 pub mod swap_base_output;
@@ -24,10 +31,12 @@ pub mod update_pool_status;
 pub mod withdraw;
 
 pub use self::{
-    close_permission_pda::*, collect_creator_fee::*, collect_fund_fee::*, collect_protocol_fee::*,
-    cpi_event::*, create_amm_config::*, create_permission_pda::*, deposit::*, initialize::*,
-    initialize_with_permission::*, swap_base_input::*, swap_base_output::*, update_amm_config::*,
-    update_pool_status::*, withdraw::*,
+    close_creator_fee_share::*, close_permission_pda::*, close_support_mint_associated::*,
+    collect_creator_fee::*, collect_creator_fee_permissionless::*, collect_excess_lamports::*,
+    collect_fund_fee::*, collect_protocol_fee::*, cpi_event::*, create_amm_config::*,
+    create_creator_fee_share::*, create_permission_pda::*, create_support_mint_associated::*,
+    deposit::*, initialize::*, initialize_v2::*, initialize_with_permission::*, swap_base_input::*,
+    swap_base_output::*, update_amm_config::*, update_pool_status::*, withdraw::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -35,15 +44,35 @@ pub use self::{
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 #[cfg_attr(feature = "serde", derive(carbon_core::InstructionType))]
 pub enum RaydiumCpmmInstruction {
+    CloseCreatorFeeShare {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseCreatorFeeShare,
+        accounts: CloseCreatorFeeShareInstructionAccounts,
+    },
     ClosePermissionPda {
         program_id: solana_pubkey::Pubkey,
         data: ClosePermissionPda,
         accounts: ClosePermissionPdaInstructionAccounts,
     },
+    CloseSupportMintAssociated {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseSupportMintAssociated,
+        accounts: CloseSupportMintAssociatedInstructionAccounts,
+    },
     CollectCreatorFee {
         program_id: solana_pubkey::Pubkey,
         data: CollectCreatorFee,
         accounts: CollectCreatorFeeInstructionAccounts,
+    },
+    CollectCreatorFeePermissionless {
+        program_id: solana_pubkey::Pubkey,
+        data: CollectCreatorFeePermissionless,
+        accounts: CollectCreatorFeePermissionlessInstructionAccounts,
+    },
+    CollectExcessLamports {
+        program_id: solana_pubkey::Pubkey,
+        data: CollectExcessLamports,
+        accounts: CollectExcessLamportsInstructionAccounts,
     },
     CollectFundFee {
         program_id: solana_pubkey::Pubkey,
@@ -60,10 +89,20 @@ pub enum RaydiumCpmmInstruction {
         data: CreateAmmConfig,
         accounts: CreateAmmConfigInstructionAccounts,
     },
+    CreateCreatorFeeShare {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateCreatorFeeShare,
+        accounts: CreateCreatorFeeShareInstructionAccounts,
+    },
     CreatePermissionPda {
         program_id: solana_pubkey::Pubkey,
         data: CreatePermissionPda,
         accounts: CreatePermissionPdaInstructionAccounts,
+    },
+    CreateSupportMintAssociated {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateSupportMintAssociated,
+        accounts: CreateSupportMintAssociatedInstructionAccounts,
     },
     Deposit {
         program_id: solana_pubkey::Pubkey,
@@ -74,6 +113,11 @@ pub enum RaydiumCpmmInstruction {
         program_id: solana_pubkey::Pubkey,
         data: Initialize,
         accounts: InitializeInstructionAccounts,
+    },
+    InitializeV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeV2,
+        accounts: InitializeV2InstructionAccounts,
     },
     InitializeWithPermission {
         program_id: solana_pubkey::Pubkey,
@@ -126,21 +170,28 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumCpmmDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            RaydiumCpmmInstruction::CpiEvent => CpiEvent,
+            RaydiumCpmmInstruction::CloseCreatorFeeShare => CloseCreatorFeeShare,
             RaydiumCpmmInstruction::ClosePermissionPda => ClosePermissionPda,
+            RaydiumCpmmInstruction::CloseSupportMintAssociated => CloseSupportMintAssociated,
             RaydiumCpmmInstruction::CollectCreatorFee => CollectCreatorFee,
+            RaydiumCpmmInstruction::CollectCreatorFeePermissionless => CollectCreatorFeePermissionless,
+            RaydiumCpmmInstruction::CollectExcessLamports => CollectExcessLamports,
             RaydiumCpmmInstruction::CollectFundFee => CollectFundFee,
             RaydiumCpmmInstruction::CollectProtocolFee => CollectProtocolFee,
             RaydiumCpmmInstruction::CreateAmmConfig => CreateAmmConfig,
+            RaydiumCpmmInstruction::CreateCreatorFeeShare => CreateCreatorFeeShare,
             RaydiumCpmmInstruction::CreatePermissionPda => CreatePermissionPda,
+            RaydiumCpmmInstruction::CreateSupportMintAssociated => CreateSupportMintAssociated,
             RaydiumCpmmInstruction::Deposit => Deposit,
             RaydiumCpmmInstruction::Initialize => Initialize,
+            RaydiumCpmmInstruction::InitializeV2 => InitializeV2,
             RaydiumCpmmInstruction::InitializeWithPermission => InitializeWithPermission,
             RaydiumCpmmInstruction::SwapBaseInput => SwapBaseInput,
             RaydiumCpmmInstruction::SwapBaseOutput => SwapBaseOutput,
             RaydiumCpmmInstruction::UpdateAmmConfig => UpdateAmmConfig,
             RaydiumCpmmInstruction::UpdatePoolStatus => UpdatePoolStatus,
             RaydiumCpmmInstruction::Withdraw => Withdraw,
-            RaydiumCpmmInstruction::CpiEvent => CpiEvent,
         )
     }
 }

@@ -17,8 +17,10 @@ pub mod init_liquidity;
 pub mod init_new_protocol;
 pub mod init_token_reserve;
 pub mod operate;
+pub mod pause_token;
 pub mod pause_user;
 pub mod pre_operate;
+pub mod unpause_token;
 pub mod unpause_user;
 pub mod update_authority;
 pub mod update_auths;
@@ -36,11 +38,11 @@ pub mod update_user_withdrawal_limit;
 pub use self::{
     change_status::*, claim::*, close_claim_account::*, collect_revenue::*, cpi_event::*,
     init_claim_account::*, init_liquidity::*, init_new_protocol::*, init_token_reserve::*,
-    operate::*, pause_user::*, pre_operate::*, unpause_user::*, update_authority::*,
-    update_auths::*, update_exchange_price::*, update_guardians::*, update_rate_data_v1::*,
-    update_rate_data_v2::*, update_revenue_collector::*, update_token_config::*,
-    update_user_borrow_config::*, update_user_class::*, update_user_supply_config::*,
-    update_user_withdrawal_limit::*,
+    operate::*, pause_token::*, pause_user::*, pre_operate::*, unpause_token::*, unpause_user::*,
+    update_authority::*, update_auths::*, update_exchange_price::*, update_guardians::*,
+    update_rate_data_v1::*, update_rate_data_v2::*, update_revenue_collector::*,
+    update_token_config::*, update_user_borrow_config::*, update_user_class::*,
+    update_user_supply_config::*, update_user_withdrawal_limit::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -93,6 +95,11 @@ pub enum JupiterLendInstruction {
         data: Operate,
         accounts: OperateInstructionAccounts,
     },
+    PauseToken {
+        program_id: solana_pubkey::Pubkey,
+        data: PauseToken,
+        accounts: PauseTokenInstructionAccounts,
+    },
     PauseUser {
         program_id: solana_pubkey::Pubkey,
         data: PauseUser,
@@ -102,6 +109,11 @@ pub enum JupiterLendInstruction {
         program_id: solana_pubkey::Pubkey,
         data: PreOperate,
         accounts: PreOperateInstructionAccounts,
+    },
+    UnpauseToken {
+        program_id: solana_pubkey::Pubkey,
+        data: UnpauseToken,
+        accounts: UnpauseTokenInstructionAccounts,
     },
     UnpauseUser {
         program_id: solana_pubkey::Pubkey,
@@ -189,6 +201,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterLendDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            JupiterLendInstruction::CpiEvent => CpiEvent,
             JupiterLendInstruction::ChangeStatus => ChangeStatus,
             JupiterLendInstruction::Claim => Claim,
             JupiterLendInstruction::CloseClaimAccount => CloseClaimAccount,
@@ -198,8 +211,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterLendDecoder {
             JupiterLendInstruction::InitNewProtocol => InitNewProtocol,
             JupiterLendInstruction::InitTokenReserve => InitTokenReserve,
             JupiterLendInstruction::Operate => Operate,
+            JupiterLendInstruction::PauseToken => PauseToken,
             JupiterLendInstruction::PauseUser => PauseUser,
             JupiterLendInstruction::PreOperate => PreOperate,
+            JupiterLendInstruction::UnpauseToken => UnpauseToken,
             JupiterLendInstruction::UnpauseUser => UnpauseUser,
             JupiterLendInstruction::UpdateAuthority => UpdateAuthority,
             JupiterLendInstruction::UpdateAuths => UpdateAuths,
@@ -213,7 +228,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterLendDecoder {
             JupiterLendInstruction::UpdateUserClass => UpdateUserClass,
             JupiterLendInstruction::UpdateUserSupplyConfig => UpdateUserSupplyConfig,
             JupiterLendInstruction::UpdateUserWithdrawalLimit => UpdateUserWithdrawalLimit,
-            JupiterLendInstruction::CpiEvent => CpiEvent,
         )
     }
 }

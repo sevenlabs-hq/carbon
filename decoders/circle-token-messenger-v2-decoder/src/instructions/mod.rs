@@ -196,6 +196,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for CircleTokenMessengerV2
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            CircleTokenMessengerV2Instruction::CpiEvent => CpiEvent,
             CircleTokenMessengerV2Instruction::AcceptOwnership => AcceptOwnership,
             CircleTokenMessengerV2Instruction::AddLocalToken => AddLocalToken,
             CircleTokenMessengerV2Instruction::AddRemoteTokenMessenger => AddRemoteTokenMessenger,
@@ -221,7 +222,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for CircleTokenMessengerV2
             CircleTokenMessengerV2Instruction::Unpause => Unpause,
             CircleTokenMessengerV2Instruction::UpdateDenylister => UpdateDenylister,
             CircleTokenMessengerV2Instruction::UpdatePauser => UpdatePauser,
-            CircleTokenMessengerV2Instruction::CpiEvent => CpiEvent,
         )
     }
 }

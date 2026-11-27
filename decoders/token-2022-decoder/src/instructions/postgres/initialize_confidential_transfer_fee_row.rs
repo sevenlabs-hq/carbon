@@ -9,7 +9,7 @@ pub struct InitializeConfidentialTransferFeeRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     pub authority: Option<Pubkey>,
-    pub withdraw_withheld_authority_el_gamal_pubkey: Option<Pubkey>,
+    pub withdraw_withheld_authority_el_gamal_pubkey: Pubkey,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -22,10 +22,10 @@ impl InitializeConfidentialTransferFeeRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            authority: source.authority.map(|value| value.into()),
+            authority: source.authority.0.map(|value| value.into()),
             withdraw_withheld_authority_el_gamal_pubkey: source
                 .withdraw_withheld_authority_el_gamal_pubkey
-                .map(|value| value.into()),
+                .into(),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -37,10 +37,9 @@ impl TryFrom<InitializeConfidentialTransferFeeRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeConfidentialTransferFeeRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            authority: source.authority.map(|value| *value),
-            withdraw_withheld_authority_el_gamal_pubkey: source
-                .withdraw_withheld_authority_el_gamal_pubkey
-                .map(|value| *value),
+            authority: source.authority.map(|value| *value).into(),
+            withdraw_withheld_authority_el_gamal_pubkey: *source
+                .withdraw_withheld_authority_el_gamal_pubkey,
         })
     }
 }
@@ -184,7 +183,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
             r#"CREATE TABLE IF NOT EXISTS initialize_confidential_transfer_fee_instruction (
                 -- Instruction data
                 "authority" BYTEA,
-                "withdraw_withheld_authority_el_gamal_pubkey" BYTEA,
+                "withdraw_withheld_authority_el_gamal_pubkey" BYTEA NOT NULL,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

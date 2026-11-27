@@ -38,8 +38,9 @@ pub struct ObligationGraphQL {
     pub highest_borrow_factor_pct: U64,
     pub autodeleverage_margin_call_started_timestamp: U64,
     pub obligation_orders: Vec<ObligationOrderGraphQL>,
-    pub borrow_order: BorrowOrderGraphQL,
+    pub head_borrow_order: BorrowOrderGraphQL,
     pub pending_owner: Pubkey,
+    pub tail_borrow_orders: Vec<BorrowOrderGraphQL>,
     pub padding3: Vec<U64>,
 }
 
@@ -113,8 +114,14 @@ impl TryFrom<crate::accounts::postgres::ObligationRow> for ObligationGraphQL {
                 .into_iter()
                 .map(|item| item.into())
                 .collect(),
-            borrow_order: row.borrow_order.0.into(),
+            head_borrow_order: row.head_borrow_order.0.into(),
             pending_owner: carbon_core::graphql::primitives::Pubkey(row.pending_owner.0),
+            tail_borrow_orders: row
+                .tail_borrow_orders
+                .0
+                .into_iter()
+                .map(|item| item.into())
+                .collect(),
             padding3: row
                 .padding3
                 .into_iter()

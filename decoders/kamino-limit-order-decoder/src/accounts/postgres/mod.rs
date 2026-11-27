@@ -57,6 +57,14 @@ impl carbon_core::postgres::operations::Insert for KaminoLimitOrderAccountWithMe
         let KaminoLimitOrderAccountWithMetadata(account, metadata) = self;
 
         match account {
+            KaminoLimitOrderAccount::GlobalConfig(account) => {
+                let row = global_config_row::GlobalConfigRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             KaminoLimitOrderAccount::Order(account) => {
                 let row = order_row::OrderRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
@@ -64,14 +72,6 @@ impl carbon_core::postgres::operations::Insert for KaminoLimitOrderAccountWithMe
             }
             KaminoLimitOrderAccount::UserSwapBalancesState(account) => {
                 let row = user_swap_balances_state_row::UserSwapBalancesStateRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.insert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderAccount::GlobalConfig(account) => {
-                let row = global_config_row::GlobalConfigRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
                 );
@@ -87,6 +87,14 @@ impl carbon_core::postgres::operations::Upsert for KaminoLimitOrderAccountWithMe
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         let KaminoLimitOrderAccountWithMetadata(account, metadata) = self;
         match account {
+            KaminoLimitOrderAccount::GlobalConfig(account) => {
+                let row = global_config_row::GlobalConfigRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             KaminoLimitOrderAccount::Order(account) => {
                 let row = order_row::OrderRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
@@ -94,14 +102,6 @@ impl carbon_core::postgres::operations::Upsert for KaminoLimitOrderAccountWithMe
             }
             KaminoLimitOrderAccount::UserSwapBalancesState(account) => {
                 let row = user_swap_balances_state_row::UserSwapBalancesStateRow::from_parts(
-                    *account.clone(),
-                    metadata.clone(),
-                );
-                row.upsert(pool).await?;
-                Ok(())
-            }
-            KaminoLimitOrderAccount::GlobalConfig(account) => {
-                let row = global_config_row::GlobalConfigRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
                 );

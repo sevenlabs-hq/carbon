@@ -8,28 +8,51 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod burn;
+pub mod burn_v2;
 pub mod cancel_redeem;
+pub mod close_tree_v2;
+pub mod collect_v2;
+pub mod compress;
 pub mod create_tree;
+pub mod create_tree_v2;
 pub mod decompress_v1;
 pub mod delegate;
+pub mod delegate_and_freeze_v2;
+pub mod delegate_v2;
+pub mod freeze_v2;
 pub mod mint_to_collection_v1;
 pub mod mint_v1;
+pub mod mint_v2;
 pub mod redeem;
 pub mod set_and_verify_collection;
+pub mod set_collection_v2;
+pub mod set_decompressable_state;
 pub mod set_decompressible_state;
+pub mod set_non_transferable_v2;
 pub mod set_tree_delegate;
+pub mod thaw_and_revoke_v2;
+pub mod thaw_v2;
 pub mod transfer;
+pub mod transfer_v2;
 pub mod unverify_collection;
 pub mod unverify_creator;
+pub mod unverify_creator_v2;
+pub mod update_asset_data_v2;
 pub mod update_metadata;
+pub mod update_metadata_v2;
 pub mod verify_collection;
 pub mod verify_creator;
+pub mod verify_creator_v2;
 
 pub use self::{
-    burn::*, cancel_redeem::*, create_tree::*, decompress_v1::*, delegate::*,
-    mint_to_collection_v1::*, mint_v1::*, redeem::*, set_and_verify_collection::*,
-    set_decompressible_state::*, set_tree_delegate::*, transfer::*, unverify_collection::*,
-    unverify_creator::*, update_metadata::*, verify_collection::*, verify_creator::*,
+    burn::*, burn_v2::*, cancel_redeem::*, close_tree_v2::*, collect_v2::*, compress::*,
+    create_tree::*, create_tree_v2::*, decompress_v1::*, delegate::*, delegate_and_freeze_v2::*,
+    delegate_v2::*, freeze_v2::*, mint_to_collection_v1::*, mint_v1::*, mint_v2::*, redeem::*,
+    set_and_verify_collection::*, set_collection_v2::*, set_decompressable_state::*,
+    set_decompressible_state::*, set_non_transferable_v2::*, set_tree_delegate::*,
+    thaw_and_revoke_v2::*, thaw_v2::*, transfer::*, transfer_v2::*, unverify_collection::*,
+    unverify_creator::*, unverify_creator_v2::*, update_asset_data_v2::*, update_metadata::*,
+    update_metadata_v2::*, verify_collection::*, verify_creator::*, verify_creator_v2::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -42,15 +65,40 @@ pub enum BubblegumInstruction {
         data: Burn,
         accounts: BurnInstructionAccounts,
     },
+    BurnV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: BurnV2,
+        accounts: BurnV2InstructionAccounts,
+    },
     CancelRedeem {
         program_id: solana_pubkey::Pubkey,
         data: CancelRedeem,
         accounts: CancelRedeemInstructionAccounts,
     },
+    CloseTreeV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseTreeV2,
+        accounts: CloseTreeV2InstructionAccounts,
+    },
+    CollectV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: CollectV2,
+        accounts: CollectV2InstructionAccounts,
+    },
+    Compress {
+        program_id: solana_pubkey::Pubkey,
+        data: Compress,
+        accounts: CompressInstructionAccounts,
+    },
     CreateTree {
         program_id: solana_pubkey::Pubkey,
         data: CreateTree,
         accounts: CreateTreeInstructionAccounts,
+    },
+    CreateTreeV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateTreeV2,
+        accounts: CreateTreeV2InstructionAccounts,
     },
     DecompressV1 {
         program_id: solana_pubkey::Pubkey,
@@ -62,6 +110,21 @@ pub enum BubblegumInstruction {
         data: Delegate,
         accounts: DelegateInstructionAccounts,
     },
+    DelegateAndFreezeV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: DelegateAndFreezeV2,
+        accounts: DelegateAndFreezeV2InstructionAccounts,
+    },
+    DelegateV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: DelegateV2,
+        accounts: DelegateV2InstructionAccounts,
+    },
+    FreezeV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: FreezeV2,
+        accounts: FreezeV2InstructionAccounts,
+    },
     MintToCollectionV1 {
         program_id: solana_pubkey::Pubkey,
         data: MintToCollectionV1,
@@ -71,6 +134,11 @@ pub enum BubblegumInstruction {
         program_id: solana_pubkey::Pubkey,
         data: MintV1,
         accounts: MintV1InstructionAccounts,
+    },
+    MintV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: MintV2,
+        accounts: MintV2InstructionAccounts,
     },
     Redeem {
         program_id: solana_pubkey::Pubkey,
@@ -82,20 +150,50 @@ pub enum BubblegumInstruction {
         data: SetAndVerifyCollection,
         accounts: SetAndVerifyCollectionInstructionAccounts,
     },
+    SetCollectionV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SetCollectionV2,
+        accounts: SetCollectionV2InstructionAccounts,
+    },
+    SetDecompressableState {
+        program_id: solana_pubkey::Pubkey,
+        data: SetDecompressableState,
+        accounts: SetDecompressableStateInstructionAccounts,
+    },
     SetDecompressibleState {
         program_id: solana_pubkey::Pubkey,
         data: SetDecompressibleState,
         accounts: SetDecompressibleStateInstructionAccounts,
+    },
+    SetNonTransferableV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SetNonTransferableV2,
+        accounts: SetNonTransferableV2InstructionAccounts,
     },
     SetTreeDelegate {
         program_id: solana_pubkey::Pubkey,
         data: SetTreeDelegate,
         accounts: SetTreeDelegateInstructionAccounts,
     },
+    ThawAndRevokeV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: ThawAndRevokeV2,
+        accounts: ThawAndRevokeV2InstructionAccounts,
+    },
+    ThawV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: ThawV2,
+        accounts: ThawV2InstructionAccounts,
+    },
     Transfer {
         program_id: solana_pubkey::Pubkey,
         data: Transfer,
         accounts: TransferInstructionAccounts,
+    },
+    TransferV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: TransferV2,
+        accounts: TransferV2InstructionAccounts,
     },
     UnverifyCollection {
         program_id: solana_pubkey::Pubkey,
@@ -107,10 +205,25 @@ pub enum BubblegumInstruction {
         data: UnverifyCreator,
         accounts: UnverifyCreatorInstructionAccounts,
     },
+    UnverifyCreatorV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: UnverifyCreatorV2,
+        accounts: UnverifyCreatorV2InstructionAccounts,
+    },
+    UpdateAssetDataV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateAssetDataV2,
+        accounts: UpdateAssetDataV2InstructionAccounts,
+    },
     UpdateMetadata {
         program_id: solana_pubkey::Pubkey,
         data: UpdateMetadata,
         accounts: UpdateMetadataInstructionAccounts,
+    },
+    UpdateMetadataV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateMetadataV2,
+        accounts: UpdateMetadataV2InstructionAccounts,
     },
     VerifyCollection {
         program_id: solana_pubkey::Pubkey,
@@ -121,6 +234,11 @@ pub enum BubblegumInstruction {
         program_id: solana_pubkey::Pubkey,
         data: VerifyCreator,
         accounts: VerifyCreatorInstructionAccounts,
+    },
+    VerifyCreatorV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: VerifyCreatorV2,
+        accounts: VerifyCreatorV2InstructionAccounts,
     },
 }
 
@@ -139,22 +257,41 @@ impl carbon_core::instruction::InstructionDecoder<'_> for BubblegumDecoder {
             instruction,
             PROGRAM_ID,
             BubblegumInstruction::Burn => Burn,
+            BubblegumInstruction::BurnV2 => BurnV2,
             BubblegumInstruction::CancelRedeem => CancelRedeem,
+            BubblegumInstruction::CloseTreeV2 => CloseTreeV2,
+            BubblegumInstruction::CollectV2 => CollectV2,
+            BubblegumInstruction::Compress => Compress,
             BubblegumInstruction::CreateTree => CreateTree,
+            BubblegumInstruction::CreateTreeV2 => CreateTreeV2,
             BubblegumInstruction::DecompressV1 => DecompressV1,
             BubblegumInstruction::Delegate => Delegate,
+            BubblegumInstruction::DelegateAndFreezeV2 => DelegateAndFreezeV2,
+            BubblegumInstruction::DelegateV2 => DelegateV2,
+            BubblegumInstruction::FreezeV2 => FreezeV2,
             BubblegumInstruction::MintToCollectionV1 => MintToCollectionV1,
             BubblegumInstruction::MintV1 => MintV1,
+            BubblegumInstruction::MintV2 => MintV2,
             BubblegumInstruction::Redeem => Redeem,
             BubblegumInstruction::SetAndVerifyCollection => SetAndVerifyCollection,
+            BubblegumInstruction::SetCollectionV2 => SetCollectionV2,
+            BubblegumInstruction::SetDecompressableState => SetDecompressableState,
             BubblegumInstruction::SetDecompressibleState => SetDecompressibleState,
+            BubblegumInstruction::SetNonTransferableV2 => SetNonTransferableV2,
             BubblegumInstruction::SetTreeDelegate => SetTreeDelegate,
+            BubblegumInstruction::ThawAndRevokeV2 => ThawAndRevokeV2,
+            BubblegumInstruction::ThawV2 => ThawV2,
             BubblegumInstruction::Transfer => Transfer,
+            BubblegumInstruction::TransferV2 => TransferV2,
             BubblegumInstruction::UnverifyCollection => UnverifyCollection,
             BubblegumInstruction::UnverifyCreator => UnverifyCreator,
+            BubblegumInstruction::UnverifyCreatorV2 => UnverifyCreatorV2,
+            BubblegumInstruction::UpdateAssetDataV2 => UpdateAssetDataV2,
             BubblegumInstruction::UpdateMetadata => UpdateMetadata,
+            BubblegumInstruction::UpdateMetadataV2 => UpdateMetadataV2,
             BubblegumInstruction::VerifyCollection => VerifyCollection,
             BubblegumInstruction::VerifyCreator => VerifyCreator,
+            BubblegumInstruction::VerifyCreatorV2 => VerifyCreatorV2,
         )
     }
 }

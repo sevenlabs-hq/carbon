@@ -9,7 +9,7 @@ pub struct LiquidateObligationAndRedeemReserveCollateralRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     pub liquidity_amount: U64,
-    pub min_acceptable_received_liquidity_amount: U64,
+    pub min_received_liquidity_amount: U64,
     pub max_allowed_ltv_override_percent: U64,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
@@ -24,9 +24,7 @@ impl LiquidateObligationAndRedeemReserveCollateralRow {
         Self {
             instruction_metadata: metadata.into(),
             liquidity_amount: source.liquidity_amount.into(),
-            min_acceptable_received_liquidity_amount: source
-                .min_acceptable_received_liquidity_amount
-                .into(),
+            min_received_liquidity_amount: source.min_received_liquidity_amount.into(),
             max_allowed_ltv_override_percent: source.max_allowed_ltv_override_percent.into(),
             accounts: sqlx::types::Json(accounts),
         }
@@ -38,7 +36,7 @@ impl TryFrom<LiquidateObligationAndRedeemReserveCollateralRow> for crate::instru
     fn try_from(source: LiquidateObligationAndRedeemReserveCollateralRow) -> Result<Self, Self::Error> {
         Ok(Self {
             liquidity_amount: *source.liquidity_amount,
-            min_acceptable_received_liquidity_amount: *source.min_acceptable_received_liquidity_amount,
+            min_received_liquidity_amount: *source.min_received_liquidity_amount,
             max_allowed_ltv_override_percent: *source.max_allowed_ltv_override_percent,
         })
     }
@@ -57,7 +55,7 @@ impl carbon_core::postgres::operations::Table for crate::instructions::liquidate
             "__absolute_path",
             "__slot",
             "liquidity_amount",
-            "min_acceptable_received_liquidity_amount",
+            "min_received_liquidity_amount",
             "max_allowed_ltv_override_percent",
             "__accounts",
         ]
@@ -73,7 +71,7 @@ impl carbon_core::postgres::operations::Insert
             r#"
             INSERT INTO liquidate_obligation_and_redeem_reserve_collateral_instruction (
                 "liquidity_amount",
-                "min_acceptable_received_liquidity_amount",
+                "min_received_liquidity_amount",
                 "max_allowed_ltv_override_percent",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
@@ -82,7 +80,7 @@ impl carbon_core::postgres::operations::Insert
             )"#,
         )
         .bind(&self.liquidity_amount)
-        .bind(&self.min_acceptable_received_liquidity_amount)
+        .bind(&self.min_received_liquidity_amount)
         .bind(&self.max_allowed_ltv_override_percent)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
@@ -102,9 +100,10 @@ impl carbon_core::postgres::operations::Upsert
     for LiquidateObligationAndRedeemReserveCollateralRow
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO liquidate_obligation_and_redeem_reserve_collateral_instruction (
+        sqlx::query(
+            r#"INSERT INTO liquidate_obligation_and_redeem_reserve_collateral_instruction (
                 "liquidity_amount",
-                "min_acceptable_received_liquidity_amount",
+                "min_received_liquidity_amount",
                 "max_allowed_ltv_override_percent",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
@@ -114,15 +113,16 @@ impl carbon_core::postgres::operations::Upsert
                 __signature, __absolute_path
             ) DO UPDATE SET
                 "liquidity_amount" = EXCLUDED."liquidity_amount",
-                "min_acceptable_received_liquidity_amount" = EXCLUDED."min_acceptable_received_liquidity_amount",
+                "min_received_liquidity_amount" = EXCLUDED."min_received_liquidity_amount",
                 "max_allowed_ltv_override_percent" = EXCLUDED."max_allowed_ltv_override_percent",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
                 __accounts = EXCLUDED.__accounts
-            "#)
+            "#,
+        )
         .bind(&self.liquidity_amount)
-        .bind(&self.min_acceptable_received_liquidity_amount)
+        .bind(&self.min_received_liquidity_amount)
         .bind(&self.max_allowed_ltv_override_percent)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
@@ -130,7 +130,8 @@ impl carbon_core::postgres::operations::Upsert
         .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -194,7 +195,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         sqlx::query(r#"CREATE TABLE IF NOT EXISTS liquidate_obligation_and_redeem_reserve_collateral_instruction (
                 -- Instruction data
                 "liquidity_amount" NUMERIC(20) NOT NULL,
-                "min_acceptable_received_liquidity_amount" NUMERIC(20) NOT NULL,
+                "min_received_liquidity_amount" NUMERIC(20) NOT NULL,
                 "max_allowed_ltv_override_percent" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,

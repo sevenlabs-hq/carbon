@@ -9,7 +9,7 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UiAmountToAmount {
     /// The ui_amount of tokens to reformat.
-    pub ui_amount: String,
+    pub ui_amount: Vec<u8>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -33,7 +33,9 @@ impl UiAmountToAmount {
 
         data_slice = &data_slice[1..];
 
-        borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
+        Some(UiAmountToAmount {
+            ui_amount: data_slice.to_vec(),
+        })
     }
 }
 

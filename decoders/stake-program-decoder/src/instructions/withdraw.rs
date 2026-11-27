@@ -11,8 +11,6 @@ pub struct Withdraw {
 pub struct WithdrawInstructionAccounts {
     pub stake: solana_pubkey::Pubkey,
     pub recipient: solana_pubkey::Pubkey,
-    pub clock_sysvar: solana_pubkey::Pubkey,
-    pub stake_history: solana_pubkey::Pubkey,
     pub withdraw_authority: solana_pubkey::Pubkey,
     pub lockup_authority: Option<solana_pubkey::Pubkey>,
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -20,17 +18,17 @@ pub struct WithdrawInstructionAccounts {
 
 impl Withdraw {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 4 {
             return None;
         }
-        let discriminator = &data[0..1];
-        if discriminator != [4] {
+        let discriminator = &data[0..4];
+        if discriminator != [4, 0, 0, 0] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[1..];
+        data_slice = &data_slice[4..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
@@ -46,8 +44,6 @@ impl ArrangeAccounts for Withdraw {
 
         let stake = next_account(&mut iter)?;
         let recipient = next_account(&mut iter)?;
-        let clock_sysvar = next_account(&mut iter)?;
-        let stake_history = next_account(&mut iter)?;
         let withdraw_authority = next_account(&mut iter)?;
         let lockup_authority = next_account(&mut iter);
 
@@ -56,8 +52,6 @@ impl ArrangeAccounts for Withdraw {
         Some(WithdrawInstructionAccounts {
             stake,
             recipient,
-            clock_sysvar,
-            stake_history,
             withdraw_authority,
             lockup_authority,
             remaining: remaining.to_vec(),

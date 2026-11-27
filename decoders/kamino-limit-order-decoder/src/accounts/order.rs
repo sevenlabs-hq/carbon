@@ -39,7 +39,11 @@ pub struct Order {
     /// order to compute the amount received from a potential swap
     pub flash_start_taker_output_balance: u64,
     pub counterparty: Pubkey,
-    pub padding: [u64; 15],
+    /// Lamports the maker deposited at create_order (ata_creation_cost +
+    /// txn_fee_cost). Held on this account and refunded to the maker via
+    /// `close = maker` at close.
+    pub fee_paid: u64,
+    pub padding: [u64; 14],
 }
 
 impl Order {

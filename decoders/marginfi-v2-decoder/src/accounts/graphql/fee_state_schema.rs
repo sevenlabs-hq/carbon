@@ -12,7 +12,8 @@ pub struct FeeStateGraphQL {
     pub key: Pubkey,
     pub global_fee_admin: Pubkey,
     pub global_fee_wallet: Pubkey,
-    pub placeholder0: U64,
+    pub account_transfer_fee: U32,
+    pub placeholder0: Vec<U8>,
     pub bank_init_flat_sol_fee: U32,
     pub bump_seed: U8,
     pub padding0: Vec<U8>,
@@ -24,7 +25,9 @@ pub struct FeeStateGraphQL {
     pub liquidation_flat_sol_fee: U32,
     pub order_init_flat_sol_fee: U32,
     pub order_execution_max_fee: WrappedI80F48GraphQL,
-    pub reserved1: Vec<U8>,
+    pub pause_delegate_admin: Pubkey,
+    pub premium_wallet: Pubkey,
+    pub reserved0: Vec<U64>,
 }
 
 impl TryFrom<crate::accounts::postgres::FeeStateRow> for FeeStateGraphQL {
@@ -35,7 +38,14 @@ impl TryFrom<crate::accounts::postgres::FeeStateRow> for FeeStateGraphQL {
             key: carbon_core::graphql::primitives::Pubkey(row.key.0),
             global_fee_admin: carbon_core::graphql::primitives::Pubkey(row.global_fee_admin.0),
             global_fee_wallet: carbon_core::graphql::primitives::Pubkey(row.global_fee_wallet.0),
-            placeholder0: carbon_core::graphql::primitives::U64(*row.placeholder0),
+            account_transfer_fee: carbon_core::graphql::primitives::U32(
+                (*row.account_transfer_fee) as u32,
+            ),
+            placeholder0: row
+                .placeholder0
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
+                .collect(),
             bank_init_flat_sol_fee: carbon_core::graphql::primitives::U32(
                 (*row.bank_init_flat_sol_fee) as u32,
             ),
@@ -57,10 +67,14 @@ impl TryFrom<crate::accounts::postgres::FeeStateRow> for FeeStateGraphQL {
                 (*row.order_init_flat_sol_fee) as u32,
             ),
             order_execution_max_fee: row.order_execution_max_fee.0.into(),
-            reserved1: row
-                .reserved1
+            pause_delegate_admin: carbon_core::graphql::primitives::Pubkey(
+                row.pause_delegate_admin.0,
+            ),
+            premium_wallet: carbon_core::graphql::primitives::Pubkey(row.premium_wallet.0),
+            reserved0: row
+                .reserved0
                 .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
+                .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
         })
     }

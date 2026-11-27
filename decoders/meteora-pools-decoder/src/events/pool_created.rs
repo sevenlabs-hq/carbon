@@ -4,30 +4,31 @@ use {crate::types::PoolType, solana_pubkey::Pubkey};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PoolCreatedEvent {
+    /// LP token mint of the pool
     pub lp_mint: Pubkey,
+    /// Token A mint of the pool. Eg: USDT
     pub token_a_mint: Pubkey,
+    /// Token B mint of the pool. Eg: USDC
     pub token_b_mint: Pubkey,
+    /// Pool type
     pub pool_type: PoolType,
+    /// Pool address
     pub pool: Pubkey,
 }
 
 impl PoolCreatedEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 202, 44, 41, 88, 104, 220, 157, 82,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [202, 44, 41, 88, 104, 220, 157, 82] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

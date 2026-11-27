@@ -4,30 +4,31 @@ use solana_pubkey::Pubkey;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct MigrateFeeAccountEvent {
+    /// Pool address
     pub pool: Pubkey,
+    /// New admin token a fee
     pub new_admin_token_a_fee: Pubkey,
+    /// New admin token b fee
     pub new_admin_token_b_fee: Pubkey,
+    /// Transfer token a fee amount
     pub token_a_amount: u64,
+    /// Transfer token b fee amount
     pub token_b_amount: u64,
 }
 
 impl MigrateFeeAccountEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 223, 234, 232, 26, 252, 105, 180, 125,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [223, 234, 232, 26, 252, 105, 180, 125] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

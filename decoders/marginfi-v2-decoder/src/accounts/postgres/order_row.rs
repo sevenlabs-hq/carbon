@@ -5,7 +5,7 @@ use {
         account::AccountMetadata,
         postgres::{
             metadata::AccountRowMetadata,
-            primitives::{Pubkey, U16, U32, U64, U8},
+            primitives::{Pubkey, U16, U32, U8},
         },
     },
 };
@@ -17,7 +17,7 @@ pub struct OrderRow {
     pub marginfi_account: Pubkey,
     pub stop_loss: sqlx::types::Json<WrappedI80F48>,
     pub take_profit: sqlx::types::Json<WrappedI80F48>,
-    pub placeholder: U64,
+    pub created_at: i64,
     pub max_slippage: U32,
     pub pad0: Vec<u8>,
     pub tags: Vec<U16>,
@@ -36,7 +36,7 @@ impl OrderRow {
             marginfi_account: source.marginfi_account.into(),
             stop_loss: sqlx::types::Json(source.stop_loss),
             take_profit: sqlx::types::Json(source.take_profit),
-            placeholder: source.placeholder.into(),
+            created_at: source.created_at,
             max_slippage: source.max_slippage.into(),
             pad0: source.pad0.to_vec(),
             tags: source
@@ -67,7 +67,7 @@ impl TryFrom<OrderRow> for crate::accounts::order::Order {
             marginfi_account: *source.marginfi_account,
             stop_loss: source.stop_loss.0,
             take_profit: source.take_profit.0,
-            placeholder: *source.placeholder,
+            created_at: source.created_at,
             max_slippage: source.max_slippage.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::order::Order 
             "marginfi_account",
             "stop_loss",
             "take_profit",
-            "placeholder",
+            "created_at",
             "max_slippage",
             "pad0",
             "tags",
@@ -178,7 +178,7 @@ impl carbon_core::postgres::operations::Insert for OrderRow {
                 "marginfi_account",
                 "stop_loss",
                 "take_profit",
-                "placeholder",
+                "created_at",
                 "max_slippage",
                 "pad0",
                 "tags",
@@ -196,7 +196,7 @@ impl carbon_core::postgres::operations::Insert for OrderRow {
         .bind(self.marginfi_account)
         .bind(&self.stop_loss)
         .bind(&self.take_profit)
-        .bind(&self.placeholder)
+        .bind(self.created_at)
         .bind(self.max_slippage)
         .bind(&self.pad0)
         .bind(&self.tags)
@@ -223,7 +223,7 @@ impl carbon_core::postgres::operations::Upsert for OrderRow {
                 "marginfi_account",
                 "stop_loss",
                 "take_profit",
-                "placeholder",
+                "created_at",
                 "max_slippage",
                 "pad0",
                 "tags",
@@ -242,7 +242,7 @@ impl carbon_core::postgres::operations::Upsert for OrderRow {
                 "marginfi_account" = EXCLUDED."marginfi_account",
                 "stop_loss" = EXCLUDED."stop_loss",
                 "take_profit" = EXCLUDED."take_profit",
-                "placeholder" = EXCLUDED."placeholder",
+                "created_at" = EXCLUDED."created_at",
                 "max_slippage" = EXCLUDED."max_slippage",
                 "pad0" = EXCLUDED."pad0",
                 "tags" = EXCLUDED."tags",
@@ -260,7 +260,7 @@ impl carbon_core::postgres::operations::Upsert for OrderRow {
         .bind(self.marginfi_account)
         .bind(&self.stop_loss)
         .bind(&self.take_profit)
-        .bind(&self.placeholder)
+        .bind(self.created_at)
         .bind(self.max_slippage)
         .bind(&self.pad0)
         .bind(&self.tags)
@@ -332,7 +332,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OrderMigrationOperation {
                 "marginfi_account" BYTEA NOT NULL,
                 "stop_loss" JSONB NOT NULL,
                 "take_profit" JSONB NOT NULL,
-                "placeholder" NUMERIC(20) NOT NULL,
+                "created_at" INT8 NOT NULL,
                 "max_slippage" INT8 NOT NULL,
                 "pad0" BYTEA NOT NULL,
                 "tags" INT4[] NOT NULL,

@@ -12,6 +12,7 @@ pub struct MarkObligationForDeleveragingInstructionAccounts {
     pub lending_market_owner: solana_pubkey::Pubkey,
     pub obligation: solana_pubkey::Pubkey,
     pub lending_market: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -44,6 +45,7 @@ impl ArrangeAccounts for MarkObligationForDeleveraging {
         let lending_market_owner = next_account(&mut iter)?;
         let obligation = next_account(&mut iter)?;
         let lending_market = next_account(&mut iter)?;
+        let instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -51,6 +53,7 @@ impl ArrangeAccounts for MarkObligationForDeleveraging {
             lending_market_owner,
             obligation,
             lending_market,
+            instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })
     }

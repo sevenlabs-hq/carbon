@@ -17,17 +17,17 @@ pub struct MoveStakeInstructionAccounts {
 
 impl MoveStake {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 4 {
             return None;
         }
-        let discriminator = &data[0..1];
-        if discriminator != [16] {
+        let discriminator = &data[0..4];
+        if discriminator != [16, 0, 0, 0] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[1..];
+        data_slice = &data_slice[4..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

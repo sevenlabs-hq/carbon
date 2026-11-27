@@ -5,6 +5,7 @@ pub mod allocate_with_seed_schema;
 pub mod assign_schema;
 pub mod assign_with_seed_schema;
 pub mod authorize_nonce_account_schema;
+pub mod create_account_allow_prefund_schema;
 pub mod create_account_schema;
 pub mod create_account_with_seed_schema;
 pub mod initialize_nonce_account_schema;
@@ -17,9 +18,10 @@ use juniper::GraphQLObject;
 pub use {
     advance_nonce_account_schema::*, allocate_schema::*, allocate_with_seed_schema::*,
     assign_schema::*, assign_with_seed_schema::*, authorize_nonce_account_schema::*,
-    create_account_schema::*, create_account_with_seed_schema::*,
-    initialize_nonce_account_schema::*, transfer_sol_schema::*, transfer_sol_with_seed_schema::*,
-    upgrade_nonce_account_schema::*, withdraw_nonce_account_schema::*,
+    create_account_allow_prefund_schema::*, create_account_schema::*,
+    create_account_with_seed_schema::*, initialize_nonce_account_schema::*, transfer_sol_schema::*,
+    transfer_sol_with_seed_schema::*, upgrade_nonce_account_schema::*,
+    withdraw_nonce_account_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

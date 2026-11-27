@@ -2,7 +2,9 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
-pub struct Claim {}
+pub struct Claim {
+    pub amount: u64,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

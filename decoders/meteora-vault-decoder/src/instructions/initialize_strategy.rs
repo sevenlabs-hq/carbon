@@ -3,7 +3,6 @@ use {
     crate::types::{StrategyBumps, StrategyType},
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// Initialize a strategy and add strategy to vault.strategies index
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct InitializeStrategy {

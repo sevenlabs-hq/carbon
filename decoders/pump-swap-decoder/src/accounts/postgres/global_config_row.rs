@@ -23,6 +23,12 @@ pub struct GlobalConfigRow {
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: Vec<Pubkey>,
     pub is_cashback_enabled: bool,
+    pub buyback_fee_recipients: Vec<Pubkey>,
+    pub buyback_basis_points: U64,
+    pub boost_authority: Pubkey,
+    pub boost_enabled: bool,
+    pub creator_fee_configurable: bool,
+    pub max_configurable_creator_fee_bps: U64,
 }
 
 impl GlobalConfigRow {
@@ -52,6 +58,16 @@ impl GlobalConfigRow {
                 .map(|element| element.into())
                 .collect(),
             is_cashback_enabled: source.is_cashback_enabled,
+            buyback_fee_recipients: source
+                .buyback_fee_recipients
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            buyback_basis_points: source.buyback_basis_points.into(),
+            boost_authority: source.boost_authority.into(),
+            boost_enabled: source.boost_enabled,
+            creator_fee_configurable: source.creator_fee_configurable,
+            max_configurable_creator_fee_bps: source.max_configurable_creator_fee_bps.into(),
         }
     }
 }
@@ -106,6 +122,27 @@ impl TryFrom<GlobalConfigRow> for crate::accounts::global_config::GlobalConfig {
                     )
                 })?,
             is_cashback_enabled: source.is_cashback_enabled,
+            buyback_fee_recipients: source
+                .buyback_fee_recipients
+                .into_iter()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
+            buyback_basis_points: *source.buyback_basis_points,
+            boost_authority: *source.boost_authority,
+            boost_enabled: source.boost_enabled,
+            creator_fee_configurable: source.creator_fee_configurable,
+            max_configurable_creator_fee_bps: *source.max_configurable_creator_fee_bps,
         })
     }
 }
@@ -131,6 +168,12 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global_config
             "mayhem_mode_enabled",
             "reserved_fee_recipients",
             "is_cashback_enabled",
+            "buyback_fee_recipients",
+            "buyback_basis_points",
+            "boost_authority",
+            "boost_enabled",
+            "creator_fee_configurable",
+            "max_configurable_creator_fee_bps",
         ]
     }
 }
@@ -138,8 +181,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global_config
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO global_config_account (
                 "admin",
                 "lp_fee_basis_points",
@@ -153,11 +195,16 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
                 "mayhem_mode_enabled",
                 "reserved_fee_recipients",
                 "is_cashback_enabled",
+                "buyback_fee_recipients",
+                "buyback_basis_points",
+                "boost_authority",
+                "boost_enabled",
+                "creator_fee_configurable",
+                "max_configurable_creator_fee_bps",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
-            )"#,
-        )
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
+            )"#)
         .bind(self.admin)
         .bind(&self.lp_fee_basis_points)
         .bind(&self.protocol_fee_basis_points)
@@ -170,10 +217,15 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
         .bind(self.mayhem_mode_enabled)
         .bind(&self.reserved_fee_recipients)
         .bind(self.is_cashback_enabled)
+        .bind(&self.buyback_fee_recipients)
+        .bind(&self.buyback_basis_points)
+        .bind(self.boost_authority)
+        .bind(self.boost_enabled)
+        .bind(self.creator_fee_configurable)
+        .bind(&self.max_configurable_creator_fee_bps)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -182,8 +234,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO global_config_account AS stored (
+        sqlx::query(r#"INSERT INTO global_config_account AS stored (
                 "admin",
                 "lp_fee_basis_points",
                 "protocol_fee_basis_points",
@@ -196,9 +247,15 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "mayhem_mode_enabled",
                 "reserved_fee_recipients",
                 "is_cashback_enabled",
+                "buyback_fee_recipients",
+                "buyback_basis_points",
+                "boost_authority",
+                "boost_enabled",
+                "creator_fee_configurable",
+                "max_configurable_creator_fee_bps",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -214,11 +271,16 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "mayhem_mode_enabled" = EXCLUDED."mayhem_mode_enabled",
                 "reserved_fee_recipients" = EXCLUDED."reserved_fee_recipients",
                 "is_cashback_enabled" = EXCLUDED."is_cashback_enabled",
+                "buyback_fee_recipients" = EXCLUDED."buyback_fee_recipients",
+                "buyback_basis_points" = EXCLUDED."buyback_basis_points",
+                "boost_authority" = EXCLUDED."boost_authority",
+                "boost_enabled" = EXCLUDED."boost_enabled",
+                "creator_fee_configurable" = EXCLUDED."creator_fee_configurable",
+                "max_configurable_creator_fee_bps" = EXCLUDED."max_configurable_creator_fee_bps",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
                 OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
-            "#,
-        )
+            "#)
         .bind(self.admin)
         .bind(&self.lp_fee_basis_points)
         .bind(&self.protocol_fee_basis_points)
@@ -231,10 +293,15 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
         .bind(self.mayhem_mode_enabled)
         .bind(&self.reserved_fee_recipients)
         .bind(self.is_cashback_enabled)
+        .bind(&self.buyback_fee_recipients)
+        .bind(&self.buyback_basis_points)
+        .bind(self.boost_authority)
+        .bind(self.boost_enabled)
+        .bind(self.creator_fee_configurable)
+        .bind(&self.max_configurable_creator_fee_bps)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -302,6 +369,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
                 "mayhem_mode_enabled" BOOLEAN NOT NULL,
                 "reserved_fee_recipients" BYTEA[] NOT NULL,
                 "is_cashback_enabled" BOOLEAN NOT NULL,
+                "buyback_fee_recipients" BYTEA[] NOT NULL,
+                "buyback_basis_points" NUMERIC(20) NOT NULL,
+                "boost_authority" BYTEA NOT NULL,
+                "boost_enabled" BOOLEAN NOT NULL,
+                "creator_fee_configurable" BOOLEAN NOT NULL,
+                "max_configurable_creator_fee_bps" NUMERIC(20) NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

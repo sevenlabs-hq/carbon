@@ -20,7 +20,6 @@ pub mod initialize_checked;
 pub mod merge;
 pub mod move_lamports;
 pub mod move_stake;
-pub mod redelegate;
 pub mod set_lockup;
 pub mod set_lockup_checked;
 pub mod split;
@@ -29,8 +28,8 @@ pub mod withdraw;
 pub use self::{
     authorize::*, authorize_checked::*, authorize_checked_with_seed::*, authorize_with_seed::*,
     deactivate::*, deactivate_delinquent::*, delegate_stake::*, get_minimum_delegation::*,
-    initialize::*, initialize_checked::*, merge::*, move_lamports::*, move_stake::*, redelegate::*,
-    set_lockup::*, set_lockup_checked::*, split::*, withdraw::*,
+    initialize::*, initialize_checked::*, merge::*, move_lamports::*, move_stake::*, set_lockup::*,
+    set_lockup_checked::*, split::*, withdraw::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -103,11 +102,6 @@ pub enum StakeProgramInstruction {
         data: MoveStake,
         accounts: MoveStakeInstructionAccounts,
     },
-    Redelegate {
-        program_id: solana_pubkey::Pubkey,
-        data: Redelegate,
-        accounts: RedelegateInstructionAccounts,
-    },
     SetLockup {
         program_id: solana_pubkey::Pubkey,
         data: SetLockup,
@@ -157,7 +151,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for StakeProgramDecoder {
             StakeProgramInstruction::Merge => Merge,
             StakeProgramInstruction::MoveLamports => MoveLamports,
             StakeProgramInstruction::MoveStake => MoveStake,
-            StakeProgramInstruction::Redelegate => Redelegate,
             StakeProgramInstruction::SetLockup => SetLockup,
             StakeProgramInstruction::SetLockupChecked => SetLockupChecked,
             StakeProgramInstruction::Split => Split,

@@ -64,11 +64,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumLiquidityLockin
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            RaydiumLiquidityLockingInstruction::CpiEvent => CpiEvent,
             RaydiumLiquidityLockingInstruction::CollectClmmFeesAndRewards => CollectClmmFeesAndRewards,
             RaydiumLiquidityLockingInstruction::CollectCpFees => CollectCpFees,
             RaydiumLiquidityLockingInstruction::LockClmmPosition => LockClmmPosition,
             RaydiumLiquidityLockingInstruction::LockCpLiquidity => LockCpLiquidity,
-            RaydiumLiquidityLockingInstruction::CpiEvent => CpiEvent,
         )
     }
 }

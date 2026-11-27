@@ -4,6 +4,7 @@ pub mod accept_obligation_ownership_row;
 pub mod approve_obligation_ownership_transfer_row;
 pub mod borrow_obligation_liquidity_row;
 pub mod borrow_obligation_liquidity_v2_row;
+pub mod calculate_ctoken_exchange_rate_row;
 pub mod cancel_withdraw_ticket_row;
 pub mod clone_reserve_config_row;
 pub mod cpi_event_row;
@@ -16,6 +17,7 @@ pub mod deposit_reserve_liquidity_and_obligation_collateral_v2_row;
 pub mod deposit_reserve_liquidity_row;
 pub mod enqueue_to_withdraw_row;
 pub mod fill_borrow_order_row;
+pub mod fill_borrow_order_v2_row;
 pub mod flash_borrow_reserve_liquidity_row;
 pub mod flash_repay_reserve_liquidity_row;
 pub mod idl_missing_types_row;
@@ -46,6 +48,7 @@ pub mod request_elevation_group_row;
 pub mod rollover_fixed_term_borrow_row;
 pub mod seed_deposit_on_init_reserve_row;
 pub mod set_borrow_order_row;
+pub mod set_borrow_order_v2_row;
 pub mod set_obligation_order_row;
 pub mod socialize_loss_row;
 pub mod socialize_loss_v2_row;
@@ -67,16 +70,17 @@ pub mod withdraw_referrer_fees_row;
 pub use self::{
     abort_obligation_ownership_transfer_row::*, accept_obligation_ownership_row::*,
     approve_obligation_ownership_transfer_row::*, borrow_obligation_liquidity_row::*,
-    borrow_obligation_liquidity_v2_row::*, cancel_withdraw_ticket_row::*,
-    clone_reserve_config_row::*, cpi_event_row::*, delete_referrer_state_and_short_url_row::*,
-    deposit_and_withdraw_row::*, deposit_obligation_collateral_row::*,
-    deposit_obligation_collateral_v2_row::*,
+    borrow_obligation_liquidity_v2_row::*, calculate_ctoken_exchange_rate_row::*,
+    cancel_withdraw_ticket_row::*, clone_reserve_config_row::*, cpi_event_row::*,
+    delete_referrer_state_and_short_url_row::*, deposit_and_withdraw_row::*,
+    deposit_obligation_collateral_row::*, deposit_obligation_collateral_v2_row::*,
     deposit_reserve_liquidity_and_obligation_collateral_row::*,
     deposit_reserve_liquidity_and_obligation_collateral_v2_row::*,
     deposit_reserve_liquidity_row::*, enqueue_to_withdraw_row::*, fill_borrow_order_row::*,
-    flash_borrow_reserve_liquidity_row::*, flash_repay_reserve_liquidity_row::*,
-    idl_missing_types_row::*, init_farms_for_reserve_row::*, init_global_config_row::*,
-    init_lending_market_row::*, init_obligation_farms_for_reserve_row::*, init_obligation_row::*,
+    fill_borrow_order_v2_row::*, flash_borrow_reserve_liquidity_row::*,
+    flash_repay_reserve_liquidity_row::*, idl_missing_types_row::*, init_farms_for_reserve_row::*,
+    init_global_config_row::*, init_lending_market_row::*,
+    init_obligation_farms_for_reserve_row::*, init_obligation_row::*,
     init_referrer_state_and_short_url_row::*, init_referrer_token_state_row::*,
     init_reserve_row::*, init_user_metadata_row::*, initiate_obligation_ownership_transfer_row::*,
     liquidate_obligation_and_redeem_reserve_collateral_row::*,
@@ -87,9 +91,9 @@ pub use self::{
     refresh_reserves_batch_row::*, repay_and_withdraw_and_redeem_row::*,
     repay_obligation_liquidity_row::*, repay_obligation_liquidity_v2_row::*,
     request_elevation_group_row::*, rollover_fixed_term_borrow_row::*,
-    seed_deposit_on_init_reserve_row::*, set_borrow_order_row::*, set_obligation_order_row::*,
-    socialize_loss_row::*, socialize_loss_v2_row::*, topup_reserve_rewards_row::*,
-    update_global_config_admin_row::*, update_global_config_row::*,
+    seed_deposit_on_init_reserve_row::*, set_borrow_order_row::*, set_borrow_order_v2_row::*,
+    set_obligation_order_row::*, socialize_loss_row::*, socialize_loss_v2_row::*,
+    topup_reserve_rewards_row::*, update_global_config_admin_row::*, update_global_config_row::*,
     update_lending_market_owner_row::*, update_lending_market_row::*,
     update_obligation_config_row::*, update_reserve_config_row::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_row::*,
@@ -117,6 +121,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsMigra
             Box::new(ApproveObligationOwnershipTransferMigrationOperation),
             Box::new(BorrowObligationLiquidityMigrationOperation),
             Box::new(BorrowObligationLiquidityV2MigrationOperation),
+            Box::new(CalculateCtokenExchangeRateMigrationOperation),
             Box::new(CancelWithdrawTicketMigrationOperation),
             Box::new(CloneReserveConfigMigrationOperation),
             Box::new(DeleteReferrerStateAndShortUrlMigrationOperation),
@@ -128,6 +133,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsMigra
             Box::new(DepositReserveLiquidityAndObligationCollateralV2MigrationOperation),
             Box::new(EnqueueToWithdrawMigrationOperation),
             Box::new(FillBorrowOrderMigrationOperation),
+            Box::new(FillBorrowOrderV2MigrationOperation),
             Box::new(FlashBorrowReserveLiquidityMigrationOperation),
             Box::new(FlashRepayReserveLiquidityMigrationOperation),
             Box::new(IdlMissingTypesMigrationOperation),
@@ -158,6 +164,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsMigra
             Box::new(RolloverFixedTermBorrowMigrationOperation),
             Box::new(SeedDepositOnInitReserveMigrationOperation),
             Box::new(SetBorrowOrderMigrationOperation),
+            Box::new(SetBorrowOrderV2MigrationOperation),
             Box::new(SetObligationOrderMigrationOperation),
             Box::new(SocializeLossMigrationOperation),
             Box::new(SocializeLossV2MigrationOperation),
@@ -228,6 +235,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsAbsol
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "calculate_ctoken_exchange_rate_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "cancel_withdraw_ticket_instruction",
                 ),
             ),
@@ -279,6 +291,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsAbsol
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "fill_borrow_order_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "fill_borrow_order_v2_instruction",
                 ),
             ),
             Box::new(
@@ -429,6 +446,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsAbsol
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "set_borrow_order_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "set_borrow_order_v2_instruction",
                 ),
             ),
             Box::new(
@@ -635,6 +657,11 @@ impl carbon_core::postgres::operations::Insert for KaminoLendingInstructionWithM
                 row.insert(pool).await?;
                 Ok(())
             }
+            KaminoLendingInstruction::CalculateCtokenExchangeRate { data, .. } => {
+                let row = calculate_ctoken_exchange_rate_row::CalculateCtokenExchangeRateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
             KaminoLendingInstruction::DepositReserveLiquidity { data, .. } => {
                 let row = deposit_reserve_liquidity_row::DepositReserveLiquidityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
@@ -795,6 +822,11 @@ impl carbon_core::postgres::operations::Insert for KaminoLendingInstructionWithM
                 row.insert(pool).await?;
                 Ok(())
             }
+            KaminoLendingInstruction::SetBorrowOrderV2 { data, .. } => {
+                let row = set_borrow_order_v2_row::SetBorrowOrderV2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
             KaminoLendingInstruction::UpdateObligationConfig { data, .. } => {
                 let row = update_obligation_config_row::UpdateObligationConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
@@ -807,6 +839,11 @@ impl carbon_core::postgres::operations::Insert for KaminoLendingInstructionWithM
             }
             KaminoLendingInstruction::FillBorrowOrder { data, .. } => {
                 let row = fill_borrow_order_row::FillBorrowOrderRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingInstruction::FillBorrowOrderV2 { data, .. } => {
+                let row = fill_borrow_order_v2_row::FillBorrowOrderV2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -965,6 +1002,11 @@ impl carbon_core::postgres::operations::Upsert for KaminoLendingInstructionWithM
                 row.upsert(pool).await?;
                 Ok(())
             }
+            KaminoLendingInstruction::CalculateCtokenExchangeRate { data, .. } => {
+                let row = calculate_ctoken_exchange_rate_row::CalculateCtokenExchangeRateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
             KaminoLendingInstruction::DepositReserveLiquidity { data, .. } => {
                 let row = deposit_reserve_liquidity_row::DepositReserveLiquidityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
@@ -1125,6 +1167,11 @@ impl carbon_core::postgres::operations::Upsert for KaminoLendingInstructionWithM
                 row.upsert(pool).await?;
                 Ok(())
             }
+            KaminoLendingInstruction::SetBorrowOrderV2 { data, .. } => {
+                let row = set_borrow_order_v2_row::SetBorrowOrderV2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
             KaminoLendingInstruction::UpdateObligationConfig { data, .. } => {
                 let row = update_obligation_config_row::UpdateObligationConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
@@ -1137,6 +1184,11 @@ impl carbon_core::postgres::operations::Upsert for KaminoLendingInstructionWithM
             }
             KaminoLendingInstruction::FillBorrowOrder { data, .. } => {
                 let row = fill_borrow_order_row::FillBorrowOrderRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingInstruction::FillBorrowOrderV2 { data, .. } => {
+                let row = fill_borrow_order_v2_row::FillBorrowOrderV2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

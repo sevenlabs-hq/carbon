@@ -17,6 +17,7 @@ pub struct ConfigureBankRateLimitsInstructionAccounts {
     pub group: solana_pubkey::Pubkey,
     pub admin: solana_pubkey::Pubkey,
     pub bank: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -49,6 +50,7 @@ impl ArrangeAccounts for ConfigureBankRateLimits {
         let group = next_account(&mut iter)?;
         let admin = next_account(&mut iter)?;
         let bank = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -56,6 +58,7 @@ impl ArrangeAccounts for ConfigureBankRateLimits {
             group,
             admin,
             bank,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

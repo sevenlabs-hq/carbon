@@ -16,7 +16,7 @@ pub struct LockPositionInstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub vesting: solana_pubkey::Pubkey,
     pub position_nft_account: solana_pubkey::Pubkey,
-    pub owner: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub payer: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
@@ -54,7 +54,7 @@ impl ArrangeAccounts for LockPosition {
         let position = next_account(&mut iter)?;
         let vesting = next_account(&mut iter)?;
         let position_nft_account = next_account(&mut iter)?;
-        let owner = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let payer = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
@@ -67,7 +67,7 @@ impl ArrangeAccounts for LockPosition {
             position,
             vesting,
             position_nft_account,
-            owner,
+            signer,
             payer,
             system_program,
             event_authority,

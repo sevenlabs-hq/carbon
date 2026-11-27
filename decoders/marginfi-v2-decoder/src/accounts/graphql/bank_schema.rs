@@ -4,7 +4,7 @@ use {
         BankCacheGraphQL, BankConfigGraphQL, BankRateLimiterGraphQL, EmodeSettingsGraphQL,
         WrappedI80F48GraphQL,
     },
-    carbon_core::graphql::primitives::{Pubkey, I64, U64, U8},
+    carbon_core::graphql::primitives::{Pubkey, I64, U32, U64, U8},
     juniper::GraphQLObject,
 };
 
@@ -45,12 +45,30 @@ pub struct BankGraphQL {
     pub cache: BankCacheGraphQL,
     pub lending_position_count: i32,
     pub borrowing_position_count: i32,
+    pub liquidation_liquidator_fee: U32,
+    pub liquidation_insurance_fee: U32,
     pub padding0: Vec<U8>,
     pub integration_acc1: Pubkey,
     pub integration_acc2: Pubkey,
     pub integration_acc3: Pubkey,
     pub rate_limiter: BankRateLimiterGraphQL,
-    pub pad0_1: Vec<U8>,
+    pub collected_premium_outstanding: WrappedI80F48GraphQL,
+    pub bank_seed: U64,
+    pub cb_halt_started_at: I64,
+    pub cb_halt_ended_at: I64,
+    pub cb_tier: U8,
+    pub cb_tier3_consecutive_trips: U8,
+    pub cb_pre_break_state: U8,
+    pub cb_pad: Vec<U8>,
+    pub cb_last_observed_slot: U64,
+    pub cb_last_oracle_source_time: I64,
+    pub cb_reference_price: WrappedI80F48GraphQL,
+    pub cb_window_reference_price: WrappedI80F48GraphQL,
+    pub cb_window_started_at: I64,
+    pub cb_frozen_seconds_pending: U64,
+    pub premium_tag: i32,
+    pub pad3: Vec<U8>,
+    pub premium_activated_at: I64,
     pub padding1: Vec<Vec<U64>>,
 }
 
@@ -116,6 +134,12 @@ impl TryFrom<crate::accounts::postgres::BankRow> for BankGraphQL {
             cache: row.cache.0.into(),
             lending_position_count: row.lending_position_count,
             borrowing_position_count: row.borrowing_position_count,
+            liquidation_liquidator_fee: carbon_core::graphql::primitives::U32(
+                (*row.liquidation_liquidator_fee) as u32,
+            ),
+            liquidation_insurance_fee: carbon_core::graphql::primitives::U32(
+                (*row.liquidation_insurance_fee) as u32,
+            ),
             padding0: row
                 .padding0
                 .into_iter()
@@ -125,11 +149,41 @@ impl TryFrom<crate::accounts::postgres::BankRow> for BankGraphQL {
             integration_acc2: carbon_core::graphql::primitives::Pubkey(row.integration_acc2.0),
             integration_acc3: carbon_core::graphql::primitives::Pubkey(row.integration_acc3.0),
             rate_limiter: row.rate_limiter.0.into(),
-            pad0_1: row
-                .pad0_1
+            collected_premium_outstanding: row.collected_premium_outstanding.0.into(),
+            bank_seed: carbon_core::graphql::primitives::U64(*row.bank_seed),
+            cb_halt_started_at: carbon_core::graphql::primitives::I64(row.cb_halt_started_at),
+            cb_halt_ended_at: carbon_core::graphql::primitives::I64(row.cb_halt_ended_at),
+            cb_tier: carbon_core::graphql::primitives::U8((*row.cb_tier) as u8),
+            cb_tier3_consecutive_trips: carbon_core::graphql::primitives::U8(
+                (*row.cb_tier3_consecutive_trips) as u8,
+            ),
+            cb_pre_break_state: carbon_core::graphql::primitives::U8(
+                (*row.cb_pre_break_state) as u8,
+            ),
+            cb_pad: row
+                .cb_pad
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),
+            cb_last_observed_slot: carbon_core::graphql::primitives::U64(
+                *row.cb_last_observed_slot,
+            ),
+            cb_last_oracle_source_time: carbon_core::graphql::primitives::I64(
+                row.cb_last_oracle_source_time,
+            ),
+            cb_reference_price: row.cb_reference_price.0.into(),
+            cb_window_reference_price: row.cb_window_reference_price.0.into(),
+            cb_window_started_at: carbon_core::graphql::primitives::I64(row.cb_window_started_at),
+            cb_frozen_seconds_pending: carbon_core::graphql::primitives::U64(
+                *row.cb_frozen_seconds_pending,
+            ),
+            premium_tag: *row.premium_tag,
+            pad3: row
+                .pad3
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
+                .collect(),
+            premium_activated_at: carbon_core::graphql::primitives::I64(row.premium_activated_at),
             padding1: row
                 .padding1
                 .0

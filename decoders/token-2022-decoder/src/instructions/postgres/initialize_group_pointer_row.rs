@@ -22,8 +22,8 @@ impl InitializeGroupPointerRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            authority: source.authority.map(|value| value.into()),
-            group_address: source.group_address.map(|value| value.into()),
+            authority: source.authority.0.map(|value| value.into()),
+            group_address: source.group_address.0.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -35,8 +35,8 @@ impl TryFrom<InitializeGroupPointerRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeGroupPointerRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            authority: source.authority.map(|value| *value),
-            group_address: source.group_address.map(|value| *value),
+            authority: source.authority.map(|value| *value).into(),
+            group_address: source.group_address.map(|value| *value).into(),
         })
     }
 }

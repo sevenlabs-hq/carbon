@@ -19,6 +19,7 @@ pub enum CpiEvent {
     ClaimReward(events::claim_reward::ClaimRewardEvent),
     PerformanceFee(events::performance_fee::PerformanceFeeEvent),
     ReportLoss(events::report_loss::ReportLossEvent),
+    VaultMigrated(events::vault_migrated::VaultMigratedEvent),
     TotalAmount(events::total_amount::TotalAmountEvent),
 }
 
@@ -63,6 +64,9 @@ impl CpiEvent {
         }
         if let Some(decoded) = events::report_loss::ReportLossEvent::decode(event_data) {
             return Some(CpiEvent::ReportLoss(decoded));
+        }
+        if let Some(decoded) = events::vault_migrated::VaultMigratedEvent::decode(event_data) {
+            return Some(CpiEvent::VaultMigrated(decoded));
         }
         if let Some(decoded) = events::total_amount::TotalAmountEvent::decode(event_data) {
             return Some(CpiEvent::TotalAmount(decoded));

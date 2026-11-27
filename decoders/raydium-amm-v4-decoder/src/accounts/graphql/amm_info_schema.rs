@@ -78,7 +78,6 @@ impl TryFrom<crate::accounts::postgres::AmmInfoRow> for AmmInfoGraphQL {
             target_orders: carbon_core::graphql::primitives::Pubkey(row.target_orders.0),
             padding1: row
                 .padding1
-                .0
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),

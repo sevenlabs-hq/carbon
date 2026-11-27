@@ -19,4 +19,16 @@ pub struct BankConfigOpt {
     pub permissionless_bad_debt_settlement: Option<bool>,
     pub freeze_settings: Option<bool>,
     pub tokenless_repayments_allowed: Option<bool>,
+    /// Per-bank liquidation fees, encoded as `u32_to_centi` (`u32::MAX` = 100%;
+    /// 0 => default 2.5%).
+    pub liquidation_liquidator_fee: Option<u32>,
+    pub liquidation_insurance_fee: Option<u32>,
+    pub circuit_breaker_enabled: Option<bool>,
+    pub cb_deviation_bps_tiers: Option<[u16; 3]>,
+    pub cb_tier_durations_seconds: Option<[u16; 3]>,
+    pub cb_escalation_window_mult: Option<u8>,
+    pub cb_ema_alpha_bps: Option<u16>,
+    pub cb_window_seconds: Option<u32>,
+    pub cb_window_max_up_bps: Option<u16>,
+    pub cb_window_max_down_bps: Option<u16>,
 }

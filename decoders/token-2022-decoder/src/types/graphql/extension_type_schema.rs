@@ -25,15 +25,17 @@ pub enum ExtensionTypeGraphQL {
     TransferHookAccount,
     ConfidentialTransferFee,
     ConfidentialTransferFeeAmount,
-    ScaledUiAmountConfig,
-    PausableConfig,
-    PausableAccount,
     MetadataPointer,
     TokenMetadata,
     GroupPointer,
     TokenGroup,
     GroupMemberPointer,
     TokenGroupMember,
+    ConfidentialMintBurn,
+    ScaledUiAmountConfig,
+    PausableConfig,
+    PausableAccount,
+    PermissionedBurn,
 }
 
 impl From<crate::types::ExtensionType> for ExtensionTypeGraphQL {
@@ -61,15 +63,17 @@ impl From<crate::types::ExtensionType> for ExtensionTypeGraphQL {
             crate::types::ExtensionType::ConfidentialTransferFeeAmount => {
                 Self::ConfidentialTransferFeeAmount
             }
-            crate::types::ExtensionType::ScaledUiAmountConfig => Self::ScaledUiAmountConfig,
-            crate::types::ExtensionType::PausableConfig => Self::PausableConfig,
-            crate::types::ExtensionType::PausableAccount => Self::PausableAccount,
             crate::types::ExtensionType::MetadataPointer => Self::MetadataPointer,
             crate::types::ExtensionType::TokenMetadata => Self::TokenMetadata,
             crate::types::ExtensionType::GroupPointer => Self::GroupPointer,
             crate::types::ExtensionType::TokenGroup => Self::TokenGroup,
             crate::types::ExtensionType::GroupMemberPointer => Self::GroupMemberPointer,
             crate::types::ExtensionType::TokenGroupMember => Self::TokenGroupMember,
+            crate::types::ExtensionType::ConfidentialMintBurn => Self::ConfidentialMintBurn,
+            crate::types::ExtensionType::ScaledUiAmountConfig => Self::ScaledUiAmountConfig,
+            crate::types::ExtensionType::PausableConfig => Self::PausableConfig,
+            crate::types::ExtensionType::PausableAccount => Self::PausableAccount,
+            crate::types::ExtensionType::PermissionedBurn => Self::PermissionedBurn,
         }
     }
 }

@@ -8,18 +8,22 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod amm_config;
+pub mod creator_fee_share;
 pub mod observation_state;
 pub mod permission;
 pub mod pool_state;
+pub mod support_mint_associated;
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum RaydiumCpmmAccount {
     AmmConfig(Box<amm_config::AmmConfig>),
+    CreatorFeeShare(Box<creator_fee_share::CreatorFeeShare>),
     ObservationState(Box<observation_state::ObservationState>),
     Permission(Box<permission::Permission>),
     PoolState(Box<pool_state::PoolState>),
+    SupportMintAssociated(Box<support_mint_associated::SupportMintAssociated>),
 }
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumCpmmDecoder {
@@ -40,6 +44,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumCpmmDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: RaydiumCpmmAccount::AmmConfig(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = creator_fee_share::CreatorFeeShare::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumCpmmAccount::CreatorFeeShare(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,
@@ -73,6 +88,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumCpmmDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: RaydiumCpmmAccount::PoolState(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = support_mint_associated::SupportMintAssociated::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumCpmmAccount::SupportMintAssociated(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

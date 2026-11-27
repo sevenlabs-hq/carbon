@@ -3,6 +3,7 @@ use solana_pubkey::Pubkey;
 pub struct MeteoraPoolsDecoder;
 pub const PROGRAM_ID: Pubkey =
     solana_pubkey::Pubkey::from_str_const("Eo7WjKq67rjJQSZxS6z3YkapzY3eMj6Xy8X5EQVn5UaB");
+pub const EVENT_CPI_DISCRIMINATOR: &[u8] = &[228, 69, 165, 46, 81, 203, 154, 29];
 
 pub mod accounts;
 pub mod events;

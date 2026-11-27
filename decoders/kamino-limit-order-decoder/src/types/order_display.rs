@@ -8,6 +8,8 @@ pub struct OrderDisplay {
     pub filled_output_amount: u64,
     pub tip_amount: u64,
     pub number_of_fills: u64,
+    /// The amount of output token filled when this event was emitted - used
+    /// for volume calculations
     pub on_event_output_amount_filled: u64,
     pub on_event_tip_amount: u64,
     pub order_type: u8,

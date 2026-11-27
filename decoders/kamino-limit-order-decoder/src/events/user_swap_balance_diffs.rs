@@ -22,21 +22,17 @@ pub struct UserSwapBalanceDiffsEvent {
 
 impl UserSwapBalanceDiffsEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 139, 203, 35, 31, 25, 8, 62, 143,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [139, 203, 35, 31, 25, 8, 62, 143] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

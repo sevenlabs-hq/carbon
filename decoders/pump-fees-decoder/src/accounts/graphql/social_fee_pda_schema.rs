@@ -14,6 +14,7 @@ pub struct SocialFeePdaGraphQL {
     pub platform: U8,
     pub total_claimed: U64,
     pub last_claimed: U64,
+    pub total_stable_claimed: U64,
     pub reserved: Vec<U8>,
 }
 
@@ -28,10 +29,11 @@ impl TryFrom<crate::accounts::postgres::SocialFeePdaRow> for SocialFeePdaGraphQL
             platform: carbon_core::graphql::primitives::U8((*row.platform) as u8),
             total_claimed: carbon_core::graphql::primitives::U64(*row.total_claimed),
             last_claimed: carbon_core::graphql::primitives::U64(*row.last_claimed),
+            total_stable_claimed: carbon_core::graphql::primitives::U64(*row.total_stable_claimed),
             reserved: row
                 .reserved
                 .into_iter()
-                .map(|x| carbon_core::graphql::primitives::U8((*x) as u8))
+                .map(carbon_core::graphql::primitives::U8)
                 .collect(),
         })
     }

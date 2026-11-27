@@ -3,7 +3,7 @@ use carbon_core::{
     instruction::InstructionMetadata,
     postgres::{
         metadata::InstructionRowMetadata,
-        primitives::{U32, U64},
+        primitives::{U32, U64, U8},
     },
 };
 
@@ -11,9 +11,9 @@ use carbon_core::{
 pub struct RedeemRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
-    pub root: Vec<u8>,
-    pub data_hash: Vec<u8>,
-    pub creator_hash: Vec<u8>,
+    pub root: Vec<U8>,
+    pub data_hash: Vec<U8>,
+    pub creator_hash: Vec<U8>,
     pub nonce: U64,
     pub index: U32,
     #[sqlx(rename = "__accounts")]
@@ -28,9 +28,21 @@ impl RedeemRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            root: source.root.to_vec(),
-            data_hash: source.data_hash.to_vec(),
-            creator_hash: source.creator_hash.to_vec(),
+            root: source
+                .root
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            data_hash: source
+                .data_hash
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            creator_hash: source
+                .creator_hash
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
             nonce: source.nonce.into(),
             index: source.index.into(),
             accounts: sqlx::types::Json(accounts),
@@ -42,24 +54,57 @@ impl TryFrom<RedeemRow> for crate::instructions::redeem::Redeem {
     type Error = carbon_core::error::Error;
     fn try_from(source: RedeemRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            root: source.root.as_slice().try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 32 bytes"
-                        .to_string(),
-                )
-            })?,
-            data_hash: source.data_hash.as_slice().try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 32 bytes"
-                        .to_string(),
-                )
-            })?,
-            creator_hash: source.creator_hash.as_slice().try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 32 bytes"
-                        .to_string(),
-                )
-            })?,
+            root: source
+                .root
+                .into_iter()
+                .map(|element| {
+                    element.try_into().map_err(|_| {
+                        carbon_core::error::Error::Custom(
+                            "Failed to convert value from postgres primitive".to_string(),
+                        )
+                    })
+                })
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
+            data_hash: source
+                .data_hash
+                .into_iter()
+                .map(|element| {
+                    element.try_into().map_err(|_| {
+                        carbon_core::error::Error::Custom(
+                            "Failed to convert value from postgres primitive".to_string(),
+                        )
+                    })
+                })
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
+            creator_hash: source
+                .creator_hash
+                .into_iter()
+                .map(|element| {
+                    element.try_into().map_err(|_| {
+                        carbon_core::error::Error::Custom(
+                            "Failed to convert value from postgres primitive".to_string(),
+                        )
+                    })
+                })
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
             nonce: *source.nonce,
             index: source.index.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
@@ -225,9 +270,9 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RedeemMigrationOperation {
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS redeem_instruction (
                 -- Instruction data
-                "root" BYTEA NOT NULL,
-                "data_hash" BYTEA NOT NULL,
-                "creator_hash" BYTEA NOT NULL,
+                "root" INT2[] NOT NULL,
+                "data_hash" INT2[] NOT NULL,
+                "creator_hash" INT2[] NOT NULL,
                 "nonce" NUMERIC(20) NOT NULL,
                 "index" INT8 NOT NULL,
                 -- Instruction metadata

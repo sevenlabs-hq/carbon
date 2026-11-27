@@ -3,7 +3,8 @@ use {
     crate::types::StakedSettingsEditConfig,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (admin only) Edit the staked collateral settings for the group.
+/// (slow governance_admin only) Edit the staked collateral settings for the
+/// group.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct EditStakedSettings {
@@ -14,8 +15,9 @@ pub struct EditStakedSettings {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EditStakedSettingsInstructionAccounts {
     pub marginfi_group: solana_pubkey::Pubkey,
-    pub admin: solana_pubkey::Pubkey,
+    pub governance_admin: solana_pubkey::Pubkey,
     pub staked_settings: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -46,15 +48,17 @@ impl ArrangeAccounts for EditStakedSettings {
         let mut iter = accounts.iter();
 
         let marginfi_group = next_account(&mut iter)?;
-        let admin = next_account(&mut iter)?;
+        let governance_admin = next_account(&mut iter)?;
         let staked_settings = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(EditStakedSettingsInstructionAccounts {
             marginfi_group,
-            admin,
+            governance_admin,
             staked_settings,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

@@ -3,28 +3,27 @@
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct AddLiquidityEvent {
+    /// LP amount user received upon add liquidity.
     pub lp_mint_amount: u64,
+    /// Amount of token A user deposited.
     pub token_a_amount: u64,
+    /// Amount of token B user deposited.
     pub token_b_amount: u64,
 }
 
 impl AddLiquidityEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 31, 94, 125, 90, 227, 52, 61, 186,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [31, 94, 125, 90, 227, 52, 61, 186] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

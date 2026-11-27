@@ -17,6 +17,9 @@ pub struct VaultGraphQL {
     pub token_mint: Pubkey,
     pub lp_mint: Pubkey,
     pub strategies: Vec<Pubkey>,
+    pub version: U8,
+    pub total_lp_supply: U64,
+    pub padding0: Vec<U8>,
     pub base: Pubkey,
     pub admin: Pubkey,
     pub operator: Pubkey,
@@ -39,6 +42,13 @@ impl TryFrom<crate::accounts::postgres::VaultRow> for VaultGraphQL {
                 .strategies
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
+                .collect(),
+            version: carbon_core::graphql::primitives::U8((*row.version) as u8),
+            total_lp_supply: carbon_core::graphql::primitives::U64(*row.total_lp_supply),
+            padding0: row
+                .padding0
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
                 .collect(),
             base: carbon_core::graphql::primitives::Pubkey(row.base.0),
             admin: carbon_core::graphql::primitives::Pubkey(row.admin.0),

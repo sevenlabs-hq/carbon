@@ -10,8 +10,8 @@ pub struct RewardInfo {
     pub reward_token_flag: u8,
     /// padding
     pub padding0: [u8; 6],
-    /// Padding to ensure `reward_rate: u128` is 16-byte aligned
-    pub padding1: [u8; 8],
+    /// Cumulative dead-liquidity reward (Compounding Pool only)
+    pub dead_liquidity_reward_checkpoint: u64,
     /// Reward token mint.
     pub mint: Pubkey,
     /// Reward vault token account.

@@ -10,8 +10,10 @@ pub struct Order {
     pub marginfi_account: Pubkey,
     pub stop_loss: WrappedI80F48,
     pub take_profit: WrappedI80F48,
-    /// Reserved for future use
-    pub placeholder: u64,
+    /// Unix timestamp (seconds) when the order was created. Reads 0 for orders
+    /// created before this field existed (it was previously a reserved
+    /// placeholder; same 8 bytes, so layout-compatible).
+    pub created_at: i64,
     /// * a %, as u32, out of 100%, e.g. 50% = .5 * u32::MAX
     pub max_slippage: u32,
     pub pad0: [u8; 4],

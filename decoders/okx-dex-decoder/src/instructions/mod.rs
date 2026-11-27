@@ -126,6 +126,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OkxDexDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            OkxDexInstruction::CpiEvent => CpiEvent,
             OkxDexInstruction::Claim => Claim,
             OkxDexInstruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
             OkxDexInstruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
@@ -140,7 +141,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OkxDexDecoder {
             OkxDexInstruction::SwapV3WithCpiEvent => SwapV3WithCpiEvent,
             OkxDexInstruction::WrapUnwrapV3 => WrapUnwrapV3,
             OkxDexInstruction::WrapUnwrapV3WithReceiver => WrapUnwrapV3WithReceiver,
-            OkxDexInstruction::CpiEvent => CpiEvent,
         )
     }
 }

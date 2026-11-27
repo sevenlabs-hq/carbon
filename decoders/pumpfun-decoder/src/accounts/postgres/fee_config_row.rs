@@ -19,6 +19,7 @@ pub struct FeeConfigRow {
     pub flat_fees: sqlx::types::Json<Fees>,
     pub fee_tiers: sqlx::types::Json<Vec<FeeTier>>,
     pub stable_fee_tiers: sqlx::types::Json<Vec<FeeTier>>,
+    pub exotic_flat_fees: sqlx::types::Json<Fees>,
 }
 
 impl FeeConfigRow {
@@ -33,6 +34,7 @@ impl FeeConfigRow {
             flat_fees: sqlx::types::Json(source.flat_fees),
             fee_tiers: sqlx::types::Json(source.fee_tiers.to_vec()),
             stable_fee_tiers: sqlx::types::Json(source.stable_fee_tiers.to_vec()),
+            exotic_flat_fees: sqlx::types::Json(source.exotic_flat_fees),
         }
     }
 }
@@ -50,6 +52,7 @@ impl TryFrom<FeeConfigRow> for crate::accounts::fee_config::FeeConfig {
             flat_fees: source.flat_fees.0,
             fee_tiers: source.fee_tiers.0,
             stable_fee_tiers: source.stable_fee_tiers.0,
+            exotic_flat_fees: source.exotic_flat_fees.0,
         })
     }
 }
@@ -68,6 +71,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::fee_config::F
             "flat_fees",
             "fee_tiers",
             "stable_fee_tiers",
+            "exotic_flat_fees",
         ]
     }
 }
@@ -83,9 +87,10 @@ impl carbon_core::postgres::operations::Insert for FeeConfigRow {
                 "flat_fees",
                 "fee_tiers",
                 "stable_fee_tiers",
+                "exotic_flat_fees",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
         .bind(self.bump)
@@ -93,6 +98,7 @@ impl carbon_core::postgres::operations::Insert for FeeConfigRow {
         .bind(&self.flat_fees)
         .bind(&self.fee_tiers)
         .bind(&self.stable_fee_tiers)
+        .bind(&self.exotic_flat_fees)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -112,9 +118,10 @@ impl carbon_core::postgres::operations::Upsert for FeeConfigRow {
                 "flat_fees",
                 "fee_tiers",
                 "stable_fee_tiers",
+                "exotic_flat_fees",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -123,6 +130,7 @@ impl carbon_core::postgres::operations::Upsert for FeeConfigRow {
                 "flat_fees" = EXCLUDED."flat_fees",
                 "fee_tiers" = EXCLUDED."fee_tiers",
                 "stable_fee_tiers" = EXCLUDED."stable_fee_tiers",
+                "exotic_flat_fees" = EXCLUDED."exotic_flat_fees",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
                 OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
@@ -133,6 +141,7 @@ impl carbon_core::postgres::operations::Upsert for FeeConfigRow {
         .bind(&self.flat_fees)
         .bind(&self.fee_tiers)
         .bind(&self.stable_fee_tiers)
+        .bind(&self.exotic_flat_fees)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -197,6 +206,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeConfigMigrationOperation {
                 "flat_fees" JSONB NOT NULL,
                 "fee_tiers" JSONB NOT NULL,
                 "stable_fee_tiers" JSONB NOT NULL,
+                "exotic_flat_fees" JSONB NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

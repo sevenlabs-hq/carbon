@@ -19,6 +19,7 @@ pub struct InitFarmsForReserveInstructionAccounts {
     pub farms_vault_authority: solana_pubkey::Pubkey,
     pub rent: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -58,6 +59,7 @@ impl ArrangeAccounts for InitFarmsForReserve {
         let farms_vault_authority = next_account(&mut iter)?;
         let rent = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -72,6 +74,7 @@ impl ArrangeAccounts for InitFarmsForReserve {
             farms_vault_authority,
             rent,
             system_program,
+            instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })
     }

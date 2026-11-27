@@ -5,7 +5,8 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 pub struct RewardUserOnce {
     pub reward_index: u64,
     pub amount: u64,
-    pub expected_reward_issued_unclaimed: u64,
+    pub expected_rewards_issued_cumulative: u64,
+    pub user_state_id: u64,
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -4,4 +4,5 @@ use solana_pubkey::Pubkey;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct DynamicConfigParameters {
     pub pool_creator_authority: Pubkey,
+    pub permission: u128,
 }

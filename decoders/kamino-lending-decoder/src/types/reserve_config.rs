@@ -29,8 +29,15 @@ pub struct ReserveConfig {
     /// blocking borrows and withdrawals on other reserves but still
     /// allowing repays and deposits.
     pub emergency_mode: u8,
+    /// Selects how the time-related settings are interpreted:
+    /// - [Self::borrow_rate_curve] + [Self::host_fixed_interest_rate_bps] (when
+    ///   accruing interest),
+    /// - [Self::rewards_amount_per_accrual_unit] (when accruing rewards).
+    ///
+    /// See the docs of the actual type, [InterestRateBasis].
+    pub interest_rate_basis: u8,
     /// Past reserved space - feel free to reuse.
-    pub reserved1: [u8; 4],
+    pub reserved1: [u8; 3],
     /// Cut of the order execution bonus that the protocol receives, as a
     /// percentage
     pub protocol_order_execution_fee_pct: u8,
@@ -124,8 +131,10 @@ pub struct ReserveConfig {
     /// [Self::debt_maturity_timestamp] - the liquidation mechanism is based
     /// on the [ObligationLiquidity::last_borrowed_at_timestamp].
     pub debt_term_seconds: u64,
-    /// Rewards distributed per slot to depositors. Drained from
-    /// [ReserveLiquidity::rewards_amount_available] into
+    /// Rewards distributed per accrual unit to depositors. The unit follows
+    /// [Self::interest_rate_basis]: per slot for `Legacy`, per second for `TrueApr` (i.e. a
+    /// basis migration must rescale this value by the real slot rate). Drained
+    /// from [ReserveLiquidity::rewards_amount_available] into
     /// [ReserveLiquidity::total_available_amount] at each refresh, capped by
     /// the market-level [LendingMarket::reserve_rewards_max_apr_bps]. `0`
     /// disables. **Note:** because rewards inflate
@@ -133,5 +142,10 @@ pub struct ReserveConfig {
     /// [Self::autodeleverage_enabled] and a finite [Self::deposit_limit]
     /// will eventually cross the cap and arm the autodeleverage countdown. Size
     /// `deposit_limit` and RPS together.
-    pub rewards_amount_per_slot: u64,
+    pub rewards_amount_per_accrual_unit: u64,
+    /// Bitmask of [PermissionedOp]s gated by the parent market's
+    /// `permissioning_authority` when this reserve is the operation's
+    /// target. `0` = no operation is restricted at the reserve level. Use
+    /// [Reserve::get_permissioned_ops] for a typed view.
+    pub permissioned_ops: u64,
 }

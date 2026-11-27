@@ -24,7 +24,7 @@ pub struct StakedSettingsRow {
     pub oracle_max_age: U16,
     pub risk_tier: sqlx::types::Json<RiskTier>,
     pub pad0: Vec<u8>,
-    pub reserved0: Vec<u8>,
+    pub flags: U64,
     pub reserved1: Vec<u8>,
     pub reserved2: Vec<u8>,
 }
@@ -46,7 +46,7 @@ impl StakedSettingsRow {
             oracle_max_age: source.oracle_max_age.into(),
             risk_tier: sqlx::types::Json(source.risk_tier),
             pad0: source.pad0.to_vec(),
-            reserved0: source.reserved0.to_vec(),
+            flags: source.flags.into(),
             reserved1: source.reserved1.to_vec(),
             reserved2: source.reserved2.to_vec(),
         }
@@ -76,12 +76,7 @@ impl TryFrom<StakedSettingsRow> for crate::accounts::staked_settings::StakedSett
                         .to_string(),
                 )
             })?,
-            reserved0: source.reserved0.as_slice().try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 8 bytes"
-                        .to_string(),
-                )
-            })?,
+            flags: *source.flags,
             reserved1: source.reserved1.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert padding from postgres primitive: expected 32 bytes"
@@ -117,7 +112,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::staked_settin
             "oracle_max_age",
             "risk_tier",
             "pad0",
-            "reserved0",
+            "flags",
             "reserved1",
             "reserved2",
         ]
@@ -140,7 +135,7 @@ impl carbon_core::postgres::operations::Insert for StakedSettingsRow {
                 "oracle_max_age",
                 "risk_tier",
                 "pad0",
-                "reserved0",
+                "flags",
                 "reserved1",
                 "reserved2",
                 __pubkey, __slot
@@ -158,7 +153,7 @@ impl carbon_core::postgres::operations::Insert for StakedSettingsRow {
         .bind(self.oracle_max_age)
         .bind(&self.risk_tier)
         .bind(&self.pad0)
-        .bind(&self.reserved0)
+        .bind(&self.flags)
         .bind(&self.reserved1)
         .bind(&self.reserved2)
         .bind(self.account_metadata.pubkey)
@@ -185,7 +180,7 @@ impl carbon_core::postgres::operations::Upsert for StakedSettingsRow {
                 "oracle_max_age",
                 "risk_tier",
                 "pad0",
-                "reserved0",
+                "flags",
                 "reserved1",
                 "reserved2",
                 __pubkey, __slot
@@ -204,7 +199,7 @@ impl carbon_core::postgres::operations::Upsert for StakedSettingsRow {
                 "oracle_max_age" = EXCLUDED."oracle_max_age",
                 "risk_tier" = EXCLUDED."risk_tier",
                 "pad0" = EXCLUDED."pad0",
-                "reserved0" = EXCLUDED."reserved0",
+                "flags" = EXCLUDED."flags",
                 "reserved1" = EXCLUDED."reserved1",
                 "reserved2" = EXCLUDED."reserved2",
                 __slot = EXCLUDED.__slot
@@ -222,7 +217,7 @@ impl carbon_core::postgres::operations::Upsert for StakedSettingsRow {
         .bind(self.oracle_max_age)
         .bind(&self.risk_tier)
         .bind(&self.pad0)
-        .bind(&self.reserved0)
+        .bind(&self.flags)
         .bind(&self.reserved1)
         .bind(&self.reserved2)
         .bind(self.account_metadata.pubkey)
@@ -294,7 +289,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for StakedSettingsMigrationOperati
                 "oracle_max_age" INT4 NOT NULL,
                 "risk_tier" JSONB NOT NULL,
                 "pad0" BYTEA NOT NULL,
-                "reserved0" BYTEA NOT NULL,
+                "flags" NUMERIC(20) NOT NULL,
                 "reserved1" BYTEA NOT NULL,
                 "reserved2" BYTEA NOT NULL,
                 -- Account metadata

@@ -13,6 +13,7 @@ pub struct MarginfiGroupInitializeInstructionAccounts {
     pub admin: solana_pubkey::Pubkey,
     pub fee_state: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -46,6 +47,7 @@ impl ArrangeAccounts for MarginfiGroupInitialize {
         let admin = next_account(&mut iter)?;
         let fee_state = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -54,6 +56,7 @@ impl ArrangeAccounts for MarginfiGroupInitialize {
             admin,
             fee_state,
             system_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

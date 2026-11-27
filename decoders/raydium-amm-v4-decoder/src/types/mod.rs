@@ -8,7 +8,6 @@ pub mod amm_state;
 pub mod amm_status;
 pub mod config_param;
 pub mod fees;
-pub mod last_order_distance;
 pub mod simulate_params;
 pub mod state_data;
 pub mod swap_instruction_base_in;
@@ -17,6 +16,6 @@ pub mod target_order;
 
 pub use self::{
     amm_params::*, amm_reset_flag::*, amm_state::*, amm_status::*, config_param::*, fees::*,
-    last_order_distance::*, simulate_params::*, state_data::*, swap_instruction_base_in::*,
-    swap_instruction_base_out::*, target_order::*,
+    simulate_params::*, state_data::*, swap_instruction_base_in::*, swap_instruction_base_out::*,
+    target_order::*,
 };

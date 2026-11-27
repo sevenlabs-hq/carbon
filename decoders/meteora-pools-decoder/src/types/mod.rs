@@ -2,11 +2,11 @@
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
-pub mod activation_type;
 pub mod add_liquidity;
 pub mod bootstrap_liquidity;
 pub mod bootstrapping;
 pub mod claim_fee;
+pub mod claim_protocol_fee2;
 pub mod close_config;
 pub mod config_parameters;
 pub mod create_config;
@@ -16,8 +16,8 @@ pub mod customizable_params;
 pub mod depeg;
 pub mod depeg_type;
 pub mod lock;
+pub mod locked_profit_tracker;
 pub mod migrate_fee_account;
-pub mod new_curve_type;
 pub mod override_curve_param;
 pub mod padding;
 pub mod partner_claim_fees;
@@ -28,21 +28,19 @@ pub mod pool_fees;
 pub mod pool_info;
 pub mod pool_type;
 pub mod remove_liquidity;
-pub mod round_direction;
-pub mod rounding;
 pub mod set_pool_fees;
 pub mod swap;
 pub mod token_multiplier;
-pub mod trade_direction;
 pub mod transfer_admin;
+pub mod vault_bumps;
 pub mod withdraw_protocol_fees;
 
 pub use self::{
-    activation_type::*, add_liquidity::*, bootstrap_liquidity::*, bootstrapping::*, claim_fee::*,
-    close_config::*, config_parameters::*, create_config::*, create_lock_escrow::*, curve_type::*,
-    customizable_params::*, depeg::*, depeg_type::*, lock::*, migrate_fee_account::*,
-    new_curve_type::*, override_curve_param::*, padding::*, partner_claim_fees::*, partner_info::*,
-    pool_created::*, pool_enabled::*, pool_fees::*, pool_info::*, pool_type::*,
-    remove_liquidity::*, round_direction::*, rounding::*, set_pool_fees::*, swap::*,
-    token_multiplier::*, trade_direction::*, transfer_admin::*, withdraw_protocol_fees::*,
+    add_liquidity::*, bootstrap_liquidity::*, bootstrapping::*, claim_fee::*,
+    claim_protocol_fee2::*, close_config::*, config_parameters::*, create_config::*,
+    create_lock_escrow::*, curve_type::*, customizable_params::*, depeg::*, depeg_type::*, lock::*,
+    locked_profit_tracker::*, migrate_fee_account::*, override_curve_param::*, padding::*,
+    partner_claim_fees::*, partner_info::*, pool_created::*, pool_enabled::*, pool_fees::*,
+    pool_info::*, pool_type::*, remove_liquidity::*, set_pool_fees::*, swap::*,
+    token_multiplier::*, transfer_admin::*, vault_bumps::*, withdraw_protocol_fees::*,
 };

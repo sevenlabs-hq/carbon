@@ -20,6 +20,12 @@ pub struct GlobalConfigGraphQL {
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: Vec<Pubkey>,
     pub is_cashback_enabled: bool,
+    pub buyback_fee_recipients: Vec<Pubkey>,
+    pub buyback_basis_points: U64,
+    pub boost_authority: Pubkey,
+    pub boost_enabled: bool,
+    pub creator_fee_configurable: bool,
+    pub max_configurable_creator_fee_bps: U64,
 }
 
 impl TryFrom<crate::accounts::postgres::GlobalConfigRow> for GlobalConfigGraphQL {
@@ -55,6 +61,18 @@ impl TryFrom<crate::accounts::postgres::GlobalConfigRow> for GlobalConfigGraphQL
                 .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
                 .collect(),
             is_cashback_enabled: row.is_cashback_enabled,
+            buyback_fee_recipients: row
+                .buyback_fee_recipients
+                .into_iter()
+                .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
+                .collect(),
+            buyback_basis_points: carbon_core::graphql::primitives::U64(*row.buyback_basis_points),
+            boost_authority: carbon_core::graphql::primitives::Pubkey(row.boost_authority.0),
+            boost_enabled: row.boost_enabled,
+            creator_fee_configurable: row.creator_fee_configurable,
+            max_configurable_creator_fee_bps: carbon_core::graphql::primitives::U64(
+                *row.max_configurable_creator_fee_bps,
+            ),
         })
     }
 }

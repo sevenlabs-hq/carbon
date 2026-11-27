@@ -20,7 +20,8 @@ pub struct PoolGraphQL {
     pub padding1: U128,
     pub protocol_a_fee: U64,
     pub protocol_b_fee: U64,
-    pub padding2: U128,
+    pub dead_liquidity_fee_checkpoint: U64,
+    pub padding2: Vec<U8>,
     pub sqrt_min_price: U128,
     pub sqrt_max_price: U128,
     pub sqrt_price: U128,
@@ -66,7 +67,14 @@ impl TryFrom<crate::accounts::postgres::PoolRow> for PoolGraphQL {
             padding1: carbon_core::graphql::primitives::U128(*row.padding1),
             protocol_a_fee: carbon_core::graphql::primitives::U64(*row.protocol_a_fee),
             protocol_b_fee: carbon_core::graphql::primitives::U64(*row.protocol_b_fee),
-            padding2: carbon_core::graphql::primitives::U128(*row.padding2),
+            dead_liquidity_fee_checkpoint: carbon_core::graphql::primitives::U64(
+                *row.dead_liquidity_fee_checkpoint,
+            ),
+            padding2: row
+                .padding2
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
+                .collect(),
             sqrt_min_price: carbon_core::graphql::primitives::U128(*row.sqrt_min_price),
             sqrt_max_price: carbon_core::graphql::primitives::U128(*row.sqrt_max_price),
             sqrt_price: carbon_core::graphql::primitives::U128(*row.sqrt_price),

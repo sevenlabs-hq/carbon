@@ -13,23 +13,24 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
 )]
 pub enum CpiEvent {
     AddLiquidity(events::add_liquidity::AddLiquidityEvent),
-    RemoveLiquidity(events::remove_liquidity::RemoveLiquidityEvent),
     BootstrapLiquidity(events::bootstrap_liquidity::BootstrapLiquidityEvent),
-    Swap(events::swap::SwapEvent),
-    SetPoolFees(events::set_pool_fees::SetPoolFeesEvent),
-    PoolInfo(events::pool_info::PoolInfoEvent),
-    TransferAdmin(events::transfer_admin::TransferAdminEvent),
-    OverrideCurveParam(events::override_curve_param::OverrideCurveParamEvent),
-    PoolCreated(events::pool_created::PoolCreatedEvent),
-    PoolEnabled(events::pool_enabled::PoolEnabledEvent),
-    MigrateFeeAccount(events::migrate_fee_account::MigrateFeeAccountEvent),
+    ClaimFee(events::claim_fee::ClaimFeeEvent),
+    ClaimProtocolFee2(events::claim_protocol_fee2::ClaimProtocolFee2Event),
+    CloseConfig(events::close_config::CloseConfigEvent),
+    CreateConfig(events::create_config::CreateConfigEvent),
     CreateLockEscrow(events::create_lock_escrow::CreateLockEscrowEvent),
     Lock(events::lock::LockEvent),
-    ClaimFee(events::claim_fee::ClaimFeeEvent),
-    CreateConfig(events::create_config::CreateConfigEvent),
-    CloseConfig(events::close_config::CloseConfigEvent),
-    WithdrawProtocolFees(events::withdraw_protocol_fees::WithdrawProtocolFeesEvent),
+    MigrateFeeAccount(events::migrate_fee_account::MigrateFeeAccountEvent),
+    OverrideCurveParam(events::override_curve_param::OverrideCurveParamEvent),
     PartnerClaimFees(events::partner_claim_fees::PartnerClaimFeesEvent),
+    PoolCreated(events::pool_created::PoolCreatedEvent),
+    PoolEnabled(events::pool_enabled::PoolEnabledEvent),
+    PoolInfo(events::pool_info::PoolInfoEvent),
+    RemoveLiquidity(events::remove_liquidity::RemoveLiquidityEvent),
+    SetPoolFees(events::set_pool_fees::SetPoolFeesEvent),
+    Swap(events::swap::SwapEvent),
+    TransferAdmin(events::transfer_admin::TransferAdminEvent),
+    WithdrawProtocolFees(events::withdraw_protocol_fees::WithdrawProtocolFeesEvent),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -50,46 +51,29 @@ impl CpiEvent {
             return None;
         }
 
-        let event_data = data;
+        let event_data = &data[8..];
 
         if let Some(decoded) = events::add_liquidity::AddLiquidityEvent::decode(event_data) {
             return Some(CpiEvent::AddLiquidity(decoded));
-        }
-        if let Some(decoded) = events::remove_liquidity::RemoveLiquidityEvent::decode(event_data) {
-            return Some(CpiEvent::RemoveLiquidity(decoded));
         }
         if let Some(decoded) =
             events::bootstrap_liquidity::BootstrapLiquidityEvent::decode(event_data)
         {
             return Some(CpiEvent::BootstrapLiquidity(decoded));
         }
-        if let Some(decoded) = events::swap::SwapEvent::decode(event_data) {
-            return Some(CpiEvent::Swap(decoded));
-        }
-        if let Some(decoded) = events::set_pool_fees::SetPoolFeesEvent::decode(event_data) {
-            return Some(CpiEvent::SetPoolFees(decoded));
-        }
-        if let Some(decoded) = events::pool_info::PoolInfoEvent::decode(event_data) {
-            return Some(CpiEvent::PoolInfo(decoded));
-        }
-        if let Some(decoded) = events::transfer_admin::TransferAdminEvent::decode(event_data) {
-            return Some(CpiEvent::TransferAdmin(decoded));
+        if let Some(decoded) = events::claim_fee::ClaimFeeEvent::decode(event_data) {
+            return Some(CpiEvent::ClaimFee(decoded));
         }
         if let Some(decoded) =
-            events::override_curve_param::OverrideCurveParamEvent::decode(event_data)
+            events::claim_protocol_fee2::ClaimProtocolFee2Event::decode(event_data)
         {
-            return Some(CpiEvent::OverrideCurveParam(decoded));
+            return Some(CpiEvent::ClaimProtocolFee2(decoded));
         }
-        if let Some(decoded) = events::pool_created::PoolCreatedEvent::decode(event_data) {
-            return Some(CpiEvent::PoolCreated(decoded));
+        if let Some(decoded) = events::close_config::CloseConfigEvent::decode(event_data) {
+            return Some(CpiEvent::CloseConfig(decoded));
         }
-        if let Some(decoded) = events::pool_enabled::PoolEnabledEvent::decode(event_data) {
-            return Some(CpiEvent::PoolEnabled(decoded));
-        }
-        if let Some(decoded) =
-            events::migrate_fee_account::MigrateFeeAccountEvent::decode(event_data)
-        {
-            return Some(CpiEvent::MigrateFeeAccount(decoded));
+        if let Some(decoded) = events::create_config::CreateConfigEvent::decode(event_data) {
+            return Some(CpiEvent::CreateConfig(decoded));
         }
         if let Some(decoded) = events::create_lock_escrow::CreateLockEscrowEvent::decode(event_data)
         {
@@ -98,23 +82,45 @@ impl CpiEvent {
         if let Some(decoded) = events::lock::LockEvent::decode(event_data) {
             return Some(CpiEvent::Lock(decoded));
         }
-        if let Some(decoded) = events::claim_fee::ClaimFeeEvent::decode(event_data) {
-            return Some(CpiEvent::ClaimFee(decoded));
+        if let Some(decoded) =
+            events::migrate_fee_account::MigrateFeeAccountEvent::decode(event_data)
+        {
+            return Some(CpiEvent::MigrateFeeAccount(decoded));
         }
-        if let Some(decoded) = events::create_config::CreateConfigEvent::decode(event_data) {
-            return Some(CpiEvent::CreateConfig(decoded));
+        if let Some(decoded) =
+            events::override_curve_param::OverrideCurveParamEvent::decode(event_data)
+        {
+            return Some(CpiEvent::OverrideCurveParam(decoded));
         }
-        if let Some(decoded) = events::close_config::CloseConfigEvent::decode(event_data) {
-            return Some(CpiEvent::CloseConfig(decoded));
+        if let Some(decoded) = events::partner_claim_fees::PartnerClaimFeesEvent::decode(event_data)
+        {
+            return Some(CpiEvent::PartnerClaimFees(decoded));
+        }
+        if let Some(decoded) = events::pool_created::PoolCreatedEvent::decode(event_data) {
+            return Some(CpiEvent::PoolCreated(decoded));
+        }
+        if let Some(decoded) = events::pool_enabled::PoolEnabledEvent::decode(event_data) {
+            return Some(CpiEvent::PoolEnabled(decoded));
+        }
+        if let Some(decoded) = events::pool_info::PoolInfoEvent::decode(event_data) {
+            return Some(CpiEvent::PoolInfo(decoded));
+        }
+        if let Some(decoded) = events::remove_liquidity::RemoveLiquidityEvent::decode(event_data) {
+            return Some(CpiEvent::RemoveLiquidity(decoded));
+        }
+        if let Some(decoded) = events::set_pool_fees::SetPoolFeesEvent::decode(event_data) {
+            return Some(CpiEvent::SetPoolFees(decoded));
+        }
+        if let Some(decoded) = events::swap::SwapEvent::decode(event_data) {
+            return Some(CpiEvent::Swap(decoded));
+        }
+        if let Some(decoded) = events::transfer_admin::TransferAdminEvent::decode(event_data) {
+            return Some(CpiEvent::TransferAdmin(decoded));
         }
         if let Some(decoded) =
             events::withdraw_protocol_fees::WithdrawProtocolFeesEvent::decode(event_data)
         {
             return Some(CpiEvent::WithdrawProtocolFees(decoded));
-        }
-        if let Some(decoded) = events::partner_claim_fees::PartnerClaimFeesEvent::decode(event_data)
-        {
-            return Some(CpiEvent::PartnerClaimFees(decoded));
         }
         None
     }

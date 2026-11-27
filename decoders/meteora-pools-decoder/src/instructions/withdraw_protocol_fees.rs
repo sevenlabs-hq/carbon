@@ -3,7 +3,10 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// Withdraw protocol fee
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
-pub struct WithdrawProtocolFees {}
+pub struct WithdrawProtocolFees {
+    pub max_amount_a: u64,
+    pub max_amount_b: u64,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -12,8 +15,12 @@ pub struct WithdrawProtocolFeesInstructionAccounts {
     pub a_vault_lp: solana_pubkey::Pubkey,
     pub protocol_token_a_fee: solana_pubkey::Pubkey,
     pub protocol_token_b_fee: solana_pubkey::Pubkey,
+    pub token_a_mint: solana_pubkey::Pubkey,
+    pub token_b_mint: solana_pubkey::Pubkey,
     pub treasury_token_a: solana_pubkey::Pubkey,
     pub treasury_token_b: solana_pubkey::Pubkey,
+    pub operator: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
@@ -48,8 +55,12 @@ impl ArrangeAccounts for WithdrawProtocolFees {
         let a_vault_lp = next_account(&mut iter)?;
         let protocol_token_a_fee = next_account(&mut iter)?;
         let protocol_token_b_fee = next_account(&mut iter)?;
+        let token_a_mint = next_account(&mut iter)?;
+        let token_b_mint = next_account(&mut iter)?;
         let treasury_token_a = next_account(&mut iter)?;
         let treasury_token_b = next_account(&mut iter)?;
+        let operator = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
@@ -59,8 +70,12 @@ impl ArrangeAccounts for WithdrawProtocolFees {
             a_vault_lp,
             protocol_token_a_fee,
             protocol_token_b_fee,
+            token_a_mint,
+            token_b_mint,
             treasury_token_a,
             treasury_token_b,
+            operator,
+            signer,
             token_program,
             remaining: remaining.to_vec(),
         })

@@ -3,9 +3,12 @@ use crate::types::{RatePoint, WrappedI80F48};
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct InterestRateConfig {
-    pub optimal_utilization_rate: WrappedI80F48,
-    pub plateau_interest_rate: WrappedI80F48,
-    pub max_interest_rate: WrappedI80F48,
+    /// DEPRECATED placeholder field. Formerly used for legacy curve math.
+    pub placeholder0: WrappedI80F48,
+    /// DEPRECATED placeholder field. Formerly used for legacy curve math.
+    pub placeholder1: WrappedI80F48,
+    /// DEPRECATED placeholder field. Formerly used for legacy curve math.
+    pub placeholder2: WrappedI80F48,
     /// Goes to insurance, funds `collected_insurance_fees_outstanding`
     pub insurance_fee_fixed_apr: WrappedI80F48,
     /// Goes to insurance, funds `collected_insurance_fees_outstanding`
@@ -29,9 +32,9 @@ pub struct InterestRateConfig {
     /// point, and so forth.
     /// * points where util = 0 are unused
     pub points: [RatePoint; 5],
-    /// Determines which interest rate curve implementation is active. 0
-    /// (INTEREST_CURVE_LEGACY) = legacy three point curve, 1
-    /// (INTEREST_CURVE_SEVEN_POINT) = multi-point curve.
+    /// Determines which interest rate curve implementation is active.
+    /// - 0 (`INTEREST_CURVE_LEGACY`) is deprecated and unsupported.
+    /// - 1 (`INTEREST_CURVE_SEVEN_POINT`) is the active multi-point curve.
     pub curve_type: u8,
     pub pad0: [u8; 7],
     pub padding1: [u8; 32],

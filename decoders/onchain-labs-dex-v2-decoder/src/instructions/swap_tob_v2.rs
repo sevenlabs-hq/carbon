@@ -3,8 +3,6 @@ use {
     crate::types::SwapArgs,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// Used to support commission distribution between parent and child nodes in
-/// TOB business
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SwapTobV2 {

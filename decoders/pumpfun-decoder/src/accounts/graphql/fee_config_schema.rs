@@ -14,6 +14,7 @@ pub struct FeeConfigGraphQL {
     pub flat_fees: FeesGraphQL,
     pub fee_tiers: Vec<FeeTierGraphQL>,
     pub stable_fee_tiers: Vec<FeeTierGraphQL>,
+    pub exotic_flat_fees: FeesGraphQL,
 }
 
 impl TryFrom<crate::accounts::postgres::FeeConfigRow> for FeeConfigGraphQL {
@@ -36,6 +37,7 @@ impl TryFrom<crate::accounts::postgres::FeeConfigRow> for FeeConfigGraphQL {
                 .into_iter()
                 .map(|item| item.into())
                 .collect(),
+            exotic_flat_fees: row.exotic_flat_fees.0.into(),
         })
     }
 }

@@ -10,7 +10,8 @@ pub struct RewardUserOnceRow {
     pub instruction_metadata: InstructionRowMetadata,
     pub reward_index: U64,
     pub amount: U64,
-    pub expected_reward_issued_unclaimed: U64,
+    pub expected_rewards_issued_cumulative: U64,
+    pub user_state_id: U64,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -25,7 +26,8 @@ impl RewardUserOnceRow {
             instruction_metadata: metadata.into(),
             reward_index: source.reward_index.into(),
             amount: source.amount.into(),
-            expected_reward_issued_unclaimed: source.expected_reward_issued_unclaimed.into(),
+            expected_rewards_issued_cumulative: source.expected_rewards_issued_cumulative.into(),
+            user_state_id: source.user_state_id.into(),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -37,7 +39,8 @@ impl TryFrom<RewardUserOnceRow> for crate::instructions::reward_user_once::Rewar
         Ok(Self {
             reward_index: *source.reward_index,
             amount: *source.amount,
-            expected_reward_issued_unclaimed: *source.expected_reward_issued_unclaimed,
+            expected_rewards_issued_cumulative: *source.expected_rewards_issued_cumulative,
+            user_state_id: *source.user_state_id,
         })
     }
 }
@@ -58,7 +61,8 @@ impl carbon_core::postgres::operations::Table
             "__slot",
             "reward_index",
             "amount",
-            "expected_reward_issued_unclaimed",
+            "expected_rewards_issued_cumulative",
+            "user_state_id",
             "__accounts",
         ]
     }
@@ -72,16 +76,18 @@ impl carbon_core::postgres::operations::Insert for RewardUserOnceRow {
             INSERT INTO reward_user_once_instruction (
                 "reward_index",
                 "amount",
-                "expected_reward_issued_unclaimed",
+                "expected_rewards_issued_cumulative",
+                "user_state_id",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
             )"#,
         )
         .bind(&self.reward_index)
         .bind(&self.amount)
-        .bind(&self.expected_reward_issued_unclaimed)
+        .bind(&self.expected_rewards_issued_cumulative)
+        .bind(&self.user_state_id)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -98,38 +104,38 @@ impl carbon_core::postgres::operations::Insert for RewardUserOnceRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for RewardUserOnceRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO reward_user_once_instruction (
+        sqlx::query(r#"INSERT INTO reward_user_once_instruction (
                 "reward_index",
                 "amount",
-                "expected_reward_issued_unclaimed",
+                "expected_rewards_issued_cumulative",
+                "user_state_id",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
             ) ON CONFLICT (
                 __signature, __absolute_path
             ) DO UPDATE SET
                 "reward_index" = EXCLUDED."reward_index",
                 "amount" = EXCLUDED."amount",
-                "expected_reward_issued_unclaimed" = EXCLUDED."expected_reward_issued_unclaimed",
+                "expected_rewards_issued_cumulative" = EXCLUDED."expected_rewards_issued_cumulative",
+                "user_state_id" = EXCLUDED."user_state_id",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
                 __accounts = EXCLUDED.__accounts
-            "#,
-        )
+            "#)
         .bind(&self.reward_index)
         .bind(&self.amount)
-        .bind(&self.expected_reward_issued_unclaimed)
+        .bind(&self.expected_rewards_issued_cumulative)
+        .bind(&self.user_state_id)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(&self.instruction_metadata.absolute_path)
         .bind(&self.instruction_metadata.slot)
         .bind(&self.accounts)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -189,7 +195,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RewardUserOnceMigrationOperati
                 -- Instruction data
                 "reward_index" NUMERIC(20) NOT NULL,
                 "amount" NUMERIC(20) NOT NULL,
-                "expected_reward_issued_unclaimed" NUMERIC(20) NOT NULL,
+                "expected_rewards_issued_cumulative" NUMERIC(20) NOT NULL,
+                "user_state_id" NUMERIC(20) NOT NULL,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

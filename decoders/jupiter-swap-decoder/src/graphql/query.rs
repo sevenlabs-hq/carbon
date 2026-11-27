@@ -158,6 +158,86 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn withdraw_token_account_excess_lamports(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawTokenAccountExcessLamportsGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::WithdrawTokenAccountExcessLamportsRow> = sqlx::query_as(
+            r#"SELECT * FROM withdraw_token_account_excess_lamports_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_withdraw_token_account_excess_lamports(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawTokenAccountExcessLamportsGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::WithdrawTokenAccountExcessLamportsRow> = sqlx::query_as(
+            r#"SELECT * FROM withdraw_token_account_excess_lamports_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn create_idempotent_associated_token_account(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateIdempotentAssociatedTokenAccountGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::CreateIdempotentAssociatedTokenAccountRow> = sqlx::query_as(
+            r#"SELECT * FROM create_idempotent_associated_token_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_create_idempotent_associated_token_account(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateIdempotentAssociatedTokenAccountGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::CreateIdempotentAssociatedTokenAccountRow> = sqlx::query_as(
+            r#"SELECT * FROM create_idempotent_associated_token_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn create_token_ledger(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -680,6 +760,84 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::SharedAccountsRouteV2GraphQL>> {
         let rows: Vec<crate::instructions::postgres::SharedAccountsRouteV2Row> = sqlx::query_as(
             r#"SELECT * FROM shared_accounts_route_v2_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn route_with_attestation(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RouteWithAttestationGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RouteWithAttestationRow> = sqlx::query_as(
+            r#"SELECT * FROM route_with_attestation_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_route_with_attestation(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RouteWithAttestationGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RouteWithAttestationRow> = sqlx::query_as(
+            r#"SELECT * FROM route_with_attestation_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn shared_accounts_route_with_attestation(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SharedAccountsRouteWithAttestationGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::SharedAccountsRouteWithAttestationRow> = sqlx::query_as(
+            r#"SELECT * FROM shared_accounts_route_with_attestation_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_shared_accounts_route_with_attestation(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::SharedAccountsRouteWithAttestationGraphQL>>
+    {
+        let rows: Vec<crate::instructions::postgres::SharedAccountsRouteWithAttestationRow> = sqlx::query_as(
+            r#"SELECT * FROM shared_accounts_route_with_attestation_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

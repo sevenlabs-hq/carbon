@@ -8,6 +8,9 @@ pub enum BankOperationalStateGraphQL {
     Operational,
     ReduceOnly,
     KilledByBankruptcy,
+    Uninitialized,
+    ReduceOnlyWithBorrowingPower,
+    CircuitBroken,
 }
 
 impl From<crate::types::BankOperationalState> for BankOperationalStateGraphQL {
@@ -17,6 +20,11 @@ impl From<crate::types::BankOperationalState> for BankOperationalStateGraphQL {
             crate::types::BankOperationalState::Operational => Self::Operational,
             crate::types::BankOperationalState::ReduceOnly => Self::ReduceOnly,
             crate::types::BankOperationalState::KilledByBankruptcy => Self::KilledByBankruptcy,
+            crate::types::BankOperationalState::Uninitialized => Self::Uninitialized,
+            crate::types::BankOperationalState::ReduceOnlyWithBorrowingPower => {
+                Self::ReduceOnlyWithBorrowingPower
+            }
+            crate::types::BankOperationalState::CircuitBroken => Self::CircuitBroken,
         }
     }
 }

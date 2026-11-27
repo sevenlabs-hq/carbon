@@ -88,6 +88,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterLimitOrder2Deco
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            JupiterLimitOrder2Instruction::CpiEvent => CpiEvent,
             JupiterLimitOrder2Instruction::CancelDustOrder => CancelDustOrder,
             JupiterLimitOrder2Instruction::CancelOrder => CancelOrder,
             JupiterLimitOrder2Instruction::FillOrder => FillOrder,
@@ -96,7 +97,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterLimitOrder2Deco
             JupiterLimitOrder2Instruction::PreFlashFillOrder => PreFlashFillOrder,
             JupiterLimitOrder2Instruction::UpdateFee => UpdateFee,
             JupiterLimitOrder2Instruction::WithdrawFee => WithdrawFee,
-            JupiterLimitOrder2Instruction::CpiEvent => CpiEvent,
         )
     }
 }

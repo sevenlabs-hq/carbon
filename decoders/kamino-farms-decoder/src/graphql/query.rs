@@ -1096,6 +1096,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn close_empty_user_state(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseEmptyUserStateGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseEmptyUserStateRow> = sqlx::query_as(
+            r#"SELECT * FROM close_empty_user_state_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_close_empty_user_state(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseEmptyUserStateGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseEmptyUserStateRow> = sqlx::query_as(
+            r#"SELECT * FROM close_empty_user_state_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn idl_missing_types(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,

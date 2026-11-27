@@ -24,8 +24,13 @@ pub struct AmmConfig {
     pub fund_owner: Pubkey,
     /// The pool creator fee, denominated in hundredths of a bip (10^-6)
     pub creator_fee_rate: u64,
+    /// The share of the creator fee retained by the protocol, denominated in
+    /// hundredths of a bip (10^-6). Zero means the creator receives the whole
+    /// creator fee. Overridden by a `CreatorFeeShare` account when one
+    /// exists for the pool creator.
+    pub creator_fee_share_rate: u64,
     /// padding
-    pub padding: [u64; 15],
+    pub padding: [u64; 14],
 }
 
 impl AmmConfig {

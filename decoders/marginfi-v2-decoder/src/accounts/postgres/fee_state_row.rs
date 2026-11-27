@@ -17,7 +17,8 @@ pub struct FeeStateRow {
     pub key: Pubkey,
     pub global_fee_admin: Pubkey,
     pub global_fee_wallet: Pubkey,
-    pub placeholder0: U64,
+    pub account_transfer_fee: U32,
+    pub placeholder0: Vec<u8>,
     pub bank_init_flat_sol_fee: U32,
     pub bump_seed: U8,
     pub padding0: Vec<u8>,
@@ -29,7 +30,9 @@ pub struct FeeStateRow {
     pub liquidation_flat_sol_fee: U32,
     pub order_init_flat_sol_fee: U32,
     pub order_execution_max_fee: sqlx::types::Json<WrappedI80F48>,
-    pub reserved1: Vec<u8>,
+    pub pause_delegate_admin: Pubkey,
+    pub premium_wallet: Pubkey,
+    pub reserved0: Vec<U64>,
 }
 
 impl FeeStateRow {
@@ -42,7 +45,8 @@ impl FeeStateRow {
             key: source.key.into(),
             global_fee_admin: source.global_fee_admin.into(),
             global_fee_wallet: source.global_fee_wallet.into(),
-            placeholder0: source.placeholder0.into(),
+            account_transfer_fee: source.account_transfer_fee.into(),
+            placeholder0: source.placeholder0.to_vec(),
             bank_init_flat_sol_fee: source.bank_init_flat_sol_fee.into(),
             bump_seed: source.bump_seed.into(),
             padding0: source.padding0.to_vec(),
@@ -54,7 +58,13 @@ impl FeeStateRow {
             liquidation_flat_sol_fee: source.liquidation_flat_sol_fee.into(),
             order_init_flat_sol_fee: source.order_init_flat_sol_fee.into(),
             order_execution_max_fee: sqlx::types::Json(source.order_execution_max_fee),
-            reserved1: source.reserved1.to_vec(),
+            pause_delegate_admin: source.pause_delegate_admin.into(),
+            premium_wallet: source.premium_wallet.into(),
+            reserved0: source
+                .reserved0
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
         }
     }
 }
@@ -66,7 +76,17 @@ impl TryFrom<FeeStateRow> for crate::accounts::fee_state::FeeState {
             key: *source.key,
             global_fee_admin: *source.global_fee_admin,
             global_fee_wallet: *source.global_fee_wallet,
-            placeholder0: *source.placeholder0,
+            account_transfer_fee: source.account_transfer_fee.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            placeholder0: source.placeholder0.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 4 bytes"
+                        .to_string(),
+                )
+            })?,
             bank_init_flat_sol_fee: source.bank_init_flat_sol_fee.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
@@ -99,12 +119,24 @@ impl TryFrom<FeeStateRow> for crate::accounts::fee_state::FeeState {
                 )
             })?,
             order_execution_max_fee: source.order_execution_max_fee.0,
-            reserved1: source.reserved1.as_slice().try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 32 bytes"
-                        .to_string(),
-                )
-            })?,
+            pause_delegate_admin: *source.pause_delegate_admin,
+            premium_wallet: *source.premium_wallet,
+            reserved0: source
+                .reserved0
+                .into_iter()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
         })
     }
 }
@@ -121,6 +153,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::fee_state::Fe
             "key",
             "global_fee_admin",
             "global_fee_wallet",
+            "account_transfer_fee",
             "placeholder0",
             "bank_init_flat_sol_fee",
             "bump_seed",
@@ -133,7 +166,9 @@ impl carbon_core::postgres::operations::Table for crate::accounts::fee_state::Fe
             "liquidation_flat_sol_fee",
             "order_init_flat_sol_fee",
             "order_execution_max_fee",
-            "reserved1",
+            "pause_delegate_admin",
+            "premium_wallet",
+            "reserved0",
         ]
     }
 }
@@ -141,12 +176,12 @@ impl carbon_core::postgres::operations::Table for crate::accounts::fee_state::Fe
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for FeeStateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO fee_state_account (
                 "key",
                 "global_fee_admin",
                 "global_fee_wallet",
+                "account_transfer_fee",
                 "placeholder0",
                 "bank_init_flat_sol_fee",
                 "bump_seed",
@@ -159,15 +194,17 @@ impl carbon_core::postgres::operations::Insert for FeeStateRow {
                 "liquidation_flat_sol_fee",
                 "order_init_flat_sol_fee",
                 "order_execution_max_fee",
-                "reserved1",
+                "pause_delegate_admin",
+                "premium_wallet",
+                "reserved0",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
-            )"#,
-        )
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
+            )"#)
         .bind(self.key)
         .bind(self.global_fee_admin)
         .bind(self.global_fee_wallet)
+        .bind(self.account_transfer_fee)
         .bind(&self.placeholder0)
         .bind(self.bank_init_flat_sol_fee)
         .bind(self.bump_seed)
@@ -180,11 +217,12 @@ impl carbon_core::postgres::operations::Insert for FeeStateRow {
         .bind(self.liquidation_flat_sol_fee)
         .bind(self.order_init_flat_sol_fee)
         .bind(&self.order_execution_max_fee)
-        .bind(&self.reserved1)
+        .bind(self.pause_delegate_admin)
+        .bind(self.premium_wallet)
+        .bind(&self.reserved0)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -193,11 +231,11 @@ impl carbon_core::postgres::operations::Insert for FeeStateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for FeeStateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO fee_state_account AS stored (
+        sqlx::query(r#"INSERT INTO fee_state_account AS stored (
                 "key",
                 "global_fee_admin",
                 "global_fee_wallet",
+                "account_transfer_fee",
                 "placeholder0",
                 "bank_init_flat_sol_fee",
                 "bump_seed",
@@ -210,16 +248,19 @@ impl carbon_core::postgres::operations::Upsert for FeeStateRow {
                 "liquidation_flat_sol_fee",
                 "order_init_flat_sol_fee",
                 "order_execution_max_fee",
-                "reserved1",
+                "pause_delegate_admin",
+                "premium_wallet",
+                "reserved0",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
                 "key" = EXCLUDED."key",
                 "global_fee_admin" = EXCLUDED."global_fee_admin",
                 "global_fee_wallet" = EXCLUDED."global_fee_wallet",
+                "account_transfer_fee" = EXCLUDED."account_transfer_fee",
                 "placeholder0" = EXCLUDED."placeholder0",
                 "bank_init_flat_sol_fee" = EXCLUDED."bank_init_flat_sol_fee",
                 "bump_seed" = EXCLUDED."bump_seed",
@@ -232,15 +273,17 @@ impl carbon_core::postgres::operations::Upsert for FeeStateRow {
                 "liquidation_flat_sol_fee" = EXCLUDED."liquidation_flat_sol_fee",
                 "order_init_flat_sol_fee" = EXCLUDED."order_init_flat_sol_fee",
                 "order_execution_max_fee" = EXCLUDED."order_execution_max_fee",
-                "reserved1" = EXCLUDED."reserved1",
+                "pause_delegate_admin" = EXCLUDED."pause_delegate_admin",
+                "premium_wallet" = EXCLUDED."premium_wallet",
+                "reserved0" = EXCLUDED."reserved0",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
                 OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
-            "#,
-        )
+            "#)
         .bind(self.key)
         .bind(self.global_fee_admin)
         .bind(self.global_fee_wallet)
+        .bind(self.account_transfer_fee)
         .bind(&self.placeholder0)
         .bind(self.bank_init_flat_sol_fee)
         .bind(self.bump_seed)
@@ -253,11 +296,12 @@ impl carbon_core::postgres::operations::Upsert for FeeStateRow {
         .bind(self.liquidation_flat_sol_fee)
         .bind(self.order_init_flat_sol_fee)
         .bind(&self.order_execution_max_fee)
-        .bind(&self.reserved1)
+        .bind(self.pause_delegate_admin)
+        .bind(self.premium_wallet)
+        .bind(&self.reserved0)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -316,7 +360,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeStateMigrationOperation {
                 "key" BYTEA NOT NULL,
                 "global_fee_admin" BYTEA NOT NULL,
                 "global_fee_wallet" BYTEA NOT NULL,
-                "placeholder0" NUMERIC(20) NOT NULL,
+                "account_transfer_fee" INT8 NOT NULL,
+                "placeholder0" BYTEA NOT NULL,
                 "bank_init_flat_sol_fee" INT8 NOT NULL,
                 "bump_seed" INT2 NOT NULL,
                 "padding0" BYTEA NOT NULL,
@@ -328,7 +373,9 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeStateMigrationOperation {
                 "liquidation_flat_sol_fee" INT8 NOT NULL,
                 "order_init_flat_sol_fee" INT8 NOT NULL,
                 "order_execution_max_fee" JSONB NOT NULL,
-                "reserved1" BYTEA NOT NULL,
+                "pause_delegate_admin" BYTEA NOT NULL,
+                "premium_wallet" BYTEA NOT NULL,
+                "reserved0" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

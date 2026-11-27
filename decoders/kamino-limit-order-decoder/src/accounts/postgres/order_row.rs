@@ -32,6 +32,7 @@ pub struct OrderRow {
     pub last_updated_timestamp: U64,
     pub flash_start_taker_output_balance: U64,
     pub counterparty: Pubkey,
+    pub fee_paid: U64,
     pub padding: Vec<U64>,
 }
 
@@ -64,6 +65,7 @@ impl OrderRow {
             last_updated_timestamp: source.last_updated_timestamp.into(),
             flash_start_taker_output_balance: source.flash_start_taker_output_balance.into(),
             counterparty: source.counterparty.into(),
+            fee_paid: source.fee_paid.into(),
             padding: source
                 .padding
                 .into_iter()
@@ -134,6 +136,7 @@ impl TryFrom<OrderRow> for crate::accounts::order::Order {
             last_updated_timestamp: *source.last_updated_timestamp,
             flash_start_taker_output_balance: *source.flash_start_taker_output_balance,
             counterparty: *source.counterparty,
+            fee_paid: *source.fee_paid,
             padding: source
                 .padding
                 .into_iter()
@@ -184,6 +187,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::order::Order 
             "last_updated_timestamp",
             "flash_start_taker_output_balance",
             "counterparty",
+            "fee_paid",
             "padding",
         ]
     }
@@ -215,10 +219,11 @@ impl carbon_core::postgres::operations::Insert for OrderRow {
                 "last_updated_timestamp",
                 "flash_start_taker_output_balance",
                 "counterparty",
+                "fee_paid",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25
             )"#)
         .bind(self.global_config)
         .bind(self.maker)
@@ -241,6 +246,7 @@ impl carbon_core::postgres::operations::Insert for OrderRow {
         .bind(&self.last_updated_timestamp)
         .bind(&self.flash_start_taker_output_balance)
         .bind(self.counterparty)
+        .bind(&self.fee_paid)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -275,10 +281,11 @@ impl carbon_core::postgres::operations::Upsert for OrderRow {
                 "last_updated_timestamp",
                 "flash_start_taker_output_balance",
                 "counterparty",
+                "fee_paid",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -303,6 +310,7 @@ impl carbon_core::postgres::operations::Upsert for OrderRow {
                 "last_updated_timestamp" = EXCLUDED."last_updated_timestamp",
                 "flash_start_taker_output_balance" = EXCLUDED."flash_start_taker_output_balance",
                 "counterparty" = EXCLUDED."counterparty",
+                "fee_paid" = EXCLUDED."fee_paid",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
@@ -329,6 +337,7 @@ impl carbon_core::postgres::operations::Upsert for OrderRow {
         .bind(&self.last_updated_timestamp)
         .bind(&self.flash_start_taker_output_balance)
         .bind(self.counterparty)
+        .bind(&self.fee_paid)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -409,6 +418,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for OrderMigrationOperation {
                 "last_updated_timestamp" NUMERIC(20) NOT NULL,
                 "flash_start_taker_output_balance" NUMERIC(20) NOT NULL,
                 "counterparty" BYTEA NOT NULL,
+                "fee_paid" NUMERIC(20) NOT NULL,
                 "padding" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

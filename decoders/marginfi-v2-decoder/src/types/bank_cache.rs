@@ -42,8 +42,8 @@ pub struct BankCache {
     /// fetched
     /// * Always non-negative
     /// * Zero if never updated
-    /// * Note: this value is the confidence reported by oracles, multiplied by
-    ///   `STD_DEV_MULTIPLE`
+    /// * Pyth: confidence * 2.12
+    /// * Switchboard: price * oracle_max_confidence / U32_MAX
     pub last_oracle_price_confidence: WrappedI80F48,
     /// Liquidation cache flags, set during receivership flow.
     /// * 1 (LIQ_CACHE_LOCKED_FLAG) - We "lock" the liquidation cache when
@@ -59,7 +59,13 @@ pub struct BankCache {
     /// on unrelated accounts sharing the same bank do not interfere with an
     /// in-progress liquidation.
     pub liq_cache_flags: u8,
-    pub padding: [u8; 23],
+    pub cb_cache_pad: [u8; 7],
+    /// For integration banks, this is the exchange rate of cToken/token or
+    /// similar. The "real" price of one deposited token is
+    /// `price_multiplier` * `last_oracle_price`, we split it here
+    /// for consumers who are only interested in reading the oracle price and
+    /// are applying the multiplier already elsewhere.
+    pub price_multiplier: WrappedI80F48,
     /// Cached real-time price for receivership liquidation.
     pub liquidation_price_rt: WrappedI80F48,
     /// Cached real-time price confidence for receivership liquidation.

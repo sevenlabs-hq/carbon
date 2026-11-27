@@ -18,7 +18,6 @@ pub struct PreOperateInstructionAccounts {
     pub user_borrow_position: Option<solana_pubkey::Pubkey>,
     pub vault: solana_pubkey::Pubkey,
     pub token_reserve: solana_pubkey::Pubkey,
-    pub associated_token_program: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
@@ -55,7 +54,6 @@ impl ArrangeAccounts for PreOperate {
         let user_borrow_position = next_account(&mut iter);
         let vault = next_account(&mut iter)?;
         let token_reserve = next_account(&mut iter)?;
-        let associated_token_program = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
@@ -67,7 +65,6 @@ impl ArrangeAccounts for PreOperate {
             user_borrow_position,
             vault,
             token_reserve,
-            associated_token_program,
             token_program,
             remaining: remaining.to_vec(),
         })

@@ -9,6 +9,7 @@ pub struct UpdateDeactivatedRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     pub stake_index: U32,
+    pub validator_index: U32,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -22,6 +23,7 @@ impl UpdateDeactivatedRow {
         Self {
             instruction_metadata: metadata.into(),
             stake_index: source.stake_index.into(),
+            validator_index: source.validator_index.into(),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -32,6 +34,11 @@ impl TryFrom<UpdateDeactivatedRow> for crate::instructions::update_deactivated::
     fn try_from(source: UpdateDeactivatedRow) -> Result<Self, Self::Error> {
         Ok(Self {
             stake_index: source.stake_index.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            validator_index: source.validator_index.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
                 )
@@ -55,6 +62,7 @@ impl carbon_core::postgres::operations::Table
             "__absolute_path",
             "__slot",
             "stake_index",
+            "validator_index",
             "__accounts",
         ]
     }
@@ -67,13 +75,15 @@ impl carbon_core::postgres::operations::Insert for UpdateDeactivatedRow {
             r#"
             INSERT INTO update_deactivated_instruction (
                 "stake_index",
+                "validator_index",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
         .bind(self.stake_index)
+        .bind(self.validator_index)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -93,14 +103,16 @@ impl carbon_core::postgres::operations::Upsert for UpdateDeactivatedRow {
         sqlx::query(
             r#"INSERT INTO update_deactivated_instruction (
                 "stake_index",
+                "validator_index",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) ON CONFLICT (
                 __signature, __absolute_path
             ) DO UPDATE SET
                 "stake_index" = EXCLUDED."stake_index",
+                "validator_index" = EXCLUDED."validator_index",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
@@ -108,6 +120,7 @@ impl carbon_core::postgres::operations::Upsert for UpdateDeactivatedRow {
             "#,
         )
         .bind(self.stake_index)
+        .bind(self.validator_index)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -174,6 +187,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateDeactivatedMigrationOper
             r#"CREATE TABLE IF NOT EXISTS update_deactivated_instruction (
                 -- Instruction data
                 "stake_index" INT8 NOT NULL,
+                "validator_index" INT8 NOT NULL,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

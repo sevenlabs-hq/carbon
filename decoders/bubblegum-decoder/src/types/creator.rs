@@ -5,5 +5,7 @@ use solana_pubkey::Pubkey;
 pub struct Creator {
     pub address: Pubkey,
     pub verified: bool,
+    /// The percentage share.
+    /// The value is a percentage, not basis points.
     pub share: u8,
 }

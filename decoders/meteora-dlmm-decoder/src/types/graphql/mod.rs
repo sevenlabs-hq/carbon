@@ -35,6 +35,7 @@ pub mod init_preset_parameters_ix_schema;
 pub mod initialize_lb_pair2_params_schema;
 pub mod initialize_reward_schema;
 pub mod lb_pair_create_schema;
+pub mod limit_order_bin_data_schema;
 pub mod liquidity_one_side_parameter_schema;
 pub mod liquidity_parameter_by_strategy_one_side_schema;
 pub mod liquidity_parameter_by_strategy_schema;
@@ -88,10 +89,10 @@ pub use {
     increase_observation_schema::*, increase_position_length_schema::*,
     init_permission_pair_ix_schema::*, init_preset_parameters_ix_schema::*,
     initialize_lb_pair2_params_schema::*, initialize_reward_schema::*, lb_pair_create_schema::*,
-    liquidity_one_side_parameter_schema::*, liquidity_parameter_by_strategy_one_side_schema::*,
-    liquidity_parameter_by_strategy_schema::*, liquidity_parameter_by_weight_schema::*,
-    liquidity_parameter_schema::*, pair_status_schema::*, pair_type_schema::*,
-    place_limit_order_evt_schema::*, place_limit_order_params_schema::*,
+    limit_order_bin_data_schema::*, liquidity_one_side_parameter_schema::*,
+    liquidity_parameter_by_strategy_one_side_schema::*, liquidity_parameter_by_strategy_schema::*,
+    liquidity_parameter_by_weight_schema::*, liquidity_parameter_schema::*, pair_status_schema::*,
+    pair_type_schema::*, place_limit_order_evt_schema::*, place_limit_order_params_schema::*,
     position_bin_data_schema::*, position_close_schema::*, position_create_schema::*,
     protocol_fee_schema::*, rebalance_liquidity_params_schema::*, rebalancing_schema::*,
     relative_bin_schema::*, remaining_accounts_info_schema::*, remaining_accounts_slice_schema::*,

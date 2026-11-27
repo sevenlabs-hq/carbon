@@ -40,6 +40,9 @@ pub struct TradeEventGraphQL {
     pub quote_amount: U64,
     pub virtual_quote_reserves: U64,
     pub real_quote_reserves: U64,
+    pub holder_rewards_bps: U64,
+    pub holder_rewards: U64,
+    pub creator_fee_unclaimed: U64,
 }
 
 impl From<crate::types::TradeEvent> for TradeEventGraphQL {
@@ -102,6 +105,11 @@ impl From<crate::types::TradeEvent> for TradeEventGraphQL {
             ),
             real_quote_reserves: carbon_core::graphql::primitives::U64(
                 original.real_quote_reserves,
+            ),
+            holder_rewards_bps: carbon_core::graphql::primitives::U64(original.holder_rewards_bps),
+            holder_rewards: carbon_core::graphql::primitives::U64(original.holder_rewards),
+            creator_fee_unclaimed: carbon_core::graphql::primitives::U64(
+                original.creator_fee_unclaimed,
             ),
         }
     }

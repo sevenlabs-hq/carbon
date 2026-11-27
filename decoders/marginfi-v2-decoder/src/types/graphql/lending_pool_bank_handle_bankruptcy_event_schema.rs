@@ -13,6 +13,7 @@ pub struct LendingPoolBankHandleBankruptcyEventGraphQL {
     pub bad_debt: f64,
     pub covered_amount: f64,
     pub socialized_amount: f64,
+    pub premium_written_off: f64,
 }
 
 impl From<crate::types::LendingPoolBankHandleBankruptcyEvent>
@@ -26,6 +27,7 @@ impl From<crate::types::LendingPoolBankHandleBankruptcyEvent>
             bad_debt: original.bad_debt,
             covered_amount: original.covered_amount,
             socialized_amount: original.socialized_amount,
+            premium_written_off: original.premium_written_off,
         }
     }
 }

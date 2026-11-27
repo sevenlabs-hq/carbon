@@ -43,7 +43,6 @@ impl TryFrom<crate::accounts::postgres::TargetOrdersRow> for TargetOrdersGraphQL
             account_metadata: row.account_metadata.into(),
             owner: row
                 .owner
-                .0
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
@@ -55,7 +54,6 @@ impl TryFrom<crate::accounts::postgres::TargetOrdersRow> for TargetOrdersGraphQL
                 .collect(),
             padding1: row
                 .padding1
-                .0
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
@@ -77,19 +75,16 @@ impl TryFrom<crate::accounts::postgres::TargetOrdersRow> for TargetOrdersGraphQL
                 .collect(),
             padding2: row
                 .padding2
-                .0
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
             replace_buy_client_id: row
                 .replace_buy_client_id
-                .0
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
             replace_sell_client_id: row
                 .replace_sell_client_id
-                .0
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
@@ -103,7 +98,6 @@ impl TryFrom<crate::accounts::postgres::TargetOrdersRow> for TargetOrdersGraphQL
             valid_sell_order_num: carbon_core::graphql::primitives::U64(*row.valid_sell_order_num),
             padding3: row
                 .padding3
-                .0
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),

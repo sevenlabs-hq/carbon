@@ -21,9 +21,18 @@ pub struct StakedSettings {
     pub oracle_max_age: u16,
     pub risk_tier: RiskTier,
     pub pad0: [u8; 5],
+    /// Desired bitmask for staked-bank transition flags. These bits are copied
+    /// to `Bank.flags` when staked settings are propagated or when a new
+    /// staked bank is created.
+    /// * Bit 9 (512): `STAKED_ORACLE_DISABLED` — staked oracle pricing is
+    ///   temporarily disabled.
+    /// * Bit 10 (1024): `STAKED_ORACLE_PRICE_USES_ONRAMP` — staked oracle
+    ///   pricing includes the SPL
+    ///
+    /// single-pool on-ramp account in NAV.
+    pub flags: u64,
     /// The following values are irrelevant because staked collateral positions
     /// do not support borrowing.
-    pub reserved0: [u8; 8],
     pub reserved1: [u8; 32],
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub reserved2: [u8; 64],

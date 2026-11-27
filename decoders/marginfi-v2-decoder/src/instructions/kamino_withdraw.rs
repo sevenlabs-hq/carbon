@@ -5,15 +5,18 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 ///   decimals. Must convert
 ///
 /// from collateral to liquidity token amounts using the current exchange rate.
-/// * withdraw_all - if true, withdraw the entire mrgn balance (Note: due to
-///   rounding down, a
+/// * if group rate limits are enabled, include the withdrawn bank's oracle
+///   group in
 ///
-/// deposit and withdraw back to back may result in several lamports less)
+/// `remaining_accounts`
+/// * flags - optional bitflags:
+/// - bit 0 (`0x01`): withdraw all
+/// - bit 1 (`0x02`): refresh reserve via batch refresh
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct KaminoWithdraw {
     pub amount: u64,
-    pub withdraw_all: Option<bool>,
+    pub flags: Option<u8>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -3,7 +3,7 @@ use carbon_core::{
     account::AccountMetadata,
     postgres::{
         metadata::AccountRowMetadata,
-        primitives::{Pubkey, U128, U16, U64, U8},
+        primitives::{Pubkey, U16, U32, U64, U8},
     },
 };
 
@@ -15,10 +15,12 @@ pub struct UserSupplyPositionRow {
     pub mint: Pubkey,
     pub with_interest: U8,
     pub amount: U64,
-    pub withdrawal_limit: U128,
+    pub withdrawal_limit: U64,
+    pub decay_amount: U64,
     pub last_update: U64,
     pub expand_pct: U16,
-    pub expand_duration: U64,
+    pub expand_duration: U32,
+    pub decay_duration: U32,
     pub base_withdrawal_limit: U64,
     pub status: U8,
 }
@@ -35,9 +37,11 @@ impl UserSupplyPositionRow {
             with_interest: source.with_interest.into(),
             amount: source.amount.into(),
             withdrawal_limit: source.withdrawal_limit.into(),
+            decay_amount: source.decay_amount.into(),
             last_update: source.last_update.into(),
             expand_pct: source.expand_pct.into(),
             expand_duration: source.expand_duration.into(),
+            decay_duration: source.decay_duration.into(),
             base_withdrawal_limit: source.base_withdrawal_limit.into(),
             status: source.status.into(),
         }
@@ -57,13 +61,23 @@ impl TryFrom<UserSupplyPositionRow> for crate::accounts::user_supply_position::U
             })?,
             amount: *source.amount,
             withdrawal_limit: *source.withdrawal_limit,
+            decay_amount: *source.decay_amount,
             last_update: *source.last_update,
             expand_pct: source.expand_pct.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            expand_duration: *source.expand_duration,
+            expand_duration: source.expand_duration.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            decay_duration: source.decay_duration.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
             base_withdrawal_limit: *source.base_withdrawal_limit,
             status: source.status.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
@@ -90,9 +104,11 @@ impl carbon_core::postgres::operations::Table
             "with_interest",
             "amount",
             "withdrawal_limit",
+            "decay_amount",
             "last_update",
             "expand_pct",
             "expand_duration",
+            "decay_duration",
             "base_withdrawal_limit",
             "status",
         ]
@@ -110,14 +126,16 @@ impl carbon_core::postgres::operations::Insert for UserSupplyPositionRow {
                 "with_interest",
                 "amount",
                 "withdrawal_limit",
+                "decay_amount",
                 "last_update",
                 "expand_pct",
                 "expand_duration",
+                "decay_duration",
                 "base_withdrawal_limit",
                 "status",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             )"#,
         )
         .bind(self.protocol)
@@ -125,9 +143,11 @@ impl carbon_core::postgres::operations::Insert for UserSupplyPositionRow {
         .bind(self.with_interest)
         .bind(&self.amount)
         .bind(&self.withdrawal_limit)
+        .bind(&self.decay_amount)
         .bind(&self.last_update)
         .bind(self.expand_pct)
-        .bind(&self.expand_duration)
+        .bind(self.expand_duration)
+        .bind(self.decay_duration)
         .bind(&self.base_withdrawal_limit)
         .bind(self.status)
         .bind(self.account_metadata.pubkey)
@@ -149,14 +169,16 @@ impl carbon_core::postgres::operations::Upsert for UserSupplyPositionRow {
                 "with_interest",
                 "amount",
                 "withdrawal_limit",
+                "decay_amount",
                 "last_update",
                 "expand_pct",
                 "expand_duration",
+                "decay_duration",
                 "base_withdrawal_limit",
                 "status",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -165,9 +187,11 @@ impl carbon_core::postgres::operations::Upsert for UserSupplyPositionRow {
                 "with_interest" = EXCLUDED."with_interest",
                 "amount" = EXCLUDED."amount",
                 "withdrawal_limit" = EXCLUDED."withdrawal_limit",
+                "decay_amount" = EXCLUDED."decay_amount",
                 "last_update" = EXCLUDED."last_update",
                 "expand_pct" = EXCLUDED."expand_pct",
                 "expand_duration" = EXCLUDED."expand_duration",
+                "decay_duration" = EXCLUDED."decay_duration",
                 "base_withdrawal_limit" = EXCLUDED."base_withdrawal_limit",
                 "status" = EXCLUDED."status",
                 __slot = EXCLUDED.__slot
@@ -180,9 +204,11 @@ impl carbon_core::postgres::operations::Upsert for UserSupplyPositionRow {
         .bind(self.with_interest)
         .bind(&self.amount)
         .bind(&self.withdrawal_limit)
+        .bind(&self.decay_amount)
         .bind(&self.last_update)
         .bind(self.expand_pct)
-        .bind(&self.expand_duration)
+        .bind(self.expand_duration)
+        .bind(self.decay_duration)
         .bind(&self.base_withdrawal_limit)
         .bind(self.status)
         .bind(self.account_metadata.pubkey)
@@ -248,10 +274,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserSupplyPositionMigrationOpe
                 "mint" BYTEA NOT NULL,
                 "with_interest" INT2 NOT NULL,
                 "amount" NUMERIC(20) NOT NULL,
-                "withdrawal_limit" NUMERIC(39) NOT NULL,
+                "withdrawal_limit" NUMERIC(20) NOT NULL,
+                "decay_amount" NUMERIC(20) NOT NULL,
                 "last_update" NUMERIC(20) NOT NULL,
                 "expand_pct" INT4 NOT NULL,
-                "expand_duration" NUMERIC(20) NOT NULL,
+                "expand_duration" INT8 NOT NULL,
+                "decay_duration" INT8 NOT NULL,
                 "base_withdrawal_limit" NUMERIC(20) NOT NULL,
                 "status" INT2 NOT NULL,
                 -- Account metadata

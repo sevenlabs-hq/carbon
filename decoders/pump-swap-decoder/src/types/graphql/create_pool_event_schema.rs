@@ -28,6 +28,9 @@ pub struct CreatePoolEventGraphQL {
     pub user_quote_token_account: Pubkey,
     pub coin_creator: Pubkey,
     pub is_mayhem_mode: bool,
+    pub creator_fee_bps: U64,
+    pub can_edit_creator_fee: bool,
+    pub is_holder_reward: bool,
 }
 
 impl From<crate::types::CreatePoolEvent> for CreatePoolEventGraphQL {
@@ -60,6 +63,9 @@ impl From<crate::types::CreatePoolEvent> for CreatePoolEventGraphQL {
             ),
             coin_creator: carbon_core::graphql::primitives::Pubkey(original.coin_creator),
             is_mayhem_mode: original.is_mayhem_mode,
+            creator_fee_bps: carbon_core::graphql::primitives::U64(original.creator_fee_bps),
+            can_edit_creator_fee: original.can_edit_creator_fee,
+            is_holder_reward: original.is_holder_reward,
         }
     }
 }

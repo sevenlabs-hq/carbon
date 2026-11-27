@@ -6,7 +6,7 @@ pub struct Padding {
     /// Padding 0
     pub padding0: [u8; 6],
     /// Padding 1
-    pub padding1: [u64; 21],
+    pub padding1: [u64; 20],
     /// Padding 2
     pub padding2: [u64; 21],
 }

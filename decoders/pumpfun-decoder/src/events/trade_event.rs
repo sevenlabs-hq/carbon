@@ -36,6 +36,9 @@ pub struct TradeEventEvent {
     pub quote_amount: u64,
     pub virtual_quote_reserves: u64,
     pub real_quote_reserves: u64,
+    pub holder_rewards_bps: u64,
+    pub holder_rewards: u64,
+    pub creator_fee_unclaimed: u64,
 }
 
 impl TradeEventEvent {

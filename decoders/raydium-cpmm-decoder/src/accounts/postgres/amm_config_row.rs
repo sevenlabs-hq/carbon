@@ -21,6 +21,7 @@ pub struct AmmConfigRow {
     pub protocol_owner: Pubkey,
     pub fund_owner: Pubkey,
     pub creator_fee_rate: U64,
+    pub creator_fee_share_rate: U64,
     pub padding: Vec<U64>,
 }
 
@@ -41,6 +42,7 @@ impl AmmConfigRow {
             protocol_owner: source.protocol_owner.into(),
             fund_owner: source.fund_owner.into(),
             creator_fee_rate: source.creator_fee_rate.into(),
+            creator_fee_share_rate: source.creator_fee_share_rate.into(),
             padding: source
                 .padding
                 .into_iter()
@@ -72,6 +74,7 @@ impl TryFrom<AmmConfigRow> for crate::accounts::amm_config::AmmConfig {
             protocol_owner: *source.protocol_owner,
             fund_owner: *source.fund_owner,
             creator_fee_rate: *source.creator_fee_rate,
+            creator_fee_share_rate: *source.creator_fee_share_rate,
             padding: source
                 .padding
                 .into_iter()
@@ -111,6 +114,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::amm_config::A
             "protocol_owner",
             "fund_owner",
             "creator_fee_rate",
+            "creator_fee_share_rate",
             "padding",
         ]
     }
@@ -132,10 +136,11 @@ impl carbon_core::postgres::operations::Insert for AmmConfigRow {
                 "protocol_owner",
                 "fund_owner",
                 "creator_fee_rate",
+                "creator_fee_share_rate",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             )"#,
         )
         .bind(self.bump)
@@ -148,6 +153,7 @@ impl carbon_core::postgres::operations::Insert for AmmConfigRow {
         .bind(self.protocol_owner)
         .bind(self.fund_owner)
         .bind(&self.creator_fee_rate)
+        .bind(&self.creator_fee_share_rate)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -173,10 +179,11 @@ impl carbon_core::postgres::operations::Upsert for AmmConfigRow {
                 "protocol_owner",
                 "fund_owner",
                 "creator_fee_rate",
+                "creator_fee_share_rate",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -190,6 +197,7 @@ impl carbon_core::postgres::operations::Upsert for AmmConfigRow {
                 "protocol_owner" = EXCLUDED."protocol_owner",
                 "fund_owner" = EXCLUDED."fund_owner",
                 "creator_fee_rate" = EXCLUDED."creator_fee_rate",
+                "creator_fee_share_rate" = EXCLUDED."creator_fee_share_rate",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
@@ -206,6 +214,7 @@ impl carbon_core::postgres::operations::Upsert for AmmConfigRow {
         .bind(self.protocol_owner)
         .bind(self.fund_owner)
         .bind(&self.creator_fee_rate)
+        .bind(&self.creator_fee_share_rate)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -276,6 +285,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmConfigMigrationOperation {
                 "protocol_owner" BYTEA NOT NULL,
                 "fund_owner" BYTEA NOT NULL,
                 "creator_fee_rate" NUMERIC(20) NOT NULL,
+                "creator_fee_share_rate" NUMERIC(20) NOT NULL,
                 "padding" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

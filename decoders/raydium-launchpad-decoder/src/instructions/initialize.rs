@@ -3,7 +3,7 @@ use {
     crate::types::{CurveParams, MintParams, VestingParams},
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// Initializes a new trading pool
+/// Deprecated, it always fails with `NotApproved`, use `initialize_v2`
 /// # Arguments
 /// * `ctx` - The context of accounts containing pool and token information
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

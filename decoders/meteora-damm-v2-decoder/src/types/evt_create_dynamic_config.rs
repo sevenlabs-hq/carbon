@@ -7,4 +7,5 @@ pub struct EvtCreateDynamicConfig {
     pub config: Pubkey,
     pub pool_creator_authority: Pubkey,
     pub index: u64,
+    pub permission: u128,
 }

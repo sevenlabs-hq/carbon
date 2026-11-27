@@ -2,12 +2,15 @@
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod asset_data_schema;
 pub mod bubblegum_event_type;
 pub mod collection;
 pub mod creator;
 pub mod decompressible_state;
+pub mod instruction_name;
 pub mod leaf_schema;
 pub mod metadata_args;
+pub mod metadata_args_v2;
 pub mod token_program_version;
 pub mod token_standard;
 pub mod update_args;
@@ -16,7 +19,8 @@ pub mod uses;
 pub mod version;
 
 pub use self::{
-    bubblegum_event_type::*, collection::*, creator::*, decompressible_state::*, leaf_schema::*,
-    metadata_args::*, token_program_version::*, token_standard::*, update_args::*, use_method::*,
-    uses::*, version::*,
+    asset_data_schema::*, bubblegum_event_type::*, collection::*, creator::*,
+    decompressible_state::*, instruction_name::*, leaf_schema::*, metadata_args::*,
+    metadata_args_v2::*, token_program_version::*, token_standard::*, update_args::*,
+    use_method::*, uses::*, version::*,
 };

@@ -25,7 +25,7 @@ impl InitializeTokenGroupRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            update_authority: source.update_authority.map(|value| value.into()),
+            update_authority: source.update_authority.0.map(|value| value.into()),
             max_size: source.max_size.into(),
             accounts: sqlx::types::Json(accounts),
         }
@@ -38,7 +38,7 @@ impl TryFrom<InitializeTokenGroupRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeTokenGroupRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            update_authority: source.update_authority.map(|value| *value),
+            update_authority: source.update_authority.map(|value| *value).into(),
             max_size: *source.max_size,
         })
     }

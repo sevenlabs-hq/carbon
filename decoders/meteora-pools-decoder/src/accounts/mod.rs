@@ -9,7 +9,9 @@ pub mod graphql;
 
 pub mod config;
 pub mod lock_escrow;
+pub mod operator;
 pub mod pool;
+pub mod vault;
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -17,7 +19,9 @@ pub mod pool;
 pub enum MeteoraPoolsAccount {
     Config(Box<config::Config>),
     LockEscrow(Box<lock_escrow::LockEscrow>),
+    Operator(Box<operator::Operator>),
     Pool(Box<pool::Pool>),
+    Vault(Box<vault::Vault>),
 }
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for MeteoraPoolsDecoder {
@@ -56,10 +60,32 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MeteoraPoolsDecoder {
             }
         }
         {
+            if let Some(decoded) = operator::Operator::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MeteoraPoolsAccount::Operator(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
             if let Some(decoded) = pool::Pool::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: MeteoraPoolsAccount::Pool(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = vault::Vault::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MeteoraPoolsAccount::Vault(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

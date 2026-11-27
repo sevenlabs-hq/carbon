@@ -10,7 +10,7 @@ pub struct RewardInfoGraphQL {
     pub initialized: U8,
     pub reward_token_flag: U8,
     pub padding0: Vec<U8>,
-    pub padding1: Vec<U8>,
+    pub dead_liquidity_reward_checkpoint: U64,
     pub mint: Pubkey,
     pub vault: Pubkey,
     pub funder: Pubkey,
@@ -32,11 +32,9 @@ impl From<crate::types::RewardInfo> for RewardInfoGraphQL {
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),
-            padding1: original
-                .padding1
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
+            dead_liquidity_reward_checkpoint: carbon_core::graphql::primitives::U64(
+                original.dead_liquidity_reward_checkpoint,
+            ),
             mint: carbon_core::graphql::primitives::Pubkey(original.mint),
             vault: carbon_core::graphql::primitives::Pubkey(original.vault),
             funder: carbon_core::graphql::primitives::Pubkey(original.funder),

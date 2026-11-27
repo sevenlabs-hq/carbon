@@ -15,6 +15,9 @@ pub struct FeeConfig {
     pub flat_fees: Fees,
     /// The fee tiers
     pub fee_tiers: Vec<FeeTier>,
+    /// The fee tiers
+    pub stable_fee_tiers: Vec<FeeTier>,
+    pub exotic_flat_fees: Fees,
 }
 
 impl FeeConfig {

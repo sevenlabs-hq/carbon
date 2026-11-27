@@ -17,7 +17,7 @@ impl TryFrom<crate::instructions::postgres::AddMemoRow> for AddMemoGraphQL {
             memo: row
                 .memo
                 .into_iter()
-                .map(|x| carbon_core::graphql::primitives::U8((*x) as u8))
+                .map(carbon_core::graphql::primitives::U8)
                 .collect(),
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)

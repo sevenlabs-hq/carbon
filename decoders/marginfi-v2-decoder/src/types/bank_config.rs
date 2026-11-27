@@ -36,7 +36,13 @@ pub struct BankConfig {
     pub oracle_setup: OracleSetup,
     /// Oracle account keys (usage depends on oracle_setup type)
     pub oracle_keys: [Pubkey; 5],
-    pub pad0: [u8; 6],
+    /// CB long-window upward move cap in bps; `0` uses the
+    /// `CB_WINDOW_MAX_UP_BPS` default.
+    pub cb_window_max_up_bps: u16,
+    /// CB long-window downward move cap in bps; `0` uses the
+    /// `CB_WINDOW_MAX_DOWN_BPS` default.
+    pub cb_window_max_down_bps: u16,
+    pub pad0: [u8; 2],
     /// Maximum total borrows allowed in this bank, in native token units (0 =
     /// no limit)
     pub borrow_limit: u64,
@@ -70,7 +76,10 @@ pub struct BankConfig {
     /// switchboard.
     /// * 2, 4, 8, 16, etc - reserved for future use.
     pub config_flags: u8,
-    pub pad1: [u8; 5],
+    pub pad1: [u8; 1],
+    /// CB long-window length in seconds; `0` uses the `CB_WINDOW_SECONDS`
+    /// default.
+    pub cb_window_seconds: u32,
     /// USD denominated limit for calculating asset value for initialization
     /// margin requirements. Example, if total SOL deposits are equal to $1M
     /// and the limit it set to $500K, then SOL assets will be discounted by
@@ -80,14 +89,33 @@ pub struct BankConfig {
     pub total_asset_value_init_limit: u64,
     /// Time window in seconds for the oracle price feed to be considered live.
     pub oracle_max_age: u16,
-    pub padding0: [u8; 2],
-    /// From 0-100%, if the confidence exceeds this value, the oracle is
-    /// considered invalid. Note: the confidence adjustment is capped at 5%
-    /// regardless of this value.
-    /// * 0 falls back to using the default 10% instead, i.e., U32_MAX_DIV_10
-    /// * A %, as u32, e.g. 100% = u32::MAX, 50% = u32::MAX/2, etc.
+    /// Entry index into the Scope `OraclePrices` price list. Only read by the
+    /// Scope setups (`Scope`, `ScopeKamino`, `ScopeJuplend`); ignored (and
+    /// zero) for every other setup. Occupies what was previously
+    /// `_padding0`, so the layout is unchanged.
+    pub scope_entry_index: u16,
+    /// A %, as u32, e.g. 100% = u32::MAX, 50% = u32::MAX/2, etc.
+    /// Oracle confidence configuration. Semantics depend on the oracle type:
+    /// * Pyth: Maximum allowed confidence interval. Prices exceeding this
+    ///   threshold are rejected.
+    /// - 0 defaults to 10%.
+    /// * Switchboard: Confidence spread used for price biasing.
+    /// - 0 disables confidence adjustment.
+    /// - Non-zero: confidence = price * oracle_max_confidence / U32_MAX.
+    /// - Clamped to MAX_CONF_INTERVAL (5% of price).
     pub oracle_max_confidence: u32,
     /// Stored oracle price for `OracleSetup::Fixed`, otherwise does nothing
     pub fixed_price: WrappedI80F48,
-    pub padding1: [u8; 16],
+    /// Deviation thresholds in basis points for tiers 1/2/3, strictly
+    /// monotonic.
+    pub cb_deviation_bps_tiers: [u16; 3],
+    /// Halt durations in seconds for tiers 1/2/3, strictly monotonic.
+    pub cb_tier_durations_seconds: [u16; 3],
+    /// Escalation window multiplier: a re-breach within `prev_tier_duration *
+    /// mult` seconds after a halt ends ratchets to the next tier.
+    pub cb_escalation_window_mult: u8,
+    pub cb_config_pad: u8,
+    /// EMA smoothing factor for the reference price, in basis points (e.g. 1000
+    /// = α=0.1).
+    pub cb_ema_alpha_bps: u16,
 }

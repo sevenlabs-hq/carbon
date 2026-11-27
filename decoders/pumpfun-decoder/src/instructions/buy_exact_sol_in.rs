@@ -39,6 +39,7 @@ pub struct BuyExactSolIn {
     pub spendable_sol_in: u64,
     pub min_tokens_out: u64,
     pub track_volume: OptionBool,
+    pub partial_fill: OptionBool,
 }
 
 #[derive(Debug, Clone, PartialEq)]

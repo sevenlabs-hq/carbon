@@ -43,6 +43,40 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn platform_allow_config(
+        context: &crate::graphql::context::GraphQLContext,
+        pubkey: String,
+    ) -> FieldResult<Option<crate::accounts::graphql::PlatformAllowConfigGraphQL>> {
+        use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::PlatformAllowConfigRow::lookup(pk, &context.pool)
+            .await
+            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(row.and_then(|row| row.try_into().ok()))
+    }
+
+    async fn list_platform_allow_config(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::accounts::graphql::PlatformAllowConfigGraphQL>> {
+        let rows: Vec<crate::accounts::postgres::PlatformAllowConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM platform_allow_config_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn platform_config(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
@@ -77,28 +111,28 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn platform_global_access(
+    async fn platform_curve_rule(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
-    ) -> FieldResult<Option<crate::accounts::graphql::PlatformGlobalAccessGraphQL>> {
+    ) -> FieldResult<Option<crate::accounts::graphql::PlatformCurveRuleGraphQL>> {
         use carbon_core::postgres::{operations::Lookup, primitives::Pubkey as PgPubkey};
         let pk = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
                 .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
         );
-        let row = crate::accounts::postgres::PlatformGlobalAccessRow::lookup(pk, &context.pool)
+        let row = crate::accounts::postgres::PlatformCurveRuleRow::lookup(pk, &context.pool)
             .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.and_then(|row| row.try_into().ok()))
     }
 
-    async fn list_platform_global_access(
+    async fn list_platform_curve_rule(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::accounts::graphql::PlatformGlobalAccessGraphQL>> {
-        let rows: Vec<crate::accounts::postgres::PlatformGlobalAccessRow> = sqlx::query_as(
-            r#"SELECT * FROM platform_global_access_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::accounts::graphql::PlatformCurveRuleGraphQL>> {
+        let rows: Vec<crate::accounts::postgres::PlatformCurveRuleRow> = sqlx::query_as(
+            r#"SELECT * FROM platform_curve_rule_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -408,13 +442,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn close_platform_global_access(
+    async fn close_platform_allow_config(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ClosePlatformGlobalAccessGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ClosePlatformGlobalAccessRow> = sqlx::query_as(
-            r#"SELECT * FROM close_platform_global_access_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClosePlatformAllowConfigGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClosePlatformAllowConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM close_platform_allow_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -427,13 +461,89 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_close_platform_global_access(
+    async fn list_close_platform_allow_config(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ClosePlatformGlobalAccessGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::ClosePlatformGlobalAccessRow> = sqlx::query_as(
-            r#"SELECT * FROM close_platform_global_access_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClosePlatformAllowConfigGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClosePlatformAllowConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM close_platform_allow_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn close_platform_curve_rule(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClosePlatformCurveRuleGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClosePlatformCurveRuleRow> = sqlx::query_as(
+            r#"SELECT * FROM close_platform_curve_rule_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_close_platform_curve_rule(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClosePlatformCurveRuleGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClosePlatformCurveRuleRow> = sqlx::query_as(
+            r#"SELECT * FROM close_platform_curve_rule_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn collect_excess_lamports(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CollectExcessLamportsGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CollectExcessLamportsRow> = sqlx::query_as(
+            r#"SELECT * FROM collect_excess_lamports_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_collect_excess_lamports(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CollectExcessLamportsGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CollectExcessLamportsRow> = sqlx::query_as(
+            r#"SELECT * FROM collect_excess_lamports_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -560,6 +670,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn create_platform_allow_config(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreatePlatformAllowConfigGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreatePlatformAllowConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM create_platform_allow_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_create_platform_allow_config(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreatePlatformAllowConfigGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreatePlatformAllowConfigRow> = sqlx::query_as(
+            r#"SELECT * FROM create_platform_allow_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn create_platform_config(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -598,13 +746,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn create_platform_global_access(
+    async fn create_platform_curve_rule(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreatePlatformGlobalAccessGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CreatePlatformGlobalAccessRow> = sqlx::query_as(
-            r#"SELECT * FROM create_platform_global_access_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreatePlatformCurveRuleGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreatePlatformCurveRuleRow> = sqlx::query_as(
+            r#"SELECT * FROM create_platform_curve_rule_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -617,13 +765,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_create_platform_global_access(
+    async fn list_create_platform_curve_rule(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreatePlatformGlobalAccessGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CreatePlatformGlobalAccessRow> = sqlx::query_as(
-            r#"SELECT * FROM create_platform_global_access_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreatePlatformCurveRuleGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreatePlatformCurveRuleRow> = sqlx::query_as(
+            r#"SELECT * FROM create_platform_curve_rule_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -902,13 +1050,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn remove_platform_curve_param(
+    async fn remove_platform_curve_rule(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RemovePlatformCurveParamGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RemovePlatformCurveParamRow> = sqlx::query_as(
-            r#"SELECT * FROM remove_platform_curve_param_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RemovePlatformCurveRuleGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RemovePlatformCurveRuleRow> = sqlx::query_as(
+            r#"SELECT * FROM remove_platform_curve_rule_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -921,13 +1069,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_remove_platform_curve_param(
+    async fn list_remove_platform_curve_rule(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RemovePlatformCurveParamGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RemovePlatformCurveParamRow> = sqlx::query_as(
-            r#"SELECT * FROM remove_platform_curve_param_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RemovePlatformCurveRuleGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RemovePlatformCurveRuleRow> = sqlx::query_as(
+            r#"SELECT * FROM remove_platform_curve_rule_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1092,13 +1240,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn update_platform_curve_param(
+    async fn update_platform_curve_rule(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::UpdatePlatformCurveParamGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::UpdatePlatformCurveParamRow> = sqlx::query_as(
-            r#"SELECT * FROM update_platform_curve_param_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdatePlatformCurveRuleGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UpdatePlatformCurveRuleRow> = sqlx::query_as(
+            r#"SELECT * FROM update_platform_curve_rule_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -1111,13 +1259,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_update_platform_curve_param(
+    async fn list_update_platform_curve_rule(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::UpdatePlatformCurveParamGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::UpdatePlatformCurveParamRow> = sqlx::query_as(
-            r#"SELECT * FROM update_platform_curve_param_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdatePlatformCurveRuleGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UpdatePlatformCurveRuleRow> = sqlx::query_as(
+            r#"SELECT * FROM update_platform_curve_rule_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

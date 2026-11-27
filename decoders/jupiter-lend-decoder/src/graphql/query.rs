@@ -590,6 +590,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn pause_token(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PauseTokenGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PauseTokenRow> = sqlx::query_as(
+            r#"SELECT * FROM pause_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_pause_token(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PauseTokenGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PauseTokenRow> = sqlx::query_as(
+            r#"SELECT * FROM pause_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn pause_user(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -654,6 +692,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::PreOperateGraphQL>> {
         let rows: Vec<crate::instructions::postgres::PreOperateRow> = sqlx::query_as(
             r#"SELECT * FROM pre_operate_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn unpause_token(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UnpauseTokenGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UnpauseTokenRow> = sqlx::query_as(
+            r#"SELECT * FROM unpause_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_unpause_token(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::UnpauseTokenGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::UnpauseTokenRow> = sqlx::query_as(
+            r#"SELECT * FROM unpause_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

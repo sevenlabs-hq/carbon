@@ -5,6 +5,7 @@ pub mod allocate_with_seed_row;
 pub mod assign_row;
 pub mod assign_with_seed_row;
 pub mod authorize_nonce_account_row;
+pub mod create_account_allow_prefund_row;
 pub mod create_account_row;
 pub mod create_account_with_seed_row;
 pub mod initialize_nonce_account_row;
@@ -15,9 +16,10 @@ pub mod withdraw_nonce_account_row;
 
 pub use self::{
     advance_nonce_account_row::*, allocate_row::*, allocate_with_seed_row::*, assign_row::*,
-    assign_with_seed_row::*, authorize_nonce_account_row::*, create_account_row::*,
-    create_account_with_seed_row::*, initialize_nonce_account_row::*, transfer_sol_row::*,
-    transfer_sol_with_seed_row::*, upgrade_nonce_account_row::*, withdraw_nonce_account_row::*,
+    assign_with_seed_row::*, authorize_nonce_account_row::*, create_account_allow_prefund_row::*,
+    create_account_row::*, create_account_with_seed_row::*, initialize_nonce_account_row::*,
+    transfer_sol_row::*, transfer_sol_with_seed_row::*, upgrade_nonce_account_row::*,
+    withdraw_nonce_account_row::*,
 };
 use super::SystemProgramInstruction;
 
@@ -41,6 +43,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for SystemProgramInstructionsMigra
             Box::new(AssignWithSeedMigrationOperation),
             Box::new(AuthorizeNonceAccountMigrationOperation),
             Box::new(CreateAccountMigrationOperation),
+            Box::new(CreateAccountAllowPrefundMigrationOperation),
             Box::new(CreateAccountWithSeedMigrationOperation),
             Box::new(InitializeNonceAccountMigrationOperation),
             Box::new(TransferSolMigrationOperation),
@@ -105,6 +108,11 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for SystemProgramInstructionsAbsol
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "create_account_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_account_allow_prefund_instruction",
                 ),
             ),
             Box::new(
@@ -292,6 +300,16 @@ impl carbon_core::postgres::operations::Insert for SystemProgramInstructionWithM
                 row.insert(pool).await?;
                 Ok(())
             }
+            SystemProgramInstruction::CreateAccountAllowPrefund { data, .. } => {
+                let row =
+                    create_account_allow_prefund_row::CreateAccountAllowPrefundRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.insert(pool).await?;
+                Ok(())
+            }
         }
     }
 }
@@ -416,6 +434,16 @@ impl carbon_core::postgres::operations::Upsert for SystemProgramInstructionWithM
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            SystemProgramInstruction::CreateAccountAllowPrefund { data, .. } => {
+                let row =
+                    create_account_allow_prefund_row::CreateAccountAllowPrefundRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }

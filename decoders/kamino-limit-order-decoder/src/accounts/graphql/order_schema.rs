@@ -29,6 +29,7 @@ pub struct OrderGraphQL {
     pub last_updated_timestamp: U64,
     pub flash_start_taker_output_balance: U64,
     pub counterparty: Pubkey,
+    pub fee_paid: U64,
     pub padding: Vec<U64>,
 }
 
@@ -74,6 +75,7 @@ impl TryFrom<crate::accounts::postgres::OrderRow> for OrderGraphQL {
                 *row.flash_start_taker_output_balance,
             ),
             counterparty: carbon_core::graphql::primitives::Pubkey(row.counterparty.0),
+            fee_paid: carbon_core::graphql::primitives::U64(*row.fee_paid),
             padding: row
                 .padding
                 .into_iter()

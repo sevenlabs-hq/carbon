@@ -9,6 +9,7 @@ pub struct UpdateLendingMarketOwner {}
 pub struct UpdateLendingMarketOwnerInstructionAccounts {
     pub lending_market_owner_cached: solana_pubkey::Pubkey,
     pub lending_market: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -40,12 +41,14 @@ impl ArrangeAccounts for UpdateLendingMarketOwner {
 
         let lending_market_owner_cached = next_account(&mut iter)?;
         let lending_market = next_account(&mut iter)?;
+        let instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(UpdateLendingMarketOwnerInstructionAccounts {
             lending_market_owner_cached,
             lending_market,
+            instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })
     }

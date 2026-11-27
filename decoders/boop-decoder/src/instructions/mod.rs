@@ -222,6 +222,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for BoopDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            BoopInstruction::CpiEvent => CpiEvent,
             BoopInstruction::AddOperators => AddOperators,
             BoopInstruction::BuyToken => BuyToken,
             BoopInstruction::CancelAuthorityTransfer => CancelAuthorityTransfer,
@@ -251,7 +252,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for BoopDecoder {
             BoopInstruction::SwapTokensForSolOnRaydium => SwapTokensForSolOnRaydium,
             BoopInstruction::TogglePaused => TogglePaused,
             BoopInstruction::UpdateConfig => UpdateConfig,
-            BoopInstruction::CpiEvent => CpiEvent,
         )
     }
 }

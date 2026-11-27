@@ -13,8 +13,8 @@ pub struct AmmConfigRow {
     pub account_metadata: AccountRowMetadata,
     pub pnl_owner: Pubkey,
     pub cancel_owner: Pubkey,
-    pub pending1: sqlx::types::Json<Vec<U64>>,
-    pub pending2: sqlx::types::Json<Vec<U64>>,
+    pub pending1: Vec<U64>,
+    pub pending2: Vec<U64>,
     pub create_pool_fee: U64,
 }
 
@@ -27,8 +27,16 @@ impl AmmConfigRow {
             account_metadata: metadata.into(),
             pnl_owner: source.pnl_owner.into(),
             cancel_owner: source.cancel_owner.into(),
-            pending1: sqlx::types::Json(source.pending1.into_iter().map(U64).collect()),
-            pending2: sqlx::types::Json(source.pending2.into_iter().map(U64).collect()),
+            pending1: source
+                .pending1
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            pending2: source
+                .pending2
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
             create_pool_fee: source.create_pool_fee.into(),
         }
     }
@@ -42,10 +50,14 @@ impl TryFrom<AmmConfigRow> for crate::accounts::amm_config::AmmConfig {
             cancel_owner: *source.cancel_owner,
             pending1: source
                 .pending1
-                .0
                 .into_iter()
-                .map(|element| *element)
-                .collect::<Vec<u64>>()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -54,10 +66,14 @@ impl TryFrom<AmmConfigRow> for crate::accounts::amm_config::AmmConfig {
                 })?,
             pending2: source
                 .pending2
-                .0
                 .into_iter()
-                .map(|element| *element)
-                .collect::<Vec<u64>>()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -209,8 +225,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AmmConfigMigrationOperation {
                 -- Account data
                 "pnl_owner" BYTEA NOT NULL,
                 "cancel_owner" BYTEA NOT NULL,
-                "pending1" JSONB NOT NULL,
-                "pending2" JSONB NOT NULL,
+                "pending1" NUMERIC(20)[] NOT NULL,
+                "pending2" NUMERIC(20)[] NOT NULL,
                 "create_pool_fee" NUMERIC(20) NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

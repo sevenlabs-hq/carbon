@@ -12,6 +12,9 @@ pub struct SolendConfigCompact {
     pub oracle: Pubkey,
     pub asset_weight_init: WrappedI80F48,
     pub asset_weight_maint: WrappedI80F48,
+    /// Cap in **Solend collateral units**, not underlying. As the reserve
+    /// collateral exchange rate grows, the same cap admits more underlying
+    /// — re-tune against the current rate.
     pub deposit_limit: u64,
     /// Either `SolendPythPull` or `SolendSwitchboardPull`
     pub oracle_setup: OracleSetup,

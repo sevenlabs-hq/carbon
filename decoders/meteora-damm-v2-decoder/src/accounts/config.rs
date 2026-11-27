@@ -25,9 +25,10 @@ pub struct Config {
     pub sqrt_min_price: u128,
     /// sqrt max price
     pub sqrt_max_price: u128,
-    /// Fee curve point
+    /// config permission bitmask
+    pub permission: u128,
     /// Padding for further use
-    pub padding1: [u64; 10],
+    pub padding1: [u64; 8],
 }
 
 impl Config {

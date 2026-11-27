@@ -25,7 +25,6 @@ pub struct WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeInstructi
     pub mint: solana_pubkey::Pubkey,
     pub destination: solana_pubkey::Pubkey,
     pub instructions_sysvar_or_context_state: solana_pubkey::Pubkey,
-    pub record: Option<solana_pubkey::Pubkey>,
     pub authority: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
@@ -64,7 +63,6 @@ impl ArrangeAccounts for WithdrawWithheldTokensFromAccountsForConfidentialTransf
         let mint = next_account(&mut iter)?;
         let destination = next_account(&mut iter)?;
         let instructions_sysvar_or_context_state = next_account(&mut iter)?;
-        let record = next_account(&mut iter);
         let authority = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
@@ -74,7 +72,6 @@ impl ArrangeAccounts for WithdrawWithheldTokensFromAccountsForConfidentialTransf
                 mint,
                 destination,
                 instructions_sysvar_or_context_state,
-                record,
                 authority,
                 remaining: remaining.to_vec(),
             },

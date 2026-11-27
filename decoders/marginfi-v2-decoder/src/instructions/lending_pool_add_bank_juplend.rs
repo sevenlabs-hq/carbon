@@ -3,7 +3,7 @@ use {
     crate::types::JuplendConfigCompact,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (admin) Add a JupLend bank to the marginfi group.
+/// (slow governance_admin) Add a JupLend bank to the marginfi group.
 /// Remaining accounts (for oracle validation):
 /// 0. underlying oracle feed (pyth push or switchboard pull)
 /// 1. JupLend `Lending` state
@@ -18,7 +18,7 @@ pub struct LendingPoolAddBankJuplend {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LendingPoolAddBankJuplendInstructionAccounts {
     pub group: solana_pubkey::Pubkey,
-    pub admin: solana_pubkey::Pubkey,
+    pub governance_admin: solana_pubkey::Pubkey,
     pub fee_payer: solana_pubkey::Pubkey,
     pub bank_mint: solana_pubkey::Pubkey,
     pub bank: solana_pubkey::Pubkey,
@@ -33,6 +33,7 @@ pub struct LendingPoolAddBankJuplendInstructionAccounts {
     pub integration_acc2: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -63,7 +64,7 @@ impl ArrangeAccounts for LendingPoolAddBankJuplend {
         let mut iter = accounts.iter();
 
         let group = next_account(&mut iter)?;
-        let admin = next_account(&mut iter)?;
+        let governance_admin = next_account(&mut iter)?;
         let fee_payer = next_account(&mut iter)?;
         let bank_mint = next_account(&mut iter)?;
         let bank = next_account(&mut iter)?;
@@ -78,12 +79,13 @@ impl ArrangeAccounts for LendingPoolAddBankJuplend {
         let integration_acc2 = next_account(&mut iter)?;
         let token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(LendingPoolAddBankJuplendInstructionAccounts {
             group,
-            admin,
+            governance_admin,
             fee_payer,
             bank_mint,
             bank,
@@ -98,6 +100,7 @@ impl ArrangeAccounts for LendingPoolAddBankJuplend {
             integration_acc2,
             token_program,
             system_program,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

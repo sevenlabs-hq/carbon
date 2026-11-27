@@ -22,6 +22,17 @@ pub enum OracleSetupGraphQL {
     JuplendPythPull,
     JuplendSwitchboardPull,
     FixedJuplend,
+    Scope,
+    PythMSOL,
+    KaminoMSOL,
+    JuplendMSOL,
+    PythLST,
+    KaminoLST,
+    JuplendLST,
+    PTPyth,
+    PTFixed,
+    ScopeKamino,
+    ScopeJuplend,
 }
 
 impl From<crate::types::OracleSetup> for OracleSetupGraphQL {
@@ -45,6 +56,17 @@ impl From<crate::types::OracleSetup> for OracleSetupGraphQL {
             crate::types::OracleSetup::JuplendPythPull => Self::JuplendPythPull,
             crate::types::OracleSetup::JuplendSwitchboardPull => Self::JuplendSwitchboardPull,
             crate::types::OracleSetup::FixedJuplend => Self::FixedJuplend,
+            crate::types::OracleSetup::Scope => Self::Scope,
+            crate::types::OracleSetup::PythMSOL => Self::PythMSOL,
+            crate::types::OracleSetup::KaminoMSOL => Self::KaminoMSOL,
+            crate::types::OracleSetup::JuplendMSOL => Self::JuplendMSOL,
+            crate::types::OracleSetup::PythLST => Self::PythLST,
+            crate::types::OracleSetup::KaminoLST => Self::KaminoLST,
+            crate::types::OracleSetup::JuplendLST => Self::JuplendLST,
+            crate::types::OracleSetup::PTPyth => Self::PTPyth,
+            crate::types::OracleSetup::PTFixed => Self::PTFixed,
+            crate::types::OracleSetup::ScopeKamino => Self::ScopeKamino,
+            crate::types::OracleSetup::ScopeJuplend => Self::ScopeJuplend,
         }
     }
 }

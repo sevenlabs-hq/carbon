@@ -25,7 +25,7 @@ impl CpiEventRow {
             instruction_metadata: metadata.into(),
             name: match &source {
                 CpiEvent::EvtClaimPositionFee(_) => "evt_claim_position_fee".to_string(),
-                CpiEvent::EvtClaimProtocolFee(_) => "evt_claim_protocol_fee".to_string(),
+                CpiEvent::EvtClaimProtocolFee2(_) => "evt_claim_protocol_fee2".to_string(),
                 CpiEvent::EvtClaimReward(_) => "evt_claim_reward".to_string(),
                 CpiEvent::EvtCloseConfig(_) => "evt_close_config".to_string(),
                 CpiEvent::EvtClosePosition(_) => "evt_close_position".to_string(),
@@ -43,9 +43,15 @@ impl CpiEventRow {
                 CpiEvent::EvtSplitPosition2(_) => "evt_split_position2".to_string(),
                 CpiEvent::EvtSplitPosition3(_) => "evt_split_position3".to_string(),
                 CpiEvent::EvtSwap2(_) => "evt_swap2".to_string(),
+                CpiEvent::EvtUpdateDelegatePermission(_) => {
+                    "evt_update_delegate_permission".to_string()
+                }
                 CpiEvent::EvtUpdatePoolFees(_) => "evt_update_pool_fees".to_string(),
                 CpiEvent::EvtUpdateRewardDuration(_) => "evt_update_reward_duration".to_string(),
                 CpiEvent::EvtUpdateRewardFunder(_) => "evt_update_reward_funder".to_string(),
+                CpiEvent::EvtWithdrawDeadLiquidityReward(_) => {
+                    "evt_withdraw_dead_liquidity_reward".to_string()
+                }
                 CpiEvent::EvtWithdrawIneligibleReward(_) => {
                     "evt_withdraw_ineligible_reward".to_string()
                 }

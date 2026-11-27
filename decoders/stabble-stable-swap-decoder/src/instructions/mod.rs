@@ -156,6 +156,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for StabbleStableSwapDecod
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            StabbleStableSwapInstruction::CpiEvent => CpiEvent,
             StabbleStableSwapInstruction::AcceptOwner => AcceptOwner,
             StabbleStableSwapInstruction::ApproveStrategy => ApproveStrategy,
             StabbleStableSwapInstruction::ChangeAmpFactor => ChangeAmpFactor,
@@ -175,7 +176,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for StabbleStableSwapDecod
             StabbleStableSwapInstruction::TransferOwner => TransferOwner,
             StabbleStableSwapInstruction::Unpause => Unpause,
             StabbleStableSwapInstruction::Withdraw => Withdraw,
-            StabbleStableSwapInstruction::CpiEvent => CpiEvent,
         )
     }
 }

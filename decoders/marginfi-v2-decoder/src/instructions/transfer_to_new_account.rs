@@ -16,6 +16,7 @@ pub struct TransferToNewAccountInstructionAccounts {
     pub fee_payer: solana_pubkey::Pubkey,
     pub new_authority: solana_pubkey::Pubkey,
     pub global_fee_wallet: solana_pubkey::Pubkey,
+    pub fee_state: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
@@ -53,6 +54,7 @@ impl ArrangeAccounts for TransferToNewAccount {
         let fee_payer = next_account(&mut iter)?;
         let new_authority = next_account(&mut iter)?;
         let global_fee_wallet = next_account(&mut iter)?;
+        let fee_state = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
@@ -65,6 +67,7 @@ impl ArrangeAccounts for TransferToNewAccount {
             fee_payer,
             new_authority,
             global_fee_wallet,
+            fee_state,
             system_program,
             remaining: remaining.to_vec(),
         })

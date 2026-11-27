@@ -14,9 +14,9 @@ use {
 pub struct TargetOrdersRow {
     #[sqlx(flatten)]
     pub account_metadata: AccountRowMetadata,
-    pub owner: sqlx::types::Json<Vec<U64>>,
+    pub owner: Vec<U64>,
     pub buy_orders: sqlx::types::Json<Vec<TargetOrder>>,
-    pub padding1: sqlx::types::Json<Vec<U64>>,
+    pub padding1: Vec<U64>,
     pub target_x: U128,
     pub target_y: U128,
     pub plan_x_buy: U128,
@@ -28,16 +28,16 @@ pub struct TargetOrdersRow {
     pub calc_pnl_x: U128,
     pub calc_pnl_y: U128,
     pub sell_orders: sqlx::types::Json<Vec<TargetOrder>>,
-    pub padding2: sqlx::types::Json<Vec<U64>>,
-    pub replace_buy_client_id: sqlx::types::Json<Vec<U64>>,
-    pub replace_sell_client_id: sqlx::types::Json<Vec<U64>>,
+    pub padding2: Vec<U64>,
+    pub replace_buy_client_id: Vec<U64>,
+    pub replace_sell_client_id: Vec<U64>,
     pub last_order_numerator: U64,
     pub last_order_denominator: U64,
     pub plan_orders_cur: U64,
     pub place_orders_cur: U64,
     pub valid_buy_order_num: U64,
     pub valid_sell_order_num: U64,
-    pub padding3: sqlx::types::Json<Vec<U64>>,
+    pub padding3: Vec<U64>,
     pub free_slot_bits: U128,
 }
 
@@ -48,9 +48,17 @@ impl TargetOrdersRow {
     ) -> Self {
         Self {
             account_metadata: metadata.into(),
-            owner: sqlx::types::Json(source.owner.into_iter().map(U64).collect()),
+            owner: source
+                .owner
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
             buy_orders: sqlx::types::Json(source.buy_orders.to_vec()),
-            padding1: sqlx::types::Json(source.padding1.into_iter().map(U64).collect()),
+            padding1: source
+                .padding1
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
             target_x: source.target_x.into(),
             target_y: source.target_y.into(),
             plan_x_buy: source.plan_x_buy.into(),
@@ -62,20 +70,32 @@ impl TargetOrdersRow {
             calc_pnl_x: source.calc_pnl_x.into(),
             calc_pnl_y: source.calc_pnl_y.into(),
             sell_orders: sqlx::types::Json(source.sell_orders.to_vec()),
-            padding2: sqlx::types::Json(source.padding2.into_iter().map(U64).collect()),
-            replace_buy_client_id: sqlx::types::Json(
-                source.replace_buy_client_id.into_iter().map(U64).collect(),
-            ),
-            replace_sell_client_id: sqlx::types::Json(
-                source.replace_sell_client_id.into_iter().map(U64).collect(),
-            ),
+            padding2: source
+                .padding2
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            replace_buy_client_id: source
+                .replace_buy_client_id
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            replace_sell_client_id: source
+                .replace_sell_client_id
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
             last_order_numerator: source.last_order_numerator.into(),
             last_order_denominator: source.last_order_denominator.into(),
             plan_orders_cur: source.plan_orders_cur.into(),
             place_orders_cur: source.place_orders_cur.into(),
             valid_buy_order_num: source.valid_buy_order_num.into(),
             valid_sell_order_num: source.valid_sell_order_num.into(),
-            padding3: sqlx::types::Json(source.padding3.into_iter().map(U64).collect()),
+            padding3: source
+                .padding3
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
             free_slot_bits: source.free_slot_bits.into(),
         }
     }
@@ -87,10 +107,14 @@ impl TryFrom<TargetOrdersRow> for crate::accounts::target_orders::TargetOrders {
         Ok(Self {
             owner: source
                 .owner
-                .0
                 .into_iter()
-                .map(|element| *element)
-                .collect::<Vec<u64>>()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -110,10 +134,14 @@ impl TryFrom<TargetOrdersRow> for crate::accounts::target_orders::TargetOrders {
                 })?,
             padding1: source
                 .padding1
-                .0
                 .into_iter()
-                .map(|element| *element)
-                .collect::<Vec<u64>>()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -143,10 +171,14 @@ impl TryFrom<TargetOrdersRow> for crate::accounts::target_orders::TargetOrders {
                 })?,
             padding2: source
                 .padding2
-                .0
                 .into_iter()
-                .map(|element| *element)
-                .collect::<Vec<u64>>()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -155,10 +187,14 @@ impl TryFrom<TargetOrdersRow> for crate::accounts::target_orders::TargetOrders {
                 })?,
             replace_buy_client_id: source
                 .replace_buy_client_id
-                .0
                 .into_iter()
-                .map(|element| *element)
-                .collect::<Vec<u64>>()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -167,10 +203,14 @@ impl TryFrom<TargetOrdersRow> for crate::accounts::target_orders::TargetOrders {
                 })?,
             replace_sell_client_id: source
                 .replace_sell_client_id
-                .0
                 .into_iter()
-                .map(|element| *element)
-                .collect::<Vec<u64>>()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -185,10 +225,14 @@ impl TryFrom<TargetOrdersRow> for crate::accounts::target_orders::TargetOrders {
             valid_sell_order_num: *source.valid_sell_order_num,
             padding3: source
                 .padding3
-                .0
                 .into_iter()
-                .map(|element| *element)
-                .collect::<Vec<u64>>()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
@@ -452,9 +496,9 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TargetOrdersMigrationOperation
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS target_orders_account (
                 -- Account data
-                "owner" JSONB NOT NULL,
+                "owner" NUMERIC(20)[] NOT NULL,
                 "buy_orders" JSONB NOT NULL,
-                "padding1" JSONB NOT NULL,
+                "padding1" NUMERIC(20)[] NOT NULL,
                 "target_x" NUMERIC(39) NOT NULL,
                 "target_y" NUMERIC(39) NOT NULL,
                 "plan_x_buy" NUMERIC(39) NOT NULL,
@@ -466,16 +510,16 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TargetOrdersMigrationOperation
                 "calc_pnl_x" NUMERIC(39) NOT NULL,
                 "calc_pnl_y" NUMERIC(39) NOT NULL,
                 "sell_orders" JSONB NOT NULL,
-                "padding2" JSONB NOT NULL,
-                "replace_buy_client_id" JSONB NOT NULL,
-                "replace_sell_client_id" JSONB NOT NULL,
+                "padding2" NUMERIC(20)[] NOT NULL,
+                "replace_buy_client_id" NUMERIC(20)[] NOT NULL,
+                "replace_sell_client_id" NUMERIC(20)[] NOT NULL,
                 "last_order_numerator" NUMERIC(20) NOT NULL,
                 "last_order_denominator" NUMERIC(20) NOT NULL,
                 "plan_orders_cur" NUMERIC(20) NOT NULL,
                 "place_orders_cur" NUMERIC(20) NOT NULL,
                 "valid_buy_order_num" NUMERIC(20) NOT NULL,
                 "valid_sell_order_num" NUMERIC(20) NOT NULL,
-                "padding3" JSONB NOT NULL,
+                "padding3" NUMERIC(20)[] NOT NULL,
                 "free_slot_bits" NUMERIC(39) NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

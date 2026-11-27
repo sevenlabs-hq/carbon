@@ -10,15 +10,17 @@ use {
 #[graphql(name = "EditGlobalFeeState")]
 pub struct EditGlobalFeeStateGraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
-    pub admin: Pubkey,
-    pub fee_wallet: Pubkey,
-    pub bank_init_flat_sol_fee: U32,
-    pub liquidation_flat_sol_fee: U32,
-    pub order_init_flat_sol_fee: U32,
-    pub program_fee_fixed: WrappedI80F48GraphQL,
-    pub program_fee_rate: WrappedI80F48GraphQL,
-    pub liquidation_max_fee: WrappedI80F48GraphQL,
-    pub order_execution_max_fee: WrappedI80F48GraphQL,
+    pub admin: Option<Pubkey>,
+    pub fee_wallet: Option<Pubkey>,
+    pub bank_init_flat_sol_fee: Option<U32>,
+    pub liquidation_flat_sol_fee: Option<U32>,
+    pub order_init_flat_sol_fee: Option<U32>,
+    pub program_fee_fixed: Option<WrappedI80F48GraphQL>,
+    pub program_fee_rate: Option<WrappedI80F48GraphQL>,
+    pub liquidation_max_fee: Option<WrappedI80F48GraphQL>,
+    pub order_execution_max_fee: Option<WrappedI80F48GraphQL>,
+    pub pause_delegate_admin: Option<Pubkey>,
+    pub account_transfer_fee: Option<U32>,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
 
@@ -29,21 +31,31 @@ impl TryFrom<crate::instructions::postgres::EditGlobalFeeStateRow> for EditGloba
     ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            admin: carbon_core::graphql::primitives::Pubkey(row.admin.0),
-            fee_wallet: carbon_core::graphql::primitives::Pubkey(row.fee_wallet.0),
-            bank_init_flat_sol_fee: carbon_core::graphql::primitives::U32(
-                (*row.bank_init_flat_sol_fee) as u32,
-            ),
-            liquidation_flat_sol_fee: carbon_core::graphql::primitives::U32(
-                (*row.liquidation_flat_sol_fee) as u32,
-            ),
-            order_init_flat_sol_fee: carbon_core::graphql::primitives::U32(
-                (*row.order_init_flat_sol_fee) as u32,
-            ),
-            program_fee_fixed: row.program_fee_fixed.0.into(),
-            program_fee_rate: row.program_fee_rate.0.into(),
-            liquidation_max_fee: row.liquidation_max_fee.0.into(),
-            order_execution_max_fee: row.order_execution_max_fee.0.into(),
+            admin: row
+                .admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            fee_wallet: row
+                .fee_wallet
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            bank_init_flat_sol_fee: row
+                .bank_init_flat_sol_fee
+                .map(|v| carbon_core::graphql::primitives::U32((*v) as u32)),
+            liquidation_flat_sol_fee: row
+                .liquidation_flat_sol_fee
+                .map(|v| carbon_core::graphql::primitives::U32((*v) as u32)),
+            order_init_flat_sol_fee: row
+                .order_init_flat_sol_fee
+                .map(|v| carbon_core::graphql::primitives::U32((*v) as u32)),
+            program_fee_fixed: row.program_fee_fixed.map(|v| v.0.into()),
+            program_fee_rate: row.program_fee_rate.map(|v| v.0.into()),
+            liquidation_max_fee: row.liquidation_max_fee.map(|v| v.0.into()),
+            order_execution_max_fee: row.order_execution_max_fee.map(|v| v.0.into()),
+            pause_delegate_admin: row
+                .pause_delegate_admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            account_transfer_fee: row
+                .account_transfer_fee
+                .map(|v| carbon_core::graphql::primitives::U32((*v) as u32)),
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,

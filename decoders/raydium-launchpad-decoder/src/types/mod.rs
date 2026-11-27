@@ -3,18 +3,18 @@
 pub mod graphql;
 
 pub mod amm_creator_fee_on;
-pub mod bonding_curve_param;
 pub mod claim_vested_event;
 pub mod constant_curve;
 pub mod create_vesting_event;
 pub mod curve_params;
+pub mod curve_rule_group;
 pub mod fixed_curve;
 pub mod linear_curve;
 pub mod migrate_nft_info;
 pub mod mint_params;
+pub mod param_constraint;
 pub mod platform_config_info;
 pub mod platform_config_param;
-pub mod platform_curve_param;
 pub mod platform_params;
 pub mod pool_create_event;
 pub mod pool_status;
@@ -25,9 +25,9 @@ pub mod vesting_params;
 pub mod vesting_schedule;
 
 pub use self::{
-    amm_creator_fee_on::*, bonding_curve_param::*, claim_vested_event::*, constant_curve::*,
-    create_vesting_event::*, curve_params::*, fixed_curve::*, linear_curve::*, migrate_nft_info::*,
-    mint_params::*, platform_config_info::*, platform_config_param::*, platform_curve_param::*,
+    amm_creator_fee_on::*, claim_vested_event::*, constant_curve::*, create_vesting_event::*,
+    curve_params::*, curve_rule_group::*, fixed_curve::*, linear_curve::*, migrate_nft_info::*,
+    mint_params::*, param_constraint::*, platform_config_info::*, platform_config_param::*,
     platform_params::*, pool_create_event::*, pool_status::*, trade_direction::*, trade_event::*,
     transfer_fee_extension_params::*, vesting_params::*, vesting_schedule::*,
 };

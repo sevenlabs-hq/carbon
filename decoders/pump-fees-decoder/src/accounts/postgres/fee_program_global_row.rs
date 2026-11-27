@@ -16,7 +16,7 @@ pub struct FeeProgramGlobalRow {
     pub disable_flags: U8,
     pub social_claim_authority: Pubkey,
     pub claim_rate_limit: U64,
-    pub reserved: Vec<U8>,
+    pub reserved: Vec<u8>,
 }
 
 impl FeeProgramGlobalRow {
@@ -31,11 +31,7 @@ impl FeeProgramGlobalRow {
             disable_flags: source.disable_flags.into(),
             social_claim_authority: source.social_claim_authority.into(),
             claim_rate_limit: source.claim_rate_limit.into(),
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            reserved: source.reserved.to_vec(),
         }
     }
 }
@@ -57,23 +53,12 @@ impl TryFrom<FeeProgramGlobalRow> for crate::accounts::fee_program_global::FeePr
             })?,
             social_claim_authority: *source.social_claim_authority,
             claim_rate_limit: *source.claim_rate_limit,
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| {
-                    element.try_into().map_err(|_| {
-                        carbon_core::error::Error::Custom(
-                            "Failed to convert value from postgres primitive".to_string(),
-                        )
-                    })
-                })
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            reserved: source.reserved.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 256 bytes"
+                        .to_string(),
+                )
+            })?,
         })
     }
 }
@@ -229,7 +214,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeProgramGlobalMigrationOpera
                 "disable_flags" INT2 NOT NULL,
                 "social_claim_authority" BYTEA NOT NULL,
                 "claim_rate_limit" NUMERIC(20) NOT NULL,
-                "reserved" INT2[] NOT NULL,
+                "reserved" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

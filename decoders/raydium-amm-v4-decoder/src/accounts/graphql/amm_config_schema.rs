@@ -24,13 +24,11 @@ impl TryFrom<crate::accounts::postgres::AmmConfigRow> for AmmConfigGraphQL {
             cancel_owner: carbon_core::graphql::primitives::Pubkey(row.cancel_owner.0),
             pending1: row
                 .pending1
-                .0
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
             pending2: row
                 .pending2
-                .0
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),

@@ -59,5 +59,7 @@ pub enum UpdateConfigMode {
     UpdateDebtTermSeconds,
     UpdateEarlyRepayRemainingInterestPct,
     UpdateReserveEmergencyMode,
-    UpdateRewardsAmountPerSlot,
+    UpdateRewardsAmountPerAccrualUnit,
+    UpdateReservePermissionedOps,
+    UpdateInterestRateBasis,
 }

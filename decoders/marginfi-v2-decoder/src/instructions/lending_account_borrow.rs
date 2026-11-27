@@ -2,7 +2,8 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// (account authority) Borrow assets from a bank. Accrues interest, records
 /// liability, applies origination fee, transfers tokens, and runs a health
-/// check.
+/// check. If group rate limits are enabled, `remaining_accounts` must include
+/// the borrowed bank's oracle group for USD pricing.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingAccountBorrow {

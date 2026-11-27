@@ -12,8 +12,9 @@ pub struct SocialFeePda {
     pub platform: u8,
     pub total_claimed: u64,
     pub last_claimed: u64,
+    pub total_stable_claimed: u64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub reserved: [u8; 128],
+    pub reserved: [u8; 120],
 }
 
 impl SocialFeePda {

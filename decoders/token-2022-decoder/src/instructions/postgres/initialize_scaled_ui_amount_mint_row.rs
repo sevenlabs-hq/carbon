@@ -22,7 +22,7 @@ impl InitializeScaledUiAmountMintRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            authority: source.authority.map(|value| value.into()),
+            authority: source.authority.0.map(|value| value.into()),
             multiplier: source.multiplier,
             accounts: sqlx::types::Json(accounts),
         }
@@ -35,7 +35,7 @@ impl TryFrom<InitializeScaledUiAmountMintRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeScaledUiAmountMintRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            authority: source.authority.map(|value| *value),
+            authority: source.authority.map(|value| *value).into(),
             multiplier: source.multiplier,
         })
     }

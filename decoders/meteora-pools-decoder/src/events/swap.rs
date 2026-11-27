@@ -3,30 +3,31 @@
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SwapEvent {
+    /// Token amount user deposited to the pool for token exchange.
     pub in_amount: u64,
+    /// Token amount user received from the pool.
     pub out_amount: u64,
+    /// Trading fee charged for liquidity provider.
     pub trade_fee: u64,
+    /// Trading fee charged for the protocol.
     pub protocol_fee: u64,
+    /// Host fee charged
     pub host_fee: u64,
 }
 
 impl SwapEvent {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 16 {
+        if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..16];
-        if discriminator
-            != [
-                228, 69, 165, 46, 81, 203, 154, 29, 81, 108, 227, 190, 205, 208, 10, 196,
-            ]
-        {
+        let discriminator = &data[0..8];
+        if discriminator != [81, 108, 227, 190, 205, 208, 10, 196] {
             return None;
         }
 
         let mut data_slice = data;
 
-        data_slice = &data_slice[16..];
+        data_slice = &data_slice[8..];
 
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }

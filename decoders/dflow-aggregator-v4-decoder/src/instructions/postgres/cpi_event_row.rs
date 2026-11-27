@@ -25,6 +25,7 @@ impl CpiEventRow {
             instruction_metadata: metadata.into(),
             name: match &source {
                 CpiEvent::FeeEvent(_) => "fee_event".to_string(),
+                CpiEvent::FeeWithdrawalEvent(_) => "fee_withdrawal_event".to_string(),
                 CpiEvent::SwapEvent(_) => "swap_event".to_string(),
             },
             data: sqlx::types::Json(source),

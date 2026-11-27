@@ -5,7 +5,7 @@ use {
         instruction::InstructionMetadata,
         postgres::{
             metadata::InstructionRowMetadata,
-            primitives::{U32, U64},
+            primitives::{U32, U64, U8},
         },
     },
 };
@@ -14,7 +14,7 @@ use {
 pub struct UpdateMetadataRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
-    pub root: Vec<u8>,
+    pub root: Vec<U8>,
     pub nonce: U64,
     pub index: U32,
     pub current_metadata: sqlx::types::Json<MetadataArgs>,
@@ -31,7 +31,11 @@ impl UpdateMetadataRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            root: source.root.to_vec(),
+            root: source
+                .root
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
             nonce: source.nonce.into(),
             index: source.index.into(),
             current_metadata: sqlx::types::Json(source.current_metadata),
@@ -45,12 +49,23 @@ impl TryFrom<UpdateMetadataRow> for crate::instructions::update_metadata::Update
     type Error = carbon_core::error::Error;
     fn try_from(source: UpdateMetadataRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            root: source.root.as_slice().try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 32 bytes"
-                        .to_string(),
-                )
-            })?,
+            root: source
+                .root
+                .into_iter()
+                .map(|element| {
+                    element.try_into().map_err(|_| {
+                        carbon_core::error::Error::Custom(
+                            "Failed to convert value from postgres primitive".to_string(),
+                        )
+                    })
+                })
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
             nonce: *source.nonce,
             index: source.index.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
@@ -220,7 +235,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateMetadataMigrationOperati
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS update_metadata_instruction (
                 -- Instruction data
-                "root" BYTEA NOT NULL,
+                "root" INT2[] NOT NULL,
                 "nonce" NUMERIC(20) NOT NULL,
                 "index" INT8 NOT NULL,
                 "current_metadata" JSONB NOT NULL,

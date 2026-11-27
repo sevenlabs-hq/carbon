@@ -9,7 +9,11 @@ pub struct GlobalConfig {
     pub new_orders_blocked: u8,
     pub orders_taking_blocked: u8,
     pub host_fee_bps: u16,
-    pub padding0: [u8; 2],
+    /// Bitmask of disabled RFQ venues. `0` (default) means every venue is
+    /// enabled. Bit 0 (`RFQ_VENUE_KRFQ_DISABLED`) disables krfq, bit 1
+    /// (`RFQ_VENUE_PER_DISABLED`) disables Express Relay (PER).
+    pub rfq_venues_blocked: u8,
+    pub padding0: [u8; 1],
     /// The number of seconds after an order has been updated before it can be
     /// closed
     pub order_close_delay_seconds: u64,

@@ -15,6 +15,7 @@ pub struct StaticConfigParametersGraphQL {
     pub pool_creator_authority: Pubkey,
     pub activation_type: U8,
     pub collect_fee_mode: U8,
+    pub permission: U128,
 }
 
 impl From<crate::types::StaticConfigParameters> for StaticConfigParametersGraphQL {
@@ -29,6 +30,7 @@ impl From<crate::types::StaticConfigParameters> for StaticConfigParametersGraphQ
             ),
             activation_type: carbon_core::graphql::primitives::U8(original.activation_type),
             collect_fee_mode: carbon_core::graphql::primitives::U8(original.collect_fee_mode),
+            permission: carbon_core::graphql::primitives::U128(original.permission),
         }
     }
 }

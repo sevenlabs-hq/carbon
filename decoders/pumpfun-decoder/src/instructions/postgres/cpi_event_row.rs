@@ -24,7 +24,8 @@ impl CpiEventRow {
         Self {
             instruction_metadata: metadata.into(),
             name: match &source {
-                CpiEvent::AdminSetCreatorEvent(_) => "admin_set_creator_event".to_string(),
+                CpiEvent::AddQuoteControlMintEvent(_) => "add_quote_control_mint_event".to_string(),
+                CpiEvent::AdminCtoEvent(_) => "admin_cto_event".to_string(),
                 CpiEvent::AdminSetIdlAuthorityEvent(_) => {
                     "admin_set_idl_authority_event".to_string()
                 }
@@ -47,6 +48,9 @@ impl CpiEventRow {
                 CpiEvent::DistributeCreatorFeesEvent(_) => {
                     "distribute_creator_fees_event".to_string()
                 }
+                CpiEvent::DistributeFeeToHoldersEvent(_) => {
+                    "distribute_fee_to_holders_event".to_string()
+                }
                 CpiEvent::ExtendAccountEvent(_) => "extend_account_event".to_string(),
                 CpiEvent::InitUserVolumeAccumulatorEvent(_) => {
                     "init_user_volume_accumulator_event".to_string()
@@ -57,16 +61,35 @@ impl CpiEventRow {
                 CpiEvent::MinimumDistributableFeeEvent(_) => {
                     "minimum_distributable_fee_event".to_string()
                 }
+                CpiEvent::PostCompleteBuyEvent(_) => "post_complete_buy_event".to_string(),
+                CpiEvent::RemoveQuoteControlMintEvent(_) => {
+                    "remove_quote_control_mint_event".to_string()
+                }
                 CpiEvent::ReservedFeeRecipientsEvent(_) => {
                     "reserved_fee_recipients_event".to_string()
                 }
                 CpiEvent::SetCreatorEvent(_) => "set_creator_event".to_string(),
                 CpiEvent::SetMetaplexCreatorEvent(_) => "set_metaplex_creator_event".to_string(),
                 CpiEvent::SetParamsEvent(_) => "set_params_event".to_string(),
+                CpiEvent::SetQuoteControlAdminEvent(_) => {
+                    "set_quote_control_admin_event".to_string()
+                }
+                CpiEvent::SetQuoteControlMintReservesEvent(_) => {
+                    "set_quote_control_mint_reserves_event".to_string()
+                }
+                CpiEvent::SetQuoteControlReservesAdminEvent(_) => {
+                    "set_quote_control_reserves_admin_event".to_string()
+                }
+                CpiEvent::SweepBondingCurveFeeEvent(_) => {
+                    "sweep_bonding_curve_fee_event".to_string()
+                }
                 CpiEvent::SyncUserVolumeAccumulatorEvent(_) => {
                     "sync_user_volume_accumulator_event".to_string()
                 }
                 CpiEvent::TradeEvent(_) => "trade_event".to_string(),
+                CpiEvent::UpdateCreatorFeeConfigEvent(_) => {
+                    "update_creator_fee_config_event".to_string()
+                }
                 CpiEvent::UpdateGlobalAuthorityEvent(_) => {
                     "update_global_authority_event".to_string()
                 }

@@ -10,12 +10,15 @@ pub mod graphql;
 pub mod close_limit_order;
 pub mod close_position;
 pub mod close_protocol_position;
+pub mod close_support_mint_associated;
+pub mod collect_excess_lamports;
 pub mod collect_fund_fee;
 pub mod collect_protocol_fee;
 pub mod collect_remaining_rewards;
 pub mod cpi_event;
 pub mod create_amm_config;
 pub mod create_customizable_pool;
+pub mod create_customizable_pool_v2;
 pub mod create_dynamic_fee_config;
 pub mod create_operation_account;
 pub mod create_pool;
@@ -44,16 +47,17 @@ pub mod update_pool_status;
 pub mod update_reward_infos;
 
 pub use self::{
-    close_limit_order::*, close_position::*, close_protocol_position::*, collect_fund_fee::*,
+    close_limit_order::*, close_position::*, close_protocol_position::*,
+    close_support_mint_associated::*, collect_excess_lamports::*, collect_fund_fee::*,
     collect_protocol_fee::*, collect_remaining_rewards::*, cpi_event::*, create_amm_config::*,
-    create_customizable_pool::*, create_dynamic_fee_config::*, create_operation_account::*,
-    create_pool::*, create_support_mint_associated::*, decrease_limit_order::*,
-    decrease_liquidity::*, decrease_liquidity_v2::*, increase_limit_order::*,
-    increase_liquidity::*, increase_liquidity_v2::*, initialize_reward::*, open_limit_order::*,
-    open_position::*, open_position_v2::*, open_position_with_token22_nft::*, set_reward_params::*,
-    settle_limit_order::*, swap::*, swap_router_base_in::*, swap_v2::*, transfer_reward_owner::*,
-    update_amm_config::*, update_dynamic_fee_config::*, update_operation_account::*,
-    update_pool_status::*, update_reward_infos::*,
+    create_customizable_pool::*, create_customizable_pool_v2::*, create_dynamic_fee_config::*,
+    create_operation_account::*, create_pool::*, create_support_mint_associated::*,
+    decrease_limit_order::*, decrease_liquidity::*, decrease_liquidity_v2::*,
+    increase_limit_order::*, increase_liquidity::*, increase_liquidity_v2::*, initialize_reward::*,
+    open_limit_order::*, open_position::*, open_position_v2::*, open_position_with_token22_nft::*,
+    set_reward_params::*, settle_limit_order::*, swap::*, swap_router_base_in::*, swap_v2::*,
+    transfer_reward_owner::*, update_amm_config::*, update_dynamic_fee_config::*,
+    update_operation_account::*, update_pool_status::*, update_reward_infos::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -75,6 +79,16 @@ pub enum RaydiumClmmInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CloseProtocolPosition,
         accounts: CloseProtocolPositionInstructionAccounts,
+    },
+    CloseSupportMintAssociated {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseSupportMintAssociated,
+        accounts: CloseSupportMintAssociatedInstructionAccounts,
+    },
+    CollectExcessLamports {
+        program_id: solana_pubkey::Pubkey,
+        data: CollectExcessLamports,
+        accounts: CollectExcessLamportsInstructionAccounts,
     },
     CollectFundFee {
         program_id: solana_pubkey::Pubkey,
@@ -100,6 +114,11 @@ pub enum RaydiumClmmInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CreateCustomizablePool,
         accounts: CreateCustomizablePoolInstructionAccounts,
+    },
+    CreateCustomizablePoolV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateCustomizablePoolV2,
+        accounts: CreateCustomizablePoolV2InstructionAccounts,
     },
     CreateDynamicFeeConfig {
         program_id: solana_pubkey::Pubkey,
@@ -252,14 +271,18 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumClmmDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            RaydiumClmmInstruction::CpiEvent => CpiEvent,
             RaydiumClmmInstruction::CloseLimitOrder => CloseLimitOrder,
             RaydiumClmmInstruction::ClosePosition => ClosePosition,
             RaydiumClmmInstruction::CloseProtocolPosition => CloseProtocolPosition,
+            RaydiumClmmInstruction::CloseSupportMintAssociated => CloseSupportMintAssociated,
+            RaydiumClmmInstruction::CollectExcessLamports => CollectExcessLamports,
             RaydiumClmmInstruction::CollectFundFee => CollectFundFee,
             RaydiumClmmInstruction::CollectProtocolFee => CollectProtocolFee,
             RaydiumClmmInstruction::CollectRemainingRewards => CollectRemainingRewards,
             RaydiumClmmInstruction::CreateAmmConfig => CreateAmmConfig,
             RaydiumClmmInstruction::CreateCustomizablePool => CreateCustomizablePool,
+            RaydiumClmmInstruction::CreateCustomizablePoolV2 => CreateCustomizablePoolV2,
             RaydiumClmmInstruction::CreateDynamicFeeConfig => CreateDynamicFeeConfig,
             RaydiumClmmInstruction::CreateOperationAccount => CreateOperationAccount,
             RaydiumClmmInstruction::CreatePool => CreatePool,
@@ -286,7 +309,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumClmmDecoder {
             RaydiumClmmInstruction::UpdateOperationAccount => UpdateOperationAccount,
             RaydiumClmmInstruction::UpdatePoolStatus => UpdatePoolStatus,
             RaydiumClmmInstruction::UpdateRewardInfos => UpdateRewardInfos,
-            RaydiumClmmInstruction::CpiEvent => CpiEvent,
         )
     }
 }

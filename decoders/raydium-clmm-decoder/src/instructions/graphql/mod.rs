@@ -2,12 +2,15 @@
 pub mod close_limit_order_schema;
 pub mod close_position_schema;
 pub mod close_protocol_position_schema;
+pub mod close_support_mint_associated_schema;
+pub mod collect_excess_lamports_schema;
 pub mod collect_fund_fee_schema;
 pub mod collect_protocol_fee_schema;
 pub mod collect_remaining_rewards_schema;
 pub mod cpi_event_schema;
 pub mod create_amm_config_schema;
 pub mod create_customizable_pool_schema;
+pub mod create_customizable_pool_v2_schema;
 pub mod create_dynamic_fee_config_schema;
 pub mod create_operation_account_schema;
 pub mod create_pool_schema;
@@ -38,10 +41,11 @@ pub mod update_reward_infos_schema;
 use juniper::GraphQLObject;
 pub use {
     close_limit_order_schema::*, close_position_schema::*, close_protocol_position_schema::*,
+    close_support_mint_associated_schema::*, collect_excess_lamports_schema::*,
     collect_fund_fee_schema::*, collect_protocol_fee_schema::*,
     collect_remaining_rewards_schema::*, cpi_event_schema::*, create_amm_config_schema::*,
-    create_customizable_pool_schema::*, create_dynamic_fee_config_schema::*,
-    create_operation_account_schema::*, create_pool_schema::*,
+    create_customizable_pool_schema::*, create_customizable_pool_v2_schema::*,
+    create_dynamic_fee_config_schema::*, create_operation_account_schema::*, create_pool_schema::*,
     create_support_mint_associated_schema::*, decrease_limit_order_schema::*,
     decrease_liquidity_schema::*, decrease_liquidity_v2_schema::*, increase_limit_order_schema::*,
     increase_liquidity_schema::*, increase_liquidity_v2_schema::*, initialize_reward_schema::*,

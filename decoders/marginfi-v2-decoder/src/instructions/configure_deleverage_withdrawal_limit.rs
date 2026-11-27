@@ -13,6 +13,7 @@ pub struct ConfigureDeleverageWithdrawalLimit {
 pub struct ConfigureDeleverageWithdrawalLimitInstructionAccounts {
     pub marginfi_group: solana_pubkey::Pubkey,
     pub admin: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -44,12 +45,14 @@ impl ArrangeAccounts for ConfigureDeleverageWithdrawalLimit {
 
         let marginfi_group = next_account(&mut iter)?;
         let admin = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
         Some(ConfigureDeleverageWithdrawalLimitInstructionAccounts {
             marginfi_group,
             admin,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

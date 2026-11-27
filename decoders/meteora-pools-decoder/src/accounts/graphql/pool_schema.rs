@@ -31,6 +31,7 @@ pub struct PoolGraphQL {
     pub total_locked_lp: U64,
     pub bootstrapping: BootstrappingGraphQL,
     pub partner_info: PartnerInfoGraphQL,
+    pub lp_mint_supply: U64,
     pub padding: PaddingGraphQL,
     pub curve_type: CurveTypeGraphQL,
 }
@@ -67,6 +68,7 @@ impl TryFrom<crate::accounts::postgres::PoolRow> for PoolGraphQL {
             total_locked_lp: carbon_core::graphql::primitives::U64(*row.total_locked_lp),
             bootstrapping: row.bootstrapping.0.into(),
             partner_info: row.partner_info.0.into(),
+            lp_mint_supply: carbon_core::graphql::primitives::U64(*row.lp_mint_supply),
             padding: row.padding.0.into(),
             curve_type: row.curve_type.0.into(),
         })

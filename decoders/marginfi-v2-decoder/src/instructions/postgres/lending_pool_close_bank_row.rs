@@ -5,18 +5,20 @@ use carbon_core::{instruction::InstructionMetadata, postgres::metadata::Instruct
 pub struct LendingPoolCloseBankRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
+    pub force_close: Option<bool>,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl LendingPoolCloseBankRow {
     pub fn from_parts(
-        _source: crate::instructions::lending_pool_close_bank::LendingPoolCloseBank,
+        source: crate::instructions::lending_pool_close_bank::LendingPoolCloseBank,
         metadata: InstructionMetadata,
         accounts: Vec<solana_instruction::AccountMeta>,
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
+            force_close: source.force_close,
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -26,8 +28,10 @@ impl TryFrom<LendingPoolCloseBankRow>
     for crate::instructions::lending_pool_close_bank::LendingPoolCloseBank
 {
     type Error = carbon_core::error::Error;
-    fn try_from(_source: LendingPoolCloseBankRow) -> Result<Self, Self::Error> {
-        Ok(Self {})
+    fn try_from(source: LendingPoolCloseBankRow) -> Result<Self, Self::Error> {
+        Ok(Self {
+            force_close: source.force_close,
+        })
     }
 }
 
@@ -45,6 +49,7 @@ impl carbon_core::postgres::operations::Table
             "__stack_height",
             "__absolute_path",
             "__slot",
+            "force_close",
             "__accounts",
         ]
     }
@@ -56,12 +61,14 @@ impl carbon_core::postgres::operations::Insert for LendingPoolCloseBankRow {
         sqlx::query(
             r#"
             INSERT INTO lending_pool_close_bank_instruction (
+                "force_close",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5, $6, $7
             )"#,
         )
+        .bind(self.force_close)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -80,19 +87,22 @@ impl carbon_core::postgres::operations::Upsert for LendingPoolCloseBankRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"INSERT INTO lending_pool_close_bank_instruction (
+                "force_close",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5, $6, $7
             ) ON CONFLICT (
                 __signature, __absolute_path
             ) DO UPDATE SET
+                "force_close" = EXCLUDED."force_close",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
                 __accounts = EXCLUDED.__accounts
             "#,
         )
+        .bind(self.force_close)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -158,6 +168,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingPoolCloseBankMigrationO
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS lending_pool_close_bank_instruction (
                 -- Instruction data
+                "force_close" BOOLEAN,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

@@ -14,6 +14,7 @@ impl From<crate::types::BatchItem> for BatchItemGraphQL {
             number_of_accounts: carbon_core::graphql::primitives::U8(original.number_of_accounts),
             instruction_data: original
                 .instruction_data
+                .0
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),

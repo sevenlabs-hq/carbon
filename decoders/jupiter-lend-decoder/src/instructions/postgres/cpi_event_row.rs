@@ -30,6 +30,7 @@ impl CpiEventRow {
                 CpiEvent::LogCollectRevenue(_) => "log_collect_revenue".to_string(),
                 CpiEvent::LogOperate(_) => "log_operate".to_string(),
                 CpiEvent::LogPauseUser(_) => "log_pause_user".to_string(),
+                CpiEvent::LogTokenLockdown(_) => "log_token_lockdown".to_string(),
                 CpiEvent::LogUnpauseUser(_) => "log_unpause_user".to_string(),
                 CpiEvent::LogUpdateAuthority(_) => "log_update_authority".to_string(),
                 CpiEvent::LogUpdateAuths(_) => "log_update_auths".to_string(),

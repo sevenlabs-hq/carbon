@@ -4,7 +4,7 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LiquidateObligationAndRedeemReserveCollateral {
     pub liquidity_amount: u64,
-    pub min_acceptable_received_liquidity_amount: u64,
+    pub min_received_liquidity_amount: u64,
     pub max_allowed_ltv_override_percent: u64,
 }
 

@@ -53,8 +53,15 @@ pub struct FixedTermBorrowRolloverConfig {
     /// migrating into a fixed-term reserve contradicts the open-term-only
     /// intent.
     pub migration_to_fixed_enabled: u8,
-    /// Internal alignment padding (free to reuse).
-    pub alignment_padding: [u8; 1],
+    /// An optional override of the
+    /// [LendingMarket::fixed_term_rollover_window_duration_seconds],
+    /// expressed in *days*.
+    /// When zeroed, the market's configured value is used. Also, this setting
+    /// is effective only when the fixed-term rollover mode is enabled on
+    /// the market level. In other words: this field cannot be used to
+    /// enable or disable the fixed-term rollover, only to customize its
+    /// window duration.
+    pub fixed_term_rollover_window_duration_days: u8,
     /// A maximum allowed borrow rate of a reserve that can be used for a
     /// rollover/migration. Note: this must be set (i.e. non-zero) when
     /// enabling any rollover/migration flavor, but is of course not

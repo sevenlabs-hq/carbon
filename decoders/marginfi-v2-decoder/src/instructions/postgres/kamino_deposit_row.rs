@@ -9,6 +9,7 @@ pub struct KaminoDepositRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     pub amount: U64,
+    pub refresh_reserve: Option<bool>,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -22,6 +23,7 @@ impl KaminoDepositRow {
         Self {
             instruction_metadata: metadata.into(),
             amount: source.amount.into(),
+            refresh_reserve: source.refresh_reserve,
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -32,6 +34,7 @@ impl TryFrom<KaminoDepositRow> for crate::instructions::kamino_deposit::KaminoDe
     fn try_from(source: KaminoDepositRow) -> Result<Self, Self::Error> {
         Ok(Self {
             amount: *source.amount,
+            refresh_reserve: source.refresh_reserve,
         })
     }
 }
@@ -51,6 +54,7 @@ impl carbon_core::postgres::operations::Table
             "__absolute_path",
             "__slot",
             "amount",
+            "refresh_reserve",
             "__accounts",
         ]
     }
@@ -63,13 +67,15 @@ impl carbon_core::postgres::operations::Insert for KaminoDepositRow {
             r#"
             INSERT INTO kamino_deposit_instruction (
                 "amount",
+                "refresh_reserve",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
         .bind(&self.amount)
+        .bind(self.refresh_reserve)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -89,14 +95,16 @@ impl carbon_core::postgres::operations::Upsert for KaminoDepositRow {
         sqlx::query(
             r#"INSERT INTO kamino_deposit_instruction (
                 "amount",
+                "refresh_reserve",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) ON CONFLICT (
                 __signature, __absolute_path
             ) DO UPDATE SET
                 "amount" = EXCLUDED."amount",
+                "refresh_reserve" = EXCLUDED."refresh_reserve",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
@@ -104,6 +112,7 @@ impl carbon_core::postgres::operations::Upsert for KaminoDepositRow {
             "#,
         )
         .bind(&self.amount)
+        .bind(self.refresh_reserve)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -170,6 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for KaminoDepositMigrationOperatio
             r#"CREATE TABLE IF NOT EXISTS kamino_deposit_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
+                "refresh_reserve" BOOLEAN,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

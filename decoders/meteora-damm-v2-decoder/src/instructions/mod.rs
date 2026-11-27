@@ -9,7 +9,7 @@ pub mod graphql;
 
 pub mod add_liquidity;
 pub mod claim_position_fee;
-pub mod claim_protocol_fee;
+pub mod claim_protocol_fee2;
 pub mod claim_reward;
 pub mod close_config;
 pub mod close_operator_account;
@@ -41,14 +41,15 @@ pub mod split_position;
 pub mod split_position2;
 pub mod swap;
 pub mod swap2;
+pub mod update_delegate_permission;
 pub mod update_pool_fees;
 pub mod update_reward_duration;
 pub mod update_reward_funder;
+pub mod withdraw_dead_liquidity_reward;
 pub mod withdraw_ineligible_reward;
-pub mod zap_protocol_fee;
 
 pub use self::{
-    add_liquidity::*, claim_position_fee::*, claim_protocol_fee::*, claim_reward::*,
+    add_liquidity::*, claim_position_fee::*, claim_protocol_fee2::*, claim_reward::*,
     close_config::*, close_operator_account::*, close_position::*, close_token_badge::*,
     cpi_event::*, create_config::*, create_dynamic_config::*, create_operator_account::*,
     create_position::*, create_token_badge::*, dummy_ix::*, fix_config_fee_params::*,
@@ -56,9 +57,9 @@ pub use self::{
     initialize_customizable_pool::*, initialize_pool::*, initialize_pool_with_dynamic_config::*,
     initialize_reward::*, lock_inner_position::*, lock_position::*, permanent_lock_position::*,
     refresh_vesting::*, remove_all_liquidity::*, remove_liquidity::*, set_pool_status::*,
-    split_position::*, split_position2::*, swap::*, swap2::*, update_pool_fees::*,
-    update_reward_duration::*, update_reward_funder::*, withdraw_ineligible_reward::*,
-    zap_protocol_fee::*,
+    split_position::*, split_position2::*, swap::*, swap2::*, update_delegate_permission::*,
+    update_pool_fees::*, update_reward_duration::*, update_reward_funder::*,
+    withdraw_dead_liquidity_reward::*, withdraw_ineligible_reward::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -76,10 +77,10 @@ pub enum MeteoraDammV2Instruction {
         data: ClaimPositionFee,
         accounts: ClaimPositionFeeInstructionAccounts,
     },
-    ClaimProtocolFee {
+    ClaimProtocolFee2 {
         program_id: solana_pubkey::Pubkey,
-        data: ClaimProtocolFee,
-        accounts: ClaimProtocolFeeInstructionAccounts,
+        data: ClaimProtocolFee2,
+        accounts: ClaimProtocolFee2InstructionAccounts,
     },
     ClaimReward {
         program_id: solana_pubkey::Pubkey,
@@ -231,6 +232,11 @@ pub enum MeteoraDammV2Instruction {
         data: Swap2,
         accounts: Swap2InstructionAccounts,
     },
+    UpdateDelegatePermission {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateDelegatePermission,
+        accounts: UpdateDelegatePermissionInstructionAccounts,
+    },
     UpdatePoolFees {
         program_id: solana_pubkey::Pubkey,
         data: UpdatePoolFees,
@@ -246,15 +252,15 @@ pub enum MeteoraDammV2Instruction {
         data: UpdateRewardFunder,
         accounts: UpdateRewardFunderInstructionAccounts,
     },
+    WithdrawDeadLiquidityReward {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawDeadLiquidityReward,
+        accounts: WithdrawDeadLiquidityRewardInstructionAccounts,
+    },
     WithdrawIneligibleReward {
         program_id: solana_pubkey::Pubkey,
         data: WithdrawIneligibleReward,
         accounts: WithdrawIneligibleRewardInstructionAccounts,
-    },
-    ZapProtocolFee {
-        program_id: solana_pubkey::Pubkey,
-        data: ZapProtocolFee,
-        accounts: ZapProtocolFeeInstructionAccounts,
     },
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
@@ -277,9 +283,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            MeteoraDammV2Instruction::CpiEvent => CpiEvent,
             MeteoraDammV2Instruction::AddLiquidity => AddLiquidity,
             MeteoraDammV2Instruction::ClaimPositionFee => ClaimPositionFee,
-            MeteoraDammV2Instruction::ClaimProtocolFee => ClaimProtocolFee,
+            MeteoraDammV2Instruction::ClaimProtocolFee2 => ClaimProtocolFee2,
             MeteoraDammV2Instruction::ClaimReward => ClaimReward,
             MeteoraDammV2Instruction::CloseConfig => CloseConfig,
             MeteoraDammV2Instruction::CloseOperatorAccount => CloseOperatorAccount,
@@ -310,12 +317,12 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
             MeteoraDammV2Instruction::SplitPosition2 => SplitPosition2,
             MeteoraDammV2Instruction::Swap => Swap,
             MeteoraDammV2Instruction::Swap2 => Swap2,
+            MeteoraDammV2Instruction::UpdateDelegatePermission => UpdateDelegatePermission,
             MeteoraDammV2Instruction::UpdatePoolFees => UpdatePoolFees,
             MeteoraDammV2Instruction::UpdateRewardDuration => UpdateRewardDuration,
             MeteoraDammV2Instruction::UpdateRewardFunder => UpdateRewardFunder,
+            MeteoraDammV2Instruction::WithdrawDeadLiquidityReward => WithdrawDeadLiquidityReward,
             MeteoraDammV2Instruction::WithdrawIneligibleReward => WithdrawIneligibleReward,
-            MeteoraDammV2Instruction::ZapProtocolFee => ZapProtocolFee,
-            MeteoraDammV2Instruction::CpiEvent => CpiEvent,
         )
     }
 }

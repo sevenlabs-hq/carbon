@@ -5,7 +5,7 @@ use {
 };
 /// Used to configure Drift banks. A simplified version of `BankConfigCompact`
 /// which omits most values related to interest since Drift banks cannot earn
-/// interest or be borrowed against.
+/// interest or be borrowed from.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct DriftConfigCompact {

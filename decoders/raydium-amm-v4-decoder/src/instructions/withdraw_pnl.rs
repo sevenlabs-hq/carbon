@@ -12,20 +12,12 @@ pub struct WithdrawPnlInstructionAccounts {
     pub amm: solana_pubkey::Pubkey,
     pub amm_config: solana_pubkey::Pubkey,
     pub amm_authority: solana_pubkey::Pubkey,
-    pub amm_open_orders: solana_pubkey::Pubkey,
     pub amm_coin_vault: solana_pubkey::Pubkey,
     pub amm_pc_vault: solana_pubkey::Pubkey,
     pub user_coin_token_account: solana_pubkey::Pubkey,
     pub user_pc_token_account: solana_pubkey::Pubkey,
     pub user_owner: solana_pubkey::Pubkey,
     pub amm_target_orders: solana_pubkey::Pubkey,
-    pub market_program: solana_pubkey::Pubkey,
-    pub market: solana_pubkey::Pubkey,
-    pub market_event_queue: solana_pubkey::Pubkey,
-    pub market_coin_vault: solana_pubkey::Pubkey,
-    pub market_pc_vault: solana_pubkey::Pubkey,
-    pub market_vault_signer: solana_pubkey::Pubkey,
-    pub referrer_pc_account: Option<solana_pubkey::Pubkey>,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -59,20 +51,12 @@ impl ArrangeAccounts for WithdrawPnl {
         let amm = next_account(&mut iter)?;
         let amm_config = next_account(&mut iter)?;
         let amm_authority = next_account(&mut iter)?;
-        let amm_open_orders = next_account(&mut iter)?;
         let amm_coin_vault = next_account(&mut iter)?;
         let amm_pc_vault = next_account(&mut iter)?;
         let user_coin_token_account = next_account(&mut iter)?;
         let user_pc_token_account = next_account(&mut iter)?;
         let user_owner = next_account(&mut iter)?;
         let amm_target_orders = next_account(&mut iter)?;
-        let market_program = next_account(&mut iter)?;
-        let market = next_account(&mut iter)?;
-        let market_event_queue = next_account(&mut iter)?;
-        let market_coin_vault = next_account(&mut iter)?;
-        let market_pc_vault = next_account(&mut iter)?;
-        let market_vault_signer = next_account(&mut iter)?;
-        let referrer_pc_account = next_account(&mut iter);
 
         let remaining = iter.as_slice();
 
@@ -81,20 +65,12 @@ impl ArrangeAccounts for WithdrawPnl {
             amm,
             amm_config,
             amm_authority,
-            amm_open_orders,
             amm_coin_vault,
             amm_pc_vault,
             user_coin_token_account,
             user_pc_token_account,
             user_owner,
             amm_target_orders,
-            market_program,
-            market,
-            market_event_queue,
-            market_coin_vault,
-            market_pc_vault,
-            market_vault_signer,
-            referrer_pc_account,
             remaining: remaining.to_vec(),
         })
     }

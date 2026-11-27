@@ -3,7 +3,7 @@ use carbon_core::{
     account::AccountMetadata,
     postgres::{
         metadata::AccountRowMetadata,
-        primitives::{Pubkey, U64},
+        primitives::{Pubkey, U64, U8},
     },
 };
 
@@ -21,6 +21,15 @@ pub struct BondingCurveRow {
     pub is_mayhem_mode: bool,
     pub is_cashback_coin: bool,
     pub quote_mint: Pubkey,
+    pub creator_fee_bps: U64,
+    pub can_edit_creator_fee: bool,
+    pub is_holder_reward: bool,
+    pub creator_fee: U64,
+    pub protocol_fees: U64,
+    pub depth: U8,
+    pub initial_virtual_quote_reserves: U64,
+    pub post_complete_base_out: U64,
+    pub post_complete_quote_in: U64,
 }
 
 impl BondingCurveRow {
@@ -40,6 +49,15 @@ impl BondingCurveRow {
             is_mayhem_mode: source.is_mayhem_mode,
             is_cashback_coin: source.is_cashback_coin,
             quote_mint: source.quote_mint.into(),
+            creator_fee_bps: source.creator_fee_bps.into(),
+            can_edit_creator_fee: source.can_edit_creator_fee,
+            is_holder_reward: source.is_holder_reward,
+            creator_fee: source.creator_fee.into(),
+            protocol_fees: source.protocol_fees.into(),
+            depth: source.depth.into(),
+            initial_virtual_quote_reserves: source.initial_virtual_quote_reserves.into(),
+            post_complete_base_out: source.post_complete_base_out.into(),
+            post_complete_quote_in: source.post_complete_quote_in.into(),
         }
     }
 }
@@ -58,6 +76,19 @@ impl TryFrom<BondingCurveRow> for crate::accounts::bonding_curve::BondingCurve {
             is_mayhem_mode: source.is_mayhem_mode,
             is_cashback_coin: source.is_cashback_coin,
             quote_mint: *source.quote_mint,
+            creator_fee_bps: *source.creator_fee_bps,
+            can_edit_creator_fee: source.can_edit_creator_fee,
+            is_holder_reward: source.is_holder_reward,
+            creator_fee: *source.creator_fee,
+            protocol_fees: *source.protocol_fees,
+            depth: source.depth.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            initial_virtual_quote_reserves: *source.initial_virtual_quote_reserves,
+            post_complete_base_out: *source.post_complete_base_out,
+            post_complete_quote_in: *source.post_complete_quote_in,
         })
     }
 }
@@ -81,6 +112,15 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bonding_curve
             "is_mayhem_mode",
             "is_cashback_coin",
             "quote_mint",
+            "creator_fee_bps",
+            "can_edit_creator_fee",
+            "is_holder_reward",
+            "creator_fee",
+            "protocol_fees",
+            "depth",
+            "initial_virtual_quote_reserves",
+            "post_complete_base_out",
+            "post_complete_quote_in",
         ]
     }
 }
@@ -88,8 +128,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bonding_curve
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for BondingCurveRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO bonding_curve_account (
                 "virtual_token_reserves",
                 "virtual_quote_reserves",
@@ -101,11 +140,19 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
                 "is_mayhem_mode",
                 "is_cashback_coin",
                 "quote_mint",
+                "creator_fee_bps",
+                "can_edit_creator_fee",
+                "is_holder_reward",
+                "creator_fee",
+                "protocol_fees",
+                "depth",
+                "initial_virtual_quote_reserves",
+                "post_complete_base_out",
+                "post_complete_quote_in",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
-            )"#,
-        )
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
+            )"#)
         .bind(&self.virtual_token_reserves)
         .bind(&self.virtual_quote_reserves)
         .bind(&self.real_token_reserves)
@@ -116,10 +163,18 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
         .bind(self.is_mayhem_mode)
         .bind(self.is_cashback_coin)
         .bind(self.quote_mint)
+        .bind(&self.creator_fee_bps)
+        .bind(self.can_edit_creator_fee)
+        .bind(self.is_holder_reward)
+        .bind(&self.creator_fee)
+        .bind(&self.protocol_fees)
+        .bind(self.depth)
+        .bind(&self.initial_virtual_quote_reserves)
+        .bind(&self.post_complete_base_out)
+        .bind(&self.post_complete_quote_in)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -128,8 +183,7 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO bonding_curve_account AS stored (
+        sqlx::query(r#"INSERT INTO bonding_curve_account AS stored (
                 "virtual_token_reserves",
                 "virtual_quote_reserves",
                 "real_token_reserves",
@@ -140,9 +194,18 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
                 "is_mayhem_mode",
                 "is_cashback_coin",
                 "quote_mint",
+                "creator_fee_bps",
+                "can_edit_creator_fee",
+                "is_holder_reward",
+                "creator_fee",
+                "protocol_fees",
+                "depth",
+                "initial_virtual_quote_reserves",
+                "post_complete_base_out",
+                "post_complete_quote_in",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -156,11 +219,19 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
                 "is_mayhem_mode" = EXCLUDED."is_mayhem_mode",
                 "is_cashback_coin" = EXCLUDED."is_cashback_coin",
                 "quote_mint" = EXCLUDED."quote_mint",
+                "creator_fee_bps" = EXCLUDED."creator_fee_bps",
+                "can_edit_creator_fee" = EXCLUDED."can_edit_creator_fee",
+                "is_holder_reward" = EXCLUDED."is_holder_reward",
+                "creator_fee" = EXCLUDED."creator_fee",
+                "protocol_fees" = EXCLUDED."protocol_fees",
+                "depth" = EXCLUDED."depth",
+                "initial_virtual_quote_reserves" = EXCLUDED."initial_virtual_quote_reserves",
+                "post_complete_base_out" = EXCLUDED."post_complete_base_out",
+                "post_complete_quote_in" = EXCLUDED."post_complete_quote_in",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
                 OR EXCLUDED.__slot IS NULL OR stored.__slot IS NULL
-            "#,
-        )
+            "#)
         .bind(&self.virtual_token_reserves)
         .bind(&self.virtual_quote_reserves)
         .bind(&self.real_token_reserves)
@@ -171,10 +242,18 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
         .bind(self.is_mayhem_mode)
         .bind(self.is_cashback_coin)
         .bind(self.quote_mint)
+        .bind(&self.creator_fee_bps)
+        .bind(self.can_edit_creator_fee)
+        .bind(self.is_holder_reward)
+        .bind(&self.creator_fee)
+        .bind(&self.protocol_fees)
+        .bind(self.depth)
+        .bind(&self.initial_virtual_quote_reserves)
+        .bind(&self.post_complete_base_out)
+        .bind(&self.post_complete_quote_in)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -240,6 +319,15 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation
                 "is_mayhem_mode" BOOLEAN NOT NULL,
                 "is_cashback_coin" BOOLEAN NOT NULL,
                 "quote_mint" BYTEA NOT NULL,
+                "creator_fee_bps" NUMERIC(20) NOT NULL,
+                "can_edit_creator_fee" BOOLEAN NOT NULL,
+                "is_holder_reward" BOOLEAN NOT NULL,
+                "creator_fee" NUMERIC(20) NOT NULL,
+                "protocol_fees" NUMERIC(20) NOT NULL,
+                "depth" INT2 NOT NULL,
+                "initial_virtual_quote_reserves" NUMERIC(20) NOT NULL,
+                "post_complete_base_out" NUMERIC(20) NOT NULL,
+                "post_complete_quote_in" NUMERIC(20) NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

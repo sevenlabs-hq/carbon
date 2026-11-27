@@ -36,4 +36,12 @@ pub struct BuyEvent {
     pub ix_name: String,
     pub cashback_fee_basis_points: u64,
     pub cashback: u64,
+    pub buyback_fee_basis_points: u64,
+    pub buyback_fee: u64,
+    pub virtual_quote_reserves: i128,
+    pub can_boost: bool,
+    pub base_supply: u64,
+    pub holder_rewards_bps: u64,
+    pub holder_rewards: u64,
+    pub creator_fee_unclaimed: u64,
 }

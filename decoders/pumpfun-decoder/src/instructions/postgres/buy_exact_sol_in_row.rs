@@ -14,6 +14,7 @@ pub struct BuyExactSolInRow {
     pub spendable_sol_in: U64,
     pub min_tokens_out: U64,
     pub track_volume: sqlx::types::Json<OptionBool>,
+    pub partial_fill: sqlx::types::Json<OptionBool>,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -29,6 +30,7 @@ impl BuyExactSolInRow {
             spendable_sol_in: source.spendable_sol_in.into(),
             min_tokens_out: source.min_tokens_out.into(),
             track_volume: sqlx::types::Json(source.track_volume),
+            partial_fill: sqlx::types::Json(source.partial_fill),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -41,6 +43,7 @@ impl TryFrom<BuyExactSolInRow> for crate::instructions::buy_exact_sol_in::BuyExa
             spendable_sol_in: *source.spendable_sol_in,
             min_tokens_out: *source.min_tokens_out,
             track_volume: source.track_volume.0,
+            partial_fill: source.partial_fill.0,
         })
     }
 }
@@ -62,6 +65,7 @@ impl carbon_core::postgres::operations::Table
             "spendable_sol_in",
             "min_tokens_out",
             "track_volume",
+            "partial_fill",
             "__accounts",
         ]
     }
@@ -76,15 +80,17 @@ impl carbon_core::postgres::operations::Insert for BuyExactSolInRow {
                 "spendable_sol_in",
                 "min_tokens_out",
                 "track_volume",
+                "partial_fill",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
             )"#,
         )
         .bind(&self.spendable_sol_in)
         .bind(&self.min_tokens_out)
         .bind(self.track_volume)
+        .bind(self.partial_fill)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -106,16 +112,18 @@ impl carbon_core::postgres::operations::Upsert for BuyExactSolInRow {
                 "spendable_sol_in",
                 "min_tokens_out",
                 "track_volume",
+                "partial_fill",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
             ) ON CONFLICT (
                 __signature, __absolute_path
             ) DO UPDATE SET
                 "spendable_sol_in" = EXCLUDED."spendable_sol_in",
                 "min_tokens_out" = EXCLUDED."min_tokens_out",
                 "track_volume" = EXCLUDED."track_volume",
+                "partial_fill" = EXCLUDED."partial_fill",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
@@ -125,6 +133,7 @@ impl carbon_core::postgres::operations::Upsert for BuyExactSolInRow {
         .bind(&self.spendable_sol_in)
         .bind(&self.min_tokens_out)
         .bind(self.track_volume)
+        .bind(self.partial_fill)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -193,6 +202,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyExactSolInMigrationOperatio
                 "spendable_sol_in" NUMERIC(20) NOT NULL,
                 "min_tokens_out" NUMERIC(20) NOT NULL,
                 "track_volume" JSONB NOT NULL,
+                "partial_fill" JSONB NOT NULL,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

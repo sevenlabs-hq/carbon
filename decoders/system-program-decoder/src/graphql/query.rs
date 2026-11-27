@@ -537,4 +537,42 @@ impl QueryRoot {
             .filter_map(|row| row.try_into().ok())
             .collect())
     }
+
+    async fn create_account_allow_prefund(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAccountAllowPrefundGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateAccountAllowPrefundRow> = sqlx::query_as(
+            r#"SELECT * FROM create_account_allow_prefund_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __absolute_path ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_create_account_allow_prefund(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAccountAllowPrefundGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateAccountAllowPrefundRow> = sqlx::query_as(
+            r#"SELECT * FROM create_account_allow_prefund_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
 }

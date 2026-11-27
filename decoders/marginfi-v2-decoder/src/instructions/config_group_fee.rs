@@ -15,6 +15,7 @@ pub struct ConfigGroupFeeInstructionAccounts {
     pub marginfi_group: solana_pubkey::Pubkey,
     pub global_fee_admin: solana_pubkey::Pubkey,
     pub fee_state: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -47,6 +48,7 @@ impl ArrangeAccounts for ConfigGroupFee {
         let marginfi_group = next_account(&mut iter)?;
         let global_fee_admin = next_account(&mut iter)?;
         let fee_state = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -54,6 +56,7 @@ impl ArrangeAccounts for ConfigGroupFee {
             marginfi_group,
             global_fee_admin,
             fee_state,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

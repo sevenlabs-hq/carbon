@@ -5,13 +5,16 @@ pub mod claim_creator_fee_row;
 pub mod claim_platform_fee_from_vault_row;
 pub mod claim_platform_fee_row;
 pub mod claim_vested_token_row;
-pub mod close_platform_global_access_row;
+pub mod close_platform_allow_config_row;
+pub mod close_platform_curve_rule_row;
+pub mod collect_excess_lamports_row;
 pub mod collect_fee_row;
 pub mod collect_migrate_fee_row;
 pub mod cpi_event_row;
 pub mod create_config_row;
+pub mod create_platform_allow_config_row;
 pub mod create_platform_config_row;
-pub mod create_platform_global_access_row;
+pub mod create_platform_curve_rule_row;
 pub mod create_platform_vesting_account_row;
 pub mod create_vesting_account_row;
 pub mod initialize_row;
@@ -19,23 +22,25 @@ pub mod initialize_v2_row;
 pub mod initialize_with_token2022_row;
 pub mod migrate_to_amm_row;
 pub mod migrate_to_cpswap_row;
-pub mod remove_platform_curve_param_row;
+pub mod remove_platform_curve_rule_row;
 pub mod sell_exact_in_row;
 pub mod sell_exact_out_row;
 pub mod update_config_row;
 pub mod update_platform_config_row;
-pub mod update_platform_curve_param_row;
+pub mod update_platform_curve_rule_row;
 
 pub use self::{
     buy_exact_in_row::*, buy_exact_out_row::*, claim_creator_fee_row::*,
     claim_platform_fee_from_vault_row::*, claim_platform_fee_row::*, claim_vested_token_row::*,
-    close_platform_global_access_row::*, collect_fee_row::*, collect_migrate_fee_row::*,
-    cpi_event_row::*, create_config_row::*, create_platform_config_row::*,
-    create_platform_global_access_row::*, create_platform_vesting_account_row::*,
-    create_vesting_account_row::*, initialize_row::*, initialize_v2_row::*,
-    initialize_with_token2022_row::*, migrate_to_amm_row::*, migrate_to_cpswap_row::*,
-    remove_platform_curve_param_row::*, sell_exact_in_row::*, sell_exact_out_row::*,
-    update_config_row::*, update_platform_config_row::*, update_platform_curve_param_row::*,
+    close_platform_allow_config_row::*, close_platform_curve_rule_row::*,
+    collect_excess_lamports_row::*, collect_fee_row::*, collect_migrate_fee_row::*,
+    cpi_event_row::*, create_config_row::*, create_platform_allow_config_row::*,
+    create_platform_config_row::*, create_platform_curve_rule_row::*,
+    create_platform_vesting_account_row::*, create_vesting_account_row::*, initialize_row::*,
+    initialize_v2_row::*, initialize_with_token2022_row::*, migrate_to_amm_row::*,
+    migrate_to_cpswap_row::*, remove_platform_curve_rule_row::*, sell_exact_in_row::*,
+    sell_exact_out_row::*, update_config_row::*, update_platform_config_row::*,
+    update_platform_curve_rule_row::*,
 };
 use super::RaydiumLaunchpadInstruction;
 
@@ -58,12 +63,15 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumLaunchpadInstructionsMi
             Box::new(ClaimPlatformFeeMigrationOperation),
             Box::new(ClaimPlatformFeeFromVaultMigrationOperation),
             Box::new(ClaimVestedTokenMigrationOperation),
-            Box::new(ClosePlatformGlobalAccessMigrationOperation),
+            Box::new(ClosePlatformAllowConfigMigrationOperation),
+            Box::new(ClosePlatformCurveRuleMigrationOperation),
+            Box::new(CollectExcessLamportsMigrationOperation),
             Box::new(CollectFeeMigrationOperation),
             Box::new(CollectMigrateFeeMigrationOperation),
             Box::new(CreateConfigMigrationOperation),
+            Box::new(CreatePlatformAllowConfigMigrationOperation),
             Box::new(CreatePlatformConfigMigrationOperation),
-            Box::new(CreatePlatformGlobalAccessMigrationOperation),
+            Box::new(CreatePlatformCurveRuleMigrationOperation),
             Box::new(CreatePlatformVestingAccountMigrationOperation),
             Box::new(CreateVestingAccountMigrationOperation),
             Box::new(InitializeMigrationOperation),
@@ -71,12 +79,12 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumLaunchpadInstructionsMi
             Box::new(InitializeWithToken2022MigrationOperation),
             Box::new(MigrateToAmmMigrationOperation),
             Box::new(MigrateToCpswapMigrationOperation),
-            Box::new(RemovePlatformCurveParamMigrationOperation),
+            Box::new(RemovePlatformCurveRuleMigrationOperation),
             Box::new(SellExactInMigrationOperation),
             Box::new(SellExactOutMigrationOperation),
             Box::new(UpdateConfigMigrationOperation),
             Box::new(UpdatePlatformConfigMigrationOperation),
-            Box::new(UpdatePlatformCurveParamMigrationOperation),
+            Box::new(UpdatePlatformCurveRuleMigrationOperation),
             Box::new(CpiEventMigrationOperation),
         ]
     }
@@ -137,7 +145,17 @@ impl sqlx_migrator::Migration<sqlx::Postgres>
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
-                    "close_platform_global_access_instruction",
+                    "close_platform_allow_config_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "close_platform_curve_rule_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "collect_excess_lamports_instruction",
                 ),
             ),
             Box::new(
@@ -157,12 +175,17 @@ impl sqlx_migrator::Migration<sqlx::Postgres>
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
+                    "create_platform_allow_config_instruction",
+                ),
+            ),
+            Box::new(
+                carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
                     "create_platform_config_instruction",
                 ),
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
-                    "create_platform_global_access_instruction",
+                    "create_platform_curve_rule_instruction",
                 ),
             ),
             Box::new(
@@ -202,7 +225,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres>
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
-                    "remove_platform_curve_param_instruction",
+                    "remove_platform_curve_rule_instruction",
                 ),
             ),
             Box::new(
@@ -227,7 +250,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres>
             ),
             Box::new(
                 carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation(
-                    "update_platform_curve_param_instruction",
+                    "update_platform_curve_rule_instruction",
                 ),
             ),
             Box::new(carbon_core::postgres::rows::AbsolutePathKeyMigrationOperation("cpi_events")),
@@ -324,13 +347,30 @@ impl carbon_core::postgres::operations::Insert for RaydiumLaunchpadInstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
-            RaydiumLaunchpadInstruction::ClosePlatformGlobalAccess { data, .. } => {
-                let row =
-                    close_platform_global_access_row::ClosePlatformGlobalAccessRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
+            RaydiumLaunchpadInstruction::ClosePlatformAllowConfig { data, .. } => {
+                let row = close_platform_allow_config_row::ClosePlatformAllowConfigRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            RaydiumLaunchpadInstruction::ClosePlatformCurveRule { data, .. } => {
+                let row = close_platform_curve_rule_row::ClosePlatformCurveRuleRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            RaydiumLaunchpadInstruction::CollectExcessLamports { data, .. } => {
+                let row = collect_excess_lamports_row::CollectExcessLamportsRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -361,6 +401,16 @@ impl carbon_core::postgres::operations::Insert for RaydiumLaunchpadInstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
+            RaydiumLaunchpadInstruction::CreatePlatformAllowConfig { data, .. } => {
+                let row =
+                    create_platform_allow_config_row::CreatePlatformAllowConfigRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.insert(pool).await?;
+                Ok(())
+            }
             RaydiumLaunchpadInstruction::CreatePlatformConfig { data, .. } => {
                 let row = create_platform_config_row::CreatePlatformConfigRow::from_parts(
                     data.clone(),
@@ -370,13 +420,12 @@ impl carbon_core::postgres::operations::Insert for RaydiumLaunchpadInstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
-            RaydiumLaunchpadInstruction::CreatePlatformGlobalAccess { data, .. } => {
-                let row =
-                    create_platform_global_access_row::CreatePlatformGlobalAccessRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
+            RaydiumLaunchpadInstruction::CreatePlatformCurveRule { data, .. } => {
+                let row = create_platform_curve_rule_row::CreatePlatformCurveRuleRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -439,8 +488,8 @@ impl carbon_core::postgres::operations::Insert for RaydiumLaunchpadInstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
-            RaydiumLaunchpadInstruction::RemovePlatformCurveParam { data, .. } => {
-                let row = remove_platform_curve_param_row::RemovePlatformCurveParamRow::from_parts(
+            RaydiumLaunchpadInstruction::RemovePlatformCurveRule { data, .. } => {
+                let row = remove_platform_curve_rule_row::RemovePlatformCurveRuleRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -484,8 +533,8 @@ impl carbon_core::postgres::operations::Insert for RaydiumLaunchpadInstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
-            RaydiumLaunchpadInstruction::UpdatePlatformCurveParam { data, .. } => {
-                let row = update_platform_curve_param_row::UpdatePlatformCurveParamRow::from_parts(
+            RaydiumLaunchpadInstruction::UpdatePlatformCurveRule { data, .. } => {
+                let row = update_platform_curve_rule_row::UpdatePlatformCurveRuleRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -567,13 +616,30 @@ impl carbon_core::postgres::operations::Upsert for RaydiumLaunchpadInstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
-            RaydiumLaunchpadInstruction::ClosePlatformGlobalAccess { data, .. } => {
-                let row =
-                    close_platform_global_access_row::ClosePlatformGlobalAccessRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
+            RaydiumLaunchpadInstruction::ClosePlatformAllowConfig { data, .. } => {
+                let row = close_platform_allow_config_row::ClosePlatformAllowConfigRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            RaydiumLaunchpadInstruction::ClosePlatformCurveRule { data, .. } => {
+                let row = close_platform_curve_rule_row::ClosePlatformCurveRuleRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            RaydiumLaunchpadInstruction::CollectExcessLamports { data, .. } => {
+                let row = collect_excess_lamports_row::CollectExcessLamportsRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -604,6 +670,16 @@ impl carbon_core::postgres::operations::Upsert for RaydiumLaunchpadInstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
+            RaydiumLaunchpadInstruction::CreatePlatformAllowConfig { data, .. } => {
+                let row =
+                    create_platform_allow_config_row::CreatePlatformAllowConfigRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             RaydiumLaunchpadInstruction::CreatePlatformConfig { data, .. } => {
                 let row = create_platform_config_row::CreatePlatformConfigRow::from_parts(
                     data.clone(),
@@ -613,13 +689,12 @@ impl carbon_core::postgres::operations::Upsert for RaydiumLaunchpadInstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
-            RaydiumLaunchpadInstruction::CreatePlatformGlobalAccess { data, .. } => {
-                let row =
-                    create_platform_global_access_row::CreatePlatformGlobalAccessRow::from_parts(
-                        data.clone(),
-                        metadata.clone(),
-                        raw_accounts.clone(),
-                    );
+            RaydiumLaunchpadInstruction::CreatePlatformCurveRule { data, .. } => {
+                let row = create_platform_curve_rule_row::CreatePlatformCurveRuleRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -682,8 +757,8 @@ impl carbon_core::postgres::operations::Upsert for RaydiumLaunchpadInstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
-            RaydiumLaunchpadInstruction::RemovePlatformCurveParam { data, .. } => {
-                let row = remove_platform_curve_param_row::RemovePlatformCurveParamRow::from_parts(
+            RaydiumLaunchpadInstruction::RemovePlatformCurveRule { data, .. } => {
+                let row = remove_platform_curve_rule_row::RemovePlatformCurveRuleRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -727,8 +802,8 @@ impl carbon_core::postgres::operations::Upsert for RaydiumLaunchpadInstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
-            RaydiumLaunchpadInstruction::UpdatePlatformCurveParam { data, .. } => {
-                let row = update_platform_curve_param_row::UpdatePlatformCurveParamRow::from_parts(
+            RaydiumLaunchpadInstruction::UpdatePlatformCurveRule { data, .. } => {
+                let row = update_platform_curve_rule_row::UpdatePlatformCurveRuleRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

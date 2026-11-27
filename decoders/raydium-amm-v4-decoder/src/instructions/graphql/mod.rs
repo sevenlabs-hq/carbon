@@ -14,6 +14,7 @@ pub mod swap_base_in_v2_schema;
 pub mod swap_base_out_schema;
 pub mod swap_base_out_v2_schema;
 pub mod update_config_account_schema;
+pub mod withdraw_excess_lamports_schema;
 pub mod withdraw_pnl_schema;
 pub mod withdraw_schema;
 pub mod withdraw_srm_schema;
@@ -25,7 +26,8 @@ pub use {
     monitor_step_schema::*, pre_initialize_schema::*, set_params_schema::*,
     simulate_info_schema::*, swap_base_in_schema::*, swap_base_in_v2_schema::*,
     swap_base_out_schema::*, swap_base_out_v2_schema::*, update_config_account_schema::*,
-    withdraw_pnl_schema::*, withdraw_schema::*, withdraw_srm_schema::*,
+    withdraw_excess_lamports_schema::*, withdraw_pnl_schema::*, withdraw_schema::*,
+    withdraw_srm_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

@@ -39,11 +39,8 @@ pub struct GlobalConfig {
     pub migrate_to_amm_wallet: Pubkey,
     /// Migrate to cpswap wallet
     pub migrate_to_cpswap_wallet: Pubkey,
-    /// Whether a platform must be explicitly authorized before using this
-    /// global config
-    pub requires_platform_auth: u8,
     /// padding alignment
-    pub padding_alignment: [u8; 7],
+    pub padding_alignment: [u8; 8],
     /// padding for future updates
     pub padding: [u64; 15],
 }

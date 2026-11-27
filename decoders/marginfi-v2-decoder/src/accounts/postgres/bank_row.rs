@@ -5,7 +5,7 @@ use {
         account::AccountMetadata,
         postgres::{
             metadata::AccountRowMetadata,
-            primitives::{Pubkey, U64, U8},
+            primitives::{Pubkey, U16, U32, U64, U8},
         },
     },
 };
@@ -47,12 +47,30 @@ pub struct BankRow {
     pub cache: sqlx::types::Json<BankCache>,
     pub lending_position_count: i32,
     pub borrowing_position_count: i32,
+    pub liquidation_liquidator_fee: U32,
+    pub liquidation_insurance_fee: U32,
     pub padding0: Vec<u8>,
     pub integration_acc1: Pubkey,
     pub integration_acc2: Pubkey,
     pub integration_acc3: Pubkey,
     pub rate_limiter: sqlx::types::Json<BankRateLimiter>,
-    pub pad0_1: Vec<u8>,
+    pub collected_premium_outstanding: sqlx::types::Json<WrappedI80F48>,
+    pub bank_seed: U64,
+    pub cb_halt_started_at: i64,
+    pub cb_halt_ended_at: i64,
+    pub cb_tier: U8,
+    pub cb_tier3_consecutive_trips: U8,
+    pub cb_pre_break_state: U8,
+    pub cb_pad: Vec<u8>,
+    pub cb_last_observed_slot: U64,
+    pub cb_last_oracle_source_time: i64,
+    pub cb_reference_price: sqlx::types::Json<WrappedI80F48>,
+    pub cb_window_reference_price: sqlx::types::Json<WrappedI80F48>,
+    pub cb_window_started_at: i64,
+    pub cb_frozen_seconds_pending: U64,
+    pub premium_tag: U16,
+    pub pad3: Vec<u8>,
+    pub premium_activated_at: i64,
     pub padding1: sqlx::types::Json<Vec<Vec<U64>>>,
 }
 
@@ -63,7 +81,7 @@ impl BankRow {
             mint: source.mint.into(),
             mint_decimals: source.mint_decimals.into(),
             group: source.group.into(),
-            pad0: source._pad0.to_vec(),
+            pad0: source.pad0.to_vec(),
             asset_share_value: sqlx::types::Json(source.asset_share_value),
             liability_share_value: sqlx::types::Json(source.liability_share_value),
             liquidity_vault: source.liquidity_vault.into(),
@@ -99,12 +117,30 @@ impl BankRow {
             cache: sqlx::types::Json(source.cache),
             lending_position_count: source.lending_position_count,
             borrowing_position_count: source.borrowing_position_count,
+            liquidation_liquidator_fee: source.liquidation_liquidator_fee.into(),
+            liquidation_insurance_fee: source.liquidation_insurance_fee.into(),
             padding0: source.padding0.to_vec(),
             integration_acc1: source.integration_acc1.into(),
             integration_acc2: source.integration_acc2.into(),
             integration_acc3: source.integration_acc3.into(),
             rate_limiter: sqlx::types::Json(source.rate_limiter),
-            pad0_1: source.pad0.to_vec(),
+            collected_premium_outstanding: sqlx::types::Json(source.collected_premium_outstanding),
+            bank_seed: source.bank_seed.into(),
+            cb_halt_started_at: source.cb_halt_started_at,
+            cb_halt_ended_at: source.cb_halt_ended_at,
+            cb_tier: source.cb_tier.into(),
+            cb_tier3_consecutive_trips: source.cb_tier3_consecutive_trips.into(),
+            cb_pre_break_state: source.cb_pre_break_state.into(),
+            cb_pad: source.cb_pad.to_vec(),
+            cb_last_observed_slot: source.cb_last_observed_slot.into(),
+            cb_last_oracle_source_time: source.cb_last_oracle_source_time,
+            cb_reference_price: sqlx::types::Json(source.cb_reference_price),
+            cb_window_reference_price: sqlx::types::Json(source.cb_window_reference_price),
+            cb_window_started_at: source.cb_window_started_at,
+            cb_frozen_seconds_pending: source.cb_frozen_seconds_pending.into(),
+            premium_tag: source.premium_tag.into(),
+            pad3: source.pad3.to_vec(),
+            premium_activated_at: source.premium_activated_at,
             padding1: sqlx::types::Json(
                 source
                     .padding1
@@ -127,7 +163,7 @@ impl TryFrom<BankRow> for crate::accounts::bank::Bank {
                 )
             })?,
             group: *source.group,
-            _pad0: source.pad0.as_slice().try_into().map_err(|_| {
+            pad0: source.pad0.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert padding from postgres primitive: expected 7 bytes"
                         .to_string(),
@@ -202,9 +238,23 @@ impl TryFrom<BankRow> for crate::accounts::bank::Bank {
             cache: source.cache.0,
             lending_position_count: source.lending_position_count,
             borrowing_position_count: source.borrowing_position_count,
+            liquidation_liquidator_fee: source.liquidation_liquidator_fee.try_into().map_err(
+                |_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                },
+            )?,
+            liquidation_insurance_fee: source.liquidation_insurance_fee.try_into().map_err(
+                |_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                },
+            )?,
             padding0: source.padding0.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 16 bytes"
+                    "Failed to convert padding from postgres primitive: expected 8 bytes"
                         .to_string(),
                 )
             })?,
@@ -212,12 +262,51 @@ impl TryFrom<BankRow> for crate::accounts::bank::Bank {
             integration_acc2: *source.integration_acc2,
             integration_acc3: *source.integration_acc3,
             rate_limiter: source.rate_limiter.0,
-            pad0: source.pad0.as_slice().try_into().map_err(|_| {
+            collected_premium_outstanding: source.collected_premium_outstanding.0,
+            bank_seed: *source.bank_seed,
+            cb_halt_started_at: source.cb_halt_started_at,
+            cb_halt_ended_at: source.cb_halt_ended_at,
+            cb_tier: source.cb_tier.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 16 bytes"
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            cb_tier3_consecutive_trips: source.cb_tier3_consecutive_trips.try_into().map_err(
+                |_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                },
+            )?,
+            cb_pre_break_state: source.cb_pre_break_state.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            cb_pad: source.cb_pad.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 5 bytes"
                         .to_string(),
                 )
             })?,
+            cb_last_observed_slot: *source.cb_last_observed_slot,
+            cb_last_oracle_source_time: source.cb_last_oracle_source_time,
+            cb_reference_price: source.cb_reference_price.0,
+            cb_window_reference_price: source.cb_window_reference_price.0,
+            cb_window_started_at: source.cb_window_started_at,
+            cb_frozen_seconds_pending: *source.cb_frozen_seconds_pending,
+            premium_tag: source.premium_tag.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            pad3: source.pad3.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 6 bytes"
+                        .to_string(),
+                )
+            })?,
+            premium_activated_at: source.premium_activated_at,
             padding1: source
                 .padding1
                 .0
@@ -292,12 +381,30 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bank::Bank {
             "cache",
             "lending_position_count",
             "borrowing_position_count",
+            "liquidation_liquidator_fee",
+            "liquidation_insurance_fee",
             "padding0",
             "integration_acc1",
             "integration_acc2",
             "integration_acc3",
             "rate_limiter",
-            "pad0_1",
+            "collected_premium_outstanding",
+            "bank_seed",
+            "cb_halt_started_at",
+            "cb_halt_ended_at",
+            "cb_tier",
+            "cb_tier3_consecutive_trips",
+            "cb_pre_break_state",
+            "cb_pad",
+            "cb_last_observed_slot",
+            "cb_last_oracle_source_time",
+            "cb_reference_price",
+            "cb_window_reference_price",
+            "cb_window_started_at",
+            "cb_frozen_seconds_pending",
+            "premium_tag",
+            "pad3",
+            "premium_activated_at",
             "padding1",
         ]
     }
@@ -341,16 +448,34 @@ impl carbon_core::postgres::operations::Insert for BankRow {
                 "cache",
                 "lending_position_count",
                 "borrowing_position_count",
+                "liquidation_liquidator_fee",
+                "liquidation_insurance_fee",
                 "padding0",
                 "integration_acc1",
                 "integration_acc2",
                 "integration_acc3",
                 "rate_limiter",
-                "pad0_1",
+                "collected_premium_outstanding",
+                "bank_seed",
+                "cb_halt_started_at",
+                "cb_halt_ended_at",
+                "cb_tier",
+                "cb_tier3_consecutive_trips",
+                "cb_pre_break_state",
+                "cb_pad",
+                "cb_last_observed_slot",
+                "cb_last_oracle_source_time",
+                "cb_reference_price",
+                "cb_window_reference_price",
+                "cb_window_started_at",
+                "cb_frozen_seconds_pending",
+                "premium_tag",
+                "pad3",
+                "premium_activated_at",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60
             )"#)
         .bind(self.mint)
         .bind(self.mint_decimals)
@@ -385,12 +510,30 @@ impl carbon_core::postgres::operations::Insert for BankRow {
         .bind(&self.cache)
         .bind(self.lending_position_count)
         .bind(self.borrowing_position_count)
+        .bind(self.liquidation_liquidator_fee)
+        .bind(self.liquidation_insurance_fee)
         .bind(&self.padding0)
         .bind(self.integration_acc1)
         .bind(self.integration_acc2)
         .bind(self.integration_acc3)
         .bind(&self.rate_limiter)
-        .bind(&self.pad0_1)
+        .bind(&self.collected_premium_outstanding)
+        .bind(&self.bank_seed)
+        .bind(self.cb_halt_started_at)
+        .bind(self.cb_halt_ended_at)
+        .bind(self.cb_tier)
+        .bind(self.cb_tier3_consecutive_trips)
+        .bind(self.cb_pre_break_state)
+        .bind(&self.cb_pad)
+        .bind(&self.cb_last_observed_slot)
+        .bind(self.cb_last_oracle_source_time)
+        .bind(&self.cb_reference_price)
+        .bind(&self.cb_window_reference_price)
+        .bind(self.cb_window_started_at)
+        .bind(&self.cb_frozen_seconds_pending)
+        .bind(self.premium_tag)
+        .bind(&self.pad3)
+        .bind(self.premium_activated_at)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -437,16 +580,34 @@ impl carbon_core::postgres::operations::Upsert for BankRow {
                 "cache",
                 "lending_position_count",
                 "borrowing_position_count",
+                "liquidation_liquidator_fee",
+                "liquidation_insurance_fee",
                 "padding0",
                 "integration_acc1",
                 "integration_acc2",
                 "integration_acc3",
                 "rate_limiter",
-                "pad0_1",
+                "collected_premium_outstanding",
+                "bank_seed",
+                "cb_halt_started_at",
+                "cb_halt_ended_at",
+                "cb_tier",
+                "cb_tier3_consecutive_trips",
+                "cb_pre_break_state",
+                "cb_pad",
+                "cb_last_observed_slot",
+                "cb_last_oracle_source_time",
+                "cb_reference_price",
+                "cb_window_reference_price",
+                "cb_window_started_at",
+                "cb_frozen_seconds_pending",
+                "premium_tag",
+                "pad3",
+                "premium_activated_at",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -483,12 +644,30 @@ impl carbon_core::postgres::operations::Upsert for BankRow {
                 "cache" = EXCLUDED."cache",
                 "lending_position_count" = EXCLUDED."lending_position_count",
                 "borrowing_position_count" = EXCLUDED."borrowing_position_count",
+                "liquidation_liquidator_fee" = EXCLUDED."liquidation_liquidator_fee",
+                "liquidation_insurance_fee" = EXCLUDED."liquidation_insurance_fee",
                 "padding0" = EXCLUDED."padding0",
                 "integration_acc1" = EXCLUDED."integration_acc1",
                 "integration_acc2" = EXCLUDED."integration_acc2",
                 "integration_acc3" = EXCLUDED."integration_acc3",
                 "rate_limiter" = EXCLUDED."rate_limiter",
-                "pad0_1" = EXCLUDED."pad0_1",
+                "collected_premium_outstanding" = EXCLUDED."collected_premium_outstanding",
+                "bank_seed" = EXCLUDED."bank_seed",
+                "cb_halt_started_at" = EXCLUDED."cb_halt_started_at",
+                "cb_halt_ended_at" = EXCLUDED."cb_halt_ended_at",
+                "cb_tier" = EXCLUDED."cb_tier",
+                "cb_tier3_consecutive_trips" = EXCLUDED."cb_tier3_consecutive_trips",
+                "cb_pre_break_state" = EXCLUDED."cb_pre_break_state",
+                "cb_pad" = EXCLUDED."cb_pad",
+                "cb_last_observed_slot" = EXCLUDED."cb_last_observed_slot",
+                "cb_last_oracle_source_time" = EXCLUDED."cb_last_oracle_source_time",
+                "cb_reference_price" = EXCLUDED."cb_reference_price",
+                "cb_window_reference_price" = EXCLUDED."cb_window_reference_price",
+                "cb_window_started_at" = EXCLUDED."cb_window_started_at",
+                "cb_frozen_seconds_pending" = EXCLUDED."cb_frozen_seconds_pending",
+                "premium_tag" = EXCLUDED."premium_tag",
+                "pad3" = EXCLUDED."pad3",
+                "premium_activated_at" = EXCLUDED."premium_activated_at",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
             WHERE EXCLUDED.__slot >= stored.__slot
@@ -527,12 +706,30 @@ impl carbon_core::postgres::operations::Upsert for BankRow {
         .bind(&self.cache)
         .bind(self.lending_position_count)
         .bind(self.borrowing_position_count)
+        .bind(self.liquidation_liquidator_fee)
+        .bind(self.liquidation_insurance_fee)
         .bind(&self.padding0)
         .bind(self.integration_acc1)
         .bind(self.integration_acc2)
         .bind(self.integration_acc3)
         .bind(&self.rate_limiter)
-        .bind(&self.pad0_1)
+        .bind(&self.collected_premium_outstanding)
+        .bind(&self.bank_seed)
+        .bind(self.cb_halt_started_at)
+        .bind(self.cb_halt_ended_at)
+        .bind(self.cb_tier)
+        .bind(self.cb_tier3_consecutive_trips)
+        .bind(self.cb_pre_break_state)
+        .bind(&self.cb_pad)
+        .bind(&self.cb_last_observed_slot)
+        .bind(self.cb_last_oracle_source_time)
+        .bind(&self.cb_reference_price)
+        .bind(&self.cb_window_reference_price)
+        .bind(self.cb_window_started_at)
+        .bind(&self.cb_frozen_seconds_pending)
+        .bind(self.premium_tag)
+        .bind(&self.pad3)
+        .bind(self.premium_activated_at)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -625,12 +822,30 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BankMigrationOperation {
                 "cache" JSONB NOT NULL,
                 "lending_position_count" INT4 NOT NULL,
                 "borrowing_position_count" INT4 NOT NULL,
+                "liquidation_liquidator_fee" INT8 NOT NULL,
+                "liquidation_insurance_fee" INT8 NOT NULL,
                 "padding0" BYTEA NOT NULL,
                 "integration_acc1" BYTEA NOT NULL,
                 "integration_acc2" BYTEA NOT NULL,
                 "integration_acc3" BYTEA NOT NULL,
                 "rate_limiter" JSONB NOT NULL,
-                "pad0_1" BYTEA NOT NULL,
+                "collected_premium_outstanding" JSONB NOT NULL,
+                "bank_seed" NUMERIC(20) NOT NULL,
+                "cb_halt_started_at" INT8 NOT NULL,
+                "cb_halt_ended_at" INT8 NOT NULL,
+                "cb_tier" INT2 NOT NULL,
+                "cb_tier3_consecutive_trips" INT2 NOT NULL,
+                "cb_pre_break_state" INT2 NOT NULL,
+                "cb_pad" BYTEA NOT NULL,
+                "cb_last_observed_slot" NUMERIC(20) NOT NULL,
+                "cb_last_oracle_source_time" INT8 NOT NULL,
+                "cb_reference_price" JSONB NOT NULL,
+                "cb_window_reference_price" JSONB NOT NULL,
+                "cb_window_started_at" INT8 NOT NULL,
+                "cb_frozen_seconds_pending" NUMERIC(20) NOT NULL,
+                "premium_tag" INT4 NOT NULL,
+                "pad3" BYTEA NOT NULL,
+                "premium_activated_at" INT8 NOT NULL,
                 "padding1" JSONB NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

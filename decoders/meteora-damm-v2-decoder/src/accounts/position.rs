@@ -30,8 +30,10 @@ pub struct Position {
     pub reward_infos: [UserRewardInfo; 2],
     /// inner vesting info
     pub inner_vesting: InnerVesting,
+    /// delegate permission bitmask (paired with SPL token Approve)
+    pub delegate_permission: u32,
     /// padding for future usage
-    pub padding: u128,
+    pub padding: [u8; 12],
 }
 
 impl Position {

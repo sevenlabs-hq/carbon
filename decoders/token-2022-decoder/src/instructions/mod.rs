@@ -9,17 +9,22 @@ pub mod graphql;
 
 pub mod amount_to_ui_amount;
 pub mod apply_confidential_pending_balance;
+pub mod apply_confidential_pending_burn;
 pub mod approve;
 pub mod approve_checked;
 pub mod approve_confidential_transfer_account;
+pub mod batch;
 pub mod burn;
 pub mod burn_checked;
 pub mod close_account;
+pub mod confidential_burn;
 pub mod confidential_deposit;
+pub mod confidential_mint;
 pub mod confidential_transfer;
 pub mod confidential_transfer_with_fee;
 pub mod confidential_withdraw;
 pub mod configure_confidential_transfer_account;
+pub mod configure_confidential_transfer_account_with_registry;
 pub mod create_native_mint;
 pub mod disable_confidential_credits;
 pub mod disable_cpi_guard;
@@ -40,6 +45,7 @@ pub mod harvest_withheld_tokens_to_mint_for_confidential_transfer_fee;
 pub mod initialize_account;
 pub mod initialize_account2;
 pub mod initialize_account3;
+pub mod initialize_confidential_mint_burn;
 pub mod initialize_confidential_transfer_fee;
 pub mod initialize_confidential_transfer_mint;
 pub mod initialize_default_account_state;
@@ -68,10 +74,12 @@ pub mod mint_to_checked;
 pub mod pause;
 pub mod permissioned_burn;
 pub mod permissioned_burn_checked;
+pub mod permissioned_confidential_burn;
 pub mod reallocate;
 pub mod remove_token_metadata_key;
 pub mod resume;
 pub mod revoke;
+pub mod rotate_supply_elgamal_pubkey;
 pub mod set_authority;
 pub mod set_transfer_fee;
 pub mod sync_native;
@@ -81,6 +89,7 @@ pub mod transfer_checked;
 pub mod transfer_checked_with_fee;
 pub mod ui_amount_to_amount;
 pub mod unwrap_lamports;
+pub mod update_confidential_mint_burn_decryptable_supply;
 pub mod update_confidential_transfer_mint;
 pub mod update_default_account_state;
 pub mod update_group_member_pointer;
@@ -100,19 +109,23 @@ pub mod withdraw_withheld_tokens_from_mint;
 pub mod withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee;
 
 pub use self::{
-    amount_to_ui_amount::*, apply_confidential_pending_balance::*, approve::*, approve_checked::*,
-    approve_confidential_transfer_account::*, burn::*, burn_checked::*, close_account::*,
-    confidential_deposit::*, confidential_transfer::*, confidential_transfer_with_fee::*,
-    confidential_withdraw::*, configure_confidential_transfer_account::*, create_native_mint::*,
+    amount_to_ui_amount::*, apply_confidential_pending_balance::*,
+    apply_confidential_pending_burn::*, approve::*, approve_checked::*,
+    approve_confidential_transfer_account::*, batch::*, burn::*, burn_checked::*, close_account::*,
+    confidential_burn::*, confidential_deposit::*, confidential_mint::*, confidential_transfer::*,
+    confidential_transfer_with_fee::*, confidential_withdraw::*,
+    configure_confidential_transfer_account::*,
+    configure_confidential_transfer_account_with_registry::*, create_native_mint::*,
     disable_confidential_credits::*, disable_cpi_guard::*, disable_harvest_to_mint::*,
     disable_memo_transfers::*, disable_non_confidential_credits::*, emit_token_metadata::*,
     empty_confidential_transfer_account::*, enable_confidential_credits::*, enable_cpi_guard::*,
     enable_harvest_to_mint::*, enable_memo_transfers::*, enable_non_confidential_credits::*,
     freeze_account::*, get_account_data_size::*, harvest_withheld_tokens_to_mint::*,
     harvest_withheld_tokens_to_mint_for_confidential_transfer_fee::*, initialize_account::*,
-    initialize_account2::*, initialize_account3::*, initialize_confidential_transfer_fee::*,
-    initialize_confidential_transfer_mint::*, initialize_default_account_state::*,
-    initialize_group_member_pointer::*, initialize_group_pointer::*, initialize_immutable_owner::*,
+    initialize_account2::*, initialize_account3::*, initialize_confidential_mint_burn::*,
+    initialize_confidential_transfer_fee::*, initialize_confidential_transfer_mint::*,
+    initialize_default_account_state::*, initialize_group_member_pointer::*,
+    initialize_group_pointer::*, initialize_immutable_owner::*,
     initialize_interest_bearing_mint::*, initialize_metadata_pointer::*, initialize_mint::*,
     initialize_mint2::*, initialize_mint_close_authority::*, initialize_multisig::*,
     initialize_multisig2::*, initialize_non_transferable_mint::*, initialize_pausable_config::*,
@@ -120,17 +133,18 @@ pub use self::{
     initialize_scaled_ui_amount_mint::*, initialize_token_group::*,
     initialize_token_group_member::*, initialize_token_metadata::*,
     initialize_transfer_fee_config::*, initialize_transfer_hook::*, mint_to::*, mint_to_checked::*,
-    pause::*, permissioned_burn::*, permissioned_burn_checked::*, reallocate::*,
-    remove_token_metadata_key::*, resume::*, revoke::*, set_authority::*, set_transfer_fee::*,
+    pause::*, permissioned_burn::*, permissioned_burn_checked::*,
+    permissioned_confidential_burn::*, reallocate::*, remove_token_metadata_key::*, resume::*,
+    revoke::*, rotate_supply_elgamal_pubkey::*, set_authority::*, set_transfer_fee::*,
     sync_native::*, thaw_account::*, transfer::*, transfer_checked::*,
     transfer_checked_with_fee::*, ui_amount_to_amount::*, unwrap_lamports::*,
-    update_confidential_transfer_mint::*, update_default_account_state::*,
-    update_group_member_pointer::*, update_group_pointer::*, update_metadata_pointer::*,
-    update_multiplier_scaled_ui_mint::*, update_rate_interest_bearing_mint::*,
-    update_token_group_max_size::*, update_token_group_update_authority::*,
-    update_token_metadata_field::*, update_token_metadata_update_authority::*,
-    update_transfer_hook::*, withdraw_excess_lamports::*,
-    withdraw_withheld_tokens_from_accounts::*,
+    update_confidential_mint_burn_decryptable_supply::*, update_confidential_transfer_mint::*,
+    update_default_account_state::*, update_group_member_pointer::*, update_group_pointer::*,
+    update_metadata_pointer::*, update_multiplier_scaled_ui_mint::*,
+    update_rate_interest_bearing_mint::*, update_token_group_max_size::*,
+    update_token_group_update_authority::*, update_token_metadata_field::*,
+    update_token_metadata_update_authority::*, update_transfer_hook::*,
+    withdraw_excess_lamports::*, withdraw_withheld_tokens_from_accounts::*,
     withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee::*,
     withdraw_withheld_tokens_from_mint::*,
     withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee::*,
@@ -151,6 +165,11 @@ pub enum Token2022Instruction {
         data: ApplyConfidentialPendingBalance,
         accounts: ApplyConfidentialPendingBalanceInstructionAccounts,
     },
+    ApplyConfidentialPendingBurn {
+        program_id: solana_pubkey::Pubkey,
+        data: ApplyConfidentialPendingBurn,
+        accounts: ApplyConfidentialPendingBurnInstructionAccounts,
+    },
     Approve {
         program_id: solana_pubkey::Pubkey,
         data: Approve,
@@ -165,6 +184,11 @@ pub enum Token2022Instruction {
         program_id: solana_pubkey::Pubkey,
         data: ApproveConfidentialTransferAccount,
         accounts: ApproveConfidentialTransferAccountInstructionAccounts,
+    },
+    Batch {
+        program_id: solana_pubkey::Pubkey,
+        data: Batch,
+        accounts: BatchInstructionAccounts,
     },
     Burn {
         program_id: solana_pubkey::Pubkey,
@@ -181,10 +205,20 @@ pub enum Token2022Instruction {
         data: CloseAccount,
         accounts: CloseAccountInstructionAccounts,
     },
+    ConfidentialBurn {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfidentialBurn,
+        accounts: ConfidentialBurnInstructionAccounts,
+    },
     ConfidentialDeposit {
         program_id: solana_pubkey::Pubkey,
         data: ConfidentialDeposit,
         accounts: ConfidentialDepositInstructionAccounts,
+    },
+    ConfidentialMint {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfidentialMint,
+        accounts: ConfidentialMintInstructionAccounts,
     },
     ConfidentialTransfer {
         program_id: solana_pubkey::Pubkey,
@@ -205,6 +239,11 @@ pub enum Token2022Instruction {
         program_id: solana_pubkey::Pubkey,
         data: ConfigureConfidentialTransferAccount,
         accounts: ConfigureConfidentialTransferAccountInstructionAccounts,
+    },
+    ConfigureConfidentialTransferAccountWithRegistry {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfigureConfidentialTransferAccountWithRegistry,
+        accounts: ConfigureConfidentialTransferAccountWithRegistryInstructionAccounts,
     },
     CreateNativeMint {
         program_id: solana_pubkey::Pubkey,
@@ -305,6 +344,11 @@ pub enum Token2022Instruction {
         program_id: solana_pubkey::Pubkey,
         data: InitializeAccount3,
         accounts: InitializeAccount3InstructionAccounts,
+    },
+    InitializeConfidentialMintBurn {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeConfidentialMintBurn,
+        accounts: InitializeConfidentialMintBurnInstructionAccounts,
     },
     InitializeConfidentialTransferFee {
         program_id: solana_pubkey::Pubkey,
@@ -446,6 +490,11 @@ pub enum Token2022Instruction {
         data: PermissionedBurnChecked,
         accounts: PermissionedBurnCheckedInstructionAccounts,
     },
+    PermissionedConfidentialBurn {
+        program_id: solana_pubkey::Pubkey,
+        data: PermissionedConfidentialBurn,
+        accounts: PermissionedConfidentialBurnInstructionAccounts,
+    },
     Reallocate {
         program_id: solana_pubkey::Pubkey,
         data: Reallocate,
@@ -465,6 +514,11 @@ pub enum Token2022Instruction {
         program_id: solana_pubkey::Pubkey,
         data: Revoke,
         accounts: RevokeInstructionAccounts,
+    },
+    RotateSupplyElgamalPubkey {
+        program_id: solana_pubkey::Pubkey,
+        data: RotateSupplyElgamalPubkey,
+        accounts: RotateSupplyElgamalPubkeyInstructionAccounts,
     },
     SetAuthority {
         program_id: solana_pubkey::Pubkey,
@@ -510,6 +564,11 @@ pub enum Token2022Instruction {
         program_id: solana_pubkey::Pubkey,
         data: UnwrapLamports,
         accounts: UnwrapLamportsInstructionAccounts,
+    },
+    UpdateConfidentialMintBurnDecryptableSupply {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateConfidentialMintBurnDecryptableSupply,
+        accounts: UpdateConfidentialMintBurnDecryptableSupplyInstructionAccounts,
     },
     UpdateConfidentialTransferMint {
         program_id: solana_pubkey::Pubkey,
@@ -614,17 +673,22 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             PROGRAM_ID,
             Token2022Instruction::AmountToUiAmount => AmountToUiAmount,
             Token2022Instruction::ApplyConfidentialPendingBalance => ApplyConfidentialPendingBalance,
+            Token2022Instruction::ApplyConfidentialPendingBurn => ApplyConfidentialPendingBurn,
             Token2022Instruction::Approve => Approve,
             Token2022Instruction::ApproveChecked => ApproveChecked,
             Token2022Instruction::ApproveConfidentialTransferAccount => ApproveConfidentialTransferAccount,
+            Token2022Instruction::Batch => Batch,
             Token2022Instruction::Burn => Burn,
             Token2022Instruction::BurnChecked => BurnChecked,
             Token2022Instruction::CloseAccount => CloseAccount,
+            Token2022Instruction::ConfidentialBurn => ConfidentialBurn,
             Token2022Instruction::ConfidentialDeposit => ConfidentialDeposit,
+            Token2022Instruction::ConfidentialMint => ConfidentialMint,
             Token2022Instruction::ConfidentialTransfer => ConfidentialTransfer,
             Token2022Instruction::ConfidentialTransferWithFee => ConfidentialTransferWithFee,
             Token2022Instruction::ConfidentialWithdraw => ConfidentialWithdraw,
             Token2022Instruction::ConfigureConfidentialTransferAccount => ConfigureConfidentialTransferAccount,
+            Token2022Instruction::ConfigureConfidentialTransferAccountWithRegistry => ConfigureConfidentialTransferAccountWithRegistry,
             Token2022Instruction::CreateNativeMint => CreateNativeMint,
             Token2022Instruction::DisableConfidentialCredits => DisableConfidentialCredits,
             Token2022Instruction::DisableCpiGuard => DisableCpiGuard,
@@ -645,6 +709,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             Token2022Instruction::InitializeAccount => InitializeAccount,
             Token2022Instruction::InitializeAccount2 => InitializeAccount2,
             Token2022Instruction::InitializeAccount3 => InitializeAccount3,
+            Token2022Instruction::InitializeConfidentialMintBurn => InitializeConfidentialMintBurn,
             Token2022Instruction::InitializeConfidentialTransferFee => InitializeConfidentialTransferFee,
             Token2022Instruction::InitializeConfidentialTransferMint => InitializeConfidentialTransferMint,
             Token2022Instruction::InitializeDefaultAccountState => InitializeDefaultAccountState,
@@ -673,10 +738,12 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             Token2022Instruction::Pause => Pause,
             Token2022Instruction::PermissionedBurn => PermissionedBurn,
             Token2022Instruction::PermissionedBurnChecked => PermissionedBurnChecked,
+            Token2022Instruction::PermissionedConfidentialBurn => PermissionedConfidentialBurn,
             Token2022Instruction::Reallocate => Reallocate,
             Token2022Instruction::RemoveTokenMetadataKey => RemoveTokenMetadataKey,
             Token2022Instruction::Resume => Resume,
             Token2022Instruction::Revoke => Revoke,
+            Token2022Instruction::RotateSupplyElgamalPubkey => RotateSupplyElgamalPubkey,
             Token2022Instruction::SetAuthority => SetAuthority,
             Token2022Instruction::SetTransferFee => SetTransferFee,
             Token2022Instruction::SyncNative => SyncNative,
@@ -686,6 +753,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             Token2022Instruction::TransferCheckedWithFee => TransferCheckedWithFee,
             Token2022Instruction::UiAmountToAmount => UiAmountToAmount,
             Token2022Instruction::UnwrapLamports => UnwrapLamports,
+            Token2022Instruction::UpdateConfidentialMintBurnDecryptableSupply => UpdateConfidentialMintBurnDecryptableSupply,
             Token2022Instruction::UpdateConfidentialTransferMint => UpdateConfidentialTransferMint,
             Token2022Instruction::UpdateDefaultAccountState => UpdateDefaultAccountState,
             Token2022Instruction::UpdateGroupMemberPointer => UpdateGroupMemberPointer,

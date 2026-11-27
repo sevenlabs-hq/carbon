@@ -4,6 +4,7 @@ use {
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
     solana_pubkey::Pubkey,
 };
+/// Sets and verifies a collection to a leaf node
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SetAndVerifyCollection {

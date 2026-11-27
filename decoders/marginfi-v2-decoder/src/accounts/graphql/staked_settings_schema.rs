@@ -19,7 +19,7 @@ pub struct StakedSettingsGraphQL {
     pub oracle_max_age: i32,
     pub risk_tier: RiskTierGraphQL,
     pub pad0: Vec<U8>,
-    pub reserved0: Vec<U8>,
+    pub flags: U64,
     pub reserved1: Vec<U8>,
     pub reserved2: Vec<U8>,
 }
@@ -45,11 +45,7 @@ impl TryFrom<crate::accounts::postgres::StakedSettingsRow> for StakedSettingsGra
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),
-            reserved0: row
-                .reserved0
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
+            flags: carbon_core::graphql::primitives::U64(*row.flags),
             reserved1: row
                 .reserved1
                 .into_iter()

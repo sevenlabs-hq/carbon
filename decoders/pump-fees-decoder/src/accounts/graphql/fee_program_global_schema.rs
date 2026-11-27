@@ -31,7 +31,7 @@ impl TryFrom<crate::accounts::postgres::FeeProgramGlobalRow> for FeeProgramGloba
             reserved: row
                 .reserved
                 .into_iter()
-                .map(|x| carbon_core::graphql::primitives::U8((*x) as u8))
+                .map(carbon_core::graphql::primitives::U8)
                 .collect(),
         })
     }

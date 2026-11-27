@@ -10,4 +10,5 @@ pub struct StaticConfigParameters {
     pub pool_creator_authority: Pubkey,
     pub activation_type: u8,
     pub collect_fee_mode: u8,
+    pub permission: u128,
 }

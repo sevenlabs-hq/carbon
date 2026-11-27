@@ -15,7 +15,7 @@ pub mod dynamic_fee_config;
 pub mod dynamic_fee_parameters;
 pub mod dynamic_fee_struct;
 pub mod evt_claim_position_fee;
-pub mod evt_claim_protocol_fee;
+pub mod evt_claim_protocol_fee2;
 pub mod evt_claim_reward;
 pub mod evt_close_config;
 pub mod evt_close_position;
@@ -33,9 +33,11 @@ pub mod evt_set_pool_status;
 pub mod evt_split_position2;
 pub mod evt_split_position3;
 pub mod evt_swap2;
+pub mod evt_update_delegate_permission;
 pub mod evt_update_pool_fees;
 pub mod evt_update_reward_duration;
 pub mod evt_update_reward_funder;
+pub mod evt_withdraw_dead_liquidity_reward;
 pub mod evt_withdraw_ineligible_reward;
 pub mod initialize_customizable_pool_parameters;
 pub mod initialize_pool_parameters;
@@ -67,13 +69,14 @@ pub use self::{
     borsh_fee_market_cap_scheduler::*, borsh_fee_rate_limiter::*, borsh_fee_time_scheduler::*,
     dummy_params::*, dynamic_config_parameters::*, dynamic_fee_config::*,
     dynamic_fee_parameters::*, dynamic_fee_struct::*, evt_claim_position_fee::*,
-    evt_claim_protocol_fee::*, evt_claim_reward::*, evt_close_config::*, evt_close_position::*,
+    evt_claim_protocol_fee2::*, evt_claim_reward::*, evt_close_config::*, evt_close_position::*,
     evt_create_config::*, evt_create_dynamic_config::*, evt_create_position::*,
     evt_create_token_badge::*, evt_fund_reward::*, evt_initialize_pool::*,
     evt_initialize_reward::*, evt_liquidity_change::*, evt_lock_position::*,
     evt_permanent_lock_position::*, evt_set_pool_status::*, evt_split_position2::*,
-    evt_split_position3::*, evt_swap2::*, evt_update_pool_fees::*, evt_update_reward_duration::*,
-    evt_update_reward_funder::*, evt_withdraw_ineligible_reward::*,
+    evt_split_position3::*, evt_swap2::*, evt_update_delegate_permission::*,
+    evt_update_pool_fees::*, evt_update_reward_duration::*, evt_update_reward_funder::*,
+    evt_withdraw_dead_liquidity_reward::*, evt_withdraw_ineligible_reward::*,
     initialize_customizable_pool_parameters::*, initialize_pool_parameters::*, inner_vesting::*,
     pool_fee_parameters::*, pool_fees_config::*, pool_fees_struct::*, pool_metrics::*,
     position_metrics::*, remove_liquidity_parameters::*, reward_info::*, split_amount_info::*,

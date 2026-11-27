@@ -12,14 +12,21 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
     PartialEq,
 )]
 pub enum CpiEvent {
+    AdminCloseAccountEvent(events::admin_close_account_event::AdminCloseAccountEventEvent),
+    CircuitBreakerAutoBrokenEvent(events::circuit_breaker_auto_broken_event::CircuitBreakerAutoBrokenEventEvent),
+    CircuitBreakerClearedEvent(events::circuit_breaker_cleared_event::CircuitBreakerClearedEventEvent),
+    CircuitBreakerTrippedEvent(events::circuit_breaker_tripped_event::CircuitBreakerTrippedEventEvent),
     DeleverageEvent(events::deleverage_event::DeleverageEventEvent),
     DeleverageWithdrawFlowEvent(events::deleverage_withdraw_flow_event::DeleverageWithdrawFlowEventEvent),
+    DriftClaimBadDebtEvent(events::drift_claim_bad_debt_event::DriftClaimBadDebtEventEvent),
     EditStakedSettingsEvent(events::edit_staked_settings_event::EditStakedSettingsEventEvent),
     HealthPulseEvent(events::health_pulse_event::HealthPulseEventEvent),
     KeeperCloseOrderEvent(events::keeper_close_order_event::KeeperCloseOrderEventEvent),
+    KeeperCloseRebalanceOrderEvent(events::keeper_close_rebalance_order_event::KeeperCloseRebalanceOrderEventEvent),
     LendingAccountBorrowEvent(events::lending_account_borrow_event::LendingAccountBorrowEventEvent),
     LendingAccountDepositEvent(events::lending_account_deposit_event::LendingAccountDepositEventEvent),
     LendingAccountLiquidateEvent(events::lending_account_liquidate_event::LendingAccountLiquidateEventEvent),
+    LendingAccountPremiumSettledEvent(events::lending_account_premium_settled_event::LendingAccountPremiumSettledEventEvent),
     LendingAccountRepayEvent(events::lending_account_repay_event::LendingAccountRepayEventEvent),
     LendingAccountWithdrawEvent(events::lending_account_withdraw_event::LendingAccountWithdrawEventEvent),
     LendingPoolBankAccrueInterestEvent(events::lending_pool_bank_accrue_interest_event::LendingPoolBankAccrueInterestEventEvent),
@@ -29,18 +36,32 @@ pub enum CpiEvent {
     LendingPoolBankConfigureOracleEvent(events::lending_pool_bank_configure_oracle_event::LendingPoolBankConfigureOracleEventEvent),
     LendingPoolBankCreateEvent(events::lending_pool_bank_create_event::LendingPoolBankCreateEventEvent),
     LendingPoolBankHandleBankruptcyEvent(events::lending_pool_bank_handle_bankruptcy_event::LendingPoolBankHandleBankruptcyEventEvent),
-    LendingPoolBankSetFixedOraclePriceEvent(events::lending_pool_bank_set_fixed_oracle_price_event::LendingPoolBankSetFixedOraclePriceEventEvent),
+    LendingPoolBankPremiumConfigureEvent(events::lending_pool_bank_premium_configure_event::LendingPoolBankPremiumConfigureEventEvent),
+    LendingPoolBankSetOraclePriceEvent(events::lending_pool_bank_set_oracle_price_event::LendingPoolBankSetOraclePriceEventEvent),
+    LendingPoolBankSetSameAssetEmodeEligibilityEvent(events::lending_pool_bank_set_same_asset_emode_eligibility_event::LendingPoolBankSetSameAssetEmodeEligibilityEventEvent),
+    LendingPoolGroupPremiumConfigureEvent(events::lending_pool_group_premium_configure_event::LendingPoolGroupPremiumConfigureEventEvent),
+    LendingPoolPremiumFeesCollectedEvent(events::lending_pool_premium_fees_collected_event::LendingPoolPremiumFeesCollectedEventEvent),
     LendingPoolSuperAdminDepositEvent(events::lending_pool_super_admin_deposit_event::LendingPoolSuperAdminDepositEventEvent),
     LendingPoolSuperAdminWithdrawEvent(events::lending_pool_super_admin_withdraw_event::LendingPoolSuperAdminWithdrawEventEvent),
     LiquidationReceiverEvent(events::liquidation_receiver_event::LiquidationReceiverEventEvent),
+    LiquidationTagEvent(events::liquidation_tag_event::LiquidationTagEventEvent),
     MarginfiAccountCloseOrderEvent(events::marginfi_account_close_order_event::MarginfiAccountCloseOrderEventEvent),
+    MarginfiAccountCloseRebalanceOrderEvent(events::marginfi_account_close_rebalance_order_event::MarginfiAccountCloseRebalanceOrderEventEvent),
     MarginfiAccountCreateEvent(events::marginfi_account_create_event::MarginfiAccountCreateEventEvent),
+    MarginfiAccountExecuteOrderEvent(events::marginfi_account_execute_order_event::MarginfiAccountExecuteOrderEventEvent),
     MarginfiAccountFreezeEvent(events::marginfi_account_freeze_event::MarginfiAccountFreezeEventEvent),
     MarginfiAccountPlaceOrderEvent(events::marginfi_account_place_order_event::MarginfiAccountPlaceOrderEventEvent),
+    MarginfiAccountPlaceRebalanceOrderEvent(events::marginfi_account_place_rebalance_order_event::MarginfiAccountPlaceRebalanceOrderEventEvent),
     MarginfiAccountTransferToNewAccount(events::marginfi_account_transfer_to_new_account::MarginfiAccountTransferToNewAccountEvent),
+    MarginfiAccountUpdateRebalanceOrderEvent(events::marginfi_account_update_rebalance_order_event::MarginfiAccountUpdateRebalanceOrderEventEvent),
     MarginfiGroupConfigureEvent(events::marginfi_group_configure_event::MarginfiGroupConfigureEventEvent),
     MarginfiGroupCreateEvent(events::marginfi_group_create_event::MarginfiGroupCreateEventEvent),
     RateLimitFlowEvent(events::rate_limit_flow_event::RateLimitFlowEventEvent),
+    RebalanceExecutedEvent(events::rebalance_executed_event::RebalanceExecutedEventEvent),
+    RebalanceFeePoolTopUpEvent(events::rebalance_fee_pool_top_up_event::RebalanceFeePoolTopUpEventEvent),
+    RebalanceFeePoolWithdrawEvent(events::rebalance_fee_pool_withdraw_event::RebalanceFeePoolWithdrawEventEvent),
+    RebalanceTipSettledEvent(events::rebalance_tip_settled_event::RebalanceTipSettledEventEvent),
+    SetGovernanceAdminEvent(events::set_governance_admin_event::SetGovernanceAdminEventEvent),
     SetKeeperCloseFlagsEvent(events::set_keeper_close_flags_event::SetKeeperCloseFlagsEventEvent),
 }
 
@@ -64,6 +85,32 @@ impl CpiEvent {
 
         let event_data = &data[8..];
 
+        if let Some(decoded) =
+            events::admin_close_account_event::AdminCloseAccountEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::AdminCloseAccountEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::circuit_breaker_auto_broken_event::CircuitBreakerAutoBrokenEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::CircuitBreakerAutoBrokenEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::circuit_breaker_cleared_event::CircuitBreakerClearedEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::CircuitBreakerClearedEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::circuit_breaker_tripped_event::CircuitBreakerTrippedEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::CircuitBreakerTrippedEvent(decoded));
+        }
         if let Some(decoded) = events::deleverage_event::DeleverageEventEvent::decode(event_data) {
             return Some(CpiEvent::DeleverageEvent(decoded));
         }
@@ -73,6 +120,11 @@ impl CpiEvent {
             )
         {
             return Some(CpiEvent::DeleverageWithdrawFlowEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::drift_claim_bad_debt_event::DriftClaimBadDebtEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::DriftClaimBadDebtEvent(decoded));
         }
         if let Some(decoded) =
             events::edit_staked_settings_event::EditStakedSettingsEventEvent::decode(event_data)
@@ -87,6 +139,13 @@ impl CpiEvent {
             events::keeper_close_order_event::KeeperCloseOrderEventEvent::decode(event_data)
         {
             return Some(CpiEvent::KeeperCloseOrderEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::keeper_close_rebalance_order_event::KeeperCloseRebalanceOrderEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::KeeperCloseRebalanceOrderEvent(decoded));
         }
         if let Some(decoded) =
             events::lending_account_borrow_event::LendingAccountBorrowEventEvent::decode(event_data)
@@ -106,6 +165,9 @@ impl CpiEvent {
             )
         {
             return Some(CpiEvent::LendingAccountLiquidateEvent(decoded));
+        }
+        if let Some(decoded) = events::lending_account_premium_settled_event::LendingAccountPremiumSettledEventEvent::decode(event_data) {
+            return Some(CpiEvent::LendingAccountPremiumSettledEvent(decoded));
         }
         if let Some(decoded) =
             events::lending_account_repay_event::LendingAccountRepayEventEvent::decode(event_data)
@@ -148,8 +210,20 @@ impl CpiEvent {
         if let Some(decoded) = events::lending_pool_bank_handle_bankruptcy_event::LendingPoolBankHandleBankruptcyEventEvent::decode(event_data) {
             return Some(CpiEvent::LendingPoolBankHandleBankruptcyEvent(decoded));
         }
-        if let Some(decoded) = events::lending_pool_bank_set_fixed_oracle_price_event::LendingPoolBankSetFixedOraclePriceEventEvent::decode(event_data) {
-            return Some(CpiEvent::LendingPoolBankSetFixedOraclePriceEvent(decoded));
+        if let Some(decoded) = events::lending_pool_bank_premium_configure_event::LendingPoolBankPremiumConfigureEventEvent::decode(event_data) {
+            return Some(CpiEvent::LendingPoolBankPremiumConfigureEvent(decoded));
+        }
+        if let Some(decoded) = events::lending_pool_bank_set_oracle_price_event::LendingPoolBankSetOraclePriceEventEvent::decode(event_data) {
+            return Some(CpiEvent::LendingPoolBankSetOraclePriceEvent(decoded));
+        }
+        if let Some(decoded) = events::lending_pool_bank_set_same_asset_emode_eligibility_event::LendingPoolBankSetSameAssetEmodeEligibilityEventEvent::decode(event_data) {
+            return Some(CpiEvent::LendingPoolBankSetSameAssetEmodeEligibilityEvent(decoded));
+        }
+        if let Some(decoded) = events::lending_pool_group_premium_configure_event::LendingPoolGroupPremiumConfigureEventEvent::decode(event_data) {
+            return Some(CpiEvent::LendingPoolGroupPremiumConfigureEvent(decoded));
+        }
+        if let Some(decoded) = events::lending_pool_premium_fees_collected_event::LendingPoolPremiumFeesCollectedEventEvent::decode(event_data) {
+            return Some(CpiEvent::LendingPoolPremiumFeesCollectedEvent(decoded));
         }
         if let Some(decoded) = events::lending_pool_super_admin_deposit_event::LendingPoolSuperAdminDepositEventEvent::decode(event_data) {
             return Some(CpiEvent::LendingPoolSuperAdminDepositEvent(decoded));
@@ -163,11 +237,19 @@ impl CpiEvent {
             return Some(CpiEvent::LiquidationReceiverEvent(decoded));
         }
         if let Some(decoded) =
+            events::liquidation_tag_event::LiquidationTagEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::LiquidationTagEvent(decoded));
+        }
+        if let Some(decoded) =
             events::marginfi_account_close_order_event::MarginfiAccountCloseOrderEventEvent::decode(
                 event_data,
             )
         {
             return Some(CpiEvent::MarginfiAccountCloseOrderEvent(decoded));
+        }
+        if let Some(decoded) = events::marginfi_account_close_rebalance_order_event::MarginfiAccountCloseRebalanceOrderEventEvent::decode(event_data) {
+            return Some(CpiEvent::MarginfiAccountCloseRebalanceOrderEvent(decoded));
         }
         if let Some(decoded) =
             events::marginfi_account_create_event::MarginfiAccountCreateEventEvent::decode(
@@ -175,6 +257,9 @@ impl CpiEvent {
             )
         {
             return Some(CpiEvent::MarginfiAccountCreateEvent(decoded));
+        }
+        if let Some(decoded) = events::marginfi_account_execute_order_event::MarginfiAccountExecuteOrderEventEvent::decode(event_data) {
+            return Some(CpiEvent::MarginfiAccountExecuteOrderEvent(decoded));
         }
         if let Some(decoded) =
             events::marginfi_account_freeze_event::MarginfiAccountFreezeEventEvent::decode(
@@ -190,8 +275,14 @@ impl CpiEvent {
         {
             return Some(CpiEvent::MarginfiAccountPlaceOrderEvent(decoded));
         }
+        if let Some(decoded) = events::marginfi_account_place_rebalance_order_event::MarginfiAccountPlaceRebalanceOrderEventEvent::decode(event_data) {
+            return Some(CpiEvent::MarginfiAccountPlaceRebalanceOrderEvent(decoded));
+        }
         if let Some(decoded) = events::marginfi_account_transfer_to_new_account::MarginfiAccountTransferToNewAccountEvent::decode(event_data) {
             return Some(CpiEvent::MarginfiAccountTransferToNewAccount(decoded));
+        }
+        if let Some(decoded) = events::marginfi_account_update_rebalance_order_event::MarginfiAccountUpdateRebalanceOrderEventEvent::decode(event_data) {
+            return Some(CpiEvent::MarginfiAccountUpdateRebalanceOrderEvent(decoded));
         }
         if let Some(decoded) =
             events::marginfi_group_configure_event::MarginfiGroupConfigureEventEvent::decode(
@@ -209,6 +300,35 @@ impl CpiEvent {
             events::rate_limit_flow_event::RateLimitFlowEventEvent::decode(event_data)
         {
             return Some(CpiEvent::RateLimitFlowEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::rebalance_executed_event::RebalanceExecutedEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::RebalanceExecutedEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::rebalance_fee_pool_top_up_event::RebalanceFeePoolTopUpEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::RebalanceFeePoolTopUpEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::rebalance_fee_pool_withdraw_event::RebalanceFeePoolWithdrawEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::RebalanceFeePoolWithdrawEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::rebalance_tip_settled_event::RebalanceTipSettledEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::RebalanceTipSettledEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::set_governance_admin_event::SetGovernanceAdminEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SetGovernanceAdminEvent(decoded));
         }
         if let Some(decoded) =
             events::set_keeper_close_flags_event::SetKeeperCloseFlagsEventEvent::decode(event_data)

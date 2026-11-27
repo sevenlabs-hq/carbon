@@ -24,6 +24,7 @@ pub struct CollectCreatorFeeInstructionAccounts {
     pub token1_program: solana_pubkey::Pubkey,
     pub associated_token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub creator_fee_share: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -67,6 +68,7 @@ impl ArrangeAccounts for CollectCreatorFee {
         let token1_program = next_account(&mut iter)?;
         let associated_token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let creator_fee_share = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -85,6 +87,7 @@ impl ArrangeAccounts for CollectCreatorFee {
             token1_program,
             associated_token_program,
             system_program,
+            creator_fee_share,
             remaining: remaining.to_vec(),
         })
     }

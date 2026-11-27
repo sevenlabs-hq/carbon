@@ -14,9 +14,10 @@ pub mod strategy_type;
 pub mod strategy_withdraw;
 pub mod total_amount;
 pub mod vault_bumps;
+pub mod vault_migrated;
 
 pub use self::{
     add_liquidity::*, claim_reward::*, locked_profit_tracker::*, performance_fee::*,
     remove_liquidity::*, report_loss::*, strategy_bumps::*, strategy_deposit::*, strategy_type::*,
-    strategy_withdraw::*, total_amount::*, vault_bumps::*,
+    strategy_withdraw::*, total_amount::*, vault_bumps::*, vault_migrated::*,
 };

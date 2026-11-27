@@ -6,4 +6,7 @@ pub enum BankOperationalState {
     Operational,
     ReduceOnly,
     KilledByBankruptcy,
+    Uninitialized,
+    ReduceOnlyWithBorrowingPower,
+    CircuitBroken,
 }

@@ -132,6 +132,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for CircleMessageTransmitt
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            CircleMessageTransmitterV2Instruction::CpiEvent => CpiEvent,
             CircleMessageTransmitterV2Instruction::AcceptOwnership => AcceptOwnership,
             CircleMessageTransmitterV2Instruction::DisableAttester => DisableAttester,
             CircleMessageTransmitterV2Instruction::EnableAttester => EnableAttester,
@@ -147,7 +148,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for CircleMessageTransmitt
             CircleMessageTransmitterV2Instruction::Unpause => Unpause,
             CircleMessageTransmitterV2Instruction::UpdateAttesterManager => UpdateAttesterManager,
             CircleMessageTransmitterV2Instruction::UpdatePauser => UpdatePauser,
-            CircleMessageTransmitterV2Instruction::CpiEvent => CpiEvent,
         )
     }
 }

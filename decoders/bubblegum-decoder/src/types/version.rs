@@ -3,4 +3,5 @@
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum Version {
     V1,
+    V2,
 }

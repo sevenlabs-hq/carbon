@@ -16,4 +16,5 @@ pub enum UpdateObligationConfigMode {
     FixedTermRolloverMinDebtTermSeconds,
     FixedTermRolloverOpenTermAllowed,
     MigrationToFixedEnabled,
+    FixedTermRolloverWindowDurationDays,
 }

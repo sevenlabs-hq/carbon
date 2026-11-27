@@ -3,6 +3,7 @@ use {
     crate::types::DecompressibleState,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Sets the `decompressible_state` of a tree.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SetDecompressibleState {

@@ -14,15 +14,17 @@ use {
 pub struct EditGlobalFeeStateRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
-    pub admin: Pubkey,
-    pub fee_wallet: Pubkey,
-    pub bank_init_flat_sol_fee: U32,
-    pub liquidation_flat_sol_fee: U32,
-    pub order_init_flat_sol_fee: U32,
-    pub program_fee_fixed: sqlx::types::Json<WrappedI80F48>,
-    pub program_fee_rate: sqlx::types::Json<WrappedI80F48>,
-    pub liquidation_max_fee: sqlx::types::Json<WrappedI80F48>,
-    pub order_execution_max_fee: sqlx::types::Json<WrappedI80F48>,
+    pub admin: Option<Pubkey>,
+    pub fee_wallet: Option<Pubkey>,
+    pub bank_init_flat_sol_fee: Option<U32>,
+    pub liquidation_flat_sol_fee: Option<U32>,
+    pub order_init_flat_sol_fee: Option<U32>,
+    pub program_fee_fixed: Option<sqlx::types::Json<WrappedI80F48>>,
+    pub program_fee_rate: Option<sqlx::types::Json<WrappedI80F48>>,
+    pub liquidation_max_fee: Option<sqlx::types::Json<WrappedI80F48>>,
+    pub order_execution_max_fee: Option<sqlx::types::Json<WrappedI80F48>>,
+    pub pause_delegate_admin: Option<Pubkey>,
+    pub account_transfer_fee: Option<U32>,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -35,15 +37,17 @@ impl EditGlobalFeeStateRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            admin: source.admin.into(),
-            fee_wallet: source.fee_wallet.into(),
-            bank_init_flat_sol_fee: source.bank_init_flat_sol_fee.into(),
-            liquidation_flat_sol_fee: source.liquidation_flat_sol_fee.into(),
-            order_init_flat_sol_fee: source.order_init_flat_sol_fee.into(),
-            program_fee_fixed: sqlx::types::Json(source.program_fee_fixed),
-            program_fee_rate: sqlx::types::Json(source.program_fee_rate),
-            liquidation_max_fee: sqlx::types::Json(source.liquidation_max_fee),
-            order_execution_max_fee: sqlx::types::Json(source.order_execution_max_fee),
+            admin: source.admin.map(|value| value.into()),
+            fee_wallet: source.fee_wallet.map(|value| value.into()),
+            bank_init_flat_sol_fee: source.bank_init_flat_sol_fee.map(|value| value.into()),
+            liquidation_flat_sol_fee: source.liquidation_flat_sol_fee.map(|value| value.into()),
+            order_init_flat_sol_fee: source.order_init_flat_sol_fee.map(|value| value.into()),
+            program_fee_fixed: source.program_fee_fixed.map(sqlx::types::Json),
+            program_fee_rate: source.program_fee_rate.map(sqlx::types::Json),
+            liquidation_max_fee: source.liquidation_max_fee.map(sqlx::types::Json),
+            order_execution_max_fee: source.order_execution_max_fee.map(sqlx::types::Json),
+            pause_delegate_admin: source.pause_delegate_admin.map(|value| value.into()),
+            account_transfer_fee: source.account_transfer_fee.map(|value| value.into()),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -55,27 +59,53 @@ impl TryFrom<EditGlobalFeeStateRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: EditGlobalFeeStateRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            admin: *source.admin,
-            fee_wallet: *source.fee_wallet,
-            bank_init_flat_sol_fee: source.bank_init_flat_sol_fee.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
-            liquidation_flat_sol_fee: source.liquidation_flat_sol_fee.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
-            order_init_flat_sol_fee: source.order_init_flat_sol_fee.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
-            program_fee_fixed: source.program_fee_fixed.0,
-            program_fee_rate: source.program_fee_rate.0,
-            liquidation_max_fee: source.liquidation_max_fee.0,
-            order_execution_max_fee: source.order_execution_max_fee.0,
+            admin: source.admin.map(|value| *value),
+            fee_wallet: source.fee_wallet.map(|value| *value),
+            bank_init_flat_sol_fee: source
+                .bank_init_flat_sol_fee
+                .map(|value| {
+                    value.try_into().map_err(|_| {
+                        carbon_core::error::Error::Custom(
+                            "Failed to convert value from postgres primitive".to_string(),
+                        )
+                    })
+                })
+                .transpose()?,
+            liquidation_flat_sol_fee: source
+                .liquidation_flat_sol_fee
+                .map(|value| {
+                    value.try_into().map_err(|_| {
+                        carbon_core::error::Error::Custom(
+                            "Failed to convert value from postgres primitive".to_string(),
+                        )
+                    })
+                })
+                .transpose()?,
+            order_init_flat_sol_fee: source
+                .order_init_flat_sol_fee
+                .map(|value| {
+                    value.try_into().map_err(|_| {
+                        carbon_core::error::Error::Custom(
+                            "Failed to convert value from postgres primitive".to_string(),
+                        )
+                    })
+                })
+                .transpose()?,
+            program_fee_fixed: source.program_fee_fixed.map(|value| value.0),
+            program_fee_rate: source.program_fee_rate.map(|value| value.0),
+            liquidation_max_fee: source.liquidation_max_fee.map(|value| value.0),
+            order_execution_max_fee: source.order_execution_max_fee.map(|value| value.0),
+            pause_delegate_admin: source.pause_delegate_admin.map(|value| *value),
+            account_transfer_fee: source
+                .account_transfer_fee
+                .map(|value| {
+                    value.try_into().map_err(|_| {
+                        carbon_core::error::Error::Custom(
+                            "Failed to convert value from postgres primitive".to_string(),
+                        )
+                    })
+                })
+                .transpose()?,
         })
     }
 }
@@ -103,6 +133,8 @@ impl carbon_core::postgres::operations::Table
             "program_fee_rate",
             "liquidation_max_fee",
             "order_execution_max_fee",
+            "pause_delegate_admin",
+            "account_transfer_fee",
             "__accounts",
         ]
     }
@@ -123,10 +155,12 @@ impl carbon_core::postgres::operations::Insert for EditGlobalFeeStateRow {
                 "program_fee_rate",
                 "liquidation_max_fee",
                 "order_execution_max_fee",
+                "pause_delegate_admin",
+                "account_transfer_fee",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
             )"#,
         )
         .bind(self.admin)
@@ -138,6 +172,8 @@ impl carbon_core::postgres::operations::Insert for EditGlobalFeeStateRow {
         .bind(&self.program_fee_rate)
         .bind(&self.liquidation_max_fee)
         .bind(&self.order_execution_max_fee)
+        .bind(self.pause_delegate_admin)
+        .bind(self.account_transfer_fee)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -165,10 +201,12 @@ impl carbon_core::postgres::operations::Upsert for EditGlobalFeeStateRow {
                 "program_fee_rate",
                 "liquidation_max_fee",
                 "order_execution_max_fee",
+                "pause_delegate_admin",
+                "account_transfer_fee",
                 __signature, __instruction_index, __stack_height, __absolute_path,
                 __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
             ) ON CONFLICT (
                 __signature, __absolute_path
             ) DO UPDATE SET
@@ -181,6 +219,8 @@ impl carbon_core::postgres::operations::Upsert for EditGlobalFeeStateRow {
                 "program_fee_rate" = EXCLUDED."program_fee_rate",
                 "liquidation_max_fee" = EXCLUDED."liquidation_max_fee",
                 "order_execution_max_fee" = EXCLUDED."order_execution_max_fee",
+                "pause_delegate_admin" = EXCLUDED."pause_delegate_admin",
+                "account_transfer_fee" = EXCLUDED."account_transfer_fee",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
@@ -196,6 +236,8 @@ impl carbon_core::postgres::operations::Upsert for EditGlobalFeeStateRow {
         .bind(&self.program_fee_rate)
         .bind(&self.liquidation_max_fee)
         .bind(&self.order_execution_max_fee)
+        .bind(self.pause_delegate_admin)
+        .bind(self.account_transfer_fee)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -261,15 +303,17 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EditGlobalFeeStateMigrationOpe
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS edit_global_fee_state_instruction (
                 -- Instruction data
-                "admin" BYTEA NOT NULL,
-                "fee_wallet" BYTEA NOT NULL,
-                "bank_init_flat_sol_fee" INT8 NOT NULL,
-                "liquidation_flat_sol_fee" INT8 NOT NULL,
-                "order_init_flat_sol_fee" INT8 NOT NULL,
-                "program_fee_fixed" JSONB NOT NULL,
-                "program_fee_rate" JSONB NOT NULL,
-                "liquidation_max_fee" JSONB NOT NULL,
-                "order_execution_max_fee" JSONB NOT NULL,
+                "admin" BYTEA,
+                "fee_wallet" BYTEA,
+                "bank_init_flat_sol_fee" INT8,
+                "liquidation_flat_sol_fee" INT8,
+                "order_init_flat_sol_fee" INT8,
+                "program_fee_fixed" JSONB,
+                "program_fee_rate" JSONB,
+                "liquidation_max_fee" JSONB,
+                "order_execution_max_fee" JSONB,
+                "pause_delegate_admin" BYTEA,
+                "account_transfer_fee" INT8,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

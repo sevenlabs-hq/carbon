@@ -17,7 +17,7 @@ impl TryFrom<crate::instructions::postgres::CancelRedeemRow> for CancelRedeemGra
             root: row
                 .root
                 .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
+                .map(|x| carbon_core::graphql::primitives::U8((*x) as u8))
                 .collect(),
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)

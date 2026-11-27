@@ -17,6 +17,7 @@ pub struct LendingPoolConfigureBankInterestOnlyInstructionAccounts {
     pub group: solana_pubkey::Pubkey,
     pub delegate_curve_admin: solana_pubkey::Pubkey,
     pub bank: solana_pubkey::Pubkey,
+    pub instruction_sysvar: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -49,6 +50,7 @@ impl ArrangeAccounts for LendingPoolConfigureBankInterestOnly {
         let group = next_account(&mut iter)?;
         let delegate_curve_admin = next_account(&mut iter)?;
         let bank = next_account(&mut iter)?;
+        let instruction_sysvar = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
 
@@ -56,6 +58,7 @@ impl ArrangeAccounts for LendingPoolConfigureBankInterestOnly {
             group,
             delegate_curve_admin,
             bank,
+            instruction_sysvar,
             remaining: remaining.to_vec(),
         })
     }

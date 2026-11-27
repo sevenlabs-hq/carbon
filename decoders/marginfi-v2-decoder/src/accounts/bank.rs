@@ -13,7 +13,7 @@ pub struct Bank {
     pub mint_decimals: u8,
     /// The `MarginfiGroup` this bank belongs to
     pub group: Pubkey,
-    pub _pad0: [u8; 7],
+    pub pad0: [u8; 7],
     /// Monotonically increases as interest rate accumulates. For typical banks,
     /// a user's asset value in token = (number of shares the user has *
     /// asset_share_value).
@@ -84,6 +84,31 @@ pub struct Bank {
     ///   without tokens
     /// - Bit 6 (64): `TOKENLESS_REPAYMENTS_COMPLETE` — all debt cleared, lender
     ///   purge enabled
+    /// - Bit 7 (128): `IS_T22` — 1 if T22, 0 if token classic
+    /// - Bit 8 (256): `BANK_SEED_KNOWN` — bank is known to be PDA/seed-derived.
+    ///   If not set, bank
+    ///
+    /// may still be a PDA, but created before this flag launched (1.8 or
+    /// earlier) or is a legacy keypair-based bank.
+    /// - Bit 9 (512): `STAKED_ORACLE_DISABLED` — staked oracle pricing is
+    ///   temporarily disabled.
+    /// - Bit 10 (1024): `STAKED_ORACLE_PRICE_USES_ONRAMP` — staked oracle
+    ///   pricing includes the SPL
+    ///
+    /// single-pool on-ramp account in NAV.
+    /// - Bit 11 (2048): `CIRCUIT_BREAKER_ENABLED` — oracle deviation breaker
+    ///   active on this bank
+    /// - Bit 12 (4096): `BANK_SAME_ASSET_EMODE_ELIGIBLE` — bank may participate
+    ///   in same-asset e-mode.
+    /// - Bit 13 (8192): `PREMIUM_ACTIVE` — a liability-bank flag: balances
+    ///   borrowing from this
+    ///
+    /// bank accrue the pairwise variable-borrow premium and project it in
+    /// health checks.
+    /// - Bit 14 (16384): `KAMINO_MARKET_EMERGENCY` — the Kamino lending market
+    ///   behind this bank is
+    ///
+    /// in emergency mode, so the bank backs no new borrowing.
     pub flags: u64,
     /// Emissions APR. Number of emitted tokens (emissions_mint) per
     /// 1e(bank.mint_decimal) tokens (bank mint) (native amount) per 1 YEAR.
@@ -127,13 +152,22 @@ pub struct Bank {
     ///
     /// the bank may safely be closed if this is zero. Will never go negative.
     pub borrowing_position_count: i32,
+    /// Fee the liquidator earns when liquidating against this bank's liability.
+    /// Decode with `u32_to_centi` (`u32::MAX` = 100%).
+    /// * 0 falls back to the default (`DEFAULT_LIQUIDATION_FEE` = 2.5%).
+    pub liquidation_liquidator_fee: u32,
+    /// Fee routed to this bank's insurance fund on a liquidation against its
+    /// liability. Decode with `u32_to_centi` (`u32::MAX` = 100%).
+    /// * 0 falls back to the default (`DEFAULT_LIQUIDATION_FEE` = 2.5%).
+    pub liquidation_insurance_fee: u32,
     /// Reserved for future use
-    pub padding0: [u8; 16],
+    pub padding0: [u8; 8],
     /// Integration account slot 1 (default Pubkey for non-integrations).
     /// - Kamino: reserve
     /// - Drift: spot market
     /// - Solend: reserve
     /// - JupLend: lending state
+    /// - Staked Collateral: Validator vote account
     pub integration_acc1: Pubkey,
     /// Integration account slot 2 (default Pubkey for non-integrations).
     /// - Kamino: obligation
@@ -149,8 +183,72 @@ pub struct Bank {
     /// Rate limiter for controlling withdraw/borrow outflow.
     /// Tracks net outflow (outflows - inflows) in native tokens.
     pub rate_limiter: BankRateLimiter,
-    pub pad0: [u8; 16],
-    pub padding1: [[u64; 2]; 7],
+    /// Realized variable-borrow premium sitting in the liquidity vault, pending
+    /// sweep to the protocol premium wallet's canonical ATA for `mint`.
+    /// Only incremented when premium tokens are actually received (repay);
+    /// never by mere accrual.
+    pub collected_premium_outstanding: WrappedI80F48,
+    /// * `0` for legacy banks created via `lending_pool_add_bank` (created via
+    ///   keypair, not a PDA),
+    ///
+    /// or pre-backfill banks (1.8 or earlier) where seed remains unknown.
+    /// * Otherwise the `bank_seed: u64` argument passed when creating the bank.
+    /// * Use `flags & BANK_SEED_KNOWN` to verify this value has known seed
+    ///   provenance.
+    pub bank_seed: u64,
+    /// Unix-seconds when the current halt started, zero if not halted.
+    pub cb_halt_started_at: i64,
+    /// Unix-seconds when the current halt's tier duration ends. Tier stays
+    /// sticky past this for the escalation window; a fresh breach within
+    /// the window ratchets to the next tier.
+    pub cb_halt_ended_at: i64,
+    /// 0 = operational, 1..=3 = escalating halt severity.
+    pub cb_tier: u8,
+    /// Consecutive tier-3 trips with no clean escalation-window between them.
+    /// Hitting `CB_MAX_TIER3_BEFORE_CIRCUIT_BREAK` forces the bank to
+    /// `CircuitBroken`.
+    pub cb_tier3_consecutive_trips: u8,
+    /// `BankOperationalState` (as `u8`) the bank held before the breaker forced
+    /// it to `CircuitBroken`. Restored by `clear_circuit_breaker`.
+    /// Meaningless unless `operational_state == CircuitBroken`.
+    pub cb_pre_break_state: u8,
+    pub cb_pad: [u8; 5],
+    /// Solana slot of the last counted CB observation; used for slot-level
+    /// dedup.
+    pub cb_last_observed_slot: u64,
+    /// Publisher-side timestamp of the last counted CB observation; rejects
+    /// re-reads of the same publication across multiple Solana slots. Zero
+    /// when the adapter doesn't expose one.
+    pub cb_last_oracle_source_time: i64,
+    /// EMA reference price used by the circuit breaker, in the
+    /// multiplier-adjusted effective-price domain the risk engine uses.
+    /// Frozen while halted, zero until the first observation after enable.
+    pub cb_reference_price: WrappedI80F48,
+    /// Long-window reference price (same multiplier-adjusted domain as
+    /// `cb_reference_price`) used to catch slow oracle walking that stays
+    /// below the per-observation breaker threshold.
+    pub cb_window_reference_price: WrappedI80F48,
+    /// Unix-seconds when `cb_window_reference_price` was anchored.
+    pub cb_window_started_at: i64,
+    /// Frozen halt seconds from halt intervals overwritten or cleared before
+    /// `accrue_interest` consumed them. Non-zero only when the halt record
+    /// changes without a preceding accrual, i.e. a paused pulse; the next
+    /// accrual excludes these on top of the current halt. Zero normally.
+    pub cb_frozen_seconds_pending: u64,
+    /// Tag for the group's pairwise variable-borrow premium matrix. Determines
+    /// the rate other accounts pay when this bank is offered as collateral
+    /// (as `collateral_tag`) and the rate this bank's borrowers pay (as
+    /// `liability_tag`).
+    /// * 0 = untagged: never matches any premium entry.
+    pub premium_tag: u16,
+    pub pad3: [u8; 6],
+    /// Unix timestamp of the most recent inactive->active `PREMIUM_ACTIVE`
+    /// transition. Premium accrual is clamped to start no earlier than
+    /// this, so toggling the flag off and back on can never charge for (or
+    /// health-project) the deactivated window.
+    /// * 0 on banks that never activated premium.
+    pub premium_activated_at: i64,
+    pub padding1: [[u64; 8]; 32],
 }
 
 impl Bank {

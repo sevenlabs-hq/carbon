@@ -3,8 +3,9 @@ use {
     crate::types::{AmmCreatorFeeOn, CurveParams, MintParams, VestingParams},
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// Initializes a new trading pool
-/// # Arguments
+/// Initializes a new trading pool,
+/// pool created by this instruction must be migrated to cpswap after
+/// fundraising ends, i.e., curve_param.migrate_type = 1 # Arguments
 /// * `ctx` - The context of accounts containing pool and token information
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
