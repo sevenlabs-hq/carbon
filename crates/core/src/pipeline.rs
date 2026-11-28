@@ -302,6 +302,10 @@ impl Pipeline {
         }
 
         let datasources_ended = update_receiver.is_closed();
+        if datasources_ended {
+            tokio::task::yield_now().await;
+        }
+        datasource_cancellation_token.cancel();
         let mut first_error = None;
         for task in datasource_tasks {
             if !datasources_ended && !task.is_finished() {
