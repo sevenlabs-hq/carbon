@@ -747,10 +747,13 @@ impl PipelineBuilder {
     }
 
     pub fn build(self) -> CarbonResult<Pipeline> {
-        if self.channel_buffer_size == 0 {
-            return Err(Error::Custom(
-                "channel_buffer_size must be at least 1".into(),
-            ));
+        if self.channel_buffer_size == 0
+            || self.channel_buffer_size > tokio::sync::Semaphore::MAX_PERMITS
+        {
+            return Err(Error::Custom(format!(
+                "channel_buffer_size must be between 1 and {}",
+                tokio::sync::Semaphore::MAX_PERMITS
+            )));
         }
 
         register_pipeline_metrics();
